@@ -306,7 +306,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
-        ConcurrentBag<string> runIds = new();
+        ConcurrentBag<string> runIds = [];
 
         await Parallel.ForEachAsync(
             Enumerable.Range(0, parallel),

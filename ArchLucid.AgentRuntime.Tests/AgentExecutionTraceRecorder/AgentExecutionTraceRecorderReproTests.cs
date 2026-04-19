@@ -417,7 +417,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
             .ToHashSet(StringComparer.Ordinal);
 
-        blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
+        blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
     }
 
     [Fact]
@@ -454,7 +454,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
             .ToHashSet(StringComparer.Ordinal);
 
-        blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
+        blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
     }
 
     [Fact]

@@ -36,9 +36,9 @@ public sealed class FindingExplainabilityResult
         get; set;
     } =
         new(
-            Array.Empty<string>(),
+            [],
             string.Empty,
-            Array.Empty<string>(),
+            [],
             "unspecified");
 
     /// <summary>Deterministic plain-text narrative composed from explainability trace fields (presentation only).</summary>

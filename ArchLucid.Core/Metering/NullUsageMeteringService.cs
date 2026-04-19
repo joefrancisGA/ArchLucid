@@ -12,5 +12,5 @@ public sealed class NullUsageMeteringService : IUsageMeteringService
         DateTimeOffset periodStart,
         DateTimeOffset periodEnd,
         CancellationToken ct) =>
-        Task.FromResult<IReadOnlyList<TenantUsageSummary>>(Array.Empty<TenantUsageSummary>());
+        Task.FromResult<IReadOnlyList<TenantUsageSummary>>([]);
 }

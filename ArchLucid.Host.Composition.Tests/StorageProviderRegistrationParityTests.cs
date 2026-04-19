@@ -73,7 +73,7 @@ public sealed class StorageProviderRegistrationParityTests
 
     private static HashSet<Type> CollectServiceTypesAfterStorage(IConfiguration configuration)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddLogging();
         _ = services.AddArchLucidStorage(configuration);
@@ -83,7 +83,7 @@ public sealed class StorageProviderRegistrationParityTests
 
     private static HashSet<Type> CollectServiceTypesAfterFullComposition(IConfiguration configuration)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddLogging();
         _ = services.AddArchLucidStorage(configuration);
@@ -94,7 +94,7 @@ public sealed class StorageProviderRegistrationParityTests
 
     private static HashSet<Type> ToServiceTypeSet(IServiceCollection services)
     {
-        HashSet<Type> set = new();
+        HashSet<Type> set = [];
 
         foreach (ServiceDescriptor descriptor in services)
             set.Add(descriptor.ServiceType);

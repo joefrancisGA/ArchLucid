@@ -43,7 +43,7 @@ public sealed class UsageMeteringService(
         CancellationToken ct)
     {
         if (!_options.CurrentValue.Enabled)
-            return Array.Empty<TenantUsageSummary>();
+            return [];
 
         return await _repository.AggregateByKindAsync(tenantId, periodStart, periodEnd, ct);
     }

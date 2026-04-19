@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Tenancy;
 /// <summary>In-memory usage events for tests and <c>InMemory</c> storage mode.</summary>
 public sealed class InMemoryUsageEventRepository : IUsageEventRepository
 {
-    private readonly ConcurrentBag<UsageEvent> _events = new();
+    private readonly ConcurrentBag<UsageEvent> _events = [];
 
     public Task InsertAsync(UsageEvent usageEvent, CancellationToken ct)
     {

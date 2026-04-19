@@ -57,7 +57,7 @@ public sealed class DataArchivalArchLucidJobTests
         coordinator.Setup(c => c.RunOnceAsync(It.IsAny<DataArchivalOptions>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated archival failure"));
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<IDataArchivalCoordinator>(_ => coordinator.Object);
 
         await using ServiceProvider provider = services.BuildServiceProvider();

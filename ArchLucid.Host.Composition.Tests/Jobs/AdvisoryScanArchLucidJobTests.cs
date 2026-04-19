@@ -21,7 +21,7 @@ public sealed class AdvisoryScanArchLucidJobTests
     public async Task Name_is_canonical_advisory_scan_slug()
     {
         Mock<IAdvisoryScanScheduleRepository> repo = new();
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(repo.Object);
         services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
         services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(
@@ -40,9 +40,9 @@ public sealed class AdvisoryScanArchLucidJobTests
     {
         Mock<IAdvisoryScanScheduleRepository> repo = new();
         repo.Setup(r => r.ListDueAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AdvisoryScanSchedule>());
+            .ReturnsAsync([]);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(repo.Object);
         services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
         services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(
@@ -65,7 +65,7 @@ public sealed class AdvisoryScanArchLucidJobTests
         repo.Setup(r => r.ListDueAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated repository failure"));
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(repo.Object);
         services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
         services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(

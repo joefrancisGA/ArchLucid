@@ -16,7 +16,7 @@ public sealed class CircuitBreakerHealthCheckTests
     [Fact]
     public async Task AllClosed_Returns_Healthy()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         CircuitBreakerOptions options = new()
         {
             FailureThreshold = 5,
@@ -61,7 +61,7 @@ public sealed class CircuitBreakerHealthCheckTests
     [Fact]
     public async Task OneOpen_Returns_Degraded()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         CircuitBreakerOptions closedOpts = new()
         {
             FailureThreshold = 5,
@@ -102,7 +102,7 @@ public sealed class CircuitBreakerHealthCheckTests
     [Fact]
     public async Task NullGates_Returns_Healthy()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
 
         await using ServiceProvider provider = services.BuildServiceProvider();
         CircuitBreakerHealthCheck check = new(provider);

@@ -97,14 +97,13 @@ public static class CompletionsCommand
             "_archlucid() {",
             "  local -a commands",
             "  commands = (",
-        }.Concat(commandLines).Concat(new[]
-        {
+        }.Concat(commandLines).Concat([
             "  )",
             "  _describe 'command' commands",
             "}",
             "compdef _archlucid archlucid",
-            string.Empty,
-        });
+            string.Empty
+        ]);
 
         return string.Join(Environment.NewLine, body);
     }

@@ -28,7 +28,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         Mock<IBackgroundJobWorkUnitExecutor> executor = new();
         configureExecutor?.Invoke(executor);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddLogging();
         services.AddScoped<IBackgroundJobWorkUnitExecutor>(_ => executor.Object);
         ServiceProvider provider = services.BuildServiceProvider();

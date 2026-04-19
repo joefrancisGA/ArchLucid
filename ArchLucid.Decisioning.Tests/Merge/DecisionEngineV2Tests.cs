@@ -156,8 +156,7 @@ public sealed class DecisionEngineV2Tests
             results,
             evaluations: []);
 
-        decisions.Select(d => d.Topic).Should().BeEquivalentTo(
-            ["TopologyAcceptance", "SecurityControlPromotion", "ComplexityDisposition"]);
+        decisions.Select(d => d.Topic).Should().BeEquivalentTo("TopologyAcceptance", "SecurityControlPromotion", "ComplexityDisposition");
     }
 
     [Fact]

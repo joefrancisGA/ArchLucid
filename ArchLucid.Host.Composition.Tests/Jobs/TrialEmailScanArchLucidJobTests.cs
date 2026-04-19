@@ -49,7 +49,7 @@ public sealed class TrialEmailScanArchLucidJobTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
         integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
         services.AddScoped<IIntegrationEventOutboxRepository>(_ => Mock.Of<IIntegrationEventOutboxRepository>());
         services.AddScoped<IIntegrationEventPublisher>(_ => Mock.Of<IIntegrationEventPublisher>());
@@ -69,12 +69,12 @@ public sealed class TrialEmailScanArchLucidJobTests
     private static ServiceProvider BuildProviderWithEmptyTenantList()
     {
         Mock<ITenantRepository> tenantRepo = new();
-        tenantRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<TenantRecord>());
+        tenantRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
         integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
         services.AddScoped<IIntegrationEventOutboxRepository>(_ => Mock.Of<IIntegrationEventOutboxRepository>());
         services.AddScoped<IIntegrationEventPublisher>(_ => Mock.Of<IIntegrationEventPublisher>());

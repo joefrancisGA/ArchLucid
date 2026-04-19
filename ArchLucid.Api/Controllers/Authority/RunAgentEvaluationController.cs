@@ -1,5 +1,5 @@
-using ArchLucid.Api.ProblemDetails;
 using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -50,8 +50,8 @@ public sealed class RunAgentEvaluationController(
 
         List<AgentOutputEvaluationScore> scores = new(capacity: traces.Count);
         int skipped = 0;
-        List<double> ratiosForAverage = new();
-        List<double> semanticForAverage = new();
+        List<double> ratiosForAverage = [];
+        List<double> semanticForAverage = [];
 
         foreach (AgentExecutionTrace trace in traces)
         {

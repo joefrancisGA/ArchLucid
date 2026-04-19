@@ -88,7 +88,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
             AgentType = agentType,
             StructuralCompletenessRatio = ratio,
             IsJsonParseFailure = parseFailure,
-            MissingKeys = parseFailure ? expected : Array.Empty<string>(),
+            MissingKeys = parseFailure ? expected : [],
         };
     }
 

@@ -21,7 +21,9 @@ using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
@@ -36,6 +38,7 @@ using ArchLucid.Persistence.Coordination.ProductLearning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
@@ -130,5 +133,18 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
+
+        // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).
+        // Full host composition replaces IDbConnectionFactory for InMemory via RegisterDataInfrastructure.
+        services.AddSingleton<IDbConnectionFactory, UnsupportedRelationalDbConnectionFactory>();
+        services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
+        services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(
+            static sp => sp.GetRequiredService<DataConsistencyOrphanProbeExecutor>());
+        services.AddSingleton<IArchLucidJob, OrphanProbeArchLucidJob>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
+        {
+            services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
+        }
     }
 }

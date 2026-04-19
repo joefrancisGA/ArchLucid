@@ -312,7 +312,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<AgentResult> existingResults =
-            await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? Array.Empty<AgentResult>();
+            await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
 
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {

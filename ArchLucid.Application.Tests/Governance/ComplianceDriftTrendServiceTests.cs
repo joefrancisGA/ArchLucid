@@ -19,7 +19,7 @@ public sealed class ComplianceDriftTrendServiceTests
         DateTime from = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         DateTime to = from.AddDays(1);
         repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<PolicyPackChangeLogEntry>());
+            .ReturnsAsync([]);
 
         ComplianceDriftTrendService sut = new(repo.Object);
 
@@ -76,7 +76,7 @@ public sealed class ComplianceDriftTrendServiceTests
         };
 
         repo.Setup(r => r.GetByTenantInRangeAsync(TenantId, from, to, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[] { e1, e2, e3 });
+            .ReturnsAsync([e1, e2, e3]);
 
         ComplianceDriftTrendService sut = new(repo.Object);
 

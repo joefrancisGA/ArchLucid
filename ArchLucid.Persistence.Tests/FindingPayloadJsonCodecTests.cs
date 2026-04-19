@@ -61,7 +61,7 @@ public sealed class FindingPayloadJsonCodecTests
             PayloadType = nameof(RequirementFindingPayload),
         };
 
-        FindingPayloadJsonCodec.HydrateJsonElementPayloads(new[] { finding });
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads([finding]);
 
         finding.Payload.Should().BeOfType<RequirementFindingPayload>();
         RequirementFindingPayload typed = (RequirementFindingPayload)finding.Payload;
@@ -73,10 +73,17 @@ public sealed class FindingPayloadJsonCodecTests
     [Fact]
     public void HydrateJsonElementPayloads_leaves_non_JsonElement_unchanged()
     {
-        RequirementFindingPayload original = new() { RequirementName = "n" };
-        Finding finding = new() { Payload = original, PayloadType = nameof(RequirementFindingPayload) };
+        RequirementFindingPayload original = new()
+        {
+            RequirementName = "n"
+        };
+        Finding finding = new()
+        {
+            Payload = original,
+            PayloadType = nameof(RequirementFindingPayload)
+        };
 
-        FindingPayloadJsonCodec.HydrateJsonElementPayloads(new[] { finding });
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads([finding]);
 
         finding.Payload.Should().BeSameAs(original);
     }
