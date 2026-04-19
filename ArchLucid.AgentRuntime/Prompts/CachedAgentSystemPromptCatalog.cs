@@ -19,7 +19,7 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
     /// <inheritdoc />
     public ResolvedSystemPrompt Resolve(AgentType agentType)
     {
-        if (!Templates.TryGetValue(agentType, out PromptTemplateCore? core) || core is null)
+        if (!Templates.TryGetValue(agentType, out PromptTemplateCore? core))
         {
             throw new InvalidOperationException(
                 $"No system prompt template is registered for agent type '{agentType}'.");

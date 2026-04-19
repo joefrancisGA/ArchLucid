@@ -1,7 +1,7 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Core.Pagination;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
@@ -180,7 +180,7 @@ public sealed class AdminController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
         }
 
-        if (body.RunIds is null || body.RunIds.Count == 0)
+        if (body.RunIds.Count == 0)
         {
             return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
         }

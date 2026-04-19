@@ -1,7 +1,7 @@
 using System.Security.Claims;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
@@ -138,7 +138,7 @@ public sealed class AlertsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        if (body.AlertIds is null || body.AlertIds.Count == 0)
+        if (body.AlertIds.Count == 0)
         {
             return this.BadRequestProblem("AlertIds must contain at least one id.", ProblemTypes.ValidationFailed);
         }

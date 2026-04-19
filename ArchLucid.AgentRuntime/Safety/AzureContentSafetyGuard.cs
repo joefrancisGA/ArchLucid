@@ -76,12 +76,7 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
                 _logger.LogWarning(ex, "Content safety {Kind} analysis failed; FailClosedOnSdkError={FailClosed}.", kind, options.FailClosedOnSdkError);
             }
 
-            if (options.FailClosedOnSdkError)
-            {
-                return new ContentSafetyResult(false, "Content safety service error.", "SdkError", null);
-            }
-
-            return Allowed;
+            return options.FailClosedOnSdkError ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null) : Allowed;
         }
     }
 
@@ -103,16 +98,16 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
                 continue;
             }
 
-            if (severity.Value >= blockSeverityThreshold)
-            {
-                string category = row.Category.ToString();
+            if (severity.Value < blockSeverityThreshold)
+                continue;
 
-                return new ContentSafetyResult(
-                    false,
-                    $"Blocked at severity {severity.Value} (threshold {blockSeverityThreshold}).",
-                    category,
-                    severity.Value);
-            }
+            string category = row.Category.ToString();
+
+            return new ContentSafetyResult(
+                false,
+                $"Blocked at severity {severity.Value} (threshold {blockSeverityThreshold}).",
+                category,
+                severity.Value);
         }
 
         return Allowed;

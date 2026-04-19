@@ -26,8 +26,6 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
 
     private readonly Lock _loadGate = new();
 
-    private IReadOnlyList<AgentOutputReferenceCaseDefinition>? _cached;
-
     private volatile bool _loadAttempted;
 
     public AgentOutputReferenceCaseCatalog(
@@ -45,22 +43,22 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
     {
         get
         {
-            if (_loadAttempted && _cached is not null)
+            if (_loadAttempted && field is not null)
             {
-                return _cached;
+                return field;
             }
 
             lock (_loadGate)
             {
-                if (_cached is not null)
+                if (field is not null)
                 {
-                    return _cached;
+                    return field;
                 }
 
-                _cached = LoadCasesLocked();
+                field = LoadCasesLocked();
                 _loadAttempted = true;
 
-                return _cached;
+                return field;
             }
         }
     }
