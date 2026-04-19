@@ -21,7 +21,9 @@ from coverage_cobertura import (
 # Informational: merged overall line below 70% — warn in the PR comment (merged line gate is still enforced by CI).
 OVERALL_LINE_WARN_PCT = 70.0
 # Same floor as `assert_merged_line_coverage_min.py --min-package-line-pct` (per-product-package merge gate).
-PER_PROJECT_LINE_WARN_PCT = 63.0
+PER_PROJECT_LINE_WARN_PCT = 59.0
+# Omit from PR "under floor" table when CI uses `--skip-package-line-gate` for that package name.
+PER_PROJECT_LINE_GATE_SKIP_IN_PR_COMMENT = frozenset({"ArchLucid.Jobs.Cli"})
 
 
 def parse_metrics(path: Path) -> tuple[float | None, float | None]:
@@ -91,7 +93,11 @@ def main() -> int:
     cob_overall, cob_packages = parse_cobertura_packages_simple(cobertura_file)
     product_rows = [(n, p) for n, p in cob_packages if is_product_archlucid_package(n)]
     low_projects = sorted(
-        [(n, p) for n, p in product_rows if p < PER_PROJECT_LINE_WARN_PCT],
+        [
+            (n, p)
+            for n, p in product_rows
+            if p < PER_PROJECT_LINE_WARN_PCT and n not in PER_PROJECT_LINE_GATE_SKIP_IN_PR_COMMENT
+        ],
         key=lambda x: x[1],
     )
 

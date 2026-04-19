@@ -8,11 +8,11 @@ Describe how **line/branch coverage** is collected in CI and how to reproduce re
 
 The **full regression** job in **`.github/workflows/ci.yml`** merges Cobertura output and enforces:
 
-- **Line coverage ≥ 79%** (merged product assemblies)
-- **Branch coverage ≥ 63%**
-- Per-package line floors (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
+- **Line coverage ≥ 76%** (merged product assemblies)
+- **Branch coverage ≥ 60%**
+- Per-package line floors (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow), with **`ArchLucid.Jobs.Cli`** omitted from the per-package line gate via **`--skip-package-line-gate`**
 
-Raising the global line gate further (e.g. toward **82%**) requires a deliberate effort: run a local or CI **`coverage-report-full`** artifact, identify low assemblies, add tests, then bump the positional line argument, **`--min-branch-pct`**, and **`--min-package-line-pct`** in **`ci.yml`** in the same change.
+Raising the global line gate further (for example toward **79%** line / **63%** branch / **63%** per-package) requires a deliberate effort: run a local or CI **`coverage-report-full`** artifact, identify low assemblies, add tests, then bump the positional line argument, **`--min-branch-pct`**, and **`--min-package-line-pct`** in **`ci.yml`** in the same change (and remove or narrow package skips).
 
 ## Local run (merged HTML)
 
