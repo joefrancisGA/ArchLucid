@@ -50,11 +50,11 @@ public sealed class CoordinatorService(
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {
-                _logger.LogWarning(
+                _logger.LogWarningWithThreeSanitizedUserStrings(
                     "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}",
-                    LogSanitizer.Sanitize(request.RequestId),
-                    LogSanitizer.Sanitize(request.SystemName),
-                    LogSanitizer.Sanitize(string.Join("; ", validationErrors)));
+                    request.RequestId,
+                    request.SystemName,
+                    string.Join("; ", validationErrors));
             }
 
             return output;
