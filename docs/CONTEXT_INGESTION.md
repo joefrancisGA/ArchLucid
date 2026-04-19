@@ -17,7 +17,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchLucid.Contracts.Requests`)
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
-| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json` or `simple-terraform`) → **`InfrastructureDeclarationConnector`**. |
+| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, or `terraform-show-json`) → **`InfrastructureDeclarationConnector`**. |
 
 `RunId` is assigned by **`AuthorityRunOrchestrator`** immediately before **`IContextIngestionService.IngestAsync`**.
 
@@ -39,7 +39,7 @@ Connectors implement **`IContextConnector`**. **Code source of truth:** **`Conte
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
-7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`).
+7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`).
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
@@ -79,7 +79,7 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 ## Infrastructure declarations (IaC seam)
 
-DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**.
+DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`).
 
 ### `json`
 
@@ -88,6 +88,10 @@ Body deserializes to **`ResourceDeclarationDocument`** with a **`resources`** ar
 ### `simple-terraform`
 
 Lightweight regex over lines like **`resource "azurerm_virtual_network" "core"`** (not a full HCL parser). **`terraformType`** is stored on the canonical object; **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+
+### `terraform-show-json`
+
+Parses the **`values`** subtree of **`terraform show -json`** state JSON (including **`child_modules`**). Each managed resource becomes a **`TopologyResource`** or **`SecurityBaseline`** / **`PolicyControl`** using the same mapping heuristics as other Terraform-derived inputs; key attributes from the resource **`values`** object are copied under **`tf.*`** property keys (truncated for very large payloads).
 
 ### Enrichment
 

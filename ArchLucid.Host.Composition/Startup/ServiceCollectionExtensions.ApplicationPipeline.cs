@@ -151,6 +151,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, TerraformShowJsonInfrastructureDeclarationParser>();
 
         // Concrete connectors (registered once each). Order here matches pipeline order for readability only;
         // execution order is defined solely in ContextConnectorPipeline.CreateOrderedContextConnectorPipeline.

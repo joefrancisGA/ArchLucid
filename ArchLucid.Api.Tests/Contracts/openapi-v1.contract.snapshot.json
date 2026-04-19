@@ -7479,6 +7479,40 @@
         },
         "type": "object"
       },
+      "ProductFeedbackRequest": {
+        "properties": {
+          "comment": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "score": {
+            "format": "int16",
+            "maximum": 1,
+            "minimum": -1,
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ProductLearningArtifactOutcomeTrendsResponse": {
         "properties": {
           "generatedUtc": {
@@ -9717,6 +9751,75 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantHealthScoreResponse": {
+        "properties": {
+          "breadthScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "compositeScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "engagementScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "governanceScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "isCalculated": {
+            "type": "boolean"
+          },
+          "qualityScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "supportScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -28232,6 +28335,67 @@
         ]
       }
     },
+    "/v1/tenant/customer-success/health-score": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHealthScoreResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHealthScoreResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantHealthScoreResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantCustomerSuccess"
+        ]
+      }
+    },
+    "/v1/tenant/customer-success/product-feedback": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductFeedbackRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductFeedbackRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductFeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "TenantCustomerSuccess"
+        ]
+      }
+    },
     "/v1/tenant/trial-status": {
       "get": {
         "responses": {
@@ -28458,6 +28622,9 @@
     },
     {
       "name": "ScopeDebug"
+    },
+    {
+      "name": "TenantCustomerSuccess"
     },
     {
       "name": "TenantTrial"
