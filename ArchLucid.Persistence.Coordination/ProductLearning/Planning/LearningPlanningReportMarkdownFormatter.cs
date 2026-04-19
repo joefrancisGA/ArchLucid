@@ -115,7 +115,7 @@ public static class LearningPlanningReportMarkdownFormatter
 
     private static string FormatArtifactRef(LearningPlanningReportArtifactRef a)
     {
-        if (a.AuthorityBundleId is Guid bundleId)
+        if (a.AuthorityBundleId is { } bundleId)
         {
             int ord = a.AuthorityArtifactSortOrder ?? 0;
 

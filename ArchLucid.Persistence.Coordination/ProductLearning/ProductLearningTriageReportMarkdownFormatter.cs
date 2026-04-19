@@ -25,15 +25,15 @@ public static class ProductLearningTriageReportMarkdownFormatter
         sb.AppendLine(
             "- **Generated (UTC):** " + doc.GeneratedUtc.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) + "Z");
 
-        if (doc.SinceUtc is DateTime since)
-        
+        if (doc.SinceUtc is { } since)
+
             sb.AppendLine(
                 "- **Signals since (UTC):** " + since.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) + "Z");
-        
+
         else
-        
+
             sb.AppendLine("- **Signals since:** all time");
-        
+
 
         sb.AppendLine();
         sb.AppendLine("## Totals");
@@ -58,7 +58,7 @@ public static class ProductLearningTriageReportMarkdownFormatter
             sb.AppendLine("| --- | ---: | ---: | ---: | ---: | ---: | --- |");
 
             foreach (ProductLearningTriageReportArtifactRow row in doc.ArtifactOutcomes)
-            
+
                 sb.AppendLine(
                     "| "
                     + MdCell(row.ArtifactLabel)
@@ -75,7 +75,7 @@ public static class ProductLearningTriageReportMarkdownFormatter
                     + " | "
                     + MdCell(row.ThemeHint ?? "—")
                     + " |");
-            
+
 
             sb.AppendLine();
         }
@@ -145,7 +145,7 @@ public static class ProductLearningTriageReportMarkdownFormatter
             sb.AppendLine("| ---: | --- | --- | --- | --- |");
 
             foreach (ProductLearningTriageReportTriageLine q in doc.TriageQueuePreview)
-            
+
                 sb.AppendLine(
                     "| "
                     + q.Rank
@@ -158,7 +158,7 @@ public static class ProductLearningTriageReportMarkdownFormatter
                     + " | "
                     + MdCell(q.SuggestedNextStep ?? "—")
                     + " |");
-            
+
 
             sb.AppendLine();
         }
@@ -169,9 +169,9 @@ public static class ProductLearningTriageReportMarkdownFormatter
     private static string MdCell(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-        
+
             return "—";
-        
+
 
         string s = value.Replace("\r\n", " ", StringComparison.Ordinal);
         s = s.Replace("\n", " ", StringComparison.Ordinal);
