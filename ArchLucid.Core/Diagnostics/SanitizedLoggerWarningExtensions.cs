@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Structured <see cref="ILogger"/> helpers for Warning-level messages that include two
+/// Structured <see cref="ILogger"/> helpers for Warning-level messages that include two or three
 /// externally influenced strings (CWE-117).
 /// </summary>
 /// <remarks>
@@ -29,6 +29,26 @@ public static class SanitizedLoggerWarningExtensions
 
         // codeql[cs/log-forging]: user-derived values sanitized immediately above.
         logger.LogWarning(messageTemplate, safeFirst, safeSecond);
+    }
+
+    /// <summary>
+    /// Logs a warning whose template has three placeholders filled from externally influenced strings after sanitization.
+    /// </summary>
+    public static void LogWarningWithThreeSanitizedUserStrings(
+        this ILogger logger,
+        string messageTemplate,
+        string? userDerivedFirst,
+        string? userDerivedSecond,
+        string? userDerivedThird)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeFirst = LogSanitizer.Sanitize(userDerivedFirst);
+        string safeSecond = LogSanitizer.Sanitize(userDerivedSecond);
+        string safeThird = LogSanitizer.Sanitize(userDerivedThird);
+
+        // codeql[cs/log-forging]: user-derived values sanitized immediately above.
+        logger.LogWarning(messageTemplate, safeFirst, safeSecond, safeThird);
     }
 
     /// <summary>

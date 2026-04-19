@@ -12,10 +12,13 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+// Child namespace `ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder` shadows the runtime type name in this parent namespace (CS0118).
+using AgentExecutionTraceRecorderImpl = global::ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Branch coverage for <see cref="AgentExecutionTraceRecorder.RecordAsync"/> (validation, cost off, simulator short-circuit).
+/// Branch coverage for <see cref="ArchLucid.AgentRuntime.AgentExecutionTraceRecorder.RecordAsync"/> (validation, cost off, simulator short-circuit).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -40,7 +43,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
     [Fact]
     public async Task RecordAsync_throws_when_run_id_whitespace()
     {
-        AgentExecutionTraceRecorder sut = CreateSut(costEnabled: false);
+        AgentExecutionTraceRecorderImpl sut = CreateSut(costEnabled: false);
 
         Func<Task> act = async () => await sut.RecordAsync(
             "   ",
@@ -60,7 +63,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
     [Fact]
     public async Task RecordAsync_throws_when_task_id_empty()
     {
-        AgentExecutionTraceRecorder sut = CreateSut(costEnabled: false);
+        AgentExecutionTraceRecorderImpl sut = CreateSut(costEnabled: false);
 
         Func<Task> act = async () => await sut.RecordAsync(
             Guid.NewGuid().ToString("N"),
@@ -81,7 +84,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
     public async Task RecordAsync_when_cost_disabled_does_not_set_estimated_cost_despite_token_counts()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateSut(repo, costEnabled: false);
+        AgentExecutionTraceRecorderImpl sut = CreateSut(repo, costEnabled: false);
         string runId = Guid.NewGuid().ToString("N");
 
         await sut.RecordAsync(
@@ -109,7 +112,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
     {
         Mock<IArtifactBlobStore> blobs = new();
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateSut(repo, costEnabled: false, blobStore: blobs.Object);
+        AgentExecutionTraceRecorderImpl sut = CreateSut(repo, costEnabled: false, blobStore: blobs.Object);
 
         await sut.RecordAsync(
             Guid.NewGuid().ToString("N"),
@@ -129,10 +132,10 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
             Times.Never);
     }
 
-    private static AgentExecutionTraceRecorder CreateSut(bool costEnabled) =>
+    private static AgentExecutionTraceRecorderImpl CreateSut(bool costEnabled) =>
         CreateSut(new InMemoryAgentExecutionTraceRepository(), costEnabled, Mock.Of<IArtifactBlobStore>());
 
-    private static AgentExecutionTraceRecorder CreateSut(
+    private static AgentExecutionTraceRecorderImpl CreateSut(
         InMemoryAgentExecutionTraceRepository repo,
         bool costEnabled,
         IArtifactBlobStore? blobStore = null)
@@ -140,7 +143,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1.23m);
 
-        return new AgentExecutionTraceRecorder(
+        return new AgentExecutionTraceRecorderImpl(
             repo,
             cost.Object,
             Options.Create(new LlmCostEstimationOptions { Enabled = costEnabled }),
@@ -148,6 +151,6 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
             blobStore ?? Mock.Of<IArtifactBlobStore>(),
             new NoOpAuditService(),
             new FixedScopeProvider(),
-            NullLogger<AgentExecutionTraceRecorder>.Instance);
+            NullLogger<AgentExecutionTraceRecorderImpl>.Instance);
     }
 }
