@@ -503,6 +503,64 @@ export const digestsListRefreshButtonTitleOperator = "Reload digest list from th
 export const digestsListRefreshButtonTitleReader =
   "Reload digest list (GET). Email subscriptions are configured under Subscriptions (Execute+).";
 
+/** Digest subscriptions — subscription list **`h3`** (`digest-subscriptions/page.tsx`). */
+export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Your subscriptions";
+
+export const digestSubscriptionsYourSubscriptionsHeadingReader = "Your subscriptions (inspect)";
+
+/** Digest subscriptions — primary create when rank cannot mutate in the shell. */
+export const digestSubscriptionsCreateSubscriptionButtonLabelReaderRank = "Create subscription (Execute+)";
+
+export const digestSubscriptionsToggleToDisabledReaderRank = "Disable (Execute+)";
+
+export const digestSubscriptionsToggleToEnabledReaderRank = "Enable (Execute+)";
+
+/** Digest subscriptions — delivery attempts (`GET`). */
+export const digestSubscriptionsDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
+
+export const digestSubscriptionsDeliveryAttemptsButtonTitleOperator =
+  "Load recent digest delivery attempts for this subscription (GET).";
+
+export const digestSubscriptionsDeliveryAttemptsButtonTitleReader =
+  "Load delivery attempts (GET). Create and toggle need Execute+ on the API.";
+
+/** Digest subscriptions — empty list. */
+export const digestSubscriptionsEmptyListOperatorLine = "None yet.";
+
+export const digestSubscriptionsEmptyListReaderLine =
+  "None yet. Inspect when rows exist; create and toggle need operator on the API.";
+
+/** Advisory schedules — schedules list **`h3`** (`advisory-scheduling/page.tsx`). */
+export const advisorySchedulesListHeadingOperator = "Schedules";
+
+export const advisorySchedulesListHeadingReader = "Schedules (inspect)";
+
+/** Advisory schedules — create block **`h3`**. */
+export const advisorySchedulesCreateSectionHeadingOperator = "Create schedule";
+
+export const advisorySchedulesCreateSectionHeadingReader = "Create schedule (Execute+)";
+
+/** Advisory schedules — **Create schedule** submit when rank cannot mutate. */
+export const advisorySchedulesCreateScheduleButtonLabelReaderRank = "Create schedule (Execute+)";
+
+/** Advisory schedules — **Run now** when rank cannot mutate. */
+export const advisorySchedulesRunNowButtonLabelReaderRank = "Run now (Execute+)";
+
+/** Advisory schedules — **Load executions** (`GET`). */
+export const advisorySchedulesLoadExecutionsButtonLabelReaderRank = "Load executions (inspect)";
+
+export const advisorySchedulesLoadExecutionsButtonTitleOperator =
+  "Load recent advisory scan executions for this schedule (GET).";
+
+export const advisorySchedulesLoadExecutionsButtonTitleReader =
+  "Load executions (GET). Run now and create schedule need Execute+ on the API.";
+
+/** Advisory schedules — empty list (`advisory-scheduling/page.tsx`). */
+export const advisorySchedulesEmptyListOperatorLine = "No schedules yet.";
+
+export const advisorySchedulesEmptyListReaderLine =
+  "No schedules yet. Inspect when data exists; create and Run now need operator on the API.";
+
 /** Policy packs — pack selector when lifecycle writes are soft-disabled at read rank in the shell. */
 export const policyPacksPackSelectReaderTitle =
   "Switch pack to inspect versions and JSON; publish, assign, and create need Execute+ below (API).";

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -10,9 +11,27 @@ import {
   listScheduleExecutions,
   runAdvisoryScheduleNow,
 } from "@/lib/api";
+import {
+  advisorySchedulesCreateScheduleButtonLabelReaderRank,
+  advisorySchedulesCreateSectionHeadingOperator,
+  advisorySchedulesCreateSectionHeadingReader,
+  advisorySchedulesEmptyListOperatorLine,
+  advisorySchedulesEmptyListReaderLine,
+  advisorySchedulesListHeadingOperator,
+  advisorySchedulesListHeadingReader,
+  advisorySchedulesLoadExecutionsButtonLabelReaderRank,
+  advisorySchedulesLoadExecutionsButtonTitleOperator,
+  advisorySchedulesLoadExecutionsButtonTitleReader,
+  advisorySchedulesRunNowButtonLabelReaderRank,
+  alertToolingListRefreshButtonTitleOperator,
+  alertToolingListRefreshButtonTitleReader,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/advisory-scheduling";
 
 export default function AdvisorySchedulingPage() {
+  const canMutateSchedules = useEnterpriseMutationCapability();
   const [schedules, setSchedules] = useState<AdvisoryScanSchedule[]>([]);
   const [executionsBySchedule, setExecutionsBySchedule] = useState<Record<string, AdvisoryScanExecution[]>>(
     {},
@@ -52,6 +71,11 @@ export default function AdvisorySchedulingPage() {
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
+
+    if (!canMutateSchedules) {
+      return;
+    }
+
     setFailure(null);
     try {
       await createAdvisorySchedule({
@@ -67,6 +91,10 @@ export default function AdvisorySchedulingPage() {
   }
 
   async function onRunNow(scheduleId: string) {
+    if (!canMutateSchedules) {
+      return;
+    }
+
     setFailure(null);
     try {
       await runAdvisoryScheduleNow(scheduleId);
@@ -95,98 +123,150 @@ export default function AdvisorySchedulingPage() {
         </div>
       ) : null}
 
-      <section style={{ marginBottom: 32, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>
-        <h3 style={{ marginTop: 0 }}>Create schedule</h3>
-        <form onSubmit={(ev) => void onCreate(ev)} style={{ display: "grid", gap: 12, maxWidth: 480 }}>
-          <label>
-            Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Cron / preset (<code>@hourly</code>, <code>@daily</code>, <code>0 7 * * *</code>)
-            <input
-              value={cronExpression}
-              onChange={(e) => setCronExpression(e.target.value)}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
-            />
-          </label>
-          <label>
-            Run project slug
-            <input
-              value={runProjectSlug}
-              onChange={(e) => setRunProjectSlug(e.target.value)}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
-            />
-          </label>
-          <button type="submit" disabled={loading}>
-            Create schedule
-          </button>
-        </form>
-      </section>
-
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button type="button" onClick={() => void refresh()} disabled={loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
-      </div>
-
-      <h3>Schedules</h3>
-      {schedules.length === 0 ? (
-        <p style={{ color: "#666" }}>No schedules yet.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {schedules.map((s) => (
-            <li
-              key={s.scheduleId}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 16,
-                marginBottom: 12,
-                background: "#fff",
-              }}
+      <div className={cn("flex flex-col gap-6", !canMutateSchedules && "flex-col-reverse")}>
+        <section style={{ marginBottom: 0, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>
+          <h3 style={{ marginTop: 0 }}>
+            {canMutateSchedules
+              ? advisorySchedulesCreateSectionHeadingOperator
+              : advisorySchedulesCreateSectionHeadingReader}
+          </h3>
+          <form onSubmit={(ev) => void onCreate(ev)} style={{ display: "grid", gap: 12, maxWidth: 480 }}>
+            <label>
+              Name
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                readOnly={!canMutateSchedules}
+                title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              />
+            </label>
+            <label>
+              Cron / preset (<code>@hourly</code>, <code>@daily</code>, <code>0 7 * * *</code>)
+              <input
+                value={cronExpression}
+                onChange={(e) => setCronExpression(e.target.value)}
+                readOnly={!canMutateSchedules}
+                title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
+              />
+            </label>
+            <label>
+              Run project slug
+              <input
+                value={runProjectSlug}
+                onChange={(e) => setRunProjectSlug(e.target.value)}
+                readOnly={!canMutateSchedules}
+                title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={loading || !canMutateSchedules}
+              title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+              className={cn(
+                !canMutateSchedules &&
+                  "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+              )}
             >
-              <strong>{s.name}</strong>
-              <div style={{ fontSize: 13, color: "#555", marginTop: 8 }}>
-                <div>
-                  Cron: <code>{s.cronExpression}</code>
-                </div>
-                <div>
-                  Slug: <code>{s.runProjectSlug}</code>
-                </div>
-                <div>Enabled: {s.isEnabled ? "yes" : "no"}</div>
-                <div>Next run: {s.nextRunUtc ? new Date(s.nextRunUtc).toLocaleString() : "—"}</div>
-                <div>Last run: {s.lastRunUtc ? new Date(s.lastRunUtc).toLocaleString() : "—"}</div>
-              </div>
-              <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button type="button" onClick={() => void onRunNow(s.scheduleId)}>
-                  Run now
-                </button>
-                <button type="button" onClick={() => void loadExecutions(s.scheduleId)}>
-                  Load executions
-                </button>
-              </div>
-              {executionsBySchedule[s.scheduleId]?.length ? (
-                <div style={{ marginTop: 12 }}>
-                  <h4 style={{ margin: "8px 0" }}>Recent executions</h4>
-                  <ul style={{ paddingLeft: 18, fontSize: 13 }}>
-                    {executionsBySchedule[s.scheduleId].map((ex) => (
-                      <li key={ex.executionId}>
-                        {ex.status} — {new Date(ex.startedUtc).toLocaleString()}
-                        {ex.errorMessage ? ` — ${ex.errorMessage}` : null}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
+              {canMutateSchedules ? "Create schedule" : advisorySchedulesCreateScheduleButtonLabelReaderRank}
+            </button>
+          </form>
+        </section>
+
+        <div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              disabled={loading}
+              title={
+                canMutateSchedules
+                  ? alertToolingListRefreshButtonTitleOperator
+                  : alertToolingListRefreshButtonTitleReader
+              }
+            >
+              {loading ? "Loading…" : "Refresh"}
+            </button>
+          </div>
+
+          <h3>
+            {canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader}
+          </h3>
+          {schedules.length === 0 ? (
+            <p style={{ color: "#666" }}>
+              {canMutateSchedules ? advisorySchedulesEmptyListOperatorLine : advisorySchedulesEmptyListReaderLine}
+            </p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {schedules.map((s) => (
+                <li
+                  key={s.scheduleId}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    padding: 16,
+                    marginBottom: 12,
+                    background: "#fff",
+                  }}
+                >
+                  <strong>{s.name}</strong>
+                  <div style={{ fontSize: 13, color: "#555", marginTop: 8 }}>
+                    <div>
+                      Cron: <code>{s.cronExpression}</code>
+                    </div>
+                    <div>
+                      Slug: <code>{s.runProjectSlug}</code>
+                    </div>
+                    <div>Enabled: {s.isEnabled ? "yes" : "no"}</div>
+                    <div>Next run: {s.nextRunUtc ? new Date(s.nextRunUtc).toLocaleString() : "—"}</div>
+                    <div>Last run: {s.lastRunUtc ? new Date(s.lastRunUtc).toLocaleString() : "—"}</div>
+                  </div>
+                  <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      onClick={() => void onRunNow(s.scheduleId)}
+                      disabled={!canMutateSchedules}
+                      title={canMutateSchedules ? undefined : enterpriseMutationControlDisabledTitle}
+                      className={cn(
+                        !canMutateSchedules &&
+                          "rounded border border-dashed border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400",
+                      )}
+                    >
+                      {canMutateSchedules ? "Run now" : advisorySchedulesRunNowButtonLabelReaderRank}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void loadExecutions(s.scheduleId)}
+                      title={
+                        canMutateSchedules
+                          ? advisorySchedulesLoadExecutionsButtonTitleOperator
+                          : advisorySchedulesLoadExecutionsButtonTitleReader
+                      }
+                    >
+                      {canMutateSchedules ? "Load executions" : advisorySchedulesLoadExecutionsButtonLabelReaderRank}
+                    </button>
+                  </div>
+                  {executionsBySchedule[s.scheduleId]?.length ? (
+                    <div style={{ marginTop: 12 }}>
+                      <h4 style={{ margin: "8px 0" }}>Recent executions</h4>
+                      <ul style={{ paddingLeft: 18, fontSize: 13 }}>
+                        {executionsBySchedule[s.scheduleId].map((ex) => (
+                          <li key={ex.executionId}>
+                            {ex.status} — {new Date(ex.startedUtc).toLocaleString()}
+                            {ex.errorMessage ? ` — ${ex.errorMessage}` : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
