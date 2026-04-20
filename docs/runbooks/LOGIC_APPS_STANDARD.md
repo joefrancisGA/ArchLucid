@@ -24,10 +24,11 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 
 ## Procedure
 
-1. **Health:** In Azure Portal, open the Logic App → **Workflows** → confirm last run status. Failed runs should correlate with Service Bus dead-letter depth on the same subscription.
-2. **Replay:** For a poison message, fix the workflow or payload contract, then use Service Bus explorer to **dead-letter requeue** after verifying schema under `schemas/integration-events/`.
-3. **Disable fan-out:** Set workflow **Enabled** to false (or remove the Service Bus trigger subscription) before disabling the API feature flag that publishes the upstream event — avoids one-sided failures.
-4. **Secrets:** Prefer **managed identity** connectors; if a connector requires a secret, store it in Key Vault and reference via Logic App settings — never commit secrets to workflow JSON in git.
+1. **Diagnostics (recommended):** In `infra/terraform-logicapps/`, set **`enable_logic_app_diagnostic_settings = true`** and **`logic_app_diagnostic_log_analytics_workspace_id`** to your Log Analytics workspace resource ID, then `terraform apply`. That attaches **Diagnostic settings** (all log category groups + **AllMetrics**) to each Logic App Standard site this root deploys. Query tables such as **`AppServicePlatformLogs`** and **`WorkflowRuntime`** in Log Analytics; tune workspace retention for **cost** vs **forensics**.
+2. **Health:** In Azure Portal, open the Logic App → **Workflows** → confirm last run status. Failed runs should correlate with Service Bus dead-letter depth on the same subscription.
+3. **Replay:** For a poison message, fix the workflow or payload contract, then use Service Bus explorer to **dead-letter requeue** after verifying schema under `schemas/integration-events/`.
+4. **Disable fan-out:** Set workflow **Enabled** to false (or remove the Service Bus trigger subscription) before disabling the API feature flag that publishes the upstream event — avoids one-sided failures.
+5. **Secrets:** Prefer **managed identity** connectors; if a connector requires a secret, store it in Key Vault and reference via Logic App settings — never commit secrets to workflow JSON in git.
 
 ## Constraints
 

@@ -69,3 +69,11 @@ check "promotion_customer_notify_logic_apps_inputs" {
     error_message = "When enable_promotion_customer_notify_logic_app is true, resource_group_name, location, and promotion_customer_notify_storage_account_name must be non-empty."
   }
 }
+
+check "logic_app_diagnostic_settings_inputs" {
+  assert {
+    condition = !var.enable_logic_app_diagnostic_settings || trimspace(var.logic_app_diagnostic_log_analytics_workspace_id) != ""
+
+    error_message = "When enable_logic_app_diagnostic_settings is true, logic_app_diagnostic_log_analytics_workspace_id must be a non-empty Log Analytics workspace resource ID."
+  }
+}

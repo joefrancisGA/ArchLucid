@@ -43,6 +43,10 @@ Set `enable_logic_apps = true` only after:
 2. A **globally unique** `storage_account_name` is reserved (24 chars, lowercase alphanumeric).
 3. VNet integration and private endpoints are planned per org policy (align with `infra/terraform-private/`; do not expose SMB publicly).
 
+## Log Analytics diagnostics (optional)
+
+Set **`enable_logic_app_diagnostic_settings = true`** and **`logic_app_diagnostic_log_analytics_workspace_id`** to the **full resource ID** of a Log Analytics workspace (same subscription or cross-subscription ID strings are accepted by Azure RM). Terraform then creates **`azurerm_monitor_diagnostic_setting`** for **each** Logic App Standard site that is actually deployed (`edge`, governance, Marketplace fulfillment, trial lifecycle, incident ChatOps, promotion customer notify — whichever flags are true). Logs use the **`allLogs`** category group; metrics include **`AllMetrics`**. Workspace retention and export rules are **cost** and **compliance** levers owned by the platform team.
+
 ## Apply
 
 ```bash

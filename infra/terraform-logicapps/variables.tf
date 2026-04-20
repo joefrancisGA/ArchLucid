@@ -195,3 +195,15 @@ variable "promotion_customer_notify_logic_app_name" {
   description = "Logic App (Standard) site name for prod promotion customer fan-out."
   default     = "archlucid-logic-promotion-customer-notify"
 }
+
+variable "enable_logic_app_diagnostic_settings" {
+  type        = bool
+  description = "When true and logic_app_diagnostic_log_analytics_workspace_id is set, create azurerm_monitor_diagnostic_setting for each deployed Logic App Standard site (platform + workflow logs via category group allLogs)."
+  default     = false
+}
+
+variable "logic_app_diagnostic_log_analytics_workspace_id" {
+  type        = string
+  description = "Full Azure resource ID of the Log Analytics workspace receiving Logic App diagnostics (e.g. /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.OperationalInsights/workspaces/{name}). Required when enable_logic_app_diagnostic_settings is true."
+  default     = ""
+}
