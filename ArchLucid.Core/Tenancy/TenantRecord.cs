@@ -73,4 +73,16 @@ public sealed class TenantRecord
     {
         get; init;
     }
+
+    /// <summary>When set, the trial pre-seed worker has queued a simulator run for this tenant.</summary>
+    public DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc
+    {
+        get; init;
+    }
+
+    /// <summary>First committed authority run id (32-char hex as <see cref="Guid"/>) after trial bootstrap — drives operator deep link.</summary>
+    public Guid? TrialWelcomeRunId
+    {
+        get; init;
+    }
 }

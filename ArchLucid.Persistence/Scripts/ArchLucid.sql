@@ -2963,6 +2963,18 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'TrialArchitecturePreseedEnqueuedUtc') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD TrialArchitecturePreseedEnqueuedUtc DATETIMEOFFSET NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'TrialWelcomeRunId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD TrialWelcomeRunId UNIQUEIDENTIFIER NULL;
+END;
+GO
+
 IF OBJECT_ID(N'dbo.TenantTrialSeatOccupants', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantTrialSeatOccupants

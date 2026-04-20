@@ -10,6 +10,12 @@
 
 ---
 
+## Hosted SaaS entry URLs
+
+**Staging:** `https://staging.archlucid.com` — pre-production Front Door + Container Apps funnel (marketing → self-service signup → Stripe checkout when configured → operator shell). **Production:** `https://archlucid.com` when custom hostnames and managed certificates are attached per [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md) and `infra/apply-saas.ps1`. **Smoke:** hosted liveness `Invoke-RestMethod https://staging.archlucid.com/health/live`; full repo gate remains **`pwsh ./release-smoke.ps1`** (local API E2E; see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
+
+---
+
 ## Why three layers?
 
 1. **Explainability.** A buyer needs to understand what they get on day one vs what they unlock for governance or deep investigation.

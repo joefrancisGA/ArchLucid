@@ -20,4 +20,6 @@ public static class HostElectionLeaseNames
     public const string TrialLifecycleAutomation = "hosted:trial-lifecycle-automation";
 
     public const string TenantHealthScoring = "hosted:tenant-health-scoring";
+
+    public const string TrialArchitecturePreseed = "hosted:trial-architecture-preseed";
 }

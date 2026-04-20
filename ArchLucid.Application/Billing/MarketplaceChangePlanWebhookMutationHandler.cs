@@ -30,12 +30,14 @@ public sealed class MarketplaceChangePlanWebhookMutationHandler(
         string rawBody,
         CancellationToken cancellationToken)
     {
-        if (!_billingOptions.CurrentValue.AzureMarketplace.GaEnabled)
+        BillingOptions snapshot = _billingOptions.CurrentValue;
+
+        if (!BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(snapshot))
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation(
-                    "Marketplace ChangePlan acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false). TenantId={TenantId}",
+                    "ChangePlan acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false and Billing:Provider is not Stripe). TenantId={TenantId}",
                     tenantId);
             }
 

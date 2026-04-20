@@ -5,6 +5,7 @@ import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklis
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <OperatorHomeGate>
+    <TrialWelcomeRunDeepLink />
     <main>
       <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">

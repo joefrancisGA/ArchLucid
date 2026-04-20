@@ -30,7 +30,11 @@ public sealed class StripeBillingProviderWebhookTests
         Mock<ITenantRepository> tenants = new();
         Mock<IAuditService> audit = new();
         BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
-        StripeBillingProvider sut = new(monitor, ledger.Object, activator);
+        Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+        changePlan
+            .Setup(h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<System.Text.Json.JsonElement>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MarketplaceWebhookMutationOutcome.Applied);
+        StripeBillingProvider sut = new(monitor, ledger.Object, activator, changePlan.Object);
 
         BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
             new BillingWebhookInbound { RawBody = "{}", StripeSignatureHeader = null },

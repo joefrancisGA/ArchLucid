@@ -1036,6 +1036,7 @@ export async function getTenantTrialStatus(
   trialSeatsUsed?: number;
   trialSeatsLimit?: number | null;
   trialSampleRunId?: string | null;
+  trialWelcomeRunId?: string | null;
   trialExpiresUtc?: string | null;
 }> {
   const res = await request.get(`${liveApiBase}/v1/tenant/trial-status`, {
@@ -1052,6 +1053,7 @@ export async function getTenantTrialStatus(
     trialSeatsUsed?: number;
     trialSeatsLimit?: number | null;
     trialSampleRunId?: string | null;
+    trialWelcomeRunId?: string | null;
     trialExpiresUtc?: string | null;
   }>;
 }

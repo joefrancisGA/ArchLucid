@@ -1,0 +1,88 @@
+> **Scope:** First paying tenant (PLG) — ArchLucid reference case study template - full detail, tables, and links in the sections below.
+
+# `<<CUSTOMER_NAME>>` — First self-serve paying tenant (PLG reference)
+
+> **STATUS: PLACEHOLDER — PLG path.** This file supports the **ship trial first** motion: when the **first** tenant converts from self-serve trial to a **paid** subscription, populate this case study and move the matching row in [`README.md`](README.md) from **Placeholder** toward **Drafting**, then through **Customer review** to **Published** once the customer approves external use. Until then, every `<<...>>` token stays literal in git.
+
+**Audience:** Prospective buyers evaluating product-led proof (time-to-value without a sales-led design partner).
+
+**Tier at conversion:** `<<TIER>>` (see [`PRICING_PHILOSOPHY.md` § 5.2](../PRICING_PHILOSOPHY.md#52-locked-price-table-do-not-edit-without-re-rate-gate-decision))
+
+**Trial started:** `<<TRIAL_START_DATE>>` (`YYYY-MM-DD`)
+
+**Paid conversion date:** `<<CONVERSION_DATE>>` (`YYYY-MM-DD`)
+
+**Last reviewed:** `<<LAST_REVIEW_DATE>>`
+
+---
+
+## Why PLG reference matters
+
+This narrative answers: *"Has anyone paid without a bespoke pilot?"* Keep claims bounded to [`docs/V1_SCOPE.md`](../../V1_SCOPE.md) and the sponsor guardrails in [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../../EXECUTIVE_SPONSOR_BRIEF.md) § 8 (do not over-claim transformation or headcount reduction).
+
+---
+
+## Customer profile
+
+| Attribute | Value |
+|-----------|-------|
+| Industry | `<<INDUSTRY>>` |
+| Team size (architecture / platform) | `<<TEAM_SIZE>>` |
+| Cloud posture | `<<CLOUD_POSTURE>>` |
+| How they found ArchLucid | `<<ACQUISITION_CHANNEL>>` (e.g., search, GitHub, peer referral) |
+
+---
+
+## Challenge
+
+`<<CHALLENGE_NARRATIVE>>` — Why they started a **trial** without a design-partner contract, and what had to be true before they entered a card or signed an order form.
+
+---
+
+## Solution
+
+`<<SOLUTION_NARRATIVE>>` — Core Pilot path only unless they actually used Advanced Analysis or Enterprise Controls (call those out as follow-on, not Day-1).
+
+Concrete details:
+
+- Time from signup to **first committed manifest** (cite `<<MINUTES_OR_HOURS>>` from audit / metrics).
+- Whether they used **Docker pilot** vs **hosted SaaS trial** (pick one primary story).
+- Integrations actually wired (`<<INTEGRATIONS>>`).
+
+---
+
+## Results
+
+| Metric | Before (trial baseline) | After (paid) | Source |
+|--------|-------------------------|--------------|--------|
+| Time to first committed manifest | `<<BEFORE_TTFV>>` | `<<AFTER_TTFV>>` | `<<TTFV_SOURCE>>` |
+| Hours per architecture review cycle | `<<BEFORE_HOURS>>` | `<<AFTER_HOURS>>` | `<<HOURS_SOURCE>>` |
+
+Anchor metrics to [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md) definitions where possible.
+
+---
+
+## Quote
+
+> *"`<<CHAMPION_QUOTE>>`"* — `<<CHAMPION_NAME>>`, `<<CHAMPION_TITLE>>`, `<<CUSTOMER_NAME>>`
+
+**Quote rules:** same as [`EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md`](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) — written approval required before **Published**.
+
+---
+
+## Reference-availability commitments
+
+| Channel | Commitment | Limit |
+|---------|------------|-------|
+| Logo on archlucid.com | `<<LOGO_RIGHTS>>` | `<<LOGO_LIMIT>>` |
+| Reference calls | `<<REFERENCE_CALL_LIMIT>>` | At customer's discretion |
+
+---
+
+## Internal review history (do not publish)
+
+| Date | Reviewer | Action |
+|------|----------|--------|
+| `<<REVIEW_DATE_1>>` | `<<REVIEWER_1>>` | `<<ACTION_1>>` |
+
+When the [`README.md`](README.md) row reaches **Published**, strip placeholders, the PLACEHOLDER banner, and this review table — same discipline as the design-partner template.

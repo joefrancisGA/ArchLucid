@@ -88,7 +88,8 @@ public sealed class TenantCustomerSuccessControllerTests
 
         IActionResult result = await sut.PostProductFeedbackAsync(null!, CancellationToken.None);
 
-        result.Should().BeOfType<BadRequestResult>();
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         repo.Verify(
             r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
             Times.Never);

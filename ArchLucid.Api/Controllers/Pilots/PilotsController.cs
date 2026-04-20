@@ -38,7 +38,7 @@ public sealed class PilotsController(
         string? markdown = await firstValueReportBuilder.BuildMarkdownAsync(runId, baseForLinks, cancellationToken);
 
         if (markdown is null)
-            return NotFound();
+            return this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound);
 
 
         return Content(markdown, "text/markdown; charset=utf-8");

@@ -3,7 +3,7 @@ namespace ArchLucid.Architecture.Tests;
 /// <summary>Namespace prefixes used with NetArchTest <c>HaveDependencyOn</c> / <c>HaveDependencyOnAny</c> (prefix matching).</summary>
 internal static class ArchitectureConstraintNamespaces
 {
-    /// <summary>Every first-party <c>ArchLucid.*</c> area except <c>ArchLucid.Core</c>.</summary>
+    /// <summary>Every first-party <c>ArchLucid.*</c> area except <c>ArchLucid.Core</c> (Core may reference shared contract DTOs).</summary>
     internal static readonly string[] ForbiddenFromCore =
     [
         "ArchLucid.AgentRuntime",
@@ -15,8 +15,6 @@ internal static class ArchitectureConstraintNamespaces
         "ArchLucid.Backfill",
         "ArchLucid.Cli",
         "ArchLucid.ContextIngestion",
-        "ArchLucid.Contracts",
-        "ArchLucid.Contracts.Abstractions",
         "ArchLucid.Coordinator",
         "ArchLucid.Decisioning",
         "ArchLucid.Host",

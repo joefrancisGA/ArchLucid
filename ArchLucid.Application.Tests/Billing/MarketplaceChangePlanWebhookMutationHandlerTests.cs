@@ -22,6 +22,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
+            Provider = BillingProviderNames.AzureMarketplace,
             AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
         };
 
@@ -49,6 +50,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
+            Provider = BillingProviderNames.AzureMarketplace,
             AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
         };
 
@@ -73,6 +75,38 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
         outcome.Should().Be(MarketplaceWebhookMutationOutcome.Applied);
 
         ledger.Verify(l => l.ChangePlanAsync(tenantId, nameof(TenantTier.Enterprise), raw, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.Stripe,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+        };
+
+        BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        ledger
+            .Setup(l => l.ChangePlanAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        MarketplaceChangePlanWebhookMutationHandler sut = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+
+        Guid tenantId = Guid.NewGuid();
+        string raw = """{"planId":"archlucid-stripe-team"}""";
+        using JsonDocument doc = JsonDocument.Parse(raw);
+
+        MarketplaceWebhookMutationOutcome outcome =
+            await sut.HandleAsync(tenantId, doc.RootElement, raw, CancellationToken.None);
+
+        outcome.Should().Be(MarketplaceWebhookMutationOutcome.Applied);
+
+        ledger.Verify(l => l.ChangePlanAsync(tenantId, nameof(TenantTier.Standard), raw, It.IsAny<CancellationToken>()), Times.Once);
     }
 
 }

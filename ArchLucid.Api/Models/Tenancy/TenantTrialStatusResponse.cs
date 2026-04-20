@@ -44,4 +44,10 @@ public sealed class TenantTrialStatusResponse
     {
         get; init;
     }
+
+    /// <summary>When set, operator UI may deep-link first visit to <c>/runs/{id}</c> (pre-seeded welcome run).</summary>
+    public Guid? TrialWelcomeRunId
+    {
+        get; init;
+    }
 }

@@ -31,6 +31,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 |----------|------|-------------|-----------------|------------------------|--------|
 | EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — replace before publishing |
 | DESIGN_PARTNER_NEXT | `<<TIER>>` (fill before Drafting) | TBD | [DESIGN_PARTNER_NEXT_CASE_STUDY.md](DESIGN_PARTNER_NEXT_CASE_STUDY.md) | TBD | Customer review — replace `<<CUSTOMER_NAME>>` and placeholders before publication |
+| First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
 
 > **CI guard contract:** the script reads only this table. The exact column order and the literal `Status` header text matter. Do not split the table across multiple sub-tables; add new rows to the bottom.
 
@@ -43,6 +44,8 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 3. **Add a row** to the table above, with `Status: Drafting`.
 4. **Move through the lifecycle** (Drafting → Customer review → Published) as approvals come in. Each transition gets a one-line entry in [`docs/CHANGELOG.md`](../../CHANGELOG.md) so finance/sales can re-rate the discount stack on a known cadence.
 5. **When the first row reaches `Published`,** CI **auto-flips** to a merge-blocking re-check of the same script (see `.github/workflows/ci.yml` — *Guard — reference-customer status (auto-flip: strict once any Published row exists)*). You do **not** need to edit `continue-on-error` by hand. This is the moment that authorizes a pricing-review trigger per [`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan).
+
+**PLG path:** If you are **not** waiting on a named design partner, use the **First paying tenant (PLG)** row and [`TRIAL_FIRST_REFERENCE_CASE_STUDY.md`](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) as the first publishable reference once a trial converts and the customer approves copy.
 
 ---
 
