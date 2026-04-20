@@ -79,3 +79,15 @@ variable "secondary_origin_host_header" {
   description = "Optional Host header for secondary origin; defaults to secondary_backend_hostname when empty."
   default     = ""
 }
+
+variable "enable_pricing_json_to_pricing_page_redirect" {
+  type        = bool
+  description = "When Front Door is enabled, attach a rule set that 301-redirects /pricing.json to /pricing (HTML marketing route on the Next.js origin)."
+  default     = true
+}
+
+variable "marketing_custom_domain_hostname" {
+  type        = string
+  description = "Optional public marketing hostname (e.g. www.contoso.com). Empty = no Front Door custom-domain resources in this module; operators bind DNS + cert in a follow-on change set."
+  default     = ""
+}

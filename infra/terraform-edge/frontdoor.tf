@@ -107,6 +107,8 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   forwarding_protocol    = "MatchRequest"
   https_redirect_enabled = true
   link_to_default_domain = true
+
+  cdn_frontdoor_rule_set_ids = local.fd_pricing_json_redirect_enabled ? [azurerm_cdn_frontdoor_rule_set.pricing_redirects[0].id] : []
 }
 
 resource "azurerm_cdn_frontdoor_security_policy" "main" {

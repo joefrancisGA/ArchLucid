@@ -13,6 +13,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 
 - **No run content** or architecture payloads are sent to payment providers; only commercial metadata (tier, seat counts, scope ids).
 - **Migration 078** (`078_BillingSubscriptions.sql`) is the forward migration; **074** is already used for trial seat occupants — do not renumber historical migrations.
+- **Migration 086** (`086_Billing_MarketplaceChangePlanQuantity.sql`) adds `dbo.sp_Billing_ChangePlan` and `dbo.sp_Billing_ChangeQuantity` for Azure Marketplace plan/seat updates when `Billing:AzureMarketplace:GaEnabled=true`.
 - `dbo.BillingSubscriptions` is **RLS-scoped**; `ArchLucidApp` is **DENY INSERT/UPDATE/DELETE** with mutations only via `dbo.sp_Billing_*` (**EXECUTE AS OWNER**).
 
 ## Architecture overview
@@ -34,7 +35,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 ## Data flow
 
 1. **Checkout:** Admin calls `POST /v1/tenant/billing/checkout` → ledger `Pending` row → provider returns hosted URL.
-2. **Webhook:** Provider posts event → insert `BillingWebhookEvents.EventId` (PK) → process → mark `Processed` / `Failed`.
+2. **Webhook:** Provider posts event → insert `BillingWebhookEvents.EventId` (PK) → process → mark `Processed`, `Failed`, or `AcknowledgedNoOp` (Marketplace `ChangePlan` / `ChangeQuantity` while `Billing:AzureMarketplace:GaEnabled=false`).
 3. **Manual convert:** `POST /v1/tenant/convert` runs gate → `MarkTrialConvertedAsync` (optional tier update).
 
 ## Security model
@@ -50,6 +51,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
   - `POST /v1/billing/webhooks/marketplace`
 - Key Vault secret names (illustrative): `billing-stripe-secret`, `billing-stripe-webhook-signing-secret`.
 - **Idempotency:** duplicate provider event id → **HTTP 200** without re-processing once `ResultStatus=Processed`.
+- **Marketplace GA flag:** `Billing:AzureMarketplace:GaEnabled` (default `false`). When `false`, `ChangePlan` / `ChangeQuantity` return **HTTP 202 Accepted**, persist `AcknowledgedNoOp`, and **do not** call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity`. When `true`, the API returns **HTTP 200** and mutates `dbo.BillingSubscriptions` via those procedures.
 
 ## Provider matrix
 

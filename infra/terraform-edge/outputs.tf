@@ -17,3 +17,8 @@ output "front_door_firewall_policy_id" {
   description = "Resource ID of the WAF policy."
   value       = var.enable_front_door_waf ? azurerm_cdn_frontdoor_firewall_policy.main[0].id : null
 }
+
+output "marketing_custom_domain_hostname" {
+  description = "Operator-supplied marketing hostname (passthrough; empty until set in tfvars)."
+  value       = trimspace(var.marketing_custom_domain_hostname) != "" ? trimspace(var.marketing_custom_domain_hostname) : null
+}

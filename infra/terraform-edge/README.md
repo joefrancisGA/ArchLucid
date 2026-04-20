@@ -20,6 +20,12 @@ Optional Terraform root for a **public edge** in front of your API or **API Mana
 
 The origin group uses **HTTPS HEAD** against **`front_door_health_probe_path`** (default **`/health/ready`**) so Front Door aligns with ArchLucid.Api readiness when the origin is the API. For **Next.js UI-only** origins with no readiness route, set **`front_door_health_probe_path = "/"`** in `terraform.tfvars`. For APIM, use a path your gateway returns **2xx** for (often **`/status-0123456789abcdef`** or your API health route).
 
+## Marketing redirects
+
+When **`enable_front_door_waf`** and **`enable_pricing_json_to_pricing_page_redirect`** are true, a Front Door **rule set** is attached to the main route that issues a **301 Moved** from **`/pricing.json`** to **`/pricing`** so browsers land on the Next.js marketing page instead of the static JSON document. Disable the redirect by setting **`enable_pricing_json_to_pricing_page_redirect = false`** if your origin should serve JSON at that path unchanged.
+
+**`marketing_custom_domain_hostname`** is a passthrough output for operators (default empty). Binding a custom domain + managed certificate in Partner Center / DNS is environment-specific and not fully automated in this root.
+
 ## Variables
 
 See `variables.tf` and `terraform.tfvars.example`.
