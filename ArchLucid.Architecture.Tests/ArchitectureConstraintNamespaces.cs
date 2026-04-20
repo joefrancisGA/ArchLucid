@@ -3,7 +3,12 @@ namespace ArchLucid.Architecture.Tests;
 /// <summary>Namespace prefixes used with NetArchTest <c>HaveDependencyOn</c> / <c>HaveDependencyOnAny</c> (prefix matching).</summary>
 internal static class ArchitectureConstraintNamespaces
 {
-    /// <summary>Every first-party <c>ArchLucid.*</c> area except <c>ArchLucid.Core</c> (Core may reference shared contract DTOs).</summary>
+    /// <summary>
+    /// Every first-party <c>ArchLucid.*</c> area except <c>ArchLucid.Core</c>.
+    /// <para><b>Do not</b> add <c>ArchLucid.Contracts</c> or <c>ArchLucid.Contracts.Abstractions</c> here: <c>ArchLucid.Core</c> intentionally
+    /// references <c>ArchLucid.Contracts</c> for shared DTOs (see <c>ArchLucid.Core.csproj</c>). NetArchTest would flag
+    /// <c>RunExplanationSummary</c>, <c>SanitizedLoggerInformationExtensions</c>, and similar types if those prefixes were forbidden.</para>
+    /// </summary>
     internal static readonly string[] ForbiddenFromCore =
     [
         "ArchLucid.AgentRuntime",

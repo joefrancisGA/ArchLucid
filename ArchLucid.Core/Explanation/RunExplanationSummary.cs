@@ -47,9 +47,7 @@ public sealed class RunExplanationSummary
         get; init;
     }
 
-    /// <summary>
-    /// Faithfulness support ratio from <see cref="ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker"/> when findings exist; otherwise null.
-    /// </summary>
+    /// <summary>Faithfulness support ratio from the findings faithfulness checker when findings exist; otherwise null.</summary>
     public double? FaithfulnessSupportRatio
     {
         get; init;
