@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup;
 
@@ -30,15 +30,18 @@ public static class AuthSafetyGuard
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(hostEnvironment);
 
-        if (!IsProductionEnvironment(hostEnvironment, configuration)) return;
+        if (!IsProductionEnvironment(hostEnvironment, configuration))
+            return;
 
 
         string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
-        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException(DevelopmentBypassNotAllowedMessage);
+        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException(DevelopmentBypassNotAllowedMessage);
 
 
-        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false)) throw new InvalidOperationException(DevelopmentBypassAllNotAllowedMessage);
+        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+            throw new InvalidOperationException(DevelopmentBypassAllNotAllowedMessage);
 
     }
 
@@ -56,10 +59,12 @@ public static class AuthSafetyGuard
 
     private static bool IsProductionEnvironment(IHostEnvironment hostEnvironment, IConfiguration configuration)
     {
-        if (hostEnvironment.IsProduction()) return true;
+        if (hostEnvironment.IsProduction())
+            return true;
 
 
-        if (EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName)) return true;
+        if (EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName))
+            return true;
 
 
         string? archLucidEnv = configuration["ARCHLUCID_ENVIRONMENT"];
@@ -79,12 +84,14 @@ public static class AuthSafetyGuard
     /// </summary>
     private static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {
-        if (string.IsNullOrWhiteSpace(environmentName)) return false;
+        if (string.IsNullOrWhiteSpace(environmentName))
+            return false;
 
 
         string trimmed = environmentName.Trim();
 
-        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase)) return false;
+        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
+            return false;
 
 
         return !trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase) && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);

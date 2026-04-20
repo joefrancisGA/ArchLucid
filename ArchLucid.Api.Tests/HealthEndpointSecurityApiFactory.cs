@@ -16,7 +16,10 @@ public sealed class HealthEndpointSecurityApiFactory : ArchLucidApiFactory
 {
     public const string IntegrationTestAdminApiKey = "health-endpoint-security-test-admin-key";
 
-    private static Dictionary<string, string?> ApiKeyAuthConfiguration { get; } = new()
+    private static Dictionary<string, string?> ApiKeyAuthConfiguration
+    {
+        get;
+    } = new()
     {
         ["ArchLucidAuth:Mode"] = "ApiKey",
         ["Authentication:ApiKey:Enabled"] = "true",

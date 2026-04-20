@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Persistence.Coordination.Caching;
+namespace ArchLucid.Persistence.Coordination.Caching;
 
 /// <summary>Resolves <see cref="HotPathCacheOptions.Provider"/> <c>Auto</c> to an effective backing store.</summary>
 public static class HotPathCacheProviderResolver
@@ -15,7 +15,8 @@ public static class HotPathCacheProviderResolver
         if (string.Equals(raw, "Auto", StringComparison.OrdinalIgnoreCase))
         {
             if (options.ExpectedApiReplicaCount > 1 &&
-                !string.IsNullOrWhiteSpace(options.RedisConnectionString)) return "Redis";
+                !string.IsNullOrWhiteSpace(options.RedisConnectionString))
+                return "Redis";
 
             return "Memory";
         }

@@ -6,27 +6,57 @@ namespace ArchLucid.Contracts.ProductLearning;
 /// </summary>
 public sealed class ProductLearningTriageReportDocument
 {
-    public DateTime GeneratedUtc { get; init; }
-    public Guid TenantId { get; init; }
-    public Guid WorkspaceId { get; init; }
-    public Guid ProjectId { get; init; }
+    public DateTime GeneratedUtc
+    {
+        get; init;
+    }
+    public Guid TenantId
+    {
+        get; init;
+    }
+    public Guid WorkspaceId
+    {
+        get; init;
+    }
+    public Guid ProjectId
+    {
+        get; init;
+    }
 
     /// <summary>UTC lower bound used for this report, if any; otherwise null (all time).</summary>
-    public DateTime? SinceUtc { get; init; }
-    public int TotalSignalsInScope { get; init; }
+    public DateTime? SinceUtc
+    {
+        get; init;
+    }
+    public int TotalSignalsInScope
+    {
+        get; init;
+    }
 
     /// <summary>Same count as <see cref="LearningDashboardSummary.DistinctRunsTouched"/> (export naming).</summary>
-    public int DistinctRunsReviewed { get; init; }
+    public int DistinctRunsReviewed
+    {
+        get; init;
+    }
 
-    public IReadOnlyList<ProductLearningTriageReportArtifactRow> ArtifactOutcomes { get; init; } =
+    public IReadOnlyList<ProductLearningTriageReportArtifactRow> ArtifactOutcomes
+    {
+        get; init;
+    } =
         [];
 
     /// <summary>Short bullets for recurring pain (aggregates + opportunities, deduplicated).</summary>
     public IReadOnlyList<string> TopProblemAreas { get; init; } = [];
 
-    public IReadOnlyList<ProductLearningTriageReportImprovementLine> TopImprovements { get; init; } =
+    public IReadOnlyList<ProductLearningTriageReportImprovementLine> TopImprovements
+    {
+        get; init;
+    } =
         [];
 
-    public IReadOnlyList<ProductLearningTriageReportTriageLine> TriageQueuePreview { get; init; } =
+    public IReadOnlyList<ProductLearningTriageReportTriageLine> TriageQueuePreview
+    {
+        get; init;
+    } =
         [];
 }

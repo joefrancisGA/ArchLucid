@@ -36,5 +36,8 @@ public class ImprovementRecommendation
     public List<string> SupportingArtifactIds { get; set; } = [];
 
     /// <summary>Higher sorts earlier; produced by the advisor from signals and heuristics.</summary>
-    public int PriorityScore { get; set; }
+    public int PriorityScore
+    {
+        get; set;
+    }
 }

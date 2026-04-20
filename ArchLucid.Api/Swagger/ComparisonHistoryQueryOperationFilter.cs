@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Pagination;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -11,7 +11,8 @@ public sealed class ComparisonHistoryQueryOperationFilter : IOperationFilter
 {
     public void Apply(Microsoft.OpenApi.OpenApiOperation operation, OperationFilterContext context)
     {
-        if (!string.Equals(context.MethodInfo?.Name, "SearchComparisonRecords", StringComparison.Ordinal)) return;
+        if (!string.Equals(context.MethodInfo?.Name, "SearchComparisonRecords", StringComparison.Ordinal))
+            return;
 
         operation.Summary ??= "Search persisted comparison records";
         operation.Description =

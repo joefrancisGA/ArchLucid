@@ -91,3 +91,47 @@ variable "marketing_custom_domain_hostname" {
   description = "Optional public marketing hostname (e.g. www.contoso.com). Empty = no Front Door custom-domain resources in this module; operators bind DNS + cert in a follow-on change set."
   default     = ""
 }
+
+variable "marketing_backend_hostname" {
+  type        = string
+  description = "Public FQDN of the marketing Next.js Container App revision (no scheme), e.g. archlucid-ui.internal.xxx.azurecontainerapps.io. Empty = legacy single-route mode (var.route_patterns only)."
+  default     = ""
+}
+
+variable "marketing_origin_host_header" {
+  type        = string
+  description = "Optional Host header for the marketing origin; defaults to marketing_backend_hostname when empty."
+  default     = ""
+}
+
+variable "marketing_site_route_patterns" {
+  type        = list(string)
+  description = "Path patterns routed to the marketing UI origin when marketing_backend_hostname is set. Include /_next/* so Next assets resolve on the same hostname."
+  default = [
+    "/",
+    "/pricing",
+    "/pricing.json",
+    "/welcome",
+    "/signup",
+    "/signup/*",
+    "/_next/*",
+    "/favicon.ico",
+    "/robots.txt",
+    "/sitemap.xml",
+  ]
+}
+
+variable "api_route_patterns_when_marketing_enabled" {
+  type        = list(string)
+  description = "Path patterns routed to the primary API origin when marketing_backend_hostname is set (must cover ArchLucid.Api + probes)."
+  default = [
+    "/v1/*",
+    "/v2/*",
+    "/health",
+    "/health/*",
+    "/openapi/*",
+    "/swagger/*",
+    "/scalar/*",
+    "/metrics",
+  ]
+}

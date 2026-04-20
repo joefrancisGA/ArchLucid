@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Hosting;
+namespace ArchLucid.Host.Core.Hosting;
 
 /// <summary>Reads <c>Hosting:Role</c> from configuration (env <c>Hosting__Role</c>).</summary>
 public static class HostingRoleResolver
@@ -14,9 +14,11 @@ public static class HostingRoleResolver
 
         string? raw = configuration[ConfigurationKey]?.Trim();
 
-        if (string.IsNullOrEmpty(raw)) return ArchLucidHostingRole.Combined;
+        if (string.IsNullOrEmpty(raw))
+            return ArchLucidHostingRole.Combined;
 
-        if (string.Equals(raw, "Api", StringComparison.OrdinalIgnoreCase)) return ArchLucidHostingRole.Api;
+        if (string.Equals(raw, "Api", StringComparison.OrdinalIgnoreCase))
+            return ArchLucidHostingRole.Api;
 
         return string.Equals(raw, "Worker", StringComparison.OrdinalIgnoreCase) ? ArchLucidHostingRole.Worker : ArchLucidHostingRole.Combined;
     }

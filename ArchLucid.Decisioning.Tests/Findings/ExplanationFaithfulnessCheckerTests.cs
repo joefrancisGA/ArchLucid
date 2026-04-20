@@ -15,7 +15,10 @@ public sealed class ExplanationFaithfulnessCheckerTests
     [Fact]
     public void CheckFaithfulness_null_snapshot_returns_vacuous_one()
     {
-        ExplanationResult explanation = new() { Summary = "Anything." };
+        ExplanationResult explanation = new()
+        {
+            Summary = "Anything."
+        };
 
         ExplanationFaithfulnessReport r = _sut.CheckFaithfulness(explanation, null);
 
@@ -26,8 +29,14 @@ public sealed class ExplanationFaithfulnessCheckerTests
     [Fact]
     public void CheckFaithfulness_empty_findings_returns_vacuous_one()
     {
-        ExplanationResult explanation = new() { Summary = "Anything." };
-        FindingsSnapshot snap = new() { Findings = [] };
+        ExplanationResult explanation = new()
+        {
+            Summary = "Anything."
+        };
+        FindingsSnapshot snap = new()
+        {
+            Findings = []
+        };
 
         ExplanationFaithfulnessReport r = _sut.CheckFaithfulness(explanation, snap);
 

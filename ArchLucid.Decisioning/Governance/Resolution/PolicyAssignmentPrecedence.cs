@@ -9,17 +9,29 @@ namespace ArchLucid.Decisioning.Governance.Resolution;
 public class PolicyAssignmentPrecedence
 {
     /// <summary><see cref="PolicyPacks.PolicyPackAssignment.AssignmentId"/>.</summary>
-    public Guid AssignmentId { get; set; }
+    public Guid AssignmentId
+    {
+        get; set;
+    }
 
     /// <summary><see cref="GovernanceScopeLevel"/> string.</summary>
     public string ScopeLevel { get; set; } = null!;
 
     /// <summary>Numeric rank comparable across assignments (<see cref="EffectiveGovernanceResolver.GetPrecedenceRank"/>).</summary>
-    public int PrecedenceRank { get; set; }
+    public int PrecedenceRank
+    {
+        get; set;
+    }
 
     /// <summary>Whether the assignment was pinned.</summary>
-    public bool IsPinned { get; set; }
+    public bool IsPinned
+    {
+        get; set;
+    }
 
     /// <summary><see cref="PolicyPacks.PolicyPackAssignment.AssignedUtc"/>.</summary>
-    public DateTime AssignedUtc { get; set; }
+    public DateTime AssignedUtc
+    {
+        get; set;
+    }
 }

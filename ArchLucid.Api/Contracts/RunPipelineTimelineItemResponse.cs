@@ -6,13 +6,22 @@ namespace ArchLucid.Api.Contracts;
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class RunPipelineTimelineItemResponse
 {
-    public Guid EventId { get; set; }
+    public Guid EventId
+    {
+        get; set;
+    }
 
-    public DateTime OccurredUtc { get; set; }
+    public DateTime OccurredUtc
+    {
+        get; set;
+    }
 
     public string EventType { get; set; } = null!;
 
     public string ActorUserName { get; set; } = null!;
 
-    public string? CorrelationId { get; set; }
+    public string? CorrelationId
+    {
+        get; set;
+    }
 }

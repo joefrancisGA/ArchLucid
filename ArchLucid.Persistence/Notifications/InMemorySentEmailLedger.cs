@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 using ArchLucid.Core.Notifications;
 
@@ -14,7 +14,8 @@ public sealed class InMemorySentEmailLedger : ISentEmailLedger
     {
         _ = cancellationToken;
 
-        if (string.IsNullOrWhiteSpace(entry.IdempotencyKey)) return Task.FromResult(false);
+        if (string.IsNullOrWhiteSpace(entry.IdempotencyKey))
+            return Task.FromResult(false);
 
 
         bool added = _keys.TryAdd(entry.IdempotencyKey.Trim(), 0);

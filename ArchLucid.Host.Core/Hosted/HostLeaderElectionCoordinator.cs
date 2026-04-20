@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -123,7 +123,8 @@ public sealed class HostLeaderElectionCoordinator(
                 await _leaseRepository.TryReleaseAsync(leaseName, id, applicationStoppingToken);
             }
 
-            if (applicationStoppingToken.IsCancellationRequested) return;
+            if (applicationStoppingToken.IsCancellationRequested)
+                return;
 
 
             // Lost lease while app still running: re-enter outer loop to compete again.
@@ -144,7 +145,8 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 await Task.Delay(TimeSpan.FromSeconds(renewIntervalSeconds), applicationStoppingToken);
 
-                if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested) return;
+                if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested)
+                    return;
 
 
                 bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
@@ -153,7 +155,8 @@ public sealed class HostLeaderElectionCoordinator(
                     leaseDurationSeconds,
                     applicationStoppingToken);
 
-                if (renewed) continue;
+                if (renewed)
+                    continue;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
 

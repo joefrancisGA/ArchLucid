@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;

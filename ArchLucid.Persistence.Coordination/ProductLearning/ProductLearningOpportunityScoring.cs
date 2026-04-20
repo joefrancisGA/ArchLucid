@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -94,7 +94,8 @@ public static class ProductLearningOpportunityScoring
 
     private static string Truncate(string value, int maxChars)
     {
-        if (value.Length <= maxChars) return value;
+        if (value.Length <= maxChars)
+            return value;
 
 
         return value[..maxChars];

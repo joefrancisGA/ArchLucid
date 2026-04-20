@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;

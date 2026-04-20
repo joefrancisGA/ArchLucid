@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
@@ -59,7 +59,8 @@ internal static class Program
 
         await using ServiceProvider provider = services.BuildServiceProvider();
 
-        if (readinessMode) return await RunReadinessAsync(provider);
+        if (readinessMode)
+            return await RunReadinessAsync(provider);
 
         return await RunBackfillAsync(provider, args);
     }
@@ -157,7 +158,8 @@ internal static class Program
                 continue;
             }
 
-            if (a.StartsWith('-')) continue;
+            if (a.StartsWith('-'))
+                continue;
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 connectionString = a;

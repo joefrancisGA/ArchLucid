@@ -40,7 +40,10 @@ public sealed class ArchLucidJobRunnerTests
 
     private sealed class StubJob(string name, int exitCode) : IArchLucidJob
     {
-        public bool Invoked { get; private set; }
+        public bool Invoked
+        {
+            get; private set;
+        }
 
         public string Name => name;
 

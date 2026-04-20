@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Safety;
 
 using Azure;
@@ -52,7 +52,8 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
     {
         ContentSafetyOptions options = _optionsMonitor.CurrentValue;
 
-        if (string.IsNullOrWhiteSpace(text)) return Allowed;
+        if (string.IsNullOrWhiteSpace(text))
+            return Allowed;
 
 
         AnalyzeTextOptions request = new(text)
@@ -82,17 +83,20 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
     {
         IReadOnlyList<TextCategoriesAnalysis>? analyses = result.CategoriesAnalysis;
 
-        if (analyses is null || analyses.Count == 0) return Allowed;
+        if (analyses is null || analyses.Count == 0)
+            return Allowed;
 
 
         foreach (TextCategoriesAnalysis row in analyses)
         {
             int? severity = row.Severity;
 
-            if (!severity.HasValue) continue;
+            if (!severity.HasValue)
+                continue;
 
 
-            if (severity.Value < blockSeverityThreshold) continue;
+            if (severity.Value < blockSeverityThreshold)
+                continue;
 
             string category = row.Category.ToString();
 

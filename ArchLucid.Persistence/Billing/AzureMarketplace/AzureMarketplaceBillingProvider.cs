@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -20,6 +20,8 @@ public sealed class AzureMarketplaceBillingProvider(
     BillingWebhookTrialActivator trialActivator,
     IMarketplaceWebhookTokenVerifier tokenVerifier,
     IHttpClientFactory httpClientFactory,
+    IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler,
+    IMarketplaceChangeQuantityWebhookMutationHandler changeQuantityWebhookMutationHandler,
     ILogger<AzureMarketplaceBillingProvider> logger) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
@@ -36,6 +38,12 @@ public sealed class AzureMarketplaceBillingProvider(
     private readonly IHttpClientFactory _httpClientFactory =
         httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
+    private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
+        changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
+
+    private readonly IMarketplaceChangeQuantityWebhookMutationHandler _changeQuantityWebhookMutationHandler =
+        changeQuantityWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changeQuantityWebhookMutationHandler));
+
     private readonly ILogger<AzureMarketplaceBillingProvider> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -48,7 +56,8 @@ public sealed class AzureMarketplaceBillingProvider(
         BillingOptions billing = _billingOptions.CurrentValue;
         string? landing = billing.AzureMarketplace.LandingPageUrl?.Trim();
 
-        if (string.IsNullOrWhiteSpace(landing)) throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
+        if (string.IsNullOrWhiteSpace(landing))
+            throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
 
 
         string sessionId = $"mkt_sess_{Guid.NewGuid():N}";
@@ -85,13 +94,15 @@ public sealed class AzureMarketplaceBillingProvider(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer)) return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
+        if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer))
+            return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
 
 
         System.Security.Claims.ClaimsPrincipal? principal =
             await _tokenVerifier.ValidateAsync(inbound.MarketplaceAuthorizationBearer, cancellationToken);
 
-        if (principal is null) return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
+        if (principal is null)
+            return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
 
 
         using JsonDocument doc = JsonDocument.Parse(inbound.RawBody);
@@ -118,7 +129,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(dedupeKey, cancellationToken);
 
-            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase)) return BillingWebhookHandleResult.Duplicate();
+            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
+                return BillingWebhookHandleResult.Duplicate();
 
         }
 
@@ -152,7 +164,8 @@ public sealed class AzureMarketplaceBillingProvider(
 
             await _ledger.MarkWebhookProcessedAsync(dedupeKey, webhookResultStatus, cancellationToken);
 
-            if (completion == MarketplaceDispatchCompletion.DeferredNoIntegration) return BillingWebhookHandleResult.AcceptedDeferred();
+            if (completion == MarketplaceDispatchCompletion.DeferredNoIntegration)
+                return BillingWebhookHandleResult.AcceptedDeferred();
 
 
             MarketplaceWebhookReceivedIntegrationPayload integrationPayload = new()
@@ -217,44 +230,22 @@ public sealed class AzureMarketplaceBillingProvider(
 
         if (string.Equals(normalized, "ChangePlan", StringComparison.OrdinalIgnoreCase))
         {
-            BillingOptions billing = _billingOptions.CurrentValue;
+            MarketplaceWebhookMutationOutcome outcome =
+                await _changePlanWebhookMutationHandler.HandleAsync(tenantId, root, rawBody, cancellationToken);
 
-            if (!billing.AzureMarketplace.GaEnabled)
-            {
-                _logger.LogInformation(
-                    "Marketplace ChangePlan acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false). TenantId={TenantId}",
-                    tenantId);
-
-                return MarketplaceDispatchCompletion.DeferredNoIntegration;
-            }
-
-            string tierCode = MarketplaceWebhookPayloadParser.TryGetPlanId(root, out string? planId)
-                ? MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
-                : nameof(TenantTier.Standard);
-
-            await _ledger.ChangePlanAsync(tenantId, tierCode, rawBody, cancellationToken);
-
-            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+            return outcome == MarketplaceWebhookMutationOutcome.DeferredGaDisabled
+                ? MarketplaceDispatchCompletion.DeferredNoIntegration
+                : MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
         if (string.Equals(normalized, "ChangeQuantity", StringComparison.OrdinalIgnoreCase))
         {
-            BillingOptions billing = _billingOptions.CurrentValue;
+            MarketplaceWebhookMutationOutcome outcome =
+                await _changeQuantityWebhookMutationHandler.HandleAsync(tenantId, root, rawBody, cancellationToken);
 
-            if (!billing.AzureMarketplace.GaEnabled)
-            {
-                _logger.LogInformation(
-                    "Marketplace ChangeQuantity acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false). TenantId={TenantId}",
-                    tenantId);
-
-                return MarketplaceDispatchCompletion.DeferredNoIntegration;
-            }
-
-            int seats = MarketplaceWebhookPayloadParser.ReadQuantity(root, 1);
-
-            await _ledger.ChangeQuantityAsync(tenantId, seats, rawBody, cancellationToken);
-
-            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+            return outcome == MarketplaceWebhookMutationOutcome.DeferredGaDisabled
+                ? MarketplaceDispatchCompletion.DeferredNoIntegration
+                : MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
         if (string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) ||
@@ -328,7 +319,8 @@ public sealed class AzureMarketplaceBillingProvider(
 
     private static Guid ReadGuid(JsonElement root, string name, Guid fallback)
     {
-        if (!root.TryGetProperty(name, out JsonElement el)) return fallback;
+        if (!root.TryGetProperty(name, out JsonElement el))
+            return fallback;
 
 
         string? s = el.GetString();
@@ -345,7 +337,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? fromClaim = principal.FindFirst(claimType)?.Value;
 
-            if (Guid.TryParse(fromClaim, out Guid tenantFromClaim)) return tenantFromClaim;
+            if (Guid.TryParse(fromClaim, out Guid tenantFromClaim))
+                return tenantFromClaim;
 
         }
 
@@ -354,7 +347,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? s = tenantEl.GetString();
 
-            if (Guid.TryParse(s, out Guid g)) return g;
+            if (Guid.TryParse(s, out Guid g))
+                return g;
 
         }
 

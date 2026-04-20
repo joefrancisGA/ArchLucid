@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -113,7 +113,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
     private static bool ListHasMeaningfulContent(IReadOnlyList<string>? list)
     {
-        if (list is null || list.Count == 0) return false;
+        if (list is null || list.Count == 0)
+            return false;
 
 
         return list.Any(s => !string.IsNullOrWhiteSpace(s));

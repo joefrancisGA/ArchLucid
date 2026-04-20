@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using Microsoft.OpenApi;
 
@@ -11,7 +11,8 @@ public sealed class PolicyPackContentDocumentSchemaFilter : ISchemaFilter
 {
     public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
-        if (context.Type != typeof(PolicyPackContentDocument)) return;
+        if (context.Type != typeof(PolicyPackContentDocument))
+            return;
 
         schema.Description =
             "Declarative governance payload. Empty `complianceRuleIds` and `complianceRuleKeys` mean no compliance filter; "

@@ -110,10 +110,26 @@ public sealed class ArchLucidProjectScaffolderTests
         {
             schemaVersion = "1.0",
             projectName = "P",
-            inputs = new { brief = rootedBrief },
-            outputs = new { localCacheDir = "outputs" },
-            plugins = new { lockFile = "plugins/plugin-lock.json" },
-            infra = new { terraform = new { enabled = false, path = "infra/terraform" } },
+            inputs = new
+            {
+                brief = rootedBrief
+            },
+            outputs = new
+            {
+                localCacheDir = "outputs"
+            },
+            plugins = new
+            {
+                lockFile = "plugins/plugin-lock.json"
+            },
+            infra = new
+            {
+                terraform = new
+                {
+                    enabled = false,
+                    path = "infra/terraform"
+                }
+            },
         };
         string json = JsonSerializer.Serialize(
             payload,
@@ -154,7 +170,10 @@ public sealed class ArchLucidProjectScaffolderTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } =
+        public string Path
+        {
+            get;
+        } =
             System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
 
         public TempDirectory()

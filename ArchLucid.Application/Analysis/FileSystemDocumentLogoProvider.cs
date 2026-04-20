@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -15,13 +15,16 @@ public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (!options.IncludeLogo) return null;
+        if (!options.IncludeLogo)
+            return null;
 
 
-        if (string.IsNullOrWhiteSpace(options.LogoPath)) return null;
+        if (string.IsNullOrWhiteSpace(options.LogoPath))
+            return null;
 
 
-        if (!File.Exists(options.LogoPath)) return null;
+        if (!File.Exists(options.LogoPath))
+            return null;
 
 
         return await File.ReadAllBytesAsync(options.LogoPath, cancellationToken);

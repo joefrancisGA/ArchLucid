@@ -6,12 +6,21 @@ namespace ArchLucid.Contracts.Governance;
 public sealed class ComplianceDriftTrendPoint
 {
     /// <summary>UTC start of the bucket (inclusive).</summary>
-    public DateTime BucketUtc { get; init; }
+    public DateTime BucketUtc
+    {
+        get; init;
+    }
 
     /// <summary>Total change log entries in this bucket.</summary>
-    public int ChangeCount { get; init; }
+    public int ChangeCount
+    {
+        get; init;
+    }
 
     /// <summary>Counts keyed by <see cref="PolicyPackChangeLogEntry.ChangeType"/>.</summary>
-    public IReadOnlyDictionary<string, int> ChangesByType { get; init; } =
+    public IReadOnlyDictionary<string, int> ChangesByType
+    {
+        get; init;
+    } =
         new Dictionary<string, int>(StringComparer.Ordinal);
 }

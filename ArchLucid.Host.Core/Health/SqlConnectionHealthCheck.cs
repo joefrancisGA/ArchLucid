@@ -23,10 +23,10 @@ public sealed class SqlConnectionHealthCheck(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
-        
+
             return HealthCheckResult.Healthy(
                 "Database readiness skipped: storage is InMemory (no SQL persistence).");
-        
+
 
         try
         {

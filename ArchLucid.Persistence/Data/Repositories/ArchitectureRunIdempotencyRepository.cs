@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -53,7 +53,8 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                     cancellationToken: cancellationToken))
             ;
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         return new ArchitectureRunIdempotencyLookup
         {
@@ -143,6 +144,9 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
     private sealed class ArchitectureRunIdempotencyRow
     {
         public string RunId { get; init; } = string.Empty;
-        public byte[]? RequestFingerprint { get; init; }
+        public byte[]? RequestFingerprint
+        {
+            get; init;
+        }
     }
 }

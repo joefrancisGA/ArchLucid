@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
@@ -93,7 +93,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
             .OrderBy(AgentTypeKeys.ResolveDispatchKey, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (orderedTasks.Length == 0) return [];
+        if (orderedTasks.Length == 0)
+            return [];
 
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -223,7 +224,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
     {
         AgentPromptCatalogOptions current = _promptCatalog.CurrentValue;
 
-        if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v)) return v.Trim();
+        if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v))
+            return v.Trim();
 
 
         return "default";

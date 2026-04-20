@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
@@ -12,13 +12,17 @@ public class FindingPayloadValidator : IFindingPayloadValidator
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (string.IsNullOrWhiteSpace(finding.FindingType)) throw new InvalidOperationException("FindingType is required.");
+        if (string.IsNullOrWhiteSpace(finding.FindingType))
+            throw new InvalidOperationException("FindingType is required.");
 
-        if (string.IsNullOrWhiteSpace(finding.Category)) throw new InvalidOperationException("Category is required.");
+        if (string.IsNullOrWhiteSpace(finding.Category))
+            throw new InvalidOperationException("Category is required.");
 
-        if (string.IsNullOrWhiteSpace(finding.EngineType)) throw new InvalidOperationException("EngineType is required.");
+        if (string.IsNullOrWhiteSpace(finding.EngineType))
+            throw new InvalidOperationException("EngineType is required.");
 
-        if (finding.Payload is null && !string.IsNullOrWhiteSpace(finding.PayloadType)) throw new InvalidOperationException("PayloadType was set but Payload is null.");
+        if (finding.Payload is null && !string.IsNullOrWhiteSpace(finding.PayloadType))
+            throw new InvalidOperationException("PayloadType was set but Payload is null.");
 
         if (finding.FindingType.Equals(FindingTypes.RequirementFinding, StringComparison.OrdinalIgnoreCase))
 
@@ -34,14 +38,16 @@ public class FindingPayloadValidator : IFindingPayloadValidator
         {
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
 
-            if (payload is null) throw new InvalidOperationException("SecurityControlFinding payload is invalid.");
+            if (payload is null)
+                throw new InvalidOperationException("SecurityControlFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals(FindingTypes.CostConstraintFinding, StringComparison.OrdinalIgnoreCase))
         {
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
 
-            if (payload is null) throw new InvalidOperationException("CostConstraintFinding payload is invalid.");
+            if (payload is null)
+                throw new InvalidOperationException("CostConstraintFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals(FindingTypes.PolicyApplicabilityFinding, StringComparison.OrdinalIgnoreCase))
@@ -68,14 +74,17 @@ public class FindingPayloadValidator : IFindingPayloadValidator
         {
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
 
-            if (payload is null) throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
+            if (payload is null)
+                throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
         }
 
-        if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase)) return;
+        if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase))
+            return;
 
         ComplianceFindingPayload? compliancePayload = FindingPayloadConverter.ToCompliancePayload(finding);
 
-        if (compliancePayload is null) throw new InvalidOperationException("ComplianceFinding payload is invalid.");
+        if (compliancePayload is null)
+            throw new InvalidOperationException("ComplianceFinding payload is invalid.");
     }
 }
 

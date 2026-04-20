@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Tenancy;
 
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -14,7 +14,8 @@ public sealed class TrialLimitExceededAuditFilter : IAsyncExceptionFilter
     /// <inheritdoc />
     public Task OnExceptionAsync(ExceptionContext context)
     {
-        if (context.Exception is not TrialLimitExceededException ex) return Task.CompletedTask;
+        if (context.Exception is not TrialLimitExceededException ex)
+            return Task.CompletedTask;
 
         return TrialLimitProblemResponse.TryLogAuditAsync(context.HttpContext, ex, context.HttpContext.RequestAborted);
     }

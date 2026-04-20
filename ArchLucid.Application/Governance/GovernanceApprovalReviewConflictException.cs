@@ -13,11 +13,20 @@ public sealed class GovernanceApprovalReviewConflictException : InvalidOperation
         CurrentStatus = currentStatus;
     }
 
-    public string ApprovalRequestId { get; }
+    public string ApprovalRequestId
+    {
+        get;
+    }
 
-    public string AttemptedOutcome { get; }
+    public string AttemptedOutcome
+    {
+        get;
+    }
 
-    public string CurrentStatus { get; }
+    public string CurrentStatus
+    {
+        get;
+    }
 
     private static string BuildMessage(string approvalRequestId, string attemptedOutcome, string currentStatus)
     {

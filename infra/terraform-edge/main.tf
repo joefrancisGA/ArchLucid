@@ -34,4 +34,9 @@ locals {
   secondary_origin_header = local.secondary_origin_enabled ? (
     trimspace(var.secondary_origin_host_header) != "" ? trimspace(var.secondary_origin_host_header) : trimspace(var.secondary_backend_hostname)
   ) : ""
+
+  marketing_edge_enabled = local.fd_enabled && trimspace(var.marketing_backend_hostname) != ""
+
+  # When splitting marketing vs API paths, WAF association must list every matched pattern set.
+  front_door_waf_association_patterns = local.marketing_edge_enabled ? distinct(concat(var.marketing_site_route_patterns, var.api_route_patterns_when_marketing_enabled)) : var.route_patterns
 }

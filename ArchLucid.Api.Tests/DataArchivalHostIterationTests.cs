@@ -22,7 +22,10 @@ public sealed class DataArchivalHostIterationTests
     public async Task RunOnceAsync_when_disabled_does_not_resolve_coordinator()
     {
         Mock<IServiceScopeFactory> scopeFactory = new();
-        DataArchivalOptions options = new() { Enabled = false };
+        DataArchivalOptions options = new()
+        {
+            Enabled = false
+        };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(
@@ -67,7 +70,10 @@ public sealed class DataArchivalHostIterationTests
         Mock<IServiceScopeFactory> scopeFactory = new();
         scopeFactory.Setup(f => f.CreateScope()).Returns(() => scopes.Dequeue());
 
-        DataArchivalOptions options = new() { Enabled = true };
+        DataArchivalOptions options = new()
+        {
+            Enabled = true
+        };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(
@@ -106,7 +112,10 @@ public sealed class DataArchivalHostIterationTests
         Mock<IServiceScopeFactory> scopeFactory = new();
         scopeFactory.Setup(f => f.CreateScope()).Returns(scopeCoordinator.Object);
 
-        DataArchivalOptions options = new() { Enabled = true };
+        DataArchivalOptions options = new()
+        {
+            Enabled = true
+        };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -27,13 +27,15 @@ public static class StructuredExplanationParser
     {
         structured = null;
 
-        if (string.IsNullOrWhiteSpace(rawText)) return false;
+        if (string.IsNullOrWhiteSpace(rawText))
+            return false;
 
         try
         {
             StructuredExplanationDto? dto = JsonSerializer.Deserialize<StructuredExplanationDto>(rawText.Trim(), Options);
 
-            if (dto is null || string.IsNullOrWhiteSpace(dto.Reasoning)) return false;
+            if (dto is null || string.IsNullOrWhiteSpace(dto.Reasoning))
+                return false;
 
             structured = MapFromDto(dto);
             return true;
@@ -49,7 +51,8 @@ public static class StructuredExplanationParser
     /// </summary>
     public static StructuredExplanation Parse(string? rawText)
     {
-        if (TryNormalizeStructuredJson(rawText, out StructuredExplanation? normalized)) return normalized;
+        if (TryNormalizeStructuredJson(rawText, out StructuredExplanation? normalized))
+            return normalized;
 
         return new StructuredExplanation
         {
@@ -64,13 +67,16 @@ public static class StructuredExplanationParser
 
     internal static decimal? ClampConfidence(decimal? value)
     {
-        if (value is null) return null;
+        if (value is null)
+            return null;
 
         decimal v = value.Value;
 
-        if (v < 0m) return 0m;
+        if (v < 0m)
+            return 0m;
 
-        if (v > 1m) return 1m;
+        if (v > 1m)
+            return 1m;
 
         return v;
     }
@@ -95,14 +101,29 @@ public static class StructuredExplanationParser
     {
         public int SchemaVersion { get; set; } = 1;
 
-        public string? Reasoning { get; set; }
+        public string? Reasoning
+        {
+            get; set;
+        }
 
-        public List<string>? EvidenceRefs { get; set; }
+        public List<string>? EvidenceRefs
+        {
+            get; set;
+        }
 
-        public decimal? Confidence { get; set; }
+        public decimal? Confidence
+        {
+            get; set;
+        }
 
-        public List<string>? AlternativesConsidered { get; set; }
+        public List<string>? AlternativesConsidered
+        {
+            get; set;
+        }
 
-        public List<string>? Caveats { get; set; }
+        public List<string>? Caveats
+        {
+            get; set;
+        }
     }
 }

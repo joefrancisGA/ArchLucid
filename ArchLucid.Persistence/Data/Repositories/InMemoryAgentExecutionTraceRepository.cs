@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -40,7 +40,8 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         lock (_gate)
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-            if (i < 0) return Task.CompletedTask;
+            if (i < 0)
+                return Task.CompletedTask;
 
 
             AgentExecutionTrace t = Clone(_items[i]);
@@ -104,7 +105,8 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
 
-            if (i < 0) return Task.CompletedTask;
+            if (i < 0)
+                return Task.CompletedTask;
 
 
             AgentExecutionTrace t = Clone(_items[i]);

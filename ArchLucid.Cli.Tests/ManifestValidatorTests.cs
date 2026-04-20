@@ -97,7 +97,10 @@ public sealed class ManifestValidatorTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } =
+        public string Path
+        {
+            get;
+        } =
             System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
 
         public TempDirectory()

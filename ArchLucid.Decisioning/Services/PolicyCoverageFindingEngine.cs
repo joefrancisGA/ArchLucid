@@ -52,7 +52,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
         }
 
         if (result.UncoveredResources.Count > 0)
-        
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -85,7 +85,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     ]
                 }
             });
-        
+
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

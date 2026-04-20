@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.Host.Core.Ask;
@@ -75,7 +75,8 @@ public sealed class AskService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.Question)) throw new ArgumentException("Question is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Question))
+            throw new ArgumentException("Question is required.", nameof(request));
 
         ConversationThread thread = await conversationService.GetOrCreateThreadAsync(
             request.ThreadId,
@@ -270,7 +271,8 @@ public sealed class AskService(
 
     private static string BuildRetrievalContext(IReadOnlyList<RetrievalHit> hits)
     {
-        if (hits.Count == 0) return string.Empty;
+        if (hits.Count == 0)
+            return string.Empty;
 
         return string.Join(
             Environment.NewLine + Environment.NewLine,
@@ -283,7 +285,8 @@ public sealed class AskService(
         IReadOnlyList<ConversationMessage> messages,
         string question)
     {
-        if (messages.Count == 0) return messages;
+        if (messages.Count == 0)
+            return messages;
 
         ConversationMessage last = messages[^1];
         if (last.Role == ConversationMessageRole.User &&
@@ -295,7 +298,8 @@ public sealed class AskService(
 
     private static string BuildConversationHistory(IReadOnlyList<ConversationMessage> messages)
     {
-        if (messages.Count == 0) return string.Empty;
+        if (messages.Count == 0)
+            return string.Empty;
 
         return string.Join(
             Environment.NewLine,
@@ -311,9 +315,11 @@ public sealed class AskService(
 
     private static string? UnwrapJsonFence(string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return raw;
+        if (string.IsNullOrWhiteSpace(raw))
+            return raw;
         string s = raw.Trim();
-        if (!s.StartsWith("```", StringComparison.Ordinal)) return s;
+        if (!s.StartsWith("```", StringComparison.Ordinal))
+            return s;
         int firstNl = s.IndexOf('\n');
         if (firstNl > 0)
             s = s[(firstNl + 1)..].Trim();
@@ -325,7 +331,8 @@ public sealed class AskService(
 
     private LlmAskShape? TryDeserialize(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return null;
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
         try
         {
             return JsonSerializer.Deserialize<LlmAskShape>(json, JsonRead);
@@ -339,9 +346,21 @@ public sealed class AskService(
 
     private sealed class LlmAskShape
     {
-        public string? Answer { get; init; }
-        public List<string>? ReferencedDecisions { get; init; }
-        public List<string>? ReferencedFindings { get; init; }
-        public List<string>? ReferencedArtifacts { get; init; }
+        public string? Answer
+        {
+            get; init;
+        }
+        public List<string>? ReferencedDecisions
+        {
+            get; init;
+        }
+        public List<string>? ReferencedFindings
+        {
+            get; init;
+        }
+        public List<string>? ReferencedArtifacts
+        {
+            get; init;
+        }
     }
 }

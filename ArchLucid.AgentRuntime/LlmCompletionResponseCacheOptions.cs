@@ -22,7 +22,10 @@ public sealed class LlmCompletionResponseCacheOptions
 
     /// <summary>Optional Redis connection when <see cref="Provider"/> is <c>Distributed</c> and no shared <c>IDistributedCache</c> is registered yet.</summary>
     /// <remarks>Falls back to <c>HotPathCache:RedisConnectionString</c> when unset.</remarks>
-    public string? RedisConnectionString { get; set; }
+    public string? RedisConnectionString
+    {
+        get; set;
+    }
 
     /// <summary>Maximum cached responses for <c>Memory</c> provider (entry count with uniform entry size).</summary>
     public int MaxEntries { get; set; } = 256;

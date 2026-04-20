@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Topology;
 
@@ -61,7 +61,8 @@ public class PolicyReferenceConnector : IContextConnector
     /// </summary>
     private static string? BuildApplicableTopologyNodeIds(string policyReference, List<string> topologyHints)
     {
-        if (topologyHints.Count == 0) return null;
+        if (topologyHints.Count == 0)
+            return null;
 
         HashSet<string> ids = [];
 

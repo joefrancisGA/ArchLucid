@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -28,7 +28,8 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             string terraformType = match.Groups["type"].Value;
             string name = match.Groups["name"].Value;
 
-            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name)) continue;
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+                continue;
 
             string objectType = ResolveObjectType(terraformType);
 

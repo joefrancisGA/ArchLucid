@@ -70,21 +70,45 @@ public sealed class PromptRegressionBaselineContractTests
             CriticMinSemantic = criticMinSemantic;
         }
 
-        public double TopologyMinStructural { get; }
+        public double TopologyMinStructural
+        {
+            get;
+        }
 
-        public double TopologyMinSemantic { get; }
+        public double TopologyMinSemantic
+        {
+            get;
+        }
 
-        public double CostMinStructural { get; }
+        public double CostMinStructural
+        {
+            get;
+        }
 
-        public double CostMinSemantic { get; }
+        public double CostMinSemantic
+        {
+            get;
+        }
 
-        public double ComplianceMinStructural { get; }
+        public double ComplianceMinStructural
+        {
+            get;
+        }
 
-        public double ComplianceMinSemantic { get; }
+        public double ComplianceMinSemantic
+        {
+            get;
+        }
 
-        public double CriticMinStructural { get; }
+        public double CriticMinStructural
+        {
+            get;
+        }
 
-        public double CriticMinSemantic { get; }
+        public double CriticMinSemantic
+        {
+            get;
+        }
 
         public static BaselineMins LoadFromOutput()
         {

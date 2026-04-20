@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -88,7 +88,8 @@ public sealed class PolicyPacksAppService(
         PolicyPackVersion? packVersion = await versionRepository
             .GetByPackAndVersionAsync(policyPackId, version, ct)
             ;
-        if (packVersion is null) return null;
+        if (packVersion is null)
+            return null;
 
         PolicyPackAssignment assignment = await managementService
             .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
@@ -118,7 +119,8 @@ public sealed class PolicyPacksAppService(
     {
         bool ok = await managementService.TryArchiveAssignmentAsync(tenantId, assignmentId, ct);
 
-        if (!ok) return false;
+        if (!ok)
+            return false;
 
         await auditService.LogAsync(
             new AuditEvent

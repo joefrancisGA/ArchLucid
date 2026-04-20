@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace ArchLucid.Api.ProductLearning;
 
@@ -41,7 +41,8 @@ internal static class ProductLearningQueryParser
         formatNormalized = "markdown";
         error = null;
 
-        if (string.IsNullOrWhiteSpace(raw)) return true;
+        if (string.IsNullOrWhiteSpace(raw))
+            return true;
 
 
         string f = raw.Trim();
@@ -98,7 +99,8 @@ internal static class ProductLearningQueryParser
         sinceUtc = null;
         error = null;
 
-        if (string.IsNullOrWhiteSpace(since)) return true;
+        if (string.IsNullOrWhiteSpace(since))
+            return true;
 
 
         if (!DateTimeOffset.TryParse(

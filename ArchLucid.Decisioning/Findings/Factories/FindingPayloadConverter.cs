@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
@@ -23,7 +23,10 @@ public static class FindingPayloadConverter
     /// Case-insensitive matching is required to handle mixed-case keys returned by LLM engines.
     /// </summary>
     private static readonly JsonSerializerOptions CaseInsensitiveOptions =
-        new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+        new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
     /// <summary>
     /// Converts <see cref="Finding.Payload"/> to <typeparamref name="T"/>.
@@ -40,9 +43,11 @@ public static class FindingPayloadConverter
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (finding.Payload is null) return default;
+        if (finding.Payload is null)
+            return default;
 
-        if (finding.Payload is T typed) return typed;
+        if (finding.Payload is T typed)
+            return typed;
 
         if (finding.Payload is JsonElement jsonElement)
 

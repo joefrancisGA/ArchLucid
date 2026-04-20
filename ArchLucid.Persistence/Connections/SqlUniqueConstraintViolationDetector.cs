@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Connections;
 
@@ -13,9 +13,11 @@ public static class SqlUniqueConstraintViolationDetector
     /// <summary>Returns <see langword="true"/> when <paramref name="ex"/> or an inner exception is a unique-key <see cref="SqlException"/>.</summary>
     public static bool IsUniqueKeyViolation(Exception? ex)
     {
-        if (ex is null) return false;
+        if (ex is null)
+            return false;
 
-        if (ex is SqlException { Number: 2601 or 2627 }) return true;
+        if (ex is SqlException { Number: 2601 or 2627 })
+            return true;
 
         return IsUniqueKeyViolation(ex.InnerException);
     }

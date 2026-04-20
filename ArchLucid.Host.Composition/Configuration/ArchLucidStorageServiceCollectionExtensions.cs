@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -102,7 +102,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
                 return ActivatorUtilities.CreateInstance<AzureCommunicationServicesEmailProvider>(sp);
 
 
-            if (string.Equals(provider, EmailProviderNames.Smtp, StringComparison.OrdinalIgnoreCase)) return ActivatorUtilities.CreateInstance<SmtpEmailProvider>(sp);
+            if (string.Equals(provider, EmailProviderNames.Smtp, StringComparison.OrdinalIgnoreCase))
+                return ActivatorUtilities.CreateInstance<SmtpEmailProvider>(sp);
 
 
             return new NoopEmailProvider();
@@ -134,9 +135,11 @@ public static class ArchLucidStorageServiceCollectionExtensions
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
 
-        if (!llm.Enabled || !string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase)) return;
+        if (!llm.Enabled || !string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
+            return;
 
-        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache))) return;
+        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            return;
 
         HotPathCacheOptions hotPath =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
@@ -161,7 +164,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
 
-        if (!llm.Enabled) return;
+        if (!llm.Enabled)
+            return;
 
         if (string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
         {
@@ -185,7 +189,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
                                            .Get<HotPathCacheOptions>()
                                        ?? new HotPathCacheOptions();
 
-        if (!snapshot.Enabled) return;
+        if (!snapshot.Enabled)
+            return;
 
         string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
 

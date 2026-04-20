@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -83,12 +83,14 @@ public static class ProductLearningTriageReportBuilder
 
         foreach (FeedbackAggregate a in aggOrdered)
         {
-            if (lines.Count >= maxLines) break;
+            if (lines.Count >= maxLines)
+                break;
 
 
             string line = FormatAggregateProblemLine(a);
 
-            if (line.Length == 0 || !seen.Add(line)) continue;
+            if (line.Length == 0 || !seen.Add(line))
+                continue;
 
 
             lines.Add(Truncate(line, 200));
@@ -96,12 +98,14 @@ public static class ProductLearningTriageReportBuilder
 
         foreach (ImprovementOpportunity o in summary.Opportunities.OrderBy(static o => o.PriorityRank).ThenBy(static o => o.Title, StringComparer.Ordinal))
         {
-            if (lines.Count >= maxLines) break;
+            if (lines.Count >= maxLines)
+                break;
 
 
             string line = Truncate((o.Title ?? string.Empty).Trim(), 200);
 
-            if (line.Length == 0 || !seen.Add(line)) continue;
+            if (line.Length == 0 || !seen.Add(line))
+                continue;
 
 
             lines.Add(line);
@@ -183,7 +187,8 @@ public static class ProductLearningTriageReportBuilder
 
     private static string? TrimHint(string? value, int maxLen)
     {
-        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
 
 
         return Truncate(value.Trim(), maxLen);
@@ -191,7 +196,8 @@ public static class ProductLearningTriageReportBuilder
 
     private static string Truncate(string value, int maxLen)
     {
-        if (value.Length <= maxLen) return value;
+        if (value.Length <= maxLen)
+            return value;
 
 
         return value[..(maxLen - 1)] + "…";

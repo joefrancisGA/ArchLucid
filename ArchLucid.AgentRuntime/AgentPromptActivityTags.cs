@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Prompts;
 
@@ -13,7 +13,8 @@ public static class AgentPromptActivityTags
         ArgumentNullException.ThrowIfNull(resolved);
         Activity? activity = Activity.Current;
 
-        if (activity is null) return;
+        if (activity is null)
+            return;
 
 
         activity.SetTag("archlucid.agent.prompt_template_id", resolved.TemplateId);

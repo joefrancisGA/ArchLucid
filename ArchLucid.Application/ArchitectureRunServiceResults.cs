@@ -18,7 +18,10 @@ public sealed class CreateRunResult
     public List<AgentTask> Tasks { get; set; } = [];
 
     /// <summary><see langword="true"/> when this result was produced from a prior <c>Idempotency-Key</c> (HTTP 200 replay).</summary>
-    public bool IdempotentReplay { get; set; }
+    public bool IdempotentReplay
+    {
+        get; set;
+    }
 }
 
 /// <summary>

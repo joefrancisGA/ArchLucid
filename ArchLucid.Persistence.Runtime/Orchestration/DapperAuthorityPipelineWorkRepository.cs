@@ -61,7 +61,10 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<AuthorityPipelineWorkOutboxEntry> rows = await connection.QueryAsync<AuthorityPipelineWorkOutboxEntry>(
-            new CommandDefinition(sql, new { Take = take }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                Take = take
+            }, cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
@@ -77,7 +80,10 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                OutboxId = outboxId
+            }, cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />

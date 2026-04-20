@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -28,7 +28,8 @@ public sealed class CloudEventsWrappingWebhookPoster(
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        if (!deliveryOptions.CurrentValue.UseCloudEventsEnvelope) return inner.PostJsonAsync(url, payload, ct, options);
+        if (!deliveryOptions.CurrentValue.UseCloudEventsEnvelope)
+            return inner.PostJsonAsync(url, payload, ct, options);
 
 
         string source = string.IsNullOrWhiteSpace(deliveryOptions.CurrentValue.CloudEventsSource)

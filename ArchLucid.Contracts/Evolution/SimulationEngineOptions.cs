@@ -4,8 +4,14 @@ namespace ArchLucid.Contracts.Evolution;
 public sealed class SimulationEngineOptions
 {
     /// <summary>First pass (before). When null, <see cref="SimulationReadProfile.StrictReadOnly"/> is used.</summary>
-    public SimulationReadProfile? BaselineReadProfile { get; init; }
+    public SimulationReadProfile? BaselineReadProfile
+    {
+        get; init;
+    }
 
     /// <summary>Second pass (simulated / after). When null, matches baseline (single read-only pass).</summary>
-    public SimulationReadProfile? SimulatedReadProfile { get; init; }
+    public SimulationReadProfile? SimulatedReadProfile
+    {
+        get; init;
+    }
 }

@@ -10,8 +10,14 @@ public sealed class GovernanceApprovalBatchReviewRequest
     public string Decision { get; set; } = "";
 
     /// <summary>Optional comment recorded on each successful transition.</summary>
-    public string? ReviewComment { get; set; }
+    public string? ReviewComment
+    {
+        get; set;
+    }
 
     /// <summary>When empty, the current actor from the HTTP actor context is used.</summary>
-    public string? ReviewedBy { get; set; }
+    public string? ReviewedBy
+    {
+        get; set;
+    }
 }

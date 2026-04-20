@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Validation;
+using ArchLucid.Decisioning.Validation;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 

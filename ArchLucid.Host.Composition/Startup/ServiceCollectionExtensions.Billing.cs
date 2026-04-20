@@ -1,3 +1,4 @@
+using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing;
@@ -15,6 +16,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingProvider>();
         services.AddScoped<NoopBillingProvider>();
+        services.AddScoped<IMarketplaceChangePlanWebhookMutationHandler, MarketplaceChangePlanWebhookMutationHandler>();
+        services.AddScoped<IMarketplaceChangeQuantityWebhookMutationHandler, MarketplaceChangeQuantityWebhookMutationHandler>();
         services.AddScoped<AzureMarketplaceBillingProvider>();
         services.AddScoped<IMarketplaceWebhookTokenVerifier, MicrosoftMarketplaceJwtVerifier>();
         services.AddScoped<IBillingProviderRegistry, BillingProviderRegistry>();

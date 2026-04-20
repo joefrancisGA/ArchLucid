@@ -11,5 +11,8 @@ public sealed class RunConcurrencyConflictException : InvalidOperationException
     }
 
     /// <summary>Run that failed the optimistic concurrency check.</summary>
-    public Guid RunId { get; }
+    public Guid RunId
+    {
+        get;
+    }
 }

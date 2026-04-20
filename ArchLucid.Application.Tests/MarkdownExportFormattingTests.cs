@@ -44,7 +44,10 @@ public sealed class MarkdownExportFormattingTests
     public void MarkdownDriftReportFormatter_FormatHtml_encodes_comparison_id()
     {
         MarkdownDriftReportFormatter fmt = new();
-        DriftAnalysisResult drift = new() { DriftDetected = false };
+        DriftAnalysisResult drift = new()
+        {
+            DriftDetected = false
+        };
 
         string html = fmt.FormatHtml(drift, "<b>x</b>");
 
@@ -81,7 +84,10 @@ public sealed class MarkdownExportFormattingTests
     public void MarkdownArchitectureExportService_includes_diagram_fence_and_evidence_counts()
     {
         MarkdownArchitectureExportService svc = new();
-        GoldenManifest m = new() { SystemName = "Sys" };
+        GoldenManifest m = new()
+        {
+            SystemName = "Sys"
+        };
         AgentEvidencePackage ev = new()
         {
             EvidencePackageId = "e1",

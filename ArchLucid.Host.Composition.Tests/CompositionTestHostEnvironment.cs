@@ -13,7 +13,10 @@ public sealed class CompositionTestHostEnvironment : IHostEnvironment
         EnvironmentName = environmentName ?? throw new ArgumentNullException(nameof(environmentName));
     }
 
-    public string EnvironmentName { get; set; }
+    public string EnvironmentName
+    {
+        get; set;
+    }
 
     public string ApplicationName { get; set; } = "ArchLucid.Host.Composition.Tests";
 

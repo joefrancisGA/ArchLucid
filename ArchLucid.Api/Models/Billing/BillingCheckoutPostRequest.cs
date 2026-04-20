@@ -4,15 +4,27 @@ namespace ArchLucid.Api.Models.Billing;
 public sealed class BillingCheckoutPostRequest
 {
     /// <summary>One of <c>Team</c>, <c>Pro</c>, or <c>Enterprise</c>.</summary>
-    public string? TargetTier { get; init; }
+    public string? TargetTier
+    {
+        get; init;
+    }
 
     public int Seats { get; init; } = 1;
 
     public int Workspaces { get; init; } = 1;
 
-    public string? BillingEmail { get; init; }
+    public string? BillingEmail
+    {
+        get; init;
+    }
 
-    public string? ReturnUrl { get; init; }
+    public string? ReturnUrl
+    {
+        get; init;
+    }
 
-    public string? CancelUrl { get; init; }
+    public string? CancelUrl
+    {
+        get; init;
+    }
 }

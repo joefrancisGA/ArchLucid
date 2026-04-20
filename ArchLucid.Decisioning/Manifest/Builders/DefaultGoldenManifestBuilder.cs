@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Findings;
@@ -159,7 +159,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementFinding))
         {
             RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             RequirementCoverageItem item = new()
             {
@@ -187,7 +188,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     {
         foreach (GraphNode node in graphSnapshot.GetNodesByType("TopologyResource"))
         {
-            if (string.IsNullOrWhiteSpace(node.Label)) continue;
+            if (string.IsNullOrWhiteSpace(node.Label))
+                continue;
             manifest.Topology.Resources.Add(node.Label);
         }
     }
@@ -218,7 +220,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityControlFinding))
         {
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             manifest.Security.Controls.Add(new SecurityPostureItem
             {
@@ -228,7 +231,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 Impact = payload.Impact
             });
 
-            if (!string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase)) continue;
+            if (!string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase))
+                continue;
 
             manifest.Security.Gaps.Add($"{payload.ControlName} is missing");
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
@@ -258,7 +262,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.ComplianceFinding))
         {
             ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             manifest.Compliance.Controls.Add(new CompliancePostureItem
             {
@@ -290,7 +295,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.CostConstraintFinding))
         {
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             if (payload.MaxMonthlyCost.HasValue)
                 manifest.Cost.MaxMonthlyCost = payload.MaxMonthlyCost.Value;
@@ -313,7 +319,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             if (finding.Severity == FindingSeverity.Warning)
             {
@@ -340,7 +347,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
             string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference) ? payload.PolicyName : payload.PolicyReference!;
@@ -371,7 +379,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             if (payload.UncoveredResources.Count == 0)
             {
@@ -406,7 +415,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyCoverageFinding))
         {
             TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
-            if (payload is null || payload.MissingCategories.Count == 0) continue;
+            if (payload is null || payload.MissingCategories.Count == 0)
+                continue;
 
             foreach (string category in payload.MissingCategories)
                 manifest.Topology.Gaps.Add($"Missing topology category: {category}");
@@ -424,7 +434,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityCoverageFinding))
         {
             SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             foreach (string resource in payload.UnprotectedResources)
                 manifest.Security.Gaps.Add($"{resource} is not protected");
@@ -442,7 +453,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
@@ -459,7 +471,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementCoverageFinding))
         {
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
-            if (payload is null) continue;
+            if (payload is null)
+                continue;
 
             foreach (string req in payload.UncoveredRequirements)
 

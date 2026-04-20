@@ -24,11 +24,20 @@ public sealed class AgentResultSchemaViolationException : InvalidOperationExcept
     }
 
     /// <summary>Human-readable schema validation messages.</summary>
-    public IReadOnlyList<string> SchemaErrors { get; }
+    public IReadOnlyList<string> SchemaErrors
+    {
+        get;
+    }
 
     /// <summary>Raw assistant JSON truncated for logs and exceptions (max ~2k chars).</summary>
-    public string TruncatedJson { get; }
+    public string TruncatedJson
+    {
+        get;
+    }
 
     /// <summary>Expected agent role for this parse.</summary>
-    public AgentType AgentType { get; }
+    public AgentType AgentType
+    {
+        get;
+    }
 }

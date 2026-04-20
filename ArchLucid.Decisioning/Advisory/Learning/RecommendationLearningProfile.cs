@@ -8,9 +8,18 @@ namespace ArchLucid.Decisioning.Advisory.Learning;
 /// </remarks>
 public class RecommendationLearningProfile
 {
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>When this profile snapshot was generated (UTC).</summary>
     public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;

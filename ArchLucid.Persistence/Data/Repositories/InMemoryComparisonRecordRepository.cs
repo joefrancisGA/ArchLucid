@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -206,7 +206,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             int i = _items.FindIndex(r =>
                 string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
 
-            if (i < 0) return Task.FromResult(false);
+            if (i < 0)
+                return Task.FromResult(false);
 
             if (label is not null)
                 _items[i].Label = label;
@@ -260,7 +261,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
 
             foreach (string t in tags)
             {
-                if (string.IsNullOrWhiteSpace(t)) continue;
+                if (string.IsNullOrWhiteSpace(t))
+                    continue;
 
                 string needle = t;
 
@@ -329,7 +331,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             ComparisonRecord? row = _items.FirstOrDefault(r =>
                 string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
 
-            if (row is null) throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+            if (row is null)
+                throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
 
             row.PayloadJson = payloadJson;
         }

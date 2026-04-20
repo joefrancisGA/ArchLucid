@@ -14,7 +14,10 @@ public sealed class ManifestDeltaProposal
     public string ProposalId { get; set; } = Guid.NewGuid().ToString("N");
 
     /// <summary>The agent type that submitted this proposal.</summary>
-    public AgentType SourceAgent { get; set; }
+    public AgentType SourceAgent
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Services the proposing agent wants to add to the manifest topology.

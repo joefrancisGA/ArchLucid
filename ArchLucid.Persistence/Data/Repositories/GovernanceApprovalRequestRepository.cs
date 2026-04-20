@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
@@ -218,7 +218,10 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
-            new { ApprovalRequestId = approvalRequestId },
+            new
+            {
+                ApprovalRequestId = approvalRequestId
+            },
             cancellationToken: cancellationToken));
     }
 
@@ -252,7 +255,10 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -262,7 +268,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         const string sql = """
@@ -305,7 +312,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         const string sql = """
@@ -406,7 +414,11 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new { ApprovalRequestId = approvalRequestId, SlaBreachNotifiedUtc = slaBreachNotifiedUtc },
+            new
+            {
+                ApprovalRequestId = approvalRequestId,
+                SlaBreachNotifiedUtc = slaBreachNotifiedUtc
+            },
             cancellationToken: cancellationToken));
     }
 }

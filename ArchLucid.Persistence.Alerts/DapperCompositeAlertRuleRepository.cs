@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Decisioning.Alerts.Composite;
@@ -168,7 +168,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 CompositeRuleId = compositeRuleId
             }, cancellationToken: ct));
 
-        if (rule is null) return null;
+        if (rule is null)
+            return null;
 
         List<CompositeAlertRule> singleRule = [rule];
         await HydrateConditionsAsync(connection, singleRule, ct);
@@ -267,7 +268,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         List<CompositeAlertRule> rules,
         CancellationToken ct)
     {
-        if (rules.Count == 0) return;
+        if (rules.Count == 0)
+            return;
 
         const string sql = """
             SELECT
@@ -292,7 +294,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         foreach (CompositeAlertRule rule in rules)
         {
             rule.Conditions.Clear();
-            if (!byRule.TryGetValue(rule.CompositeRuleId, out List<ConditionRow>? list)) continue;
+            if (!byRule.TryGetValue(rule.CompositeRuleId, out List<ConditionRow>? list))
+                continue;
 
             foreach (ConditionRow row in list)
 

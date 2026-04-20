@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
@@ -201,7 +201,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         if (m.Compliance.Gaps.Count > 0)
             list.Add($"{m.Compliance.Gaps.Count} compliance gap(s).");
 
-        if (g is null) return list;
+        if (g is null)
+            return list;
 
         Dictionary<ProvenanceNodeType, int> byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
         list.Add(
@@ -258,7 +259,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
     private T? TryDeserialize<T>(string? json) where T : class
     {
-        if (string.IsNullOrWhiteSpace(json)) return null;
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
 
         try
         {
@@ -295,7 +297,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     {
         string r = reasoning.Trim();
 
-        if (r.Length == 0) return heuristicSummary;
+        if (r.Length == 0)
+            return heuristicSummary;
 
         int idx = r.IndexOf("\n\n", StringComparison.Ordinal);
 
@@ -303,7 +306,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
         const int maxLen = 500;
 
-        if (first.Length > maxLen) return first[..maxLen].TrimEnd() + "…";
+        if (first.Length > maxLen)
+            return first[..maxLen].TrimEnd() + "…";
 
         return first;
     }
@@ -362,22 +366,37 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     private sealed class LlmComparisonJson
     {
         [UsedImplicitly]
-        public string? HighLevelSummary { get; }
+        public string? HighLevelSummary
+        {
+            get;
+        }
 
         [UsedImplicitly]
-        public List<string>? KeyTradeoffs { get; }
+        public List<string>? KeyTradeoffs
+        {
+            get;
+        }
 
         [UsedImplicitly]
-        public string? Narrative { get; }
+        public string? Narrative
+        {
+            get;
+        }
     }
 
     [UsedImplicitly]
     private sealed class LlmRunJsonDto
     {
         [UsedImplicitly]
-        public string? Summary { get; set; }
+        public string? Summary
+        {
+            get; set;
+        }
 
         [UsedImplicitly]
-        public string? DetailedNarrative { get; set; }
+        public string? DetailedNarrative
+        {
+            get; set;
+        }
     }
 }

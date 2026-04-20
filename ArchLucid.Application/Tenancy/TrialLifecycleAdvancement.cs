@@ -10,9 +10,18 @@ public sealed class TrialLifecycleAdvancement
         Reason = reason;
     }
 
-    public string FromStatus { get; }
+    public string FromStatus
+    {
+        get;
+    }
 
-    public string ToStatus { get; }
+    public string ToStatus
+    {
+        get;
+    }
 
-    public string Reason { get; }
+    public string Reason
+    {
+        get;
+    }
 }

@@ -162,7 +162,10 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
     [Fact]
     public void AnalyzeSnapshot_zero_findings_returns_empty_by_engine()
     {
-        FindingsSnapshot snapshot = new() { Findings = [] };
+        FindingsSnapshot snapshot = new()
+        {
+            Findings = []
+        };
 
         TraceCompletenessSummary summary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(snapshot);
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -31,7 +31,8 @@ public sealed class ArchLucidApiClient
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
-        if (invalidReason is not null) throw new ArgumentException(invalidReason, nameof(baseUrl));
+        if (invalidReason is not null)
+            throw new ArgumentException(invalidReason, nameof(baseUrl));
 
 
         string normalized = baseUrl.Trim().TrimEnd('/');
@@ -70,7 +71,8 @@ public sealed class ArchLucidApiClient
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
-        if (string.IsNullOrWhiteSpace(apiKey)) return http;
+        if (string.IsNullOrWhiteSpace(apiKey))
+            return http;
         http.DefaultRequestHeaders.Remove("X-Api-Key");
         http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
@@ -96,7 +98,8 @@ public sealed class ArchLucidApiClient
             return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
 
 
-        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) return $"API base URL must use http or https (got '{uri.Scheme}').";
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            return $"API base URL must use http or https (got '{uri.Scheme}').";
 
 
         return null;
@@ -199,12 +202,14 @@ public sealed class ArchLucidApiClient
                 int toRead = (int)Math.Min(buffer.Length, maxBytes + 1 - accumulator.Length);
 
 
-                if (toRead <= 0) break;
+                if (toRead <= 0)
+                    break;
 
                 int n = await stream.ReadAsync(buffer.AsMemory(0, toRead), ct);
 
 
-                if (n == 0) break;
+                if (n == 0)
+                    break;
 
                 accumulator.Write(buffer, 0, n);
             }
@@ -232,7 +237,8 @@ public sealed class ArchLucidApiClient
         try
         {
             Gen.ArchitectureRequest? body = MapToGenerated(request);
-            if (body is null) return CreateRunResult.Fail(null, "Invalid architecture request payload.");
+            if (body is null)
+                return CreateRunResult.Fail(null, "Invalid architecture request payload.");
 
 
             Gen.CreateArchitectureRunResponse created = await _api.RequestAsync(body, ct);
@@ -263,7 +269,8 @@ public sealed class ArchLucidApiClient
         {
             result.RunId = runId;
             Gen.AgentResult? genResult = MapToGenerated(result);
-            if (genResult is null) return new SubmitResultResult(false, null, "Invalid agent result payload.");
+            if (genResult is null)
+                return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
 
             Gen.SubmitAgentResultRequest req = new()
@@ -832,12 +839,15 @@ public sealed class ArchLucidApiClient
     {
         string? fromBody = TryParseError(ex.Response ?? string.Empty);
 
-        if (!string.IsNullOrWhiteSpace(fromBody)) return fromBody;
+        if (!string.IsNullOrWhiteSpace(fromBody))
+            return fromBody;
 
 
-        if (ex is not Gen.ArchLucidApiException<Gen.ProblemDetails> typed) return ex.Message;
+        if (ex is not Gen.ArchLucidApiException<Gen.ProblemDetails> typed)
+            return ex.Message;
 
-        if (!string.IsNullOrWhiteSpace(typed.Result?.Detail)) return typed.Result.Detail;
+        if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
+            return typed.Result.Detail;
 
 
         return !string.IsNullOrWhiteSpace(typed.Result?.Title) ? typed.Result.Title : ex.Message;
@@ -852,10 +862,12 @@ public sealed class ArchLucidApiClient
         {
             JsonDocument doc = JsonDocument.Parse(json);
             JsonElement root = doc.RootElement;
-            if (root.TryGetProperty("detail", out JsonElement detail)) return detail.GetString();
+            if (root.TryGetProperty("detail", out JsonElement detail))
+                return detail.GetString();
 
 
-            if (root.TryGetProperty("error", out JsonElement err)) return err.GetString();
+            if (root.TryGetProperty("error", out JsonElement err))
+                return err.GetString();
 
 
             if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
@@ -863,7 +875,8 @@ public sealed class ArchLucidApiClient
                 return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
 
 
-            if (root.TryGetProperty("title", out JsonElement title)) return title.GetString();
+            if (root.TryGetProperty("title", out JsonElement title))
+                return title.GetString();
 
         }
         catch (Exception)

@@ -5,5 +5,8 @@ public sealed class ExpectedImpact
 {
     public string Summary { get; init; } = string.Empty;
 
-    public string? Rationale { get; init; }
+    public string? Rationale
+    {
+        get; init;
+    }
 }

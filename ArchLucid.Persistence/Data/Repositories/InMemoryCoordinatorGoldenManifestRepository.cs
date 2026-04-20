@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using System.Data;
@@ -26,7 +26,8 @@ public sealed class InMemoryCoordinatorGoldenManifestRepository : ICoordinatorGo
         ArgumentNullException.ThrowIfNull(manifest);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion)) throw new ArgumentException("Metadata.ManifestVersion is required.", nameof(manifest));
+        if (string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion))
+            throw new ArgumentException("Metadata.ManifestVersion is required.", nameof(manifest));
 
 
         lock (_gate)

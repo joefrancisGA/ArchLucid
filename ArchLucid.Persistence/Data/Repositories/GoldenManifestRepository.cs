@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -90,7 +90,8 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             },
             cancellationToken: cancellationToken));
 
-        if (json is null) return null;
+        if (json is null)
+            return null;
 
         GoldenManifest? manifest;
         try

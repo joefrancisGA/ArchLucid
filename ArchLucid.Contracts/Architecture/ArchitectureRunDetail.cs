@@ -25,7 +25,10 @@ public sealed class ArchitectureRunDetail
     /// Golden manifest produced during commit, or <see langword="null"/> when the run
     /// has not yet been committed or the manifest could not be loaded.
     /// </summary>
-    public GoldenManifest? Manifest { get; set; }
+    public GoldenManifest? Manifest
+    {
+        get; set;
+    }
 
     /// <summary>Decision traces recorded during commit; empty before commit.</summary>
     public List<DecisionTrace> DecisionTraces { get; set; } = [];
@@ -40,5 +43,8 @@ public sealed class ArchitectureRunDetail
     /// replication lag). Callers should treat this as a 409 Conflict / inconsistent state
     /// rather than a normal "not yet committed" case.
     /// </summary>
-    public bool HasBrokenManifestReference { get; set; }
+    public bool HasBrokenManifestReference
+    {
+        get; set;
+    }
 }

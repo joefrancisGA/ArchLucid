@@ -16,16 +16,28 @@ public class PolicyPackAssignment
     public Guid AssignmentId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant that owns this assignment (always required).</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace dimension; empty when <see cref="ScopeLevel"/> is <see cref="GovernanceScopeLevel.Tenant"/>.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project dimension; empty for tenant or workspace scope levels.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Pack being assigned.</summary>
-    public Guid PolicyPackId { get; set; }
+    public Guid PolicyPackId
+    {
+        get; set;
+    }
 
     /// <summary>Version label referencing <see cref="PolicyPackVersion.Version"/>.</summary>
     public string PolicyPackVersion { get; set; } = null!;
@@ -37,21 +49,33 @@ public class PolicyPackAssignment
     public string ScopeLevel { get; set; } = GovernanceScopeLevel.Project;
 
     /// <summary>Raises precedence within the same <see cref="ScopeLevel"/> during merge.</summary>
-    public bool IsPinned { get; set; }
+    public bool IsPinned
+    {
+        get; set;
+    }
 
     /// <summary>Creation / last-assign timestamp (tie-breaker after rank).</summary>
     public DateTime AssignedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>When set, the assignment is retained for audit but ignored by <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync"/>.</summary>
-    public DateTime? ArchivedUtc { get; set; }
+    public DateTime? ArchivedUtc
+    {
+        get; set;
+    }
 
     /// <summary>When true with <see cref="IsEnabled"/>, manifest commit is blocked if the run has Critical findings (optional gate).</summary>
-    public bool BlockCommitOnCritical { get; set; }
+    public bool BlockCommitOnCritical
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Minimum <see cref="FindingSeverity"/> enum value that triggers a commit block.
     /// When <see langword="null"/> and <see cref="BlockCommitOnCritical"/> is true, only Critical findings block.
     /// When set, findings with <c>(int)Severity &gt;= BlockCommitMinimumSeverity</c> block.
     /// </summary>
-    public int? BlockCommitMinimumSeverity { get; set; }
+    public int? BlockCommitMinimumSeverity
+    {
+        get; set;
+    }
 }

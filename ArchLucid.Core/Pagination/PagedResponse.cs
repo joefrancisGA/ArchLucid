@@ -11,7 +11,10 @@ public sealed class PagedResponse<T>
     public IReadOnlyList<T> Items { get; init; } = [];
 
     /// <summary>Total item count across all pages (when the repository supports counting).</summary>
-    public int TotalCount { get; init; }
+    public int TotalCount
+    {
+        get; init;
+    }
 
     /// <summary>One-based page number.</summary>
     public int Page { get; init; } = 1;

@@ -2,10 +2,22 @@ namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class SynthesisTrace
 {
-    public Guid TraceId { get; set; }
-    public Guid RunId { get; set; }
-    public Guid ManifestId { get; set; }
-    public DateTime CreatedUtc { get; set; }
+    public Guid TraceId
+    {
+        get; set;
+    }
+    public Guid RunId
+    {
+        get; set;
+    }
+    public Guid ManifestId
+    {
+        get; set;
+    }
+    public DateTime CreatedUtc
+    {
+        get; set;
+    }
     public List<string> GeneratorsUsed { get; set; } = [];
     public List<string> SourceDecisionIds { get; set; } = [];
     public List<string> Notes { get; set; } = [];

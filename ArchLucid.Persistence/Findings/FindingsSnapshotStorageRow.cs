@@ -6,11 +6,29 @@ namespace ArchLucid.Persistence.Findings;
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class FindingsSnapshotStorageRow
 {
-    public Guid FindingsSnapshotId { get; init; }
-    public Guid RunId { get; init; }
-    public Guid ContextSnapshotId { get; init; }
-    public Guid GraphSnapshotId { get; init; }
-    public DateTime CreatedUtc { get; init; }
-    public int SchemaVersion { get; init; }
+    public Guid FindingsSnapshotId
+    {
+        get; init;
+    }
+    public Guid RunId
+    {
+        get; init;
+    }
+    public Guid ContextSnapshotId
+    {
+        get; init;
+    }
+    public Guid GraphSnapshotId
+    {
+        get; init;
+    }
+    public DateTime CreatedUtc
+    {
+        get; init;
+    }
+    public int SchemaVersion
+    {
+        get; init;
+    }
     public string FindingsJson { get; init; } = null!;
 }

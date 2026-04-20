@@ -5,7 +5,10 @@ public sealed class DecisionTraceEntry
 {
     public string TraceId { get; set; } = string.Empty;
 
-    public DateTimeOffset CreatedUtc { get; set; }
+    public DateTimeOffset CreatedUtc
+    {
+        get; set;
+    }
 
     /// <summary><c>ruleAudit</c> or <c>runEvent</c>.</summary>
     public string Kind { get; set; } = string.Empty;

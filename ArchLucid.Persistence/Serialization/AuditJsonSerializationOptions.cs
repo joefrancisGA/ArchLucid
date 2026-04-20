@@ -7,7 +7,10 @@ namespace ArchLucid.Persistence.Serialization;
 /// </summary>
 public static class AuditJsonSerializationOptions
 {
-    public static JsonSerializerOptions Instance { get; } = new()
+    public static JsonSerializerOptions Instance
+    {
+        get;
+    } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -18,7 +18,8 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
     {
         ArgumentNullException.ThrowIfNull(plan);
 
-        if (plan.ActionSteps is null) throw new ArgumentException("ActionSteps cannot be null.", nameof(plan));
+        if (plan.ActionSteps is null)
+            throw new ArgumentException("ActionSteps cannot be null.", nameof(plan));
 
 
         IReadOnlyList<CandidateChangeSetStep> orderedSteps = OrderSteps(plan.ActionSteps);
@@ -216,7 +217,8 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
 
     private static string BuildAggregateDescription(ProductLearningImprovementPlanRecord plan)
     {
-        if (!string.IsNullOrWhiteSpace(plan.Summary)) return plan.Summary.Trim();
+        if (!string.IsNullOrWhiteSpace(plan.Summary))
+            return plan.Summary.Trim();
 
 
         return plan.Title.Trim();

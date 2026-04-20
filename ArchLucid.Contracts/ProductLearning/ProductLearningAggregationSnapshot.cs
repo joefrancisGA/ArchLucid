@@ -5,8 +5,14 @@ namespace ArchLucid.Contracts.ProductLearning;
 /// </summary>
 public sealed class ProductLearningAggregationSnapshot
 {
-    public required ProductLearningScope Scope { get; init; }
-    public DateTime? SinceUtc { get; init; }
+    public required ProductLearningScope Scope
+    {
+        get; init;
+    }
+    public DateTime? SinceUtc
+    {
+        get; init;
+    }
     public IReadOnlyList<FeedbackAggregate> FeedbackRollups { get; init; } = [];
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends { get; init; } = [];
 

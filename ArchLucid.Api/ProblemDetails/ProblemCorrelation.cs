@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Api.ProblemDetails;
+namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
 /// Adds <c>correlationId</c> to problem JSON (MVC <c>ProblemDetails.Extensions</c>, promoted to root in JSON), matching
@@ -17,11 +17,13 @@ public static class ProblemCorrelation
     {
         ArgumentNullException.ThrowIfNull(problem);
 
-        if (httpContext is null) return;
+        if (httpContext is null)
+            return;
 
         string id = httpContext.TraceIdentifier;
 
-        if (string.IsNullOrWhiteSpace(id)) return;
+        if (string.IsNullOrWhiteSpace(id))
+            return;
 
         problem.Extensions[ExtensionKey] = id;
     }

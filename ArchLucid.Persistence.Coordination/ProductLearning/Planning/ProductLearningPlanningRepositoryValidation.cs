@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -24,7 +24,8 @@ internal static class ProductLearningPlanningRepositoryValidation
 
     internal static void EnsureTake(int take)
     {
-        if (take < 1 || take > MaxTake) throw new ArgumentOutOfRangeException(nameof(take), take, "take must be between 1 and " + MaxTake + ".");
+        if (take < 1 || take > MaxTake)
+            throw new ArgumentOutOfRangeException(nameof(take), take, "take must be between 1 and " + MaxTake + ".");
 
     }
 
@@ -59,19 +60,24 @@ internal static class ProductLearningPlanningRepositoryValidation
             throw new ArgumentException("TenantId, WorkspaceId, and ProjectId are required on themes.", nameof(theme));
 
 
-        if (string.IsNullOrWhiteSpace(theme.ThemeKey)) throw new ArgumentException("ThemeKey is required.", nameof(theme));
+        if (string.IsNullOrWhiteSpace(theme.ThemeKey))
+            throw new ArgumentException("ThemeKey is required.", nameof(theme));
 
 
-        if (theme.ThemeKey.Length > MaxThemeKeyLength) throw new ArgumentException("ThemeKey exceeds max length.", nameof(theme));
+        if (theme.ThemeKey.Length > MaxThemeKeyLength)
+            throw new ArgumentException("ThemeKey exceeds max length.", nameof(theme));
 
 
-        if (string.IsNullOrWhiteSpace(theme.Title)) throw new ArgumentException("Title is required.", nameof(theme));
+        if (string.IsNullOrWhiteSpace(theme.Title))
+            throw new ArgumentException("Title is required.", nameof(theme));
 
 
-        if (theme.Title.Length > MaxTitleLength) throw new ArgumentException("Title exceeds max length.", nameof(theme));
+        if (theme.Title.Length > MaxTitleLength)
+            throw new ArgumentException("Title exceeds max length.", nameof(theme));
 
 
-        if (string.IsNullOrWhiteSpace(theme.Summary)) throw new ArgumentException("Summary is required.", nameof(theme));
+        if (string.IsNullOrWhiteSpace(theme.Summary))
+            throw new ArgumentException("Summary is required.", nameof(theme));
 
 
         if (string.IsNullOrWhiteSpace(theme.AffectedArtifactTypeOrWorkflowArea))
@@ -79,10 +85,12 @@ internal static class ProductLearningPlanningRepositoryValidation
             throw new ArgumentException("AffectedArtifactTypeOrWorkflowArea is required.", nameof(theme));
 
 
-        if (string.IsNullOrWhiteSpace(theme.SeverityBand)) throw new ArgumentException("SeverityBand is required.", nameof(theme));
+        if (string.IsNullOrWhiteSpace(theme.SeverityBand))
+            throw new ArgumentException("SeverityBand is required.", nameof(theme));
 
 
-        if (string.IsNullOrWhiteSpace(theme.DerivationRuleVersion)) throw new ArgumentException("DerivationRuleVersion is required.", nameof(theme));
+        if (string.IsNullOrWhiteSpace(theme.DerivationRuleVersion))
+            throw new ArgumentException("DerivationRuleVersion is required.", nameof(theme));
 
 
         if (theme.DerivationRuleVersion.Length > MaxDerivationRuleVersionLength)
@@ -90,7 +98,8 @@ internal static class ProductLearningPlanningRepositoryValidation
             throw new ArgumentException("DerivationRuleVersion exceeds max length.", nameof(theme));
 
 
-        if (theme.EvidenceSignalCount < 0 || theme.DistinctRunCount < 0) throw new ArgumentException("Counts must be non-negative.", nameof(theme));
+        if (theme.EvidenceSignalCount < 0 || theme.DistinctRunCount < 0)
+            throw new ArgumentException("Counts must be non-negative.", nameof(theme));
 
 
         if (!string.IsNullOrWhiteSpace(theme.Status))
@@ -108,16 +117,20 @@ internal static class ProductLearningPlanningRepositoryValidation
             throw new ArgumentException("TenantId, WorkspaceId, and ProjectId are required on plans.", nameof(plan));
 
 
-        if (plan.ThemeId == Guid.Empty) throw new ArgumentException("ThemeId is required.", nameof(plan));
+        if (plan.ThemeId == Guid.Empty)
+            throw new ArgumentException("ThemeId is required.", nameof(plan));
 
 
-        if (string.IsNullOrWhiteSpace(plan.Title)) throw new ArgumentException("Title is required.", nameof(plan));
+        if (string.IsNullOrWhiteSpace(plan.Title))
+            throw new ArgumentException("Title is required.", nameof(plan));
 
 
-        if (plan.Title.Length > MaxTitleLength) throw new ArgumentException("Title exceeds max length.", nameof(plan));
+        if (plan.Title.Length > MaxTitleLength)
+            throw new ArgumentException("Title exceeds max length.", nameof(plan));
 
 
-        if (string.IsNullOrWhiteSpace(plan.Summary)) throw new ArgumentException("Summary is required.", nameof(plan));
+        if (string.IsNullOrWhiteSpace(plan.Summary))
+            throw new ArgumentException("Summary is required.", nameof(plan));
 
 
         if (!string.IsNullOrWhiteSpace(plan.Status))
@@ -132,10 +145,12 @@ internal static class ProductLearningPlanningRepositoryValidation
     {
         ArgumentNullException.ThrowIfNull(steps);
 
-        if (steps.Count == 0) throw new ArgumentException("At least one action step is required.", nameof(steps));
+        if (steps.Count == 0)
+            throw new ArgumentException("At least one action step is required.", nameof(steps));
 
 
-        if (steps.Count > MaxActionSteps) throw new ArgumentException("Action steps exceed bounded maximum (" + MaxActionSteps + ").", nameof(steps));
+        if (steps.Count > MaxActionSteps)
+            throw new ArgumentException("Action steps exceed bounded maximum (" + MaxActionSteps + ").", nameof(steps));
 
 
         HashSet<int> ordinals = [];
@@ -144,16 +159,20 @@ internal static class ProductLearningPlanningRepositoryValidation
         {
             ArgumentNullException.ThrowIfNull(step);
 
-            if (step.Ordinal < 1) throw new ArgumentException("Each step.Ordinal must be >= 1.", nameof(steps));
+            if (step.Ordinal < 1)
+                throw new ArgumentException("Each step.Ordinal must be >= 1.", nameof(steps));
 
 
-            if (!ordinals.Add(step.Ordinal)) throw new ArgumentException("Duplicate action Ordinal values are not allowed.", nameof(steps));
+            if (!ordinals.Add(step.Ordinal))
+                throw new ArgumentException("Duplicate action Ordinal values are not allowed.", nameof(steps));
 
 
-            if (string.IsNullOrWhiteSpace(step.ActionType)) throw new ArgumentException("Each step requires ActionType.", nameof(steps));
+            if (string.IsNullOrWhiteSpace(step.ActionType))
+                throw new ArgumentException("Each step requires ActionType.", nameof(steps));
 
 
-            if (string.IsNullOrWhiteSpace(step.Description)) throw new ArgumentException("Each step requires Description.", nameof(steps));
+            if (string.IsNullOrWhiteSpace(step.Description))
+                throw new ArgumentException("Each step requires Description.", nameof(steps));
 
         }
     }
@@ -162,10 +181,12 @@ internal static class ProductLearningPlanningRepositoryValidation
     {
         ArgumentNullException.ThrowIfNull(link);
 
-        if (link.PlanId == Guid.Empty) throw new ArgumentException("PlanId is required.", nameof(link));
+        if (link.PlanId == Guid.Empty)
+            throw new ArgumentException("PlanId is required.", nameof(link));
 
 
-        if (string.IsNullOrWhiteSpace(link.ArchitectureRunId)) throw new ArgumentException("ArchitectureRunId is required.", nameof(link));
+        if (string.IsNullOrWhiteSpace(link.ArchitectureRunId))
+            throw new ArgumentException("ArchitectureRunId is required.", nameof(link));
 
     }
 
@@ -173,10 +194,12 @@ internal static class ProductLearningPlanningRepositoryValidation
     {
         ArgumentNullException.ThrowIfNull(link);
 
-        if (link.PlanId == Guid.Empty) throw new ArgumentException("PlanId is required.", nameof(link));
+        if (link.PlanId == Guid.Empty)
+            throw new ArgumentException("PlanId is required.", nameof(link));
 
 
-        if (link.SignalId == Guid.Empty) throw new ArgumentException("SignalId is required.", nameof(link));
+        if (link.SignalId == Guid.Empty)
+            throw new ArgumentException("SignalId is required.", nameof(link));
 
 
         if (link.TriageStatusSnapshot is not null)
@@ -189,7 +212,8 @@ internal static class ProductLearningPlanningRepositoryValidation
     {
         ArgumentNullException.ThrowIfNull(link);
 
-        if (link.PlanId == Guid.Empty) throw new ArgumentException("PlanId is required.", nameof(link));
+        if (link.PlanId == Guid.Empty)
+            throw new ArgumentException("PlanId is required.", nameof(link));
 
 
         bool authority = link.AuthorityBundleId is not null && link.AuthorityArtifactSortOrder is not null;

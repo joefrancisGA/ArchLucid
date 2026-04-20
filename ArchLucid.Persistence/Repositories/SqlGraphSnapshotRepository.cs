@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -197,7 +197,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
     {
         IReadOnlyList<GraphSnapshotEdgeRow> rows = GraphSnapshotEdgeIndexer.BuildRows(snapshot);
 
-        if (rows.Count == 0) return;
+        if (rows.Count == 0)
+            return;
 
         const string edgeSql = """
             INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
@@ -309,7 +310,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 transaction,
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, transaction, row, ct);
     }
@@ -335,7 +337,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 },
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, transaction: null, row, ct);
     }
@@ -439,6 +442,9 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         public string FromNodeId { get; init; } = null!;
         public string ToNodeId { get; init; } = null!;
         public string EdgeType { get; init; } = null!;
-        public double Weight { get; init; }
+        public double Weight
+        {
+            get; init;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 
 using Microsoft.Extensions.Options;
@@ -23,14 +23,17 @@ public sealed class TrialBootstrapEmailVerificationPolicy(
     /// <inheritdoc />
     public async Task<bool> CanProvisionTrialForRegisteredEmailAsync(string adminEmail, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(adminEmail)) return false;
+        if (string.IsNullOrWhiteSpace(adminEmail))
+            return false;
 
-        if (!TrialAuthModeConstants.HasMode(_trial.Modes, TrialAuthModeConstants.LocalIdentity)) return true;
+        if (!TrialAuthModeConstants.HasMode(_trial.Modes, TrialAuthModeConstants.LocalIdentity))
+            return true;
 
         string normalized = TrialEmailNormalizer.Normalize(adminEmail);
         TrialIdentityUserRecord? row = await _identityUsers.GetByNormalizedEmailAsync(normalized, cancellationToken);
 
-        if (row is null) return true;
+        if (row is null)
+            return true;
 
         return row.EmailVerifiedUtc is not null;
     }

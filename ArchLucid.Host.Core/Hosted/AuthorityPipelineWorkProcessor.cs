@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;

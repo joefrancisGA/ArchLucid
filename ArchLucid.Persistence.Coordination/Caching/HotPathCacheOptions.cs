@@ -8,7 +8,10 @@ public sealed class HotPathCacheOptions
     public const string SectionName = "HotPathCache";
 
     /// <summary>When false, repositories hit SQL directly (no <see cref="IHotPathReadCache"/> registration in the API host).</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>
     /// <c>Memory</c>, <c>Redis</c> (requires <see cref="RedisConnectionString"/>), or <c>Auto</c>:

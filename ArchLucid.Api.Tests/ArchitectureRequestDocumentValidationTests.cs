@@ -49,8 +49,9 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
         foreach (JsonProperty p in errors.EnumerateObject())
         {
             if (!p.Name.Contains("contentType", StringComparison.OrdinalIgnoreCase) ||
-                !p.Name.Contains("document", StringComparison.OrdinalIgnoreCase)) continue;
-            
+                !p.Name.Contains("document", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             hasDocumentContentTypeKey = true;
             break;
         }

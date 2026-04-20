@@ -316,7 +316,10 @@ public sealed class ImprovementThemeExtractionServiceTests
                 utc),
         ];
 
-        ImprovementThemeExtractionOptions options = new() { MinSignalsPerAggregateTheme = 2 };
+        ImprovementThemeExtractionOptions options = new()
+        {
+            MinSignalsPerAggregateTheme = 2
+        };
 
         IReadOnlyList<ImprovementThemeWithEvidence> a = await svc.ExtractThemesAsync(
             snapshot,

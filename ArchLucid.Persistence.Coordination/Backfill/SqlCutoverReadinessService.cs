@@ -33,7 +33,10 @@ public sealed class SqlCutoverReadinessService(
             .. await AssessArtifactBundlesAsync(connection, ct),
         ];
 
-        CutoverReadinessReport report = new() { Slices = slices };
+        CutoverReadinessReport report = new()
+        {
+            Slices = slices
+        };
 
         logger.LogInformation(
             "Cutover readiness assessment complete. TotalSlices={SliceCount}, Ready={ReadyCount}, NotReady={NotReadyCount}",

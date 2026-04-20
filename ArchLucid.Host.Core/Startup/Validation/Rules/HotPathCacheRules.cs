@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -10,7 +10,8 @@ internal static class HotPathCacheRules
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
             new HotPathCacheOptions();
 
-        if (!opts.Enabled) return;
+        if (!opts.Enabled)
+            return;
 
 
         string provider = opts.Provider;

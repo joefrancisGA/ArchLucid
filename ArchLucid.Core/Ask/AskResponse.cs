@@ -4,7 +4,10 @@ namespace ArchLucid.Core.Ask;
 public sealed class AskResponse
 {
     /// <summary>Conversation thread id (new or existing).</summary>
-    public Guid ThreadId { get; set; }
+    public Guid ThreadId
+    {
+        get; set;
+    }
 
     /// <summary>Natural-language answer (or fallback when the LLM is unreachable).</summary>
     public string Answer { get; set; } = "";

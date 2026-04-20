@@ -7,5 +7,8 @@ public sealed class ShadowExecutionPipelineOptions
 
     public bool IncludeSummary { get; init; } = true;
 
-    public bool IncludeDiagram { get; init; }
+    public bool IncludeDiagram
+    {
+        get; init;
+    }
 }

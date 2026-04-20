@@ -60,7 +60,10 @@ public sealed class AdditionalFluentValidationTests
     public void RecommendationActionRequestValidator_invalid_action_length()
     {
         RecommendationActionRequestValidator v = new();
-        RecommendationActionRequest req = new() { Action = new string('x', 51) };
+        RecommendationActionRequest req = new()
+        {
+            Action = new string('x', 51)
+        };
 
         FluentValidation.Results.ValidationResult r = v.Validate(req);
 
@@ -87,7 +90,10 @@ public sealed class AdditionalFluentValidationTests
     public void RuleSimulationRequestValidator_invalid_kind()
     {
         RuleSimulationRequestValidator v = new();
-        RuleSimulationRequest req = new() { RuleKind = "Other" };
+        RuleSimulationRequest req = new()
+        {
+            RuleKind = "Other"
+        };
 
         FluentValidation.Results.ValidationResult r = v.Validate(req);
 

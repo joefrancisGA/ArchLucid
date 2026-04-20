@@ -6,7 +6,10 @@ namespace ArchLucid.Host.Core.Jobs;
 public interface IArchLucidJob
 {
     /// <summary>Stable slug matching CLI <c>--job</c> and <c>Jobs:OffloadedToContainerJobs</c> entries.</summary>
-    string Name { get; }
+    string Name
+    {
+        get;
+    }
 
     /// <summary>
     /// Executes a single logical iteration. Returns <see cref="ArchLucidJobExitCodes"/> values

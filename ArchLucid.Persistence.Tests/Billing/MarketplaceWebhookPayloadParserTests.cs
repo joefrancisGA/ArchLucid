@@ -1,7 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Billing.AzureMarketplace;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Persistence.Billing.AzureMarketplace;
 
 using FluentAssertions;
 

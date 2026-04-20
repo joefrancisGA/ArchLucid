@@ -9,21 +9,48 @@ public sealed class BackgroundJobRow
 
     public string State { get; init; } = string.Empty;
 
-    public DateTimeOffset CreatedUtc { get; init; }
+    public DateTimeOffset CreatedUtc
+    {
+        get; init;
+    }
 
-    public DateTimeOffset? StartedUtc { get; init; }
+    public DateTimeOffset? StartedUtc
+    {
+        get; init;
+    }
 
-    public DateTimeOffset? CompletedUtc { get; init; }
+    public DateTimeOffset? CompletedUtc
+    {
+        get; init;
+    }
 
-    public string? Error { get; init; }
+    public string? Error
+    {
+        get; init;
+    }
 
-    public string? FileName { get; init; }
+    public string? FileName
+    {
+        get; init;
+    }
 
-    public string? ContentType { get; init; }
+    public string? ContentType
+    {
+        get; init;
+    }
 
-    public int RetryCount { get; init; }
+    public int RetryCount
+    {
+        get; init;
+    }
 
-    public int MaxRetries { get; init; }
+    public int MaxRetries
+    {
+        get; init;
+    }
 
-    public string? ResultBlobName { get; init; }
+    public string? ResultBlobName
+    {
+        get; init;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
@@ -29,7 +29,8 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row)) return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
+            return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
 
 
         if (row.TenantId != scope.TenantId ||
@@ -72,7 +73,8 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row)) return Task.CompletedTask;
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
+            return Task.CompletedTask;
 
 
         if (row.TenantId != scope.TenantId ||

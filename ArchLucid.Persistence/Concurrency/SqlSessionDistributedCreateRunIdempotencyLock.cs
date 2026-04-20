@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -30,7 +30,8 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(lockResourceName);
 
-        if (lockTimeoutMs < 0) throw new ArgumentOutOfRangeException(nameof(lockTimeoutMs));
+        if (lockTimeoutMs < 0)
+            throw new ArgumentOutOfRangeException(nameof(lockTimeoutMs));
 
         string resource = NormalizeResourceName(lockResourceName);
 
@@ -72,7 +73,8 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
 
     private static string NormalizeResourceName(string lockResourceName)
     {
-        if (lockResourceName.Length <= 255) return lockResourceName;
+        if (lockResourceName.Length <= 255)
+            return lockResourceName;
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(lockResourceName));
 

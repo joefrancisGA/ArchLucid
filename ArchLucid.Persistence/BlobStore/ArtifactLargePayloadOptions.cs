@@ -6,7 +6,10 @@ public sealed class ArtifactLargePayloadOptions
     public const string SectionName = "ArtifactLargePayload";
 
     /// <summary>When false, SQL holds full payloads and blob URIs stay null.</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>Minimum total UTF-16 length before a golden manifest or bundle payload is offloaded.</summary>
     public int MinimumUtf16LengthToOffload { get; set; } = 65536;

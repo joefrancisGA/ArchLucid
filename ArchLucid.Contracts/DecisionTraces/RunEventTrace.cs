@@ -14,7 +14,10 @@ public sealed class RunEventTrace : DecisionTrace
     public override DecisionTraceKind Kind => DecisionTraceKind.RunEvent;
 
     /// <summary>Event payload (also embedded in SQL <c>EventJson</c> for coordinator rows).</summary>
-    public required RunEventTracePayload RunEvent { get; set; }
+    public required RunEventTracePayload RunEvent
+    {
+        get; set;
+    }
 
     public static RunEventTrace From(RunEventTracePayload body) =>
         new()

@@ -60,8 +60,19 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
-        GraphNode topology = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "vnet", Category = GraphTopologyCategories.Network };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
+        GraphNode topology = new()
+        {
+            NodeId = "res-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet",
+            Category = GraphTopologyCategories.Network
+        };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, topology]);
 
@@ -76,9 +87,24 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
-        GraphNode security = new() { NodeId = "sec-1", NodeType = GraphNodeTypes.SecurityBaseline, Label = "baseline" };
-        GraphNode resource = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "vnet" };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "baseline"
+        };
+        GraphNode resource = new()
+        {
+            NodeId = "res-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet"
+        };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, security, resource]);
 
@@ -93,9 +119,24 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
-        GraphNode policy = new() { NodeId = "pol-1", NodeType = GraphNodeTypes.PolicyControl, Label = "SOC2" };
-        GraphNode resource = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "compute" };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
+        GraphNode policy = new()
+        {
+            NodeId = "pol-1",
+            NodeType = GraphNodeTypes.PolicyControl,
+            Label = "SOC2"
+        };
+        GraphNode resource = new()
+        {
+            NodeId = "res-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "compute"
+        };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, policy, resource]);
 
@@ -110,7 +151,12 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
         GraphNode req = new()
         {
             NodeId = "req-1",
@@ -139,7 +185,12 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
         GraphNode network = new()
         {
             NodeId = "net-1",
@@ -167,11 +218,27 @@ public sealed class DefaultGraphEdgeInfererTests
     {
         ContextSnapshot snapshot = BuildSnapshot();
         string contextNodeId = $"context-{snapshot.SnapshotId:N}";
-        GraphNode contextNode = new() { NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx" };
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId,
+            NodeType = GraphNodeTypes.ContextSnapshot,
+            Label = "ctx"
+        };
 
         // Two topology nodes; inferrer runs containment twice for network+subnet.
-        GraphNode network = new() { NodeId = "net-1", NodeType = GraphNodeTypes.TopologyResource, Label = "vnet", Category = GraphTopologyCategories.Network };
-        GraphNode subnet1 = new() { NodeId = "sub-1", NodeType = GraphNodeTypes.TopologyResource, Label = "subnet-a" };
+        GraphNode network = new()
+        {
+            NodeId = "net-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet",
+            Category = GraphTopologyCategories.Network
+        };
+        GraphNode subnet1 = new()
+        {
+            NodeId = "sub-1",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-a"
+        };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, network, subnet1]);
 

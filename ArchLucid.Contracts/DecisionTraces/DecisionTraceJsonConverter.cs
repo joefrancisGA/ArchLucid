@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ArchLucid.Contracts.DecisionTraces;
@@ -15,11 +15,13 @@ public sealed class DecisionTraceJsonConverter : JsonConverter<DecisionTrace>
         using JsonDocument document = JsonDocument.ParseValue(ref reader);
         JsonElement root = document.RootElement;
 
-        if (!root.TryGetProperty("kind", out JsonElement kindElement)) throw new JsonException("Decision trace JSON must include a numeric \"kind\" discriminator.");
+        if (!root.TryGetProperty("kind", out JsonElement kindElement))
+            throw new JsonException("Decision trace JSON must include a numeric \"kind\" discriminator.");
 
         int kindValue = kindElement.GetInt32();
 
-        if (!Enum.IsDefined(typeof(DecisionTraceKind), kindValue)) throw new JsonException($"Unknown decision trace kind value '{kindValue}'.");
+        if (!Enum.IsDefined(typeof(DecisionTraceKind), kindValue))
+            throw new JsonException($"Unknown decision trace kind value '{kindValue}'.");
 
         DecisionTraceKind kind = (DecisionTraceKind)kindValue;
 

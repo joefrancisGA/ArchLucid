@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
@@ -77,7 +77,8 @@ internal static class DevUpCommand
         {
             string composePath = Path.Combine(dir, "docker-compose.yml");
 
-            if (File.Exists(composePath)) return dir;
+            if (File.Exists(composePath))
+                return dir;
 
         }
 
@@ -99,7 +100,8 @@ internal static class DevUpCommand
 
         using Process? proc = Process.Start(psi);
 
-        if (proc is null) return (-1, "", $"Failed to start {fileName}");
+        if (proc is null)
+            return (-1, "", $"Failed to start {fileName}");
 
 
         string stdout = proc.StandardOutput.ReadToEnd();

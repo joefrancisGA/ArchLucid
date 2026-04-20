@@ -146,7 +146,11 @@ public sealed class ImprovementPlanningServiceTests
             evidenceCount: 2,
             facets: ["b"]);
 
-        ImprovementPlanningOptions options = new() { RuleVersion = "v1", MaxStepsPerPlan = 1 };
+        ImprovementPlanningOptions options = new()
+        {
+            RuleVersion = "v1",
+            MaxStepsPerPlan = 1
+        };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
             [unknown, rollup],

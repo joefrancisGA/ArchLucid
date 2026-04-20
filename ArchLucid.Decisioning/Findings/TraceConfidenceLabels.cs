@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Decisioning.Findings;
+namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
 /// Maps explainability trace completeness ratios to operator-facing labels.
@@ -13,9 +13,11 @@ public static class TraceConfidenceLabels
 
     public static string FromCompletenessRatio(double completenessRatio)
     {
-        if (completenessRatio >= 0.8 - 1e-9) return High;
+        if (completenessRatio >= 0.8 - 1e-9)
+            return High;
 
-        if (completenessRatio >= 0.5 - 1e-9) return Medium;
+        if (completenessRatio >= 0.5 - 1e-9)
+            return Medium;
 
         return Low;
     }

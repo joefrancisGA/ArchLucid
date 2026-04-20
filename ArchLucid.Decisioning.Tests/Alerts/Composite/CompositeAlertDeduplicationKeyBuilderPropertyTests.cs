@@ -23,7 +23,11 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
                      CompositeDedupeScope.RuleAndComparison,
                  })
         {
-            CompositeAlertRule rule = new() { CompositeRuleId = ruleId, DedupeScope = dedupeScope };
+            CompositeAlertRule rule = new()
+            {
+                CompositeRuleId = ruleId,
+                DedupeScope = dedupeScope
+            };
             AlertEvaluationContext context = new()
             {
                 RunId = runId,
@@ -42,8 +46,16 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
     public void RuleOnly_keys_exclude_run_segment_even_when_run_id_is_set(Guid ruleGuid, Guid runId)
     {
         Guid ruleId = ruleGuid;
-        CompositeAlertRule rule = new() { CompositeRuleId = ruleId, DedupeScope = CompositeDedupeScope.RuleOnly };
-        AlertEvaluationContext context = new() { RunId = runId, ComparedToRunId = Guid.NewGuid() };
+        CompositeAlertRule rule = new()
+        {
+            CompositeRuleId = ruleId,
+            DedupeScope = CompositeDedupeScope.RuleOnly
+        };
+        AlertEvaluationContext context = new()
+        {
+            RunId = runId,
+            ComparedToRunId = Guid.NewGuid()
+        };
 
         string key = CompositeAlertDeduplicationKeyBuilder.Build(rule, context);
         string runSegment = ":run:" + runId;
@@ -55,8 +67,16 @@ public sealed class CompositeAlertDeduplicationKeyBuilderPropertyTests
     public void RuleAndRun_keys_include_run_id_when_set(Guid ruleGuid, Guid runId)
     {
         Guid ruleId = ruleGuid;
-        CompositeAlertRule rule = new() { CompositeRuleId = ruleId, DedupeScope = CompositeDedupeScope.RuleAndRun };
-        AlertEvaluationContext context = new() { RunId = runId, ComparedToRunId = null };
+        CompositeAlertRule rule = new()
+        {
+            CompositeRuleId = ruleId,
+            DedupeScope = CompositeDedupeScope.RuleAndRun
+        };
+        AlertEvaluationContext context = new()
+        {
+            RunId = runId,
+            ComparedToRunId = null
+        };
 
         string key = CompositeAlertDeduplicationKeyBuilder.Build(rule, context);
 

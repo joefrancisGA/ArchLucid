@@ -12,9 +12,18 @@ public sealed class ExplanationServiceOptions
     /// <summary>Logical agent label shown to operators (e.g. run narrative explainer).</summary>
     public string AgentType { get; set; } = "run-explanation";
 
-    public string? PromptTemplateId { get; set; }
+    public string? PromptTemplateId
+    {
+        get; set;
+    }
 
-    public string? PromptTemplateVersion { get; set; }
+    public string? PromptTemplateVersion
+    {
+        get; set;
+    }
 
-    public string? PromptContentHash { get; set; }
+    public string? PromptContentHash
+    {
+        get; set;
+    }
 }

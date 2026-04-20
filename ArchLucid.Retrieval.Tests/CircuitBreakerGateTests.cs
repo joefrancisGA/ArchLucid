@@ -14,7 +14,11 @@ public sealed class CircuitBreakerGateTests
     public void Closed_after_threshold_failures_opens_on_next_failure()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 3, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 3,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.ThrowIfBroken();
@@ -33,7 +37,11 @@ public sealed class CircuitBreakerGateTests
     public void Open_after_duration_allows_single_probe_then_closes_on_success()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.ThrowIfBroken();
@@ -51,7 +59,11 @@ public sealed class CircuitBreakerGateTests
     public void Half_open_failure_reopens_circuit()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
@@ -68,7 +80,11 @@ public sealed class CircuitBreakerGateTests
     public async Task Concurrent_second_ThrowIfBroken_while_probe_in_flight_rejected()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
@@ -98,7 +114,11 @@ public sealed class CircuitBreakerGateTests
     public void RecordCallCancelled_releases_probe_and_allows_immediate_retry_window()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();

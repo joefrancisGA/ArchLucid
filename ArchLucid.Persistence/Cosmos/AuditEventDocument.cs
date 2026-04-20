@@ -30,17 +30,29 @@ public sealed class AuditEventDocument
     public string ActorUserName { get; set; } = string.Empty;
 
     [JsonPropertyName("runId")]
-    public string? RunId { get; set; }
+    public string? RunId
+    {
+        get; set;
+    }
 
     [JsonPropertyName("manifestId")]
-    public string? ManifestId { get; set; }
+    public string? ManifestId
+    {
+        get; set;
+    }
 
     [JsonPropertyName("artifactId")]
-    public string? ArtifactId { get; set; }
+    public string? ArtifactId
+    {
+        get; set;
+    }
 
     [JsonPropertyName("dataJson")]
     public string DataJson { get; set; } = "{}";
 
     [JsonPropertyName("correlationId")]
-    public string? CorrelationId { get; set; }
+    public string? CorrelationId
+    {
+        get; set;
+    }
 }

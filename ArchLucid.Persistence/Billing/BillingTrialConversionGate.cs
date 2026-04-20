@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Billing;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -18,10 +18,12 @@ public sealed class BillingTrialConversionGate(IOptionsMonitor<BillingOptions> o
         string provider = _options.CurrentValue.Provider?.Trim() ?? string.Empty;
 
         if (string.Equals(provider, BillingProviderNames.Noop, StringComparison.OrdinalIgnoreCase) ||
-            string.IsNullOrWhiteSpace(provider)) return;
+            string.IsNullOrWhiteSpace(provider))
+            return;
 
 
-        if (await _ledger.TenantHasActiveSubscriptionAsync(tenantId, cancellationToken)) return;
+        if (await _ledger.TenantHasActiveSubscriptionAsync(tenantId, cancellationToken))
+            return;
 
 
         throw new BillingConversionBlockedException(

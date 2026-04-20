@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Application.Jobs;
@@ -34,7 +34,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
         ArchitectureRunDetail? detail =
             await runDetailQuery.GetRunDetailAsync(unit.Payload.RunId, cancellationToken);
 
-        if (detail is null) throw new InvalidOperationException($"Run '{unit.Payload.RunId}' was not found.");
+        if (detail is null)
+            throw new InvalidOperationException($"Run '{unit.Payload.RunId}' was not found.");
 
         request.PreloadedRunDetail = detail;
 
@@ -71,7 +72,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
 
         ArchitectureRunDetail? detail = await runDetailQuery.GetRunDetailAsync(p.RunId, cancellationToken);
 
-        if (detail is null) throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
+        if (detail is null)
+            throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
 
         analysisRequest.PreloadedRunDetail = detail;
 

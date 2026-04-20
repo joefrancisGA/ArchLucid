@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -28,7 +28,8 @@ public static class CommittedManifestTraceabilityRules
         GoldenManifest? manifest,
         IReadOnlyList<DecisionTrace> traces)
     {
-        if (manifest is null) return [];
+        if (manifest is null)
+            return [];
 
         List<string> gaps = [];
         HashSet<string> idsOnManifest = new(StringComparer.OrdinalIgnoreCase);

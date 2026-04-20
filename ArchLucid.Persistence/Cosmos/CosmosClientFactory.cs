@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Azure.Cosmos;
@@ -27,7 +27,8 @@ public sealed class CosmosClientFactory : IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed)
+            return;
 
         _disposed = true;
         _client?.Dispose();
@@ -38,13 +39,15 @@ public sealed class CosmosClientFactory : IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(containerId);
 
-        if (_containers.TryGetValue(containerId, out Container? cached)) return cached;
+        if (_containers.TryGetValue(containerId, out Container? cached))
+            return cached;
 
         await _initLock.WaitAsync(ct);
 
         try
         {
-            if (_containers.TryGetValue(containerId, out cached)) return cached;
+            if (_containers.TryGetValue(containerId, out cached))
+                return cached;
 
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
@@ -80,13 +83,15 @@ public sealed class CosmosClientFactory : IDisposable
     {
         const string leaseContainerId = "audit-events-leases";
 
-        if (_containers.TryGetValue(leaseContainerId, out Container? cached)) return cached;
+        if (_containers.TryGetValue(leaseContainerId, out Container? cached))
+            return cached;
 
         await _initLock.WaitAsync(ct);
 
         try
         {
-            if (_containers.TryGetValue(leaseContainerId, out cached)) return cached;
+            if (_containers.TryGetValue(leaseContainerId, out cached))
+                return cached;
 
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
@@ -115,22 +120,27 @@ public sealed class CosmosClientFactory : IDisposable
 
     private static int? GetDefaultTtl(string containerId, CosmosDbOptions opts)
     {
-        if (!string.Equals(containerId, "agent-traces", StringComparison.Ordinal)) return null;
+        if (!string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
+            return null;
 
         int ttl = opts.AgentTraceTtlSeconds;
 
-        if (ttl <= 0) return null;
+        if (ttl <= 0)
+            return null;
 
         return ttl;
     }
 
     private static string GetPartitionKeyPath(string containerId)
     {
-        if (string.Equals(containerId, "graph-snapshots", StringComparison.Ordinal)) return "/graphSnapshotId";
+        if (string.Equals(containerId, "graph-snapshots", StringComparison.Ordinal))
+            return "/graphSnapshotId";
 
-        if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal)) return "/runId";
+        if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
+            return "/runId";
 
-        if (string.Equals(containerId, "audit-events", StringComparison.Ordinal)) return "/tenantId";
+        if (string.Equals(containerId, "audit-events", StringComparison.Ordinal))
+            return "/tenantId";
 
         throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
     }
@@ -174,7 +184,8 @@ public sealed class CosmosClientFactory : IDisposable
 
     internal static bool IsEmulatorConnection(string? connectionString)
     {
-        if (string.IsNullOrWhiteSpace(connectionString)) return false;
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return false;
 
         return connectionString.Contains("localhost:8081", StringComparison.OrdinalIgnoreCase)
                || connectionString.Contains("127.0.0.1:8081", StringComparison.OrdinalIgnoreCase);
@@ -182,9 +193,11 @@ public sealed class CosmosClientFactory : IDisposable
 
     private static ConsistencyLevel ParseConsistency(string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return ConsistencyLevel.Session;
+        if (string.IsNullOrWhiteSpace(raw))
+            return ConsistencyLevel.Session;
 
-        if (Enum.TryParse(raw.Trim(), ignoreCase: true, out ConsistencyLevel level)) return level;
+        if (Enum.TryParse(raw.Trim(), ignoreCase: true, out ConsistencyLevel level))
+            return level;
 
         return ConsistencyLevel.Session;
     }

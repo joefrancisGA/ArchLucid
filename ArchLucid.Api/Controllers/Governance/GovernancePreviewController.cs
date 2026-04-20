@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -34,7 +34,8 @@ public sealed class GovernancePreviewController(
         [FromBody] CreateGovernancePreviewRequest? body,
         CancellationToken cancellationToken)
     {
-        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         try
         {
@@ -72,7 +73,8 @@ public sealed class GovernancePreviewController(
         [FromBody] CreateGovernanceEnvironmentComparisonRequest? body,
         CancellationToken cancellationToken)
     {
-        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         try
         {

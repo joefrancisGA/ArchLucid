@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Metering;
+using ArchLucid.Core.Metering;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 
@@ -45,7 +45,8 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(events);
 
-        if (events.Count == 0) return;
+        if (events.Count == 0)
+            return;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -94,7 +95,12 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         IEnumerable<SummaryRow> rows = await connection.QueryAsync<SummaryRow>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd },
+                new
+                {
+                    TenantId = tenantId,
+                    PeriodStart = periodStart,
+                    PeriodEnd = periodEnd
+                },
                 cancellationToken: ct));
 
         return rows
@@ -162,34 +168,67 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
 
     private sealed class SummaryRow
     {
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
 
         public string Kind { get; init; } = string.Empty;
 
-        public long TotalQuantity { get; init; }
+        public long TotalQuantity
+        {
+            get; init;
+        }
 
-        public DateTimeOffset PeriodStartUtc { get; init; }
+        public DateTimeOffset PeriodStartUtc
+        {
+            get; init;
+        }
 
-        public DateTimeOffset PeriodEndUtc { get; init; }
+        public DateTimeOffset PeriodEndUtc
+        {
+            get; init;
+        }
     }
 
     private sealed class EventRow
     {
-        public Guid Id { get; init; }
+        public Guid Id
+        {
+            get; init;
+        }
 
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
 
-        public Guid WorkspaceId { get; init; }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
 
-        public Guid ProjectId { get; init; }
+        public Guid ProjectId
+        {
+            get; init;
+        }
 
         public string Kind { get; init; } = string.Empty;
 
-        public long Quantity { get; init; }
+        public long Quantity
+        {
+            get; init;
+        }
 
-        public DateTimeOffset RecordedUtc { get; init; }
+        public DateTimeOffset RecordedUtc
+        {
+            get; init;
+        }
 
-        public string? CorrelationId { get; init; }
+        public string? CorrelationId
+        {
+            get; init;
+        }
 
         internal UsageEvent ToUsageEvent() =>
             new()

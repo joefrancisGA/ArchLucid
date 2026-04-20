@@ -6,7 +6,10 @@ namespace ArchLucid.Decisioning.Advisory.Delivery;
 public interface IDigestDeliveryChannel
 {
     /// <summary>Matches <see cref="DigestDeliveryChannelType"/> / subscription rows.</summary>
-    string ChannelType { get; }
+    string ChannelType
+    {
+        get;
+    }
 
     /// <summary>Formats and sends the digest (email body, webhook JSON, etc.).</summary>
     Task SendAsync(

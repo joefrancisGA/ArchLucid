@@ -8,7 +8,10 @@ public sealed class FakeAgentCompletionClient(
     LlmProviderDescriptor? descriptor = null) : IAgentCompletionClient
 {
     /// <inheritdoc />
-    public LlmProviderDescriptor Descriptor { get; } =
+    public LlmProviderDescriptor Descriptor
+    {
+        get;
+    } =
         descriptor ?? LlmProviderDescriptor.ForOffline("fake", "fake");
 
     /// <inheritdoc />

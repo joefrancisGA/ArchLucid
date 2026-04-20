@@ -15,5 +15,8 @@ public sealed class AzureOpenAiOptions
     /// Hard cap on model output tokens per completion (maps to <c>MaxOutputTokenCount</c> on the chat request).
     /// When unset or zero, <see cref="AzureOpenAiCompletionClient.DefaultMaxCompletionTokens"/> is used so deployments are never unbounded by default.
     /// </summary>
-    public int MaxCompletionTokens { get; set; }
+    public int MaxCompletionTokens
+    {
+        get; set;
+    }
 }

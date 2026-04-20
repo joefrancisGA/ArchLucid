@@ -35,7 +35,10 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ToApplicationForReplayEndpoint_keeps_body_format_when_present()
     {
-        ReplayComparisonRequest request = new() { Format = "docx" };
+        ReplayComparisonRequest request = new()
+        {
+            Format = "docx"
+        };
 
         Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");
 

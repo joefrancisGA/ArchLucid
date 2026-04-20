@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -33,7 +33,11 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { link.PlanId, link.ArchitectureRunId },
+                new
+                {
+                    link.PlanId,
+                    link.ArchitectureRunId
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -253,9 +257,13 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
             """;
 
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
-            new CommandDefinition(sql, new { PlanId = planId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                PlanId = planId
+            }, cancellationToken: cancellationToken));
 
-        if (row is null) throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
+        if (row is null)
+            throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
 
 
         return new ProductLearningScope
@@ -282,9 +290,13 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
             """;
 
         int ok = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(sql, new { RunId = runGuid }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                RunId = runGuid
+            }, cancellationToken: cancellationToken));
 
-        if (ok == 0) throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
+        if (ok == 0)
+            throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
 
     }
 

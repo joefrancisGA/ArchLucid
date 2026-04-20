@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -19,7 +19,8 @@ public sealed class FileComplianceRulePackLoader(string filePath) : IComplianceR
 
     public async Task<ComplianceRulePack> LoadAsync(CancellationToken ct)
     {
-        if (!File.Exists(filePath)) throw new FileNotFoundException($"Compliance rule pack not found: {filePath}");
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Compliance rule pack not found: {filePath}");
 
         string json = await File.ReadAllTextAsync(filePath, ct);
 

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
@@ -82,7 +82,8 @@ public sealed class DapperPolicyPackChangeLogRepository(
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         const string sql = """
@@ -101,7 +102,11 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new { PolicyPackId = policyPackId, MaxRows = maxRows },
+                new
+                {
+                    PolicyPackId = policyPackId,
+                    MaxRows = maxRows
+                },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -113,7 +118,8 @@ public sealed class DapperPolicyPackChangeLogRepository(
         int maxRows = 100,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         const string sql = """
@@ -132,7 +138,11 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, MaxRows = maxRows },
+                new
+                {
+                    TenantId = tenantId,
+                    MaxRows = maxRows
+                },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -145,7 +155,8 @@ public sealed class DapperPolicyPackChangeLogRepository(
         DateTime toUtc,
         CancellationToken cancellationToken = default)
     {
-        if (fromUtc >= toUtc) throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+        if (fromUtc >= toUtc)
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
 
 
         const string sql = """
@@ -166,7 +177,12 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, FromUtc = fromUtc, ToUtc = toUtc },
+                new
+                {
+                    TenantId = tenantId,
+                    FromUtc = fromUtc,
+                    ToUtc = toUtc
+                },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();

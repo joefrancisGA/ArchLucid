@@ -21,7 +21,10 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
     [Fact]
     public async Task ArchiveRunsCreatedBeforeAsync_removes_cached_GetById_row()
     {
-        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HotPathCacheOptions options = new()
+        {
+            AbsoluteExpirationSeconds = 3600
+        };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryHotPathReadCache hotPath = new(new MemoryCache(new MemoryCacheOptions()), monitor);
         InMemoryRunRepository inner = new();

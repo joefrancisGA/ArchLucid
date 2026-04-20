@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using Polly;
 using Polly.Retry;
@@ -44,7 +44,8 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
     /// <inheritdoc />
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        if (_pipeline is null) return await base.SendAsync(request, cancellationToken);
+        if (_pipeline is null)
+            return await base.SendAsync(request, cancellationToken);
 
 
         return await _pipeline.ExecuteAsync(

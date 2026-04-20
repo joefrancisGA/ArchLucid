@@ -17,19 +17,28 @@ public sealed class DecisionOption
     /// Initial confidence assigned to this option before evaluations are applied.
     /// Typically seeded by the proposing agent.
     /// </summary>
-    public double BaseConfidence { get; set; }
+    public double BaseConfidence
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Cumulative score added by <see cref="EvaluationTypes.Support"/> and
     /// <see cref="EvaluationTypes.Strengthen"/> evaluations.
     /// </summary>
-    public double SupportScore { get; set; }
+    public double SupportScore
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Cumulative score subtracted by <see cref="EvaluationTypes.Oppose"/> and
     /// <see cref="EvaluationTypes.Caution"/> evaluations.
     /// </summary>
-    public double OppositionScore { get; set; }
+    public double OppositionScore
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Computed score used to rank options: <c>BaseConfidence + SupportScore − OppositionScore</c>.

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Integration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
@@ -36,7 +36,8 @@ public static partial class ServiceCollectionExtensions
         // archival loop but still composes IArchLucidJob implementations — DI must resolve this singleton.
         services.AddSingleton<DataArchivalHostHealthState>();
 
-        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker) return;
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
 
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
@@ -50,7 +51,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
         services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
-        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)) return;
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
@@ -71,7 +73,8 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not ArchLucidHostingRole.Worker) return;
+        if (hostingRole is not ArchLucidHostingRole.Worker)
+            return;
 
 
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
@@ -93,7 +96,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
-        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)) return;
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AdvisoryScan))
 
@@ -170,7 +174,8 @@ public static partial class ServiceCollectionExtensions
             string? connectionString = options.ServiceBusConnectionString?.Trim();
             string? managedIdentityClientId = options.ServiceBusManagedIdentityClientId?.Trim();
 
-            if (string.IsNullOrEmpty(queueOrTopic)) return NullIntegrationEventPublisher.Instance;
+            if (string.IsNullOrEmpty(queueOrTopic))
+                return NullIntegrationEventPublisher.Instance;
 
 
             ILogger<AzureServiceBusIntegrationEventPublisher> logger =
@@ -185,7 +190,8 @@ public static partial class ServiceCollectionExtensions
                     logger);
 
 
-            if (!string.IsNullOrEmpty(connectionString)) return new AzureServiceBusIntegrationEventPublisher(connectionString, queueOrTopic, logger);
+            if (!string.IsNullOrEmpty(connectionString))
+                return new AzureServiceBusIntegrationEventPublisher(connectionString, queueOrTopic, logger);
 
 
             return NullIntegrationEventPublisher.Instance;

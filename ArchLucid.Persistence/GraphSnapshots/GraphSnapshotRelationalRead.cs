@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -88,7 +88,8 @@ internal static class GraphSnapshotRelationalRead
 
         List<GraphEdge>? edgesOverride = null;
 
-        if (edgesCount <= 0) return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+        if (edgesCount <= 0)
+            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
 
         bool mergeEdgeMetadataFromJson = edgePropsCount == 0 && edgesCount > 0;
         edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
@@ -139,7 +140,8 @@ internal static class GraphSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (nodeRows.Count == 0) return [];
+        if (nodeRows.Count == 0)
+            return [];
 
         List<Guid> rowIds = nodeRows.Select(r => r.GraphNodeRowId).ToList();
 
@@ -218,7 +220,8 @@ internal static class GraphSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (edgeRows.Count == 0) return [];
+        if (edgeRows.Count == 0)
+            return [];
 
         List<EdgePropertyRow> propertyRows = (await connection.QueryAsync<EdgePropertyRow>(
             new CommandDefinition(
@@ -300,20 +303,41 @@ internal static class GraphSnapshotRelationalRead
 
     private sealed class GraphNodeRow
     {
-        public Guid GraphNodeRowId { get; init; }
-        public int SortOrder { get; init; }
+        public Guid GraphNodeRowId
+        {
+            get; init;
+        }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string NodeId { get; init; } = null!;
         public string NodeType { get; init; } = null!;
         public string Label { get; init; } = null!;
-        public string? Category { get; init; }
-        public string? SourceType { get; init; }
-        public string? SourceId { get; init; }
+        public string? Category
+        {
+            get; init;
+        }
+        public string? SourceType
+        {
+            get; init;
+        }
+        public string? SourceId
+        {
+            get; init;
+        }
     }
 
     private sealed class NodePropertyRow
     {
-        public Guid GraphNodeRowId { get; init; }
-        public int PropertySortOrder { get; init; }
+        public Guid GraphNodeRowId
+        {
+            get; init;
+        }
+        public int PropertySortOrder
+        {
+            get; init;
+        }
         public string PropertyKey { get; init; } = null!;
         public string PropertyValue { get; init; } = null!;
     }
@@ -324,13 +348,19 @@ internal static class GraphSnapshotRelationalRead
         public string FromNodeId { get; init; } = null!;
         public string ToNodeId { get; init; } = null!;
         public string EdgeType { get; init; } = null!;
-        public double Weight { get; init; }
+        public double Weight
+        {
+            get; init;
+        }
     }
 
     private sealed class EdgePropertyRow
     {
         public string EdgeId { get; init; } = null!;
-        public int PropertySortOrder { get; init; }
+        public int PropertySortOrder
+        {
+            get; init;
+        }
         public string PropertyKey { get; init; } = null!;
         public string PropertyValue { get; init; } = null!;
     }

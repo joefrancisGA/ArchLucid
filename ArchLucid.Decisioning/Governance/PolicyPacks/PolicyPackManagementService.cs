@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
@@ -116,7 +116,13 @@ public sealed class PolicyPackManagementService(
         }
 
         string newValueJson = JsonSerializer.Serialize(
-            new { name, description, packType, initialVersion = InitialVersion },
+            new
+            {
+                name,
+                description,
+                packType,
+                initialVersion = InitialVersion
+            },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(
@@ -221,7 +227,12 @@ public sealed class PolicyPackManagementService(
         await assignmentRepository.CreateAsync(assignment, ct);
 
         string assignJson = JsonSerializer.Serialize(
-            new { scopeLevel = normalized, version, isPinned },
+            new
+            {
+                scopeLevel = normalized,
+                version,
+                isPinned
+            },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(
@@ -245,10 +256,12 @@ public sealed class PolicyPackManagementService(
     public async Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
         bool ok = await assignmentRepository.ArchiveAsync(tenantId, assignmentId, ct);
-        if (!ok) return false;
+        if (!ok)
+            return false;
 
         PolicyPackAssignment? row = await assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
-        if (row is null) return true;
+        if (row is null)
+            return true;
 
         await AppendChangeLogAsync(
             row.PolicyPackId,

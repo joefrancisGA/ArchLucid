@@ -5,18 +5,33 @@ namespace ArchLucid.Core.Billing;
 /// <summary>Outcome of provider webhook handling (HTTP layer maps to status codes).</summary>
 public sealed class BillingWebhookHandleResult
 {
-    public bool Succeeded { get; init; }
+    public bool Succeeded
+    {
+        get; init;
+    }
 
     /// <summary>When true, caller should return 200 without re-applying side effects (duplicate provider event id).</summary>
-    public bool DuplicateIgnored { get; init; }
+    public bool DuplicateIgnored
+    {
+        get; init;
+    }
 
-    public string? ErrorDetail { get; init; }
+    public string? ErrorDetail
+    {
+        get; init;
+    }
 
     /// <summary>When set, HTTP host may publish <see cref="IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1"/> after a successful 200.</summary>
-    public MarketplaceWebhookReceivedIntegrationPayload? MarketplaceWebhookReceived { get; init; }
+    public MarketplaceWebhookReceivedIntegrationPayload? MarketplaceWebhookReceived
+    {
+        get; init;
+    }
 
     /// <summary>When true, HTTP layer should return <c>202 Accepted</c> and skip integration-event publish (deferred / no-op path).</summary>
-    public bool Returns202Accepted { get; init; }
+    public bool Returns202Accepted
+    {
+        get; init;
+    }
 
     public static BillingWebhookHandleResult Ok() => new() { Succeeded = true };
 

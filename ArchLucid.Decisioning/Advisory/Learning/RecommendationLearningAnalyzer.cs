@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
 namespace ArchLucid.Decisioning.Advisory.Learning;
 
@@ -78,13 +78,17 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
     {
         string category = record.Category;
 
-        if (string.Equals(category, "Security", StringComparison.OrdinalIgnoreCase)) return "SecurityGap";
+        if (string.Equals(category, "Security", StringComparison.OrdinalIgnoreCase))
+            return "SecurityGap";
 
-        if (string.Equals(category, "Compliance", StringComparison.OrdinalIgnoreCase)) return "ComplianceGap";
+        if (string.Equals(category, "Compliance", StringComparison.OrdinalIgnoreCase))
+            return "ComplianceGap";
 
-        if (string.Equals(category, "Requirement", StringComparison.OrdinalIgnoreCase)) return "UncoveredRequirement";
+        if (string.Equals(category, "Requirement", StringComparison.OrdinalIgnoreCase))
+            return "UncoveredRequirement";
 
-        if (string.Equals(category, "Topology", StringComparison.OrdinalIgnoreCase)) return "TopologyGap";
+        if (string.Equals(category, "Topology", StringComparison.OrdinalIgnoreCase))
+            return "TopologyGap";
 
         return string.Equals(category, "Cost", StringComparison.OrdinalIgnoreCase) ? "CostRisk" : "General";
     }

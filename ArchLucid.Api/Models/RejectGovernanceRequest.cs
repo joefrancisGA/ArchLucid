@@ -6,5 +6,8 @@ namespace ArchLucid.Api.Models;
 public sealed class RejectGovernanceRequest
 {
     public string ReviewedBy { get; set; } = string.Empty;
-    public string? ReviewComment { get; set; }
+    public string? ReviewComment
+    {
+        get; set;
+    }
 }

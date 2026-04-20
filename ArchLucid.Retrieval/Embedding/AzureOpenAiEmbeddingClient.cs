@@ -1,4 +1,4 @@
-﻿using System.ClientModel;
+using System.ClientModel;
 using System.Diagnostics.CodeAnalysis;
 
 using Azure.AI.OpenAI;
@@ -37,7 +37,8 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     public Task<IReadOnlyList<float[]>> EmbedManyAsync(IReadOnlyList<string> texts, CancellationToken ct)
     {
         _ = ct;
-        if (texts.Count == 0) return Task.FromResult<IReadOnlyList<float[]>>([]);
+        if (texts.Count == 0)
+            return Task.FromResult<IReadOnlyList<float[]>>([]);
 
         ClientResult<OpenAIEmbeddingCollection>? response = _embeddingClient.GenerateEmbeddings(texts.ToList(), cancellationToken: ct);
         List<float[]> vectors = response.Value.Select(e => e.ToFloats().ToArray()).ToList();

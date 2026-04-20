@@ -9,7 +9,10 @@ namespace ArchLucid.Benchmarks;
 public class SqlPagingSyntaxMicroBenchmarks
 {
     [Params(200, 500, 1000)]
-    public int RowCount { get; set; }
+    public int RowCount
+    {
+        get; set;
+    }
 
     [Benchmark]
     public string FirstRowsOnlyFragment()

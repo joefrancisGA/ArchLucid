@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -68,12 +68,14 @@ internal static class ComparisonRecordSearchPredicateBuilder
             parameters.Add("@Label", label);
         }
 
-        if (tags is not { Count: > 0 }) return;
+        if (tags is not { Count: > 0 })
+            return;
 
         for (int i = 0; i < tags.Count; i++)
         {
             string t = tags[i];
-            if (string.IsNullOrWhiteSpace(t)) continue;
+            if (string.IsNullOrWhiteSpace(t))
+                continue;
             string paramName = $"@Tag{i}";
             parameters.Add(paramName, t);
             conditions.Add(

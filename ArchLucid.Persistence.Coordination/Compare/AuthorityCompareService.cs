@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -28,7 +28,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
         GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
-        if (left is null || right is null) return null;
+        if (left is null || right is null)
+            return null;
 
         if (left.TenantId != right.TenantId ||
             left.WorkspaceId != right.WorkspaceId ||
@@ -68,7 +69,8 @@ public sealed class AuthorityCompareService(
         RunSummaryDto? leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
         RunSummaryDto? rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
-        if (leftRun is null || rightRun is null) return null;
+        if (leftRun is null || rightRun is null)
+            return null;
 
         RunComparisonResult result = new()
         {

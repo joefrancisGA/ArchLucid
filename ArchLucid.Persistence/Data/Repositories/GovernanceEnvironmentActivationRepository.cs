@@ -123,7 +123,10 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
-            new { Environment = environment },
+            new
+            {
+                Environment = environment
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -151,7 +154,10 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows];

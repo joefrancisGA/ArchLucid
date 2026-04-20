@@ -145,7 +145,10 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [InlineData("\t")]
     public void BuildSegment_WhitespaceOrNullBaseSummary_FallsBackToConnectorType(string? baseSummary)
     {
-        NormalizedContextBatch batch = new() { CanonicalObjects = [MakeObject("Requirement")] };
+        NormalizedContextBatch batch = new()
+        {
+            CanonicalObjects = [MakeObject("Requirement")]
+        };
 
         string line = _sut.BuildSegment("my-connector", baseSummary!, batch, null, isFirstConnector: false);
 
@@ -157,7 +160,10 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [Fact]
     public void BuildSegment_BaseSummaryWithWhitespace_IsTrimmed()
     {
-        NormalizedContextBatch batch = new() { CanonicalObjects = [MakeObject("Requirement")] };
+        NormalizedContextBatch batch = new()
+        {
+            CanonicalObjects = [MakeObject("Requirement")]
+        };
 
         string line = _sut.BuildSegment("conn", "  padded summary  ", batch, null, isFirstConnector: false);
 

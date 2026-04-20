@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Cli;
+namespace ArchLucid.Cli;
 
 /// <summary>
 /// Per-invocation CLI flags. Reset by <see cref="Program.RunAsync"/> after each run.
@@ -9,7 +9,10 @@ public static class CliExecutionContext
     /// When true, the user passed one or more leading <c>--json</c> flags (e.g. <c>archlucid --json health</c>).
     /// Subcommand-specific <c>--json</c> (e.g. after <c>comparisons list</c>) is unchanged.
     /// </summary>
-    public static bool JsonOutput { get; internal set; }
+    public static bool JsonOutput
+    {
+        get; internal set;
+    }
 
     internal static string[] StripLeadingGlobalJsonFlags(string[] args, out bool json)
     {
@@ -22,7 +25,8 @@ public static class CliExecutionContext
             i++;
         }
 
-        if (i == 0) return args;
+        if (i == 0)
+            return args;
 
 
         return args[i..];

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 
@@ -11,7 +11,8 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined)) return;
+        if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined))
+            return;
 
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.TrialLifecycle))

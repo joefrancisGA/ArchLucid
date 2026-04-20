@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Integration;
@@ -34,7 +34,8 @@ public sealed class TrialLifecycleEmailIntegrationEventHandler(
             throw new FormatException("Trial lifecycle email payload was not valid JSON.", ex);
         }
 
-        if (envelope is null) throw new FormatException("Trial lifecycle email payload deserialized to null.");
+        if (envelope is null)
+            throw new FormatException("Trial lifecycle email payload deserialized to null.");
 
 
         using IServiceScope scope = _scopeFactory.CreateScope();

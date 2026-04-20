@@ -29,11 +29,11 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 .ToList();
 
             List<string> relatedNodeIds = [node.NodeId];
-            
+
             foreach (string id in protectedIds.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
-            
+
                 relatedNodeIds.Add(id);
-            
+
 
             List<string> examined = [.. relatedNodeIds];
 

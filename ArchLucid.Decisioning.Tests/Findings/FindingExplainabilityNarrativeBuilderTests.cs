@@ -138,7 +138,10 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
             GraphNodeIdsExamined = ["n-1"],
         };
 
-        Dictionary<string, string> labels = new() { ["n-1"] = "Subnet A" };
+        Dictionary<string, string> labels = new()
+        {
+            ["n-1"] = "Subnet A"
+        };
 
         string text = FindingExplainabilityNarrativeBuilder.Build("f1", "T", "e", trace, 1.0, labels);
 
@@ -154,7 +157,10 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
             GraphNodeIdsExamined = ["a", "b"],
         };
 
-        Dictionary<string, string> labels = new() { ["a"] = "L1" };
+        Dictionary<string, string> labels = new()
+        {
+            ["a"] = "L1"
+        };
 
         string text = FindingExplainabilityNarrativeBuilder.Build("x", "T", "e", trace, 0.5, labels);
 

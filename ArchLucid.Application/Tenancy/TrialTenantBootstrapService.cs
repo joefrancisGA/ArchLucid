@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
@@ -41,9 +41,11 @@ public sealed class TrialTenantBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        if (string.IsNullOrWhiteSpace(auditActorEmail)) throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
+        if (string.IsNullOrWhiteSpace(auditActorEmail))
+            throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
 
-        if (result.WasAlreadyProvisioned) return;
+        if (result.WasAlreadyProvisioned)
+            return;
 
         if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
         {

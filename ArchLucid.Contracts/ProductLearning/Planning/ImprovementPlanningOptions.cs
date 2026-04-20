@@ -10,5 +10,8 @@ public sealed class ImprovementPlanningOptions
     public int MaxStepsPerPlan { get; init; } = 5;
 
     /// <summary>Optional fixed timestamp for tests; default uses <see cref="DateTime.UtcNow"/>.</summary>
-    public DateTime? CreatedUtcOverride { get; init; }
+    public DateTime? CreatedUtcOverride
+    {
+        get; init;
+    }
 }

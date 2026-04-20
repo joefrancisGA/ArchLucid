@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataConsistency;
 
 using Microsoft.Extensions.Options;
@@ -21,7 +21,8 @@ public sealed class DataConsistencyOrphanProbeHostedService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider)) return;
+        if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
+            return;
 
 
         TimeSpan firstDelay = TimeSpan.FromMinutes(2);

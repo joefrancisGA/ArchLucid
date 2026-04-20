@@ -47,9 +47,9 @@ public sealed class ManifestSummaryService : IManifestSummaryService
 
             foreach (string control in governance.RequiredControls
                          .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
-            
+
                 sb.AppendLine($"- {control}");
-            
+
 
             sb.AppendLine();
         }
@@ -67,19 +67,19 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                 sb.AppendLine($"- **Runtime Platform:** {service.RuntimePlatform}");
 
                 if (!string.IsNullOrWhiteSpace(service.Purpose))
-                
+
                     sb.AppendLine($"- **Purpose:** {service.Purpose}");
-                
+
 
                 if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
-                
+
                     sb.AppendLine($"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
-                
+
 
                 if (options.IncludeTags && service.Tags.Count > 0)
-                
+
                     sb.AppendLine($"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
-                
+
 
                 sb.AppendLine();
             }
@@ -98,9 +98,9 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                 sb.AppendLine($"- **Runtime Platform:** {datastore.RuntimePlatform}");
 
                 if (!string.IsNullOrWhiteSpace(datastore.Purpose))
-                
+
                     sb.AppendLine($"- **Purpose:** {datastore.Purpose}");
-                
+
 
                 sb.AppendLine($"- **Private Endpoint Required:** {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
                 sb.AppendLine($"- **Encryption At Rest Required:** {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
@@ -130,15 +130,16 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                 sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
 
                 if (!string.IsNullOrWhiteSpace(relationship.Relationship.Description))
-                
+
                     sb.AppendLine($"  - {relationship.Relationship.Description}");
-                
+
             }
 
             sb.AppendLine();
         }
 
-        if (!options.IncludeComplianceTags || governance.ComplianceTags.Count <= 0) return sb.ToString().TrimEnd();
+        if (!options.IncludeComplianceTags || governance.ComplianceTags.Count <= 0)
+            return sb.ToString().TrimEnd();
 
         sb.AppendLine("## Compliance Tags");
         sb.AppendLine();

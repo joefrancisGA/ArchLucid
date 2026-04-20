@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -66,9 +66,9 @@ internal static class TrialLimitProblemResponse
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
             string actor =
-                httpContext.User?.FindFirst("sub")?.Value
-                ?? httpContext.User?.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
-                ?? httpContext.User?.Identity?.Name
+                httpContext.User.FindFirst("sub")?.Value
+                ?? httpContext.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value
+                ?? httpContext.User.Identity?.Name
                 ?? "unknown";
 
             await audit.LogAsync(

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Notifications.Email.Models;
+using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Notifications;
@@ -72,7 +72,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
-        if (!PassesTriggerGate(envelope.Trigger, tenant, utcNow)) return;
+        if (!PassesTriggerGate(envelope.Trigger, tenant, utcNow))
+            return;
 
 
         string? to = await _contactLookup.TryResolveAdminEmailAsync(envelope.TenantId, cancellationToken);
@@ -100,7 +101,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         TrialDispatchPlan? plan = TryBuildPlan(envelope, tenant, productName, baseUrl, utcNow);
 
-        if (plan is null) return;
+        if (plan is null)
+            return;
 
 
         SentEmailLedgerEntry ledgerEntry = new(
@@ -112,7 +114,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
-        if (!reserved) return;
+        if (!reserved)
+            return;
 
 
         string html = await _templateRenderer
@@ -158,24 +161,30 @@ public sealed class TrialLifecycleEmailDispatcher(
 
     private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)
     {
-        if (trigger is TrialLifecycleEmailTrigger.Converted) return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal);
+        if (trigger is TrialLifecycleEmailTrigger.Converted)
+            return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal);
 
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal)) return false;
+        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+            return false;
 
 
-        if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned) return true;
+        if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
+            return true;
 
 
-        if (trigger is TrialLifecycleEmailTrigger.FirstRunCommitted) return tenant.TrialRunsLimit is not null && tenant.TrialRunsUsed == 1;
+        if (trigger is TrialLifecycleEmailTrigger.FirstRunCommitted)
+            return tenant.TrialRunsLimit is not null && tenant.TrialRunsUsed == 1;
 
 
         if (trigger is TrialLifecycleEmailTrigger.MidTrialDay7)
         {
-            if (tenant.TrialStartUtc is null) return false;
+            if (tenant.TrialStartUtc is null)
+                return false;
 
 
-            if (tenant.TrialExpiresUtc is { } expMid && expMid <= utcNow) return false;
+            if (tenant.TrialExpiresUtc is { } expMid && expMid <= utcNow)
+                return false;
 
 
             return (utcNow - tenant.TrialStartUtc.Value).TotalDays >= 7d;
@@ -183,7 +192,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (trigger is TrialLifecycleEmailTrigger.ApproachingRunLimit)
         {
-            if (tenant.TrialRunsLimit is not { } limit || limit <= 0) return false;
+            if (tenant.TrialRunsLimit is not { } limit || limit <= 0)
+                return false;
 
 
             int threshold = (int)Math.Ceiling(limit * 0.8d);
@@ -193,10 +203,12 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (trigger is TrialLifecycleEmailTrigger.ExpiringSoon)
         {
-            if (tenant.TrialExpiresUtc is not { } expSoon) return false;
+            if (tenant.TrialExpiresUtc is not { } expSoon)
+                return false;
 
 
-            if (expSoon <= utcNow) return false;
+            if (expSoon <= utcNow)
+                return false;
 
 
             return (expSoon - utcNow).TotalDays <= 2d;
@@ -204,7 +216,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (trigger is TrialLifecycleEmailTrigger.Expired)
         {
-            if (tenant.TrialExpiresUtc is not { } expEnd) return false;
+            if (tenant.TrialExpiresUtc is not { } expEnd)
+                return false;
 
 
             return expEnd <= utcNow;
@@ -257,7 +270,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.ApproachingRunLimit)
         {
-            if (tenant.TrialRunsLimit is not { } limit) return null;
+            if (tenant.TrialRunsLimit is not { } limit)
+                return null;
 
 
             TrialApproachingRunLimitEmailModel model = new(productName, tenant.TrialRunsUsed, limit);
@@ -271,7 +285,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.ExpiringSoon)
         {
-            if (tenant.TrialExpiresUtc is null) return null;
+            if (tenant.TrialExpiresUtc is null)
+                return null;
 
 
             int daysRemaining = (int)Math.Max(0d, Math.Ceiling((tenant.TrialExpiresUtc.Value - utcNow).TotalDays));
@@ -314,7 +329,8 @@ public sealed class TrialLifecycleEmailDispatcher(
 
     private static string CombineUrl(string? baseUrl, string relativePath)
     {
-        if (string.IsNullOrWhiteSpace(baseUrl)) return relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
+        if (string.IsNullOrWhiteSpace(baseUrl))
+            return relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
 
 
         string rel = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;

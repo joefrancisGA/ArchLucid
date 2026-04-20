@@ -107,9 +107,15 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
             Client = client;
         }
 
-        public WebApplicationFactory<Program> App { get; }
+        public WebApplicationFactory<Program> App
+        {
+            get;
+        }
 
-        public HttpClient Client { get; }
+        public HttpClient Client
+        {
+            get;
+        }
 
         public static async Task<TrialJwtHost> CreateAsync()
         {

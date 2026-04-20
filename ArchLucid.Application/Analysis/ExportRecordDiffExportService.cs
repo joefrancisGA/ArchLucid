@@ -23,9 +23,9 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         {
             builder.AddHeading("Changed Top-Level Fields", 2);
             foreach (string item in diff.ChangedTopLevelFields)
-            
+
                 builder.AddBullet(item);
-            
+
             builder.AddSpacer();
         }
 
@@ -37,24 +37,25 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
             {
                 builder.AddHeading("Changed Flags", 3);
                 foreach (string item in diff.RequestDiff.ChangedFlags)
-                
+
                     builder.AddBullet(item);
-                
+
             }
 
             if (diff.RequestDiff.ChangedValues.Count > 0)
             {
                 builder.AddHeading("Changed Values", 3);
                 foreach (string item in diff.RequestDiff.ChangedValues)
-                
+
                     builder.AddBullet(item);
-                
+
             }
 
             builder.AddSpacer();
         }
 
-        if (diff.Warnings.Count <= 0) return Task.FromResult(builder.Build());
+        if (diff.Warnings.Count <= 0)
+            return Task.FromResult(builder.Build());
 
         builder.AddHeading("Warnings", 2);
         foreach (string item in diff.Warnings)

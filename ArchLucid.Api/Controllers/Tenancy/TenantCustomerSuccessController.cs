@@ -71,8 +71,6 @@ public sealed class TenantCustomerSuccessController(
         [FromBody] ProductFeedbackRequest request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return BadRequest();
-
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         ProductFeedbackSubmission submission = new()

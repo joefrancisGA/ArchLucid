@@ -14,19 +14,34 @@ namespace ArchLucid.Persistence.Coordination.Compare;
 public class RunComparisonResult
 {
     /// <summary>Id of the baseline (left) authority run.</summary>
-    public Guid LeftRunId { get; set; }
+    public Guid LeftRunId
+    {
+        get; set;
+    }
 
     /// <summary>Id of the target (right) authority run.</summary>
-    public Guid RightRunId { get; set; }
+    public Guid RightRunId
+    {
+        get; set;
+    }
 
     /// <summary>Summaries loaded for the comparison (not always exposed on the wire).</summary>
-    public RunSummaryDto? LeftRun { get; set; }
+    public RunSummaryDto? LeftRun
+    {
+        get; set;
+    }
 
     /// <summary>Right-hand run summary (same semantics as <see cref="LeftRun"/>).</summary>
-    public RunSummaryDto? RightRun { get; set; }
+    public RunSummaryDto? RightRun
+    {
+        get; set;
+    }
 
     /// <summary>Present when both runs have golden manifest ids and manifest comparison succeeds.</summary>
-    public ManifestComparisonResult? ManifestComparison { get; set; }
+    public ManifestComparisonResult? ManifestComparison
+    {
+        get; set;
+    }
 
     /// <summary>High-level run field changes (e.g. project slug, description).</summary>
     public List<DiffItem> RunLevelDiffs { get; set; } = [];

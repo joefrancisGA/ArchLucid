@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
 using Microsoft.Extensions.Options;
@@ -40,7 +40,8 @@ public sealed class DataArchivalArchLucidJob(
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            if (!ok) return ArchLucidJobExitCodes.JobFailure;
+            if (!ok)
+                return ArchLucidJobExitCodes.JobFailure;
 
         }
         catch (OperationCanceledException)

@@ -7,10 +7,16 @@ namespace ArchLucid.Persistence.Coordination.Compare;
 public class ManifestComparisonResult
 {
     /// <summary>Id of the baseline (left) golden manifest.</summary>
-    public Guid LeftManifestId { get; set; }
+    public Guid LeftManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Id of the target (right) golden manifest.</summary>
-    public Guid RightManifestId { get; set; }
+    public Guid RightManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Content hash of the baseline manifest (for quick equality check).</summary>
     public string LeftManifestHash { get; set; } = null!;

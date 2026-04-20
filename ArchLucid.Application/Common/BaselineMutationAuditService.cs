@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -39,11 +39,13 @@ public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditSe
 
     private static string TruncateDetails(string? details)
     {
-        if (string.IsNullOrEmpty(details)) return string.Empty;
+        if (string.IsNullOrEmpty(details))
+            return string.Empty;
 
         string trimmed = details.Trim();
 
-        if (trimmed.Length <= MaxDetailsLength) return trimmed;
+        if (trimmed.Length <= MaxDetailsLength)
+            return trimmed;
 
         return trimmed[..MaxDetailsLength] + "…";
     }

@@ -15,5 +15,8 @@ public sealed class GovernanceDashboardSummary
     public IReadOnlyList<PolicyPackChangeLogEntry> RecentChanges { get; init; } = [];
 
     /// <summary>Count of items in <see cref="PendingApprovals"/> (same cap as the list; not a separate total).</summary>
-    public int PendingCount { get; init; }
+    public int PendingCount
+    {
+        get; init;
+    }
 }

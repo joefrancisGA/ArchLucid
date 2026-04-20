@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -40,7 +40,8 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
         }
 
-        if (report.Evidence.Policies.Count <= 0) return;
+        if (report.Evidence.Policies.Count <= 0)
+            return;
 
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Policy Evidence", 2);

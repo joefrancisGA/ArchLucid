@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 using ArchLucid.Api.Auth.Models;
@@ -68,7 +68,7 @@ public static class AuthServiceCollectionExtensions
 
     private static void ConfigureJwtBearer(JwtBearerOptions options, ArchLucidAuthOptions authOptions, IConfiguration configuration)
     {
-        string? pemPath = authOptions.JwtSigningPublicKeyPemPath?.Trim();
+        string pemPath = authOptions.JwtSigningPublicKeyPemPath.Trim();
 
         if (!string.IsNullOrEmpty(pemPath))
         {
@@ -123,8 +123,8 @@ public static class AuthServiceCollectionExtensions
             signingKey = new RsaSecurityKey(rsa.ExportParameters(false));
         }
 
-        string issuer = authOptions.JwtLocalIssuer?.Trim() ?? string.Empty;
-        string audience = authOptions.JwtLocalAudience?.Trim() ?? string.Empty;
+        string issuer = authOptions.JwtLocalIssuer.Trim();
+        string audience = authOptions.JwtLocalAudience.Trim();
 
         if (string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
             throw new InvalidOperationException(
@@ -133,7 +133,7 @@ public static class AuthServiceCollectionExtensions
 
         // MapInboundClaims=false keeps short JWT claim types ("name", "roles"). NameClaimType must use the same
         // string as the token payload. Options default is ClaimTypes.Name (long URI), which never matches inbound "name".
-        string configuredNameClaimType = authOptions.NameClaimType?.Trim() ?? string.Empty;
+        string configuredNameClaimType = authOptions.NameClaimType.Trim();
         string nameClaimType =
             string.IsNullOrEmpty(configuredNameClaimType)
             || string.Equals(configuredNameClaimType, ClaimTypes.Name, StringComparison.Ordinal)

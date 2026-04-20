@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Host.Core.Configuration;
 
@@ -12,12 +12,14 @@ internal static class ApiDeprecationRules
             configuration.GetSection(ApiDeprecationOptions.SectionName).Get<ApiDeprecationOptions>()
             ?? new ApiDeprecationOptions();
 
-        if (!deprecation.Enabled) return;
+        if (!deprecation.Enabled)
+            return;
 
 
         string? sunset = deprecation.SunsetHttpDate?.Trim();
 
-        if (string.IsNullOrEmpty(sunset)) return;
+        if (string.IsNullOrEmpty(sunset))
+            return;
 
 
         if (!DateTimeOffset.TryParse(

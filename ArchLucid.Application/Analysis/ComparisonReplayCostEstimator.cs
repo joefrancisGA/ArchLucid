@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -22,7 +22,8 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 
         ComparisonRecord? record = await _comparisonRecords.GetByIdAsync(comparisonRecordId, ct);
 
-        if (record is null) return null;
+        if (record is null)
+            return null;
 
         string normalizedFormat = ComparisonReplayRequestParsing.NormalizeFormat(format);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
@@ -116,7 +117,8 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 
     private static int EndToEndFormatWeight(string normalizedFormat, List<string> factors)
     {
-        if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase)) return 0;
+        if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
+            return 0;
 
         if (string.Equals(normalizedFormat, "html", StringComparison.OrdinalIgnoreCase))
         {
@@ -143,7 +145,8 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 
     private static int ExportDiffFormatWeight(string normalizedFormat, List<string> factors)
     {
-        if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase)) return 0;
+        if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
+            return 0;
 
         if (string.Equals(normalizedFormat, "docx", StringComparison.OrdinalIgnoreCase))
         {

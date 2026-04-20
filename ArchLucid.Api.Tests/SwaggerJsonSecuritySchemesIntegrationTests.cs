@@ -69,14 +69,14 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
         JsonElement root = doc.RootElement;
 
         if (!root.TryGetProperty("components", out JsonElement components))
-        
+
             return;
-        
+
 
         if (!components.TryGetProperty("securitySchemes", out JsonElement schemes))
-        
+
             return;
-        
+
 
         schemes.TryGetProperty("Bearer", out _).Should().BeFalse();
     }

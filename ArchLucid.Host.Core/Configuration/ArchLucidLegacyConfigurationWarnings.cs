@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Logs when configuration still uses the pre-rename product section or connection-string name
@@ -43,7 +43,8 @@ public static class ArchLucidLegacyConfigurationWarnings
             found.Add(LegacyAuthSection + ":*");
 
 
-        if (found.Count == 0) return;
+        if (found.Count == 0)
+            return;
 
 
         logger.LogWarning(

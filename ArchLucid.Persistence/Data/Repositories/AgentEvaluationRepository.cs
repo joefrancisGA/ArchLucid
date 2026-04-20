@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -24,7 +24,8 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
     {
         ArgumentNullException.ThrowIfNull(evaluations);
 
-        if (evaluations.Count == 0) return;
+        if (evaluations.Count == 0)
+            return;
 
         List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
@@ -101,7 +102,10 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
     {
         await conn.ExecuteAsync(new CommandDefinition(
             deleteSql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             transaction: tx,
             cancellationToken: cancellationToken));
 
@@ -142,7 +146,10 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         List<AgentEvaluation> evaluations = [];

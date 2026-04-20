@@ -24,7 +24,10 @@ public sealed class ManifestSummaryOptions
     /// Maximum number of relationships to include. <c>null</c> (default) means no limit.
     /// Useful when the manifest has very large relationship sets.
     /// </summary>
-    public int? MaxRelationships { get; set; }
+    public int? MaxRelationships
+    {
+        get; set;
+    }
 
     /// <summary>Include the compliance-tags section from <c>manifest.Governance</c>. Defaults to <c>true</c>.</summary>
     public bool IncludeComplianceTags { get; set; } = true;

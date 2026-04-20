@@ -28,9 +28,9 @@ public sealed class RequestScopedCachingEffectiveGovernanceLoader(IEffectiveGove
             _workspaceId == workspaceId &&
             _projectId == projectId &&
             _cached is not null)
-        
+
             return _cached;
-        
+
 
         PolicyPackContentDocument document = await inner
             .LoadEffectiveContentAsync(tenantId, workspaceId, projectId, ct)

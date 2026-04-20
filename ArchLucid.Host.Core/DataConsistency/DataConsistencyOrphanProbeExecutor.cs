@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -32,12 +32,14 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     /// <summary>When storage is in-memory, returns immediately without opening SQL.</summary>
     public async Task RunOnceAsync(CancellationToken cancellationToken)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return;
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+            return;
 
 
         DataConsistencyProbeOptions snapshot = _optionsMonitor.CurrentValue;
 
-        if (!snapshot.OrphanProbeEnabled) return;
+        if (!snapshot.OrphanProbeEnabled)
+            return;
 
 
         int sampleCap = Math.Clamp(snapshot.OrphanProbeRemediationDryRunLogMaxRows, 0, 500);
@@ -75,12 +77,14 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        if (sampleCap <= 0) return;
+        if (sampleCap <= 0)
+            return;
 
 
         bool anyOrphans = leftCount > 0 || rightCount > 0 || goldenCount > 0 || findingsCount > 0;
 
-        if (!anyOrphans) return;
+        if (!anyOrphans)
+            return;
 
 
         await LogRemediationDryRunSamplesAsync(connection, sampleCap, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
@@ -220,7 +224,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         object? scalar = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
         long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
 
-        if (count <= 0) return count;
+        if (count <= 0)
+            return count;
 
 
         _logger.LogWarning(

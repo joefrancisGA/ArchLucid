@@ -8,9 +8,18 @@ public sealed class RepeatedCommentTheme
 {
     /// <summary>Normalized key used for grouping (prefix of comment text).</summary>
     public string ThemeKey { get; init; } = string.Empty;
-    public int OccurrenceCount { get; init; }
-    public DateTime FirstSeenUtc { get; init; }
-    public DateTime LastSeenUtc { get; init; }
+    public int OccurrenceCount
+    {
+        get; init;
+    }
+    public DateTime FirstSeenUtc
+    {
+        get; init;
+    }
+    public DateTime LastSeenUtc
+    {
+        get; init;
+    }
 
     /// <summary>Lexicographically smallest non-empty comment in the bucket (deterministic sample).</summary>
     public string SampleCommentShort { get; init; } = string.Empty;

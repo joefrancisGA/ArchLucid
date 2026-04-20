@@ -21,7 +21,10 @@ public sealed class WebhookPosterTests
         FakeWebhookPoster poster = new(NullLogger<FakeWebhookPoster>.Instance);
 
         Func<Task> act = async () =>
-            await poster.PostJsonAsync("https://example.test/hook", new { x = 1 }, CancellationToken.None);
+            await poster.PostJsonAsync("https://example.test/hook", new
+            {
+                x = 1
+            }, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
     }
@@ -34,7 +37,10 @@ public sealed class WebhookPosterTests
 
         await poster.PostJsonAsync(
             "https://example.test/hook",
-            new { n = 2 },
+            new
+            {
+                n = 2
+            },
             CancellationToken.None,
             new WebhookPostOptions { HmacSha256SharedSecret = "abc" });
 
@@ -56,7 +62,10 @@ public sealed class WebhookPosterTests
         Mock<IWebhookPoster> inner = new();
         WebhookHmacEnvelopePoster poster = new(opts.Object, inner.Object);
 
-        await poster.PostJsonAsync("https://x", new { a = 1 }, CancellationToken.None);
+        await poster.PostJsonAsync("https://x", new
+        {
+            a = 1
+        }, CancellationToken.None);
 
         inner.Verify(
             i => i.PostJsonAsync(
@@ -77,7 +86,10 @@ public sealed class WebhookPosterTests
 
         await poster.PostJsonAsync(
             "https://x",
-            new { a = 1 },
+            new
+            {
+                a = 1
+            },
             CancellationToken.None,
             new WebhookPostOptions { HmacSha256SharedSecret = "call" });
 

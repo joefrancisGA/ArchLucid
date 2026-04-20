@@ -25,9 +25,9 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        
+
             _byId[evidenceBundle.EvidenceBundleId] = Clone(evidenceBundle);
-        
+
 
         return Task.CompletedTask;
     }
@@ -37,9 +37,9 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        
+
             return Task.FromResult(_byId.TryGetValue(evidenceBundleId, out EvidenceBundle? b) ? Clone(b) : null);
-        
+
     }
 
     private static EvidenceBundle Clone(EvidenceBundle source)

@@ -9,5 +9,8 @@ public sealed class ManifestSummaryRelationshipItem
     public string SourceId { get; set; } = string.Empty;
     public string TargetId { get; set; } = string.Empty;
     public string RelationshipType { get; set; } = string.Empty;
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 }

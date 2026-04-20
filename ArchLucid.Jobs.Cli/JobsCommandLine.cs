@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Jobs.Cli;
+namespace ArchLucid.Jobs.Cli;
 
 /// <summary>Parses <c>--job &lt;name&gt;</c> for <see cref="Program"/>.</summary>
 internal static class JobsCommandLine
@@ -20,7 +20,8 @@ internal static class JobsCommandLine
         {
             string token = args[i];
 
-            if (!string.Equals(token, "--job", StringComparison.Ordinal)) continue;
+            if (!string.Equals(token, "--job", StringComparison.Ordinal))
+                continue;
 
 
             if (i + 1 >= args.Count)
@@ -32,7 +33,8 @@ internal static class JobsCommandLine
 
             jobName = args[i + 1].Trim();
 
-            if (!string.IsNullOrWhiteSpace(jobName)) return true;
+            if (!string.IsNullOrWhiteSpace(jobName))
+                return true;
             usageError = "Job name must not be empty.";
 
             return false;

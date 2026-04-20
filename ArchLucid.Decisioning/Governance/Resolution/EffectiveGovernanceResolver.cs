@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
@@ -208,7 +208,8 @@ public sealed class EffectiveGovernanceResolver(
         Guid workspaceId,
         Guid projectId)
     {
-        if (assignment.TenantId != tenantId) return false;
+        if (assignment.TenantId != tenantId)
+            return false;
 
         return assignment.ScopeLevel switch
         {
@@ -270,9 +271,11 @@ public sealed class EffectiveGovernanceResolver(
     /// <remarks>Called when appending <see cref="GovernanceResolutionDecision.ResolutionReason"/>.</remarks>
     private static string BuildResolutionReason(List<GovernanceResolutionCandidate> ordered)
     {
-        if (ordered.Count == 0) return "No candidates.";
+        if (ordered.Count == 0)
+            return "No candidates.";
 
-        if (ordered.Count == 1) return "Only one applicable candidate existed.";
+        if (ordered.Count == 1)
+            return "Only one applicable candidate existed.";
 
         GovernanceResolutionCandidate winner = ordered[0];
         GovernanceResolutionCandidate second = ordered[1];
@@ -311,7 +314,8 @@ public sealed class EffectiveGovernanceResolver(
                     .Where(x => (selector(x) ?? []).Contains(id))
                     .Select(x => ToCandidate(x, raw)));
 
-            if (candidates.Count == 0) continue;
+            if (candidates.Count == 0)
+                continue;
 
             candidates[0].WasSelected = true;
             effective.Add(id);
@@ -376,7 +380,8 @@ public sealed class EffectiveGovernanceResolver(
                         return ToCandidate(x, JsonSerializer.Serialize(v, PolicyPackJsonSerializerOptions.Default));
                     }));
 
-            if (candidates.Count == 0) continue;
+            if (candidates.Count == 0)
+                continue;
 
             candidates[0].WasSelected = true;
             string canonical = packs
@@ -450,7 +455,8 @@ public sealed class EffectiveGovernanceResolver(
                         return ToCandidate(x, val);
                     }));
 
-            if (candidates.Count == 0) continue;
+            if (candidates.Count == 0)
+                continue;
 
             candidates[0].WasSelected = true;
             string canonicalKey = packs
@@ -470,7 +476,8 @@ public sealed class EffectiveGovernanceResolver(
                 Candidates = candidates,
             });
 
-            if (candidates.Count <= 1) continue;
+            if (candidates.Count <= 1)
+                continue;
 
             int distinctValues = candidates
                 .Select(x => x.ValueJson)

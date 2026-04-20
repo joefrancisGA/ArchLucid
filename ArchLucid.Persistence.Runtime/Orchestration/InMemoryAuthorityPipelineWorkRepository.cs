@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipelineWorkRepository

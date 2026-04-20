@@ -17,7 +17,10 @@ public sealed class TopologyHintsConnectorParentTests
     public async Task NormalizeAsync_SlashSeparatedHint_SetsParentNodeIdToStableParent()
     {
         TopologyHintsConnector sut = new();
-        RawContextPayload raw = new() { TopologyHints = ["parentNet/childSubnet"] };
+        RawContextPayload raw = new()
+        {
+            TopologyHints = ["parentNet/childSubnet"]
+        };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
 
@@ -32,7 +35,10 @@ public sealed class TopologyHintsConnectorParentTests
     public async Task NormalizeAsync_PlainHint_HasNoParentNodeId()
     {
         TopologyHintsConnector sut = new();
-        RawContextPayload raw = new() { TopologyHints = ["standalone-vnet"] };
+        RawContextPayload raw = new()
+        {
+            TopologyHints = ["standalone-vnet"]
+        };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
 

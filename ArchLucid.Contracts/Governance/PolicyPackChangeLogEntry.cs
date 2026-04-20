@@ -6,26 +6,53 @@ namespace ArchLucid.Contracts.Governance;
 public sealed class PolicyPackChangeLogEntry
 {
     /// <summary>Surrogate key; populated by the store on insert when not supplied.</summary>
-    public Guid ChangeLogId { get; init; }
+    public Guid ChangeLogId
+    {
+        get; init;
+    }
 
-    public Guid PolicyPackId { get; init; }
+    public Guid PolicyPackId
+    {
+        get; init;
+    }
 
-    public Guid TenantId { get; init; }
+    public Guid TenantId
+    {
+        get; init;
+    }
 
-    public Guid WorkspaceId { get; init; }
+    public Guid WorkspaceId
+    {
+        get; init;
+    }
 
-    public Guid ProjectId { get; init; }
+    public Guid ProjectId
+    {
+        get; init;
+    }
 
     /// <summary>Logical change category (see <c>PolicyPackChangeTypes</c> in Decisioning).</summary>
     public string ChangeType { get; init; } = string.Empty;
 
     public string ChangedBy { get; init; } = string.Empty;
 
-    public DateTime ChangedUtc { get; init; }
+    public DateTime ChangedUtc
+    {
+        get; init;
+    }
 
-    public string? PreviousValue { get; init; }
+    public string? PreviousValue
+    {
+        get; init;
+    }
 
-    public string? NewValue { get; init; }
+    public string? NewValue
+    {
+        get; init;
+    }
 
-    public string? SummaryText { get; init; }
+    public string? SummaryText
+    {
+        get; init;
+    }
 }

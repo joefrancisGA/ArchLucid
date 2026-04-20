@@ -44,15 +44,16 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
             AppendSection(sb, "Removed Warnings", delta.RemovedWarnings);
         }
 
-        if (diff.Warnings.Count <= 0) return sb.ToString();
-        
+        if (diff.Warnings.Count <= 0)
+            return sb.ToString();
+
         sb.AppendLine("## Warnings");
         sb.AppendLine();
 
         foreach (string warning in diff.Warnings)
-        
+
             sb.AppendLine($"- {warning}");
-        
+
 
         sb.AppendLine();
 
@@ -75,9 +76,9 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         }
 
         foreach (string item in items.OrderBy(x => x))
-        
+
             sb.AppendLine($"- {item}");
-        
+
 
         sb.AppendLine();
     }

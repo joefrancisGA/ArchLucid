@@ -97,8 +97,18 @@ public sealed class DefaultGraphBuilderTests
             Name = "Encryption Policy"
         };
 
-        GraphNode node1 = new() { NodeId = $"obj-{obj1.ObjectId}", NodeType = obj1.ObjectType, Label = obj1.Name };
-        GraphNode node2 = new() { NodeId = $"obj-{obj2.ObjectId}", NodeType = obj2.ObjectType, Label = obj2.Name };
+        GraphNode node1 = new()
+        {
+            NodeId = $"obj-{obj1.ObjectId}",
+            NodeType = obj1.ObjectType,
+            Label = obj1.Name
+        };
+        GraphNode node2 = new()
+        {
+            NodeId = $"obj-{obj2.ObjectId}",
+            NodeType = obj2.ObjectType,
+            Label = obj2.Name
+        };
 
         Mock<IGraphNodeFactory> nodeFactory = new(MockBehavior.Strict);
         nodeFactory.Setup(f => f.CreateNode(obj1)).Returns(node1);

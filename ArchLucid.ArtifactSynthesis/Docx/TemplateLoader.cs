@@ -26,9 +26,10 @@ public static class TemplateLoader
         yield return AppContext.BaseDirectory;
 
         string loc = Assembly.GetExecutingAssembly().Location;
-        
-        if (string.IsNullOrEmpty(loc)) yield break;
-        
+
+        if (string.IsNullOrEmpty(loc))
+            yield break;
+
         string? bin = Path.GetDirectoryName(loc);
         if (!string.IsNullOrEmpty(bin))
             yield return bin;

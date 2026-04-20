@@ -9,13 +9,22 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public class EffectivePolicyPackSet
 {
     /// <summary>Echo of request scope.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Echo of request scope.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Echo of request scope.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Ordered list of resolved packs (repository order).</summary>
     public List<ResolvedPolicyPack> Packs { get; set; } = [];

@@ -11,7 +11,10 @@ namespace ArchLucid.Api.Tests.Billing;
 /// <summary>Extends <see cref="GreenfieldSqlApiFactory"/> with Azure Marketplace billing settings and a stub JWT verifier.</summary>
 internal abstract class BillingMarketplaceWebhookApiFactoryBase : GreenfieldSqlApiFactory
 {
-    protected abstract bool GaEnabled { get; }
+    protected abstract bool GaEnabled
+    {
+        get;
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

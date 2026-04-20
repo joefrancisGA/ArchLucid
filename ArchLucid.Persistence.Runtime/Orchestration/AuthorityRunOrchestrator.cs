@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
@@ -227,7 +227,8 @@ public sealed class AuthorityRunOrchestrator(
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
             RunRecord? existing = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
-            if (existing is null) throw new InvalidOperationException($"Run '{request.RunId:D}' was not found for queued authority completion.");
+            if (existing is null)
+                throw new InvalidOperationException($"Run '{request.RunId:D}' was not found for queued authority completion.");
 
             if (existing.ContextSnapshotId is not null)
             {

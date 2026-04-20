@@ -1,4 +1,4 @@
-﻿using System.ClientModel;
+using System.ClientModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
@@ -44,7 +44,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
 
-        if (maxCompletionTokens < 1) throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens, "Must be at least 1.");
+        if (maxCompletionTokens < 1)
+            throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens, "Must be at least 1.");
 
 
         Uri endpointUri = new(endpoint);
@@ -179,11 +180,13 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
 
-        if (parts is null || parts.Count < 1) throw new InvalidOperationException("Azure OpenAI returned no message content.");
+        if (parts is null || parts.Count < 1)
+            throw new InvalidOperationException("Azure OpenAI returned no message content.");
 
         string? text = parts[0].Text;
 
-        if (string.IsNullOrEmpty(text)) throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
+        if (string.IsNullOrEmpty(text))
+            throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
 
         string? modelId = completion.Model;
         LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());

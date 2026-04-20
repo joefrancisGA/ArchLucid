@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -109,7 +109,8 @@ public sealed class PrometheusScrapeAuthMiddleware
 
         int colon = decoded.IndexOf(':');
 
-        if (colon < 0) return false;
+        if (colon < 0)
+            return false;
 
 
         string user = decoded[..colon];

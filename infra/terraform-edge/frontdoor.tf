@@ -101,14 +101,17 @@ resource "azurerm_cdn_frontdoor_route" "main" {
     azurerm_cdn_frontdoor_origin.secondary[0].id,
   ] : [azurerm_cdn_frontdoor_origin.main[0].id]
 
-  patterns_to_match   = var.route_patterns
+  patterns_to_match = local.marketing_edge_enabled ? var.api_route_patterns_when_marketing_enabled : var.route_patterns
+
   supported_protocols = ["Http", "Https"]
 
   forwarding_protocol    = "MatchRequest"
   https_redirect_enabled = true
   link_to_default_domain = true
 
-  cdn_frontdoor_rule_set_ids = local.fd_pricing_json_redirect_enabled ? [azurerm_cdn_frontdoor_rule_set.pricing_redirects[0].id] : []
+  cdn_frontdoor_rule_set_ids = local.marketing_edge_enabled ? [] : (
+    local.fd_pricing_json_redirect_enabled ? [azurerm_cdn_frontdoor_rule_set.pricing_redirects[0].id] : []
+  )
 }
 
 resource "azurerm_cdn_frontdoor_security_policy" "main" {
@@ -122,7 +125,7 @@ resource "azurerm_cdn_frontdoor_security_policy" "main" {
       cdn_frontdoor_firewall_policy_id = azurerm_cdn_frontdoor_firewall_policy.main[0].id
 
       association {
-        patterns_to_match = var.route_patterns
+        patterns_to_match = local.front_door_waf_association_patterns
 
         domain {
           cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.main[0].id

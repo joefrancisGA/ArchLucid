@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Security.Cryptography;
@@ -139,11 +139,13 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
-        if (_resultCache is null) return ValidateCore(json, schema, objectName);
+        if (_resultCache is null)
+            return ValidateCore(json, schema, objectName);
 
         string cacheKey = ComputeHash(objectName, json);
 
-        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached)) return cached;
+        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
+            return cached;
 
 
         SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
@@ -230,7 +232,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
     private void AddToCache(string key, SchemaValidationResult result)
     {
-        if (_resultCache is null) return;
+        if (_resultCache is null)
+            return;
 
 
         if (_resultCache.Count >= _options.ResultCacheMaxSize)
@@ -305,7 +308,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
             }
 
 
-        if (evaluation.Details is null) return;
+        if (evaluation.Details is null)
+            return;
 
 
         foreach (EvaluationResults detail in evaluation.Details)

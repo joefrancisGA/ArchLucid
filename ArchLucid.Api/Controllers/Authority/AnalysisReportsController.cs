@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
@@ -72,7 +72,8 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (runDetail.Error is not null) return runDetail.Error;
+        if (runDetail.Error is not null)
+            return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
@@ -128,7 +129,8 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (runDetail.Error is not null) return runDetail.Error;
+        if (runDetail.Error is not null)
+            return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
@@ -163,7 +165,8 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (runDetail.Error is not null) return runDetail.Error;
+        if (runDetail.Error is not null)
+            return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
@@ -192,7 +195,8 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (runDetail.Error is not null) return runDetail.Error;
+        if (runDetail.Error is not null)
+            return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
@@ -226,7 +230,8 @@ public sealed class AnalysisReportsController(
         request.RunId = runId;
 
         RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (runDetail.Error is not null) return runDetail.Error;
+        if (runDetail.Error is not null)
+            return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         AnalysisReportDocxWorkUnit workUnit = new(
@@ -245,7 +250,8 @@ public sealed class AnalysisReportsController(
     public IActionResult ResolveConsultingDocxProfile(
         [FromBody] ConsultingDocxResolveProfileRequest? request)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         // TemplateName is currently advisory only; the selector resolves based on the
         // requested profile key and recommendation inputs.
@@ -277,7 +283,8 @@ public sealed class AnalysisReportsController(
         request ??= new ConsultingDocxExportRequest();
 
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         try
         {
@@ -355,7 +362,8 @@ public sealed class AnalysisReportsController(
         request ??= new ConsultingDocxExportRequest();
 
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         ConsultingDocxWorkUnit workUnit = new(
             ConsultingDocxJobPayloadMapper.ToPayload(runId, request),
@@ -373,7 +381,8 @@ public sealed class AnalysisReportsController(
     public IActionResult RecommendConsultingProfiles(
         [FromBody] ApiConsultingDocxProfileRecommendationRequest? request)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ConsultingDocxProfileRecommendation recommendation = consultingDocxTemplateRecommendationService.Recommend(
             new AppConsultingDocxProfileRecommendationRequest
@@ -407,8 +416,14 @@ public sealed class AnalysisReportsController(
 
     private sealed class RunDetailLookup
     {
-        public IActionResult? Error { get; init; }
-        public ArchitectureRunDetail? Detail { get; init; }
+        public IActionResult? Error
+        {
+            get; init;
+        }
+        public ArchitectureRunDetail? Detail
+        {
+            get; init;
+        }
     }
 }
 

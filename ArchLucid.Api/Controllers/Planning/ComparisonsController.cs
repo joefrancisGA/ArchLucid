@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.IO.Compression;
 
 using ArchLucid.Core.Authorization;
@@ -63,7 +63,8 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (runDetail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -82,7 +83,8 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         RunExportRecord? export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (export is null) return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (export is null)
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
 
         IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
@@ -101,7 +103,8 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        if (record is null) return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (record is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
 
         return Ok(new ComparisonRecordResponse
@@ -153,7 +156,8 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        if (record is null) return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (record is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
 
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
@@ -276,14 +280,16 @@ public sealed class ComparisonsController(
         [FromBody] UpdateComparisonRecordRequest? request,
         CancellationToken cancellationToken = default)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         bool updated = await comparisonRecordRepository.UpdateLabelAndTagsAsync(
             comparisonRecordId,
             request.Label,
             request.Tags,
             cancellationToken);
-        if (!updated) return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (!updated)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
 
@@ -305,7 +311,8 @@ public sealed class ComparisonsController(
         [FromBody] ApiReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
             metadataOnly: false,
@@ -427,7 +434,8 @@ public sealed class ComparisonsController(
         [FromBody] BatchReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         List<string> processedIds = [];
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);

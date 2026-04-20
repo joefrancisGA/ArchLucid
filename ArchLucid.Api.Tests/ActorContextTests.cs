@@ -21,7 +21,9 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNamePresent_ReturnsTrimmedName()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new() { User = new ClaimsPrincipal(
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
             new ClaimsIdentity(
                 [new Claim(ClaimTypes.Name, "  domain\\alice  ")],
                 authenticationType: "test"))
@@ -48,7 +50,9 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNameEmpty_ReturnsApiUserFallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new() { User = new ClaimsPrincipal(
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
             new ClaimsIdentity(authenticationType: "test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);

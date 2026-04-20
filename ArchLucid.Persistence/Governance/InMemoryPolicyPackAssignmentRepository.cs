@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Persistence.Governance;
@@ -100,7 +100,8 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         {
             PolicyPackAssignment? row = _items.FirstOrDefault(
                 x => x.AssignmentId == assignmentId && x.TenantId == tenantId && !x.ArchivedUtc.HasValue);
-            if (row is null) return Task.FromResult(false);
+            if (row is null)
+                return Task.FromResult(false);
 
             row.ArchivedUtc = DateTime.UtcNow;
             return Task.FromResult(true);

@@ -12,13 +12,22 @@ public class CompositeAlertRule
     public Guid CompositeRuleId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant scope.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace scope.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project scope.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Operator display name.</summary>
     public string Name { get; set; } = null!;
@@ -39,7 +48,10 @@ public class CompositeAlertRule
     public int CooldownMinutes { get; set; } = 60;
 
     /// <summary>Reserved for reopen semantics; not all policies use this yet.</summary>
-    public decimal ReopenDeltaThreshold { get; set; }
+    public decimal ReopenDeltaThreshold
+    {
+        get; set;
+    }
 
     /// <summary>How dedupe keys incorporate run ids (<see cref="CompositeDedupeScope"/>).</summary>
     public string DedupeScope { get; set; } = CompositeDedupeScope.RuleAndRun;

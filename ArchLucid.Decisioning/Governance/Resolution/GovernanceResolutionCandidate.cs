@@ -10,7 +10,10 @@ namespace ArchLucid.Decisioning.Governance.Resolution;
 public class GovernanceResolutionCandidate
 {
     /// <summary>Pack that supplied this value.</summary>
-    public Guid PolicyPackId { get; set; }
+    public Guid PolicyPackId
+    {
+        get; set;
+    }
 
     /// <summary>Pack display name.</summary>
     public string PolicyPackName { get; set; } = null!;
@@ -22,17 +25,29 @@ public class GovernanceResolutionCandidate
     public string ScopeLevel { get; set; } = null!;
 
     /// <summary>Sort key from <see cref="EffectiveGovernanceResolver.GetPrecedenceRank"/>.</summary>
-    public int PrecedenceRank { get; set; }
+    public int PrecedenceRank
+    {
+        get; set;
+    }
 
     /// <summary><c>true</c> for the single winner among <see cref="GovernanceResolutionDecision.Candidates"/>.</summary>
-    public bool WasSelected { get; set; }
+    public bool WasSelected
+    {
+        get; set;
+    }
 
     /// <summary>Serialized value or identifier as appropriate for the item type.</summary>
     public string ValueJson { get; set; } = null!;
 
     /// <summary>Assignment row id (tie-breaker and correlation to persistence).</summary>
-    public Guid AssignmentId { get; set; }
+    public Guid AssignmentId
+    {
+        get; set;
+    }
 
     /// <summary>Assignment timestamp (secondary sort after rank).</summary>
-    public DateTime AssignedUtc { get; set; }
+    public DateTime AssignedUtc
+    {
+        get; set;
+    }
 }

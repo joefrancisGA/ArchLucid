@@ -7,5 +7,8 @@ public sealed class AlertsAcknowledgeBatchRequest
     public IReadOnlyList<Guid> AlertIds { get; set; } = [];
 
     /// <summary>Optional operator comment stored on acknowledge.</summary>
-    public string? Comment { get; set; }
+    public string? Comment
+    {
+        get; set;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 

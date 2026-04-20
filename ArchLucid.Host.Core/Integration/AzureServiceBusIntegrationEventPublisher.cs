@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -99,10 +99,12 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
 
             foreach (KeyValuePair<string, object> pair in applicationProperties)
             {
-                if (string.IsNullOrWhiteSpace(pair.Key)) continue;
+                if (string.IsNullOrWhiteSpace(pair.Key))
+                    continue;
 
 
-                if (string.Equals(pair.Key, "event_type", StringComparison.OrdinalIgnoreCase)) continue;
+                if (string.Equals(pair.Key, "event_type", StringComparison.OrdinalIgnoreCase))
+                    continue;
 
 
                 message.ApplicationProperties[pair.Key] = pair.Value;

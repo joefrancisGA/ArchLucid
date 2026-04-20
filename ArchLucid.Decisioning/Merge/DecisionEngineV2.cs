@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
@@ -34,7 +34,8 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
         AgentTask? topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
         AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
 
-        if (topologyTask is null || topologyResult is null) return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
+        if (topologyTask is null || topologyResult is null)
+            return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
 
 
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));

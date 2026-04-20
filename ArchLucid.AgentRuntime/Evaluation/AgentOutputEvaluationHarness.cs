@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -88,7 +88,8 @@ public sealed class AgentOutputEvaluationHarness(
 
         foreach (string cat in expected.ExpectedFindingCategories)
         {
-            if (string.IsNullOrWhiteSpace(cat)) continue;
+            if (string.IsNullOrWhiteSpace(cat))
+                continue;
 
 
             if (findingCategories.Contains(cat.Trim().ToUpperInvariant()))

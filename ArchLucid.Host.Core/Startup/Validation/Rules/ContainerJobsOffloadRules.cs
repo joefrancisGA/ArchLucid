@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -19,16 +19,19 @@ internal static class ContainerJobsOffloadRules
         ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(errors);
 
-        if (!environment.IsProduction()) return;
+        if (!environment.IsProduction())
+            return;
 
 
-        if (hostingRole != ArchLucidHostingRole.Worker) return;
+        if (hostingRole != ArchLucidHostingRole.Worker)
+            return;
 
 
         ArchLucidJobsOptions jobs =
             configuration.GetSection(ArchLucidJobsOptions.SectionPath).Get<ArchLucidJobsOptions>() ?? new ArchLucidJobsOptions();
 
-        if (jobs.OffloadedToContainerJobs.Length == 0) return;
+        if (jobs.OffloadedToContainerJobs.Length == 0)
+            return;
 
 
         HashSet<string> deployed = ParseDeployedNames(jobs.DeployedContainerJobNames);
@@ -40,7 +43,8 @@ internal static class ContainerJobsOffloadRules
     {
         HashSet<string> set = new(StringComparer.OrdinalIgnoreCase);
 
-        if (string.IsNullOrWhiteSpace(deployedContainerJobNames)) return set;
+        if (string.IsNullOrWhiteSpace(deployedContainerJobNames))
+            return set;
 
 
         foreach (string part in deployedContainerJobNames.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))

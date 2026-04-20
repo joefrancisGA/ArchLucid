@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
@@ -43,7 +43,8 @@ public sealed class GovernanceLineageService(
             .GetByIdAsync(approvalRequestId, cancellationToken)
             ;
 
-        if (approval is null) return null;
+        if (approval is null)
+            return null;
 
 
         ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery

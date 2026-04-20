@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;

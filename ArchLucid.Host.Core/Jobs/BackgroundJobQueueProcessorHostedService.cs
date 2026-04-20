@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -45,7 +45,8 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
                 foreach (QueueMessage message in messages)
                 {
-                    if (stoppingToken.IsCancellationRequested) break;
+                    if (stoppingToken.IsCancellationRequested)
+                        break;
 
 
                     string? jobId = message.MessageText?.Trim();

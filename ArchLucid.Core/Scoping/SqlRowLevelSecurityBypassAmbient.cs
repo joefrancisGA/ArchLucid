@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Core.Scoping;
+namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Marks the current async flow as trusted SQL work that must bypass row-level security predicates
@@ -53,7 +53,8 @@ public static class SqlRowLevelSecurityBypassAmbient
 
         public void Dispose()
         {
-            if (_disposed) return;
+            if (_disposed)
+                return;
 
             _disposed = true;
             Depth.Value = Math.Max(0, Depth.Value - 1);

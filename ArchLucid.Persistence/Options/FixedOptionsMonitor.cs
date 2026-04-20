@@ -8,7 +8,10 @@ public sealed class FixedOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>
 {
     public FixedOptionsMonitor(TOptions currentValue) => CurrentValue = currentValue ?? throw new ArgumentNullException(nameof(currentValue));
 
-    public TOptions CurrentValue { get; }
+    public TOptions CurrentValue
+    {
+        get;
+    }
 
     public TOptions Get(string? name) => CurrentValue;
 

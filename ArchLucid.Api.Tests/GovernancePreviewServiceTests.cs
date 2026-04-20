@@ -177,12 +177,28 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
-        ManifestGovernance gov = new() { RiskClassification = "Moderate", CostClassification = "Moderate" };
+        ManifestGovernance gov = new()
+        {
+            RiskClassification = "Moderate",
+            CostClassification = "Moderate"
+        };
         GoldenManifest m = Manifest("r1", "v1", _ => { });
         m.Governance = gov;
 
-        GovernanceEnvironmentActivation act1 = new() { RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true };
-        GovernanceEnvironmentActivation act2 = new() { RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true };
+        GovernanceEnvironmentActivation act1 = new()
+        {
+            RunId = "r1",
+            ManifestVersion = "v1",
+            Environment = "dev",
+            IsActive = true
+        };
+        GovernanceEnvironmentActivation act2 = new()
+        {
+            RunId = "r2",
+            ManifestVersion = "v2",
+            Environment = "prod",
+            IsActive = true
+        };
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);

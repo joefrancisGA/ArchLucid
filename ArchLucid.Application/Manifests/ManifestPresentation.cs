@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Manifests;
@@ -14,11 +14,13 @@ public static class ManifestPresentation
     /// </summary>
     public static string ResolveComponentName(string componentId, GoldenManifest manifest)
     {
-        if (string.IsNullOrWhiteSpace(componentId)) return componentId;
+        if (string.IsNullOrWhiteSpace(componentId))
+            return componentId;
 
         ManifestService? service = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-        if (service is not null) return service.ServiceName;
+        if (service is not null)
+            return service.ServiceName;
 
         ManifestDatastore? datastore = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 
@@ -54,7 +54,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue) return Task.FromResult<RunRecord?>(null);
+        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
+            return Task.FromResult<RunRecord?>(null);
 
 
         return Task.FromResult<RunRecord?>(r);
@@ -172,7 +173,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         {
             RunRecord r = kv.Value;
 
-            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff) continue;
+            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
+                continue;
 
 
             archived.Add(new ArchivedRunScopeRow
@@ -199,7 +201,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (runIds.Count == 0) return Task.FromResult(new RunArchiveByIdsResult());
+        if (runIds.Count == 0)
+            return Task.FromResult(new RunArchiveByIdsResult());
 
 
         List<Guid> distinctOrdered = [];

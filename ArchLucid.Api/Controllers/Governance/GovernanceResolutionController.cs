@@ -77,8 +77,9 @@ public sealed class GovernanceResolutionController(
             },
             ct);
 
-        if (result.Conflicts.Count <= 0) return Ok(result);
-        
+        if (result.Conflicts.Count <= 0)
+            return Ok(result);
+
         List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
             .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
             .ToList();

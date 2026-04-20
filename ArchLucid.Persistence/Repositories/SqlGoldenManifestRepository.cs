@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -458,7 +458,8 @@ public sealed class SqlGoldenManifestRepository(
                 },
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
 
@@ -469,15 +470,18 @@ public sealed class SqlGoldenManifestRepository(
         GoldenManifestStorageRow row,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri)) return row;
+        if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri))
+            return row;
 
         string? json = await blobStore.ReadAsync(row.ManifestPayloadBlobUri!, ct);
 
-        if (string.IsNullOrEmpty(json)) return row;
+        if (string.IsNullOrEmpty(json))
+            return row;
 
         GoldenManifestPayloadBlobEnvelope? envelope = GoldenManifestPayloadBlobEnvelope.TryDeserialize(json);
 
-        if (envelope is null || envelope.SchemaVersion != GoldenManifestPayloadBlobEnvelope.CurrentSchemaVersion) return row;
+        if (envelope is null || envelope.SchemaVersion != GoldenManifestPayloadBlobEnvelope.CurrentSchemaVersion)
+            return row;
 
         return GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }

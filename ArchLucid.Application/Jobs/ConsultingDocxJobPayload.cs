@@ -7,21 +7,45 @@ public sealed record ConsultingDocxJobPayload
 {
     public string RunId { get; init; } = string.Empty;
 
-    public string? TemplateProfile { get; init; }
+    public string? TemplateProfile
+    {
+        get; init;
+    }
 
-    public string? Audience { get; init; }
+    public string? Audience
+    {
+        get; init;
+    }
 
-    public bool ExternalDelivery { get; init; }
+    public bool ExternalDelivery
+    {
+        get; init;
+    }
 
-    public bool ExecutiveFriendly { get; init; }
+    public bool ExecutiveFriendly
+    {
+        get; init;
+    }
 
-    public bool RegulatedEnvironment { get; init; }
+    public bool RegulatedEnvironment
+    {
+        get; init;
+    }
 
-    public bool NeedDetailedEvidence { get; init; }
+    public bool NeedDetailedEvidence
+    {
+        get; init;
+    }
 
-    public bool NeedExecutionTraces { get; init; }
+    public bool NeedExecutionTraces
+    {
+        get; init;
+    }
 
-    public bool NeedDeterminismOrCompareAppendices { get; init; }
+    public bool NeedDeterminismOrCompareAppendices
+    {
+        get; init;
+    }
 
     public bool IncludeEvidence { get; init; } = true;
 
@@ -33,15 +57,30 @@ public sealed record ConsultingDocxJobPayload
 
     public bool IncludeSummary { get; init; } = true;
 
-    public bool IncludeDeterminismCheck { get; init; }
+    public bool IncludeDeterminismCheck
+    {
+        get; init;
+    }
 
     public int DeterminismIterations { get; init; } = 3;
 
-    public bool IncludeManifestCompare { get; init; }
+    public bool IncludeManifestCompare
+    {
+        get; init;
+    }
 
-    public string? CompareManifestVersion { get; init; }
+    public string? CompareManifestVersion
+    {
+        get; init;
+    }
 
-    public bool IncludeAgentResultCompare { get; init; }
+    public bool IncludeAgentResultCompare
+    {
+        get; init;
+    }
 
-    public string? CompareRunId { get; init; }
+    public string? CompareRunId
+    {
+        get; init;
+    }
 }

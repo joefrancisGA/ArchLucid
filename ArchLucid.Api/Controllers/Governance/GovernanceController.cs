@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Logging;
@@ -66,7 +66,8 @@ public sealed class GovernanceController(
         [FromQuery] bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string requestedBy = actorContext.GetActor();
 
@@ -104,7 +105,8 @@ public sealed class GovernanceController(
         [FromBody] ApproveGovernanceRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
             ? actorContext.GetActor()
@@ -156,7 +158,8 @@ public sealed class GovernanceController(
         [FromBody] RejectGovernanceRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
             ? actorContext.GetActor()
@@ -207,7 +210,8 @@ public sealed class GovernanceController(
         [FromBody] GovernanceApprovalBatchReviewRequest? body,
         CancellationToken cancellationToken = default)
     {
-        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
 
         if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
@@ -220,13 +224,15 @@ public sealed class GovernanceController(
 
         string decision = (body.Decision ?? string.Empty).Trim();
 
-        if (decision.Length == 0) return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
+        if (decision.Length == 0)
+            return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
 
 
         bool approve = string.Equals(decision, "approve", StringComparison.OrdinalIgnoreCase);
         bool reject = string.Equals(decision, "reject", StringComparison.OrdinalIgnoreCase);
 
-        if (!approve && !reject) return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+        if (!approve && !reject)
+            return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
 
 
         string reviewedBy = string.IsNullOrWhiteSpace(body.ReviewedBy)
@@ -327,7 +333,8 @@ public sealed class GovernanceController(
         [FromQuery] bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string promotedBy = string.IsNullOrWhiteSpace(request.PromotedBy)
             ? User.Identity?.Name ?? "anonymous"
@@ -367,7 +374,8 @@ public sealed class GovernanceController(
         [FromBody] CreateGovernanceActivationRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         try
         {
@@ -416,10 +424,12 @@ public sealed class GovernanceController(
         [FromQuery] int bucketMinutes = 1440,
         CancellationToken cancellationToken = default)
     {
-        if (fromUtc >= toUtc) return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
+        if (fromUtc >= toUtc)
+            return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
 
 
-        if (bucketMinutes is < 60 or > 43_200) return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
+        if (bucketMinutes is < 60 or > 43_200)
+            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
 
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

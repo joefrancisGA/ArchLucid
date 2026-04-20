@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Persistence.Connections;
@@ -36,9 +36,13 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         TenantNotificationChannelPreferencesRow? row = await connection.QueryFirstOrDefaultAsync<TenantNotificationChannelPreferencesRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
 
         return new TenantNotificationChannelPreferencesResponse
@@ -55,16 +59,34 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
 
     private sealed class TenantNotificationChannelPreferencesRow
     {
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
 
-        public int SchemaVersion { get; init; }
+        public int SchemaVersion
+        {
+            get; init;
+        }
 
-        public bool EmailCustomerNotificationsEnabled { get; init; }
+        public bool EmailCustomerNotificationsEnabled
+        {
+            get; init;
+        }
 
-        public bool TeamsCustomerNotificationsEnabled { get; init; }
+        public bool TeamsCustomerNotificationsEnabled
+        {
+            get; init;
+        }
 
-        public bool OutboundWebhookCustomerNotificationsEnabled { get; init; }
+        public bool OutboundWebhookCustomerNotificationsEnabled
+        {
+            get; init;
+        }
 
-        public DateTime UpdatedUtc { get; init; }
+        public DateTime UpdatedUtc
+        {
+            get; init;
+        }
     }
 }

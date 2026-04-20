@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
@@ -212,7 +212,10 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                   SELECT TaskId FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (
                     SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId));
                 """,
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 cancellationToken: cancellationToken));
 
         counts["AgentExecutionTraces"] = traces;
@@ -220,7 +223,10 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         int tenants = await connection.QuerySingleAsync<int>(
             new CommandDefinition(
                 "SELECT COUNT(*) FROM dbo.Tenants WHERE Id = @TenantId;",
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 cancellationToken: cancellationToken));
 
         counts["Tenants"] = tenants;
@@ -308,7 +314,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
 
         foreach (string table in tenantTables)
         {
-            if (!await TableExistsAsync(connection, table, cancellationToken)) continue;
+            if (!await TableExistsAsync(connection, table, cancellationToken))
+                continue;
 
 
             string label = table.Replace("dbo.", string.Empty, StringComparison.Ordinal);
@@ -329,7 +336,10 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                            """;
 
         int c = await connection.QuerySingleAsync<int>(
-            new CommandDefinition(sql, new { Name = name }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                Name = name
+            }, cancellationToken: cancellationToken));
 
         return c > 0;
     }
@@ -350,10 +360,15 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
             int affected = await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { TenantId = tenantId, Cap = cap },
+                    new
+                    {
+                        TenantId = tenantId,
+                        Cap = cap
+                    },
                     cancellationToken: cancellationToken));
 
-            if (affected == 0) break;
+            if (affected == 0)
+                break;
 
 
             total += affected;

@@ -10,5 +10,8 @@ public sealed class HostLeaderLeaseSnapshot
     public string HolderInstanceId { get; init; } = "";
 
     /// <summary>UTC expiry of the current lease.</summary>
-    public DateTime LeaseExpiresUtc { get; init; }
+    public DateTime LeaseExpiresUtc
+    {
+        get; init;
+    }
 }

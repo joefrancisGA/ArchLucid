@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.BlobStore;
 
@@ -13,9 +13,11 @@ public static class ArtifactBlobTenantPaths
     /// <summary>Rejects path traversal and absolute-style blob names before they reach storage.</summary>
     public static void ThrowIfBlobRelativePathUnsafe(string blobName)
     {
-        if (string.IsNullOrWhiteSpace(blobName)) throw new ArgumentException("Blob name is required.", nameof(blobName));
+        if (string.IsNullOrWhiteSpace(blobName))
+            throw new ArgumentException("Blob name is required.", nameof(blobName));
 
-        if (blobName.Contains("..", StringComparison.Ordinal)) throw new InvalidOperationException("Blob paths containing '..' are not allowed.");
+        if (blobName.Contains("..", StringComparison.Ordinal))
+            throw new InvalidOperationException("Blob paths containing '..' are not allowed.");
 
         if (blobName.StartsWith("/", StringComparison.Ordinal) || blobName.StartsWith("\\", StringComparison.Ordinal))
             throw new InvalidOperationException("Blob paths must be relative (no leading slash).");
@@ -27,7 +29,8 @@ public static class ArtifactBlobTenantPaths
     /// </summary>
     public static string PrefixWithTenant(IScopeContextProvider scopeProvider, string blobName)
     {
-        if (scopeProvider is null) throw new ArgumentNullException(nameof(scopeProvider));
+        if (scopeProvider is null)
+            throw new ArgumentNullException(nameof(scopeProvider));
 
         ThrowIfBlobRelativePathUnsafe(blobName);
         Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
@@ -37,7 +40,8 @@ public static class ArtifactBlobTenantPaths
 
         if (topSegments.Length > 0 && Guid.TryParse(topSegments[0], out Guid leadingFolder))
         {
-            if (leadingFolder == tenantId) throw new InvalidOperationException("Blob name must not include a tenant prefix; it is applied automatically.");
+            if (leadingFolder == tenantId)
+                throw new InvalidOperationException("Blob name must not include a tenant prefix; it is applied automatically.");
 
             throw new InvalidOperationException("Blob name must not start with another tenant folder segment.");
         }
@@ -51,9 +55,11 @@ public static class ArtifactBlobTenantPaths
     /// </summary>
     public static void EnsureReadBlobNameMatchesTenant(IScopeContextProvider scopeProvider, string blobName)
     {
-        if (scopeProvider is null) throw new ArgumentNullException(nameof(scopeProvider));
+        if (scopeProvider is null)
+            throw new ArgumentNullException(nameof(scopeProvider));
 
-        if (string.IsNullOrWhiteSpace(blobName)) throw new ArgumentException("Blob name is required.", nameof(blobName));
+        if (string.IsNullOrWhiteSpace(blobName))
+            throw new ArgumentException("Blob name is required.", nameof(blobName));
 
         Guid tenantId = scopeProvider.GetCurrentScope().TenantId;
         string prefix = TenantPrefixDirectorySegment(tenantId);

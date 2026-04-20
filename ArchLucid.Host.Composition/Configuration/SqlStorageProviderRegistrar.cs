@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -96,7 +96,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>().CurrentValue;
             ResilientSqlConnectionFactory resilient = sp.GetRequiredService<ResilientSqlConnectionFactory>();
 
-            if (!sqlOpts.RowLevelSecurity.ApplySessionContext) return resilient;
+            if (!sqlOpts.RowLevelSecurity.ApplySessionContext)
+                return resilient;
 
             return new SessionContextSqlConnectionFactory(
                 resilient,

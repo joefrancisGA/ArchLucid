@@ -9,9 +9,15 @@ namespace ArchLucid.Api.Contracts;
 public class ManifestComparisonResponse
 {
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.LeftManifestId"/>
-    public Guid LeftManifestId { get; set; }
+    public Guid LeftManifestId
+    {
+        get; set;
+    }
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.RightManifestId"/>
-    public Guid RightManifestId { get; set; }
+    public Guid RightManifestId
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.LeftManifestHash"/>
     public string LeftManifestHash { get; set; } = null!;
@@ -20,17 +26,29 @@ public class ManifestComparisonResponse
     public string RightManifestHash { get; set; } = null!;
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.AddedCount"/>
-    public int AddedCount { get; set; }
+    public int AddedCount
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.RemovedCount"/>
-    public int RemovedCount { get; set; }
+    public int RemovedCount
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.ChangedCount"/>
-    public int ChangedCount { get; set; }
+    public int ChangedCount
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.Diffs"/>
     public List<DiffItemResponse> Diffs { get; set; } = [];
 
     /// <summary>Count of <see cref="Diffs"/>.</summary>
-    public int DiffCount { get; set; }
+    public int DiffCount
+    {
+        get; set;
+    }
 }

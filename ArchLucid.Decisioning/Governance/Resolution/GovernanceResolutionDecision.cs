@@ -18,7 +18,10 @@ public class GovernanceResolutionDecision
     public string ItemKey { get; set; } = null!;
 
     /// <summary><see cref="PolicyPack.PolicyPackId"/> of the winning pack.</summary>
-    public Guid WinningPolicyPackId { get; set; }
+    public Guid WinningPolicyPackId
+    {
+        get; set;
+    }
 
     /// <summary>Display name of the winning pack (operator UX).</summary>
     public string WinningPolicyPackName { get; set; } = null!;

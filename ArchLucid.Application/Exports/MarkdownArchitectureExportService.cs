@@ -38,8 +38,9 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
         sb.AppendLine(markdownSummary.TrimEnd());
         sb.AppendLine();
 
-        if (evidence is null) return sb.ToString();
-        
+        if (evidence is null)
+            return sb.ToString();
+
         sb.AppendLine("---");
         sb.AppendLine();
         sb.AppendLine("## Evidence Package Snapshot");

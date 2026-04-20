@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -32,7 +32,8 @@ public sealed class StripeBillingProvider(
         BillingOptions billing = _billingOptions.CurrentValue;
         string? secretKey = billing.Stripe.SecretKey?.Trim();
 
-        if (string.IsNullOrWhiteSpace(secretKey)) throw new InvalidOperationException("Billing:Stripe:SecretKey is not configured.");
+        if (string.IsNullOrWhiteSpace(secretKey))
+            throw new InvalidOperationException("Billing:Stripe:SecretKey is not configured.");
 
 
         string? priceId = ResolvePriceId(billing, request.TargetTier);
@@ -141,7 +142,8 @@ public sealed class StripeBillingProvider(
         {
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(stripeEvent.Id, cancellationToken);
 
-            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase)) return BillingWebhookHandleResult.Duplicate();
+            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
+                return BillingWebhookHandleResult.Duplicate();
 
         }
 
@@ -170,7 +172,8 @@ public sealed class StripeBillingProvider(
         string rawBody,
         CancellationToken cancellationToken)
     {
-        if (session.Metadata is null) return;
+        if (session.Metadata is null)
+            return;
 
 
         if (!TryParseGuid(session.Metadata, "tenant_id", out Guid tenantId) ||
@@ -204,7 +207,8 @@ public sealed class StripeBillingProvider(
     {
         value = Guid.Empty;
 
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw)) return false;
+        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            return false;
 
 
         return Guid.TryParse(raw.Trim(), out value);
@@ -212,7 +216,8 @@ public sealed class StripeBillingProvider(
 
     private static BillingCheckoutTier ParseCheckoutTier(Dictionary<string, string> metadata, string key)
     {
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw)) return BillingCheckoutTier.Team;
+        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            return BillingCheckoutTier.Team;
 
 
         return raw.Trim() switch
@@ -225,7 +230,8 @@ public sealed class StripeBillingProvider(
 
     private static int ParsePositiveInt(Dictionary<string, string> metadata, string key, int fallback)
     {
-        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw)) return fallback;
+        if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            return fallback;
 
 
         return int.TryParse(raw.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) && n > 0

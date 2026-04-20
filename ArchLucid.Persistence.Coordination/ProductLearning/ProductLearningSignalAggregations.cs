@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -13,7 +13,8 @@ public static class ProductLearningSignalAggregations
     /// <summary>Matches SQL <c>AggregateKeyExpr</c> for grouped rollups.</summary>
     public static string BuildAggregateKey(string? patternKey, string subjectType, string? artifactHint)
     {
-        if (!string.IsNullOrWhiteSpace(patternKey)) return patternKey.Trim();
+        if (!string.IsNullOrWhiteSpace(patternKey))
+            return patternKey.Trim();
 
 
         string artifact = string.IsNullOrWhiteSpace(artifactHint) ? "--" : artifactHint.Trim();
@@ -24,15 +25,18 @@ public static class ProductLearningSignalAggregations
     /// <summary>Normalized comment prefix for theme grouping (deterministic).</summary>
     public static string? NormalizeCommentThemeKey(string? commentShort)
     {
-        if (string.IsNullOrWhiteSpace(commentShort)) return null;
+        if (string.IsNullOrWhiteSpace(commentShort))
+            return null;
 
 
         string trimmed = commentShort.Trim();
 
-        if (trimmed.Length == 0) return null;
+        if (trimmed.Length == 0)
+            return null;
 
 
-        if (trimmed.Length <= CommentThemePrefixLength) return trimmed;
+        if (trimmed.Length <= CommentThemePrefixLength)
+            return trimmed;
 
 
         return trimmed[..CommentThemePrefixLength];
@@ -49,7 +53,8 @@ public static class ProductLearningSignalAggregations
     /// <summary>Display hint for artifact trend row.</summary>
     public static string BuildArtifactTypeOrHint(string subjectType, string? artifactHint)
     {
-        if (!string.IsNullOrWhiteSpace(artifactHint)) return artifactHint.Trim();
+        if (!string.IsNullOrWhiteSpace(artifactHint))
+            return artifactHint.Trim();
 
 
         return subjectType;
@@ -310,7 +315,8 @@ public static class ProductLearningSignalAggregations
 
     private static string TruncateHint(string value, int maxChars)
     {
-        if (value.Length <= maxChars) return value;
+        if (value.Length <= maxChars)
+            return value;
 
 
         return value[..maxChars];

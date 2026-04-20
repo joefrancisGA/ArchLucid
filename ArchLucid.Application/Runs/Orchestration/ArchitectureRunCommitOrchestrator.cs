@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
@@ -128,7 +128,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
             {
                 CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
 
-                if (reconciled is not null) return reconciled;
+                if (reconciled is not null)
+                    return reconciled;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
 
@@ -183,11 +184,13 @@ public sealed class ArchitectureRunCommitOrchestrator(
             runId,
             cancellationToken);
 
-        if (runAgain is null) return null;
+        if (runAgain is null)
+            return null;
 
         CommitRunResult? committed = await TryReturnCommittedManifestAsync(runAgain, runId, cancellationToken);
 
-        if (committed is not null) return committed;
+        if (committed is not null)
+            return committed;
 
         return await TryReturnPersistedCommitIfExistsAsync(runAgain, runId, cancellationToken);
     }
@@ -212,16 +215,19 @@ public sealed class ArchitectureRunCommitOrchestrator(
             runId,
             cancellationToken);
 
-        if (run is null) throw new RunNotFoundException(runId);
+        if (run is null)
+            throw new RunNotFoundException(runId);
 
 
         CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null) return idempotent;
+        if (idempotent is not null)
+            return idempotent;
 
         idempotent = await TryReturnPersistedCommitIfExistsAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null) return idempotent;
+        if (idempotent is not null)
+            return idempotent;
 
         await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, cancellationToken);
 
@@ -426,7 +432,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (run.Status is not ArchitectureRunStatus.Committed) return null;
+        if (run.Status is not ArchitectureRunStatus.Committed)
+            return null;
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
 
@@ -470,12 +477,15 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
     {
-        if (run.Status == ArchitectureRunStatus.ReadyForCommit) return;
+        if (run.Status == ArchitectureRunStatus.ReadyForCommit)
+            return;
 
         // Execute orchestrator no longer promotes legacy status to ReadyForCommit (ADR-0012); agent outputs still gate commit below.
-        if (run.Status == ArchitectureRunStatus.TasksGenerated) return;
+        if (run.Status == ArchitectureRunStatus.TasksGenerated)
+            return;
 
-        if (run.Status == ArchitectureRunStatus.Failed) throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
+        if (run.Status == ArchitectureRunStatus.Failed)
+            throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
 
         throw new ConflictException(
             $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
@@ -567,18 +577,22 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.TasksGenerated) return null;
+        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.TasksGenerated)
+            return null;
 
         string manifestVersion = BuildManifestVersionForCommit(run, runId);
         GoldenManifest? existingManifest = await _manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
 
-        if (existingManifest is null) return null;
+        if (existingManifest is null)
+            return null;
 
-        if (!string.Equals(existingManifest.RunId, runId, StringComparison.Ordinal)) return null;
+        if (!string.Equals(existingManifest.RunId, runId, StringComparison.Ordinal))
+            return null;
 
         IReadOnlyList<DecisionTrace> existingTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        if (existingTraces.Count == 0) return null;
+        if (existingTraces.Count == 0)
+            return null;
 
         if (_logger.IsEnabled(LogLevel.Information))
 
@@ -618,12 +632,14 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string manifestVersion,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid)) return;
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (header is null) return;
+        if (header is null)
+            return;
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
 
@@ -644,7 +660,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string actor,
         CancellationToken cancellationToken)
     {
-        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled) return;
+        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled)
+            return;
 
 
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken);
@@ -655,7 +672,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
             return;
         }
 
-        if (!gateResult.Blocked) return;
+        if (!gateResult.Blocked)
+            return;
 
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Canonicalization;
 
@@ -37,7 +37,8 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
                 t.Contains("subnet", StringComparison.OrdinalIgnoreCase))
                 return "network";
 
-            if (t.Contains("storage", StringComparison.OrdinalIgnoreCase)) return "storage";
+            if (t.Contains("storage", StringComparison.OrdinalIgnoreCase))
+                return "storage";
 
             if (t.Contains("web_app", StringComparison.OrdinalIgnoreCase) ||
                 t.Contains("linux_web_app", StringComparison.OrdinalIgnoreCase) ||
@@ -50,7 +51,8 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
                 return "data";
         }
 
-        if (!item.Properties.TryGetValue("resourceType", out string? resourceType)) return "general";
+        if (!item.Properties.TryGetValue("resourceType", out string? resourceType))
+            return "general";
 
         string r = resourceType.ToLowerInvariant();
 
@@ -59,14 +61,16 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
             r.Contains("vnet", StringComparison.OrdinalIgnoreCase))
             return "network";
 
-        if (r.Contains("storage", StringComparison.OrdinalIgnoreCase)) return "storage";
+        if (r.Contains("storage", StringComparison.OrdinalIgnoreCase))
+            return "storage";
 
         if (r.Contains("compute", StringComparison.OrdinalIgnoreCase) ||
             r.Contains("appservice", StringComparison.OrdinalIgnoreCase) ||
             r.Contains("container", StringComparison.OrdinalIgnoreCase))
             return "compute";
 
-        if (r.Contains("database", StringComparison.OrdinalIgnoreCase)) return "data";
+        if (r.Contains("database", StringComparison.OrdinalIgnoreCase))
+            return "data";
 
         return r.Contains("identity", StringComparison.OrdinalIgnoreCase) ? "identity" : "general";
     }

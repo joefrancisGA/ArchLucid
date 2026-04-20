@@ -13,7 +13,7 @@ public static class GraphSnapshotEdgeIndexer
 
         List<GraphSnapshotEdgeRow> rows = [];
         foreach (GraphEdge edge in snapshot.Edges)
-        
+
             rows.Add(new GraphSnapshotEdgeRow(
                 snapshot.GraphSnapshotId,
                 edge.EdgeId,
@@ -21,7 +21,7 @@ public static class GraphSnapshotEdgeIndexer
                 edge.ToNodeId,
                 edge.EdgeType,
                 edge.Weight));
-        
+
 
         return rows;
     }

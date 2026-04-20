@@ -55,11 +55,11 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 
         sb.AppendLine(HeadingTopRecommendations);
         if (top.Count == 0)
-        
+
             sb.AppendLine(NoRecommendationsNote);
-        
+
         else
-        
+
             foreach (ImprovementRecommendation item in top)
             {
                 sb.AppendLine($"### {item.Title}");
@@ -71,7 +71,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 sb.AppendLine($"- Expected Impact: {item.ExpectedImpact}");
                 sb.AppendLine();
             }
-        
+
 
         IReadOnlyList<AlertRecord> alerts = evaluatedAlerts ?? [];
         int highCritical = alerts
@@ -81,14 +81,14 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 
         sb.AppendLine(HeadingAlerts);
         if (alerts.Count == 0)
-        
+
             sb.AppendLine(NoAlertsNote);
-        
+
         else
-        
+
             foreach (AlertRecord alert in alerts)
                 sb.AppendLine($"- [{alert.Severity}] {alert.Title} — {alert.Description}");
-        
+
 
         sb.AppendLine();
 

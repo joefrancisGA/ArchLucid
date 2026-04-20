@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.KnowledgeGraph.Models;
@@ -14,7 +14,8 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
     {
         using JsonDocument doc = JsonDocument.ParseValue(ref reader);
         JsonElement root = doc.RootElement;
-        if (root.ValueKind != JsonValueKind.Object) throw new JsonException("Expected JSON object for GraphEdge.");
+        if (root.ValueKind != JsonValueKind.Object)
+            throw new JsonException("Expected JSON object for GraphEdge.");
 
         return new GraphEdge
         {
@@ -60,7 +61,8 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
     {
         foreach (string name in names)
 
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String) return el.GetString();
+            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
+                return el.GetString();
 
 
         return null;

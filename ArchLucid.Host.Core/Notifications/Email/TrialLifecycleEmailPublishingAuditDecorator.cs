@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Audit;
@@ -64,7 +64,8 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
     {
         TrialLifecycleEmailIntegrationEnvelope? envelope = TryMap(auditEvent);
 
-        if (envelope is null) return;
+        if (envelope is null)
+            return;
 
 
         IntegrationEventsOptions options = _integrationEventsOptions.CurrentValue;
@@ -110,7 +111,8 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
             };
 
 
-        if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal)) return null;
+        if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal))
+            return null;
 
         string? targetTier = TryReadTargetTier(auditEvent.DataJson);
 
@@ -129,14 +131,16 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
 
     private static string? TryReadTargetTier(string? dataJson)
     {
-        if (string.IsNullOrWhiteSpace(dataJson)) return null;
+        if (string.IsNullOrWhiteSpace(dataJson))
+            return null;
 
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(dataJson);
 
-            if (doc.RootElement.TryGetProperty("targetTier", out JsonElement tier)) return tier.ValueKind == JsonValueKind.String ? tier.GetString() : null;
+            if (doc.RootElement.TryGetProperty("targetTier", out JsonElement tier))
+                return tier.ValueKind == JsonValueKind.String ? tier.GetString() : null;
 
         }
         catch (JsonException)

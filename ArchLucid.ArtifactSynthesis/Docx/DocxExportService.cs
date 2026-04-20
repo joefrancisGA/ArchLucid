@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Docx.Builders;
+using ArchLucid.ArtifactSynthesis.Docx.Builders;
 using ArchLucid.ArtifactSynthesis.Docx.Helpers;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -371,13 +371,15 @@ public sealed class DocxExportService(
 
         foreach (SynthesizedArtifact a in artifacts)
         {
-            if (string.IsNullOrWhiteSpace(a.Content)) continue;
+            if (string.IsNullOrWhiteSpace(a.Content))
+                continue;
 
 
             string format = a.Format.Trim();
 
             if (!format.Equals("png", StringComparison.OrdinalIgnoreCase) &&
-                !format.Equals("image/png", StringComparison.OrdinalIgnoreCase)) continue;
+                !format.Equals("image/png", StringComparison.OrdinalIgnoreCase))
+                continue;
 
 
             string trimmed = a.Content.Trim();
@@ -392,10 +394,12 @@ public sealed class DocxExportService(
                 continue;
             }
 
-            if (bytes.Length < pngSignature.Length) continue;
+            if (bytes.Length < pngSignature.Length)
+                continue;
 
 
-            if (!bytes.AsSpan(0, pngSignature.Length).SequenceEqual(pngSignature)) continue;
+            if (!bytes.AsSpan(0, pngSignature.Length).SequenceEqual(pngSignature))
+                continue;
 
 
             return bytes;
@@ -408,19 +412,22 @@ public sealed class DocxExportService(
     {
         foreach (SynthesizedArtifact a in artifacts)
         {
-            if (string.IsNullOrWhiteSpace(a.Content)) continue;
+            if (string.IsNullOrWhiteSpace(a.Content))
+                continue;
 
 
             bool isMermaidType = string.Equals(a.ArtifactType, ArtifactType.MermaidDiagram, StringComparison.Ordinal);
             bool isMermaidFormat = a.Format.Equals("mermaid", StringComparison.OrdinalIgnoreCase);
             bool isMmdName = a.Name.EndsWith(".mmd", StringComparison.OrdinalIgnoreCase);
 
-            if (!isMermaidType && !isMermaidFormat && !isMmdName) continue;
+            if (!isMermaidType && !isMermaidFormat && !isMmdName)
+                continue;
 
 
             string s = a.Content;
 
-            if (s.Length > MaxEmbeddedMermaidChars) return s[..MaxEmbeddedMermaidChars] + "\n\n… (truncated for Word document size)";
+            if (s.Length > MaxEmbeddedMermaidChars)
+                return s[..MaxEmbeddedMermaidChars] + "\n\n… (truncated for Word document size)";
 
 
             return s;

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Options;

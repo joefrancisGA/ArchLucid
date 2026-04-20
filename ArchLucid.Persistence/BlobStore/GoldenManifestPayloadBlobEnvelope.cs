@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Persistence.GoldenManifests;
@@ -32,7 +32,10 @@ public sealed class GoldenManifestPayloadBlobEnvelope
     public string SecurityJson { get; init; } = "";
 
     [JsonPropertyName("complianceJson")]
-    public string? ComplianceJson { get; init; }
+    public string? ComplianceJson
+    {
+        get; init;
+    }
 
     [JsonPropertyName("costJson")]
     public string CostJson { get; init; } = "";
@@ -115,7 +118,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 
     public static GoldenManifestPayloadBlobEnvelope? TryDeserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return null;
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
 
         try
         {

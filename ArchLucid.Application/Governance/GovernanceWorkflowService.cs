@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
@@ -84,7 +84,8 @@ public sealed class GovernanceWorkflowService(
             SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
         };
 
-        if (dryRun) return request;
+        if (dryRun)
+            return request;
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
@@ -165,7 +166,8 @@ public sealed class GovernanceWorkflowService(
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
 
-            if (fresh is null) throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+            if (fresh is null)
+                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
 
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
@@ -259,7 +261,8 @@ public sealed class GovernanceWorkflowService(
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
 
-            if (fresh is null) throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+            if (fresh is null)
+                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
 
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
@@ -400,7 +403,8 @@ public sealed class GovernanceWorkflowService(
             Notes = notes
         };
 
-        if (dryRun) return record;
+        if (dryRun)
+            return record;
 
         if (prodApprovalToMarkPromoted is not null)
         {
@@ -584,7 +588,8 @@ public sealed class GovernanceWorkflowService(
         string reviewedBy,
         CancellationToken cancellationToken)
     {
-        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase))
+            return;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         await auditService.LogAsync(
@@ -651,7 +656,8 @@ public sealed class GovernanceWorkflowService(
     {
         int? slaHours = governanceGateOptions.Value.ApprovalSlaHours;
 
-        if (slaHours is null || slaHours.Value <= 0) return null;
+        if (slaHours is null || slaHours.Value <= 0)
+            return null;
 
 
         return DateTime.UtcNow.AddHours(slaHours.Value);

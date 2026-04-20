@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 

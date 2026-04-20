@@ -16,7 +16,7 @@ public static class ContextBuilder
         ComparisonResult? comparison)
     {
         if (manifest is null)
-        
+
             return new
             {
                 ManifestAvailable = false,
@@ -32,7 +32,7 @@ public static class ContextBuilder
                     c.TargetValue
                 })
             };
-        
+
 
         return new
         {

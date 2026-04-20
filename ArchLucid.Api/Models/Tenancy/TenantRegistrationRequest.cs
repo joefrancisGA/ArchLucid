@@ -15,5 +15,8 @@ public sealed class TenantRegistrationRequest
     public string AdminEmail { get; init; } = string.Empty;
 
     [MaxLength(200)]
-    public string? AdminDisplayName { get; init; }
+    public string? AdminDisplayName
+    {
+        get; init;
+    }
 }

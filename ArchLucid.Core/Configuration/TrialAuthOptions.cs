@@ -9,7 +9,10 @@ public sealed class TrialAuthOptions
     public List<string> Modes { get; set; } = [];
 
     /// <summary>Entra External ID directory (tenant) id — required in Production when <c>MsaExternalId</c> mode is enabled.</summary>
-    public string? ExternalIdTenantId { get; set; }
+    public string? ExternalIdTenantId
+    {
+        get; set;
+    }
 
     public TrialLocalIdentityOptions LocalIdentity { get; set; } = new();
 }
@@ -34,7 +37,10 @@ public sealed class TrialLocalIdentityOptions
     public int LockoutMinutes { get; set; } = 15;
 
     /// <summary>When true, password changes/registrations call the HIBP k-anonymity range API (5-prefix SHA-1 range query).</summary>
-    public bool PwnedPasswordRangeCheckEnabled { get; set; }
+    public bool PwnedPasswordRangeCheckEnabled
+    {
+        get; set;
+    }
 
     public int MinimumPasswordLength { get; set; } = 8;
 

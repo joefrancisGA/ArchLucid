@@ -5,5 +5,8 @@ public sealed class MeteringOptions
 {
     public const string SectionName = "Metering";
 
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 }

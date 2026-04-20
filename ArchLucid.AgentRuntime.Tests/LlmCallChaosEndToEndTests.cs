@@ -21,7 +21,10 @@ public sealed class LlmCallChaosEndToEndTests
     public async Task EndToEnd_TransientChaos_RecoveryWithoutCBTrip()
     {
         int wave = 0;
-        ChaosFaultStrategyOptions chaos = new() { InjectionRate = 1.0 };
+        ChaosFaultStrategyOptions chaos = new()
+        {
+            InjectionRate = 1.0
+        };
         chaos.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref wave) <= 2);
         chaos.FaultGenerator = static _ =>
             new ValueTask<Exception?>(
@@ -39,7 +42,11 @@ public sealed class LlmCallChaosEndToEndTests
             .Build();
 
         RecordingCompletionClient inner = new();
-        CircuitBreakerOptions options = new() { FailureThreshold = 2, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 2,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("e2e-ok", options);
         CircuitBreakingAgentCompletionClient sut = new(
             inner,
@@ -76,7 +83,11 @@ public sealed class LlmCallChaosEndToEndTests
             .Build();
 
         RecordingCompletionClient inner = new();
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("e2e-bad", options);
         CircuitBreakingAgentCompletionClient sut = new(
             inner,
@@ -93,7 +104,10 @@ public sealed class LlmCallChaosEndToEndTests
 
     private sealed class RecordingCompletionClient : IAgentCompletionClient
     {
-        public int SuccessCount { get; private set; }
+        public int SuccessCount
+        {
+            get; private set;
+        }
 
         public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("test", "test");
 

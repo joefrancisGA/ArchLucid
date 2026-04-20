@@ -41,7 +41,7 @@ public static class SqlServerIntegrationTestConnections
                 + " or "
                 + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
                 + " to a reachable instance (see docs/BUILD.md).");
-        
+
         SqlConnectionStringBuilder windowsLocal = new()
         {
             DataSource = "localhost",

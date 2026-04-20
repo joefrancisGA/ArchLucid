@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.DecisionTraces;
@@ -100,7 +100,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                 },
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         return RuleAuditTrace.From(new RuleAuditTracePayload
         {
@@ -122,12 +123,30 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
 
     private sealed class DecisionTraceRow
     {
-        public Guid TenantId { get; init; }
-        public Guid WorkspaceId { get; init; }
-        public Guid ProjectId { get; init; }
-        public Guid DecisionTraceId { get; init; }
-        public Guid RunId { get; init; }
-        public DateTime CreatedUtc { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
+        public Guid ProjectId
+        {
+            get; init;
+        }
+        public Guid DecisionTraceId
+        {
+            get; init;
+        }
+        public Guid RunId
+        {
+            get; init;
+        }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
         public string RuleSetId { get; init; } = null!;
         public string RuleSetVersion { get; init; } = null!;
         public string RuleSetHash { get; init; } = null!;

@@ -24,12 +24,12 @@ public sealed class AlertNoiseScorerTests
         int matched = 0,
         int wouldCreate = 0,
         int wouldSuppress = 0) => new()
-    {
-        EvaluatedRunCount = evaluated,
-        MatchedCount = matched,
-        WouldCreateCount = wouldCreate,
-        WouldSuppressCount = wouldSuppress
-    };
+        {
+            EvaluatedRunCount = evaluated,
+            MatchedCount = matched,
+            WouldCreateCount = wouldCreate,
+            WouldSuppressCount = wouldSuppress
+        };
 
     // ──────────────────────────────────────────────────────────────────────────
     // CoverageScore

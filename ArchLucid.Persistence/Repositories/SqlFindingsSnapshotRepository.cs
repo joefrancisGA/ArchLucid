@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -347,7 +347,8 @@ public sealed class SqlFindingsSnapshotRepository(
                 },
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
@@ -414,7 +415,8 @@ public sealed class SqlFindingsSnapshotRepository(
             },
             ct);
 
-        if (recordCount > 0 || snapshot.Findings.Count == 0) return;
+        if (recordCount > 0 || snapshot.Findings.Count == 0)
+            return;
 
         FindingsSnapshotMigrator.Apply(snapshot);
         await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);

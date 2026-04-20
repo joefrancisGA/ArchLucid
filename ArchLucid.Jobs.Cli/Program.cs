@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -153,7 +153,8 @@ public static class ArchLucidProjectScaffolder
 
     private static void WriteFile(string path, string contents, bool overwrite)
     {
-        if (File.Exists(path) && !overwrite) return;
+        if (File.Exists(path) && !overwrite)
+            return;
         string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
@@ -169,7 +170,10 @@ public static class ArchLucidProjectScaffolder
         public string ProjectName { get; set; } = "";
 
         [JsonPropertyName("apiUrl")]
-        public string? ApiUrl { get; set; }
+        public string? ApiUrl
+        {
+            get; set;
+        }
 
         [JsonPropertyName("inputs")]
         public InputsSection Inputs { get; set; } = new();
@@ -179,48 +183,84 @@ public static class ArchLucidProjectScaffolder
 
         /// <summary>Optional — when omitted, CLI skips plugin lock validation (no plugin directory required).</summary>
         [JsonPropertyName("plugins")]
-        public PluginsSection? Plugins { get; set; }
+        public PluginsSection? Plugins
+        {
+            get; set;
+        }
 
         /// <summary>Optional — when omitted, Terraform path checks are skipped (treated as disabled).</summary>
         [JsonPropertyName("infra")]
-        public InfraSection? Infra { get; set; }
+        public InfraSection? Infra
+        {
+            get; set;
+        }
 
         [JsonPropertyName("architecture")]
-        public ArchitectureSection? Architecture { get; set; }
+        public ArchitectureSection? Architecture
+        {
+            get; set;
+        }
 
         [JsonPropertyName("httpResilience")]
-        public CliHttpResilienceConfig? HttpResilience { get; set; }
+        public CliHttpResilienceConfig? HttpResilience
+        {
+            get; set;
+        }
     }
 
     /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archlucid.json</c>).</summary>
     public sealed class CliHttpResilienceConfig
     {
         [JsonPropertyName("maxRetryAttempts")]
-        public int? MaxRetryAttempts { get; set; }
+        public int? MaxRetryAttempts
+        {
+            get; set;
+        }
 
         [JsonPropertyName("initialDelaySeconds")]
-        public int? InitialDelaySeconds { get; set; }
+        public int? InitialDelaySeconds
+        {
+            get; set;
+        }
     }
 
     public sealed class ArchitectureSection
     {
         [JsonPropertyName("environment")]
-        public string? Environment { get; set; }
+        public string? Environment
+        {
+            get; set;
+        }
 
         [JsonPropertyName("cloudProvider")]
-        public string? CloudProvider { get; set; }
+        public string? CloudProvider
+        {
+            get; set;
+        }
 
         [JsonPropertyName("constraints")]
-        public List<string>? Constraints { get; set; }
+        public List<string>? Constraints
+        {
+            get; set;
+        }
 
         [JsonPropertyName("requiredCapabilities")]
-        public List<string>? RequiredCapabilities { get; set; }
+        public List<string>? RequiredCapabilities
+        {
+            get; set;
+        }
 
         [JsonPropertyName("assumptions")]
-        public List<string>? Assumptions { get; set; }
+        public List<string>? Assumptions
+        {
+            get; set;
+        }
 
         [JsonPropertyName("priorManifestVersion")]
-        public string? PriorManifestVersion { get; set; }
+        public string? PriorManifestVersion
+        {
+            get; set;
+        }
     }
 
     public sealed class InputsSection
@@ -250,7 +290,10 @@ public static class ArchLucidProjectScaffolder
     public sealed class TerraformSection
     {
         [JsonPropertyName("enabled")]
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get; set;
+        }
 
         [JsonPropertyName("path")]
         public string Path { get; set; } = "infra/terraform";
@@ -319,7 +362,8 @@ public static class ArchLucidProjectScaffolder
         {
             throw new InvalidDataException($"Invalid JSON in {manifestPath}: {ex.Message}", ex);
         }
-        if (config is null) throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
+        if (config is null)
+            throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
         if (projectRoot is not null)
             ValidateConfigOrThrow(config, projectRoot);
         return config;
@@ -327,8 +371,10 @@ public static class ArchLucidProjectScaffolder
 
     private static void ValidateConfigOrThrow(ArchLucidCliConfig config, string projectRoot)
     {
-        if (string.IsNullOrWhiteSpace(config.SchemaVersion)) throw new InvalidDataException(CliManifestFileName + ": schemaVersion is required.");
-        if (string.IsNullOrWhiteSpace(config.ProjectName)) throw new InvalidDataException(CliManifestFileName + ": projectName is required.");
+        if (string.IsNullOrWhiteSpace(config.SchemaVersion))
+            throw new InvalidDataException(CliManifestFileName + ": schemaVersion is required.");
+        if (string.IsNullOrWhiteSpace(config.ProjectName))
+            throw new InvalidDataException(CliManifestFileName + ": projectName is required.");
         if (config.Inputs is null || string.IsNullOrWhiteSpace(config.Inputs.Brief))
             throw new InvalidDataException(CliManifestFileName + ": inputs.brief is required.");
         if (config.Outputs is null || string.IsNullOrWhiteSpace(config.Outputs.LocalCacheDir))
@@ -338,20 +384,23 @@ public static class ArchLucidProjectScaffolder
         EnsureRelativePathOrThrow(config.Outputs.LocalCacheDir, "outputs.localCacheDir");
 
         string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
-        if (!File.Exists(briefPath)) throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
+        if (!File.Exists(briefPath))
+            throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
 
         if (config.Plugins is not null && !string.IsNullOrWhiteSpace(config.Plugins.LockFile))
         {
             EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
             string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
-            if (!File.Exists(lockPath)) throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
+            if (!File.Exists(lockPath))
+                throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
         }
 
         InfraSection infra = config.Infra ?? new InfraSection();
         TerraformSection tf = infra.Terraform ?? new TerraformSection { Enabled = false, Path = "infra/terraform" };
 
-        if (!tf.Enabled) return;
+        if (!tf.Enabled)
+            return;
 
         if (string.IsNullOrWhiteSpace(tf.Path))
             throw new InvalidDataException(CliManifestFileName + ": infra.terraform.path is required when infra.terraform.enabled is true.");
@@ -359,13 +408,16 @@ public static class ArchLucidProjectScaffolder
         EnsureRelativePathOrThrow(tf.Path, "infra.terraform.path");
         string tfDir = Path.Combine(projectRoot, tf.Path);
 
-        if (!Directory.Exists(tfDir)) throw new DirectoryNotFoundException($"Terraform directory not found at '{tf.Path}'.");
+        if (!Directory.Exists(tfDir))
+            throw new DirectoryNotFoundException($"Terraform directory not found at '{tf.Path}'.");
     }
 
     private static void EnsureRelativePathOrThrow(string path, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(path)) throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
-        if (Path.IsPathRooted(path)) throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
+        if (string.IsNullOrWhiteSpace(path))
+            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
+        if (Path.IsPathRooted(path))
+            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
         string normalized = path.Replace('\\', '/');
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
             throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must not contain '..' segments ('{path}').");

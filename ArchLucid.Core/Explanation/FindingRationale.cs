@@ -19,5 +19,8 @@ public sealed class FindingRationale
 
     public List<string> RecommendedActions { get; set; } = [];
 
-    public FindingTraceCompletenessScore? TraceCompleteness { get; set; }
+    public FindingTraceCompletenessScore? TraceCompleteness
+    {
+        get; set;
+    }
 }

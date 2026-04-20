@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Authorization;
@@ -65,8 +65,10 @@ public sealed class DocxExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (runDetail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (runDetail.GoldenManifest is null) return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         GoldenManifest? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
@@ -78,7 +80,8 @@ public sealed class DocxExportController(
         if (compareWithRunId is not null)
         {
             RunDetailDto? targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
-            if (targetDetail is null) return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+            if (targetDetail is null)
+                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.", ProblemTypes.RunNotFound);
             if (targetDetail.GoldenManifest is null)
                 return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);

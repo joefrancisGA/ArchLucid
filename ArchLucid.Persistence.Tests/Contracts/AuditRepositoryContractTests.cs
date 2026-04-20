@@ -123,7 +123,11 @@ public abstract class AuditRepositoryContractTests
         await repo.AppendAsync(match, CancellationToken.None);
         await repo.AppendAsync(other, CancellationToken.None);
 
-        AuditEventFilter filter = new() { EventType = "TypeA", Take = 50 };
+        AuditEventFilter filter = new()
+        {
+            EventType = "TypeA",
+            Take = 50
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
@@ -171,7 +175,11 @@ public abstract class AuditRepositoryContractTests
         await repo.AppendAsync(match, CancellationToken.None);
         await repo.AppendAsync(other, CancellationToken.None);
 
-        AuditEventFilter filter = new() { CorrelationId = "corr-xyz", Take = 50 };
+        AuditEventFilter filter = new()
+        {
+            CorrelationId = "corr-xyz",
+            Take = 50
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
@@ -190,7 +198,11 @@ public abstract class AuditRepositoryContractTests
         await repo.AppendAsync(match, CancellationToken.None);
         await repo.AppendAsync(other, CancellationToken.None);
 
-        AuditEventFilter filter = new() { ActorUserId = "user-99", Take = 50 };
+        AuditEventFilter filter = new()
+        {
+            ActorUserId = "user-99",
+            Take = 50
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
@@ -210,7 +222,11 @@ public abstract class AuditRepositoryContractTests
         await repo.AppendAsync(match, CancellationToken.None);
         await repo.AppendAsync(other, CancellationToken.None);
 
-        AuditEventFilter filter = new() { RunId = run, Take = 50 };
+        AuditEventFilter filter = new()
+        {
+            RunId = run,
+            Take = 50
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
@@ -272,7 +288,10 @@ public abstract class AuditRepositoryContractTests
         await repo.AppendAsync(first, CancellationToken.None);
         await repo.AppendAsync(second, CancellationToken.None);
 
-        AuditEventFilter filter = new() { Take = 10 };
+        AuditEventFilter filter = new()
+        {
+            Take = 10
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
 
@@ -309,7 +328,11 @@ public abstract class AuditRepositoryContractTests
             await repo.AppendAsync(NewEvent(eventType: "Bulk"), CancellationToken.None);
         }
 
-        AuditEventFilter filter = new() { EventType = "Bulk", Take = 10_000 };
+        AuditEventFilter filter = new()
+        {
+            EventType = "Bulk",
+            Take = 10_000
+        };
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 

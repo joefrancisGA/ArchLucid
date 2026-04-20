@@ -9,11 +9,20 @@ public sealed class GovernanceLineageRunSummary
 
     public string Status { get; set; } = string.Empty;
 
-    public DateTime CreatedUtc { get; set; }
+    public DateTime CreatedUtc
+    {
+        get; set;
+    }
 
-    public DateTime? CompletedUtc { get; set; }
+    public DateTime? CompletedUtc
+    {
+        get; set;
+    }
 
-    public string? CurrentManifestVersion { get; set; }
+    public string? CurrentManifestVersion
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -21,13 +30,25 @@ public sealed class GovernanceLineageRunSummary
 /// </summary>
 public sealed class GovernanceLineageManifestSummary
 {
-    public string? ManifestVersion { get; set; }
+    public string? ManifestVersion
+    {
+        get; set;
+    }
 
-    public int DecisionCount { get; set; }
+    public int DecisionCount
+    {
+        get; set;
+    }
 
-    public int UnresolvedIssueCount { get; set; }
+    public int UnresolvedIssueCount
+    {
+        get; set;
+    }
 
-    public int ComplianceGapCount { get; set; }
+    public int ComplianceGapCount
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -43,10 +64,16 @@ public sealed class GovernanceLineageFindingSummary
 
     public string Severity { get; set; } = string.Empty;
 
-    public double TraceCompletenessRatio { get; set; }
+    public double TraceCompletenessRatio
+    {
+        get; set;
+    }
 
     /// <summary>Optional link to <c>AgentExecutionTrace.traceId</c> when the finding records <c>sourceAgentExecutionTraceId</c>.</summary>
-    public string? SourceAgentExecutionTraceId { get; set; }
+    public string? SourceAgentExecutionTraceId
+    {
+        get; set;
+    }
 }
 
 /// <summary>
@@ -56,13 +83,22 @@ public sealed class GovernanceLineageResult
 {
     public GovernanceApprovalRequest ApprovalRequest { get; set; } = new();
 
-    public GovernanceLineageRunSummary? Run { get; set; }
+    public GovernanceLineageRunSummary? Run
+    {
+        get; set;
+    }
 
-    public GovernanceLineageManifestSummary? Manifest { get; set; }
+    public GovernanceLineageManifestSummary? Manifest
+    {
+        get; set;
+    }
 
     public List<GovernanceLineageFindingSummary> TopFindings { get; set; } = [];
 
-    public string? RiskPosture { get; set; }
+    public string? RiskPosture
+    {
+        get; set;
+    }
 
     public List<GovernancePromotionRecord> Promotions { get; set; } = [];
 }

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Persistence.Connections;
 
@@ -18,7 +18,8 @@ internal static class SqlExternalConnection
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
 
-        if (connection is SqlConnection sqlConnection) return (sqlConnection, false);
+        if (connection is SqlConnection sqlConnection)
+            return (sqlConnection, false);
 
         if (connection is not null)
             throw new ArgumentException("Policy pack SQL repositories require a SqlConnection when an external connection is supplied.", nameof(connection));

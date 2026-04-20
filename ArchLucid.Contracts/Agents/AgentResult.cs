@@ -27,7 +27,10 @@ public sealed class AgentResult
 
     /// <summary>Type of agent that produced this result.</summary>
     [Required]
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Natural-language claims produced by the agent supporting its proposed architecture changes.
@@ -47,7 +50,10 @@ public sealed class AgentResult
     /// The decision engine weights this when resolving conflicting proposals.
     /// </summary>
     [Range(0.0, 1.0)]
-    public double Confidence { get; set; }
+    public double Confidence
+    {
+        get; set;
+    }
 
     /// <summary>Architecture findings identified by the agent (security gaps, topology issues, etc.).</summary>
     public List<ArchitectureFinding> Findings { get; set; } = [];
@@ -56,7 +62,10 @@ public sealed class AgentResult
     /// Proposed additions and removals to the golden manifest.
     /// <see langword="null"/> when the agent has no structural proposals (e.g. evaluation-only agents).
     /// </summary>
-    public ManifestDeltaProposal? ProposedChanges { get; set; }
+    public ManifestDeltaProposal? ProposedChanges
+    {
+        get; set;
+    }
 
     /// <summary>UTC timestamp when this result was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;

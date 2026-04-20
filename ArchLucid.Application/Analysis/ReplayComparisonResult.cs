@@ -6,40 +6,76 @@ public sealed class ReplayComparisonResult
     public string ComparisonType { get; set; } = string.Empty;
     public string Format { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
-    public string? Content { get; set; }
-    public byte[]? BinaryContent { get; set; }
+    public string? Content
+    {
+        get; set;
+    }
+    public byte[]? BinaryContent
+    {
+        get; set;
+    }
 
     /// <summary>Replay mode used: artifact, regenerate, verify.</summary>
     public string ReplayMode { get; set; } = "artifact";
 
     /// <summary>When replay mode is Verify: true if regenerated payload matched stored payload.</summary>
-    public bool VerificationPassed { get; set; }
+    public bool VerificationPassed
+    {
+        get; set;
+    }
 
     /// <summary>When replay mode is Verify: message describing verification outcome.</summary>
-    public string? VerificationMessage { get; set; }
+    public string? VerificationMessage
+    {
+        get; set;
+    }
 
     /// <summary>When replay mode is Verify and drift detected: structured drift analysis.</summary>
-    public DriftAnalysisResult? DriftAnalysis { get; set; }
+    public DriftAnalysisResult? DriftAnalysis
+    {
+        get; set;
+    }
 
     /// <summary>Left run ID (end-to-end or run that owns left export).</summary>
-    public string? LeftRunId { get; set; }
+    public string? LeftRunId
+    {
+        get; set;
+    }
 
     /// <summary>Right run ID (end-to-end or run that owns right export).</summary>
-    public string? RightRunId { get; set; }
+    public string? RightRunId
+    {
+        get; set;
+    }
 
     /// <summary>Left export record ID (export-record-diff).</summary>
-    public string? LeftExportRecordId { get; set; }
+    public string? LeftExportRecordId
+    {
+        get; set;
+    }
 
     /// <summary>Right export record ID (export-record-diff).</summary>
-    public string? RightExportRecordId { get; set; }
+    public string? RightExportRecordId
+    {
+        get; set;
+    }
 
     /// <summary>When the comparison record was created (UTC).</summary>
-    public DateTime? CreatedUtc { get; set; }
+    public DateTime? CreatedUtc
+    {
+        get; set;
+    }
 
     /// <summary>Export format profile used (e.g. default, detailed).</summary>
-    public string? FormatProfile { get; set; }
+    public string? FormatProfile
+    {
+        get; set;
+    }
 
     /// <summary>When PersistReplay was true: the new comparison record ID created for this replay.</summary>
-    public string? PersistedReplayRecordId { get; set; }
+    public string? PersistedReplayRecordId
+    {
+        get; set;
+    }
 }
 

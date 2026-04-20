@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentSimulator.Services;
+using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -64,7 +64,8 @@ public sealed class ReplayRunService(
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (tasks.Count == 0) throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
+        if (tasks.Count == 0)
+            throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
 
 
         ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)

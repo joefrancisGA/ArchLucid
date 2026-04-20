@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -18,17 +18,19 @@ internal static class EntraMultiTenantJwtBearerConfigurator
 
     public static void ApplyIfEnabled(JwtBearerOptions options, ArchLucidAuthOptions auth)
     {
-        if (!auth.MultiTenantEntra) return;
+        if (!auth.MultiTenantEntra)
+            return;
 
 
         options.TokenValidationParameters.IssuerValidator = ValidateIssuer;
 
         IReadOnlyList<Guid> allowList = ParseAllowedEntraTenantIds(auth.AllowedEntraTenantIds);
 
-        if (allowList.Count == 0) return;
+        if (allowList.Count == 0)
+            return;
 
 
-        JwtBearerEvents prior = options.Events ?? new JwtBearerEvents();
+        JwtBearerEvents prior = options.Events;
 
         options.Events = new JwtBearerEvents
         {
@@ -38,8 +40,7 @@ internal static class EntraMultiTenantJwtBearerConfigurator
             OnMessageReceived = prior.OnMessageReceived,
             OnTokenValidated = async ctx =>
             {
-                if (prior.OnTokenValidated is not null)
-                    await prior.OnTokenValidated(ctx).ConfigureAwait(false);
+                await prior.OnTokenValidated(ctx).ConfigureAwait(false);
 
 
                 if (!TryGetTenantId(ctx.Principal, out Guid tid))
@@ -57,25 +58,24 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         };
     }
 
-    private static string? ValidateIssuer(string? issuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
+    private static string ValidateIssuer(string? issuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
     {
         _ = securityToken;
         _ = validationParameters;
 
-        if (string.IsNullOrWhiteSpace(issuer)) throw new SecurityTokenInvalidIssuerException("Issuer is missing.");
+        if (string.IsNullOrWhiteSpace(issuer))
+            throw new SecurityTokenInvalidIssuerException("Issuer is missing.");
 
 
         string trimmed = issuer.Trim();
 
-        if (!AzureAdIssuerV2.IsMatch(trimmed)) throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Azure AD v2.0 issuer.");
-
-
-        return trimmed;
+        return !AzureAdIssuerV2.IsMatch(trimmed) ? throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Azure AD v2.0 issuer.") : trimmed;
     }
 
     private static IReadOnlyList<Guid> ParseAllowedEntraTenantIds(string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return [];
+        if (string.IsNullOrWhiteSpace(raw))
+            return [];
 
 
         List<Guid> list = [];
@@ -97,9 +97,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
 
         string? tid = principal?.FindFirst("tid")?.Value;
 
-        if (string.IsNullOrWhiteSpace(tid)) return false;
-
-
-        return Guid.TryParse(tid, CultureInfo.InvariantCulture, out tenantId);
+        return !string.IsNullOrWhiteSpace(tid) && Guid.TryParse(tid, CultureInfo.InvariantCulture, out tenantId);
     }
 }

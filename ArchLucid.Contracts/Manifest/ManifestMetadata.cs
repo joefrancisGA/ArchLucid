@@ -15,7 +15,10 @@ public sealed class ManifestMetadata
     /// Version string of the manifest this snapshot was derived from, or
     /// <see langword="null"/> for the initial version.
     /// </summary>
-    public string? ParentManifestVersion { get; set; }
+    public string? ParentManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Human-readable description of what changed between this and the parent version.</summary>
     public string ChangeDescription { get; set; } = string.Empty;

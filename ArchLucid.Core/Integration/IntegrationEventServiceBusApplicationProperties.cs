@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace ArchLucid.Core.Integration;
 
@@ -19,7 +19,8 @@ public static class IntegrationEventServiceBusApplicationProperties
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
 
-        if (payloadUtf8.IsEmpty) return null;
+        if (payloadUtf8.IsEmpty)
+            return null;
 
 
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.GovernancePromotionActivatedV1))
@@ -27,10 +28,12 @@ public static class IntegrationEventServiceBusApplicationProperties
             return TryResolveGovernancePromotionActivated(payloadUtf8);
 
 
-        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertFiredV1)) return TryResolveAlertFired(payloadUtf8);
+        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertFiredV1))
+            return TryResolveAlertFired(payloadUtf8);
 
 
-        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1)) return TryResolveAlertResolved(payloadUtf8);
+        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1))
+            return TryResolveAlertResolved(payloadUtf8);
 
 
         return null;
@@ -42,12 +45,14 @@ public static class IntegrationEventServiceBusApplicationProperties
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("environment", out JsonElement envEl)) return null;
+            if (!doc.RootElement.TryGetProperty("environment", out JsonElement envEl))
+                return null;
 
 
             string? env = envEl.GetString();
 
-            if (string.IsNullOrWhiteSpace(env)) return null;
+            if (string.IsNullOrWhiteSpace(env))
+                return null;
 
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)
@@ -104,12 +109,14 @@ public static class IntegrationEventServiceBusApplicationProperties
         {
             using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
-            if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl)) return null;
+            if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
+                return null;
 
 
             string? dedupe = dedupeEl.GetString();
 
-            if (string.IsNullOrWhiteSpace(dedupe)) return null;
+            if (string.IsNullOrWhiteSpace(dedupe))
+                return null;
 
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)

@@ -11,5 +11,8 @@ public sealed class PreCommitGovernanceBlockedException : Exception
         Result = result ?? throw new ArgumentNullException(nameof(result));
     }
 
-    public PreCommitGateResult Result { get; }
+    public PreCommitGateResult Result
+    {
+        get;
+    }
 }

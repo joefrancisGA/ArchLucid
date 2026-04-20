@@ -7,16 +7,25 @@ public sealed class LlmTokenQuotaOptions
     public const string SectionName = "LlmTokenQuota";
 
     /// <summary>When true, <see cref="ArchLucid.AgentRuntime.LlmCompletionAccountingClient"/> enforces limits before each completion call.</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>Sliding window length for quota accounting (1–1440 minutes).</summary>
     public int WindowMinutes { get; set; } = 60;
 
     /// <summary>Maximum sum of prompt (input) tokens per tenant in the window; 0 = no limit on prompt sum.</summary>
-    public long MaxPromptTokensPerTenantPerWindow { get; set; }
+    public long MaxPromptTokensPerTenantPerWindow
+    {
+        get; set;
+    }
 
     /// <summary>Maximum sum of completion (output) tokens per tenant in the window; 0 = no limit on completion sum.</summary>
-    public long MaxCompletionTokensPerTenantPerWindow { get; set; }
+    public long MaxCompletionTokensPerTenantPerWindow
+    {
+        get; set;
+    }
 
     /// <summary>Upper bound assumed for a single request when checking quota before the model returns usage (prompt side).</summary>
     public int AssumedMaxPromptTokensPerRequest { get; set; } = 32_768;

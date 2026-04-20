@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -30,7 +30,8 @@ internal static class ComparisonsCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
 
-        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+        if (connection != ApiConnectionOutcome.Connected)
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
 
 
         ArchLucidApiClient client = new(baseUrl);
@@ -164,7 +165,8 @@ internal static class ComparisonsCommand
             string json = JsonSerializer.Serialize(result, CliCommandShared.JsonWriteIndented);
             Console.WriteLine(json);
 
-            if (string.IsNullOrWhiteSpace(result.NextCursor)) return CliExitCode.Success;
+            if (string.IsNullOrWhiteSpace(result.NextCursor))
+                return CliExitCode.Success;
 
 
             Console.WriteLine();

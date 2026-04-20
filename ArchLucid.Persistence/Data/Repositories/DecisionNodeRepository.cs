@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -21,7 +21,8 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
     {
         ArgumentNullException.ThrowIfNull(decisions);
 
-        if (decisions.Count == 0) return;
+        if (decisions.Count == 0)
+            return;
 
         const string sql = """
             INSERT INTO DecisionNodes
@@ -116,7 +117,10 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         List<DecisionNode> nodes = [];

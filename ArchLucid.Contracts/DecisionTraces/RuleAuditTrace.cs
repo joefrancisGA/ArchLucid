@@ -14,7 +14,10 @@ public sealed class RuleAuditTrace : DecisionTrace
     public override DecisionTraceKind Kind => DecisionTraceKind.RuleAudit;
 
     /// <summary>Rule audit payload (finding accept/reject, applied rule ids).</summary>
-    public required RuleAuditTracePayload RuleAudit { get; set; }
+    public required RuleAuditTracePayload RuleAudit
+    {
+        get; set;
+    }
 
     public static RuleAuditTrace From(RuleAuditTracePayload body) =>
         new()

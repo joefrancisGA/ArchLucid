@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.ProblemDetails;
@@ -229,7 +229,8 @@ public sealed class ProductLearningController(
         ProductLearningTriageReportDocument document =
             ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
 
-        if (formatNorm == "json") return Ok(document);
+        if (formatNorm == "json")
+            return Ok(document);
 
 
         string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
@@ -317,7 +318,8 @@ public sealed class ProductLearningController(
 
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
-        if (scopeContext is null) throw new ArgumentNullException(nameof(scopeContext));
+        if (scopeContext is null)
+            throw new ArgumentNullException(nameof(scopeContext));
 
 
         return new ProductLearningScope

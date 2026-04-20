@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;

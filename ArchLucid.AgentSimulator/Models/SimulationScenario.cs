@@ -15,6 +15,12 @@ public sealed class AgentResultTemplate
     public string AgentType { get; set; } = string.Empty;
     public List<string> Claims { get; set; } = [];
     public List<string> EvidenceRefs { get; set; } = [];
-    public double Confidence { get; set; }
-    public object? ProposedChanges { get; set; }
+    public double Confidence
+    {
+        get; set;
+    }
+    public object? ProposedChanges
+    {
+        get; set;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -25,7 +25,8 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                     StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            if (resourcesInScope.Count == 0) continue;
+            if (resourcesInScope.Count == 0)
+                continue;
 
             List<GraphNode> requiredNodes = graphSnapshot.Nodes
                 .Where(x => string.Equals(

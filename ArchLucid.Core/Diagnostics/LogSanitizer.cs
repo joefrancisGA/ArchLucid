@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Strips C0/C1 control characters (CR, LF, TAB, etc.) from values before structured logging,
@@ -12,7 +12,8 @@ public static class LogSanitizer
     /// </summary>
     public static string Sanitize(string? input)
     {
-        if (string.IsNullOrEmpty(input)) return string.Empty;
+        if (string.IsNullOrEmpty(input))
+            return string.Empty;
 
 
         // Fast path: no control chars at all (common case)
@@ -27,7 +28,8 @@ public static class LogSanitizer
             }
 
 
-        if (clean) return input;
+        if (clean)
+            return input;
 
 
         return string.Create(input.Length, input, static (span, src) =>

@@ -2,8 +2,14 @@ namespace ArchLucid.Provenance;
 
 public class ProvenanceNode
 {
-    public Guid Id { get; set; }
-    public ProvenanceNodeType Type { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
+    public ProvenanceNodeType Type
+    {
+        get; set;
+    }
 
     /// <summary>Domain reference, e.g. FindingId, DecisionId, NodeId, RuleId.</summary>
     public string ReferenceId { get; set; } = null!;

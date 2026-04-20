@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -139,7 +139,8 @@ public sealed class AgentExecutionTraceRecorder(
 
         await _repository.CreateAsync(trace, cancellationToken);
 
-        if (isSimulatorExecution) return;
+        if (isSimulatorExecution)
+            return;
 
 
         await PersistFullPromptsAsync(
@@ -217,7 +218,8 @@ public sealed class AgentExecutionTraceRecorder(
         }
         catch (OperationCanceledException)
         {
-            if (cancellationToken.IsCancellationRequested) throw;
+            if (cancellationToken.IsCancellationRequested)
+                throw;
 
 
             timedOut = true;
@@ -506,7 +508,8 @@ public sealed class AgentExecutionTraceRecorder(
             RecordPromptInlineFallback(agentType, "response");
 
 
-        if (systemInline is null && userInline is null && responseInline is null) return Task.CompletedTask;
+        if (systemInline is null && userInline is null && responseInline is null)
+            return Task.CompletedTask;
 
 
         return _repository.PatchInlinePromptFallbackAsync(

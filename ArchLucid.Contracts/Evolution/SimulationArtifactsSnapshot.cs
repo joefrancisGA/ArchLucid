@@ -7,11 +7,23 @@ public sealed class SimulationArtifactsSnapshot
 
     public string SimulatedManifestVersion { get; init; } = string.Empty;
 
-    public int BaselineSummaryLength { get; init; }
+    public int BaselineSummaryLength
+    {
+        get; init;
+    }
 
-    public int SimulatedSummaryLength { get; init; }
+    public int SimulatedSummaryLength
+    {
+        get; init;
+    }
 
-    public string? BaselineSummaryPreview { get; init; }
+    public string? BaselineSummaryPreview
+    {
+        get; init;
+    }
 
-    public string? SimulatedSummaryPreview { get; init; }
+    public string? SimulatedSummaryPreview
+    {
+        get; init;
+    }
 }

@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Tenancy;
 
-namespace ArchLucid.Persistence.Billing.AzureMarketplace;
+namespace ArchLucid.Core.Billing.AzureMarketplace;
 
 /// <summary>Extracts Marketplace SaaS webhook fields used for <c>ChangePlan</c> / <c>ChangeQuantity</c> (payload shape varies slightly by action).</summary>
 public static class MarketplaceWebhookPayloadParser
@@ -10,11 +10,13 @@ public static class MarketplaceWebhookPayloadParser
     /// <summary>Maps Azure Marketplace <c>planId</c> text to persisted <see cref="TenantTier"/> storage codes (<c>Standard</c> vs <c>Enterprise</c>).</summary>
     public static string TierStorageCodeFromPlanId(string? planId)
     {
-        if (string.IsNullOrWhiteSpace(planId)) return nameof(TenantTier.Standard);
+        if (string.IsNullOrWhiteSpace(planId))
+            return nameof(TenantTier.Standard);
 
         string p = planId.Trim();
 
-        if (p.Contains("enterprise", StringComparison.OrdinalIgnoreCase)) return nameof(TenantTier.Enterprise);
+        if (p.Contains("enterprise", StringComparison.OrdinalIgnoreCase))
+            return nameof(TenantTier.Enterprise);
 
         return nameof(TenantTier.Standard);
     }
@@ -24,11 +26,13 @@ public static class MarketplaceWebhookPayloadParser
     {
         planId = null;
 
-        if (!root.TryGetProperty("planId", out JsonElement el)) return false;
+        if (!root.TryGetProperty("planId", out JsonElement el))
+            return false;
 
         string? s = el.GetString();
 
-        if (string.IsNullOrWhiteSpace(s)) return false;
+        if (string.IsNullOrWhiteSpace(s))
+            return false;
 
         planId = s.Trim();
 
@@ -38,17 +42,18 @@ public static class MarketplaceWebhookPayloadParser
     /// <summary>Reads seat <c>quantity</c> from the webhook root (number or numeric string); defaults to <paramref name="fallback"/> when absent.</summary>
     public static int ReadQuantity(JsonElement root, int fallback = 1)
     {
-        if (!root.TryGetProperty("quantity", out JsonElement q)) return Math.Max(1, fallback);
+        if (!root.TryGetProperty("quantity", out JsonElement q))
+            return Math.Max(1, fallback);
 
-
-        if (q.ValueKind == JsonValueKind.Number && q.TryGetInt32(out int n)) return Math.Max(1, n);
-
+        if (q.ValueKind == JsonValueKind.Number && q.TryGetInt32(out int n))
+            return Math.Max(1, n);
 
         if (q.ValueKind == JsonValueKind.String)
         {
             string? s = q.GetString();
 
-            if (int.TryParse(s, out int parsed)) return Math.Max(1, parsed);
+            if (int.TryParse(s, out int parsed))
+                return Math.Max(1, parsed);
         }
 
         return Math.Max(1, fallback);

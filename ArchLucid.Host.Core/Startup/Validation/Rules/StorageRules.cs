@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Integration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;

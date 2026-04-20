@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using RazorLight;
 
@@ -40,7 +40,8 @@ public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
     /// <summary>Visible for template snapshot tests.</summary>
     internal static string TemplateKey(string templateId)
     {
-        if (string.IsNullOrWhiteSpace(templateId)) throw new ArgumentException("Template id is required.", nameof(templateId));
+        if (string.IsNullOrWhiteSpace(templateId))
+            throw new ArgumentException("Template id is required.", nameof(templateId));
 
 
         // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace (ArchLucid.Application.Notifications.Email).

@@ -6,7 +6,10 @@ namespace ArchLucid.Core.Resilience;
 public sealed class CircuitBreakerOpenException : Exception
 {
     /// <summary>UTC time after which the client may retry; null when unknown (e.g. probe in flight).</summary>
-    public DateTimeOffset? RetryAfterUtc { get; }
+    public DateTimeOffset? RetryAfterUtc
+    {
+        get;
+    }
 
     public CircuitBreakerOpenException(DateTimeOffset retryAfterUtc)
         : base(

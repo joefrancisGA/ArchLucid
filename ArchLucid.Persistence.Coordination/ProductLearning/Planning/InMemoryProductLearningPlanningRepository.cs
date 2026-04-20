@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -114,7 +114,8 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
             t.WorkspaceId == plan.WorkspaceId &&
             t.ProjectId == plan.ProjectId);
 
-        if (theme is null) throw new InvalidOperationException("Theme not found for ThemeId=" + plan.ThemeId + ".");
+        if (theme is null)
+            throw new InvalidOperationException("Theme not found for ThemeId=" + plan.ThemeId + ".");
 
 
         IReadOnlyList<ProductLearningImprovementPlanActionStep> stepsCopy = plan.ActionSteps
@@ -218,7 +219,8 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
-        if (plan is null) throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
+        if (plan is null)
+            throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
 
 
         if (_runLinks.Any(r =>
@@ -246,7 +248,8 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
-        if (plan is null) throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
+        if (plan is null)
+            throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
 
 
         if (_signalLinks.Any(s => s.PlanId == link.PlanId && s.SignalId == link.SignalId))
@@ -273,7 +276,8 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
 
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
-        if (plan is null) throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
+        if (plan is null)
+            throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
 
 
         Guid linkId = link.LinkId == Guid.Empty ? Guid.NewGuid() : link.LinkId;

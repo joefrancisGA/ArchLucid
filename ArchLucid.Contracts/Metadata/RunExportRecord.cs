@@ -20,58 +20,112 @@ public sealed class RunExportRecord
     /// <summary>Download filename or object key hint.</summary>
     public string FileName { get; set; } = string.Empty;
     /// <summary>Consulting DOCX profile key when applicable.</summary>
-    public string? TemplateProfile { get; set; }
+    public string? TemplateProfile
+    {
+        get; set;
+    }
 
     /// <summary>Display name for <see cref="TemplateProfile"/>.</summary>
-    public string? TemplateProfileDisplayName { get; set; }
+    public string? TemplateProfileDisplayName
+    {
+        get; set;
+    }
 
     /// <summary><see langword="true"/> when the profile was auto-selected from recommendations.</summary>
-    public bool WasAutoSelected { get; set; }
+    public bool WasAutoSelected
+    {
+        get; set;
+    }
 
     /// <summary>Reason string from profile resolution.</summary>
-    public string? ResolutionReason { get; set; }
+    public string? ResolutionReason
+    {
+        get; set;
+    }
 
     /// <summary>Manifest version at export time when relevant.</summary>
-    public string? ManifestVersion { get; set; }
+    public string? ManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Free-text operator notes.</summary>
-    public string? Notes { get; set; }
+    public string? Notes
+    {
+        get; set;
+    }
 
     /// <summary>Serialized analysis request body used for the export, when captured.</summary>
-    public string? AnalysisRequestJson { get; set; }
+    public string? AnalysisRequestJson
+    {
+        get; set;
+    }
 
     /// <summary>Whether the export included the evidence section.</summary>
-    public bool? IncludedEvidence { get; set; }
+    public bool? IncludedEvidence
+    {
+        get; set;
+    }
 
     /// <summary>Whether execution traces were included.</summary>
-    public bool? IncludedExecutionTraces { get; set; }
+    public bool? IncludedExecutionTraces
+    {
+        get; set;
+    }
 
     /// <summary>Whether manifest content was included.</summary>
-    public bool? IncludedManifest { get; set; }
+    public bool? IncludedManifest
+    {
+        get; set;
+    }
 
     /// <summary>Whether diagram output was included.</summary>
-    public bool? IncludedDiagram { get; set; }
+    public bool? IncludedDiagram
+    {
+        get; set;
+    }
 
     /// <summary>Whether architecture summary was included.</summary>
-    public bool? IncludedSummary { get; set; }
+    public bool? IncludedSummary
+    {
+        get; set;
+    }
 
     /// <summary>Whether determinism appendix was included.</summary>
-    public bool? IncludedDeterminismCheck { get; set; }
+    public bool? IncludedDeterminismCheck
+    {
+        get; set;
+    }
 
     /// <summary>Iteration count for determinism when included.</summary>
-    public int? DeterminismIterations { get; set; }
+    public int? DeterminismIterations
+    {
+        get; set;
+    }
 
     /// <summary>Whether manifest compare appendix was included.</summary>
-    public bool? IncludedManifestCompare { get; set; }
+    public bool? IncludedManifestCompare
+    {
+        get; set;
+    }
 
     /// <summary>Baseline manifest version for compare when included.</summary>
-    public string? CompareManifestVersion { get; set; }
+    public string? CompareManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Whether agent-result compare appendix was included.</summary>
-    public bool? IncludedAgentResultCompare { get; set; }
+    public bool? IncludedAgentResultCompare
+    {
+        get; set;
+    }
 
     /// <summary>Peer run id for agent-result compare when included.</summary>
-    public string? CompareRunId { get; set; }
+    public string? CompareRunId
+    {
+        get; set;
+    }
 
     /// <summary>UTC creation time.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;

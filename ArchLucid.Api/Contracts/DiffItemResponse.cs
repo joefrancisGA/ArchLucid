@@ -17,11 +17,20 @@ public class DiffItemResponse
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.DiffItem.DiffKind"/>
     public string DiffKind { get; set; } = null!;
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.DiffItem.BeforeValue"/>
-    public string? BeforeValue { get; set; }
+    public string? BeforeValue
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.DiffItem.AfterValue"/>
-    public string? AfterValue { get; set; }
+    public string? AfterValue
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Compare.DiffItem.Notes"/>
-    public string? Notes { get; set; }
+    public string? Notes
+    {
+        get; set;
+    }
 }

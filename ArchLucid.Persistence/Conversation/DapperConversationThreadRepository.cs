@@ -179,6 +179,9 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Cutoff = cutoffUtc.UtcDateTime
+            }, cancellationToken: ct));
     }
 }

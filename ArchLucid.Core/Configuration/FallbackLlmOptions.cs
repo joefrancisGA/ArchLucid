@@ -5,11 +5,23 @@ public sealed class FallbackLlmOptions
 {
     public const string SectionName = "ArchLucid:FallbackLlm";
 
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
-    public string? Endpoint { get; set; }
+    public string? Endpoint
+    {
+        get; set;
+    }
 
-    public string? DeploymentName { get; set; }
+    public string? DeploymentName
+    {
+        get; set;
+    }
 
-    public string? ApiKey { get; set; }
+    public string? ApiKey
+    {
+        get; set;
+    }
 }

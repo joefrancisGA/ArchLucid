@@ -49,8 +49,9 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
             _store[snapshot.SnapshotId] = snapshot;
 
             // Evict oldest entries when the store exceeds the cap.
-            if (_store.Count <= MaxSnapshots) return Task.CompletedTask;
-            
+            if (_store.Count <= MaxSnapshots)
+                return Task.CompletedTask;
+
             List<Guid> toRemove = _store.Values
                 .OrderBy(s => s.CreatedUtc)
                 .Take(_store.Count - MaxSnapshots)

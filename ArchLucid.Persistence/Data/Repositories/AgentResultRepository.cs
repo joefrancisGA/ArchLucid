@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -69,7 +69,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { result.RunId, result.TaskId },
+                    new
+                    {
+                        result.RunId,
+                        result.TaskId
+                    },
                     transaction: transaction,
                     cancellationToken: cancellationToken));
 
@@ -85,7 +89,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { result.RunId, result.TaskId },
+                    new
+                    {
+                        result.RunId,
+                        result.TaskId
+                    },
                     transaction: tx,
                     cancellationToken: cancellationToken));
 
@@ -112,7 +120,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
     {
         ArgumentNullException.ThrowIfNull(results);
 
-        if (results.Count == 0) return;
+        if (results.Count == 0)
+            return;
 
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
@@ -170,7 +179,10 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { results[0].RunId },
+                    new
+                    {
+                        results[0].RunId
+                    },
                     transaction: transaction,
                     cancellationToken: cancellationToken));
 
@@ -182,7 +194,10 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { results[0].RunId },
+                    new
+                    {
+                        results[0].RunId
+                    },
                     transaction: tx,
                     cancellationToken: cancellationToken));
 

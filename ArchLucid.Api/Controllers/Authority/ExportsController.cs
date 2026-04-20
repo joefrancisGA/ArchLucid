@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
@@ -66,7 +66,8 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (record is null) return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (record is null)
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(new RunExportRecordResponse
         {
@@ -83,7 +84,8 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
 
@@ -104,7 +106,8 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         request ??= new PersistComparisonRequest();
 
@@ -212,7 +215,8 @@ public sealed class ExportsController(
         bool recordReplayExport,
         CancellationToken cancellationToken)
     {
-        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId)) return;
+        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
+            return;
 
         Guid? auditRunId = Guid.TryParse(result.RunId, out Guid parsedRunId) ? parsedRunId : null;
 
@@ -259,9 +263,18 @@ public sealed class ExportsController(
 
     private sealed class LoadedExportRecordPair
     {
-        public IActionResult? Error { get; init; }
-        public RunExportRecord? Left { get; init; }
-        public RunExportRecord? Right { get; init; }
+        public IActionResult? Error
+        {
+            get; init;
+        }
+        public RunExportRecord? Left
+        {
+            get; init;
+        }
+        public RunExportRecord? Right
+        {
+            get; init;
+        }
     }
 }
 

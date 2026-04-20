@@ -20,11 +20,20 @@ public class DiffItem
     /// <summary>Kind label; compare to <see cref="DiffKind"/> constants.</summary>
     public string DiffKind { get; set; } = null!;
     /// <summary>Left-hand value for <see cref="Compare.DiffKind.Changed"/> or <see cref="Compare.DiffKind.Removed"/> items; <see langword="null"/> for additions.</summary>
-    public string? BeforeValue { get; set; }
+    public string? BeforeValue
+    {
+        get; set;
+    }
 
     /// <summary>Right-hand value for <see cref="Compare.DiffKind.Changed"/> or <see cref="Compare.DiffKind.Added"/> items; <see langword="null"/> for removals.</summary>
-    public string? AfterValue { get; set; }
+    public string? AfterValue
+    {
+        get; set;
+    }
 
     /// <summary>Optional explanation or contextual annotation attached by the comparer.</summary>
-    public string? Notes { get; set; }
+    public string? Notes
+    {
+        get; set;
+    }
 }

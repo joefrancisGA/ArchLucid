@@ -10,10 +10,16 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Models;
 public class DocxExportRequest
 {
     /// <summary>Primary run id (metadata lines).</summary>
-    public Guid RunId { get; set; }
+    public Guid RunId
+    {
+        get; set;
+    }
 
     /// <summary>Manifest id (metadata lines).</summary>
-    public Guid ManifestId { get; set; }
+    public Guid ManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Cover / title page heading.</summary>
     public string DocumentTitle { get; set; } = "ArchLucid Architecture Package";
@@ -41,16 +47,28 @@ public class DocxExportRequest
     public bool IncludeArchitectureDiagram { get; set; } = true;
 
     /// <summary>When set, appends an architecture comparison section (base = this export run).</summary>
-    public ComparisonResult? ManifestComparison { get; set; }
+    public ComparisonResult? ManifestComparison
+    {
+        get; set;
+    }
 
     /// <summary>AI narrative when a manifest comparison is included.</summary>
-    public ComparisonExplanationResult? ComparisonExplanation { get; set; }
+    public ComparisonExplanationResult? ComparisonExplanation
+    {
+        get; set;
+    }
 
     /// <summary>Optional AI narrative for the primary run (executive / stakeholder wording).</summary>
-    public ExplanationResult? RunExplanation { get; set; }
+    public ExplanationResult? RunExplanation
+    {
+        get; set;
+    }
 
     /// <summary>When null, DOCX export synthesizes an empty findings snapshot for advisory only.</summary>
-    public FindingsSnapshot? FindingsSnapshot { get; set; }
+    public FindingsSnapshot? FindingsSnapshot
+    {
+        get; set;
+    }
 
     /// <summary>Builds the request used by <c>GET api/docx/runs/.../architecture-package</c>.</summary>
     /// <param name="runId">Exported run.</param>

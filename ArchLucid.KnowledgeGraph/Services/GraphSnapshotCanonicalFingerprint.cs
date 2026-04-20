@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.KnowledgeGraph.Services;
 
@@ -13,7 +13,8 @@ public static class GraphSnapshotCanonicalFingerprint
     /// </summary>
     public static bool AreEquivalent(ContextSnapshot? previous, ContextSnapshot current)
     {
-        if (previous is null) return false;
+        if (previous is null)
+            return false;
 
         return previous.SnapshotId != current.SnapshotId && string.Equals(Compute(previous), Compute(current), StringComparison.Ordinal);
     }

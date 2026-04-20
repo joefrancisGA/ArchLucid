@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Connections;
 
@@ -15,7 +15,8 @@ public static class SqlTransientDetector
     /// <summary>Returns <see langword="true"/> when the <see cref="SqlException"/> represents a transient, retriable condition.</summary>
     public static bool IsTransient(SqlException? ex)
     {
-        if (ex is null) return false;
+        if (ex is null)
+            return false;
 
         return ex.Number is -2 or 1205 or 40613 or 40197 or 49918 or 49919 or 49920;
     }
@@ -27,13 +28,16 @@ public static class SqlTransientDetector
     /// </remarks>
     public static bool IsTransient(Exception? ex)
     {
-        if (ex is null) return false;
+        if (ex is null)
+            return false;
 
         for (Exception? e = ex; e is not null; e = e.InnerException)
         {
-            if (e is TimeoutException) return true;
+            if (e is TimeoutException)
+                return true;
 
-            if (e is SqlException sqlEx && IsTransient(sqlEx)) return true;
+            if (e is SqlException sqlEx && IsTransient(sqlEx))
+                return true;
         }
 
         return false;

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -64,7 +64,8 @@ internal static class CliCommandShared
 
         ArchLucidApiClient client = new(baseUrl, config);
 
-        if (await client.CheckHealthAsync(ct)) return ApiConnectionOutcome.Connected;
+        if (await client.CheckHealthAsync(ct))
+            return ApiConnectionOutcome.Connected;
 
 
         if (CliExecutionContext.JsonOutput)
@@ -110,7 +111,8 @@ internal static class CliCommandShared
 
     internal static CloudProvider ParseCloudProvider(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return CloudProvider.Azure;
+        if (string.IsNullOrWhiteSpace(value))
+            return CloudProvider.Azure;
 
 
         return value.Trim().ToLowerInvariant() switch

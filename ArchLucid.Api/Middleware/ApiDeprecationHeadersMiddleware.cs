@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
@@ -13,7 +13,8 @@ public sealed class ApiDeprecationHeadersMiddleware(RequestDelegate next, IOptio
 
         ApiDeprecationOptions options = optionsMonitor.CurrentValue;
 
-        if (!options.Enabled) return next(context);
+        if (!options.Enabled)
+            return next(context);
 
 
         context.Response.OnStarting(() =>

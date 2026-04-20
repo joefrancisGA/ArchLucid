@@ -47,7 +47,10 @@ public sealed class TrialLifecycleEmailRoutingOptionsTests
     [Fact]
     public void IsLogicAppOwned_false_when_owner_whitespace()
     {
-        TrialLifecycleEmailRoutingOptions options = new() { Owner = "   " };
+        TrialLifecycleEmailRoutingOptions options = new()
+        {
+            Owner = "   "
+        };
 
         options.IsLogicAppOwned().Should().BeFalse();
     }

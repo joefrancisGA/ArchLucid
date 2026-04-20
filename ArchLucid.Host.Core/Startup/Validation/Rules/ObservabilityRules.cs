@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Startup.Validation.Rules;
+namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ObservabilityRules
 {
@@ -6,7 +6,8 @@ internal static class ObservabilityRules
     {
         bool enabled = configuration.GetValue("Observability:Otlp:Enabled", false);
 
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
 
         string? endpoint = configuration["Observability:Otlp:Endpoint"]?.Trim();
@@ -19,7 +20,8 @@ internal static class ObservabilityRules
 
         string? protocol = configuration["Observability:Otlp:Protocol"]?.Trim();
 
-        if (string.IsNullOrWhiteSpace(protocol)) return;
+        if (string.IsNullOrWhiteSpace(protocol))
+            return;
 
 
         if (!string.Equals(protocol, "Grpc", StringComparison.OrdinalIgnoreCase) &&
@@ -34,12 +36,14 @@ internal static class ObservabilityRules
     {
         bool enabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
 
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
 
         bool requireAuth = configuration.GetValue("Observability:Prometheus:RequireScrapeAuthentication", true);
 
-        if (!requireAuth) return;
+        if (!requireAuth)
+            return;
 
 
         string? user = configuration["Observability:Prometheus:ScrapeUsername"]?.Trim();

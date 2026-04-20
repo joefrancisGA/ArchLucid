@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -124,7 +124,8 @@ public static class SupportBundleCollector
         {
             string? json = await client.GetVersionJsonAsync(ct);
 
-            if (json is null) return (null, "GET /version returned non-success or empty body.");
+            if (json is null)
+                return (null, "GET /version returned non-success or empty body.");
 
 
             return (json, null);
@@ -208,7 +209,8 @@ public static class SupportBundleCollector
         string workingDirectory,
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
-        if (config is null) return new SupportBundleWorkspaceSection();
+        if (config is null)
+            return new SupportBundleWorkspaceSection();
 
 
         string outputsDir = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir);
@@ -288,24 +290,28 @@ public static class SupportBundleCollector
     /// </summary>
     private static string? TryReadSmallLocalLogExcerpt(string workingDirectory, ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
-        if (config is null) return null;
+        if (config is null)
+            return null;
 
 
         string candidate = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir, "last-run.log");
 
-        if (!File.Exists(candidate)) return null;
+        if (!File.Exists(candidate))
+            return null;
 
 
         try
         {
             FileInfo fi = new(candidate);
 
-            if (fi.Length > 65_536) return "(file too large; omitted)";
+            if (fi.Length > 65_536)
+                return "(file too large; omitted)";
 
 
             string text = File.ReadAllText(candidate, System.Text.Encoding.UTF8);
 
-            if (text.Length > 4_096) return text[..4_096] + "\n... [truncated]";
+            if (text.Length > 4_096)
+                return text[..4_096] + "\n... [truncated]";
 
 
             return text;

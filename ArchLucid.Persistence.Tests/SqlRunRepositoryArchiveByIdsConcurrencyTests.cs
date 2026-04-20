@@ -74,7 +74,10 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
         DateTime? archivedUtc = await verify.QuerySingleOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunId;",
-                new { RunId = runId },
+                new
+                {
+                    RunId = runId
+                },
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull("dbo.Runs should carry ArchivedUtc after exactly one winning archive");

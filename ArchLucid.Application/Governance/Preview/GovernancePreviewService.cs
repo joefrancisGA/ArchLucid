@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
@@ -26,8 +26,10 @@ public sealed class GovernancePreviewService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.RunId)) throw new ArgumentException("RunId is required.", nameof(request));
-        if (string.IsNullOrWhiteSpace(request.ManifestVersion)) throw new ArgumentException("ManifestVersion is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.RunId))
+            throw new ArgumentException("RunId is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.ManifestVersion))
+            throw new ArgumentException("ManifestVersion is required.", nameof(request));
 
         string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
 
@@ -159,7 +161,8 @@ public sealed class GovernancePreviewService(
 
     private static string NormalizeAndValidateEnvironment(string environment, string paramName)
     {
-        if (string.IsNullOrWhiteSpace(environment)) throw new ArgumentException("Environment is required.", paramName);
+        if (string.IsNullOrWhiteSpace(environment))
+            throw new ArgumentException("Environment is required.", paramName);
 
         if (!IsKnownEnvironment(environment))
 
