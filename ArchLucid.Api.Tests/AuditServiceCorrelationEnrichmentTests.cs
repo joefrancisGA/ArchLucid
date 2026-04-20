@@ -61,7 +61,10 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 
         AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
-        AuditEvent auditEvent = new() { EventType = "Test" };
+        AuditEvent auditEvent = new()
+        {
+            EventType = "Test"
+        };
 
         using (Activity? activity = TestSource.StartActivity("op"))
         {
@@ -105,7 +108,10 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 
         AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
-        AuditEvent auditEvent = new() { EventType = "Test" };
+        AuditEvent auditEvent = new()
+        {
+            EventType = "Test"
+        };
 
         await sut.LogAsync(auditEvent, CancellationToken.None);
 
@@ -140,7 +146,11 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 
         AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
-        AuditEvent auditEvent = new() { EventType = "Test", CorrelationId = "explicit-789" };
+        AuditEvent auditEvent = new()
+        {
+            EventType = "Test",
+            CorrelationId = "explicit-789"
+        };
 
         using (Activity? activity = TestSource.StartActivity("op"))
         {

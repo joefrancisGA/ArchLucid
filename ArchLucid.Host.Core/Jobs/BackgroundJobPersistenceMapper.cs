@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Jobs;
 
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -8,7 +8,8 @@ internal static class BackgroundJobPersistenceMapper
 {
     public static BackgroundJobInfo? ToInfo(BackgroundJobRow? row)
     {
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         if (!Enum.TryParse(row.State, ignoreCase: true, out BackgroundJobState state))
             state = BackgroundJobState.Failed;

@@ -11,7 +11,10 @@ public class PolicyPackVersion
     public Guid PolicyPackVersionId { get; set; } = Guid.NewGuid();
 
     /// <summary>Owning <see cref="PolicyPack"/>.</summary>
-    public Guid PolicyPackId { get; set; }
+    public Guid PolicyPackId
+    {
+        get; set;
+    }
 
     /// <summary>Version key (e.g. <c>1.0.0</c>).</summary>
     public string Version { get; set; } = null!;
@@ -23,5 +26,8 @@ public class PolicyPackVersion
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>False for the initial draft row created with the pack; true after publish.</summary>
-    public bool IsPublished { get; set; }
+    public bool IsPublished
+    {
+        get; set;
+    }
 }

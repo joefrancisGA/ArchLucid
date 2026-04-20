@@ -52,9 +52,9 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         }
 
         if (result.AgentDeltas.Count == 0)
-        
+
             result.Warnings.Add("No agent results were available to compare.");
-        
+
 
         return result;
     }

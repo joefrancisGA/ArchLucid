@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace ArchLucid.Core.Diagnostics;
 
@@ -18,12 +18,14 @@ public static class ActivityCorrelation
     /// <summary>Returns the first non-empty <paramref name="tagName"/> value walking from <paramref name="start"/> to parents.</summary>
     public static string? FindTagValueInChain(Activity? start, string tagName)
     {
-        if (string.IsNullOrWhiteSpace(tagName)) throw new ArgumentException("Tag name is required.", nameof(tagName));
+        if (string.IsNullOrWhiteSpace(tagName))
+            throw new ArgumentException("Tag name is required.", nameof(tagName));
 
 
         for (Activity? activity = start; activity is not null; activity = activity.Parent)
 
-            if (activity.GetTagItem(tagName) is string value && !string.IsNullOrWhiteSpace(value)) return value;
+            if (activity.GetTagItem(tagName) is string value && !string.IsNullOrWhiteSpace(value))
+                return value;
 
 
 

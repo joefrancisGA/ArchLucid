@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.ArtifactBundles;
@@ -8,7 +8,8 @@ internal static class ArtifactBundleArtifactsJsonReader
 {
     internal static List<SynthesizedArtifact> DeserializeArtifacts(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return [];
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
 
         return JsonEntitySerializer.Deserialize<List<SynthesizedArtifact>>(json);
     }

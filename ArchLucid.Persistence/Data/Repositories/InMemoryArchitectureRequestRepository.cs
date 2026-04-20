@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using System.Data;
@@ -24,7 +24,8 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
-        if (string.IsNullOrWhiteSpace(request.RequestId)) throw new ArgumentException("RequestId is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.RequestId))
+            throw new ArgumentException("RequestId is required.", nameof(request));
 
         lock (_gate)
 

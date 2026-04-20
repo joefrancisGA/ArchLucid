@@ -9,7 +9,10 @@ public sealed class ContentSafetyOptions
     public const string SectionPath = "ArchLucid:ContentSafety";
 
     /// <summary>When false, a pass-through <c>NullContentSafetyGuard</c> is used (non-production-like hosts only).</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>
     /// When true (default), non-production-like hosts may use <c>NullContentSafetyGuard</c> while <see cref="Enabled"/> is false.
@@ -18,10 +21,16 @@ public sealed class ContentSafetyOptions
     public bool AllowNullGuardInDevelopment { get; set; } = true;
 
     /// <summary>Optional endpoint URI when a concrete guard is added (not read by the null/stub guards).</summary>
-    public string? Endpoint { get; set; }
+    public string? Endpoint
+    {
+        get; set;
+    }
 
     /// <summary>Optional API key name in Key Vault / user-secrets (not read by the null/stub guards).</summary>
-    public string? ApiKey { get; set; }
+    public string? ApiKey
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Minimum Azure Content Safety text severity (four-level scale: 0, 2, 4, 6) that blocks the request.
@@ -32,5 +41,8 @@ public sealed class ContentSafetyOptions
     /// <summary>
     /// When true, SDK or network failures during analysis fail closed (block). When false, failures are logged and content is allowed.
     /// </summary>
-    public bool FailClosedOnSdkError { get; set; }
+    public bool FailClosedOnSdkError
+    {
+        get; set;
+    }
 }

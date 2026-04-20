@@ -11,10 +11,16 @@ public class ThresholdRecommendationRequest
     public string RuleKind { get; set; } = null!;
 
     /// <summary>Template simple rule when <see cref="RuleKind"/> is Simple.</summary>
-    public AlertRule? BaseSimpleRule { get; set; }
+    public AlertRule? BaseSimpleRule
+    {
+        get; set;
+    }
 
     /// <summary>Template composite rule when <see cref="RuleKind"/> is Composite.</summary>
-    public CompositeAlertRule? BaseCompositeRule { get; set; }
+    public CompositeAlertRule? BaseCompositeRule
+    {
+        get; set;
+    }
 
     /// <summary>Which condition metric to rewrite (must exist on composite rules; simple rules are aligned by service).</summary>
     public string TunedMetricType { get; set; } = null!;

@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Startup.Validation.Rules;
+namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class HostLeaderElectionRules
 {
@@ -6,7 +6,8 @@ internal static class HostLeaderElectionRules
     {
         bool enabled = configuration.GetValue("HostLeaderElection:Enabled", true);
 
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
 
         int leaseSeconds = configuration.GetValue("HostLeaderElection:LeaseDurationSeconds", 90);

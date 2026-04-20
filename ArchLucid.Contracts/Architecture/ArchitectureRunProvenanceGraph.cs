@@ -74,7 +74,10 @@ public sealed class ArchitectureLinkageEdge
 /// <summary>One row in the run trace timeline.</summary>
 public sealed class ArchitectureTraceTimelineEntry
 {
-    public DateTime TimestampUtc { get; set; }
+    public DateTime TimestampUtc
+    {
+        get; set;
+    }
 
     /// <summary>Use constants on <see cref="ArchitectureLinkageKinds.Timeline"/>.</summary>
     [Required]
@@ -83,7 +86,10 @@ public sealed class ArchitectureTraceTimelineEntry
     [Required]
     public string Label { get; set; } = string.Empty;
 
-    public string? ReferenceId { get; set; }
+    public string? ReferenceId
+    {
+        get; set;
+    }
 
     public Dictionary<string, string> Metadata { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

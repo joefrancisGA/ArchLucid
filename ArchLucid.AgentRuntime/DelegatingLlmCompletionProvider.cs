@@ -14,12 +14,19 @@ public sealed class DelegatingLlmCompletionProvider(
     public string ProviderId { get; } = string.IsNullOrWhiteSpace(providerId) ? "unknown" : providerId.Trim();
 
     /// <inheritdoc />
-    public string ModelDeploymentLabel { get; } =
+    public string ModelDeploymentLabel
+    {
+        get;
+    } =
         string.IsNullOrWhiteSpace(modelDeploymentLabel) ? "unknown" : modelDeploymentLabel.Trim();
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor =>
-        _inner.Descriptor with { ProviderKind = ProviderId, ModelId = ModelDeploymentLabel };
+        _inner.Descriptor with
+        {
+            ProviderKind = ProviderId,
+            ModelId = ModelDeploymentLabel
+        };
 
     /// <inheritdoc />
     public Task<string> CompleteJsonAsync(

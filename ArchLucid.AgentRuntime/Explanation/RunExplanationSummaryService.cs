@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -28,7 +28,8 @@ public sealed class RunExplanationSummaryService(
     public async Task<RunExplanationSummary?> GetSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, ct);
-        if (detail?.GoldenManifest is null) return null;
+        if (detail?.GoldenManifest is null)
+            return null;
 
         GoldenManifest manifest = detail.GoldenManifest;
         DecisionProvenanceGraph? graph = await TryLoadProvenanceGraphAsync(scope, runId, ct);
@@ -113,7 +114,8 @@ public sealed class RunExplanationSummaryService(
         ExplanationFaithfulnessReport? faithReport,
         bool usedDeterministicFallback)
     {
-        if (faithReport is null || faithReport.ClaimsChecked <= 0) return null;
+        if (faithReport is null || faithReport.ClaimsChecked <= 0)
+            return null;
 
         if (usedDeterministicFallback)
 
@@ -129,7 +131,8 @@ public sealed class RunExplanationSummaryService(
         CancellationToken ct)
     {
         DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
-        if (snapshot is null) return null;
+        if (snapshot is null)
+            return null;
 
         try
         {
@@ -156,7 +159,8 @@ public sealed class RunExplanationSummaryService(
 
         foreach (string line in keyDrivers)
         {
-            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
 
             if (TryParseDecisionDriverLine(line, out string category, out string titleAndOption))
             {
@@ -200,10 +204,12 @@ public sealed class RunExplanationSummaryService(
         category = string.Empty;
         titleAndOption = string.Empty;
         int arrowIdx = line.IndexOf(" → ", StringComparison.Ordinal);
-        if (arrowIdx <= 0) return false;
+        if (arrowIdx <= 0)
+            return false;
 
         int colonIdx = line.IndexOf(": ", StringComparison.Ordinal);
-        if (colonIdx <= 0 || colonIdx >= arrowIdx) return false;
+        if (colonIdx <= 0 || colonIdx >= arrowIdx)
+            return false;
 
         category = line[..colonIdx].Trim();
         titleAndOption = line[(colonIdx + 2)..].Trim();
@@ -220,7 +226,8 @@ public sealed class RunExplanationSummaryService(
         int gaps = manifest.Compliance.Gaps.Count;
         string summary = string.IsNullOrWhiteSpace(explanation.Summary) ? explanation.DetailedNarrative : explanation.Summary;
 
-        if (issues == 0 && gaps == 0) return $"Overall assessment ({riskPosture} risk posture): no unresolved issues or compliance gaps on the manifest; {summary}";
+        if (issues == 0 && gaps == 0)
+            return $"Overall assessment ({riskPosture} risk posture): no unresolved issues or compliance gaps on the manifest; {summary}";
 
         return $"Overall assessment ({riskPosture} risk posture): {issues} unresolved issue(s), {gaps} compliance gap(s). {summary}";
     }

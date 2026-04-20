@@ -3,7 +3,10 @@ namespace ArchLucid.Contracts.ProductLearning.Planning;
 /// <summary>One improvement theme row in a planning report (read-only export slice).</summary>
 public sealed class LearningPlanningReportThemeEntry
 {
-    public Guid ThemeId { get; init; }
+    public Guid ThemeId
+    {
+        get; init;
+    }
 
     public string ThemeKey { get; init; } = string.Empty;
 
@@ -13,9 +16,15 @@ public sealed class LearningPlanningReportThemeEntry
 
     public string SeverityBand { get; init; } = string.Empty;
 
-    public int EvidenceSignalCount { get; init; }
+    public int EvidenceSignalCount
+    {
+        get; init;
+    }
 
-    public int DistinctRunCount { get; init; }
+    public int DistinctRunCount
+    {
+        get; init;
+    }
 
     public string Status { get; init; } = string.Empty;
 }

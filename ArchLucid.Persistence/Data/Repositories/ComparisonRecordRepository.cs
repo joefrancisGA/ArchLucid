@@ -116,7 +116,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -143,7 +146,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new
+            {
+                ExportRecordId = exportRecordId
+            },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -203,9 +209,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = baseSql;
         if (conditions.Count > 0)
-        
+
             sql += " AND " + string.Join(" AND ", conditions);
-        
+
         string orderColumn = ResolveOrderColumn(sortBy);
         bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
@@ -274,9 +280,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         // Cursor paging: only supported for CreatedUtc ordering (plus ComparisonRecordId tiebreaker).
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
-        
+
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
-        
+
 
         if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
         {
@@ -291,9 +297,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = baseSql;
         if (conditions.Count > 0)
-        
+
             sql += " AND " + string.Join(" AND ", conditions);
-        
+
 
         sql += sortDescending
             ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"

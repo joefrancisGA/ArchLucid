@@ -16,5 +16,8 @@ public sealed class DataConsistencyProbeOptions
     /// When greater than zero, after a probe pass that detected any orphans, runs the same SELECT statements as admin
     /// remediation dry-run and logs candidate keys at Information level (never DELETE). Clamped to [1, 500]. Default 0 (disabled).
     /// </summary>
-    public int OrphanProbeRemediationDryRunLogMaxRows { get; set; }
+    public int OrphanProbeRemediationDryRunLogMaxRows
+    {
+        get; set;
+    }
 }

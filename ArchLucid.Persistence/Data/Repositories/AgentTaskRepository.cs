@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Agents;
@@ -114,7 +114,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows.Select(r => new AgentTask
@@ -141,8 +144,17 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         public string AgentType { get; init; } = string.Empty;
         public string Objective { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc { get; init; }
-        public DateTime? CompletedUtc { get; init; }
-        public string? EvidenceBundleRef { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
+        public DateTime? CompletedUtc
+        {
+            get; init;
+        }
+        public string? EvidenceBundleRef
+        {
+            get; init;
+        }
     }
 }

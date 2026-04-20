@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -131,16 +131,19 @@ public sealed class SimulationEvaluationService(
         ArchitectureAnalysisReport baseline,
         ArchitectureAnalysisReport? simulated)
     {
-        if (simulated is null) return (null, false, false);
+        if (simulated is null)
+            return (null, false, false);
 
 
-        if (simulated.ManifestDiff is not null) return (simulated.ManifestDiff, true, false);
+        if (simulated.ManifestDiff is not null)
+            return (simulated.ManifestDiff, true, false);
 
 
         GoldenManifest? left = baseline.Manifest;
         GoldenManifest? right = simulated.Manifest;
 
-        if (left is null || right is null) return (null, false, false);
+        if (left is null || right is null)
+            return (null, false, false);
 
 
         ManifestDiffResult computed = manifestDiffService.Compare(left, right);
@@ -153,13 +156,16 @@ public sealed class SimulationEvaluationService(
         SimulationEvaluationOptions? options,
         CancellationToken cancellationToken)
     {
-        if (request.SuppliedDeterminism is not null) return new DeterminismResolution(request.SuppliedDeterminism, "Supplied");
+        if (request.SuppliedDeterminism is not null)
+            return new DeterminismResolution(request.SuppliedDeterminism, "Supplied");
 
 
-        if (request.BaselineReport.Determinism is not null) return new DeterminismResolution(request.BaselineReport.Determinism, "BaselineReport");
+        if (request.BaselineReport.Determinism is not null)
+            return new DeterminismResolution(request.BaselineReport.Determinism, "BaselineReport");
 
 
-        if (options?.InvokeLiveDeterminismCheck != true) return new DeterminismResolution(null, "None");
+        if (options?.InvokeLiveDeterminismCheck != true)
+            return new DeterminismResolution(null, "None");
 
         string runId = !string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism)
             ? options.BaselineArchitectureRunIdForDeterminism.Trim()
@@ -182,7 +188,8 @@ public sealed class SimulationEvaluationService(
 
     private static double? ComputeRegressionRiskScore(ManifestDiffResult? diff)
     {
-        if (diff is null) return null;
+        if (diff is null)
+            return null;
 
 
         int removals =
@@ -191,7 +198,8 @@ public sealed class SimulationEvaluationService(
             diff.RemovedRelationships.Count +
             diff.RemovedRequiredControls.Count;
 
-        if (removals == 0) return 0;
+        if (removals == 0)
+            return 0;
 
 
         return Math.Min(1.0, removals / 10.0);
@@ -237,7 +245,8 @@ public sealed class SimulationEvaluationService(
 
         double fromWarnings = Math.Clamp((baselineWarnings - simulatedWarnings) / 20.0, -0.5, 0.5);
 
-        if (diff is null) return Math.Clamp(fromWarnings, -1, 1);
+        if (diff is null)
+            return Math.Clamp(fromWarnings, -1, 1);
 
 
         int adds =
@@ -259,7 +268,8 @@ public sealed class SimulationEvaluationService(
 
     private static double? ComputeDeterminismScore(DeterminismCheckResult? determinism)
     {
-        if (determinism is null) return null;
+        if (determinism is null)
+            return null;
 
 
         return determinism.IsDeterministic ? 1 : 0;

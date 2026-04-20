@@ -97,7 +97,10 @@ internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaims
 
 public abstract class OperatorWithoutOnePermissionArchLucidApiFactory : ArchLucidApiFactory
 {
-    protected abstract string OmitPermission { get; }
+    protected abstract string OmitPermission
+    {
+        get;
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

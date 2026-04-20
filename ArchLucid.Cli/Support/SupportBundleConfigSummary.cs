@@ -5,32 +5,59 @@ namespace ArchLucid.Cli.Support;
 public sealed class SupportBundleConfigSummary
 {
     [JsonPropertyName("hasArchlucidJson")]
-    public bool HasArchlucidJson { get; init; }
+    public bool HasArchlucidJson
+    {
+        get; init;
+    }
 
     [JsonPropertyName("projectName")]
-    public string? ProjectName { get; init; }
+    public string? ProjectName
+    {
+        get; init;
+    }
 
     [JsonPropertyName("schemaVersion")]
-    public string? SchemaVersion { get; init; }
+    public string? SchemaVersion
+    {
+        get; init;
+    }
 
     [JsonPropertyName("apiBaseUrlRedacted")]
     public string ApiBaseUrlRedacted { get; init; } = string.Empty;
 
     [JsonPropertyName("inputsBriefPath")]
-    public string? InputsBriefPath { get; init; }
+    public string? InputsBriefPath
+    {
+        get; init;
+    }
 
     [JsonPropertyName("outputsLocalCacheDir")]
-    public string? OutputsLocalCacheDir { get; init; }
+    public string? OutputsLocalCacheDir
+    {
+        get; init;
+    }
 
     [JsonPropertyName("pluginsLockFile")]
-    public string? PluginsLockFile { get; init; }
+    public string? PluginsLockFile
+    {
+        get; init;
+    }
 
     [JsonPropertyName("terraformEnabled")]
-    public bool? TerraformEnabled { get; init; }
+    public bool? TerraformEnabled
+    {
+        get; init;
+    }
 
     [JsonPropertyName("terraformPath")]
-    public string? TerraformPath { get; init; }
+    public string? TerraformPath
+    {
+        get; init;
+    }
 
     [JsonPropertyName("architecture")]
-    public ArchLucidProjectScaffolder.ArchitectureSection? Architecture { get; init; }
+    public ArchLucidProjectScaffolder.ArchitectureSection? Architecture
+    {
+        get; init;
+    }
 }

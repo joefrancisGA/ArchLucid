@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -25,7 +25,8 @@ public sealed class AgentHandlerConcurrencyGate : IAgentHandlerConcurrencyGate
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        if (_semaphore is null) return await action(cancellationToken);
+        if (_semaphore is null)
+            return await action(cancellationToken);
 
 
         await _semaphore.WaitAsync(cancellationToken);

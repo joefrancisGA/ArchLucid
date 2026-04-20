@@ -10,17 +10,29 @@ public sealed record StructuredExplanation
     public int SchemaVersion { get; init; } = 1;
 
     /// <summary>Primary explanatory text (populated from structured JSON or raw LLM text when parse fails).</summary>
-    public required string Reasoning { get; init; }
+    public required string Reasoning
+    {
+        get; init;
+    }
 
     /// <summary>IDs or keys of provenance / evidence nodes cited in the reasoning.</summary>
     public IReadOnlyList<string> EvidenceRefs { get; init; } = [];
 
     /// <summary>Model-estimated confidence in the explanation, 0.0–1.0. Null when not computable.</summary>
-    public decimal? Confidence { get; init; }
+    public decimal? Confidence
+    {
+        get; init;
+    }
 
     /// <summary>Other options the system evaluated before choosing this explanation path.</summary>
-    public IReadOnlyList<string>? AlternativesConsidered { get; init; }
+    public IReadOnlyList<string>? AlternativesConsidered
+    {
+        get; init;
+    }
 
     /// <summary>Known limitations or assumptions baked into this explanation.</summary>
-    public IReadOnlyList<string>? Caveats { get; init; }
+    public IReadOnlyList<string>? Caveats
+    {
+        get; init;
+    }
 }

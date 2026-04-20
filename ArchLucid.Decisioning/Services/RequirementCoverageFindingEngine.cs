@@ -20,7 +20,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
         List<Finding> findings = [];
 
         if (result.UnrelatedRequirementCount > 0)
-        
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -53,7 +53,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     ]
                 }
             });
-        
+
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using System.Data;
@@ -25,7 +25,8 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         ArgumentNullException.ThrowIfNull(decisions);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (decisions.Count == 0) return Task.CompletedTask;
+        if (decisions.Count == 0)
+            return Task.CompletedTask;
 
 
         lock (_gate)
@@ -53,7 +54,8 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<DecisionNode>? list)) return Task.FromResult<IReadOnlyList<DecisionNode>>([]);
+            if (!_byRunId.TryGetValue(runId, out List<DecisionNode>? list))
+                return Task.FromResult<IReadOnlyList<DecisionNode>>([]);
 
 
             List<DecisionNode> ordered = list

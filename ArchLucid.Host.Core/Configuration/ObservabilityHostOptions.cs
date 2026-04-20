@@ -17,7 +17,10 @@ public sealed class ObservabilityHostOptions
 /// <summary>Binding for <c>Observability:Prometheus</c>.</summary>
 public sealed class ObservabilityPrometheusOptions
 {
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>HTTP path served by the OpenTelemetry Prometheus exporter.</summary>
     public string ScrapePath { get; set; } = "/metrics";
@@ -25,7 +28,13 @@ public sealed class ObservabilityPrometheusOptions
     /// <summary>When true (default), startup validation requires scrape credentials whenever Prometheus is enabled.</summary>
     public bool RequireScrapeAuthentication { get; set; } = true;
 
-    public string? ScrapeUsername { get; set; }
+    public string? ScrapeUsername
+    {
+        get; set;
+    }
 
-    public string? ScrapePassword { get; set; }
+    public string? ScrapePassword
+    {
+        get; set;
+    }
 }

@@ -21,12 +21,18 @@ public sealed class AgentTask
 
     /// <summary>Type of agent responsible for completing this task.</summary>
     [Required]
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional override for handler dispatch (e.g. <c>custom-risk</c>). When null or empty, <see cref="AgentType"/> maps via <see cref="Common.AgentTypeKeys.FromEnum"/>.
     /// </summary>
-    public string? AgentTypeKey { get; set; }
+    public string? AgentTypeKey
+    {
+        get; set;
+    }
 
     /// <summary>Human-readable description of what the agent must analyse or propose.</summary>
     [Required]
@@ -40,13 +46,19 @@ public sealed class AgentTask
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>UTC timestamp when the task reached a terminal state. <see langword="null"/> while still in progress.</summary>
-    public DateTime? CompletedUtc { get; set; }
+    public DateTime? CompletedUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional reference to the evidence bundle the agent should use.
     /// <see langword="null"/> when the agent should use the run-level evidence package directly.
     /// </summary>
-    public string? EvidenceBundleRef { get; set; }
+    public string? EvidenceBundleRef
+    {
+        get; set;
+    }
 
     /// <summary>Tool identifiers the agent is permitted to invoke (empty = unrestricted).</summary>
     public List<string> AllowedTools { get; set; } = [];

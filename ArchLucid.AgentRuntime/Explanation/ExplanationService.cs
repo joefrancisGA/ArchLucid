@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
@@ -115,7 +115,8 @@ public sealed class ExplanationService(
 
     private string? ValidateRunExplanationPayload(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return json;
+        if (string.IsNullOrWhiteSpace(json))
+            return json;
 
 
         string trimmed = json.Trim();
@@ -157,7 +158,8 @@ public sealed class ExplanationService(
 
     private string? ValidateComparisonExplanationPayload(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return json;
+        if (string.IsNullOrWhiteSpace(json))
+            return json;
 
 
         string trimmed = json.Trim();
@@ -262,10 +264,12 @@ public sealed class ExplanationService(
 
     private static string? UnwrapJsonFence(string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw)) return raw;
+        if (string.IsNullOrWhiteSpace(raw))
+            return raw;
         string s = raw.Trim();
 
-        if (!s.StartsWith("```", StringComparison.Ordinal)) return s;
+        if (!s.StartsWith("```", StringComparison.Ordinal))
+            return s;
 
         int firstNl = s.IndexOf('\n');
         if (firstNl > 0)

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.ContextIngestion.Canonicalization;
 
@@ -21,13 +21,17 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
     /// </summary>
     internal static string GetDedupeFingerprint(CanonicalObject item)
     {
-        if (item.Properties.TryGetValue("text", out string? text) && !string.IsNullOrEmpty(text)) return text;
+        if (item.Properties.TryGetValue("text", out string? text) && !string.IsNullOrEmpty(text))
+            return text;
 
-        if (item.Properties.TryGetValue("reference", out string? reference) && !string.IsNullOrEmpty(reference)) return reference;
+        if (item.Properties.TryGetValue("reference", out string? reference) && !string.IsNullOrEmpty(reference))
+            return reference;
 
-        if (item.Properties.TryGetValue("terraformType", out string? terraformType) && !string.IsNullOrEmpty(terraformType)) return terraformType;
+        if (item.Properties.TryGetValue("terraformType", out string? terraformType) && !string.IsNullOrEmpty(terraformType))
+            return terraformType;
 
-        if (item.Properties.TryGetValue("resourceType", out string? resourceType) && !string.IsNullOrEmpty(resourceType)) return resourceType;
+        if (item.Properties.TryGetValue("resourceType", out string? resourceType) && !string.IsNullOrEmpty(resourceType))
+            return resourceType;
 
         return string.Empty;
     }

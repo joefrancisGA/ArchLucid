@@ -13,6 +13,9 @@ public class ResolvedArchitectureDecision
     public List<string> RelatedNodeIds { get; set; } = [];
 
     /// <summary>Optional opaque JSON sidecar for decision payloads not modeled in columns.</summary>
-    public string? RawDecisionJson { get; set; }
+    public string? RawDecisionJson
+    {
+        get; set;
+    }
 }
 

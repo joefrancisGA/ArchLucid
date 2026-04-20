@@ -26,22 +26,40 @@ public class AuditEvent
     public string ActorUserName { get; set; } = null!;
 
     /// <summary>Tenant scope of the event.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace scope of the event.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project scope of the event.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Optional run associated with the event. <see langword="null"/> for non-run events.</summary>
-    public Guid? RunId { get; set; }
+    public Guid? RunId
+    {
+        get; set;
+    }
 
     /// <summary>Optional manifest associated with the event. <see langword="null"/> when not applicable.</summary>
-    public Guid? ManifestId { get; set; }
+    public Guid? ManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Optional artifact associated with the event. <see langword="null"/> when not applicable.</summary>
-    public Guid? ArtifactId { get; set; }
+    public Guid? ArtifactId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Additional event-specific payload serialised as JSON. Defaults to <c>"{}"</c>.
@@ -53,5 +71,8 @@ public class AuditEvent
     /// <summary>
     /// Optional correlation identifier linking related operations (e.g. an HTTP request trace ID).
     /// </summary>
-    public string? CorrelationId { get; set; }
+    public string? CorrelationId
+    {
+        get; set;
+    }
 }

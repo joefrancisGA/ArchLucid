@@ -1,4 +1,4 @@
-﻿using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;

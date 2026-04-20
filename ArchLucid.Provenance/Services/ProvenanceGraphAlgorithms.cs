@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Provenance.Services;
+namespace ArchLucid.Provenance.Services;
 
 /// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph"/>.</summary>
 public static class ProvenanceGraphAlgorithms
@@ -10,7 +10,8 @@ public static class ProvenanceGraphAlgorithms
     {
         decisionInternalNodeId = Guid.Empty;
         string key = decisionKey?.Trim() ?? string.Empty;
-        if (key.Length == 0) return false;
+        if (key.Length == 0)
+            return false;
 
         if (Guid.TryParse(key, out Guid parsedGuid))
         {
@@ -27,7 +28,8 @@ public static class ProvenanceGraphAlgorithms
                 n.Type == ProvenanceNodeType.Decision &&
                 (string.Equals(n.ReferenceId, nFormat, StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(n.ReferenceId, dFormat, StringComparison.OrdinalIgnoreCase)));
-            if (byRefFromGuid is null) return false;
+            if (byRefFromGuid is null)
+                return false;
             decisionInternalNodeId = byRefFromGuid.Id;
             return true;
 
@@ -36,7 +38,8 @@ public static class ProvenanceGraphAlgorithms
         ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
             n.Type == ProvenanceNodeType.Decision &&
             string.Equals(n.ReferenceId, key, StringComparison.OrdinalIgnoreCase));
-        if (byRef is null) return false;
+        if (byRef is null)
+            return false;
 
         decisionInternalNodeId = byRef.Id;
         return true;

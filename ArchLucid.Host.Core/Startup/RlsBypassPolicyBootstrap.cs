@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
@@ -30,7 +30,8 @@ public static class RlsBypassPolicyBootstrap
         ArchLucidInstrumentation.SetRlsBypassProductionLikeEnabled(gaugeValue);
         ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
 
-        if (!enabled || !logger.IsEnabled(LogLevel.Warning)) return;
+        if (!enabled || !logger.IsEnabled(LogLevel.Warning))
+            return;
 
         logger.LogWarning(
             "SQL RLS break-glass is enabled (ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true). "

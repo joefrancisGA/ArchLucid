@@ -1,4 +1,4 @@
-﻿using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Indexing;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -28,7 +28,8 @@ internal static class RetrievalRules
     {
         string? mode = configuration["Retrieval:VectorIndex"];
 
-        if (string.IsNullOrWhiteSpace(mode)) return;
+        if (string.IsNullOrWhiteSpace(mode))
+            return;
 
 
         if (string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase) ||

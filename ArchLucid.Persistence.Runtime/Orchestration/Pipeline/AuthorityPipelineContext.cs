@@ -17,29 +17,68 @@ namespace ArchLucid.Persistence.Orchestration.Pipeline;
 /// </summary>
 public sealed class AuthorityPipelineContext
 {
-    public required RunRecord Run { get; init; }
+    public required RunRecord Run
+    {
+        get; init;
+    }
 
-    public required ContextIngestionRequest Request { get; set; }
+    public required ContextIngestionRequest Request
+    {
+        get; set;
+    }
 
-    public required IArchLucidUnitOfWork UnitOfWork { get; init; }
+    public required IArchLucidUnitOfWork UnitOfWork
+    {
+        get; init;
+    }
 
-    public required ScopeContext Scope { get; init; }
+    public required ScopeContext Scope
+    {
+        get; init;
+    }
 
-    public Activity? RunActivity { get; init; }
+    public Activity? RunActivity
+    {
+        get; init;
+    }
 
-    public ContextSnapshot? PriorCommittedContext { get; set; }
+    public ContextSnapshot? PriorCommittedContext
+    {
+        get; set;
+    }
 
-    public ContextSnapshot? ContextSnapshot { get; set; }
+    public ContextSnapshot? ContextSnapshot
+    {
+        get; set;
+    }
 
-    public GraphSnapshotResolutionResult? GraphResolution { get; set; }
+    public GraphSnapshotResolutionResult? GraphResolution
+    {
+        get; set;
+    }
 
-    public GraphSnapshot? GraphSnapshot { get; set; }
+    public GraphSnapshot? GraphSnapshot
+    {
+        get; set;
+    }
 
-    public FindingsSnapshot? FindingsSnapshot { get; set; }
+    public FindingsSnapshot? FindingsSnapshot
+    {
+        get; set;
+    }
 
-    public GoldenManifest? Manifest { get; set; }
+    public GoldenManifest? Manifest
+    {
+        get; set;
+    }
 
-    public DecisionTrace? Trace { get; set; }
+    public DecisionTrace? Trace
+    {
+        get; set;
+    }
 
-    public ArtifactBundle? ArtifactBundle { get; set; }
+    public ArtifactBundle? ArtifactBundle
+    {
+        get; set;
+    }
 }

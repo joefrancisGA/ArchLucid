@@ -108,21 +108,33 @@ public sealed class ConsultingDocxTemplateOptions
     /// Absolute path to the logo image file. Only used when <see cref="IncludeLogo"/> is
     /// <see langword="true"/>.
     /// </summary>
-    public string? LogoPath { get; set; }
+    public string? LogoPath
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Template string for the executive-summary opening sentence.
     /// Supports <c>{SystemName}</c>, <c>{OrganizationName}</c>, <c>{ServiceCount}</c>,
     /// <c>{DatastoreCount}</c>, and <c>{ControlCount}</c> placeholders.
     /// </summary>
-    public string ExecutiveSummaryTextTemplate { get; set; } =
+    public string ExecutiveSummaryTextTemplate
+    {
+        get; set;
+    } =
         "{SystemName} was analyzed by {OrganizationName} and resolved into an architecture containing {ServiceCount} service(s), {DatastoreCount} datastore(s), and {ControlCount} required control(s).";
 
     /// <summary>Introductory paragraph for the architecture overview section.</summary>
-    public string ArchitectureOverviewIntro { get; set; } =
+    public string ArchitectureOverviewIntro
+    {
+        get; set;
+    } =
         "The following section summarizes the resolved architecture and presents the primary runtime view.";
 
     /// <summary>Closing paragraph for the conclusions section.</summary>
-    public string ConclusionsText { get; set; } =
+    public string ConclusionsText
+    {
+        get; set;
+    } =
         "The architecture analysis produced a resolved manifest and supporting explainability artifacts suitable for technical review.";
 }

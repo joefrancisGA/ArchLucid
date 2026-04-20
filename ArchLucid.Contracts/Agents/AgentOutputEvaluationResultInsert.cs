@@ -11,15 +11,30 @@ public sealed class AgentOutputEvaluationResultInsert
 
     public string CaseId { get; set; } = string.Empty;
 
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
-    public double OverallScore { get; set; }
+    public double OverallScore
+    {
+        get; set;
+    }
 
-    public double? StructuralMatch { get; set; }
+    public double? StructuralMatch
+    {
+        get; set;
+    }
 
-    public double? SemanticMatch { get; set; }
+    public double? SemanticMatch
+    {
+        get; set;
+    }
 
-    public string? MissingKeysJson { get; set; }
+    public string? MissingKeysJson
+    {
+        get; set;
+    }
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

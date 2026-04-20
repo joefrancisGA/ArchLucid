@@ -17,7 +17,10 @@ public sealed class DefaultGraphEdgeInfererContractTests
     [Fact]
     public void InferEdges_WhenChildDeclaresParentNodeId_AddsContainsResourceFromParentToChild()
     {
-        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        ContextSnapshot context = new()
+        {
+            SnapshotId = Guid.NewGuid()
+        };
         GraphNode parent = new()
         {
             NodeId = "topo-parent",
@@ -49,7 +52,10 @@ public sealed class DefaultGraphEdgeInfererContractTests
     [Fact]
     public void InferEdges_WhenPolicyListsApplicableTopologyNodeIds_OnlyTargetsListedResources()
     {
-        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        ContextSnapshot context = new()
+        {
+            SnapshotId = Guid.NewGuid()
+        };
         GraphNode topoA = new()
         {
             NodeId = "res-a",

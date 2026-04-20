@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
@@ -223,7 +223,8 @@ internal static class GoldenManifestPhase1RelationalRead
                 },
                 cancellationToken: ct))).ToList();
 
-        if (decisionRows.Count == 0) return [];
+        if (decisionRows.Count == 0)
+            return [];
 
         const string evidenceSql = """
             SELECT DecisionId, SortOrder, FindingId
@@ -328,7 +329,8 @@ internal static class GoldenManifestPhase1RelationalRead
     /// <summary>Falls back to the legacy JSON column when no relational rows exist for a string list slice.</summary>
     private static List<string> FallbackDeserializeList(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return [];
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
 
         return JsonEntitySerializer.Deserialize<List<string>>(json);
     }
@@ -336,7 +338,8 @@ internal static class GoldenManifestPhase1RelationalRead
     /// <summary>Falls back to the legacy JSON column when no relational provenance rows exist.</summary>
     private static ManifestProvenance FallbackDeserializeProvenance(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return new ManifestProvenance();
+        if (string.IsNullOrWhiteSpace(json))
+            return new ManifestProvenance();
 
         return JsonEntitySerializer.Deserialize<ManifestProvenance>(json);
     }
@@ -344,7 +347,8 @@ internal static class GoldenManifestPhase1RelationalRead
     /// <summary>Falls back to the legacy JSON column when no relational decision rows exist.</summary>
     private static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return [];
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
 
         return JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json);
     }
@@ -357,7 +361,8 @@ internal static class GoldenManifestPhase1RelationalRead
     private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
         where T : class, new()
     {
-        if (string.IsNullOrWhiteSpace(json)) return new T();
+        if (string.IsNullOrWhiteSpace(json))
+            return new T();
 
         return deserialize(json);
     }

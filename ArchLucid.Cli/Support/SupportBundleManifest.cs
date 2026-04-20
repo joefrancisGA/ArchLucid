@@ -18,13 +18,19 @@ public sealed class SupportBundleManifest
     public string ArchLucidJsonPath { get; init; } = string.Empty;
 
     [JsonPropertyName("archlucidJsonPresent")]
-    public bool ArchLucidJsonPresent { get; init; }
+    public bool ArchLucidJsonPresent
+    {
+        get; init;
+    }
 
     /// <summary>Suggested file open order for first-line triage (mirrors <c>README.txt</c>).</summary>
     [JsonPropertyName("triageReadOrder")]
     public IReadOnlyList<SupportBundleTriageEntry> TriageReadOrder { get; init; } = [];
 
     [JsonPropertyName("notes")]
-    public string Notes { get; init; } =
+    public string Notes
+    {
+        get; init;
+    } =
         "No secrets, connection strings, or API key values are included. Sensitive env vars appear only as (set)/(not set).";
 }

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Time;
@@ -188,7 +188,8 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
-            if (_state == State.Closed) return;
+            if (_state == State.Closed)
+                return;
 
 
             if (_state == State.Open)
@@ -266,7 +267,8 @@ public sealed class CircuitBreakerGate
 
             _consecutiveFailures++;
 
-            if (_consecutiveFailures < opts.FailureThreshold) return;
+            if (_consecutiveFailures < opts.FailureThreshold)
+                return;
 
 
             EmitStateTransition("Closed", "Open");
@@ -282,7 +284,8 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
-            if (_state != State.HalfOpen || !_probeInFlight) return;
+            if (_state != State.HalfOpen || !_probeInFlight)
+                return;
 
 
             EmitProbeOutcome("cancelled");
@@ -328,7 +331,8 @@ public sealed class CircuitBreakerGate
 
     private void InvokeAuditEntry(string transitionType, string fromState, string toState, string? probeOutcome)
     {
-        if (_onAuditEntry is null) return;
+        if (_onAuditEntry is null)
+            return;
 
 
         try

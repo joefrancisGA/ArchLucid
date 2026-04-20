@@ -11,13 +11,22 @@ public class PolicyPack
     public Guid PolicyPackId { get; set; } = Guid.NewGuid();
 
     /// <summary>Pack authoring scope (not necessarily assignment scope).</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Pack authoring scope.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Pack authoring scope.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Human-readable title.</summary>
     public string Name { get; set; } = null!;
@@ -35,7 +44,10 @@ public class PolicyPack
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>Set when the pack first becomes active (publish).</summary>
-    public DateTime? ActivatedUtc { get; set; }
+    public DateTime? ActivatedUtc
+    {
+        get; set;
+    }
 
     /// <summary>Latest published / current version label (denormalized for list UIs).</summary>
     public string CurrentVersion { get; set; } = "1.0.0";

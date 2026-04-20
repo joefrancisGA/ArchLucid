@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -180,7 +180,8 @@ internal static class ContextSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (objectRows.Count == 0) return [];
+        if (objectRows.Count == 0)
+            return [];
 
         List<Guid> rowIds = objectRows.Select(r => r.CanonicalObjectRowId).ToList();
 
@@ -236,8 +237,14 @@ internal static class ContextSnapshotRelationalRead
 
     private sealed class CanonicalObjectRow
     {
-        public Guid CanonicalObjectRowId { get; init; }
-        public int SortOrder { get; init; }
+        public Guid CanonicalObjectRowId
+        {
+            get; init;
+        }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string ObjectId { get; init; } = null!;
         public string ObjectType { get; init; } = null!;
         public string Name { get; init; } = null!;
@@ -247,8 +254,14 @@ internal static class ContextSnapshotRelationalRead
 
     private sealed class PropertyRow
     {
-        public Guid CanonicalObjectRowId { get; init; }
-        public int PropertySortOrder { get; init; }
+        public Guid CanonicalObjectRowId
+        {
+            get; init;
+        }
+        public int PropertySortOrder
+        {
+            get; init;
+        }
         public string PropertyKey { get; init; } = null!;
         public string PropertyValue { get; init; } = null!;
     }

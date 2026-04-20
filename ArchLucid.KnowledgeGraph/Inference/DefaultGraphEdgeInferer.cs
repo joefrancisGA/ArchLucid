@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Inference;
@@ -50,11 +50,14 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     {
         foreach (GraphNode node in nodes)
         {
-            if (!node.Properties.TryGetValue("parentNodeId", out string? parentId)) continue;
+            if (!node.Properties.TryGetValue("parentNodeId", out string? parentId))
+                continue;
 
-            if (string.IsNullOrWhiteSpace(parentId)) continue;
+            if (string.IsNullOrWhiteSpace(parentId))
+                continue;
 
-            if (!nodeById.ContainsKey(parentId)) continue;
+            if (!nodeById.ContainsKey(parentId))
+                continue;
 
             edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource", WeightExplicitParentChild));
         }
@@ -117,7 +120,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             {
                 foreach (GraphNode resource in topologyNodes)
                 {
-                    if (!targeted.Contains(resource.NodeId)) continue;
+                    if (!targeted.Contains(resource.NodeId))
+                        continue;
 
                     edges.Add(CreateEdge(
                         policy.NodeId,
@@ -154,7 +158,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             {
                 foreach (GraphNode resource in topologyNodes)
                 {
-                    if (!targeted.Contains(resource.NodeId)) continue;
+                    if (!targeted.Contains(resource.NodeId))
+                        continue;
 
                     edges.Add(CreateEdge(
                         requirement.NodeId,
@@ -191,7 +196,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     /// </summary>
     private static HashSet<string>? ParseTargetNodeIds(Dictionary<string, string> properties, string key)
     {
-        if (!properties.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw)) return null;
+        if (!properties.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            return null;
 
         string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return parts.Length == 0 ? null : parts.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -212,7 +218,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         if (text.Contains("compute", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline) return true;
+        if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline)
+            return true;
 
         return text.Contains("database", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
     }

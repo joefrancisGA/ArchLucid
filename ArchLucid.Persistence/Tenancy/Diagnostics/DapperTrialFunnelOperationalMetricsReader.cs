@@ -27,7 +27,10 @@ public sealed class DapperTrialFunnelOperationalMetricsReader(ISqlConnectionFact
         long count = await connection.ExecuteScalarAsync<long>(
             new CommandDefinition(
                 sql,
-                new { Active = TrialLifecycleStatus.Active },
+                new
+                {
+                    Active = TrialLifecycleStatus.Active
+                },
                 cancellationToken: cancellationToken));
 
         return count;

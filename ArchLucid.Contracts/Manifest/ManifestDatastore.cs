@@ -20,20 +20,32 @@ public sealed class ManifestDatastore
 
     /// <summary>Category of storage technology (relational, document, queue, blob, etc.).</summary>
     [Required]
-    public DatastoreType DatastoreType { get; set; }
+    public DatastoreType DatastoreType
+    {
+        get; set;
+    }
 
     /// <summary>Deployment platform for this datastore (e.g. <c>AzureSql</c>, <c>CosmosDb</c>).</summary>
     [Required]
-    public RuntimePlatform RuntimePlatform { get; set; }
+    public RuntimePlatform RuntimePlatform
+    {
+        get; set;
+    }
 
     /// <summary>Short description of the datastore's role in the architecture. Optional.</summary>
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
     /// <summary>
     /// When <see langword="true"/>, the architecture decision requires this datastore
     /// to be accessed exclusively via a private endpoint.
     /// </summary>
-    public bool PrivateEndpointRequired { get; set; }
+    public bool PrivateEndpointRequired
+    {
+        get; set;
+    }
 
     /// <summary>
     /// When <see langword="true"/>, all data persisted in this datastore must be

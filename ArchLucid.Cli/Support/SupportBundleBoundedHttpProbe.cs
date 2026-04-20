@@ -9,14 +9,23 @@ public sealed class SupportBundleBoundedHttpProbe
     public string Path { get; init; } = string.Empty;
 
     [JsonPropertyName("httpStatus")]
-    public int HttpStatus { get; init; }
+    public int HttpStatus
+    {
+        get; init;
+    }
 
     [JsonPropertyName("bodyPreview")]
     public string BodyPreview { get; init; } = string.Empty;
 
     [JsonPropertyName("bodyTruncated")]
-    public bool BodyTruncated { get; init; }
+    public bool BodyTruncated
+    {
+        get; init;
+    }
 
     [JsonPropertyName("maxBytesCaptured")]
-    public int MaxBytesCaptured { get; init; }
+    public int MaxBytesCaptured
+    {
+        get; init;
+    }
 }

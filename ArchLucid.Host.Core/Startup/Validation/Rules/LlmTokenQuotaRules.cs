@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Startup.Validation.Rules;
+namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class LlmTokenQuotaRules
 {
@@ -6,7 +6,8 @@ internal static class LlmTokenQuotaRules
     {
         bool enabled = configuration.GetValue("LlmTokenQuota:Enabled", false);
 
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
 
         int windowMinutes = configuration.GetValue("LlmTokenQuota:WindowMinutes", 60);

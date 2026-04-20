@@ -13,7 +13,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     public void State_transition_audit_callback_that_throws_does_not_prevent_open_transition()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         int auditCalls = 0;
         CircuitBreakerGate gate = new(
             "audit-throw-gate",

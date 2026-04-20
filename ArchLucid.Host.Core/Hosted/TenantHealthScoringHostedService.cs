@@ -1,6 +1,5 @@
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.Options;
 

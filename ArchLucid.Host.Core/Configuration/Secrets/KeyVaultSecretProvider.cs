@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Secrets;
+using ArchLucid.Core.Secrets;
 
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
@@ -23,7 +23,8 @@ public sealed class KeyVaultSecretProvider : ISecretProvider
         ArchLucidSecretOptions o = options.Value;
         string? uri = o.KeyVaultUri?.Trim();
 
-        if (string.IsNullOrWhiteSpace(uri)) throw new InvalidOperationException("ArchLucid:Secrets:KeyVaultUri is required when Provider is KeyVault.");
+        if (string.IsNullOrWhiteSpace(uri))
+            throw new InvalidOperationException("ArchLucid:Secrets:KeyVaultUri is required when Provider is KeyVault.");
 
         _client = new SecretClient(new Uri(uri, UriKind.Absolute), new DefaultAzureCredential());
         _cache = cache;
@@ -36,7 +37,8 @@ public sealed class KeyVaultSecretProvider : ISecretProvider
 
         string cacheKey = "kv:" + secretName;
 
-        if (_cache.TryGetValue(cacheKey, out string? cached)) return cached;
+        if (_cache.TryGetValue(cacheKey, out string? cached))
+            return cached;
 
         Azure.Response<KeyVaultSecret> response = await _client.GetSecretAsync(secretName, cancellationToken: ct);
         string? value = response.Value.Value;

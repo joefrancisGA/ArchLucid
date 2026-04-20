@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -146,7 +146,8 @@ public sealed class ComparisonReplayService(
         ReplayComparisonResult result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode);
 
-        if (mode != ComparisonReplayMode.Verify) return result;
+        if (mode != ComparisonReplayMode.Verify)
+            return result;
 
         result.VerificationPassed = true;
         result.VerificationMessage = "Regenerated comparison matches stored payload.";
@@ -195,7 +196,8 @@ public sealed class ComparisonReplayService(
             return BuildBinaryResult(record, "docx", $"comparison_{record.ComparisonRecordId}.docx", bytes, profile);
         }
 
-        if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException($"Unsupported replay format '{format}'.");
+        if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Unsupported replay format '{format}'.");
 
         byte[] pdfBytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
         return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
@@ -312,7 +314,8 @@ public sealed class ComparisonReplayService(
         };
         SetRecordMetadata(result, record, formatProfile: null);
 
-        if (mode != ComparisonReplayMode.Verify) return result;
+        if (mode != ComparisonReplayMode.Verify)
+            return result;
 
         result.VerificationPassed = true;
         result.VerificationMessage = "Regenerated comparison matches stored payload.";

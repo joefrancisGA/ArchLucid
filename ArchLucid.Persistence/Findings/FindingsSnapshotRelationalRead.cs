@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
 using Dapper;
 
@@ -180,7 +180,8 @@ internal static class FindingsSnapshotRelationalRead
     {
         Dictionary<Guid, List<string>> result = new();
 
-        if (recordIds.Count == 0) return result;
+        if (recordIds.Count == 0)
+            return result;
 
         IEnumerable<FindingChildStringRow> rows = await connection.QueryAsync<FindingChildStringRow>(
             new CommandDefinition(
@@ -212,7 +213,8 @@ internal static class FindingsSnapshotRelationalRead
     {
         Dictionary<Guid, Dictionary<string, string>> result = new();
 
-        if (recordIds.Count == 0) return result;
+        if (recordIds.Count == 0)
+            return result;
 
         const string sql = """
             SELECT FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue
@@ -246,31 +248,58 @@ internal static class FindingsSnapshotRelationalRead
 
     private sealed class FindingRecordRow
     {
-        public Guid FindingRecordId { get; init; }
-        public int SortOrder { get; init; }
+        public Guid FindingRecordId
+        {
+            get; init;
+        }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string FindingId { get; init; } = null!;
-        public int FindingSchemaVersion { get; init; }
+        public int FindingSchemaVersion
+        {
+            get; init;
+        }
         public string FindingType { get; init; } = null!;
         public string Category { get; init; } = null!;
         public string EngineType { get; init; } = null!;
         public string Severity { get; init; } = null!;
         public string Title { get; init; } = null!;
         public string Rationale { get; init; } = null!;
-        public string? PayloadType { get; init; }
-        public string? PayloadJson { get; init; }
+        public string? PayloadType
+        {
+            get; init;
+        }
+        public string? PayloadJson
+        {
+            get; init;
+        }
     }
 
     private sealed class FindingChildStringRow
     {
-        public Guid FindingRecordId { get; init; }
-        public int SortOrder { get; init; }
+        public Guid FindingRecordId
+        {
+            get; init;
+        }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string Item { get; init; } = null!;
     }
 
     private sealed class FindingPropertyRow
     {
-        public Guid FindingRecordId { get; init; }
-        public int PropertySortOrder { get; init; }
+        public Guid FindingRecordId
+        {
+            get; init;
+        }
+        public int PropertySortOrder
+        {
+            get; init;
+        }
         public string PropertyKey { get; init; } = null!;
         public string PropertyValue { get; init; } = null!;
     }

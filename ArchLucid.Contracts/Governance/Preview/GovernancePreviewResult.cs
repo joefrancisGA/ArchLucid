@@ -10,10 +10,16 @@ public sealed class GovernancePreviewResult
     public string Environment { get; set; } = string.Empty;
 
     /// <summary>Run id currently active in the environment, or <see langword="null"/> when no run is promoted.</summary>
-    public string? CurrentRunId { get; set; }
+    public string? CurrentRunId
+    {
+        get; set;
+    }
 
     /// <summary>Manifest version currently active, or <see langword="null"/> when none is promoted.</summary>
-    public string? CurrentManifestVersion { get; set; }
+    public string? CurrentManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Run id of the candidate being previewed for promotion.</summary>
     public string PreviewRunId { get; set; } = string.Empty;

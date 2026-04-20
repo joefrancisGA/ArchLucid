@@ -10,5 +10,8 @@ public class AlertActionRequest
     public string Action { get; set; } = null!;
 
     /// <summary>Optional operator comment stored on the alert for resolve/suppress.</summary>
-    public string? Comment { get; set; }
+    public string? Comment
+    {
+        get; set;
+    }
 }

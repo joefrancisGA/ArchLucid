@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
@@ -150,10 +150,12 @@ public sealed class AdminController(
         [FromBody] AdminArchiveRunsBatchRequest? body,
         CancellationToken cancellationToken = default)
     {
-        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
 
-        if (body.CreatedBeforeUtc == default) return this.BadRequestProblem("CreatedBeforeUtc must be set.", ProblemTypes.ValidationFailed);
+        if (body.CreatedBeforeUtc == default)
+            return this.BadRequestProblem("CreatedBeforeUtc must be set.", ProblemTypes.ValidationFailed);
 
 
         RunArchiveBatchResult result =
@@ -171,13 +173,16 @@ public sealed class AdminController(
         [FromBody] AdminArchiveRunsByIdsRequest? body,
         CancellationToken cancellationToken = default)
     {
-        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
 
-        if (body.RunIds.Count == 0) return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
+        if (body.RunIds.Count == 0)
+            return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
 
-        if (body.RunIds.Count > 100) return this.BadRequestProblem("At most 100 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+        if (body.RunIds.Count > 100)
+            return this.BadRequestProblem("At most 100 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
 
         RunArchiveByIdsResult result =

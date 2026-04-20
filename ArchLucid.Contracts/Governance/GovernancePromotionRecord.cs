@@ -31,8 +31,14 @@ public sealed class GovernancePromotionRecord
     /// The approval request that authorised this promotion, or <see langword="null"/>
     /// when the promotion was performed without a formal approval workflow.
     /// </summary>
-    public string? ApprovalRequestId { get; set; }
+    public string? ApprovalRequestId
+    {
+        get; set;
+    }
 
     /// <summary>Optional free-text notes recorded at promotion time.</summary>
-    public string? Notes { get; set; }
+    public string? Notes
+    {
+        get; set;
+    }
 }

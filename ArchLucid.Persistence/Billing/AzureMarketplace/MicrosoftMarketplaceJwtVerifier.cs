@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -21,20 +21,23 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
         string bearerToken,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(bearerToken)) return null;
+        if (string.IsNullOrWhiteSpace(bearerToken))
+            return null;
 
 
         BillingOptions billing = _billingOptions.CurrentValue;
         string? metadataAddress = billing.AzureMarketplace.OpenIdMetadataAddress?.Trim();
 
-        if (string.IsNullOrWhiteSpace(metadataAddress)) return null;
+        if (string.IsNullOrWhiteSpace(metadataAddress))
+            return null;
 
 
         string metadataAddressRequired = metadataAddress;
 
         string[] audiences = billing.AzureMarketplace.ValidAudiences ?? [];
 
-        if (audiences.Length == 0) return null;
+        if (audiences.Length == 0)
+            return null;
 
 
         JwtSecurityTokenHandler handler = new();

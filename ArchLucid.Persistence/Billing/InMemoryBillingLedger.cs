@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 using ArchLucid.Core.Billing;
 
@@ -66,7 +66,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<string?> GetWebhookEventResultStatusAsync(string dedupeKey, CancellationToken cancellationToken)
     {
-        if (_webhookStatuses.TryGetValue(dedupeKey, out string? status)) return Task.FromResult<string?>(status);
+        if (_webhookStatuses.TryGetValue(dedupeKey, out string? status))
+            return Task.FromResult<string?>(status);
 
 
         return Task.FromResult<string?>(null);
@@ -102,7 +103,10 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
 
-            _subscriptions[tenantId] = row with { Status = "Suspended" };
+            _subscriptions[tenantId] = row with
+            {
+                Status = "Suspended"
+            };
 
 
         return Task.CompletedTask;
@@ -112,7 +116,10 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
 
-            _subscriptions[tenantId] = row with { Status = "Active" };
+            _subscriptions[tenantId] = row with
+            {
+                Status = "Active"
+            };
 
 
         return Task.CompletedTask;
@@ -122,7 +129,10 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
 
-            _subscriptions[tenantId] = row with { Status = "Canceled" };
+            _subscriptions[tenantId] = row with
+            {
+                Status = "Canceled"
+            };
 
 
         return Task.CompletedTask;
@@ -131,7 +141,10 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-            _subscriptions[tenantId] = row with { Tier = tierCode };
+            _subscriptions[tenantId] = row with
+            {
+                Tier = tierCode
+            };
 
         return Task.CompletedTask;
     }
@@ -139,7 +152,10 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-            _subscriptions[tenantId] = row with { Seats = seatsPurchased };
+            _subscriptions[tenantId] = row with
+            {
+                Seats = seatsPurchased
+            };
 
         return Task.CompletedTask;
     }

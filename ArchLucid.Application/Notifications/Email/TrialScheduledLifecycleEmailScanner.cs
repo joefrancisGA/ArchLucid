@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 
@@ -56,14 +56,16 @@ public sealed class TrialScheduledLifecycleEmailScanner(
 
         foreach (TenantRecord tenant in tenants)
         {
-            if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal)) continue;
+            if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+                continue;
 
 
             TenantWorkspaceLink? workspaceLink = await _tenantRepository
                 .GetFirstWorkspaceAsync(tenant.Id, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (workspaceLink is null) continue;
+            if (workspaceLink is null)
+                continue;
 
 
             await TryPublishMidTrialAsync(tenant, workspaceLink, utcNow, options, cancellationToken).ConfigureAwait(false);
@@ -82,13 +84,16 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IntegrationEventsOptions options,
         CancellationToken cancellationToken)
     {
-        if (tenant.TrialStartUtc is null) return;
+        if (tenant.TrialStartUtc is null)
+            return;
 
 
-        if (tenant.TrialExpiresUtc is { } exp && exp <= utcNow) return;
+        if (tenant.TrialExpiresUtc is { } exp && exp <= utcNow)
+            return;
 
 
-        if ((utcNow - tenant.TrialStartUtc.Value).TotalDays < 7d) return;
+        if ((utcNow - tenant.TrialStartUtc.Value).TotalDays < 7d)
+            return;
 
 
         TrialLifecycleEmailIntegrationEnvelope envelope = new()
@@ -123,12 +128,14 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IntegrationEventsOptions options,
         CancellationToken cancellationToken)
     {
-        if (tenant.TrialRunsLimit is not { } limit || limit <= 0) return;
+        if (tenant.TrialRunsLimit is not { } limit || limit <= 0)
+            return;
 
 
         int threshold = (int)Math.Ceiling(limit * 0.8d);
 
-        if (tenant.TrialRunsUsed < threshold) return;
+        if (tenant.TrialRunsUsed < threshold)
+            return;
 
 
         TrialLifecycleEmailIntegrationEnvelope envelope = new()
@@ -163,13 +170,16 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IntegrationEventsOptions options,
         CancellationToken cancellationToken)
     {
-        if (tenant.TrialExpiresUtc is not { } exp) return;
+        if (tenant.TrialExpiresUtc is not { } exp)
+            return;
 
 
-        if (exp <= utcNow) return;
+        if (exp <= utcNow)
+            return;
 
 
-        if ((exp - utcNow).TotalDays > 2d) return;
+        if ((exp - utcNow).TotalDays > 2d)
+            return;
 
 
         TrialLifecycleEmailIntegrationEnvelope envelope = new()
@@ -204,10 +214,12 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IntegrationEventsOptions options,
         CancellationToken cancellationToken)
     {
-        if (tenant.TrialExpiresUtc is not { } exp) return;
+        if (tenant.TrialExpiresUtc is not { } exp)
+            return;
 
 
-        if (exp > utcNow) return;
+        if (exp > utcNow)
+            return;
 
 
         TrialLifecycleEmailIntegrationEnvelope envelope = new()

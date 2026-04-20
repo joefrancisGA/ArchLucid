@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 
 using ArchLucid.Application.Diffs;
@@ -43,7 +43,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine(summaryFormatter.FormatMarkdown(report).Trim());
         sb.AppendLine();
 
-        if (EndToEndComparisonExportProfile.IsShort(p)) return sb.ToString();
+        if (EndToEndComparisonExportProfile.IsShort(p))
+            return sb.ToString();
 
 
         sb.AppendLine("---");
@@ -344,7 +345,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
         sb.AppendLine("## Agent Result Diff");
         sb.AppendLine();
         foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
@@ -369,7 +371,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null) return;
+        if (report.ManifestDiff is null)
+            return;
         sb.AppendLine("## Manifest Diff");
         sb.AppendLine();
         AppendList(sb, "Added Services", report.ManifestDiff.AddedServices);
@@ -388,7 +391,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             sb.AppendLine();
         }
 
-        if (report.ManifestDiff.RemovedRelationships.Count <= 0) return;
+        if (report.ManifestDiff.RemovedRelationships.Count <= 0)
+            return;
 
         sb.AppendLine("### Removed Relationships");
         sb.AppendLine();
@@ -399,7 +403,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0) return;
+        if (report.ExportDiffs.Count == 0)
+            return;
         sb.AppendLine("## Export Diffs");
         sb.AppendLine();
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
@@ -417,7 +422,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static string MarkdownToSimpleHtml(string markdown)
     {
-        if (string.IsNullOrEmpty(markdown)) return "";
+        if (string.IsNullOrEmpty(markdown))
+            return "";
         StringBuilder sb = new();
         foreach (string line in markdown.Split('\n'))
         {
@@ -467,7 +473,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
         sb.AppendLine("<h2>Agent Result Diff</h2>");
         foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
@@ -488,7 +495,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null) return;
+        if (report.ManifestDiff is null)
+            return;
         sb.AppendLine("<h2>Manifest Diff</h2><ul>");
         foreach (string s in report.ManifestDiff.AddedServices)
             sb.AppendLine("<li>Added service: " + EscapeHtml(s) + "</li>");
@@ -503,7 +511,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0) return;
+        if (report.ExportDiffs.Count == 0)
+            return;
         sb.AppendLine("<h2>Export Diffs</h2>");
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
         {

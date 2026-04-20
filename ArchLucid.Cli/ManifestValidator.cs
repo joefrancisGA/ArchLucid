@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using Json.More;
 using Json.Schema;
@@ -10,8 +10,10 @@ public static class ManifestValidator
     private static readonly JsonSerializerOptions SJsonWriteIndented = new() { WriteIndented = true };
     public static void ValidateOrThrow(string schemaPath, string manifestPath)
     {
-        if (!File.Exists(schemaPath)) throw new FileNotFoundException("Schema file not found.", schemaPath);
-        if (!File.Exists(manifestPath)) throw new FileNotFoundException("Manifest file not found.", manifestPath);
+        if (!File.Exists(schemaPath))
+            throw new FileNotFoundException("Schema file not found.", schemaPath);
+        if (!File.Exists(manifestPath))
+            throw new FileNotFoundException("Manifest file not found.", manifestPath);
 
         string schemaJson = File.ReadAllText(schemaPath);
         string manifestJson = File.ReadAllText(manifestPath);
@@ -27,7 +29,8 @@ public static class ManifestValidator
 
         EvaluationResults result = schema.Evaluate(manifestDoc.RootElement, options);
 
-        if (result.IsValid) return;
+        if (result.IsValid)
+            return;
         string pretty = JsonSerializer.Serialize(
             result.ToJsonDocument().RootElement,
             SJsonWriteIndented);
@@ -43,7 +46,8 @@ public static class ManifestValidator
 
         EvaluationResults result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.Hierarchical });
 
-        if (result.IsValid) return true;
+        if (result.IsValid)
+            return true;
 
         errorsJson = JsonSerializer.Serialize(
             result.ToJsonDocument().RootElement,

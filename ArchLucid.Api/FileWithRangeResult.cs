@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api;
 
@@ -54,44 +54,53 @@ public sealed class FileWithRangeResult(
     /// </summary>
     private static (long Start, long End)? ParseRange(string? rangeHeader, long totalLength)
     {
-        if (string.IsNullOrWhiteSpace(rangeHeader) || totalLength <= 0) return null;
+        if (string.IsNullOrWhiteSpace(rangeHeader) || totalLength <= 0)
+            return null;
 
         string value = rangeHeader.Trim();
-        if (!value.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase)) return null;
+        if (!value.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase))
+            return null;
 
         string spec = value["bytes=".Length..].Trim();
         int dash = spec.IndexOf('-');
-        if (dash < 0) return null;
+        if (dash < 0)
+            return null;
 
         string startStr = spec[..dash].Trim();
         string endStr = spec[(dash + 1)..].Trim();
 
-        if (string.IsNullOrEmpty(startStr) && string.IsNullOrEmpty(endStr)) return null;
+        if (string.IsNullOrEmpty(startStr) && string.IsNullOrEmpty(endStr))
+            return null;
 
         long start, end;
 
         if (string.IsNullOrEmpty(startStr))
         {
             // suffix: bytes=-N means last N bytes
-            if (!long.TryParse(endStr, out long suffix) || suffix <= 0) return null;
+            if (!long.TryParse(endStr, out long suffix) || suffix <= 0)
+                return null;
             start = Math.Max(0, totalLength - suffix);
             end = totalLength - 1;
         }
         else if (string.IsNullOrEmpty(endStr))
         {
             // open-ended: bytes=start-
-            if (!long.TryParse(startStr, out start) || start < 0) return null;
+            if (!long.TryParse(startStr, out start) || start < 0)
+                return null;
             end = totalLength - 1;
         }
         else
         {
-            if (!long.TryParse(startStr, out start) || !long.TryParse(endStr, out end)) return null;
-            if (start < 0 || end < start) return null;
+            if (!long.TryParse(startStr, out start) || !long.TryParse(endStr, out end))
+                return null;
+            if (start < 0 || end < start)
+                return null;
             if (end >= totalLength)
                 end = totalLength - 1;
         }
 
-        if (start >= totalLength) return null;
+        if (start >= totalLength)
+            return null;
 
         return (start, end);
     }

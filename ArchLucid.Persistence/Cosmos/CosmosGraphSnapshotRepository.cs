@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
@@ -79,7 +79,8 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
             query,
             requestOptions: new QueryRequestOptions { MaxItemCount = 1 });
 
-        if (!iterator.HasMoreResults) return null;
+        if (!iterator.HasMoreResults)
+            return null;
 
         FeedResponse<GraphSnapshotDocument> page = await iterator.ReadNextAsync(ct);
         GraphSnapshotDocument? doc = page.Resource.FirstOrDefault();
@@ -92,7 +93,8 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     {
         GraphSnapshot? snapshot = await GetByIdAsync(graphSnapshotId, ct);
 
-        if (snapshot is null) return [];
+        if (snapshot is null)
+            return [];
 
         return GraphSnapshotEdgeIndexer
             .BuildRows(snapshot)

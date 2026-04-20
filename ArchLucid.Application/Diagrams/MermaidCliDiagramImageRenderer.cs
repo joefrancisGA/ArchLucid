@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
@@ -26,7 +26,8 @@ public sealed class MermaidCliDiagramImageRenderer(
         string mermaidDiagram,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(mermaidDiagram)) return null;
+        if (string.IsNullOrWhiteSpace(mermaidDiagram))
+            return null;
 
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
@@ -76,7 +77,8 @@ public sealed class MermaidCliDiagramImageRenderer(
                 return null;
             }
 
-            if (File.Exists(outputPath)) return await File.ReadAllBytesAsync(outputPath, cancellationToken);
+            if (File.Exists(outputPath))
+                return await File.ReadAllBytesAsync(outputPath, cancellationToken);
 
             if (logger.IsEnabled(LogLevel.Warning))
 

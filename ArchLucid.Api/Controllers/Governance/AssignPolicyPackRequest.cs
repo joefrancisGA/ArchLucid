@@ -13,5 +13,8 @@ public sealed class AssignPolicyPackRequest
     public string ScopeLevel { get; set; } = "Project";
 
     /// <summary>When true, increases precedence within the same tier during resolution.</summary>
-    public bool IsPinned { get; set; }
+    public bool IsPinned
+    {
+        get; set;
+    }
 }

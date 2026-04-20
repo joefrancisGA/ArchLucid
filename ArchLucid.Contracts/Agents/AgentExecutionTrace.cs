@@ -32,7 +32,10 @@ public sealed class AgentExecutionTrace
     public string TaskId { get; set; } = string.Empty;
 
     /// <summary>The type of agent that executed this task.</summary>
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     /// <summary>The system prompt sent to the LLM for this call.</summary>
     public string SystemPrompt { get; set; } = string.Empty;
@@ -47,79 +50,139 @@ public sealed class AgentExecutionTrace
     /// JSON-serialized structured result parsed from <see cref="RawResponse"/>,
     /// or <see langword="null"/> when <see cref="ParseSucceeded"/> is <see langword="false"/>.
     /// </summary>
-    public string? ParsedResultJson { get; set; }
+    public string? ParsedResultJson
+    {
+        get; set;
+    }
 
     /// <summary>
     /// <see langword="true"/> when <see cref="RawResponse"/> was successfully parsed into a
     /// typed result; <see langword="false"/> when parsing failed (see <see cref="ErrorMessage"/>).
     /// </summary>
-    public bool ParseSucceeded { get; set; }
+    public bool ParseSucceeded
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Error message recorded when <see cref="ParseSucceeded"/> is <see langword="false"/>,
     /// or <see langword="null"/> on success.
     /// </summary>
-    public string? ErrorMessage { get; set; }
+    public string? ErrorMessage
+    {
+        get; set;
+    }
 
     /// <summary>Stable catalog id for the system prompt template (e.g. <c>topology-system</c>).</summary>
-    public string? PromptTemplateId { get; set; }
+    public string? PromptTemplateId
+    {
+        get; set;
+    }
 
     /// <summary>Semantic version of the template content (bump when instructions change).</summary>
-    public string? PromptTemplateVersion { get; set; }
+    public string? PromptTemplateVersion
+    {
+        get; set;
+    }
 
     /// <summary>SHA-256 (hex, lowercase) of canonical UTF-8 system prompt bytes — use for regression detection and replay identity.</summary>
-    public string? SystemPromptContentSha256 { get; set; }
+    public string? SystemPromptContentSha256
+    {
+        get; set;
+    }
 
     /// <summary>Optional operator-defined label from configuration (A/B variant, pilot name); not part of the content hash.</summary>
-    public string? PromptReleaseLabel { get; set; }
+    public string? PromptReleaseLabel
+    {
+        get; set;
+    }
 
     /// <summary>Prompt (input) token count from the provider, when reported.</summary>
-    public int? InputTokenCount { get; set; }
+    public int? InputTokenCount
+    {
+        get; set;
+    }
 
     /// <summary>Completion (output) token count from the provider, when reported.</summary>
-    public int? OutputTokenCount { get; set; }
+    public int? OutputTokenCount
+    {
+        get; set;
+    }
 
     /// <summary>Optional estimated USD cost from input/output token counts when cost estimation is enabled in the recorder.</summary>
-    public decimal? EstimatedCostUsd { get; set; }
+    public decimal? EstimatedCostUsd
+    {
+        get; set;
+    }
 
     /// <summary>Blob store URI (or opaque pointer) for the unsanitized system prompt when full-trace persistence is enabled.</summary>
-    public string? FullSystemPromptBlobKey { get; set; }
+    public string? FullSystemPromptBlobKey
+    {
+        get; set;
+    }
 
     /// <summary>Blob store URI for the unsanitized user prompt when full-trace persistence is enabled.</summary>
-    public string? FullUserPromptBlobKey { get; set; }
+    public string? FullUserPromptBlobKey
+    {
+        get; set;
+    }
 
     /// <summary>Blob store URI for the unsanitized raw model response when full-trace persistence is enabled.</summary>
-    public string? FullResponseBlobKey { get; set; }
+    public string? FullResponseBlobKey
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Azure OpenAI deployment name (or provider equivalent) used for the call, when known.
     /// Persisted rows use <see cref="AgentExecutionTraceModelMetadata"/> sentinels when the provider omits values;
     /// see <c>UnspecifiedDeploymentName</c> (Real path) and <c>SimulatorDeploymentName</c> (simulator traces).
     /// </summary>
-    public string? ModelDeploymentName { get; set; }
+    public string? ModelDeploymentName
+    {
+        get; set;
+    }
 
     /// <summary>Provider-reported model version string, when available.</summary>
-    public string? ModelVersion { get; set; }
+    public string? ModelVersion
+    {
+        get; set;
+    }
 
     /// <summary>True when one or more full prompt/response blob uploads failed after all retries.</summary>
-    public bool? BlobUploadFailed { get; set; }
+    public bool? BlobUploadFailed
+    {
+        get; set;
+    }
 
     /// <summary>
     /// True when real-mode forensic persistence required SQL inline text but it was missing after patch, the patch threw, or the trace row vanished.
     /// Simulator traces never set this flag.
     /// </summary>
-    public bool? InlineFallbackFailed { get; set; }
+    public bool? InlineFallbackFailed
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Full system prompt text stored in SQL when blob persistence failed or timed out (complements <see cref="FullSystemPromptBlobKey"/>).
     /// </summary>
-    public string? FullSystemPromptInline { get; set; }
+    public string? FullSystemPromptInline
+    {
+        get; set;
+    }
 
     /// <summary>Full user prompt text stored inline when blob persistence failed.</summary>
-    public string? FullUserPromptInline { get; set; }
+    public string? FullUserPromptInline
+    {
+        get; set;
+    }
 
     /// <summary>Full raw model response stored inline when blob persistence failed.</summary>
-    public string? FullResponseInline { get; set; }
+    public string? FullResponseInline
+    {
+        get; set;
+    }
 
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;

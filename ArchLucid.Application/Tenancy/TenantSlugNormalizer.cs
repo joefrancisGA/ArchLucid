@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace ArchLucid.Application.Tenancy;
 
@@ -41,7 +41,8 @@ public static class TenantSlugNormalizer
         if (slug.Length > 100)
             slug = slug[..100].TrimEnd('-');
 
-        if (string.IsNullOrEmpty(slug)) throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.");
+        if (string.IsNullOrEmpty(slug))
+            throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.");
 
         return slug;
     }

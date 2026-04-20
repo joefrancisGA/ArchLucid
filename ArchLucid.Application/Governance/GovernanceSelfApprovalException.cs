@@ -13,10 +13,16 @@ public sealed class GovernanceSelfApprovalException : InvalidOperationException
     }
 
     /// <summary>Identifier of the governance approval request.</summary>
-    public string ApprovalRequestId { get; }
+    public string ApprovalRequestId
+    {
+        get;
+    }
 
     /// <summary>Identity that attempted the review (same as submitter).</summary>
-    public string Actor { get; }
+    public string Actor
+    {
+        get;
+    }
 
     private static string BuildMessage(string approvalRequestId, string actor)
     {

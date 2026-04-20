@@ -11,18 +11,30 @@ namespace ArchLucid.Api.Contracts;
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class ArtifactDescriptorResponse
 {
-    public Guid ArtifactId { get; set; }
+    public Guid ArtifactId
+    {
+        get; set;
+    }
     public string ArtifactType { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Format { get; set; } = null!;
-    public DateTime CreatedUtc { get; set; }
+    public DateTime CreatedUtc
+    {
+        get; set;
+    }
     public string ContentHash { get; set; } = null!;
 
     /// <summary>Golden manifest that produced this artifact (set on list and descriptor responses).</summary>
-    public Guid? ManifestId { get; set; }
+    public Guid? ManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Authority run when known from stored artifact rows (descriptor from synthesis).</summary>
-    public Guid? RunId { get; set; }
+    public Guid? RunId
+    {
+        get; set;
+    }
 
     /// <summary>List projection: correlates each row with the manifest id from the route.</summary>
     public static ArtifactDescriptorResponse From(ArtifactDescriptor descriptor, Guid manifestId) =>

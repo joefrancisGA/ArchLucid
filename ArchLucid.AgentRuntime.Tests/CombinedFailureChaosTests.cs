@@ -26,7 +26,10 @@ public sealed class CombinedFailureChaosTests
         int innerSuccesses = 0;
         int chaosWave = 0;
 
-        ChaosFaultStrategyOptions chaosOptions = new() { InjectionRate = 1.0 };
+        ChaosFaultStrategyOptions chaosOptions = new()
+        {
+            InjectionRate = 1.0
+        };
         chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
         chaosOptions.FaultGenerator = _ =>
         {

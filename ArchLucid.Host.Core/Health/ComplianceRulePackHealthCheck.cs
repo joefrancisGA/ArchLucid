@@ -12,11 +12,11 @@ public sealed class ComplianceRulePackHealthCheck : IHealthCheck
         string fullPath = Path.Combine(AppContext.BaseDirectory, EmbeddedContentPaths.ComplianceRulePackRelativePath);
 
         if (!File.Exists(fullPath))
-        
+
             return Task.FromResult(
                 HealthCheckResult.Unhealthy(
                     $"Compliance rule pack not found at '{fullPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
-        
+
 
         return Task.FromResult(
             HealthCheckResult.Healthy($"Compliance rule pack present: {EmbeddedContentPaths.ComplianceRulePackRelativePath}."));

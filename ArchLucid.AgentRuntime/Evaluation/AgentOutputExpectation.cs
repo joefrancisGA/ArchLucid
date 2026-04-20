@@ -11,14 +11,23 @@ public sealed class AgentOutputExpectation
     public IReadOnlyList<string> ExpectedFindingCategories { get; init; } = [];
 
     /// <summary>Minimum number of findings on the result.</summary>
-    public int MinimumFindingCount { get; init; }
+    public int MinimumFindingCount
+    {
+        get; init;
+    }
 
     /// <summary>Additional JSON property names required on the serialized <see cref="AgentResult"/> root object.</summary>
     public IReadOnlyList<string> RequiredJsonKeys { get; init; } = [];
 
     /// <summary>Minimum <see cref="AgentOutputSemanticScore.OverallSemanticScore"/> (0–1). Zero skips the check.</summary>
-    public double MinimumSemanticScore { get; init; }
+    public double MinimumSemanticScore
+    {
+        get; init;
+    }
 
     /// <summary>Minimum <see cref="AgentOutputEvaluationScore.StructuralCompletenessRatio"/> (0–1). Zero skips the check.</summary>
-    public double MinimumStructuralCompleteness { get; init; }
+    public double MinimumStructuralCompleteness
+    {
+        get; init;
+    }
 }

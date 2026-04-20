@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
@@ -12,7 +12,8 @@ public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> tria
 
     public TrialPasswordValidationResult Validate(string password)
     {
-        if (password is null) return TrialPasswordValidationResult.Fail("Password is required.");
+        if (password is null)
+            return TrialPasswordValidationResult.Fail("Password is required.");
 
         TrialLocalIdentityOptions local = _trial.LocalIdentity;
 
@@ -40,9 +41,15 @@ public readonly struct TrialPasswordValidationResult
         ErrorMessage = error;
     }
 
-    public bool Ok { get; }
+    public bool Ok
+    {
+        get;
+    }
 
-    public string? ErrorMessage { get; }
+    public string? ErrorMessage
+    {
+        get;
+    }
 
     public static TrialPasswordValidationResult Valid() => new(true, null);
 

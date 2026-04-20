@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
@@ -120,7 +120,8 @@ public sealed class ArtifactExportController(
 
 
         SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
-        if (artifact is null) return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.", ProblemTypes.ResourceNotFound);
+        if (artifact is null)
+            return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.", ProblemTypes.ResourceNotFound);
 
         ArtifactFileExport file = artifactPackagingService.BuildSingleFileExport(artifact);
 
@@ -191,7 +192,8 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (runDetail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (runDetail.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{runId}' has no committed golden manifest available for export.", ProblemTypes.ManifestNotFound);
 

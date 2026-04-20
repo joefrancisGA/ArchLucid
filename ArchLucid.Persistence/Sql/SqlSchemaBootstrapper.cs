@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
 
@@ -20,7 +20,8 @@ public sealed class SqlSchemaBootstrapper(
     [ExcludeFromCodeCoverage(Justification = "Reads file and executes SQL batches; requires live SQL Server. SplitGoBatches is tested separately.")]
     public async Task EnsureSchemaAsync(CancellationToken ct)
     {
-        if (!File.Exists(scriptPath)) throw new FileNotFoundException($"Schema script not found: {scriptPath}");
+        if (!File.Exists(scriptPath))
+            throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
         string script = await File.ReadAllTextAsync(scriptPath, ct);
         IReadOnlyList<string> batches = SplitGoBatches(script);

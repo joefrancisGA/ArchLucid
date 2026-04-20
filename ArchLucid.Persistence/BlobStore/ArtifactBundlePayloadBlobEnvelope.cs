@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Persistence.ArtifactBundles;
@@ -39,7 +39,8 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 
     public static ArtifactBundlePayloadBlobEnvelope? TryDeserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return null;
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
 
         try
         {

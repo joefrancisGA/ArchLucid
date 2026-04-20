@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -27,7 +27,8 @@ public class ContextIngestionService(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (request.RunId == Guid.Empty) throw new ArgumentException("RunId must be a non-empty GUID.", nameof(request));
+        if (request.RunId == Guid.Empty)
+            throw new ArgumentException("RunId must be a non-empty GUID.", nameof(request));
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId, nameof(request));
 
         ContextSnapshot snapshot = new()

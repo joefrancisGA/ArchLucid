@@ -10,14 +10,35 @@ public sealed class ArchitectureAnalysisReportResponse
 public sealed class ArchitectureAnalysisReportDto
 {
     public RunDto Run { get; set; } = new();
-    public AgentEvidencePackageDto? Evidence { get; set; }
+    public AgentEvidencePackageDto? Evidence
+    {
+        get; set;
+    }
     public List<AgentExecutionTraceDto> ExecutionTraces { get; set; } = [];
-    public ManifestDto? Manifest { get; set; }
-    public string? Diagram { get; set; }
-    public string? Summary { get; set; }
-    public DeterminismCheckResultDto? Determinism { get; set; }
-    public ManifestDiffDto? ManifestDiff { get; set; }
-    public AgentResultDiffDto? AgentResultDiff { get; set; }
+    public ManifestDto? Manifest
+    {
+        get; set;
+    }
+    public string? Diagram
+    {
+        get; set;
+    }
+    public string? Summary
+    {
+        get; set;
+    }
+    public DeterminismCheckResultDto? Determinism
+    {
+        get; set;
+    }
+    public ManifestDiffDto? ManifestDiff
+    {
+        get; set;
+    }
+    public AgentResultDiffDto? AgentResultDiff
+    {
+        get; set;
+    }
     public List<string> Warnings { get; set; } = [];
 }
 

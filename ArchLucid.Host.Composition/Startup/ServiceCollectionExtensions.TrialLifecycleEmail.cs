@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Audit;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Hosted;
@@ -21,7 +21,8 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined)) return;
+        if (hostingRole is not (ArchLucidHostingRole.Worker or ArchLucidHostingRole.Combined))
+            return;
 
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.TrialEmailScan)

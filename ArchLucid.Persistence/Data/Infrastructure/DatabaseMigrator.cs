@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using DbUp;
 using DbUp.Engine;
@@ -89,7 +89,8 @@ public static class DatabaseMigrator
 
         DatabaseUpgradeResult result = upgrader.PerformUpgrade();
 
-        if (result.Successful) return;
+        if (result.Successful)
+            return;
 
         string detail = result.Error?.Message ?? "(no exception on DatabaseUpgradeResult)";
 
@@ -103,7 +104,8 @@ public static class DatabaseMigrator
     private static string ReadEmbeddedScript(Assembly assembly, string name)
     {
         using Stream? stream = assembly.GetManifestResourceStream(name);
-        if (stream is null) throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
+        if (stream is null)
+            throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
 
         using StreamReader reader = new(stream);
         return reader.ReadToEnd();

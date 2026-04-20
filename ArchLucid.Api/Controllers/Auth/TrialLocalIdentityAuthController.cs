@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.Auth.Services;
@@ -52,7 +52,8 @@ public sealed class TrialLocalIdentityAuthController(
                 "Trial local identity is not enabled for this environment.",
                 ProblemTypes.ResourceNotFound);
 
-        if (body?.Email is null || body.Password is null) return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
+        if (body?.Email is null || body.Password is null)
+            return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
 
         string email = body.Email.Trim();
 
@@ -133,11 +134,13 @@ public sealed class TrialLocalIdentityAuthController(
                 "Trial local identity is not enabled for this environment.",
                 ProblemTypes.ResourceNotFound);
 
-        if (body?.Email is null || body.Token is null) return this.BadRequestProblem("Email and token are required.", ProblemTypes.ValidationFailed);
+        if (body?.Email is null || body.Token is null)
+            return this.BadRequestProblem("Email and token are required.", ProblemTypes.ValidationFailed);
 
         bool ok = await _identity.VerifyEmailAsync(body.Email, body.Token, cancellationToken);
 
-        if (!ok) return this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed);
+        if (!ok)
+            return this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed);
 
         return NoContent();
     }
@@ -155,11 +158,13 @@ public sealed class TrialLocalIdentityAuthController(
                 "Trial local identity is not enabled for this environment.",
                 ProblemTypes.ResourceNotFound);
 
-        if (body?.Email is null || body.Password is null) return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
+        if (body?.Email is null || body.Password is null)
+            return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
 
         TrialLocalAuthResult? auth = await _identity.AuthenticateAsync(body.Email, body.Password, cancellationToken);
 
-        if (auth is null) return Unauthorized();
+        if (auth is null)
+            return Unauthorized();
 
         Guid tenantId = body.TenantId ?? ScopeIds.DefaultTenant;
         Guid workspaceId = body.WorkspaceId ?? ScopeIds.DefaultWorkspace;

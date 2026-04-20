@@ -10,15 +10,27 @@ public sealed class RunMetadataDiffResult
     public List<string> ChangedFields { get; set; } = [];
 
     /// <summary><c>true</c> when the two runs reference different <c>RequestId</c> values.</summary>
-    public bool RequestIdsDiffer { get; set; }
+    public bool RequestIdsDiffer
+    {
+        get; set;
+    }
 
     /// <summary><c>true</c> when the two runs have different <c>CurrentManifestVersion</c> values.</summary>
-    public bool ManifestVersionsDiffer { get; set; }
+    public bool ManifestVersionsDiffer
+    {
+        get; set;
+    }
 
     /// <summary><c>true</c> when the two runs are in different <c>Status</c> states.</summary>
-    public bool StatusDiffers { get; set; }
+    public bool StatusDiffers
+    {
+        get; set;
+    }
 
     /// <summary><c>true</c> when one run has a <c>CompletedUtc</c> and the other does not, or their values differ.</summary>
-    public bool CompletionStateDiffers { get; set; }
+    public bool CompletionStateDiffers
+    {
+        get; set;
+    }
 }
 

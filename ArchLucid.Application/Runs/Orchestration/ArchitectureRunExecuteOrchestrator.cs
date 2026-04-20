@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
@@ -119,12 +119,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             runId,
             cancellationToken);
 
-        if (run is null) throw new RunNotFoundException(runId);
+        if (run is null)
+            throw new RunNotFoundException(runId);
 
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null) return idempotent;
+        if (idempotent is not null)
+            return idempotent;
 
         await _baselineMutationAudit
             .RecordAsync(
@@ -171,7 +173,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
-            if (tasks.Count == 0) throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            if (tasks.Count == 0)
+                throw new InvalidOperationException($"No tasks found for run '{runId}'.");
 
             AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
@@ -361,11 +364,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static bool HasAllRequiredAgentTypesForCommit(IReadOnlyList<AgentResult> results)
     {
-        if (results.Count != RequiredAgentTypesForCommit.Count) return false;
+        if (results.Count != RequiredAgentTypesForCommit.Count)
+            return false;
 
         foreach (AgentType required in RequiredAgentTypesForCommit)
 
-            if (results.Count(r => r.AgentType == required) != 1) return false;
+            if (results.Count(r => r.AgentType == required) != 1)
+                return false;
 
 
         return true;
@@ -380,9 +385,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentResult> results,
         CancellationToken cancellationToken)
     {
-        if (!HasAllRequiredAgentTypesForCommit(results)) return;
+        if (!HasAllRequiredAgentTypesForCommit(results))
+            return;
 
-        if (!TryParseRunGuid(runId, out Guid runGuid)) return;
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
@@ -411,7 +418,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+            return true;
 
         return Guid.TryParse(runId, out runGuid);
     }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.DecisionTraces;
@@ -35,7 +35,8 @@ public sealed class AuthorityReplayService(
 
         ScopeContext readScope = scopeContextProvider.GetCurrentScope();
         RunDetailDto? original = await queryService.GetRunDetailAsync(readScope, request.RunId, ct);
-        if (original is null) return null;
+        if (original is null)
+            return null;
 
         string mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly
@@ -119,7 +120,8 @@ public sealed class AuthorityReplayService(
             }
 
 
-        if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase)) return result;
+        if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
+            return result;
 
         ArtifactBundle rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
             manifest,
@@ -130,7 +132,8 @@ public sealed class AuthorityReplayService(
         result.RebuiltArtifactBundle = rebuiltArtifacts;
         result.Validation.ArtifactBundlePresentAfterReplay = rebuiltArtifacts.Artifacts.Count > 0;
 
-        if (original.ArtifactBundle is null) return result;
+        if (original.ArtifactBundle is null)
+            return result;
 
         result.Validation.Notes.Add(original.ArtifactBundle.Artifacts.Count == rebuiltArtifacts.Artifacts.Count
             ? "Rebuilt artifact count matches original artifact count."

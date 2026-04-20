@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Runs.Mapping;
+using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -135,7 +135,8 @@ public sealed class RunDetailQueryService(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+            return true;
 
 
         return Guid.TryParse(runId, out runGuid);

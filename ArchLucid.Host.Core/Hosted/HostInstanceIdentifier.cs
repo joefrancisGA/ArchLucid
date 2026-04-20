@@ -29,5 +29,8 @@ public sealed class HostInstanceIdentifier
     }
 
     /// <summary>Opaque string stored in SQL (max 256 in schema).</summary>
-    public string Value { get; }
+    public string Value
+    {
+        get;
+    }
 }

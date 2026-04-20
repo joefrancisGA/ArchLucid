@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Stateless evaluator: maps each <see cref="AlertRuleCondition"/> to a boolean via <see cref="AlertConditionOperator"/>, then reduces with <see cref="CompositeOperator"/>.
@@ -11,7 +11,8 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
     /// <inheritdoc />
     public bool Evaluate(CompositeAlertRule rule, AlertMetricSnapshot snapshot)
     {
-        if (rule.Conditions.Count == 0) return false;
+        if (rule.Conditions.Count == 0)
+            return false;
 
         List<bool> results = rule.Conditions.Select(condition =>
             EvaluateCondition(condition, snapshot)).ToList();

@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 using Microsoft.AspNetCore.Http;
 
@@ -18,13 +18,15 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
         ClaimsPrincipal? user = httpContext?.User;
         string? name = user?.Identity?.Name;
 
-        if (!string.IsNullOrWhiteSpace(name)) return name.Trim();
+        if (!string.IsNullOrWhiteSpace(name))
+            return name.Trim();
 
 
         // JwtBearer with MapInboundClaims=false (local PEM CI tokens) emits short claim type "name", not ClaimTypes.Name.
         string? jwtName = user?.FindFirst("name")?.Value;
 
-        if (!string.IsNullOrWhiteSpace(jwtName)) return jwtName.Trim();
+        if (!string.IsNullOrWhiteSpace(jwtName))
+            return jwtName.Trim();
 
 
         return FallbackActor;

@@ -48,7 +48,10 @@ public sealed class ArchitectureRequest
     /// Version string of an existing manifest that agents should use as a baseline when
     /// proposing incremental changes. <see langword="null"/> for greenfield runs.
     /// </summary>
-    public string? PriorManifestVersion { get; set; }
+    public string? PriorManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Free-text requirements supplementing the description (max 100 items, each max 4 000 characters).</summary>
     public List<string> InlineRequirements { get; set; } = [];

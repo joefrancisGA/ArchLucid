@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Abstractions.ProductLearning;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
@@ -19,7 +19,8 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
 
         foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
         {
-            if (aggregate.TotalSignalCount < options.MinSignalsPerAggregate) continue;
+            if (aggregate.TotalSignalCount < options.MinSignalsPerAggregate)
+                continue;
 
 
             int badScore = ProductLearningOpportunityScoring.ComputeAggregateBadScore(aggregate);
@@ -28,10 +29,12 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
                 aggregate.RejectedCount + aggregate.NeedsFollowUpCount >= 2 ||
                 aggregate.RevisedCount >= 2;
 
-            if (!passesThreshold) continue;
+            if (!passesThreshold)
+                continue;
 
 
-            if (!usedKeys.Add(aggregate.AggregateKey)) continue;
+            if (!usedKeys.Add(aggregate.AggregateKey))
+                continue;
 
 
             string sortKey = "a:" + aggregate.AggregateKey;
@@ -40,17 +43,20 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
 
         foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
         {
-            if (ProductLearningOpportunityScoring.TotalTrendSignals(trend) < options.MinSignalsPerAggregate) continue;
+            if (ProductLearningOpportunityScoring.TotalTrendSignals(trend) < options.MinSignalsPerAggregate)
+                continue;
 
 
             int negative = ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend);
 
-            if (negative < options.MinNegativeOutcomesOnArtifactTrend) continue;
+            if (negative < options.MinNegativeOutcomesOnArtifactTrend)
+                continue;
 
 
             string dedupeKey = "trend:" + trend.TrendKey;
 
-            if (!usedKeys.Add(dedupeKey)) continue;
+            if (!usedKeys.Add(dedupeKey))
+                continue;
 
 
             int badScore = negative * 3 + trend.RejectionCount;

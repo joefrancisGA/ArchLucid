@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -25,16 +25,20 @@ public sealed class GovernanceDashboardService(
         int maxChanges = 20,
         CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
 
-        if (maxPending <= 0) throw new ArgumentOutOfRangeException(nameof(maxPending));
+        if (maxPending <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxPending));
 
 
-        if (maxDecisions <= 0) throw new ArgumentOutOfRangeException(nameof(maxDecisions));
+        if (maxDecisions <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxDecisions));
 
 
-        if (maxChanges <= 0) throw new ArgumentOutOfRangeException(nameof(maxChanges));
+        if (maxChanges <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxChanges));
 
 
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =

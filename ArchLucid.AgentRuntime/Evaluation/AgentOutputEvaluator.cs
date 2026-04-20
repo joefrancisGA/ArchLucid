@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -50,7 +50,8 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
-            if (doc.RootElement.ValueKind != JsonValueKind.Object) return BuildScore(traceId, agentType, 0.0, true, expected);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object)
+                return BuildScore(traceId, agentType, 0.0, true, expected);
 
 
             HashSet<string> present = CollectPropertyNames(doc.RootElement);

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchLucid.Contracts.ProductLearning;
 
@@ -168,7 +168,8 @@ public static class ProductLearningTriageReportMarkdownFormatter
 
     private static string MdCell(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return "—";
+        if (string.IsNullOrWhiteSpace(value))
+            return "—";
 
 
         string s = value.Replace("\r\n", " ", StringComparison.Ordinal);

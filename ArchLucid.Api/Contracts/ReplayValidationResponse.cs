@@ -9,31 +9,58 @@ namespace ArchLucid.Api.Contracts;
 public class ReplayValidationResponse
 {
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ContextPresent"/>
-    public bool ContextPresent { get; set; }
+    public bool ContextPresent
+    {
+        get; set;
+    }
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.GraphPresent"/>
-    public bool GraphPresent { get; set; }
+    public bool GraphPresent
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.FindingsPresent"/>
-    public bool FindingsPresent { get; set; }
+    public bool FindingsPresent
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestPresent"/>
-    public bool ManifestPresent { get; set; }
+    public bool ManifestPresent
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.TracePresent"/>
-    public bool TracePresent { get; set; }
+    public bool TracePresent
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactsPresent"/>
-    public bool ArtifactsPresent { get; set; }
+    public bool ArtifactsPresent
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestHashMatches"/>
-    public bool ManifestHashMatches { get; set; }
+    public bool ManifestHashMatches
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactBundlePresentAfterReplay"/>
-    public bool ArtifactBundlePresentAfterReplay { get; set; }
+    public bool ArtifactBundlePresentAfterReplay
+    {
+        get; set;
+    }
 
     /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.Notes"/>
     public List<string> Notes { get; set; } = [];
 
     /// <summary>True when <see cref="Notes"/> contains at least one entry.</summary>
-    public bool HasValidationNotes { get; set; }
+    public bool HasValidationNotes
+    {
+        get; set;
+    }
 }

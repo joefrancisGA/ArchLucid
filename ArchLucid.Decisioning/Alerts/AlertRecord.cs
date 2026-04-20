@@ -12,25 +12,46 @@ public class AlertRecord
     public Guid AlertId { get; set; } = Guid.NewGuid();
 
     /// <summary>Originating simple rule id or composite rule id depending on <see cref="Category"/>.</summary>
-    public Guid RuleId { get; set; }
+    public Guid RuleId
+    {
+        get; set;
+    }
 
     /// <summary>Tenant scope.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace scope.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project scope.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Authority or advisory run when the alert was raised.</summary>
-    public Guid? RunId { get; set; }
+    public Guid? RunId
+    {
+        get; set;
+    }
 
     /// <summary>Baseline run for comparison-driven alerts.</summary>
-    public Guid? ComparedToRunId { get; set; }
+    public Guid? ComparedToRunId
+    {
+        get; set;
+    }
 
     /// <summary>Optional link to a specific recommendation row.</summary>
-    public Guid? RecommendationId { get; set; }
+    public Guid? RecommendationId
+    {
+        get; set;
+    }
 
     /// <summary>Short headline for UI and notifications.</summary>
     public string Title { get; set; } = null!;
@@ -54,16 +75,28 @@ public class AlertRecord
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>Updated on lifecycle actions.</summary>
-    public DateTime? LastUpdatedUtc { get; set; }
+    public DateTime? LastUpdatedUtc
+    {
+        get; set;
+    }
 
     /// <summary>User id when acknowledged/resolved/suppressed.</summary>
-    public string? AcknowledgedByUserId { get; set; }
+    public string? AcknowledgedByUserId
+    {
+        get; set;
+    }
 
     /// <summary>Display name for operator actions.</summary>
-    public string? AcknowledgedByUserName { get; set; }
+    public string? AcknowledgedByUserName
+    {
+        get; set;
+    }
 
     /// <summary>Optional operator comment on resolve/suppress.</summary>
-    public string? ResolutionComment { get; set; }
+    public string? ResolutionComment
+    {
+        get; set;
+    }
 
     /// <summary>Key used to suppress duplicate fires (simple and composite evaluators).</summary>
     public string DeduplicationKey { get; set; } = null!;

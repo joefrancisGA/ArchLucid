@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -102,7 +102,8 @@ public sealed class DecisionNodeManifestMerger
         DecisionNode? complexityDecision = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, TopicComplexityDisposition, StringComparison.OrdinalIgnoreCase));
 
-        if (complexityDecision is null) return;
+        if (complexityDecision is null)
+            return;
 
         DecisionOption? complexitySelected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
 

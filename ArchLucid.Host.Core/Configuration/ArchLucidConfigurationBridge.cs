@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Resolves ArchLucid-first configuration (connection string, product section, auth section).

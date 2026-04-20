@@ -5,11 +5,23 @@ namespace ArchLucid.Persistence.Models;
 /// </summary>
 public sealed class ArchivedRunScopeRow
 {
-    public Guid RunId { get; set; }
+    public Guid RunId
+    {
+        get; set;
+    }
 
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
-    public Guid ScopeProjectId { get; set; }
+    public Guid ScopeProjectId
+    {
+        get; set;
+    }
 }

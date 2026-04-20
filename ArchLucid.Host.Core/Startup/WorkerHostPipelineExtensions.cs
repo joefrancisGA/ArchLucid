@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;

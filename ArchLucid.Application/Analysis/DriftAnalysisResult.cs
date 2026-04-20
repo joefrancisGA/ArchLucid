@@ -6,7 +6,10 @@ namespace ArchLucid.Application.Analysis;
 public sealed class DriftAnalysisResult
 {
     /// <summary><c>true</c> when at least one field-level difference was found.</summary>
-    public bool DriftDetected { get; set; }
+    public bool DriftDetected
+    {
+        get; set;
+    }
 
     /// <summary>Individual field-level differences detected during the comparison.</summary>
     public List<DriftItem> Items { get; set; } = [];
@@ -27,10 +30,16 @@ public sealed class DriftItem
     public string Path { get; set; } = string.Empty;
 
     /// <summary>Serialized value from the stored payload; <c>null</c> when the field was added.</summary>
-    public string? StoredValue { get; set; }
+    public string? StoredValue
+    {
+        get; set;
+    }
 
     /// <summary>Serialized value from the regenerated payload; <c>null</c> when the field was removed.</summary>
-    public string? RegeneratedValue { get; set; }
+    public string? RegeneratedValue
+    {
+        get; set;
+    }
 
     /// <summary>Human-readable description of the change.</summary>
     public string Description { get; set; } = string.Empty;

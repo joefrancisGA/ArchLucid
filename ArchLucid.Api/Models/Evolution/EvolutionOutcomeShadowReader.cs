@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace ArchLucid.Api.Models.Evolution;
 
@@ -15,7 +15,8 @@ internal static class EvolutionOutcomeShadowReader
         shadow = null;
         shadowKind = "none";
 
-        if (string.IsNullOrWhiteSpace(outcomeJson)) return;
+        if (string.IsNullOrWhiteSpace(outcomeJson))
+            return;
 
 
         try

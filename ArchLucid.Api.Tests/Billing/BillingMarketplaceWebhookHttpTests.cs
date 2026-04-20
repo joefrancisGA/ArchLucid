@@ -3,11 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
-using ArchLucid.Core.Scoping;
-
 using FluentAssertions;
-
-using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests.Billing;
 
@@ -23,7 +19,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         HttpClient client = factory.CreateClient();
         Guid tenantId = Guid.NewGuid();
 
-        await SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
+        await BillingMarketplaceWebhookTestSeed.SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
 
         string body =
             "{\"action\":\"ChangePlan\",\"subscriptionId\":\"sub-202-test\",\"planId\":\"contoso-enterprise\",\"quantity\":5,\"purchaser\":{\"tenantId\":\""
@@ -41,7 +37,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        string tier = await ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
+        string tier = await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
 
         tier.Should().Be("Standard");
     }
@@ -53,7 +49,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         HttpClient client = factory.CreateClient();
         Guid tenantId = Guid.NewGuid();
 
-        await SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
+        await BillingMarketplaceWebhookTestSeed.SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
 
         string body =
             "{\"action\":\"ChangePlan\",\"subscriptionId\":\"sub-200-test\",\"planId\":\"contoso-enterprise\",\"purchaser\":{\"tenantId\":\""
@@ -71,7 +67,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        string tier = await ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
+        string tier = await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
 
         tier.Should().Be("Enterprise");
     }
@@ -83,7 +79,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         HttpClient client = factory.CreateClient();
         Guid tenantId = Guid.NewGuid();
 
-        await SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
+        await BillingMarketplaceWebhookTestSeed.SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
 
         string body =
             "{\"action\":\"ChangeQuantity\",\"subscriptionId\":\"sub-qty\",\"quantity\":42,\"purchaser\":{\"tenantId\":\""
@@ -101,82 +97,38 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        int seats = await ReadBillingSeatsAsync(factory.SqlConnectionString, tenantId);
+        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString, tenantId);
 
         seats.Should().Be(42);
     }
 
-    private static async Task SeedTenantWithActiveBillingAsync(string connectionString, Guid tenantId)
+    [Fact]
+    public async Task ChangeQuantity_ga_disabled_returns_202_and_does_not_mutate_seats()
     {
-        string slug = "mkt_" + tenantId.ToString("N")[..16];
+        BillingMarketplaceWebhookDeferredApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Guid tenantId = Guid.NewGuid();
 
-        await using SqlConnection connection = new(connectionString);
+        await BillingMarketplaceWebhookTestSeed.SeedTenantWithActiveBillingAsync(factory.SqlConnectionString, tenantId);
 
-        await connection.OpenAsync();
+        string body =
+            "{\"action\":\"ChangeQuantity\",\"subscriptionId\":\"sub-qty-202\",\"quantity\":99,\"purchaser\":{\"tenantId\":\""
+            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + "\"}}";
 
-        await using (SqlCommand insertTenant = connection.CreateCommand())
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            insertTenant.CommandText =
-                """
-                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
-                VALUES (@Id, N'Marketplace Webhook Test', @Slug, N'Standard');
-                """;
+            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+        };
 
-            insertTenant.Parameters.Add("@Id", SqlDbType.UniqueIdentifier).Value = tenantId;
-            insertTenant.Parameters.Add("@Slug", SqlDbType.NVarChar, 100).Value = slug;
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
 
-            await insertTenant.ExecuteNonQueryAsync();
-        }
+        HttpResponseMessage response = await client.SendAsync(request);
 
-        await using (SqlCommand insertBilling = connection.CreateCommand())
-        {
-            insertBilling.CommandText =
-                """
-                INSERT INTO dbo.BillingSubscriptions (
-                    TenantId, WorkspaceId, ProjectId, Provider, ProviderSubscriptionId, Tier,
-                    SeatsPurchased, WorkspacesPurchased, Status, ActivatedUtc, CanceledUtc, RawWebhookJson, CreatedUtc, UpdatedUtc)
-                VALUES (
-                    @TenantId, @WorkspaceId, @ProjectId, N'AzureMarketplace', N'sub-seed', N'Standard',
-                    2, 1, N'Active', SYSUTCDATETIME(), NULL, NULL, SYSUTCDATETIME(), SYSUTCDATETIME());
-                """;
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-            insertBilling.Parameters.Add("@TenantId", SqlDbType.UniqueIdentifier).Value = tenantId;
-            insertBilling.Parameters.Add("@WorkspaceId", SqlDbType.UniqueIdentifier).Value = ScopeIds.DefaultWorkspace;
-            insertBilling.Parameters.Add("@ProjectId", SqlDbType.UniqueIdentifier).Value = ScopeIds.DefaultProject;
+        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString, tenantId);
 
-            await insertBilling.ExecuteNonQueryAsync();
-        }
-    }
-
-    private static async Task<string> ReadBillingTierAsync(string connectionString, Guid tenantId)
-    {
-        await using SqlConnection connection = new(connectionString);
-
-        await connection.OpenAsync();
-
-        await using SqlCommand command = connection.CreateCommand();
-
-        command.CommandText = "SELECT Tier FROM dbo.BillingSubscriptions WHERE TenantId = @TenantId;";
-        command.Parameters.Add("@TenantId", SqlDbType.UniqueIdentifier).Value = tenantId;
-
-        object? scalar = await command.ExecuteScalarAsync();
-
-        return scalar is string s ? s : string.Empty;
-    }
-
-    private static async Task<int> ReadBillingSeatsAsync(string connectionString, Guid tenantId)
-    {
-        await using SqlConnection connection = new(connectionString);
-
-        await connection.OpenAsync();
-
-        await using SqlCommand command = connection.CreateCommand();
-
-        command.CommandText = "SELECT SeatsPurchased FROM dbo.BillingSubscriptions WHERE TenantId = @TenantId;";
-        command.Parameters.Add("@TenantId", SqlDbType.UniqueIdentifier).Value = tenantId;
-
-        object? scalar = await command.ExecuteScalarAsync();
-
-        return scalar is int i ? i : Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture);
+        seats.Should().Be(2);
     }
 }

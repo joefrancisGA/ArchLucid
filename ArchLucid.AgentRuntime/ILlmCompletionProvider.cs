@@ -9,8 +9,14 @@ namespace ArchLucid.AgentRuntime;
 public interface ILlmCompletionProvider : IAgentCompletionClient
 {
     /// <summary>Logical provider id (e.g. <c>azure-openai</c>, <c>fake</c>); mirrors <see cref="ILlmProvider.Descriptor"/>.ProviderKind for the delegating provider.</summary>
-    string ProviderId { get; }
+    string ProviderId
+    {
+        get;
+    }
 
     /// <summary>Deployment or model label; mirrors <see cref="ILlmProvider.Descriptor"/>.ModelId for the delegating provider.</summary>
-    string ModelDeploymentLabel { get; }
+    string ModelDeploymentLabel
+    {
+        get;
+    }
 }

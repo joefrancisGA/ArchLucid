@@ -13,10 +13,16 @@ public sealed class TrialLimitExceededException : Exception
         DaysRemaining = daysRemaining;
     }
 
-    public TrialLimitReason Reason { get; }
+    public TrialLimitReason Reason
+    {
+        get;
+    }
 
     /// <summary>Whole days remaining until <c>TrialExpiresUtc</c> when still active; <c>0</c> when expired or unknown.</summary>
-    public int DaysRemaining { get; }
+    public int DaysRemaining
+    {
+        get;
+    }
 
     private static string BuildDefaultMessage(TrialLimitReason reason) =>
         reason switch

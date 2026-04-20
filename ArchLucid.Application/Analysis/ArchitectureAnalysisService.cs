@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Summaries;
@@ -175,7 +175,8 @@ public sealed class ArchitectureAnalysisService(
             }
 
 
-        if (!request.IncludeAgentResultCompare) return report;
+        if (!request.IncludeAgentResultCompare)
+            return report;
 
         if (string.IsNullOrWhiteSpace(request.CompareRunId))
 

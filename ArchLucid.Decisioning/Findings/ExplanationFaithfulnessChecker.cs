@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 using ArchLucid.Core.Explanation;
@@ -34,18 +34,21 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
     {
         ArgumentNullException.ThrowIfNull(explanation);
 
-        if (snapshot is null || snapshot.Findings.Count == 0) return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
+        if (snapshot is null || snapshot.Findings.Count == 0)
+            return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
 
 
         string traceBlob = BuildTraceBlob(snapshot);
         string explanationBlob = BuildExplanationBlob(explanation);
 
-        if (string.IsNullOrWhiteSpace(explanationBlob)) return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
+        if (string.IsNullOrWhiteSpace(explanationBlob))
+            return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
 
 
         HashSet<string> distinctTokens = CollectTokens(explanationBlob);
 
-        if (distinctTokens.Count == 0) return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
+        if (distinctTokens.Count == 0)
+            return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
 
 
         int supported = 0;
@@ -61,7 +64,7 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
                 if (unsupported.Count < MaxUnsupportedListed)
 
-                unsupported.Add(token);
+                    unsupported.Add(token);
 
 
 
@@ -116,7 +119,8 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
     private static void Append(StringBuilder sb, string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return;
+        if (string.IsNullOrWhiteSpace(value))
+            return;
 
 
         sb.Append(' ');
@@ -195,15 +199,18 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
             int len = i - start;
 
-            if (len < MinTokenLength) continue;
+            if (len < MinTokenLength)
+                continue;
 
 
             string token = span.Slice(start, len).ToString();
 
-            if (Stopwords.Contains(token)) continue;
+            if (Stopwords.Contains(token))
+                continue;
 
 
-            if (long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out _)) continue;
+            if (long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                continue;
 
 
             _ = tokens.Add(token);

@@ -85,17 +85,23 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "api", ServiceName = "Api",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
         manifest.Datastores.Add(new ManifestDatastore
         {
-            DatastoreId = "db", DatastoreName = "Db",
-            DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer
+            DatastoreId = "db",
+            DatastoreName = "Db",
+            DatastoreType = DatastoreType.Sql,
+            RuntimePlatform = RuntimePlatform.SqlServer
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "api", TargetId = "db", RelationshipType = RelationshipType.WritesTo
+            SourceId = "api",
+            TargetId = "db",
+            RelationshipType = RelationshipType.WritesTo
         });
 
         string mermaid = _sut.GenerateMermaid(manifest);
@@ -109,20 +115,29 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "a", ServiceName = "A",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "a",
+            ServiceName = "A",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
         manifest.Datastores.Add(new ManifestDatastore
         {
-            DatastoreId = "b", DatastoreName = "B",
-            DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer
+            DatastoreId = "b",
+            DatastoreName = "B",
+            DatastoreType = DatastoreType.Sql,
+            RuntimePlatform = RuntimePlatform.SqlServer
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "a", TargetId = "b", RelationshipType = RelationshipType.Calls
+            SourceId = "a",
+            TargetId = "b",
+            RelationshipType = RelationshipType.Calls
         });
 
-        ManifestDiagramOptions options = new() { RelationshipLabels = "none" };
+        ManifestDiagramOptions options = new()
+        {
+            RelationshipLabels = "none"
+        };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -136,11 +151,16 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "svc", ServiceName = "MySvc",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.ContainerApps
+            ServiceId = "svc",
+            ServiceName = "MySvc",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.ContainerApps
         });
 
-        ManifestDiagramOptions options = new() { IncludeRuntimePlatform = false };
+        ManifestDiagramOptions options = new()
+        {
+            IncludeRuntimePlatform = false
+        };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -154,16 +174,23 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "s1", ServiceName = "Svc1",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "s1",
+            ServiceName = "Svc1",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "s2", ServiceName = "Svc2",
-            ServiceType = ServiceType.Worker, RuntimePlatform = RuntimePlatform.Functions
+            ServiceId = "s2",
+            ServiceName = "Svc2",
+            ServiceType = ServiceType.Worker,
+            RuntimePlatform = RuntimePlatform.Functions
         });
 
-        ManifestDiagramOptions options = new() { GroupBy = "runtimeplatform" };
+        ManifestDiagramOptions options = new()
+        {
+            GroupBy = "runtimeplatform"
+        };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -177,11 +204,16 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "s1", ServiceName = "Svc1",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "s1",
+            ServiceName = "Svc1",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
 
-        ManifestDiagramOptions options = new() { GroupBy = "servicetype" };
+        ManifestDiagramOptions options = new()
+        {
+            GroupBy = "servicetype"
+        };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -194,13 +226,17 @@ public sealed class ManifestDiagramServiceTests
         GoldenManifest manifest = CreateMinimalManifest();
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "svc", ServiceName = "Alpha",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "svc",
+            ServiceName = "Alpha",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "svc", ServiceName = "Beta",
-            ServiceType = ServiceType.Worker, RuntimePlatform = RuntimePlatform.Functions
+            ServiceId = "svc",
+            ServiceName = "Beta",
+            ServiceType = ServiceType.Worker,
+            RuntimePlatform = RuntimePlatform.Functions
         });
 
         string mermaid = _sut.GenerateMermaid(manifest);

@@ -23,11 +23,11 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         AddProblemsForPath(opts.ComparisonExplanationSchemaPath, "ComparisonExplanation", problems);
 
         if (problems.Count > 0)
-        
+
             return Task.FromResult(
                 HealthCheckResult.Unhealthy(
                     "One or more schema files are missing or misconfigured: " + string.Join("; ", problems)));
-        
+
 
         return Task.FromResult(
             HealthCheckResult.Healthy(
@@ -65,8 +65,8 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         }
 
         if (!File.Exists(fullPath))
-        
+
             problems.Add($"{logicalName} schema not found at '{fullPath}'.");
-        
+
     }
 }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Diffs;
 
 namespace ArchLucid.Application.Determinism;
 
@@ -21,7 +21,8 @@ public sealed class DeterminismCheckService(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
-        if (request.Iterations < 2) throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
+        if (request.Iterations < 2)
+            throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
 
         DeterminismCheckResult output = new()
         {

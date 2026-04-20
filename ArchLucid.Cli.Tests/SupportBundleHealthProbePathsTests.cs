@@ -20,7 +20,10 @@ public sealed class SupportBundleHealthProbePathsTests
     {
         ConcurrentBag<string> paths = [];
         using PathRecordingHandler handler = new(paths);
-        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
+        using HttpClient http = new(handler)
+        {
+            BaseAddress = new Uri("http://stub.local")
+        };
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -60,9 +63,9 @@ public sealed class SupportBundleHealthProbePathsTests
         finally
         {
             if (Directory.Exists(cwd))
-            
+
                 Directory.Delete(cwd, recursive: true);
-            
+
         }
     }
 
@@ -81,7 +84,7 @@ public sealed class SupportBundleHealthProbePathsTests
                 json = """{"openapi":"3.0.1","info":{"title":"t"}}""";
             else
                 json = """{"status":"Healthy"}""";
-            
+
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {

@@ -31,9 +31,9 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
 
         (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid RunId) key = (snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.RunId);
         lock (_gate)
-        
+
             _store[key] = snapshot;
-        
+
 
         return Task.CompletedTask;
     }

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;

@@ -7,7 +7,10 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public class ResolvedPolicyPack
 {
     /// <summary>Pack id.</summary>
-    public Guid PolicyPackId { get; set; }
+    public Guid PolicyPackId
+    {
+        get; set;
+    }
 
     /// <summary>Pack display name.</summary>
     public string Name { get; set; } = null!;

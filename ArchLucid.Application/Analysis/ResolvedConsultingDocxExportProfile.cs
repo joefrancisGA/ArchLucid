@@ -20,7 +20,10 @@ public sealed class ResolvedConsultingDocxExportProfile
     /// <see langword="true"/> when the profile was inferred automatically from context signals;
     /// <see langword="false"/> when the caller supplied an explicit profile name.
     /// </summary>
-    public bool WasAutoSelected { get; set; }
+    public bool WasAutoSelected
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Plain-language explanation of why this profile was selected.

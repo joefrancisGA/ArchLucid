@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -25,7 +25,8 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
             sb.AppendLine();
         }
 
-        if (drift.Items.Count <= 0) return sb.ToString();
+        if (drift.Items.Count <= 0)
+            return sb.ToString();
 
         sb.AppendLine("## Differences");
         sb.AppendLine();

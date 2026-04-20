@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -24,7 +24,8 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
         ArgumentException.ThrowIfNullOrWhiteSpace(leaseName);
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceId);
 
-        if (leaseDurationSeconds < 1) throw new ArgumentOutOfRangeException(nameof(leaseDurationSeconds));
+        if (leaseDurationSeconds < 1)
+            throw new ArgumentOutOfRangeException(nameof(leaseDurationSeconds));
 
 
         const int maxAttempts = 4;
@@ -37,7 +38,8 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                 leaseDurationSeconds,
                 cancellationToken);
 
-            if (result || attempt == maxAttempts - 1) return result;
+            if (result || attempt == maxAttempts - 1)
+                return result;
 
         }
 
@@ -64,7 +66,10 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
             LeaseRow? row = await connection.QuerySingleOrDefaultAsync<LeaseRow>(
                 new CommandDefinition(
                     selectSql,
-                    new { LeaseName = leaseName },
+                    new
+                    {
+                        LeaseName = leaseName
+                    },
                     transaction: transaction,
                     cancellationToken: cancellationToken));
 
@@ -152,7 +157,8 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
     /// <inheritdoc />
     public async Task TryReleaseAsync(string leaseName, string instanceId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(leaseName) || string.IsNullOrWhiteSpace(instanceId)) return;
+        if (string.IsNullOrWhiteSpace(leaseName) || string.IsNullOrWhiteSpace(instanceId))
+            return;
 
 
         const string sql = """
@@ -166,7 +172,11 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { LeaseName = leaseName, HolderInstanceId = instanceId },
+                new
+                {
+                    LeaseName = leaseName,
+                    HolderInstanceId = instanceId
+                },
                 cancellationToken: cancellationToken));
     }
 

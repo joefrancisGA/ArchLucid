@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentSimulator.Services;
@@ -53,7 +53,8 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 
     private static AgentType ResolveAgentType(string systemPrompt)
     {
-        if (systemPrompt.Contains("Compliance Agent", StringComparison.Ordinal)) return AgentType.Compliance;
+        if (systemPrompt.Contains("Compliance Agent", StringComparison.Ordinal))
+            return AgentType.Compliance;
 
 
         return systemPrompt.Contains("Critic Agent", StringComparison.Ordinal) ? AgentType.Critic : AgentType.Topology;

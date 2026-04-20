@@ -26,7 +26,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine($"**Comparison record:** `{comparisonRecordId}`");
             sb.AppendLine();
         }
-        
+
         sb.AppendLine($"**Drift detected:** {(drift.DriftDetected ? "Yes" : "No")}");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(drift.Summary))
@@ -35,13 +35,14 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine();
         }
 
-        if (drift.Items.Count <= 0) return sb.ToString();
-        
+        if (drift.Items.Count <= 0)
+            return sb.ToString();
+
         sb.AppendLine("## Differences");
         sb.AppendLine();
         sb.AppendLine("| Category | Path | Stored | Regenerated | Description |");
         sb.AppendLine("|----------|------|--------|-------------|-------------|");
-        
+
         foreach (DriftItem item in drift.Items)
         {
             string stored = EscapeTableCell(item.StoredValue);
@@ -71,14 +72,14 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         {
             sb.AppendLine("<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
             foreach (DriftItem item in drift.Items)
-            
+
                 sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category))
                     .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path))
                     .Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? ""))
                     .Append("</td><td>").Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? ""))
                     .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description))
                     .AppendLine("</td></tr>");
-            
+
             sb.AppendLine("</tbody></table>");
         }
         sb.AppendLine("</body></html>");

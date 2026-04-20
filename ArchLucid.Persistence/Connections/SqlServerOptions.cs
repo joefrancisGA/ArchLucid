@@ -25,7 +25,10 @@ public sealed class SqlServerOptions
 public sealed class SqlRowLevelSecuritySettings
 {
     /// <summary>When true, connections receive tenant/workspace/project (or bypass) session keys before queries run.</summary>
-    public bool ApplySessionContext { get; set; }
+    public bool ApplySessionContext
+    {
+        get; set;
+    }
 }
 
 /// <summary>Binding for <c>SqlServer:ReadReplica</c>.</summary>
@@ -36,8 +39,14 @@ public sealed class SqlReadReplicaSettings
     /// Azure SQL failover group <strong>read-only listener</strong> (secondary replica). Used for governance-resolution and
     /// golden-manifest lookup reads when set; also used for authority run lists when <see cref="AuthorityRunListReadsConnectionString"/> is unset.
     /// </summary>
-    public string? FailoverGroupReadOnlyListenerConnectionString { get; set; }
+    public string? FailoverGroupReadOnlyListenerConnectionString
+    {
+        get; set;
+    }
 
     /// <summary>When set, authority run list reads prefer this connection over <see cref="FailoverGroupReadOnlyListenerConnectionString"/>.</summary>
-    public string? AuthorityRunListReadsConnectionString { get; set; }
+    public string? AuthorityRunListReadsConnectionString
+    {
+        get; set;
+    }
 }

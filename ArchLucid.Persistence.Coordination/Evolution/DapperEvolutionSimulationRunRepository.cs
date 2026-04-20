@@ -83,7 +83,10 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
         IEnumerable<EvolutionSimulationRunRecord> rows = await connection.QueryAsync<EvolutionSimulationRunRecord>(
             new CommandDefinition(
                 sql,
-                new { CandidateChangeSetId = candidateChangeSetId },
+                new
+                {
+                    CandidateChangeSetId = candidateChangeSetId
+                },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -100,7 +103,10 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { CandidateChangeSetId = candidateChangeSetId },
+                new
+                {
+                    CandidateChangeSetId = candidateChangeSetId
+                },
                 cancellationToken: cancellationToken));
     }
 }

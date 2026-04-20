@@ -17,7 +17,11 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
     [Fact]
     public async Task CompareEnvironments_ReturnsOk()
     {
-        var body = new { sourceEnvironment = "dev", targetEnvironment = "test" };
+        var body = new
+        {
+            sourceEnvironment = "dev",
+            targetEnvironment = "test"
+        };
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/governance-preview/compare-environments",
             JsonContent(body));
@@ -63,7 +67,12 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         CommitRunResponseDto? commit = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
 
-        var previewBody = new { runId, manifestVersion, environment = "dev" };
+        var previewBody = new
+        {
+            runId,
+            manifestVersion,
+            environment = "dev"
+        };
         HttpResponseMessage previewResponse = await Client.PostAsync("/v1/governance-preview/preview", JsonContent(previewBody));
 
         previewResponse.StatusCode.Should().Be(HttpStatusCode.OK);

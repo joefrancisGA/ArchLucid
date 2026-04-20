@@ -16,13 +16,22 @@ public class AdvisoryScanSchedule
     public Guid ScheduleId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant dimension of the advisory scope.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace dimension of the advisory scope.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project dimension of the advisory scope (governance/comparison context).</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Authority store <c>Runs.ProjectId</c> slug (e.g. <c>default</c>), not the scope GUID.</summary>
     /// <remarks>Trimmed when running scans; empty becomes <c>default</c>.</remarks>
@@ -43,8 +52,14 @@ public class AdvisoryScanSchedule
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>UTC time of the last completed or attempted run (updated when the runner advances the schedule).</summary>
-    public DateTime? LastRunUtc { get; set; }
+    public DateTime? LastRunUtc
+    {
+        get; set;
+    }
 
     /// <summary>UTC time when the next poll should consider this schedule due; <see langword="null"/> excludes it from due lists.</summary>
-    public DateTime? NextRunUtc { get; set; }
+    public DateTime? NextRunUtc
+    {
+        get; set;
+    }
 }

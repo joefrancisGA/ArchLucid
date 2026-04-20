@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application;
+using ArchLucid.Application;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -42,7 +42,8 @@ public sealed class ArchitectureApplicationService(
 
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId)) return null;
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
@@ -50,12 +51,15 @@ public sealed class ArchitectureApplicationService(
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
     {
-        if (result is null) return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
+        if (result is null)
+            return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
 
-        if (string.IsNullOrWhiteSpace(runId)) return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (detail is null) return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+        if (detail is null)
+            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
 
 
         ArchitectureRun run = detail.Run;
@@ -133,13 +137,16 @@ public sealed class ArchitectureApplicationService(
     /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
     private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult>? results)
     {
-        if (results is null) return false;
+        if (results is null)
+            return false;
 
-        if (results.Count != RequiredAgentTypes.Count) return false;
+        if (results.Count != RequiredAgentTypes.Count)
+            return false;
 
         foreach (AgentType required in RequiredAgentTypes)
 
-            if (results.Count(r => r.AgentType == required) != 1) return false;
+            if (results.Count(r => r.AgentType == required) != 1)
+                return false;
 
 
         return true;
@@ -152,10 +159,12 @@ public sealed class ArchitectureApplicationService(
 
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId)) return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (detail is null) return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+        if (detail is null)
+            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
 
 
         ArchitectureRun run = detail.Run;
@@ -178,7 +187,8 @@ public sealed class ArchitectureApplicationService(
 
         List<AgentTask> tasks = detail.Tasks;
 
-        if (tasks.Count == 0) return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
+        if (tasks.Count == 0)
+            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
 
 
         List<AgentResult> existingResults = detail.Results;

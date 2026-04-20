@@ -6,13 +6,22 @@ namespace ArchLucid.Decisioning.Alerts.Composite;
 public class AlertSuppressionDecision
 {
     /// <summary>When <c>true</c>, <c>CompositeAlertService</c> should insert and deliver a new alert.</summary>
-    public bool ShouldCreateAlert { get; set; }
+    public bool ShouldCreateAlert
+    {
+        get; set;
+    }
 
     /// <summary>When <c>true</c>, the match was dropped due to cooldown, suppression window, or existing open row.</summary>
-    public bool WasSuppressed { get; set; }
+    public bool WasSuppressed
+    {
+        get; set;
+    }
 
     /// <summary>Reserved for reopen flows; default policy leaves this <c>false</c>.</summary>
-    public bool WasReopened { get; set; }
+    public bool WasReopened
+    {
+        get; set;
+    }
 
     /// <summary>Human-readable explanation for operators and audit payloads.</summary>
     public string Reason { get; set; } = null!;

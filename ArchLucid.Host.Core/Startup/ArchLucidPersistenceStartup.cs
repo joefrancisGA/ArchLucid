@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -57,11 +57,13 @@ public static class ArchLucidPersistenceStartup
             }
 
 
-        if (!app.Environment.IsDevelopment()) return;
+        if (!app.Environment.IsDevelopment())
+            return;
 
         DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
 
-        if (demo is not { Enabled: true, SeedOnStartup: true }) return;
+        if (demo is not { Enabled: true, SeedOnStartup: true })
+            return;
 
         app.Logger.LogInformation(
             "Startup: Demo:SeedOnStartup=true; running {Service}.",

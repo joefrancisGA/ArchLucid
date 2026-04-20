@@ -9,16 +9,28 @@ public class RuleSimulationRequest
     public string RuleKind { get; set; } = null!;
 
     /// <summary>Required when <see cref="RuleKind"/> is Simple.</summary>
-    public AlertRule? SimpleRule { get; set; }
+    public AlertRule? SimpleRule
+    {
+        get; set;
+    }
 
     /// <summary>Required when <see cref="RuleKind"/> is Composite.</summary>
-    public CompositeAlertRule? CompositeRule { get; set; }
+    public CompositeAlertRule? CompositeRule
+    {
+        get; set;
+    }
 
     /// <summary>When set, builds a single context for this run (plus optional comparison).</summary>
-    public Guid? RunId { get; set; }
+    public Guid? RunId
+    {
+        get; set;
+    }
 
     /// <summary>Baseline run for comparison when building the plan for <see cref="RunId"/>.</summary>
-    public Guid? ComparedToRunId { get; set; }
+    public Guid? ComparedToRunId
+    {
+        get; set;
+    }
 
     /// <summary>When <see cref="RunId"/> is null, number of recent runs to pull (clamped in context provider).</summary>
     public int RecentRunCount { get; set; } = 5;

@@ -5,14 +5,32 @@ namespace ArchLucid.Contracts.ProductLearning;
 /// </summary>
 public sealed class LearningDashboardSummary
 {
-    public DateTime GeneratedUtc { get; init; }
-    public Guid TenantId { get; init; }
-    public Guid WorkspaceId { get; init; }
-    public Guid ProjectId { get; init; }
-    public int TotalSignalsInScope { get; init; }
+    public DateTime GeneratedUtc
+    {
+        get; init;
+    }
+    public Guid TenantId
+    {
+        get; init;
+    }
+    public Guid WorkspaceId
+    {
+        get; init;
+    }
+    public Guid ProjectId
+    {
+        get; init;
+    }
+    public int TotalSignalsInScope
+    {
+        get; init;
+    }
 
     /// <summary>Distinct architecture runs touched by any signal in scope (when run ids are present on signals).</summary>
-    public int DistinctRunsTouched { get; init; }
+    public int DistinctRunsTouched
+    {
+        get; init;
+    }
     public IReadOnlyList<FeedbackAggregate> TopAggregates { get; init; } = [];
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends { get; init; } = [];
     public IReadOnlyList<ImprovementOpportunity> Opportunities { get; init; } = [];

@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>Thread-safe holder for the latest outbox gauge snapshot (read on Prometheus scrape).</summary>
 public sealed class OutboxDepthGaugeState

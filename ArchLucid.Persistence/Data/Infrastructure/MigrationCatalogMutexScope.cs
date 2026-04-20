@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -62,7 +62,8 @@ internal sealed class MigrationCatalogMutexScope : IDisposable
 
     public void Dispose()
     {
-        if (_released) return;
+        if (_released)
+            return;
 
 
         _released = true;

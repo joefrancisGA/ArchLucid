@@ -298,9 +298,9 @@ public sealed class RealRuntimeMixedModeTests
         criticTask.RunId = "RUN-001";
 
         foreach (AgentTask task in coordination.Tasks)
-        
+
             task.RunId = "RUN-001";
-        
+
 
         AgentEvidencePackage evidence = new()
         {

@@ -41,7 +41,8 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
     {
         base.Dispose(disposing);
 
-        if (!disposing) return;
+        if (!disposing)
+            return;
 
         try
         {

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Application.Jobs;
 
 using Azure;
@@ -17,11 +17,13 @@ public sealed class AzureBlobBackgroundJobResultBlobAccessor(
     {
         ArgumentNullException.ThrowIfNull(file);
 
-        if (string.IsNullOrWhiteSpace(jobId)) throw new ArgumentException("Job id is required.", nameof(jobId));
+        if (string.IsNullOrWhiteSpace(jobId))
+            throw new ArgumentException("Job id is required.", nameof(jobId));
 
         string containerName = options.Value.ResultsContainerName;
 
-        if (string.IsNullOrWhiteSpace(containerName)) throw new InvalidOperationException("BackgroundJobs:ResultsContainerName is required for durable job results.");
+        if (string.IsNullOrWhiteSpace(containerName))
+            throw new InvalidOperationException("BackgroundJobs:ResultsContainerName is required for durable job results.");
 
         string extension = Path.GetExtension(file.FileName);
 
@@ -49,16 +51,19 @@ public sealed class AzureBlobBackgroundJobResultBlobAccessor(
         string contentType,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(blobName)) return null;
+        if (string.IsNullOrWhiteSpace(blobName))
+            return null;
 
         string containerName = options.Value.ResultsContainerName;
 
-        if (string.IsNullOrWhiteSpace(containerName)) return null;
+        if (string.IsNullOrWhiteSpace(containerName))
+            return null;
 
         BlobContainerClient container = blobServiceClient.GetBlobContainerClient(containerName);
         BlobClient blob = container.GetBlobClient(blobName);
 
-        if (!await blob.ExistsAsync(cancellationToken)) return null;
+        if (!await blob.ExistsAsync(cancellationToken))
+            return null;
 
         Response<BlobDownloadResult> response = await blob.DownloadContentAsync(cancellationToken);
 

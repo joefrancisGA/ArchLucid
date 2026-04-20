@@ -12,13 +12,22 @@ public class DigestSubscription
     public Guid SubscriptionId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant owning the subscription.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Workspace within the tenant.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Project within the workspace.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Operator-facing label.</summary>
     public string Name { get; set; } = "Digest Subscription";
@@ -36,7 +45,10 @@ public class DigestSubscription
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>Updated after a successful channel send.</summary>
-    public DateTime? LastDeliveredUtc { get; set; }
+    public DateTime? LastDeliveredUtc
+    {
+        get; set;
+    }
 
     /// <summary>Opaque JSON for future channel options.</summary>
     public string MetadataJson { get; set; } = "{}";

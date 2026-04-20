@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Coordination.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -8,7 +8,8 @@ internal static class LlmCompletionCacheRules
     {
         bool enabled = configuration.GetValue("LlmCompletionCache:Enabled", true);
 
-        if (!enabled) return;
+        if (!enabled)
+            return;
 
 
         int maxEntries = configuration.GetValue("LlmCompletionCache:MaxEntries", 256);
@@ -36,7 +37,8 @@ internal static class LlmCompletionCacheRules
             errors.Add("LlmCompletionCache:Provider must be 'Memory' or 'Distributed' when set.");
 
 
-        if (!string.Equals(provider, "Distributed", StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(provider, "Distributed", StringComparison.OrdinalIgnoreCase))
+            return;
 
 
         string? llmRedis = configuration["LlmCompletionCache:RedisConnectionString"]?.Trim();

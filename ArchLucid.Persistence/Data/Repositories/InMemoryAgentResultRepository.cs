@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -43,7 +43,8 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     {
         ArgumentNullException.ThrowIfNull(results);
         cancellationToken.ThrowIfCancellationRequested();
-        if (results.Count == 0) return Task.CompletedTask;
+        if (results.Count == 0)
+            return Task.CompletedTask;
 
 
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();

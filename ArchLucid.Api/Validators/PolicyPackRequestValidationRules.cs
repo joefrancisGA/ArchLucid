@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 using ArchLucid.Api.Controllers.Governance;
@@ -46,7 +46,8 @@ public static class PolicyPackRequestValidationRules
     /// <remarks>Empty string is treated as valid (caller may normalize to <c>{}</c> downstream).</remarks>
     public static bool BeValidJson(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return true;
+        if (string.IsNullOrWhiteSpace(value))
+            return true;
 
         try
         {

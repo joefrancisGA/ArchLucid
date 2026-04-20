@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -8,7 +8,8 @@ internal static class AuthenticationRules
     {
         bool apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
 
-        if (!apiKeyEnabled) return;
+        if (!apiKeyEnabled)
+            return;
 
 
         string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
@@ -35,7 +36,8 @@ internal static class AuthenticationRules
     /// </summary>
     public static void CollectProductionApiKeyPlaceholders(IConfiguration configuration, List<string> errors)
     {
-        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false)) return;
+        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
+            return;
 
 
         string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
@@ -63,12 +65,14 @@ internal static class AuthenticationRules
     {
         string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
-        if (!string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+            return;
 
 
         string? pemPath = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
 
-        if (string.IsNullOrWhiteSpace(pemPath)) return;
+        if (string.IsNullOrWhiteSpace(pemPath))
+            return;
 
 
         if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtLocalIssuer")))
@@ -118,7 +122,8 @@ internal static class AuthenticationRules
 
         }
 
-        if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            return;
 
 
         if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))

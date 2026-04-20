@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Audit;
@@ -21,7 +21,8 @@ public static partial class ServiceCollectionExtensions
         CosmosDbOptions cosmosSnapshot =
             configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>() ?? new CosmosDbOptions();
 
-        if (!cosmosSnapshot.AnyCosmosFeatureEnabled) return;
+        if (!cosmosSnapshot.AnyCosmosFeatureEnabled)
+            return;
 
         services.AddSingleton<CosmosClientFactory>();
 
@@ -43,7 +44,8 @@ public static partial class ServiceCollectionExtensions
                 services.AddScoped<IAgentExecutionTraceRepository, CosmosAgentExecutionTraceRepository>();
 
 
-        if (!cosmosSnapshot.AuditEventsEnabled) return;
+        if (!cosmosSnapshot.AuditEventsEnabled)
+            return;
 
         if (inMemory)
             services.AddSingleton<IAuditRepository, CosmosAuditRepository>();

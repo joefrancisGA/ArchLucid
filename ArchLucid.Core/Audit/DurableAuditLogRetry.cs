@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Audit;
 
@@ -23,7 +23,8 @@ public static class DurableAuditLogRetry
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentException.ThrowIfNullOrWhiteSpace(operationLabel);
 
-        if (maxAttempts < 1) throw new ArgumentOutOfRangeException(nameof(maxAttempts));
+        if (maxAttempts < 1)
+            throw new ArgumentOutOfRangeException(nameof(maxAttempts));
 
 
         Exception? last = null;

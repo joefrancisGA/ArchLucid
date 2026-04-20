@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Persistence.Conversation;
@@ -116,7 +116,8 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
 
             foreach (ConversationThread t in _threads)
             {
-                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff) continue;
+                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff)
+                    continue;
 
 
                 t.ArchivedUtc = stamp;

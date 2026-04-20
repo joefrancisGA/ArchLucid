@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -364,7 +364,8 @@ public sealed class SqlArtifactBundleRepository(
                 transaction,
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         SqlConnection sqlConnection = connection as SqlConnection
             ?? throw new InvalidOperationException("SQL Server backfill requires SqlConnection.");
@@ -403,7 +404,8 @@ public sealed class SqlArtifactBundleRepository(
                 },
                 cancellationToken: ct));
 
-        if (row is null) return null;
+        if (row is null)
+            return null;
 
         row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
 
@@ -494,15 +496,18 @@ public sealed class SqlArtifactBundleRepository(
         ArtifactBundleStorageRow row,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(row.BundlePayloadBlobUri)) return row;
+        if (string.IsNullOrWhiteSpace(row.BundlePayloadBlobUri))
+            return row;
 
         string? json = await blobStore.ReadAsync(row.BundlePayloadBlobUri!, ct);
 
-        if (string.IsNullOrEmpty(json)) return row;
+        if (string.IsNullOrEmpty(json))
+            return row;
 
         ArtifactBundlePayloadBlobEnvelope? envelope = ArtifactBundlePayloadBlobEnvelope.TryDeserialize(json);
 
-        if (envelope is null || envelope.SchemaVersion != ArtifactBundlePayloadBlobEnvelope.CurrentSchemaVersion) return row;
+        if (envelope is null || envelope.SchemaVersion != ArtifactBundlePayloadBlobEnvelope.CurrentSchemaVersion)
+            return row;
 
         return ArtifactBundlePayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }

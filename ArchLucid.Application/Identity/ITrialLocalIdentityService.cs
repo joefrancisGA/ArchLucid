@@ -11,14 +11,20 @@ public interface ITrialLocalIdentityService
 
 public sealed class TrialLocalRegistrationResult
 {
-    public Guid UserId { get; init; }
+    public Guid UserId
+    {
+        get; init;
+    }
 
     public string VerificationToken { get; init; } = string.Empty;
 }
 
 public sealed class TrialLocalAuthResult
 {
-    public Guid UserId { get; init; }
+    public Guid UserId
+    {
+        get; init;
+    }
 
     public string Email { get; init; } = string.Empty;
 

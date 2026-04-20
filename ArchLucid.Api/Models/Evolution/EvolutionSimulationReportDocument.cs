@@ -7,13 +7,25 @@ public sealed class EvolutionSimulationReportDocument
 
     public string SchemaVersion { get; init; } = ExportSchemaVersion;
 
-    public DateTime GeneratedUtc { get; init; }
+    public DateTime GeneratedUtc
+    {
+        get; init;
+    }
 
-    public required EvolutionSimulationReportCandidateSection Candidate { get; init; }
+    public required EvolutionSimulationReportCandidateSection Candidate
+    {
+        get; init;
+    }
 
-    public required string PlanSnapshotJson { get; init; }
+    public required string PlanSnapshotJson
+    {
+        get; init;
+    }
 
-    public EvolutionSimulationPlanSnapshotPayload? PlanSnapshot { get; init; }
+    public EvolutionSimulationPlanSnapshotPayload? PlanSnapshot
+    {
+        get; init;
+    }
 
     public IReadOnlyList<EvolutionSimulationReportRunEntry> SimulationRuns { get; init; } = [];
 }

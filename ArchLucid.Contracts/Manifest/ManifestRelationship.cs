@@ -30,8 +30,14 @@ public sealed class ManifestRelationship
 
     /// <summary>Nature of the dependency (calls, reads from, writes to, publishes to, etc.).</summary>
     [Required]
-    public RelationshipType RelationshipType { get; set; }
+    public RelationshipType RelationshipType
+    {
+        get; set;
+    }
 
     /// <summary>Optional human-readable description of why this relationship exists.</summary>
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 }

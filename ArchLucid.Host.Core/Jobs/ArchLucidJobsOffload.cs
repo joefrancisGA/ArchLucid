@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Reads <see cref="ArchLucidJobsOptions"/> to decide whether in-process hosted services stay registered.</summary>
 public static class ArchLucidJobsOffload
@@ -8,7 +8,8 @@ public static class ArchLucidJobsOffload
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        if (string.IsNullOrWhiteSpace(jobName)) return false;
+        if (string.IsNullOrWhiteSpace(jobName))
+            return false;
 
         IConfigurationSection section = configuration.GetSection($"{ArchLucidJobsOptions.SectionPath}:OffloadedToContainerJobs");
 

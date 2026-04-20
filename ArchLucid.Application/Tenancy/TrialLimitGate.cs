@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
@@ -22,11 +22,13 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (scope.TenantId == Guid.Empty) return;
+        if (scope.TenantId == Guid.Empty)
+            return;
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
-        if (tenant is null) return;
+        if (tenant is null)
+            return;
 
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus) ||
             string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
@@ -48,11 +50,13 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, daysRemaining);
         }
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal)) return;
+        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+            return;
 
         int daysRemainingActive = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
 
-        if (tenant.TrialExpiresUtc is { } exp && exp <= now) throw new TrialLimitExceededException(TrialLimitReason.Expired, daysRemaining: 0);
+        if (tenant.TrialExpiresUtc is { } exp && exp <= now)
+            throw new TrialLimitExceededException(TrialLimitReason.Expired, daysRemaining: 0);
 
 
         if (tenant.TrialRunsLimit is { } runLimit && tenant.TrialRunsUsed >= runLimit)
@@ -71,11 +75,13 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (scope.TenantId == Guid.Empty) return;
+        if (scope.TenantId == Guid.Empty)
+            return;
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
-        if (tenant is null) return;
+        if (tenant is null)
+            return;
 
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus) ||
             string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
@@ -102,7 +108,8 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc, DateTimeOffset now)
     {
-        if (trialExpiresUtc is null) return 0;
+        if (trialExpiresUtc is null)
+            return 0;
 
         double totalDays = (trialExpiresUtc.Value - now).TotalDays;
         int days = (int)Math.Floor(totalDays);

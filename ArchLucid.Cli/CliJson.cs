@@ -12,8 +12,19 @@ internal static class CliJson
     internal static void WriteFailureLine(TextWriter writer, int exitCode, string error, string? message = null)
     {
         object payload = message is null
-            ? new { ok = false, exitCode, error }
-            : new { ok = false, exitCode, error, message };
+            ? new
+            {
+                ok = false,
+                exitCode,
+                error
+            }
+            : new
+            {
+                ok = false,
+                exitCode,
+                error,
+                message
+            };
 
         writer.WriteLine(JsonSerializer.Serialize(payload, CompactCamelCase));
     }

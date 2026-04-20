@@ -24,9 +24,9 @@ public static class FileNameSanitizer
 
         // Invalid on Windows; often still present in CI (Linux) unless explicitly stripped.
         foreach (char c in "<>:\"/\\|?*")
-        
+
             set.Add(c);
-        
+
 
         return set;
     }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -45,7 +45,8 @@ public sealed class AlertRoutingSubscriptionsController(
         [FromBody] AlertRoutingSubscription? subscription,
         CancellationToken ct = default)
     {
-        if (subscription is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (subscription is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -102,7 +103,8 @@ public sealed class AlertRoutingSubscriptionsController(
         CancellationToken ct = default)
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
-        if (subscription is null) return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (subscription is null)
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
@@ -139,7 +141,8 @@ public sealed class AlertRoutingSubscriptionsController(
         CancellationToken ct = default)
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
-        if (subscription is null) return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (subscription is null)
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))

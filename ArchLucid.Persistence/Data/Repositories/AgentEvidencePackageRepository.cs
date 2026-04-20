@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -76,7 +76,10 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { evidencePackage.RunId },
+                    new
+                    {
+                        evidencePackage.RunId
+                    },
                     transaction: transaction,
                     cancellationToken: cancellationToken));
 
@@ -92,7 +95,10 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new { evidencePackage.RunId },
+                    new
+                    {
+                        evidencePackage.RunId
+                    },
                     transaction: tx,
                     cancellationToken: cancellationToken));
 
@@ -160,7 +166,8 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
     private static AgentEvidencePackage? DeserializePackage(string? json, string context)
     {
-        if (json is null) return null;
+        if (json is null)
+            return null;
 
         AgentEvidencePackage? package;
         try

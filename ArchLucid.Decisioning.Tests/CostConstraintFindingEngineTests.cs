@@ -20,7 +20,11 @@ public sealed class CostConstraintFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_ReturnsEmpty_WhenNoCostNodes()
     {
-        GraphSnapshot graph = new() { Nodes = [], Edges = [] };
+        GraphSnapshot graph = new()
+        {
+            Nodes = [],
+            Edges = []
+        };
 
         IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
 

@@ -25,17 +25,19 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             builder.AddParagraph(drift.Summary);
         builder.AddSpacer();
-        if (drift.Items.Count <= 0) return builder.Build();
+        if (drift.Items.Count <= 0)
+            return builder.Build();
         builder.AddHeading("Differences", 2);
-        
+
         foreach (DriftItem item in drift.Items)
         {
             builder.AddParagraph($"{item.Category} — {item.Path}", bold: true);
             if (!string.IsNullOrEmpty(item.Description))
                 builder.AddParagraph(item.Description);
-            
-            if (item.StoredValue is null && item.RegeneratedValue is null) continue;
-            
+
+            if (item.StoredValue is null && item.RegeneratedValue is null)
+                continue;
+
             if (item.StoredValue is not null)
                 builder.AddBullet($"Stored: {item.StoredValue}");
             if (item.RegeneratedValue is not null)

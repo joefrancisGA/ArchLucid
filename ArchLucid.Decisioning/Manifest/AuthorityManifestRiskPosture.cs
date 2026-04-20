@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Manifest;
@@ -15,7 +15,8 @@ public static class AuthorityManifestRiskPosture
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        if (manifest.UnresolvedIssues.Items.Count == 0) return "Low";
+        if (manifest.UnresolvedIssues.Items.Count == 0)
+            return "Low";
 
 
         int worst = 0;
@@ -36,23 +37,28 @@ public static class AuthorityManifestRiskPosture
 
     private static int MapSeverityRank(string? severity)
     {
-        if (string.IsNullOrWhiteSpace(severity)) return 2;
+        if (string.IsNullOrWhiteSpace(severity))
+            return 2;
 
 
         string s = severity.Trim();
 
-        if (string.Equals(s, "Critical", StringComparison.OrdinalIgnoreCase)) return 4;
+        if (string.Equals(s, "Critical", StringComparison.OrdinalIgnoreCase))
+            return 4;
 
 
-        if (string.Equals(s, "High", StringComparison.OrdinalIgnoreCase)) return 3;
+        if (string.Equals(s, "High", StringComparison.OrdinalIgnoreCase))
+            return 3;
 
 
         if (string.Equals(s, "Medium", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase)) return 2;
+            || string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase))
+            return 2;
 
 
         if (string.Equals(s, "Low", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(s, "Info", StringComparison.OrdinalIgnoreCase)) return 1;
+            || string.Equals(s, "Info", StringComparison.OrdinalIgnoreCase))
+            return 1;
 
 
         return 2;

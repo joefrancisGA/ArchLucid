@@ -6,10 +6,16 @@ namespace ArchLucid.Contracts.ProductLearning;
 public sealed class ProductLearningTriageOptions
 {
     /// <summary>UTC lower bound for signals included in rollups (null = all time).</summary>
-    public DateTime? SinceUtc { get; init; }
+    public DateTime? SinceUtc
+    {
+        get; init;
+    }
 
     /// <summary>Label applied to <see cref="ArtifactOutcomeTrend.WindowLabel"/> (e.g. "Last 30 days").</summary>
-    public string? TrendWindowLabel { get; init; }
+    public string? TrendWindowLabel
+    {
+        get; init;
+    }
 
     /// <summary>Minimum signals in a feedback rollup before it is surfaced in dashboard slices.</summary>
     public int MinSignalsPerAggregate { get; init; } = 2;

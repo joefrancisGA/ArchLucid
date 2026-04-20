@@ -24,20 +24,38 @@ public class RunDetailDto
     public RunRecord Run { get; set; } = null!;
 
     /// <summary>Context payload when <see cref="RunRecord.ContextSnapshotId"/> resolves.</summary>
-    public ContextSnapshot? ContextSnapshot { get; set; }
+    public ContextSnapshot? ContextSnapshot
+    {
+        get; set;
+    }
     /// <summary>Graph payload when <see cref="RunRecord.GraphSnapshotId"/> resolves.</summary>
-    public GraphSnapshot? GraphSnapshot { get; set; }
+    public GraphSnapshot? GraphSnapshot
+    {
+        get; set;
+    }
 
     /// <summary>Findings payload when <see cref="RunRecord.FindingsSnapshotId"/> resolves.</summary>
-    public FindingsSnapshot? FindingsSnapshot { get; set; }
+    public FindingsSnapshot? FindingsSnapshot
+    {
+        get; set;
+    }
 
     /// <summary>Authority rule-audit trace when <see cref="RunRecord.DecisionTraceId"/> resolves.</summary>
     [JsonPropertyName("decisionTrace")]
-    public DecisionTrace? AuthorityTrace { get; set; }
+    public DecisionTrace? AuthorityTrace
+    {
+        get; set;
+    }
 
     /// <summary>Golden manifest when <see cref="RunRecord.GoldenManifestId"/> resolves.</summary>
-    public GoldenManifest? GoldenManifest { get; set; }
+    public GoldenManifest? GoldenManifest
+    {
+        get; set;
+    }
 
     /// <summary>Synthesized artifacts when both bundle and manifest ids are present and lookup succeeds.</summary>
-    public ArtifactBundle? ArtifactBundle { get; set; }
+    public ArtifactBundle? ArtifactBundle
+    {
+        get; set;
+    }
 }

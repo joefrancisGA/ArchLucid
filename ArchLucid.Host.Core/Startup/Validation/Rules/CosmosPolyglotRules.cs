@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Persistence.Cosmos;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -12,7 +12,8 @@ internal static class CosmosPolyglotRules
         CosmosDbOptions opts =
             configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>() ?? new CosmosDbOptions();
 
-        if (!opts.AnyCosmosFeatureEnabled) return;
+        if (!opts.AnyCosmosFeatureEnabled)
+            return;
 
         if (string.IsNullOrWhiteSpace(opts.ConnectionString))
         {
@@ -31,7 +32,8 @@ internal static class CosmosPolyglotRules
 
     private static bool ConnectionStringLooksLikeEmulator(string connectionString)
     {
-        if (string.IsNullOrWhiteSpace(connectionString)) return false;
+        if (string.IsNullOrWhiteSpace(connectionString))
+            return false;
 
         string normalized = connectionString.Trim();
 

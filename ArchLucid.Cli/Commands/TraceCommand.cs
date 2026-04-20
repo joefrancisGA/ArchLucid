@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -19,7 +19,8 @@ internal static class TraceCommand
         ApiConnectionOutcome connection =
             await CliCommandShared.TryConnectToApiAsync(baseUrl, config, cancellationToken);
 
-        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+        if (connection != ApiConnectionOutcome.Connected)
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
 
 
         ArchLucidApiClient client = new(baseUrl, config);
@@ -107,7 +108,8 @@ internal static class TraceCommand
     {
         string? value = Environment.GetEnvironmentVariable(OpenBrowserEnv);
 
-        if (string.IsNullOrWhiteSpace(value)) return false;
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
 
 
         return value.Equals("1", StringComparison.OrdinalIgnoreCase)

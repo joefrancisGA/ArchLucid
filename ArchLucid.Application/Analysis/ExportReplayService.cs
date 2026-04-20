@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -162,7 +162,8 @@ public sealed class ExportReplayService(
     /// </summary>
     private static string BuildReplayFileName(string originalFileName)
     {
-        if (string.IsNullOrWhiteSpace(originalFileName)) return FallbackReplayFileName;
+        if (string.IsNullOrWhiteSpace(originalFileName))
+            return FallbackReplayFileName;
 
 
         string extension = Path.GetExtension(originalFileName);

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
@@ -114,7 +114,8 @@ public sealed class ComparisonService : IComparisonService
                 continue;
             }
 
-            if (b is null || t is null) continue;
+            if (b is null || t is null)
+                continue;
 
             if (b.Bucket != t.Bucket)
             {
@@ -191,7 +192,8 @@ public sealed class ComparisonService : IComparisonService
                 continue;
             }
 
-            if (b is null || t is null) continue;
+            if (b is null || t is null)
+                continue;
 
             if (!string.Equals(b.Status, t.Status, StringComparison.Ordinal))
 

@@ -106,7 +106,10 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RetrievalIndexingOutboxEntry> rows = await connection.QueryAsync<RetrievalIndexingOutboxEntry>(
-            new CommandDefinition(sql, new { Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Take = take
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 
@@ -121,7 +124,10 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                OutboxId = outboxId
+            }, cancellationToken: ct));
     }
 
     /// <inheritdoc />

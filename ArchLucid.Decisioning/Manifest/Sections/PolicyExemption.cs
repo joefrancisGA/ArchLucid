@@ -13,5 +13,8 @@ public class PolicyExemption
     public string Justification { get; set; } = string.Empty;
 
     /// <summary>Optional expiry date for time-limited exemptions (UTC).</summary>
-    public DateTime? ExpiresUtc { get; set; }
+    public DateTime? ExpiresUtc
+    {
+        get; set;
+    }
 }

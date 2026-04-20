@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -13,9 +13,11 @@ public sealed class LlmCostEstimator(IOptions<LlmCostEstimationOptions> options)
     {
         LlmCostEstimationOptions o = _options.Value;
 
-        if (!o.Enabled || inputTokens < 0 || outputTokens < 0) return null;
+        if (!o.Enabled || inputTokens < 0 || outputTokens < 0)
+            return null;
 
-        if (inputTokens == 0 && outputTokens == 0) return null;
+        if (inputTokens == 0 && outputTokens == 0)
+            return null;
 
         decimal inPart = inputTokens * o.InputUsdPerMillionTokens / 1_000_000m;
         decimal outPart = outputTokens * o.OutputUsdPerMillionTokens / 1_000_000m;

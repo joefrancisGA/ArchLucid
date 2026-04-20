@@ -23,7 +23,10 @@ public class GraphNodeVm
     public string Type { get; set; } = null!;
 
     /// <summary>Optional key/value pairs for UI detail panel (provenance metadata, graph properties).</summary>
-    public Dictionary<string, string>? Metadata { get; set; }
+    public Dictionary<string, string>? Metadata
+    {
+        get; set;
+    }
 }
 
 public class GraphEdgeVm
@@ -38,10 +41,22 @@ public class GraphEdgeVm
 /// </summary>
 public sealed class GraphNodesPageResponse
 {
-    public int Page { get; set; }
-    public int PageSize { get; set; }
-    public int TotalNodes { get; set; }
-    public bool HasMore { get; set; }
+    public int Page
+    {
+        get; set;
+    }
+    public int PageSize
+    {
+        get; set;
+    }
+    public int TotalNodes
+    {
+        get; set;
+    }
+    public bool HasMore
+    {
+        get; set;
+    }
     public List<GraphNodeVm> Nodes { get; set; } = [];
     public List<GraphEdgeVm> Edges { get; set; } = [];
 }

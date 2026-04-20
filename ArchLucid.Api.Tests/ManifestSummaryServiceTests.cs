@@ -144,20 +144,29 @@ public sealed class ManifestSummaryServiceTests
         GoldenManifest manifest = CreateMinimalManifest("NoRel");
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "a", ServiceName = "A",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+            ServiceId = "a",
+            ServiceName = "A",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService
         });
         manifest.Datastores.Add(new ManifestDatastore
         {
-            DatastoreId = "b", DatastoreName = "B",
-            DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer
+            DatastoreId = "b",
+            DatastoreName = "B",
+            DatastoreType = DatastoreType.Sql,
+            RuntimePlatform = RuntimePlatform.SqlServer
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "a", TargetId = "b", RelationshipType = RelationshipType.Calls
+            SourceId = "a",
+            TargetId = "b",
+            RelationshipType = RelationshipType.Calls
         });
 
-        ManifestSummaryOptions options = new() { IncludeRelationships = false };
+        ManifestSummaryOptions options = new()
+        {
+            IncludeRelationships = false
+        };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
@@ -170,7 +179,10 @@ public sealed class ManifestSummaryServiceTests
         GoldenManifest manifest = CreateMinimalManifest("NoCT");
         manifest.Governance.ComplianceTags.Add("SOC2");
 
-        ManifestSummaryOptions options = new() { IncludeComplianceTags = false };
+        ManifestSummaryOptions options = new()
+        {
+            IncludeComplianceTags = false
+        };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
@@ -186,26 +198,35 @@ public sealed class ManifestSummaryServiceTests
         {
             manifest.Services.Add(new ManifestService
             {
-                ServiceId = $"svc{i}", ServiceName = $"Svc{i}",
-                ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
+                ServiceId = $"svc{i}",
+                ServiceName = $"Svc{i}",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = RuntimePlatform.AppService
             });
         }
 
         manifest.Datastores.Add(new ManifestDatastore
         {
-            DatastoreId = "ds0", DatastoreName = "Ds0",
-            DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer
+            DatastoreId = "ds0",
+            DatastoreName = "Ds0",
+            DatastoreType = DatastoreType.Sql,
+            RuntimePlatform = RuntimePlatform.SqlServer
         });
 
         for (int i = 0; i < RelationshipStressPairCount; i++)
         {
             manifest.Relationships.Add(new ManifestRelationship
             {
-                SourceId = $"svc{i}", TargetId = "ds0", RelationshipType = RelationshipType.Calls
+                SourceId = $"svc{i}",
+                TargetId = "ds0",
+                RelationshipType = RelationshipType.Calls
             });
         }
 
-        ManifestSummaryOptions options = new() { MaxRelationships = 2 };
+        ManifestSummaryOptions options = new()
+        {
+            MaxRelationships = 2
+        };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
@@ -219,9 +240,12 @@ public sealed class ManifestSummaryServiceTests
         GoldenManifest manifest = CreateMinimalManifest("Full");
         manifest.Services.Add(new ManifestService
         {
-            ServiceId = "s1", ServiceName = "Alpha",
-            ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService,
-            RequiredControls = ["TLS"], Tags = ["core"]
+            ServiceId = "s1",
+            ServiceName = "Alpha",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+            RequiredControls = ["TLS"],
+            Tags = ["core"]
         });
         manifest.Governance.RequiredControls.Add("WAF");
         manifest.Governance.ComplianceTags.Add("PCI");

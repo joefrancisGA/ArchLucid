@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Text;
 
 namespace ArchLucid.Cli.Support;
@@ -57,7 +57,8 @@ public static class SupportBundleArchiveWriter
         ArgumentException.ThrowIfNullOrWhiteSpace(bundleDirectory);
         ArgumentException.ThrowIfNullOrWhiteSpace(zipPath);
 
-        if (!Directory.Exists(bundleDirectory)) throw new DirectoryNotFoundException(bundleDirectory);
+        if (!Directory.Exists(bundleDirectory))
+            throw new DirectoryNotFoundException(bundleDirectory);
 
 
         string? parent = Path.GetDirectoryName(Path.GetFullPath(zipPath));

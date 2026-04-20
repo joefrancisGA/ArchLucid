@@ -4,5 +4,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AdminArchiveRunsBatchRequest
 {
     /// <summary>Runs with <c>CreatedUtc</c> strictly before this instant are soft-archived.</summary>
-    public DateTimeOffset CreatedBeforeUtc { get; set; }
+    public DateTimeOffset CreatedBeforeUtc
+    {
+        get; set;
+    }
 }

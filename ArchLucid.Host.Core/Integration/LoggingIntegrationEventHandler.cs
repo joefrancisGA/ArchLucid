@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -33,7 +33,8 @@ public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEve
 
     private static string BuildPreview(ReadOnlyMemory<byte> utf8JsonPayload)
     {
-        if (utf8JsonPayload.IsEmpty) return string.Empty;
+        if (utf8JsonPayload.IsEmpty)
+            return string.Empty;
 
 
         int take = Math.Min(utf8JsonPayload.Length, 256);

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -113,7 +113,8 @@ internal static class ConsultingDocxSupplementalSections
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ArchitectureOverviewIntro, "BodyText");
 
-        if (string.IsNullOrWhiteSpace(report.Diagram)) return;
+        if (string.IsNullOrWhiteSpace(report.Diagram))
+            return;
 
 
         byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
@@ -174,7 +175,8 @@ internal static class ConsultingDocxSupplementalSections
             }
         }
 
-        if (report.Manifest.Datastores.Count <= 0) return;
+        if (report.Manifest.Datastores.Count <= 0)
+            return;
 
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Datastores", 2);
@@ -254,7 +256,8 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
-        if (report.ManifestDiff is null && report.AgentResultDiff is null) return;
+        if (report.ManifestDiff is null && report.AgentResultDiff is null)
+            return;
 
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
@@ -306,7 +309,8 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
 
-        if (!options.IncludeAppendixDeterminismAndComparison) return;
+        if (!options.IncludeAppendixDeterminismAndComparison)
+            return;
 
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix C. Determinism and Comparison", 1);
@@ -328,7 +332,8 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
         }
 
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
 
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);

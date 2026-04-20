@@ -24,9 +24,9 @@ public static class GraphSnapshotCloner
             ContextSnapshotId = newContext.SnapshotId,
             RunId = runId,
             CreatedUtc = DateTime.UtcNow,
-            Nodes = [..source.Nodes.Select(CloneNode)],
-            Edges = [..source.Edges.Select(CloneEdge)],
-            Warnings = [..source.Warnings]
+            Nodes = [.. source.Nodes.Select(CloneNode)],
+            Edges = [.. source.Edges.Select(CloneEdge)],
+            Warnings = [.. source.Warnings]
         };
     }
 

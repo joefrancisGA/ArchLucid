@@ -7,7 +7,10 @@ namespace ArchLucid.Contracts.ProductLearning.Planning;
 public sealed class ImprovementTheme
 {
     /// <summary>Stable identifier for the theme (persisted or generated for drafts).</summary>
-    public Guid ThemeId { get; init; }
+    public Guid ThemeId
+    {
+        get; init;
+    }
 
     /// <summary>Short operator-facing label.</summary>
     public string Name { get; init; } = string.Empty;
@@ -16,12 +19,21 @@ public sealed class ImprovementTheme
     public string Description { get; init; } = string.Empty;
 
     /// <summary>Count of supporting pilot signals or rolled-up evidence rows (definition supplied by aggregation layer).</summary>
-    public int EvidenceCount { get; init; }
+    public int EvidenceCount
+    {
+        get; init;
+    }
 
     /// <summary>
     /// Workflow or artifact facets touched (e.g. manifest, diagram, export); may be empty when unknown.
     /// </summary>
     public IReadOnlyList<string> AffectedArtifactTypes { get; init; } = [];
-    public DateTime FirstSeenUtc { get; init; }
-    public DateTime LastSeenUtc { get; init; }
+    public DateTime FirstSeenUtc
+    {
+        get; init;
+    }
+    public DateTime LastSeenUtc
+    {
+        get; init;
+    }
 }

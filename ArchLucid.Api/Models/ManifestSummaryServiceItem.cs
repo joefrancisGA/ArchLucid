@@ -9,7 +9,10 @@ public sealed class ManifestSummaryServiceItem
     public string Name { get; set; } = string.Empty;
     public string ServiceType { get; set; } = string.Empty;
     public string RuntimePlatform { get; set; } = string.Empty;
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
     public List<string> RequiredControls { get; set; } = [];
     public List<string> Tags { get; set; } = [];
 }

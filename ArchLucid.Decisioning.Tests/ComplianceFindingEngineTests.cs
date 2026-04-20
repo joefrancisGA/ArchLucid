@@ -74,7 +74,11 @@ public sealed class ComplianceFindingEngineTests
                 });
 
         ComplianceFindingEngine sut = new(provider.Object, validator.Object, evaluator.Object);
-        GraphSnapshot graph = new() { Nodes = [], Edges = [] };
+        GraphSnapshot graph = new()
+        {
+            Nodes = [],
+            Edges = []
+        };
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
 

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -337,7 +337,8 @@ public sealed class SqlRunRepository(
 
         if (newStamp is null)
         {
-            if (run.RowVersion is not null) throw new RunConcurrencyConflictException(run.RunId);
+            if (run.RowVersion is not null)
+                throw new RunConcurrencyConflictException(run.RunId);
 
 
             throw new InvalidOperationException($"Run '{run.RunId:D}' was not found for update.");
@@ -434,7 +435,10 @@ public sealed class SqlRunRepository(
             List<ArchivedRunScopeRow> rows = (await connection.QueryAsync<ArchivedRunScopeRow>(
                     new CommandDefinition(
                         sql,
-                        new { Cutoff = cutoffUtc.UtcDateTime },
+                        new
+                        {
+                            Cutoff = cutoffUtc.UtcDateTime
+                        },
                         transaction: tran,
                         cancellationToken: ct)))
                 .ToList();
@@ -457,7 +461,8 @@ public sealed class SqlRunRepository(
     /// <inheritdoc />
     public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
-        if (runIds.Count == 0) return new RunArchiveByIdsResult();
+        if (runIds.Count == 0)
+            return new RunArchiveByIdsResult();
 
 
         List<Guid> distinctOrdered = [];
@@ -479,7 +484,10 @@ public sealed class SqlRunRepository(
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<(Guid RunId, DateTime? ArchivedUtc)> existingRows = await connection.QueryAsync<(Guid RunId, DateTime? ArchivedUtc)>(
-            new CommandDefinition(selectSql, new { RunIds = distinctOrdered }, cancellationToken: ct));
+            new CommandDefinition(selectSql, new
+            {
+                RunIds = distinctOrdered
+            }, cancellationToken: ct));
 
         Dictionary<Guid, DateTime?> stateById = existingRows.ToDictionary(static r => r.RunId, static r => r.ArchivedUtc);
 
@@ -597,7 +605,10 @@ public sealed class SqlRunRepository(
         try
         {
             archived = (await connection.QueryAsync<ArchivedRunScopeRow>(
-                    new CommandDefinition(updateSql, new { ToArchive = toArchive }, transaction: tran, cancellationToken: ct)))
+                    new CommandDefinition(updateSql, new
+                    {
+                        ToArchive = toArchive
+                    }, transaction: tran, cancellationToken: ct)))
                 .ToList();
 
             await tran.CommitAsync(ct);

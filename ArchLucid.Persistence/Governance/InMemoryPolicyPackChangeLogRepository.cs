@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -64,7 +64,8 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -86,7 +87,8 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
         int maxRows = 100,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+        if (maxRows <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -109,7 +111,8 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
         DateTime toUtc,
         CancellationToken cancellationToken = default)
     {
-        if (fromUtc >= toUtc) throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+        if (fromUtc >= toUtc)
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
 
 
         cancellationToken.ThrowIfCancellationRequested();

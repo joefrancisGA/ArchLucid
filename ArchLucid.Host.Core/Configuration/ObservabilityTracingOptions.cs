@@ -15,5 +15,8 @@ public sealed class ObservabilityTracingOptions
     /// <see cref="System.Diagnostics.ActivitySource"/> name in <see cref="OpenTelemetry.Trace.SamplingParameters"/> yet,
     /// so this list is reserved for documentation / future wiring; see <see cref="ArchLucid.Host.Core.Startup.ObservabilityTraceSamplingConfigurator"/>.
     /// </summary>
-    public string[]? AlwaysSampleActivitySources { get; set; }
+    public string[]? AlwaysSampleActivitySources
+    {
+        get; set;
+    }
 }

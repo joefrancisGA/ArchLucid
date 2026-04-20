@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Shared helper that converts arbitrary strings into Mermaid-safe node identifiers.
@@ -13,7 +13,8 @@ internal static class DiagramIdSanitizer
     /// </summary>
     public static string Sanitize(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return "node_unknown";
+        if (string.IsNullOrWhiteSpace(value))
+            return "node_unknown";
 
         char[] chars = value.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray();
         string cleaned = new(chars);

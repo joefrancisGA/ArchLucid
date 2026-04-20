@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Provenance.Analysis;
+namespace ArchLucid.Provenance.Analysis;
 
 /// <summary>
 /// Measures how many golden-manifest decisions have full traceability in a <see cref="DecisionProvenanceGraph"/>:

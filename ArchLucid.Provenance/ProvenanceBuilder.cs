@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -123,11 +123,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
             string decisionKey = $"decision:{d.DecisionId}";
-            if (!nodeMap.TryGetValue(decisionKey, out Guid to)) continue;
+            if (!nodeMap.TryGetValue(decisionKey, out Guid to))
+                continue;
 
             foreach (string fk in d.SupportingFindingIds.Select(fId => $"finding:{fId}"))
             {
-                if (!nodeMap.TryGetValue(fk, out Guid from)) continue;
+                if (!nodeMap.TryGetValue(fk, out Guid from))
+                    continue;
 
                 AddEdge(from, to, ProvenanceEdgeType.SupportedBy);
             }
@@ -137,12 +139,14 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (Finding f in findings.Findings)
         {
             string fk = $"finding:{f.FindingId}";
-            if (!nodeMap.TryGetValue(fk, out Guid findingNodeId)) continue;
+            if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
+                continue;
 
             foreach (string relatedId in f.RelatedNodeIds)
             {
                 string gk = $"graph:{relatedId}";
-                if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid)) continue;
+                if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
+                    continue;
 
                 AddEdge(graphNid, findingNodeId, ProvenanceEdgeType.InfluencedByGraphNode);
             }
@@ -151,12 +155,14 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
         foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
         {
-            if (!nodeMap.TryGetValue(dk, out Guid decisionNid)) continue;
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                continue;
 
             foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string rk = $"rule:{ruleId}";
-                if (!nodeMap.TryGetValue(rk, out Guid ruleNid)) continue;
+                if (!nodeMap.TryGetValue(rk, out Guid ruleNid))
+                    continue;
 
                 AddEdge(ruleNid, decisionNid, ProvenanceEdgeType.TriggeredByRule);
             }
@@ -166,12 +172,14 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (SynthesizedArtifact a in artifacts)
         {
             string ak = $"artifact:{a.ArtifactId:N}";
-            if (!nodeMap.TryGetValue(ak, out Guid artifactNid)) continue;
+            if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
+                continue;
 
             foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
             {
                 string dk = $"decision:{dId}";
-                if (!nodeMap.TryGetValue(dk, out Guid decisionNid)) continue;
+                if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                    continue;
 
                 AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
             }
@@ -180,7 +188,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         // Decisions → Manifest
         foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
         {
-            if (!nodeMap.TryGetValue(dk, out Guid decisionNid)) continue;
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                continue;
 
             AddEdge(decisionNid, manifestNodeId, ProvenanceEdgeType.ContainedInManifest);
         }
@@ -189,7 +198,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         Guid AddNode(string key, ProvenanceNode node)
         {
-            if (nodeMap.TryGetValue(key, out Guid existing)) return existing;
+            if (nodeMap.TryGetValue(key, out Guid existing))
+                return existing;
 
             node.Id = Guid.NewGuid();
             result.Nodes.Add(node);

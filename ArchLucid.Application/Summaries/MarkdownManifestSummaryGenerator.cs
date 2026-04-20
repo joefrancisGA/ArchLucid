@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
@@ -35,7 +35,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         AppendGovernance(sb, manifest.Governance);
         AppendMetadata(sb, manifest.Metadata);
 
-        if (evidence is null) return sb.ToString();
+        if (evidence is null)
+            return sb.ToString();
 
         sb.AppendLine();
         sb.AppendLine("---");
@@ -66,7 +67,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
 
     private static void AppendServices(StringBuilder sb, IReadOnlyList<ManifestService> services)
     {
-        if (services.Count == 0) return;
+        if (services.Count == 0)
+            return;
 
         sb.AppendLine("## Services");
         sb.AppendLine();
@@ -95,7 +97,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
 
     private static void AppendDatastores(StringBuilder sb, IReadOnlyList<ManifestDatastore> datastores)
     {
-        if (datastores.Count == 0) return;
+        if (datastores.Count == 0)
+            return;
 
         sb.AppendLine("## Datastores");
         sb.AppendLine();
@@ -118,7 +121,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
 
     private static void AppendRelationships(StringBuilder sb, IReadOnlyList<ManifestRelationship> relationships)
     {
-        if (relationships.Count == 0) return;
+        if (relationships.Count == 0)
+            return;
 
         sb.AppendLine("## Relationships");
         sb.AppendLine();

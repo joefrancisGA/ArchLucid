@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 using ArchLucid.Core.Configuration;
 
@@ -16,10 +16,12 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
     {
         LlmTokenQuotaOptions opts = optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || tenantId == Guid.Empty) return;
+        if (!opts.Enabled || tenantId == Guid.Empty)
+            return;
 
 
-        if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 }) return;
+        if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 })
+            return;
 
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
@@ -54,10 +56,12 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
     {
         LlmTokenQuotaOptions opts = optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || tenantId == Guid.Empty) return;
+        if (!opts.Enabled || tenantId == Guid.Empty)
+            return;
 
 
-        if (promptTokens < 1 && completionTokens < 1) return;
+        if (promptTokens < 1 && completionTokens < 1)
+            return;
 
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());

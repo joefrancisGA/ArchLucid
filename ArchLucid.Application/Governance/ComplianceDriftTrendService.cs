@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Governance;
@@ -18,13 +18,16 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
         TimeSpan bucketSize,
         CancellationToken cancellationToken = default)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("Tenant id is required.", nameof(tenantId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
 
-        if (fromUtc >= toUtc) throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+        if (fromUtc >= toUtc)
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
 
 
-        if (bucketSize <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(bucketSize));
+        if (bucketSize <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(bucketSize));
 
 
         IReadOnlyList<PolicyPackChangeLogEntry> entries =
@@ -37,13 +40,15 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
         {
             long offsetTicks = entry.ChangedUtc.Ticks - fromUtc.Ticks;
 
-            if (offsetTicks < 0) continue;
+            if (offsetTicks < 0)
+                continue;
 
 
             long bucketIndex = offsetTicks / bucketTicks;
             DateTime bucketUtc = fromUtc.AddTicks(bucketIndex * bucketTicks);
 
-            if (bucketUtc >= toUtc) continue;
+            if (bucketUtc >= toUtc)
+                continue;
 
 
             if (!buckets.TryGetValue(bucketUtc, out Dictionary<string, int>? byType))

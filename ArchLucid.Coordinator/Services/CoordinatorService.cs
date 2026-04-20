@@ -1,4 +1,4 @@
-﻿using ArchLucid.ContextIngestion.Mapping;
+using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;

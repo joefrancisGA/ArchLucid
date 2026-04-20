@@ -87,7 +87,10 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows];

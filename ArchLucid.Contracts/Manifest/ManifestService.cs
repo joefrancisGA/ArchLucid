@@ -20,14 +20,23 @@ public sealed class ManifestService
 
     /// <summary>Functional category of this service (API, UI, Worker, etc.).</summary>
     [Required]
-    public ServiceType ServiceType { get; set; }
+    public ServiceType ServiceType
+    {
+        get; set;
+    }
 
     /// <summary>Deployment platform for this service (e.g. <c>AppService</c>, <c>ContainerApps</c>).</summary>
     [Required]
-    public RuntimePlatform RuntimePlatform { get; set; }
+    public RuntimePlatform RuntimePlatform
+    {
+        get; set;
+    }
 
     /// <summary>Short description of the service's role in the architecture. Optional.</summary>
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
     /// <summary>Governance and security controls required for this specific service.</summary>
     public List<string> Tags { get; set; } = [];

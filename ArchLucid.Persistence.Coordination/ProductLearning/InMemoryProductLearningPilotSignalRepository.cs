@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -13,10 +13,12 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (string.IsNullOrWhiteSpace(record.SubjectType)) throw new ArgumentException("SubjectType is required.", nameof(record));
+        if (string.IsNullOrWhiteSpace(record.SubjectType))
+            throw new ArgumentException("SubjectType is required.", nameof(record));
 
 
-        if (string.IsNullOrWhiteSpace(record.Disposition)) throw new ArgumentException("Disposition is required.", nameof(record));
+        if (string.IsNullOrWhiteSpace(record.Disposition))
+            throw new ArgumentException("Disposition is required.", nameof(record));
 
 
         Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;

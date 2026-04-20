@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Integration;
 
@@ -98,7 +98,8 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
                 .ReceiveMessagesAsync(Math.Min(10, remaining), ReceiveWait, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (batch.Count == 0) break;
+            if (batch.Count == 0)
+                break;
 
 
             ServiceBusReceiverSettlement settlement = new(receiver);

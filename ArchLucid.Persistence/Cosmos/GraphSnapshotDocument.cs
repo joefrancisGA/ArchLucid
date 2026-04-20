@@ -18,7 +18,10 @@ public sealed class GraphSnapshotDocument
     public string RunId { get; set; } = string.Empty;
 
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion { get; set; }
+    public int SchemaVersion
+    {
+        get; set;
+    }
 
     /// <summary>ISO 8601 UTC string for ordering in cross-partition queries.</summary>
     [JsonPropertyName("createdUtc")]

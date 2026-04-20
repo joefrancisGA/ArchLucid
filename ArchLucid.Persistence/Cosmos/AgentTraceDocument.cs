@@ -23,5 +23,8 @@ public sealed class AgentTraceDocument
 
     /// <summary>Optional Cosmos TTL in seconds (container default may also apply).</summary>
     [JsonPropertyName("ttl")]
-    public int? Ttl { get; set; }
+    public int? Ttl
+    {
+        get; set;
+    }
 }

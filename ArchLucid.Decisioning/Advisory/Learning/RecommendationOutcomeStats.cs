@@ -9,11 +9,26 @@ public class RecommendationOutcomeStats
     public string Key { get; set; } = null!;
 
     /// <summary>Recommendations proposed in this bucket.</summary>
-    public int ProposedCount { get; set; }
-    public int AcceptedCount { get; set; }
-    public int RejectedCount { get; set; }
-    public int DeferredCount { get; set; }
-    public int ImplementedCount { get; set; }
+    public int ProposedCount
+    {
+        get; set;
+    }
+    public int AcceptedCount
+    {
+        get; set;
+    }
+    public int RejectedCount
+    {
+        get; set;
+    }
+    public int DeferredCount
+    {
+        get; set;
+    }
+    public int ImplementedCount
+    {
+        get; set;
+    }
 
     /// <summary>Accepted ÷ proposed.</summary>
     public double AcceptanceRate =>

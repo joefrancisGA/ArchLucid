@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Models;
 
@@ -40,7 +40,8 @@ public static class RunRecordToArchitectureRunMapper
 
     private static ArchitectureRunStatus ParseStatus(string? legacyRunStatus)
     {
-        if (string.IsNullOrWhiteSpace(legacyRunStatus)) return ArchitectureRunStatus.Created;
+        if (string.IsNullOrWhiteSpace(legacyRunStatus))
+            return ArchitectureRunStatus.Created;
 
 
         if (!Enum.TryParse(legacyRunStatus, ignoreCase: true, out ArchitectureRunStatus parsed))

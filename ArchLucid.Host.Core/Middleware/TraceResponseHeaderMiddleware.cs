@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace ArchLucid.Host.Core.Middleware;
 
@@ -18,7 +18,8 @@ public sealed class TraceResponseHeaderMiddleware(RequestDelegate next)
         {
             Activity? activity = Activity.Current;
 
-            if (activity is null) return Task.CompletedTask;
+            if (activity is null)
+                return Task.CompletedTask;
 
 
             context.Response.Headers["traceparent"] = activity.Id;

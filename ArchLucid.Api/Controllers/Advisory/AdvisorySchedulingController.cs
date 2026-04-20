@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -52,7 +52,8 @@ public sealed class AdvisorySchedulingController(
         [FromBody] AdvisoryScanSchedule? request,
         CancellationToken ct = default)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -113,7 +114,8 @@ public sealed class AdvisorySchedulingController(
     {
         take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
-        if (schedule is null) return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (schedule is null)
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
@@ -137,7 +139,8 @@ public sealed class AdvisorySchedulingController(
     public async Task<IActionResult> RunNow(Guid scheduleId, CancellationToken ct = default)
     {
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
-        if (schedule is null) return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (schedule is null)
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
@@ -182,7 +185,8 @@ public sealed class AdvisorySchedulingController(
     public async Task<IActionResult> GetDigest(Guid digestId, CancellationToken ct = default)
     {
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
-        if (digest is null) return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (digest is null)
+            return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (digest.TenantId != scope.TenantId ||

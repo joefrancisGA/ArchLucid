@@ -26,9 +26,9 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
         AppendSection(sb, "Changed Request Values", diff.RequestDiff.ChangedValues);
 
         if (diff.Warnings.Count > 0)
-        
+
             AppendSection(sb, "Warnings", diff.Warnings);
-        
+
 
         return sb.ToString();
     }
@@ -49,9 +49,9 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
         }
 
         foreach (string item in items.OrderBy(x => x))
-        
+
             sb.AppendLine($"- {item}");
-        
+
 
         sb.AppendLine();
     }

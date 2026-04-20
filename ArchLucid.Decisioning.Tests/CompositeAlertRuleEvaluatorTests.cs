@@ -21,22 +21,22 @@ public sealed class CompositeAlertRuleEvaluatorTests
     private static CompositeAlertRule MakeRule(
         string @operator,
         params AlertRuleCondition[] conditions) => new()
-    {
-        CompositeRuleId = Guid.NewGuid(),
-        Name = "test-rule",
-        Operator = @operator,
-        Conditions = conditions.ToList()
-    };
+        {
+            CompositeRuleId = Guid.NewGuid(),
+            Name = "test-rule",
+            Operator = @operator,
+            Conditions = conditions.ToList()
+        };
 
     private static AlertRuleCondition Condition(
         string metricType,
         string conditionOperator,
         decimal threshold) => new()
-    {
-        MetricType = metricType,
-        Operator = conditionOperator,
-        ThresholdValue = threshold
-    };
+        {
+            MetricType = metricType,
+            Operator = conditionOperator,
+            ThresholdValue = threshold
+        };
 
     private static AlertMetricSnapshot Snapshot(decimal criticalCount = 0,
         decimal complianceGaps = 0,
@@ -44,14 +44,14 @@ public sealed class CompositeAlertRuleEvaluatorTests
         decimal deferredHigh = 0,
         decimal rejectedSecurity = 0,
         decimal acceptanceRate = 0) => new()
-    {
-        CriticalRecommendationCount = criticalCount,
-        NewComplianceGapCount = complianceGaps,
-        CostIncreasePercent = costPct,
-        DeferredHighPriorityRecommendationCount = deferredHigh,
-        RejectedSecurityRecommendationCount = rejectedSecurity,
-        AcceptanceRatePercent = acceptanceRate
-    };
+        {
+            CriticalRecommendationCount = criticalCount,
+            NewComplianceGapCount = complianceGaps,
+            CostIncreasePercent = costPct,
+            DeferredHighPriorityRecommendationCount = deferredHigh,
+            RejectedSecurityRecommendationCount = rejectedSecurity,
+            AcceptanceRatePercent = acceptanceRate
+        };
 
     // ──────────────────────────────────────────────────────────────────────────
     // Empty conditions

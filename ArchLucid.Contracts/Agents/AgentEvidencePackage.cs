@@ -45,7 +45,10 @@ public sealed class AgentEvidencePackage
     /// when <c>PriorManifestVersion</c> is set on the request.
     /// <see langword="null"/> for greenfield runs or when hydration is not yet implemented.
     /// </summary>
-    public PriorManifestEvidence? PriorManifest { get; set; }
+    public PriorManifestEvidence? PriorManifest
+    {
+        get; set;
+    }
 
     /// <summary>Advisory notes added by the evidence builder (execution mode, hydration warnings, pattern hints, etc.).</summary>
     public List<EvidenceNote> Notes { get; set; } = [];

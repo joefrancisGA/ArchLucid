@@ -22,7 +22,11 @@ public sealed class TopologyCoverageFindingEngineTests
     [Fact]
     public async Task AnalyzeAsync_WhenTopologyNodeCountIsZero_EmitsMissingTopologyFinding()
     {
-        TopologyCoverageResult coverage = new() { TopologyNodeCount = 0, PresentCategories = [] };
+        TopologyCoverageResult coverage = new()
+        {
+            TopologyNodeCount = 0,
+            PresentCategories = []
+        };
 
         Mock<IGraphCoverageAnalyzer> analyzer = new();
         analyzer.Setup(x => x.AnalyzeTopology(It.IsAny<GraphSnapshot>())).Returns(coverage);

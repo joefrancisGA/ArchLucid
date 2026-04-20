@@ -14,7 +14,10 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public static class PolicyPackJsonSerializerOptions
 {
     /// <summary>Case-insensitive read, camelCase write, trailing commas and comments allowed on read.</summary>
-    public static JsonSerializerOptions Default { get; } = new()
+    public static JsonSerializerOptions Default
+    {
+        get;
+    } = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

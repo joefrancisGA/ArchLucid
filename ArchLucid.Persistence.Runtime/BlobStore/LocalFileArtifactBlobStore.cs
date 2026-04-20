@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.BlobStore;
 
@@ -34,23 +34,27 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
 
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(blobUri)) return null;
+        if (string.IsNullOrWhiteSpace(blobUri))
+            return null;
 
         string path = ToLocalPath(blobUri);
 
-        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return null;
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            return null;
 
         string full = Path.GetFullPath(path);
         string root = Path.GetFullPath(_rootPath);
 
-        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) return null;
+        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+            return null;
 
         string relative = Path.GetRelativePath(root, full);
         string[] segments = relative.Split(
             [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
             StringSplitOptions.RemoveEmptyEntries);
 
-        if (segments.Length < 2) throw new InvalidOperationException("Local blob path must include container and tenant folder segments.");
+        if (segments.Length < 2)
+            throw new InvalidOperationException("Local blob path must include container and tenant folder segments.");
 
         if (!Guid.TryParse(segments[1], out Guid pathTenant) ||
             pathTenant != _scopeProvider.GetCurrentScope().TenantId)
@@ -67,9 +71,11 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         {
             Uri uri = new(blobUri, UriKind.Absolute);
 
-            if (uri.IsFile) return uri.LocalPath;
+            if (uri.IsFile)
+                return uri.LocalPath;
 
-            if (Path.IsPathRooted(blobUri)) return Path.GetFullPath(blobUri);
+            if (Path.IsPathRooted(blobUri))
+                return Path.GetFullPath(blobUri);
 
             return string.Empty;
         }

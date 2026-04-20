@@ -28,23 +28,41 @@ public sealed class GovernanceApprovalRequest
     public string RequestedBy { get; set; } = string.Empty;
 
     /// <summary>Identity of the reviewer, or <see langword="null"/> when not yet reviewed.</summary>
-    public string? ReviewedBy { get; set; }
+    public string? ReviewedBy
+    {
+        get; set;
+    }
 
     /// <summary>Optional comment provided by the requester at submission time.</summary>
-    public string? RequestComment { get; set; }
+    public string? RequestComment
+    {
+        get; set;
+    }
 
     /// <summary>Optional comment provided by the reviewer at decision time.</summary>
-    public string? ReviewComment { get; set; }
+    public string? ReviewComment
+    {
+        get; set;
+    }
 
     /// <summary>UTC timestamp when the request was submitted.</summary>
     public DateTime RequestedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>UTC timestamp when the request was reviewed, or <see langword="null"/> when pending.</summary>
-    public DateTime? ReviewedUtc { get; set; }
+    public DateTime? ReviewedUtc
+    {
+        get; set;
+    }
 
     /// <summary>UTC deadline for the approval SLA. Null when SLA is not configured.</summary>
-    public DateTime? SlaDeadlineUtc { get; set; }
+    public DateTime? SlaDeadlineUtc
+    {
+        get; set;
+    }
 
     /// <summary>UTC timestamp when the SLA breach notification was sent, or <see langword="null"/> if not yet breached/notified.</summary>
-    public DateTime? SlaBreachNotifiedUtc { get; set; }
+    public DateTime? SlaBreachNotifiedUtc
+    {
+        get; set;
+    }
 }

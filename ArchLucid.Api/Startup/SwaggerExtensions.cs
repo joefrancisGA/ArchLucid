@@ -15,7 +15,8 @@ internal static class SwaggerExtensions
 
             c.TagActionsBy(api =>
             {
-                if (api.ActionDescriptor is not ControllerActionDescriptor cad) return [api.GroupName ?? "API"];
+                if (api.ActionDescriptor is not ControllerActionDescriptor cad)
+                    return [api.GroupName ?? "API"];
 
                 string tag = cad.ControllerName switch
                 {

@@ -1,4 +1,4 @@
-﻿using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.ArtifactBundles;
@@ -8,7 +8,8 @@ internal static class ArtifactBundleTraceJsonReader
 {
     internal static SynthesisTrace DeserializeTraceBase(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return new SynthesisTrace();
+        if (string.IsNullOrWhiteSpace(json))
+            return new SynthesisTrace();
 
         return JsonEntitySerializer.Deserialize<SynthesisTrace>(json);
     }

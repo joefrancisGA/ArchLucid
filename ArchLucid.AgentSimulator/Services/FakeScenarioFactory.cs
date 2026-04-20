@@ -190,9 +190,9 @@ public static class FakeScenarioFactory
 
         if (request.Constraints.Any(c =>
             c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
-        
+
             requiredControls.Add("Encryption At Rest");
-        
+
 
         return new AgentResult
         {

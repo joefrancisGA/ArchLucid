@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.ProblemDetails;
+namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
 /// Optional <c>supportHint</c> on problem+json for operators (no secrets; complements <c>errorCode</c>).
@@ -13,7 +13,8 @@ public static class ProblemSupportHints
         ArgumentNullException.ThrowIfNull(problem);
 
         string? type = problem.Type;
-        if (string.IsNullOrWhiteSpace(type)) return;
+        if (string.IsNullOrWhiteSpace(type))
+            return;
 
 
         string? hint = Resolve(type);
@@ -30,10 +31,12 @@ public static class ProblemSupportHints
             return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run�s scope.";
 
 
-        if (typeUri == ProblemTypes.ManifestNotFound) return "Confirm the manifest ID and scope. The manifest may not exist in this tenant/workspace/project.";
+        if (typeUri == ProblemTypes.ManifestNotFound)
+            return "Confirm the manifest ID and scope. The manifest may not exist in this tenant/workspace/project.";
 
 
-        if (typeUri == ProblemTypes.ResourceNotFound) return "Confirm the resource identifier and that your caller is authorized for the correct scope.";
+        if (typeUri == ProblemTypes.ResourceNotFound)
+            return "Confirm the resource identifier and that your caller is authorized for the correct scope.";
 
 
         if (typeUri == ProblemTypes.Conflict)
@@ -46,7 +49,8 @@ public static class ProblemSupportHints
             return "Correct the request using the detail and validation entries above. Swagger (/swagger) lists required fields for each endpoint.";
 
 
-        if (typeUri == ProblemTypes.InvalidRunState) return "Check run status (GET run detail): execute agent tasks before commit, or avoid repeating a terminal step.";
+        if (typeUri == ProblemTypes.InvalidRunState)
+            return "Check run status (GET run detail): execute agent tasks before commit, or avoid repeating a terminal step.";
 
 
         if (typeUri == ProblemTypes.CommitFailed)
@@ -54,7 +58,8 @@ public static class ProblemSupportHints
             return "Review the detail; ensure all tasks have results and the run is in the expected state. See server logs for RunId.";
 
 
-        if (typeUri == ProblemTypes.AgentResultRequired) return "Submit the missing agent result payload, then retry.";
+        if (typeUri == ProblemTypes.AgentResultRequired)
+            return "Submit the missing agent result payload, then retry.";
 
 
         if (typeUri == ProblemTypes.UnavailableInProduction)

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Billing;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -48,12 +49,22 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new System.Security.Claims.ClaimsPrincipal());
 
         Mock<IHttpClientFactory> httpFactory = new();
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
         AzureMarketplaceBillingProvider sut = new(
             monitor,
             ledger.Object,
             activator,
             verifier.Object,
             httpFactory.Object,
+            changePlanHandler,
+            changeQtyHandler,
             NullLogger<AzureMarketplaceBillingProvider>.Instance);
 
         Guid tenantId = Guid.NewGuid();
@@ -109,12 +120,22 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             .ReturnsAsync(new System.Security.Claims.ClaimsPrincipal());
 
         Mock<IHttpClientFactory> httpFactory = new();
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
         AzureMarketplaceBillingProvider sut = new(
             monitor,
             ledger.Object,
             activator,
             verifier.Object,
             httpFactory.Object,
+            changePlanHandler,
+            changeQtyHandler,
             NullLogger<AzureMarketplaceBillingProvider>.Instance);
 
         Guid tenantId = Guid.NewGuid();

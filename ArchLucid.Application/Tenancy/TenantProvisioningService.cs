@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -29,7 +29,8 @@ public sealed class TenantProvisioningService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.Name)) throw new ArgumentException("Tenant name is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ArgumentException("Tenant name is required.", nameof(request));
 
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));

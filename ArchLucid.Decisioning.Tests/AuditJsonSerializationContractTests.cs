@@ -20,7 +20,10 @@ public sealed class AuditJsonSerializationContractTests
             {
                 AlertId = Guid.NewGuid(),
                 RuleName = "High count",
-                Nested = new { InnerValue = 3 }
+                Nested = new
+                {
+                    InnerValue = 3
+                }
             },
             AuditJsonSerializationOptions.Instance);
 

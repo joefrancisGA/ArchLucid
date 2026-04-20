@@ -12,7 +12,10 @@ public interface IAuditRetryQueue
     ValueTask<AuditEvent> DequeueAsync(CancellationToken cancellationToken);
 
     /// <summary>Approximate number of events not yet successfully written to durable audit storage.</summary>
-    long ApproximatePendingCount { get; }
+    long ApproximatePendingCount
+    {
+        get;
+    }
 
     /// <summary>Call after <see cref="IAuditService.LogAsync"/> succeeds for a dequeued event.</summary>
     void NotifyPersistedSuccess();

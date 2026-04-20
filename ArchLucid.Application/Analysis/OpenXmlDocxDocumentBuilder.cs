@@ -30,8 +30,14 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     private readonly MemoryStream _stream;
     private readonly WordprocessingDocument _document;
 
-    public Body Body { get; }
-    public MainDocumentPart MainPart { get; }
+    public Body Body
+    {
+        get;
+    }
+    public MainDocumentPart MainPart
+    {
+        get;
+    }
 
     public OpenXmlDocxDocumentBuilder()
     {
@@ -59,9 +65,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
-        
+
             run.RunProperties = new WpRunProperties(new Bold());
-        
+
 
         Body.AppendChild(new WpParagraph(run));
     }
@@ -75,9 +81,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     public void AddSpacer(int lines = 1)
     {
         for (int i = 0; i < lines; i++)
-        
+
             Body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
-        
+
     }
 
     public void AddMultilineParagraphs(string text)
@@ -85,9 +91,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         string[] lines = text.Replace("\r\n", "\n").Split('\n');
 
         foreach (string line in lines)
-        
+
             AddParagraph(line);
-        
+
     }
 
     public void AddCodeBlock(string text, string language)
@@ -116,9 +122,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         }
 
         foreach (string item in items)
-        
+
             AddBullet(item);
-        
+
     }
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)
@@ -126,9 +132,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         ImagePart imagePart = MainPart.AddImagePart(ImagePartType.Png);
 
         using (MemoryStream stream = new(imageBytes))
-        
+
             imagePart.FeedData(stream);
-        
+
 
         string relationshipId = MainPart.GetIdOfPart(imagePart);
 

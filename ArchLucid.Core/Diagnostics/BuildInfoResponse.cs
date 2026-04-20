@@ -9,8 +9,14 @@ public sealed class BuildInfoResponse
     public string Application { get; init; } = string.Empty;
     public string InformationalVersion { get; init; } = string.Empty;
     public string AssemblyVersion { get; init; } = string.Empty;
-    public string? FileVersion { get; init; }
-    public string? CommitSha { get; init; }
+    public string? FileVersion
+    {
+        get; init;
+    }
+    public string? CommitSha
+    {
+        get; init;
+    }
     public string RuntimeFramework { get; init; } = string.Empty;
     public string Environment { get; init; } = string.Empty;
 

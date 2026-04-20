@@ -6,7 +6,16 @@ namespace ArchLucid.Contracts.ProductLearning.Planning;
 /// </summary>
 public sealed class ProductLearningImprovementPlanSignalLinkRecord
 {
-    public Guid PlanId { get; init; }
-    public Guid SignalId { get; init; }
-    public string? TriageStatusSnapshot { get; init; }
+    public Guid PlanId
+    {
+        get; init;
+    }
+    public Guid SignalId
+    {
+        get; init;
+    }
+    public string? TriageStatusSnapshot
+    {
+        get; init;
+    }
 }

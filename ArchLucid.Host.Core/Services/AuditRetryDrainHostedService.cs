@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Audit;
+using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Host.Core.Services;
 

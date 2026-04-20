@@ -35,15 +35,16 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
         AppendRelationshipSection(sb, "Added Relationships", diff.AddedRelationships);
         AppendRelationshipSection(sb, "Removed Relationships", diff.RemovedRelationships);
 
-        if (diff.Warnings.Count <= 0) return sb.ToString();
-        
+        if (diff.Warnings.Count <= 0)
+            return sb.ToString();
+
         sb.AppendLine("## Warnings");
         sb.AppendLine();
 
         foreach (string warning in diff.Warnings)
-        
+
             sb.AppendLine($"- {warning}");
-        
+
 
         sb.AppendLine();
 
@@ -66,9 +67,9 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
         }
 
         foreach (string item in items.OrderBy(x => x))
-        
+
             sb.AppendLine($"- {item}");
-        
+
 
         sb.AppendLine();
     }
@@ -96,9 +97,9 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
             sb.AppendLine($"- **{item.SourceId}** -> **{item.TargetId}** ({item.RelationshipType})");
 
             if (!string.IsNullOrWhiteSpace(item.Description))
-            
+
                 sb.AppendLine($"  - {item.Description}");
-            
+
         }
 
         sb.AppendLine();

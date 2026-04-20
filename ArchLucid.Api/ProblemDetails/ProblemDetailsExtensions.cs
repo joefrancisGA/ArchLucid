@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
 
 using Microsoft.AspNetCore.Mvc;
@@ -103,9 +103,9 @@ public static class ProblemDetailsExtensions
             Title = "Conflict",
             Status = StatusCodes.Status409Conflict,
             Detail = result.Reason ?? "Commit blocked by governance policy.",
-            Instance = controller.Request.Path
+            Instance = controller.Request.Path,
+            Extensions = { ["blockingFindingIds"] = result.BlockingFindingIds.ToArray() }
         };
-        problem.Extensions["blockingFindingIds"] = result.BlockingFindingIds.ToArray();
 
         if (result.PolicyPackId is not null)
 
@@ -184,7 +184,8 @@ public static class ProblemDetailsExtensions
         InvalidOperationException exception,
         string badRequestType)
     {
-        if (exception is ConflictException) return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
+        if (exception is ConflictException)
+            return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
 
         string? instance = controller.Request.Path.Value;
         return ApplicationProblemMapper.MapInvalidOperation(

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
 

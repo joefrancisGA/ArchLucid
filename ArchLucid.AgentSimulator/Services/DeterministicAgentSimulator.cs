@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -50,7 +50,8 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
             return FakeScenarioFactory.CreateTopologyResult(runId, taskId, request);
 
 
-        if (string.Equals(agentTypeKey, AgentTypeKeys.Cost, StringComparison.OrdinalIgnoreCase)) return FakeScenarioFactory.CreateCostResult(runId, taskId, request);
+        if (string.Equals(agentTypeKey, AgentTypeKeys.Cost, StringComparison.OrdinalIgnoreCase))
+            return FakeScenarioFactory.CreateCostResult(runId, taskId, request);
 
 
         if (string.Equals(agentTypeKey, AgentTypeKeys.Compliance, StringComparison.OrdinalIgnoreCase))

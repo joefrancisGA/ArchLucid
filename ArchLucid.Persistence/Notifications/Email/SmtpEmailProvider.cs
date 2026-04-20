@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Mail;
 
 using ArchLucid.Core.Configuration;
@@ -24,10 +24,12 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
         EmailNotificationOptions options = _optionsMonitor.CurrentValue;
 
-        if (string.IsNullOrWhiteSpace(options.SmtpHost)) throw new InvalidOperationException("Email:SmtpHost is required when Email:Provider is Smtp.");
+        if (string.IsNullOrWhiteSpace(options.SmtpHost))
+            throw new InvalidOperationException("Email:SmtpHost is required when Email:Provider is Smtp.");
 
 
-        if (string.IsNullOrWhiteSpace(options.FromAddress)) throw new InvalidOperationException("Email:FromAddress is required when Email:Provider is Smtp.");
+        if (string.IsNullOrWhiteSpace(options.FromAddress))
+            throw new InvalidOperationException("Email:FromAddress is required when Email:Provider is Smtp.");
 
 
 #pragma warning disable CA1416 // SmtpClient is obsolete but intentionally used for lightweight dev SMTP.

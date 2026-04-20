@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Middleware;
+namespace ArchLucid.Host.Core.Middleware;
 
 /// <summary>
 /// Adds baseline security headers for API responses (defense in depth; does not replace WAF or browser CSP for SPAs).

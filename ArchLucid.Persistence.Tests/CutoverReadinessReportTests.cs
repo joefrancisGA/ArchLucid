@@ -109,7 +109,10 @@ public sealed class CutoverReadinessReportTests
     [Fact]
     public void Report_EmptySlices_IsFullyReady()
     {
-        CutoverReadinessReport report = new() { Slices = [] };
+        CutoverReadinessReport report = new()
+        {
+            Slices = []
+        };
 
         report.IsFullyReady.Should().BeTrue();
         report.SlicesNotReady.Should().BeEmpty();

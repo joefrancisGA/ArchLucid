@@ -122,12 +122,12 @@ public sealed class RecommendationLearningAnalyzerTests
     // ──────────────────────────────────────────────────────────────────────────
 
     [Theory]
-    [InlineData("Security",    "SecurityGap")]
-    [InlineData("Compliance",  "ComplianceGap")]
+    [InlineData("Security", "SecurityGap")]
+    [InlineData("Compliance", "ComplianceGap")]
     [InlineData("Requirement", "UncoveredRequirement")]
-    [InlineData("Topology",    "TopologyGap")]
-    [InlineData("Cost",        "CostRisk")]
-    [InlineData("Unknown",     "General")]
+    [InlineData("Topology", "TopologyGap")]
+    [InlineData("Cost", "CostRisk")]
+    [InlineData("Unknown", "General")]
     public void BuildProfile_SignalTypeInferred_CorrectlyByCategory(string category, string expectedSignalType)
     {
         IReadOnlyList<RecommendationRecord> records =

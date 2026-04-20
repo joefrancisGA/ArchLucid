@@ -52,30 +52,30 @@ public sealed class EndToEndReplayComparisonService(
         List<AgentResult> rightResults = rightDetail.Results;
 
         if (leftResults.Count > 0 || rightResults.Count > 0)
-        
+
             report.AgentResultDiff = agentResultDiffService.Compare(
                 leftRunId,
                 leftResults,
                 rightRunId,
                 rightResults);
-        
+
         else
-        
+
             report.Warnings.Add("Neither run contained agent results.");
-        
+
 
         if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) &&
             !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
-        
+
             if (leftDetail.Manifest is not null && rightDetail.Manifest is not null)
-            
+
                 report.ManifestDiff = manifestDiffService.Compare(leftDetail.Manifest, rightDetail.Manifest);
-            
+
             else
-            
+
                 report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
-            
-        
+
+
 
         IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
         IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
@@ -96,17 +96,17 @@ public sealed class EndToEndReplayComparisonService(
             bool hasRight = rightByType.TryGetValue(exportType, out RunExportRecord? rightRecord);
 
             if (hasLeft && hasRight)
-            
+
                 report.ExportDiffs.Add(exportRecordDiffService.Compare(leftRecord!, rightRecord!));
-            
+
             else if (!hasLeft)
-            
+
                 report.Warnings.Add($"Export type '{exportType}' exists on the right run but not the left.");
-            
+
             else
-            
+
                 report.Warnings.Add($"Export type '{exportType}' exists on the left run but not the right.");
-            
+
         }
 
         AddInterpretationNotes(report);
@@ -165,35 +165,35 @@ public sealed class EndToEndReplayComparisonService(
                 report.ManifestDiff.RemovedRelationships.Count > 0;
 
             if (agentChanged && manifestChanged)
-            
+
                 report.InterpretationNotes.Add(
                     "Both agent outputs and resolved manifest changed, suggesting upstream proposal drift propagated into architecture state.");
-            
+
             else if (!agentChanged && manifestChanged)
-            
+
                 report.InterpretationNotes.Add(
                     "The manifest changed without meaningful agent drift, which suggests merge logic or manifest ancestry differences.");
-            
+
             else if (agentChanged && !manifestChanged)
-            
+
                 report.InterpretationNotes.Add(
                     "Agent outputs changed, but the resolved manifest remained stable, suggesting merge logic absorbed or normalized the drift.");
-            
+
             else
-            
+
                 report.InterpretationNotes.Add(
                     "Neither agent outputs nor manifest changed materially.");
-            
+
         }
 
         if (report.ExportDiffs.Any(d =>
                 d.ChangedTopLevelFields.Count > 0 ||
                 d.RequestDiff.ChangedFlags.Count > 0 ||
                 d.RequestDiff.ChangedValues.Count > 0))
-        
+
             report.InterpretationNotes.Add(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
-        
+
     }
 
     private static void AddIfChanged<T>(
@@ -203,8 +203,8 @@ public sealed class EndToEndReplayComparisonService(
         T right)
     {
         if (!EqualityComparer<T>.Default.Equals(left, right))
-        
+
             target.Add(fieldName);
-        
+
     }
 }

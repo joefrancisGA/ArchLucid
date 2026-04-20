@@ -3,7 +3,10 @@ namespace ArchLucid.Core.Billing;
 /// <summary>Payment / marketplace integration behind <see cref="IBillingProviderRegistry"/>.</summary>
 public interface IBillingProvider
 {
-    string ProviderName { get; }
+    string ProviderName
+    {
+        get;
+    }
 
     Task<BillingCheckoutResult> CreateCheckoutSessionAsync(
         BillingCheckoutRequest request,

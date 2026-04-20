@@ -12,8 +12,14 @@ public sealed class GovernanceDiffItem
     public string ChangeType { get; set; } = string.Empty;
 
     /// <summary>Value in the currently active (base) manifest, or <see langword="null"/> when the item is new.</summary>
-    public string? CurrentValue { get; set; }
+    public string? CurrentValue
+    {
+        get; set;
+    }
 
     /// <summary>Value in the preview (candidate) manifest, or <see langword="null"/> when the item is removed.</summary>
-    public string? PreviewValue { get; set; }
+    public string? PreviewValue
+    {
+        get; set;
+    }
 }

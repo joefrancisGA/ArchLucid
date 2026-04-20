@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -39,7 +39,8 @@ public sealed class ApprovalSlaMonitor
     {
         int? slaHours = _options.Value.ApprovalSlaHours;
 
-        if (slaHours is null) return;
+        if (slaHours is null)
+            return;
 
 
         IReadOnlyList<GovernanceApprovalRequest> breached = await _approvalRequestRepository
@@ -90,7 +91,8 @@ public sealed class ApprovalSlaMonitor
     {
         string? webhookUrl = _options.Value.ApprovalSlaEscalationWebhookUrl;
 
-        if (string.IsNullOrWhiteSpace(webhookUrl)) return;
+        if (string.IsNullOrWhiteSpace(webhookUrl))
+            return;
 
 
         try

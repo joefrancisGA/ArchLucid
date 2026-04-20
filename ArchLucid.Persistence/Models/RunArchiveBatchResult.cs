@@ -5,7 +5,10 @@ namespace ArchLucid.Persistence.Models;
 /// </summary>
 public sealed class RunArchiveBatchResult
 {
-    public int UpdatedCount { get; init; }
+    public int UpdatedCount
+    {
+        get; init;
+    }
 
     public IReadOnlyList<ArchivedRunScopeRow> ArchivedRuns { get; init; } = [];
 }

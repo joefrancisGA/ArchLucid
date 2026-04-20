@@ -10,7 +10,10 @@ namespace ArchLucid.AgentRuntime;
 public interface ILlmProvider
 {
     /// <summary>Logical vendor, model/deployment id, optional API base URL, and auth scheme (credentials stay in configuration or SDK).</summary>
-    LlmProviderDescriptor Descriptor { get; }
+    LlmProviderDescriptor Descriptor
+    {
+        get;
+    }
 
     /// <summary>
     /// Sends <paramref name="systemPrompt"/> and <paramref name="userPrompt"/> as chat messages and returns the assistant text.

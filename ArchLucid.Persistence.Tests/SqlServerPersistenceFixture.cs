@@ -30,7 +30,10 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         + "). Or run: dotnet test --filter \"Category!=SqlServerContainer\".";
 
     /// <summary>True after a successful connection and schema migration.</summary>
-    public bool IsSqlServerAvailable { get; private set; }
+    public bool IsSqlServerAvailable
+    {
+        get; private set;
+    }
 
     /// <summary>Connection string after <see cref="InitializeAsync"/> when <see cref="IsSqlServerAvailable"/> is true.</summary>
     public string ConnectionString { get; private set; } = string.Empty;
@@ -119,11 +122,11 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         string scriptPath = Path.Combine(assemblyDir, "Scripts", "PersistenceContractSupplement.sql");
 
         if (!File.Exists(scriptPath))
-        
+
             throw new FileNotFoundException(
                 "PersistenceContractSupplement.sql not found. Ensure the test project copies Scripts to the output directory.",
                 scriptPath);
-        
+
 
         SqlSchemaBootstrapper bootstrapper = new(
             new TestSqlConnectionFactory(connectionString),

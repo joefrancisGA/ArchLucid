@@ -89,9 +89,9 @@ public sealed class ThresholdRecommendationService(
                     ;
             }
             else
-            
+
                 continue;
-            
+
 
             NoiseScoreBreakdown score = noiseScorer.Score(
                 simulation,
@@ -127,10 +127,10 @@ public sealed class ThresholdRecommendationService(
                 $"and suppress {result.RecommendedCandidate.SimulationResult.WouldSuppressCount}.");
         }
         else if (result.Candidates.Count == 0)
-        
+
             result.SummaryNotes.Add(
                 "No candidates were evaluated. Check RuleKind, base rule, and candidate thresholds.");
-        
+
 
         result.SummaryNotes.Add($"Evaluated {result.Candidates.Count} candidate threshold(s).");
 

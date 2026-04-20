@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 

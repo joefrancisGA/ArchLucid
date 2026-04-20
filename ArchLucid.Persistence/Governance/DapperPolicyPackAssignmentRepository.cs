@@ -127,7 +127,11 @@ public sealed class DapperPolicyPackAssignmentRepository(
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         PolicyPackAssignment? row = await connection.QuerySingleOrDefaultAsync<PolicyPackAssignment>(
-            new CommandDefinition(sql, new { TenantId = tenantId, AssignmentId = assignmentId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId,
+                AssignmentId = assignmentId
+            }, cancellationToken: ct));
 
         return row;
     }
@@ -145,7 +149,11 @@ public sealed class DapperPolicyPackAssignmentRepository(
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         int affected = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { AssignmentId = assignmentId, TenantId = tenantId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                AssignmentId = assignmentId,
+                TenantId = tenantId
+            }, cancellationToken: ct));
         return affected > 0;
     }
 }

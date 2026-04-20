@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
 

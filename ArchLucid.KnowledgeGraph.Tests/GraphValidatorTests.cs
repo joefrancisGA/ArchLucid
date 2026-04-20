@@ -166,9 +166,9 @@ public sealed class GraphValidatorTests
         };
 
         foreach (GraphNode n in nodes)
-        
+
             snapshot.Nodes.Add(n);
-        
+
 
         return snapshot;
     }

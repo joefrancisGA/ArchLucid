@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
 
@@ -63,7 +63,8 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
 
     private static double AgeSeconds(DateTime? oldestUtc, DateTime utcNow)
     {
-        if (!oldestUtc.HasValue) return 0;
+        if (!oldestUtc.HasValue)
+            return 0;
 
 
         double seconds = (utcNow - oldestUtc.Value.ToUniversalTime()).TotalSeconds;
@@ -74,14 +75,23 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Dapper.")]
     private sealed class Row
     {
-        public long Cnt { get; init; }
+        public long Cnt
+        {
+            get; init;
+        }
 
-        public DateTime? OldestUtc { get; init; }
+        public DateTime? OldestUtc
+        {
+            get; init;
+        }
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Dapper.")]
     private sealed class DeadRow
     {
-        public long Cnt { get; init; }
+        public long Cnt
+        {
+            get; init;
+        }
     }
 }

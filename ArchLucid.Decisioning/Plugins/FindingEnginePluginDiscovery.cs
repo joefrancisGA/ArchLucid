@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using ArchLucid.Decisioning.Interfaces;
 
@@ -12,7 +12,10 @@ namespace ArchLucid.Decisioning.Plugins;
 public static class FindingEnginePluginDiscovery
 {
     /// <summary>Built-in engine <see cref="IFindingEngine.EngineType"/> values — plugins with the same id are skipped.</summary>
-    public static HashSet<string> BuiltInEngineTypeIds { get; } =
+    public static HashSet<string> BuiltInEngineTypeIds
+    {
+        get;
+    } =
     [
         "requirement",
         "topology-coverage",
@@ -33,7 +36,8 @@ public static class FindingEnginePluginDiscovery
     {
         ArgumentNullException.ThrowIfNull(logger);
 
-        if (string.IsNullOrWhiteSpace(pluginDirectory)) return [];
+        if (string.IsNullOrWhiteSpace(pluginDirectory))
+            return [];
 
 
         string fullPath = Path.GetFullPath(pluginDirectory);
@@ -79,10 +83,12 @@ public static class FindingEnginePluginDiscovery
 
             foreach (Type candidate in SafeGetExportedTypes(assembly))
             {
-                if (!candidate.IsClass || candidate.IsAbstract) continue;
+                if (!candidate.IsClass || candidate.IsAbstract)
+                    continue;
 
 
-                if (!typeof(IFindingEngine).IsAssignableFrom(candidate)) continue;
+                if (!typeof(IFindingEngine).IsAssignableFrom(candidate))
+                    continue;
 
 
                 if (candidate.GetConstructor(Type.EmptyTypes) is null)
@@ -113,7 +119,8 @@ public static class FindingEnginePluginDiscovery
                     continue;
                 }
 
-                if (probe is null) continue;
+                if (probe is null)
+                    continue;
 
 
                 string engineTypeId = probe.EngineType;

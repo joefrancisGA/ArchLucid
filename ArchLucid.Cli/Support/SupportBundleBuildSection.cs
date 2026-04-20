@@ -8,8 +8,14 @@ public sealed class SupportBundleBuildSection
     public SupportBundleCliBuildInfo Cli { get; init; } = new();
 
     [JsonPropertyName("apiVersionJson")]
-    public string? ApiVersionJson { get; init; }
+    public string? ApiVersionJson
+    {
+        get; init;
+    }
 
     [JsonPropertyName("apiVersionError")]
-    public string? ApiVersionError { get; init; }
+    public string? ApiVersionError
+    {
+        get; init;
+    }
 }

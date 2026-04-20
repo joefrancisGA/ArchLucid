@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
@@ -81,7 +81,8 @@ public static partial class ServiceCollectionExtensions
                 return new NullContentSafetyGuard();
             }
 
-            if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey)) return new ContentSafetyEnabledButUnconfiguredGuard();
+            if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
+                return new ContentSafetyEnabledButUnconfiguredGuard();
 
             if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpointDev))
 
@@ -257,7 +258,8 @@ public static partial class ServiceCollectionExtensions
                         primaryGate,
                         primaryDeployment);
 
-                    if (!fallbackLlmEnabled) return primaryChain;
+                    if (!fallbackLlmEnabled)
+                        return primaryChain;
 
 
                     FallbackAzureOpenAiInnerClientHolder holder = sp.GetRequiredService<FallbackAzureOpenAiInnerClientHolder>();
@@ -361,7 +363,8 @@ public static partial class ServiceCollectionExtensions
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
 
-            if (!cacheOptions.Enabled) return completionPipeline;
+            if (!cacheOptions.Enabled)
+                return completionPipeline;
 
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();

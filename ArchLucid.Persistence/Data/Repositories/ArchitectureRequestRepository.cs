@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -91,7 +91,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             },
             cancellationToken: cancellationToken));
 
-        if (json is null) return null;
+        if (json is null)
+            return null;
 
         ArchitectureRequest? request;
         try

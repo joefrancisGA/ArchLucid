@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -123,7 +123,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
     private static string? TruncatePreview(string? text)
     {
-        if (string.IsNullOrEmpty(text)) return null;
+        if (string.IsNullOrEmpty(text))
+            return null;
 
 
         return text.Length <= SummaryPreviewMaxChars ? text : text.Substring(0, SummaryPreviewMaxChars);
@@ -221,7 +222,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         int baselineWarnings = baseline.Warnings.Count;
         int simulatedWarnings = simulated.Warnings.Count;
 
-        if (singlePass) return Math.Max(0, 1.0 - Math.Min(1.0, baselineWarnings / 20.0));
+        if (singlePass)
+            return Math.Max(0, 1.0 - Math.Min(1.0, baselineWarnings / 20.0));
 
 
         int delta = baselineWarnings - simulatedWarnings;
@@ -231,7 +233,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
     private static double? ComputeRegressionRiskScore(ManifestDiffResult? diff)
     {
-        if (diff is null) return null;
+        if (diff is null)
+            return null;
 
 
         int removals =
@@ -240,7 +243,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             diff.RemovedRelationships.Count +
             diff.RemovedRequiredControls.Count;
 
-        if (removals == 0) return 0;
+        if (removals == 0)
+            return 0;
 
 
         return Math.Min(1.0, removals / 10.0);
@@ -251,7 +255,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         ArchitectureAnalysisReport baseline,
         ArchitectureAnalysisReport simulated)
     {
-        if (singlePass) return [.. baseline.Warnings];
+        if (singlePass)
+            return [.. baseline.Warnings];
 
 
         List<string> merged = [];

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
@@ -62,7 +62,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
     {
-        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0) return;
+        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
+            return;
 
 
         OutboxDepthGaugeState s = OutboxDepthGauges;
@@ -122,7 +123,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureTrialFunnelObservableGaugesRegistered()
     {
-        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0) return;
+        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
+            return;
 
 
         AppMeter.CreateObservableGauge(
@@ -584,7 +586,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Records <see cref="TrialFirstRunSeconds"/> when positive and finite.</summary>
     public static void RecordTrialFirstRunLatencySeconds(double seconds)
     {
-        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds)) return;
+        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
+            return;
 
 
         TrialFirstRunSeconds.Record(seconds);
@@ -593,7 +596,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Records <see cref="TrialRunsUsedRatio"/> clamped to non-negative values.</summary>
     public static void RecordTrialRunsUsedRatio(double ratio)
     {
-        if (double.IsNaN(ratio) || double.IsInfinity(ratio)) return;
+        if (double.IsNaN(ratio) || double.IsInfinity(ratio))
+            return;
 
 
         TrialRunsUsedRatio.Record(Math.Max(0, ratio));
@@ -636,7 +640,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Adds <paramref name="estimatedCostUsd"/> to <see cref="LlmCostUsdTotal"/> when positive.</summary>
     public static void RecordLlmCostUsd(decimal estimatedCostUsd, string? tenantLabel)
     {
-        if (estimatedCostUsd <= 0m) return;
+        if (estimatedCostUsd <= 0m)
+            return;
 
 
         string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();

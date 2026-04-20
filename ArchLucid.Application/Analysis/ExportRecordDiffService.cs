@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -88,7 +88,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
             RightRequest = right
         };
 
-        if (left is null || right is null) return diff;
+        if (left is null || right is null)
+            return diff;
 
 
         AddIfChanged(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
@@ -131,7 +132,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
     private static bool AreEqual<T>(T left, T right)
     {
-        if (left is string ls && right is string rs) return string.Equals(ls, rs, StringComparison.OrdinalIgnoreCase);
+        if (left is string ls && right is string rs)
+            return string.Equals(ls, rs, StringComparison.OrdinalIgnoreCase);
 
 
         return EqualityComparer<T>.Default.Equals(left, right);

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Models;
 
 namespace ArchLucid.Decisioning.Advisory.Services;
@@ -125,11 +125,14 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
 
     private static int SeverityBonus(string severity)
     {
-        if (string.IsNullOrWhiteSpace(severity)) return 0;
+        if (string.IsNullOrWhiteSpace(severity))
+            return 0;
 
-        if (string.Equals(severity, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase)) return 20;
+        if (string.Equals(severity, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase))
+            return 20;
 
-        if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase)) return 10;
+        if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase))
+            return 10;
 
         return string.Equals(severity, ImprovementSignalSeverities.Medium, StringComparison.OrdinalIgnoreCase) ? 5 : 0;
     }

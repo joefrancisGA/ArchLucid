@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Runs;
 
@@ -12,7 +12,8 @@ internal static class ManifestVersionIncrementRules
     /// </summary>
     internal static string IncrementManifestVersion(string currentVersion)
     {
-        if (string.IsNullOrWhiteSpace(currentVersion)) return "v1";
+        if (string.IsNullOrWhiteSpace(currentVersion))
+            return "v1";
 
         if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
             int.TryParse(currentVersion[1..], out int versionNumber))
@@ -31,7 +32,8 @@ internal static class ManifestVersionIncrementRules
         ArgumentNullException.ThrowIfNull(run);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion)) return $"v1-{runId}";
+        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            return $"v1-{runId}";
 
         return IncrementManifestVersion(run.CurrentManifestVersion);
     }

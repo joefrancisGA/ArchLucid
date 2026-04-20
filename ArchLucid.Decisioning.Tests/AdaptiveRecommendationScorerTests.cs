@@ -37,7 +37,10 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithCategoryWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new() { CategoryWeights = { ["Security"] = 1.5 } };
+        RecommendationLearningProfile profile = new()
+        {
+            CategoryWeights = { ["Security"] = 1.5 }
+        };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(100), profile);
 
@@ -49,7 +52,10 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithUrgencyWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new() { UrgencyWeights = { ["High"] = 2.0 } };
+        RecommendationLearningProfile profile = new()
+        {
+            UrgencyWeights = { ["High"] = 2.0 }
+        };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(50), profile);
 
@@ -60,7 +66,10 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithSignalTypeWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new() { SignalTypeWeights = { ["SecurityGap"] = 1.25 } };
+        RecommendationLearningProfile profile = new()
+        {
+            SignalTypeWeights = { ["SecurityGap"] = 1.25 }
+        };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(), profile);
 
@@ -73,7 +82,9 @@ public sealed class AdaptiveRecommendationScorerTests
     {
         RecommendationLearningProfile profile = new()
         {
-            CategoryWeights = { ["Security"] = 2.0 }, UrgencyWeights = { ["High"] = 1.5 }, SignalTypeWeights =
+            CategoryWeights = { ["Security"] = 2.0 },
+            UrgencyWeights = { ["High"] = 1.5 },
+            SignalTypeWeights =
             {
                 ["SecurityGap"] = 0.5
             }
@@ -101,7 +112,10 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_NullSignalType_DoesNotApplySignalWeight()
     {
-        RecommendationLearningProfile profile = new() { SignalTypeWeights = { ["SecurityGap"] = 2.0 } };
+        RecommendationLearningProfile profile = new()
+        {
+            SignalTypeWeights = { ["SecurityGap"] = 2.0 }
+        };
 
         AdaptiveScoringInput input = new()
         {

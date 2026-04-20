@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Cli;
+namespace ArchLucid.Cli;
 
 /// <summary>
 /// Concise stderr hints after CLI API failures (aligned with docs/TROUBLESHOOTING.md).

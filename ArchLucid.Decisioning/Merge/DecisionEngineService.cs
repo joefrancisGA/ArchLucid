@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
@@ -61,13 +61,16 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
         DecisionMergeResult output = new();
 
-        if (!_mergeInputGate.TryValidateMergeInputs(runId, manifestVersion, results, output)) return output;
+        if (!_mergeInputGate.TryValidateMergeInputs(runId, manifestVersion, results, output))
+            return output;
 
         List<AgentResult> validResults = _mergeInputGate.ValidateAndFilterResults(runId, results, output);
 
-        if (output.Errors.Count > 0) return output;
+        if (output.Errors.Count > 0)
+            return output;
 
-        if (!_mergeInputGate.ValidateAgentResultsAgainstSchema(validResults, output)) return output;
+        if (!_mergeInputGate.ValidateAgentResultsAgainstSchema(validResults, output))
+            return output;
 
         GoldenManifest manifest = GoldenManifestFactory.CreateBase(runId, request, manifestVersion, parentManifestVersion);
 

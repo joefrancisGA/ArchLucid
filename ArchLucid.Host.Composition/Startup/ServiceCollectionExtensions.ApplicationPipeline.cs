@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application;
+using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;

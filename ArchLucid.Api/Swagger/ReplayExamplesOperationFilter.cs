@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi;
+using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -8,10 +8,12 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.RequestBody?.Content is null) return;
+        if (operation.RequestBody?.Content is null)
+            return;
 
         string path = context.ApiDescription.RelativePath ?? "";
-        if (!path.Contains("comparisons", StringComparison.OrdinalIgnoreCase) || !path.Contains("replay", StringComparison.OrdinalIgnoreCase)) return;
+        if (!path.Contains("comparisons", StringComparison.OrdinalIgnoreCase) || !path.Contains("replay", StringComparison.OrdinalIgnoreCase))
+            return;
 
         operation.Summary ??= "Replay a persisted comparison";
         string baseDesc = "Replay examples: "

@@ -9,5 +9,8 @@ public sealed class CreateGovernanceApprovalRequest
     public string ManifestVersion { get; set; } = string.Empty;
     public string SourceEnvironment { get; set; } = "dev";
     public string TargetEnvironment { get; set; } = "test";
-    public string? RequestComment { get; set; }
+    public string? RequestComment
+    {
+        get; set;
+    }
 }

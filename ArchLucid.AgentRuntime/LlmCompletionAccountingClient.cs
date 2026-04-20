@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -81,7 +81,8 @@ public sealed class LlmCompletionAccountingClient(
         int completionTok,
         CancellationToken cancellationToken)
     {
-        if (scope.TenantId == Guid.Empty) return;
+        if (scope.TenantId == Guid.Empty)
+            return;
 
         DateTimeOffset recordedUtc = DateTimeOffset.UtcNow;
         string? correlationId = System.Diagnostics.Activity.Current?.Id;

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Host.Core.Jobs;

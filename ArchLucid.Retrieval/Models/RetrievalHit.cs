@@ -24,5 +24,8 @@ public class RetrievalHit
     public string Text { get; set; } = null!;
 
     /// <summary>Similarity score (higher is more relevant; exact scale depends on the vector index).</summary>
-    public double Score { get; set; }
+    public double Score
+    {
+        get; set;
+    }
 }

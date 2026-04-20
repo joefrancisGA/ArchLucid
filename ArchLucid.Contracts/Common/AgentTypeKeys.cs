@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Contracts.Common;
 
@@ -39,21 +39,26 @@ public static class AgentTypeKeys
     /// <summary>When <paramref name="agentTypeKey"/> matches a built-in key, returns the enum; otherwise <see langword="null"/>.</summary>
     public static AgentType? TryMapToEnum(string agentTypeKey)
     {
-        if (string.IsNullOrWhiteSpace(agentTypeKey)) return null;
+        if (string.IsNullOrWhiteSpace(agentTypeKey))
+            return null;
 
 
         string k = agentTypeKey.Trim();
 
-        if (string.Equals(k, Topology, StringComparison.OrdinalIgnoreCase)) return AgentType.Topology;
+        if (string.Equals(k, Topology, StringComparison.OrdinalIgnoreCase))
+            return AgentType.Topology;
 
 
-        if (string.Equals(k, Cost, StringComparison.OrdinalIgnoreCase)) return AgentType.Cost;
+        if (string.Equals(k, Cost, StringComparison.OrdinalIgnoreCase))
+            return AgentType.Cost;
 
 
-        if (string.Equals(k, Compliance, StringComparison.OrdinalIgnoreCase)) return AgentType.Compliance;
+        if (string.Equals(k, Compliance, StringComparison.OrdinalIgnoreCase))
+            return AgentType.Compliance;
 
 
-        if (string.Equals(k, Critic, StringComparison.OrdinalIgnoreCase)) return AgentType.Critic;
+        if (string.Equals(k, Critic, StringComparison.OrdinalIgnoreCase))
+            return AgentType.Critic;
 
 
         return null;

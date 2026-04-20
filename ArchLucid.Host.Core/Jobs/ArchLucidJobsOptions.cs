@@ -12,5 +12,8 @@ public sealed class ArchLucidJobsOptions
     /// Comma-separated list of job slugs that Terraform has provisioned for this environment (e.g. <c>advisory-scan,data-archival</c>).
     /// Production Worker validates every <see cref="OffloadedToContainerJobs"/> entry appears here.
     /// </summary>
-    public string? DeployedContainerJobNames { get; set; }
+    public string? DeployedContainerJobNames
+    {
+        get; set;
+    }
 }

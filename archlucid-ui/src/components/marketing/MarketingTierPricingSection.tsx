@@ -23,6 +23,8 @@ export type MarketingTierPricingSectionProps = {
   sectionIntro?: string;
   /** Primary CTA target (include UTM query string when desired). */
   signupHref: string;
+  /** Visible label for the primary signup CTA button. */
+  signupCallToActionLabel?: string;
   /** When false, omit the trailing “Start free trial” button (e.g. welcome page already has a hero CTA). */
   showSignupCallToAction?: boolean;
 };
@@ -115,7 +117,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
                 size="lg"
               >
-                <Link href={props.signupHref}>Start free trial</Link>
+                <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
               </Button>
             </div>
           ) : null}

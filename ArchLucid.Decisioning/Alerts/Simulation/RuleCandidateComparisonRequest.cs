@@ -12,16 +12,28 @@ public class RuleCandidateComparisonRequest
     public string RuleKind { get; set; } = null!;
 
     /// <summary>First simple-rule candidate when <see cref="RuleKind"/> is Simple.</summary>
-    public AlertRule? CandidateASimpleRule { get; set; }
+    public AlertRule? CandidateASimpleRule
+    {
+        get; set;
+    }
 
     /// <summary>Second simple-rule candidate.</summary>
-    public AlertRule? CandidateBSimpleRule { get; set; }
+    public AlertRule? CandidateBSimpleRule
+    {
+        get; set;
+    }
 
     /// <summary>First composite candidate when <see cref="RuleKind"/> is Composite.</summary>
-    public CompositeAlertRule? CandidateACompositeRule { get; set; }
+    public CompositeAlertRule? CandidateACompositeRule
+    {
+        get; set;
+    }
 
     /// <summary>Second composite candidate.</summary>
-    public CompositeAlertRule? CandidateBCompositeRule { get; set; }
+    public CompositeAlertRule? CandidateBCompositeRule
+    {
+        get; set;
+    }
 
     /// <summary>Passed through to each nested <see cref="RuleSimulationRequest"/>.</summary>
     public int RecentRunCount { get; set; } = 5;

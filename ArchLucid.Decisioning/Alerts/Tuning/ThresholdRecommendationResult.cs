@@ -13,7 +13,10 @@ public class ThresholdRecommendationResult
     public string TunedMetricType { get; set; } = null!;
 
     /// <summary>Best-scoring candidate after heuristic ranking; null if no candidates evaluated.</summary>
-    public ThresholdCandidateEvaluation? RecommendedCandidate { get; set; }
+    public ThresholdCandidateEvaluation? RecommendedCandidate
+    {
+        get; set;
+    }
 
     /// <summary>Overall notes (e.g. empty candidate list).</summary>
     public List<string> SummaryNotes { get; set; } = [];

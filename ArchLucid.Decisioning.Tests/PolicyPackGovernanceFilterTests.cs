@@ -51,7 +51,10 @@ public sealed class PolicyPackGovernanceFilterTests
         Guid keep = Guid.NewGuid();
         Guid drop = Guid.NewGuid();
         List<AlertRule> rules = [Rule(keep), Rule(drop)];
-        PolicyPackContentDocument effective = new() { AlertRuleIds = [keep] };
+        PolicyPackContentDocument effective = new()
+        {
+            AlertRuleIds = [keep]
+        };
 
         List<AlertRule> filtered = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
@@ -77,7 +80,10 @@ public sealed class PolicyPackGovernanceFilterTests
         Guid keep = Guid.NewGuid();
         Guid drop = Guid.NewGuid();
         List<CompositeAlertRule> rules = [Composite(keep), Composite(drop)];
-        PolicyPackContentDocument effective = new() { CompositeAlertRuleIds = [keep] };
+        PolicyPackContentDocument effective = new()
+        {
+            CompositeAlertRuleIds = [keep]
+        };
 
         List<CompositeAlertRule> filtered = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 

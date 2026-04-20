@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Metering;
 

@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Startup.Validation.Rules;
+namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class AgentExecutionRules
 {
@@ -13,7 +13,8 @@ internal static class AgentExecutionRules
             errors.Add("AgentExecution:Mode must be either 'Simulator' or 'Real'.");
 
 
-        if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
+            return;
 
 
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
@@ -27,7 +28,8 @@ internal static class AgentExecutionRules
                 "AgentExecution:CompletionClient must be 'Echo', 'AzureOpenAi', or omitted (defaults to Azure OpenAI when keys are present). Additional values may be introduced for other ILlmProvider adapters without changing agent code.");
 
 
-        if (useEchoClient) return;
+        if (useEchoClient)
+            return;
 
 
         string? endpoint = configuration["AzureOpenAI:Endpoint"];

@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.BlobStore;
 
 using Azure.Storage.Blobs;
 

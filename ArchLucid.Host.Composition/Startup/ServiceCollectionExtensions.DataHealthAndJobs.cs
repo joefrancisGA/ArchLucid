@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
@@ -71,7 +71,8 @@ public static partial class ServiceCollectionExtensions
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
-            if (!durable) return;
+            if (!durable)
+                return;
 
             RegisterDurableBackgroundJobInfrastructure(services);
             services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
@@ -79,7 +80,8 @@ public static partial class ServiceCollectionExtensions
             return;
         }
 
-        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined)) return;
+        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined))
+            return;
 
 
         if (durable)

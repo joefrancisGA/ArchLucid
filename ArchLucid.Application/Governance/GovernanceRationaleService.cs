@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
 
@@ -19,7 +19,8 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
             .GetApprovalRequestLineageAsync(approvalRequestId, cancellationToken)
             ;
 
-        if (lineage is null) return null;
+        if (lineage is null)
+            return null;
 
 
         GovernanceApprovalRequest approval = lineage.ApprovalRequest;

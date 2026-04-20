@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.ProblemDetails;
+namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
 /// Stable machine-readable codes in Problem Details <c>extensions.errorCode</c> for clients and automation.
@@ -54,49 +54,71 @@ public static class ProblemErrorCodes
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
-        if (string.IsNullOrWhiteSpace(problemTypeUri)) return Unspecified;
+        if (string.IsNullOrWhiteSpace(problemTypeUri))
+            return Unspecified;
 
-        if (problemTypeUri == ProblemTypes.RequestBodyRequired) return RequestBodyRequired;
+        if (problemTypeUri == ProblemTypes.RequestBodyRequired)
+            return RequestBodyRequired;
 
-        if (problemTypeUri == ProblemTypes.ValidationFailed) return ValidationFailed;
+        if (problemTypeUri == ProblemTypes.ValidationFailed)
+            return ValidationFailed;
 
-        if (problemTypeUri == ProblemTypes.RunNotFound) return RunNotFound;
+        if (problemTypeUri == ProblemTypes.RunNotFound)
+            return RunNotFound;
 
-        if (problemTypeUri == ProblemTypes.ManifestNotFound) return ManifestNotFound;
+        if (problemTypeUri == ProblemTypes.ManifestNotFound)
+            return ManifestNotFound;
 
-        if (problemTypeUri == ProblemTypes.AgentResultRequired) return AgentResultRequired;
+        if (problemTypeUri == ProblemTypes.AgentResultRequired)
+            return AgentResultRequired;
 
-        if (problemTypeUri == ProblemTypes.CommitFailed) return CommitFailed;
+        if (problemTypeUri == ProblemTypes.CommitFailed)
+            return CommitFailed;
 
-        if (problemTypeUri == ProblemTypes.UnavailableInProduction) return UnavailableInProduction;
+        if (problemTypeUri == ProblemTypes.UnavailableInProduction)
+            return UnavailableInProduction;
 
-        if (problemTypeUri == ProblemTypes.InternalError) return InternalError;
+        if (problemTypeUri == ProblemTypes.InternalError)
+            return InternalError;
 
-        if (problemTypeUri == ProblemTypes.BadRequest) return BadRequest;
+        if (problemTypeUri == ProblemTypes.BadRequest)
+            return BadRequest;
 
-        if (problemTypeUri == ProblemTypes.ResourceNotFound) return ResourceNotFound;
+        if (problemTypeUri == ProblemTypes.ResourceNotFound)
+            return ResourceNotFound;
 
-        if (problemTypeUri == ProblemTypes.InvalidRunState) return InvalidRunState;
+        if (problemTypeUri == ProblemTypes.InvalidRunState)
+            return InvalidRunState;
 
-        if (problemTypeUri == ProblemTypes.DeterminismFailed) return DeterminismFailed;
+        if (problemTypeUri == ProblemTypes.DeterminismFailed)
+            return DeterminismFailed;
 
-        if (problemTypeUri == ProblemTypes.ExportFailed) return ExportFailed;
+        if (problemTypeUri == ProblemTypes.ExportFailed)
+            return ExportFailed;
 
-        if (problemTypeUri == ProblemTypes.ComparisonVerificationFailed) return ComparisonVerificationFailed;
+        if (problemTypeUri == ProblemTypes.ComparisonVerificationFailed)
+            return ComparisonVerificationFailed;
 
-        if (problemTypeUri == ProblemTypes.Conflict) return Conflict;
+        if (problemTypeUri == ProblemTypes.Conflict)
+            return Conflict;
 
-        if (problemTypeUri == ProblemTypes.PolicyPackVersionNotFound) return PolicyPackVersionNotFound;
+        if (problemTypeUri == ProblemTypes.PolicyPackVersionNotFound)
+            return PolicyPackVersionNotFound;
 
-        if (problemTypeUri == ProblemTypes.DatabaseTimeout) return DatabaseTimeout;
+        if (problemTypeUri == ProblemTypes.DatabaseTimeout)
+            return DatabaseTimeout;
 
-        if (problemTypeUri == ProblemTypes.DatabaseUnavailable) return DatabaseUnavailable;
+        if (problemTypeUri == ProblemTypes.DatabaseUnavailable)
+            return DatabaseUnavailable;
 
-        if (problemTypeUri == ProblemTypes.BatchReplayAllFailed) return BatchReplayAllFailed;
+        if (problemTypeUri == ProblemTypes.BatchReplayAllFailed)
+            return BatchReplayAllFailed;
 
-        if (problemTypeUri == ProblemTypes.CircuitBreakerOpen) return CircuitBreakerOpen;
+        if (problemTypeUri == ProblemTypes.CircuitBreakerOpen)
+            return CircuitBreakerOpen;
 
-        if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded) return LlmTokenQuotaExceeded;
+        if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
+            return LlmTokenQuotaExceeded;
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }

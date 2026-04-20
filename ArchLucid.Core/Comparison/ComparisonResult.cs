@@ -9,10 +9,16 @@ namespace ArchLucid.Core.Comparison;
 public class ComparisonResult
 {
     /// <summary>Run id copied from the base manifest.</summary>
-    public Guid BaseRunId { get; set; }
+    public Guid BaseRunId
+    {
+        get; set;
+    }
 
     /// <summary>Run id copied from the target manifest.</summary>
-    public Guid TargetRunId { get; set; }
+    public Guid TargetRunId
+    {
+        get; set;
+    }
 
     /// <summary>Decision add/remove/option changes.</summary>
     public List<DecisionDelta> DecisionChanges { get; set; } = [];
@@ -35,7 +41,10 @@ public class ComparisonResult
     /// <summary>
     /// Sum of decision, requirement, security, topology, and cost delta row counts (set by <c>ComparisonService</c> for operator UIs).
     /// </summary>
-    public int TotalDeltaCount { get; set; }
+    public int TotalDeltaCount
+    {
+        get; set;
+    }
 }
 
 /// <summary>One decision key that was added, removed, or had a different selected option.</summary>
@@ -45,10 +54,16 @@ public class DecisionDelta
     public string DecisionKey { get; set; } = null!;
 
     /// <summary>Selected option on the base manifest when applicable.</summary>
-    public string? BaseValue { get; set; }
+    public string? BaseValue
+    {
+        get; set;
+    }
 
     /// <summary>Selected option on the target manifest when applicable.</summary>
-    public string? TargetValue { get; set; }
+    public string? TargetValue
+    {
+        get; set;
+    }
 
     /// <summary><c>Added</c>, <c>Removed</c>, or <c>Modified</c>.</summary>
     public string ChangeType { get; set; } = null!;
@@ -72,10 +87,16 @@ public class SecurityDelta
     public string ControlName { get; set; } = null!;
 
     /// <summary>Status on the base manifest.</summary>
-    public string? BaseStatus { get; set; }
+    public string? BaseStatus
+    {
+        get; set;
+    }
 
     /// <summary>Status on the target manifest.</summary>
-    public string? TargetStatus { get; set; }
+    public string? TargetStatus
+    {
+        get; set;
+    }
 }
 
 /// <summary>Topology resource added or removed between manifests.</summary>
@@ -92,8 +113,14 @@ public class TopologyDelta
 public class CostDelta
 {
     /// <summary>Base manifest <c>MaxMonthlyCost</c>.</summary>
-    public decimal? BaseCost { get; set; }
+    public decimal? BaseCost
+    {
+        get; set;
+    }
 
     /// <summary>Target manifest <c>MaxMonthlyCost</c>.</summary>
-    public decimal? TargetCost { get; set; }
+    public decimal? TargetCost
+    {
+        get; set;
+    }
 }

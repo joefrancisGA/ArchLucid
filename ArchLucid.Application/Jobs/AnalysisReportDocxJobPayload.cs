@@ -19,17 +19,32 @@ public sealed record AnalysisReportDocxJobPayload
 
     public bool IncludeSummary { get; init; } = true;
 
-    public bool IncludeDeterminismCheck { get; init; }
+    public bool IncludeDeterminismCheck
+    {
+        get; init;
+    }
 
     public int DeterminismIterations { get; init; } = 3;
 
-    public bool IncludeManifestCompare { get; init; }
+    public bool IncludeManifestCompare
+    {
+        get; init;
+    }
 
-    public string? CompareManifestVersion { get; init; }
+    public string? CompareManifestVersion
+    {
+        get; init;
+    }
 
-    public bool IncludeAgentResultCompare { get; init; }
+    public bool IncludeAgentResultCompare
+    {
+        get; init;
+    }
 
-    public string? CompareRunId { get; init; }
+    public string? CompareRunId
+    {
+        get; init;
+    }
 
     public static AnalysisReportDocxJobPayload FromAnalysisRequest(ArchitectureAnalysisRequest request)
     {

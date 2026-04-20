@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Models;
@@ -91,7 +91,8 @@ public sealed class AlertSimulationContextProvider(
         CancellationToken ct)
     {
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail?.GoldenManifest is null) return null;
+        if (detail?.GoldenManifest is null)
+            return null;
 
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 

@@ -8,8 +8,14 @@ public sealed class DemoOptions
     public const string SectionName = "Demo";
 
     /// <summary>Master switch for demo seed API and startup hook.</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get; set;
+    }
 
     /// <summary>When <c>true</c> and the host is Development, runs <see cref="IDemoSeedService"/> once after DbUp.</summary>
-    public bool SeedOnStartup { get; set; }
+    public bool SeedOnStartup
+    {
+        get; set;
+    }
 }

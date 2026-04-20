@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Explanation;
@@ -27,7 +27,8 @@ public sealed class RunRationaleService(
     {
         RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null) return null;
+        if (detail is null)
+            return null;
 
 
         bool explanationAvailable = detail.GoldenManifest is not null;
@@ -37,12 +38,14 @@ public sealed class RunRationaleService(
             && detail.FindingsSnapshot is not null
             && detail.AuthorityTrace is not null;
 
-        if (detail.FindingsSnapshot is not null) return BuildAuthorityRationale(detail, provenanceAvailable, explanationAvailable);
+        if (detail.FindingsSnapshot is not null)
+            return BuildAuthorityRationale(detail, provenanceAvailable, explanationAvailable);
 
 
         ArchitectureRunDetail? coordinator = await runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
 
-        if (coordinator is not null) return BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable);
+        if (coordinator is not null)
+            return BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable);
 
 
         return BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
@@ -143,7 +146,8 @@ public sealed class RunRationaleService(
 
     private static List<DecisionTraceEntry> MapAuthorityDecisionTraces(RunDetailDto detail)
     {
-        if (detail.AuthorityTrace is not RuleAuditTrace ruleAudit) return [];
+        if (detail.AuthorityTrace is not RuleAuditTrace ruleAudit)
+            return [];
 
 
         return [MapRuleAudit(ruleAudit.RuleAudit)];
@@ -256,12 +260,14 @@ public sealed class RunRationaleService(
     {
         string? fromManifest = detail.GoldenManifest?.Metadata?.Summary;
 
-        if (!string.IsNullOrWhiteSpace(fromManifest)) return fromManifest.Trim();
+        if (!string.IsNullOrWhiteSpace(fromManifest))
+            return fromManifest.Trim();
 
 
         string? desc = detail.Run.Description;
 
-        if (!string.IsNullOrWhiteSpace(desc)) return desc.Trim();
+        if (!string.IsNullOrWhiteSpace(desc))
+            return desc.Trim();
 
 
         return $"Authority run with {findingCount} finding(s).";
@@ -274,12 +280,14 @@ public sealed class RunRationaleService(
     {
         string? authorityManifestSummary = authorityDetail.GoldenManifest?.Metadata?.Summary;
 
-        if (!string.IsNullOrWhiteSpace(authorityManifestSummary)) return authorityManifestSummary.Trim();
+        if (!string.IsNullOrWhiteSpace(authorityManifestSummary))
+            return authorityManifestSummary.Trim();
 
 
         if (coordinator.Manifest is { } manifest)
         {
-            if (!string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription)) return manifest.Metadata.ChangeDescription.Trim();
+            if (!string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription))
+                return manifest.Metadata.ChangeDescription.Trim();
 
 
             return $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";

@@ -25,7 +25,10 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
     }
 
     /// <summary>PKCS#8 private key PEM used to mint JWTs in tests (never used by the API host).</summary>
-    public string PrivatePemForTests { get; }
+    public string PrivatePemForTests
+    {
+        get;
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

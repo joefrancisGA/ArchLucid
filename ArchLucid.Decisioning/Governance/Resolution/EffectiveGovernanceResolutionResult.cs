@@ -12,13 +12,22 @@ namespace ArchLucid.Decisioning.Governance.Resolution;
 public class EffectiveGovernanceResolutionResult
 {
     /// <summary>Scope dimension echoed from the request / ambient context.</summary>
-    public Guid TenantId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
 
     /// <summary>Scope dimension echoed from the request / ambient context.</summary>
-    public Guid WorkspaceId { get; set; }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
 
     /// <summary>Scope dimension echoed from the request / ambient context.</summary>
-    public Guid ProjectId { get; set; }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Final merged <see cref="PolicyPackContentDocument"/> after precedence rules (single source of truth for runtime filters).

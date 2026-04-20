@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -50,7 +50,8 @@ public sealed class RunQueryController(
     {
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
-        if (detail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
@@ -101,7 +102,8 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken)) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -128,11 +130,13 @@ public sealed class RunQueryController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken)) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (evidence is null) return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (evidence is null)
+            return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
 
 
         return Ok(new AgentEvidencePackageResponse
@@ -153,7 +157,8 @@ public sealed class RunQueryController(
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        if (pageNumber < 1) return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
+        if (pageNumber < 1)
+            return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
 
 
         if (pageSize < 1 || pageSize > PagingParameters.MaxPageSize)
@@ -162,7 +167,8 @@ public sealed class RunQueryController(
                 ProblemTypes.ValidationFailed);
 
 
-        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken)) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         PagingParameters paging = new()
@@ -214,7 +220,8 @@ public sealed class RunQueryController(
 
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
     {
-        if (!TryParseRunId(runId, out Guid runGuid)) return false;
+        if (!TryParseRunId(runId, out Guid runGuid))
+            return false;
 
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -224,7 +231,8 @@ public sealed class RunQueryController(
 
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+            return true;
 
 
         return Guid.TryParse(runId, out runGuid);

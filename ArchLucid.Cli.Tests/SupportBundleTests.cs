@@ -31,7 +31,10 @@ public sealed class SupportBundleTests
     public async Task CollectAsync_with_mock_http_produces_all_sections()
     {
         using HttpMessageHandler handler = new StubApiHandler();
-        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
+        using HttpClient http = new(handler)
+        {
+            BaseAddress = new Uri("http://stub.local")
+        };
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -70,9 +73,9 @@ public sealed class SupportBundleTests
         finally
         {
             if (Directory.Exists(cwd))
-            
+
                 Directory.Delete(cwd, recursive: true);
-            
+
         }
     }
 
@@ -106,9 +109,9 @@ public sealed class SupportBundleTests
         finally
         {
             if (Directory.Exists(dir))
-            
+
                 Directory.Delete(dir, recursive: true);
-            
+
         }
     }
 
@@ -139,14 +142,14 @@ public sealed class SupportBundleTests
         finally
         {
             if (File.Exists(zip))
-            
+
                 File.Delete(zip);
-            
+
 
             if (Directory.Exists(dir))
-            
+
                 Directory.Delete(dir, recursive: true);
-            
+
         }
     }
 
@@ -163,7 +166,7 @@ public sealed class SupportBundleTests
                 json = """{"openapi":"3.0.1","info":{"title":"ArchLucid"}}""";
             else
                 json = """{"status":"Healthy"}""";
-            
+
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {

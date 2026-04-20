@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -40,7 +40,8 @@ public sealed class TrialLifecycleTransitionEngine(
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        if (tenant is null) return false;
+        if (tenant is null)
+            return false;
 
 
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
@@ -64,7 +65,8 @@ public sealed class TrialLifecycleTransitionEngine(
             _timeProvider.GetUtcNow(),
             options);
 
-        if (advancement is null) return false;
+        if (advancement is null)
+            return false;
 
 
         if (string.Equals(advancement.ToStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
@@ -76,7 +78,8 @@ public sealed class TrialLifecycleTransitionEngine(
                 advancement.Reason,
                 cancellationToken);
 
-            if (!recorded) return false;
+            if (!recorded)
+                return false;
 
 
             await EmitAuditAsync(tenant, advancement, cancellationToken);
@@ -107,7 +110,8 @@ public sealed class TrialLifecycleTransitionEngine(
             advancement.Reason,
             cancellationToken);
 
-        if (!ok) return false;
+        if (!ok)
+            return false;
 
 
         await EmitAuditAsync(tenant, advancement, cancellationToken);

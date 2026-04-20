@@ -25,7 +25,11 @@ public sealed class DeterminismCheckServiceTests
 
         DeterminismCheckService sut = new(replay.Object, agentDiff.Object, manifestDiff.Object);
 
-        DeterminismCheckRequest request = new() { RunId = "r1", Iterations = 1 };
+        DeterminismCheckRequest request = new()
+        {
+            RunId = "r1",
+            Iterations = 1
+        };
 
         Func<Task> act = async () => await sut.RunAsync(request, CancellationToken.None);
 

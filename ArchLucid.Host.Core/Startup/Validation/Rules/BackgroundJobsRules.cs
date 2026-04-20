@@ -1,4 +1,4 @@
-﻿using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.BlobStore;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -11,7 +11,8 @@ internal static class BackgroundJobsRules
             configuration.GetSection(BackgroundJobsOptions.SectionName).Get<BackgroundJobsOptions>() ??
             new BackgroundJobsOptions();
 
-        if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase))
+            return;
 
 
         ArchLucidOptions archi = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);

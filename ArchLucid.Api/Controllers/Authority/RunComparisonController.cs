@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -47,7 +47,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) = await LoadValidatedRunPairAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
 
         AgentResultDiffResult diff = agentResultDiffService.Compare(
             query.LeftRunId,
@@ -66,7 +67,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) = await LoadValidatedRunPairAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
 
         AgentResultDiffResult diff = agentResultDiffService.Compare(
             query.LeftRunId,
@@ -100,12 +102,14 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, EndToEndReplayComparisonReport? report) = await BuildEndToEndReportAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
 
         request ??= new PersistComparisonRequest();
         string summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report!);
 
-        if (!request.Persist) return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
+        if (!request.Persist)
+            return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
 
         string comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report!, summary, cancellationToken);
         Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
@@ -122,7 +126,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, EndToEndReplayComparisonReport? report) = await BuildEndToEndReportAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
         string markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
         string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
         return Ok(ComparisonResponseMapper.ToEndToEndExportResponse(fileName, markdown));
@@ -137,7 +142,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, EndToEndReplayComparisonReport? report) = await BuildEndToEndReportAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
         string markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
         string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
@@ -152,7 +158,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, EndToEndReplayComparisonReport? report) = await BuildEndToEndReportAsync(query, cancellationToken);
-        if (error is not null) return error;
+        if (error is not null)
+            return error;
         byte[] bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report!, cancellationToken);
         string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.docx";
         return ApiFileResults.RangeBytes(
@@ -171,7 +178,8 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         IActionResult? error = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (error is not null) return (error, null);
+        if (error is not null)
+            return (error, null);
 
         EndToEndReplayComparisonReport report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         return (null, report);
@@ -197,13 +205,16 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         IActionResult? queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (queryError is not null) return (queryError, null, null);
+        if (queryError is not null)
+            return (queryError, null, null);
 
         ArchitectureRunDetail? left = await runDetailQueryService.GetRunDetailAsync(query.LeftRunId, cancellationToken);
-        if (left is null) return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
+        if (left is null)
+            return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
 
         ArchitectureRunDetail? right = await runDetailQueryService.GetRunDetailAsync(query.RightRunId, cancellationToken);
-        if (right is null) return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
+        if (right is null)
+            return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
 
         return (null, left, right);
     }

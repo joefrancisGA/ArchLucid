@@ -1,4 +1,4 @@
-﻿using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Findings;

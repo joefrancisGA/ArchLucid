@@ -1,4 +1,4 @@
-﻿using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Archival;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 

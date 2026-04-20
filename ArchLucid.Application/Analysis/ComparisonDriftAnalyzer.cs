@@ -107,7 +107,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                 List<JsonElement> rightArray = right.EnumerateArray().ToList();
 
                 if (leftArray.Count != rightArray.Count)
-                
+
                     items.Add(new DriftItem
                     {
                         Category = "ArrayLength",
@@ -116,18 +116,18 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         RegeneratedValue = rightArray.Count.ToString(),
                         Description = "Array length changed."
                     });
-                
+
 
                 for (int i = 0; i < Math.Min(leftArray.Count, rightArray.Count); i++)
-                
+
                     CompareElement($"{path}[{i}]", leftArray[i], rightArray[i], items);
-                
+
 
                 break;
 
             default:
                 if (left.ToString() != right.ToString())
-                
+
                     items.Add(new DriftItem
                     {
                         Category = "ValueChange",
@@ -136,7 +136,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         RegeneratedValue = right.ToString(),
                         Description = "Value changed."
                     });
-                
+
 
                 break;
         }

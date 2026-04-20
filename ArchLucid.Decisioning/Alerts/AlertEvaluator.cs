@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -108,7 +108,8 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
 
-        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0) return;
+        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
+            return;
 
         decimal increasePct = (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
 
@@ -178,7 +179,8 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         RecommendationLearningProfile? profile = context.LearningProfile;
 
-        if (profile is null) return;
+        if (profile is null)
+            return;
 
         int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
         double overall = proposed == 0

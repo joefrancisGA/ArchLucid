@@ -18,10 +18,16 @@ public sealed class EndToEndReplayComparisonReport
     public RunMetadataDiffResult RunDiff { get; set; } = new();
 
     /// <summary>Per-agent-type diff of results. <c>null</c> when agent-result comparison was not performed.</summary>
-    public AgentResultDiffResult? AgentResultDiff { get; set; }
+    public AgentResultDiffResult? AgentResultDiff
+    {
+        get; set;
+    }
 
     /// <summary>Structural diff of the golden manifests produced by each run. <c>null</c> when not applicable.</summary>
-    public ManifestDiffResult? ManifestDiff { get; set; }
+    public ManifestDiffResult? ManifestDiff
+    {
+        get; set;
+    }
 
     /// <summary>Diffs between corresponding export records from the two runs. Empty when no export records were compared.</summary>
     public List<ExportRecordDiffResult> ExportDiffs { get; set; } = [];

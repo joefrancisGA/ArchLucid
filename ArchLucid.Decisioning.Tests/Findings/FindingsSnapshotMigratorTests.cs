@@ -81,9 +81,9 @@ public sealed class FindingsSnapshotMigratorTests
         f.Category.Should().Be(expectedCategory);
 
         if (expectedPayloadTypeSuffix is null)
-        
+
             f.PayloadType.Should().BeNull();
-        
+
         else
         {
             f.PayloadType.Should().NotBeNull();

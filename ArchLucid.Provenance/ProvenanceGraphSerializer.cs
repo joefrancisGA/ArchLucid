@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace ArchLucid.Provenance;
@@ -17,7 +17,8 @@ public static class ProvenanceGraphSerializer
 
     public static DecisionProvenanceGraph? Deserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json)) return null;
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
 
         try
         {

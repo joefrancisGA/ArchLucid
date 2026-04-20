@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
@@ -62,7 +62,8 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
-        if (!_enabled) return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        if (!_enabled)
+            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 

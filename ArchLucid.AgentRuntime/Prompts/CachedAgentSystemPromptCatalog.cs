@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;

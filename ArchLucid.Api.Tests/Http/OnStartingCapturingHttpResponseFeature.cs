@@ -11,15 +11,24 @@ public sealed class OnStartingCapturingHttpResponseFeature : IHttpResponseFeatur
 {
     private readonly Stack<(Func<object, Task> Callback, object State)> _onStarting = new();
 
-    public int StatusCode { get; set; }
+    public int StatusCode
+    {
+        get; set;
+    }
 
-    public string? ReasonPhrase { get; set; }
+    public string? ReasonPhrase
+    {
+        get; set;
+    }
 
     public IHeaderDictionary Headers { get; set; } = null!;
 
     public Stream Body { get; set; } = null!;
 
-    public bool HasStarted { get; set; }
+    public bool HasStarted
+    {
+        get; set;
+    }
 
     public void OnStarting(Func<object, Task> callback, object state)
     {

@@ -40,7 +40,10 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                              """;
 
         return await connection.QuerySingleOrDefaultAsync<TrialIdentityUserRecord>(
-            new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                NormalizedEmail = normalizedEmail
+            }, cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
@@ -169,7 +172,12 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { NormalizedEmail = normalizedEmail, NewCount = newCount, LockoutEnd = lockoutEnd },
+                    new
+                    {
+                        NormalizedEmail = normalizedEmail,
+                        NewCount = newCount,
+                        LockoutEnd = lockoutEnd
+                    },
                     cancellationToken: cancellationToken));
         }
     }
@@ -189,7 +197,10 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                                  """;
 
             await connection.ExecuteAsync(
-                new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail }, cancellationToken: cancellationToken));
+                new CommandDefinition(sql, new
+                {
+                    NormalizedEmail = normalizedEmail
+                }, cancellationToken: cancellationToken));
         }
     }
 

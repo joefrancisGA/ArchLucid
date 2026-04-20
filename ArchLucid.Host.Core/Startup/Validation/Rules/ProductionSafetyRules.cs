@@ -1,4 +1,4 @@
-﻿using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 
@@ -12,10 +12,12 @@ internal static class ProductionSafetyRules
         BillingOptions billing =
             configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
 
-        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
+            return;
 
 
-        if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim())) return;
+        if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim()))
+            return;
 
 
         errors.Add(
@@ -29,10 +31,12 @@ internal static class ProductionSafetyRules
             configuration.GetSection(EmailNotificationOptions.SectionName).Get<EmailNotificationOptions>()
             ?? new EmailNotificationOptions();
 
-        if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase)) return;
+        if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
+            return;
 
 
-        if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim())) return;
+        if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim()))
+            return;
 
 
         errors.Add(
@@ -45,9 +49,11 @@ internal static class ProductionSafetyRules
         TrialAuthOptions trial =
             configuration.GetSection(TrialAuthOptions.SectionPath).Get<TrialAuthOptions>() ?? new TrialAuthOptions();
 
-        if (!TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId)) return;
+        if (!TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId))
+            return;
 
-        if (!string.IsNullOrWhiteSpace(trial.ExternalIdTenantId?.Trim())) return;
+        if (!string.IsNullOrWhiteSpace(trial.ExternalIdTenantId?.Trim()))
+            return;
 
         errors.Add(
             "Auth:Trial:Modes includes \"MsaExternalId\"; configure Auth:Trial:ExternalIdTenantId with the Entra External ID tenant (directory) id.");
@@ -59,15 +65,18 @@ internal static class ProductionSafetyRules
         ArchLucidOptions archLucidOptions,
         List<string> errors)
     {
-        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider)) return;
+        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
+            return;
 
 
-        if (RlsBreakGlass.IsEnabled(configuration)) return;
+        if (RlsBreakGlass.IsEnabled(configuration))
+            return;
 
         SqlServerOptions sql =
             configuration.GetSection(SqlServerOptions.SectionName).Get<SqlServerOptions>() ?? new SqlServerOptions();
 
-        if (sql.RowLevelSecurity.ApplySessionContext) return;
+        if (sql.RowLevelSecurity.ApplySessionContext)
+            return;
 
 
         errors.Add(
@@ -104,7 +113,8 @@ internal static class ProductionSafetyRules
 
         const int minWebhookSecretChars = 32;
 
-        if (!webhook.UseHttpClient) return;
+        if (!webhook.UseHttpClient)
+            return;
 
 
         if (string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))

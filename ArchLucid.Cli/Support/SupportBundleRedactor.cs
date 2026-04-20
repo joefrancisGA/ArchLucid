@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace ArchLucid.Cli.Support;
 
@@ -17,10 +17,12 @@ public static class SupportBundleRedactor
     /// </summary>
     public static string RedactHttpUrl(string? url)
     {
-        if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+        if (string.IsNullOrWhiteSpace(url))
+            return string.Empty;
 
 
-        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri)) return "(invalid url)";
+        if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri))
+            return "(invalid url)";
 
 
         UriBuilder builder = new(uri)
@@ -37,18 +39,21 @@ public static class SupportBundleRedactor
     /// </summary>
     public static bool IsSensitiveEnvironmentVariableName(string name)
     {
-        if (string.IsNullOrEmpty(name)) return false;
+        if (string.IsNullOrEmpty(name))
+            return false;
 
 
         if (name.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)
-            && name.Contains("SQL", StringComparison.OrdinalIgnoreCase)) return true;
+            && name.Contains("SQL", StringComparison.OrdinalIgnoreCase))
+            return true;
 
 
         string upper = name.ToUpperInvariant();
 
         foreach (string fragment in SensitiveEnvironmentNameSubstrings)
 
-            if (upper.Contains(fragment, StringComparison.Ordinal)) return true;
+            if (upper.Contains(fragment, StringComparison.Ordinal))
+                return true;
 
 
 
@@ -66,7 +71,8 @@ public static class SupportBundleRedactor
         {
             string key = entry.Key.ToString() ?? string.Empty;
 
-            if (string.IsNullOrEmpty(key)) continue;
+            if (string.IsNullOrEmpty(key))
+                continue;
 
 
             if (!key.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)

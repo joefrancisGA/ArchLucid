@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 using ArchLucid.Core.Authorization;
@@ -44,18 +44,15 @@ internal static class RateLimitingRolePartitionBuilder
 
     private static string ResolveRoleSegment(HttpContext http)
     {
-        ClaimsPrincipal? user = http.User;
+        ClaimsPrincipal user = http.User;
 
-        if (user?.Identity?.IsAuthenticated != true) return "anon";
+        if (user.Identity?.IsAuthenticated != true)
+            return "anon";
 
+        if (user.IsInRole(ArchLucidRoles.Admin))
+            return "admin";
 
-        if (user.IsInRole(ArchLucidRoles.Admin)) return "admin";
-
-
-        if (user.IsInRole(ArchLucidRoles.Operator)) return "operator";
-
-
-        return "reader";
+        return user.IsInRole(ArchLucidRoles.Operator) ? "operator" : "reader";
     }
 
     private static double MultiplierForSegment(string segment, RateLimitingRoleMultiplierOptions o)

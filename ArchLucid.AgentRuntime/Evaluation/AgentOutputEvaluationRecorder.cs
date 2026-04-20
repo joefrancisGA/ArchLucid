@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
@@ -40,7 +40,8 @@ public sealed class AgentOutputEvaluationRecorder(
 
         foreach (AgentExecutionTrace trace in traces)
         {
-            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson)) continue;
+            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
+                continue;
 
 
             string agentLabel = trace.AgentType.ToString();

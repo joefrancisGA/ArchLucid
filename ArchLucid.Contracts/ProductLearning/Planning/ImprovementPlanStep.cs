@@ -6,7 +6,10 @@ namespace ArchLucid.Contracts.ProductLearning.Planning;
 public sealed class ImprovementPlanStep
 {
     /// <summary>1-based display order.</summary>
-    public int Ordinal { get; init; }
+    public int Ordinal
+    {
+        get; init;
+    }
 
     /// <summary>Short label (e.g. “Clarify acceptance criteria”).</summary>
     public string Title { get; init; } = string.Empty;

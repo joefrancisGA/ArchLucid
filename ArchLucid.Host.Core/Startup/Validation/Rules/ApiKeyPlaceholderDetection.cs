@@ -1,4 +1,4 @@
-﻿namespace ArchLucid.Host.Core.Startup.Validation.Rules;
+namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 /// <summary>
 /// Detects API key strings that are unsuitable for Production when API key authentication is enabled.
@@ -44,15 +44,18 @@ internal static class ApiKeyPlaceholderDetection
     /// </summary>
     internal static bool IsPlaceholderValue(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) return false;
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
 
 
         string trimmed = value.Trim();
 
-        if (ExactBlocklist.Any(token => string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase))) return true;
+        if (ExactBlocklist.Any(token => string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase)))
+            return true;
 
 
-        if (SubstringBlocklist.Any(fragment => trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase))) return true;
+        if (SubstringBlocklist.Any(fragment => trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+            return true;
 
 
         return trimmed.Length < MinimumProductionKeyLength;

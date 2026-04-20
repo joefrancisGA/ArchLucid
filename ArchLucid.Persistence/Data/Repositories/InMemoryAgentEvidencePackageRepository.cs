@@ -28,9 +28,9 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
         lock (_gate)
         {
             if (_byRunId.TryGetValue(evidencePackage.RunId, out AgentEvidencePackage? prior))
-            
+
                 _byId.Remove(prior.EvidencePackageId);
-            
+
 
             AgentEvidencePackage copy = Clone(evidencePackage);
             _byId[copy.EvidencePackageId] = copy;
@@ -45,9 +45,9 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        
+
             return Task.FromResult(_byRunId.TryGetValue(runId, out AgentEvidencePackage? p) ? Clone(p) : null);
-        
+
     }
 
     /// <inheritdoc />
@@ -55,9 +55,9 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        
+
             return Task.FromResult(_byId.TryGetValue(evidencePackageId, out AgentEvidencePackage? p) ? Clone(p) : null);
-        
+
     }
 
     private static AgentEvidencePackage Clone(AgentEvidencePackage source)

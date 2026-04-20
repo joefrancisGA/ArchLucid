@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
@@ -62,8 +62,10 @@ public sealed class AdvisoryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (run is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (run.GoldenManifest is null) return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+        if (run is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (run.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
 
@@ -71,7 +73,8 @@ public sealed class AdvisoryController(
         if (compareToRunId.HasValue)
         {
             RunDetailDto? baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
-            if (baseRun is null) return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+            if (baseRun is null)
+                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.", ProblemTypes.RunNotFound);
             if (baseRun.GoldenManifest is null)
                 return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
@@ -151,9 +154,11 @@ public sealed class AdvisoryController(
         [FromBody] RecommendationActionRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (!IsKnownRecommendationAction(request.Action)) return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
+        if (!IsKnownRecommendationAction(request.Action))
+            return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
 
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
@@ -165,7 +170,8 @@ public sealed class AdvisoryController(
             request,
             ct);
 
-        if (updated is null) return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (updated is null)
+            return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.", ProblemTypes.ResourceNotFound);
 
         string eventType = request.Action switch
         {

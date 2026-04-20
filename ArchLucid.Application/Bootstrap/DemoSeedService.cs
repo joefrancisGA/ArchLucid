@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance;
@@ -80,7 +80,8 @@ public sealed class DemoSeedService(
 
     private async Task EnsureRequestAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null) return;
+        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
+            return;
 
 
         ArchitectureRequest request = new()
@@ -108,7 +109,8 @@ public sealed class DemoSeedService(
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null) return;
+        if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
+            return;
 
 
         string legacyRunId = authorityRunId.ToString("N");
@@ -329,7 +331,8 @@ public sealed class DemoSeedService(
         IReadOnlyList<GovernanceEnvironmentActivation> rows =
             await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
 
-        if (rows.Any(r => r.ActivationId == activationId)) return;
+        if (rows.Any(r => r.ActivationId == activationId))
+            return;
 
 
         GovernanceEnvironmentActivation activation = new()
@@ -348,7 +351,8 @@ public sealed class DemoSeedService(
     /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>
     private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null) return;
+        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
+            return;
 
 
         RunExportRecord record = new()

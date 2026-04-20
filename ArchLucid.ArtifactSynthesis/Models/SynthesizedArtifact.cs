@@ -2,10 +2,22 @@ namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class SynthesizedArtifact
 {
-    public Guid ArtifactId { get; set; }
-    public Guid RunId { get; set; }
-    public Guid ManifestId { get; set; }
-    public DateTime CreatedUtc { get; set; }
+    public Guid ArtifactId
+    {
+        get; set;
+    }
+    public Guid RunId
+    {
+        get; set;
+    }
+    public Guid ManifestId
+    {
+        get; set;
+    }
+    public DateTime CreatedUtc
+    {
+        get; set;
+    }
     public string ArtifactType { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Format { get; set; } = null!;
