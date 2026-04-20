@@ -23,7 +23,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 3. **Fan-out:** Teams adaptive card + optional Outlook approval + optional ServiceNow/Jira for `targetEnvironment=prod`.
 4. **Callbacks:** POST to existing governance approve/reject routes; propagate **human** identity from Teams so `GovernanceWorkflowService` segregation-of-duties rules still apply.
 5. **Idempotency:** `clientTrackingId = approvalRequestId`; rely on API `TryTransitionFromReviewableAsync` for safe retries.
-6. **Observability:** Application Insights; document in `docs/OBSERVABILITY.md` when the workflow is enabled.
+6. **Observability:** Enable **`enable_logic_app_diagnostic_settings`** + **`logic_app_diagnostic_log_analytics_workspace_id`** in `infra/terraform-logicapps/` (Log Analytics; optional workspace-based Application Insights); document in `docs/OBSERVABILITY.md` when the workflow is enabled.
 
 **Repo scaffolding (implemented):**
 
@@ -32,7 +32,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 | Dedicated topic subscription + SQL filter on **`event_type`** | `infra/terraform-servicebus/` — `enable_logic_app_governance_approval_subscription`, `azurerm_servicebus_subscription_rule` **`$Default`**, optional **`governance_logic_app_managed_identity_principal_id`** → **Data Receiver** |
 | Second Logic App (Standard) host | `infra/terraform-logicapps/` — `enable_governance_approval_logic_app`, outputs `governance_logic_app_principal_id` for Service Bus IAM |
 | Workflow / callback notes | `infra/terraform-logicapps/workflows/governance-approval-routing/README.md` |
-| Observability | `docs/OBSERVABILITY.md` § *Azure Logic Apps (optional)* |
+| Observability | `infra/terraform-logicapps/diagnostics.tf` + `docs/OBSERVABILITY.md` § *Azure Logic Apps (optional)* |
 
 **Still in Portal / export:** `workflow.json`, Teams/Outlook connectors, and adaptive-card action URLs.
 
@@ -100,6 +100,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 **2026-04-19 (trial / ChatOps / promotion — dedicated Logic App hosts):** **`enable_trial_lifecycle_logic_app`**, **`enable_incident_chatops_logic_app`**, **`enable_promotion_customer_notify_logic_app`** each with storage + WS1 + **`azurerm_logic_app_standard`**; matching **`*_logic_app_principal_id`** outputs for **`terraform-servicebus`** IAM vars; **`checks.tf`** guards; workflow READMEs + **`terraform-logicapps/README`**, **`terraform-servicebus/README`** IAM bullet, **`LOGIC_APPS_STANDARD`**, **`REFERENCE_SAAS_STACK_ORDER`**, ADR **0019**.
 
 **2026-04-20 (customer notification channel preferences — PUT):** **`PUT /v1/notifications/customer-channel-preferences`** (**Execute**); **`TenantNotificationChannelPreferencesUpsertRequest`**; repository **upsert** + audit **`TenantNotificationChannelPreferencesUpdated`**; integration tests (split read/write fixtures for InMemory isolation); OpenAPI + NSwag **`CustomerChannelPreferencesPUTAsync`**.
+
+**2026-04-20 (Log Analytics diagnostics — Terraform):** **`enable_logic_app_diagnostic_settings`**, **`logic_app_diagnostic_log_analytics_workspace_id`**, **`diagnostics.tf`** (`azurerm_monitor_diagnostic_setting` per deployed Logic App Standard; **`allLogs`** + **`AllMetrics`**), **`checks.tf`**; **`OBSERVABILITY.md`**, **`LOGIC_APPS_STANDARD.md`**, **`infra/terraform-logicapps/README.md`**.
 
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 

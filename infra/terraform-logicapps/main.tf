@@ -1,5 +1,8 @@
 locals {
   tags = merge({ Workload = "archlucid-logic-apps" }, var.tags)
+
+  # When true, attach azurerm_monitor_diagnostic_setting to each deployed Logic App Standard site (see diagnostics.tf).
+  logic_app_diagnostics_enabled = var.enable_logic_app_diagnostic_settings && trimspace(var.logic_app_diagnostic_log_analytics_workspace_id) != ""
 }
 
 resource "azurerm_storage_account" "logic" {

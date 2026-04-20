@@ -98,3 +98,15 @@ Rollback: **`Rollback/R089_PageCompression_UsageEvents.sql`**.
 Rollback: **`Rollback/R090_PageCompression_AlertRecords_AlertDeliveryAttempts.sql`**.
 
 **Outbox tables:** `IntegrationEventOutbox`, `RetrievalIndexingOutbox`, and `AuthorityPipelineWorkOutbox` are excluded from this PAGE series until workload-specific analysis; see **`docs/SQL_OUTBOX_TABLES_COMPRESSION.md`**.
+
+## Migration 092 — Foreign keys (outbox + alerts, batch 1)
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.IntegrationEventOutbox` | `FK_IntegrationEventOutbox_Runs_RunId` on `RunId` → `dbo.Runs` | Invalid **`RunId`** nulled before add. |
+| `dbo.RetrievalIndexingOutbox` | `FK_RetrievalIndexingOutbox_Runs_RunId` | Added only when every row has a matching **`Runs`** row (otherwise skipped). |
+| `dbo.AuthorityPipelineWorkOutbox` | `FK_AuthorityPipelineWorkOutbox_Runs_RunId` | Same conditional add. |
+| `dbo.AlertRecords` | `FK_AlertRecords_AlertRules_RuleId`, `FK_AlertRecords_Runs_RunId`, `FK_AlertRecords_Runs_ComparedToRunId`, `FK_AlertRecords_RecommendationRecords_RecommendationId` | Optional refs nulled when invalid; **`RuleId`** FK skipped if orphan **`AlertRules`** rows exist. |
+| `dbo.AlertDeliveryAttempts` | `FK_…_AlertRecords_AlertId`, `FK_…_AlertRoutingSubscriptions_RoutingSubscriptionId` | Orphan attempts **deleted** before add. |
+
+Rollback: **`Rollback/R092_FK_Outbox_Alerts_Batch1.sql`** drops the constraints (does not restore deleted rows or nulled columns).

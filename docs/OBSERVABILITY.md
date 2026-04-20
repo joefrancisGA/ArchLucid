@@ -222,7 +222,11 @@ See [EXPLAINABILITY_TRACE_COVERAGE.md](EXPLAINABILITY_TRACE_COVERAGE.md).
 
 ## Azure Logic Apps (optional)
 
-When **`infra/terraform-logicapps/`** hosts are enabled, attach **Application Insights** to each `azurerm_logic_app_standard` site (Azure Portal → Diagnostic settings, or ARM/Bicep in your fork). Correlate Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](CURSOR_PROMPTS_LOGIC_APPS.md).
+When **`infra/terraform-logicapps/`** hosts are enabled, send **platform + workflow logs** and **site metrics** to a **Log Analytics workspace** by setting **`enable_logic_app_diagnostic_settings = true`** and **`logic_app_diagnostic_log_analytics_workspace_id`** to the workspace resource ID. Terraform creates one **`azurerm_monitor_diagnostic_setting`** per deployed **`azurerm_logic_app_standard`** site (`enabled_log` category group **`allLogs`**, **`enabled_metric`** **`AllMetrics`**). Retention and workspace-based **Application Insights** (if used) are controlled on the workspace / classic AI resource — not in this module.
+
+If you prefer the Portal for a one-off host, you can still add **Diagnostic settings** manually; keep destinations on **private** analytics paths consistent with org policy.
+
+**Correlations:** Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](CURSOR_PROMPTS_LOGIC_APPS.md).
 
 ---
 
