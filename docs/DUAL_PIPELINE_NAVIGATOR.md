@@ -8,6 +8,41 @@
 
 ---
 
+## Which path do I use?
+
+Most contributors hit one of three questions: "where do I add an event for an HTTP-triggered architecture run?", "where do I add an event for an ingested authority manifest?", or "how do I add a shared concept like findings?". This decision tree answers all three at the level of *which interface family to extend*.
+
+```mermaid
+flowchart TD
+    start[I need to add or change a run-flow concept] --> entry{Is the run created by an HTTP request from an operator or CLI client?}
+    entry -- Yes --> coord[Coordinator pipeline<br/>edit ICoordinatorGoldenManifestRepository / ICoordinatorDecisionTraceRepository<br/>and emit AuditEventTypes.CoordinatorRun*]
+    entry -- No, it ingests external context --> auth[Authority pipeline<br/>edit IGoldenManifestRepository / IDecisionTraceRepository in ArchLucid.Decisioning.Interfaces<br/>and emit AuditEventTypes.RunStarted / RunCompleted]
+    entry -- It is a contract, finding, or decision-node shape used by both --> shared[Shared contract surface<br/>ArchLucid.Contracts or ArchLucid.Core; do NOT create a third repository pair]
+    coord --> ascertain{Did you also need to touch the matching authority constant?}
+    auth --> ascertain
+    ascertain -- Yes --> dual[Dual-write — register the link in CoordinatorToAuthorityMap inside AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs and document it in docs/AUDIT_COVERAGE_MATRIX.md]
+    ascertain -- No --> done[Done — keep the change scoped to one pipeline]
+    shared --> done
+```
+
+If the answer is "I want to delete one pipeline outright", that is **proposed ADR 0021**, not a regular PR — see "Why we have not collapsed these" below.
+
+---
+
+## Why we have not collapsed these
+
+The two pipelines look duplicative on first read. They are not. The boundary is governed by two ADRs and one open proposal:
+
+- **[ADR 0010 — Dual manifest and decision-trace repository contracts](adr/0010-dual-manifest-trace-repository-contracts.md)** (`Status: Accepted`). Records the explicit decision to keep two interface families. The Coordinator side carries operator orchestration semantics; the Authority side carries rule-engine provenance. Collapsing them in a single refactor PR would require superseding this ADR.
+- **[ADR 0012 — Runs / authority convergence write-freeze](adr/0012-runs-authority-convergence-write-freeze.md)** (`Status: Accepted`). Records the partial unification of the underlying `Runs` storage. The remaining duplication after ADR 0012 is *deliberate* and lives at the contract / repository boundary, not at the data row.
+- **[ADR 0021 — Coordinator pipeline strangler plan](adr/0021-coordinator-pipeline-strangler-plan.md)** (`Status: Proposed`). Outlines the multi-step plan to eventually retire the Coordinator interface family in favour of the Authority one. **No implementation work should land on the strangler before ADR 0021 is `Accepted`.** Until then, the two regression tests below pin the boundary against silent drift:
+  - `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` — coordinator and authority audit constants stay distinct on the wire.
+  - `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs` — coordinator and authority repositories stay distinct concrete types in the container; the renamed `ICoordinator*` family does not silently regrow into the unprefixed namespace.
+
+The right way to challenge this boundary is to write a superseding ADR that extends ADR 0021 with concrete migration evidence (run-volume parity, replay parity, perf comparison, customer-visible audit shape). The wrong way is a "while I'm in here" refactor PR.
+
+---
+
 ## Architecture overview
 
 | Concept | Coordinator (string `ArchitectureRuns.RunId`) | Authority (ingestion / `Guid` run) |

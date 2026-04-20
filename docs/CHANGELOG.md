@@ -8,6 +8,70 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-20 — Marketplace `ChangePlan` / `ChangeQuantity` GA + Stryker target for `ArchLucid.Api` (Quality Assessment 2026-04-20 § Improvement 4)
+
+**Changed (default behavior):** [`ArchLucid.Api/appsettings.json`](../ArchLucid.Api/appsettings.json) and [`ArchLucid.Api/appsettings.Production.json`](../ArchLucid.Api/appsettings.Production.json) now ship with `Billing:AzureMarketplace:GaEnabled=true`. Marketplace `ChangePlan` and `ChangeQuantity` webhooks are mutating in production by default; both reach the `Processed` terminal state and call the existing `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` stored procedures. The previous `AcknowledgedNoOp` short-circuit is **not** removed — it is intentionally preserved as the supported zero-deploy rollback path.
+
+**Added (rollback runbook):** [`docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) — operator runbook for flipping `Billing:AzureMarketplace:GaEnabled` back to `false` via Azure App Configuration or environment variables (no redeploy). Includes "First 5 minutes" copy-paste commands (Kusto, PromQL), reconciliation steps for tier and seat drift, and explicit guidance on when re-enabling GA is safe. Registered in [`docs/runbooks/README.md`](runbooks/README.md) at `P2` and cross-linked from [`docs/ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md).
+
+**Added (mutation testing target):** [`stryker-config.api.json`](../stryker-config.api.json) extends Stryker.NET coverage to the `ArchLucid.Api` assembly, with HTML / JSON / progress reporters and `thresholds = { high: 70, low: 55, break: 55 }`. Baseline `Api: 55.0` written to [`scripts/ci/stryker-baselines.json`](../scripts/ci/stryker-baselines.json); the `Api` target is added to [`scripts/ci/refresh_stryker_baselines.py`](../scripts/ci/refresh_stryker_baselines.py) and to the weekly matrix in [`.github/workflows/stryker-scheduled.yml`](../.github/workflows/stryker-scheduled.yml). Initial thresholds are intentionally lower than the **70** used by older modules because HTTP wiring code (controllers, middleware, problem-details mapping) has higher mutant density than assertion-rich domain code; the ratchet sequence to bring it to **70 / 70** is documented in [`docs/MUTATION_TESTING_STRYKER.md`](MUTATION_TESTING_STRYKER.md) under "API target (advisory ratchet)". Also fixed a latent inconsistency: `PersistenceCoordination` was already in `stryker-baselines.json` but missing from `refresh_stryker_baselines.py`'s `STRYKER_TARGETS` list — both files now agree.
+
+**Documentation:** [`docs/BILLING.md`](BILLING.md), [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md), [`docs/MUTATION_TESTING_STRYKER.md`](MUTATION_TESTING_STRYKER.md), [`docs/CODE_COVERAGE.md`](CODE_COVERAGE.md), and [`docs/ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md) all updated in the same commit. The Improvement 4 prompt's per-package line-coverage uplift target (≥ 79 % on `ArchLucid.Api`) is **deferred to a follow-up PR** that can verify each new test against measured Cobertura deltas — `docs/CODE_COVERAGE.md` now carries an explicit "measurement-pending" status note instead of a hand-waved figure. Auditability artifacts (`docs/AUDIT_COVERAGE_MATRIX.md`, `audit-core-const-count` anchor) are intentionally **not** edited; no audit constants changed.
+
+**Operational impact:** Marketplace customers on the GA path now see real plan / quantity mutations within seconds. Operators with prior deferred-mode test scaffolding (`BillingMarketplaceWebhookDeferredApiFactory`) keep working because the in-memory factory explicitly sets `GaEnabled=false` per test; the production default flip does not affect those tests.
+
+---
+
+## 2026-04-20 — Reference-customers scaffolding + discount-stack work-down (Quality Assessment 2026-04-20 § Improvement 1)
+
+**Added:** [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) — single source of truth for **real, publishable** reference-customer assets, distinct from the existing fictional [`REFERENCE_NARRATIVE_TEMPLATE.md`](go-to-market/REFERENCE_NARRATIVE_TEMPLATE.md). Documents the `Placeholder → Drafting → Customer review → Published` lifecycle. Seeded with a single `EXAMPLE_DESIGN_PARTNER` placeholder row to keep the table renderable.
+
+**Added:** [`docs/go-to-market/reference-customers/EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md`](go-to-market/reference-customers/EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) — case-study scaffold built from the existing [`REFERENCE_NARRATIVE_TEMPLATE.md`](go-to-market/REFERENCE_NARRATIVE_TEMPLATE.md) structure, with explicit `<<...>>` placeholders so a sales engineer can one-shot the substitution from a single deal-close email. Includes a "publish-cleanup" checklist that strips the internal-only sections.
+
+**Added:** [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) **§ 5.4 — Discount-stack work-down** (inserted as 5.4 because § 5.3 already exists as the *Re-rate plan*). § 5.4 is an operational tracker — owner / target close date / evidence link / re-rate trigger — for each of the three discount lines from § 5.1 (`−25%` trust, `−15%` reference, `−10%` self-serve). The locked-prices fenced block in § 5.2 is **unchanged**; this section is project-management overlay only.
+
+**Added:** [`scripts/ci/check_reference_customer_status.py`](../scripts/ci/check_reference_customer_status.py) — Python CI guard that parses the reference-customer table and exits non-zero when zero rows have `Status: Published`. Wired into `.github/workflows/ci.yml` with `continue-on-error: true` (non-blocking warning) until the first real customer publishes. Removing that line is the single switch that makes the guard merge-blocking and triggers the pricing review described in § 5.3 / § 5.4. Companion unit tests in `scripts/ci/test_check_reference_customer_status.py` cover 21 cases including header parsing, status-token normalization, and main-function exit codes.
+
+**Updated:** [`README.md`](../README.md) "Key documentation" table — added a row for the new reference-customers index so the asset is discoverable from the repo root.
+
+**Background.** Improvement 1 in [`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md) called for "land the first reference-customer asset". Without a real customer in hand we cannot legitimately publish a case study, so this PR ships the **scaffolding** (index, placeholder, lifecycle, CI guard, work-down tracker) that makes the day-of-publication a small, mechanical change rather than a doc-and-pricing scramble. The CI guard is intentionally non-blocking today so that build green is preserved; flipping it blocking is the explicit signal that the `−15%` reference discount is now eligible for re-rate.
+
+---
+
+## 2026-04-20 — Test-script consolidation + concept vocabulary CI guard (Quality Assessment 2026-04-20 § Improvement 6)
+
+**Added:** Single canonical test driver — [`test.ps1`](../test.ps1) (PowerShell) and [`test.cmd`](../test.cmd) (cmd trampoline) with a `-Tier <name>` parameter accepting `Core`, `FastCore`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. `.\test.ps1 -ListTiers` enumerates all tiers and the underlying command. Replaces 8 separate per-tier script pairs (16 files) that drifted independently.
+
+**Deprecated (kept as shims):** `test-core.{cmd,ps1}`, `test-fast-core.{cmd,ps1}`, `test-integration.{cmd,ps1}`, `test-sqlserver-integration.{cmd,ps1}`, `test-full.{cmd,ps1}`, `test-slow.{cmd,ps1}`, `test-ui-unit.{cmd,ps1}`, `test-ui-smoke.{cmd,ps1}` are all now thin shims that delegate to the consolidated driver. They are scheduled for removal **after 2026-Q3**; new docs and runbooks should call `.\test.ps1 -Tier <name>` directly.
+
+**Added:** [`docs/CONCEPTS.md`](CONCEPTS.md) — canonical concept vocabulary with explicit canonical-vs-rejected mappings, rationale, and a documented promotion gate. Distinct from [`docs/GLOSSARY.md`](GLOSSARY.md) (which defines terms) by focusing on adjudication between competing forms and the rules for when reviewers should push back.
+
+**Added:** [`scripts/ci/check_concept_vocabulary.py`](../scripts/ci/check_concept_vocabulary.py) — minimal, conservative CI guard implementing the rules from [`docs/CONCEPTS.md`](CONCEPTS.md) § 1.1. The initial enforced rule is the Microsoft Entra ID rename (see CONCEPTS.md row 1 for the full canonical-vs-rejected mapping). Companion unit tests in `scripts/ci/test_check_concept_vocabulary.py` (12 cases, including word-boundary correctness so unrelated tokens such as `Azure ADX` are not flagged) wired into the same CI workflow as the legacy-directory guard. Adding new rules requires the documented promotion gate in `docs/CONCEPTS.md` § 3.
+
+**Updated:** [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md) — fixed one stale legacy-tenant reference in the publishing checklist to use the canonical Microsoft Entra ID form so the new CI guard passes against live `docs/`.
+
+**Updated:** [`docs/TEST_EXECUTION_MODEL.md`](TEST_EXECUTION_MODEL.md) — added a "Canonical entry point" callout at the top documenting `.\test.ps1 -Tier <name>` and `test.cmd <name>`, and rewrote the optional pre-PR sequence to use the consolidated driver.
+
+**Background.** Improvement 6 in [`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md) called for "collapse `test-*.cmd/.ps1` proliferation into a parameterized driver and add a CI vocabulary guard". The two changes ship together because both are documentation-discipline mechanisms that keep the project legible as it grows: one for runnable entry points, one for terminology. The shim layer preserves backward compatibility with every existing runbook reference, runbook screenshot, and external link while pushing all *new* writing toward the consolidated form.
+
+---
+
+## 2026-04-20 — Workspace-root cleanup + dual-pipeline strangler hardening (Quality Assessment 2026-04-20 § Improvement 3)
+
+**Removed:** Empty legacy `ArchiForge.*` workspace-root directories (28 of them, build-artifact-only, never tracked by git) deleted as workspace-cleanup follow-up to the [ArchLucid rename initiative](ARCHLUCID_RENAME_CHECKLIST.md) (Phase 8). The new blocking CI guard [`scripts/ci/check_no_legacy_archiforge_dirs.py`](../scripts/ci/check_no_legacy_archiforge_dirs.py) (with companion unit tests in `scripts/ci/test_check_no_legacy_archiforge_dirs.py`) prevents reintroduction. Background guidance: [`.cursor/rules/ArchLucid-Rename.mdc`](../.cursor/rules/ArchLucid-Rename.mdc).
+
+**Added:** Audit-event-type collision regression suite — `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` pins the invariant from [`docs/AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md) that `CoordinatorRun*` and authority `RunStarted` / `RunCompleted` constants stay distinct as the catalog grows. Four reflection-driven tests cover (1) coordinator-vs-authority value disjointness, (2) baseline-vs-top-level value disjointness, (3) catalog-wide value uniqueness, and (4) every `CoordinatorRun*` constant has either an authority counterpart or an explicit "coordinator-only" allow-list entry.
+
+**Added:** DI-discipline regression — `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs` turns the [ADR 0010](adr/0010-dual-manifest-trace-repository-contracts.md) "fully qualified at registration time" rule into a build-breaking guarantee (the duplicate-named `IGoldenManifestRepository` and `IDecisionTraceRepository` interface pairs across `ArchLucid.Persistence.Data.Repositories` and `ArchLucid.Decisioning.Interfaces` must not silently cross-wire).
+
+**Added:** "Which path do I use?" decision tree at the top of [`docs/DUAL_PIPELINE_NAVIGATOR.md`](DUAL_PIPELINE_NAVIGATOR.md), plus a "Why we have not collapsed these" section linking the two governing ADRs.
+
+**Added:** [ADR 0021 — Coordinator pipeline strangler plan](adr/0021-coordinator-pipeline-strangler-plan.md) (`Status: Proposed`). Implementation requires a separate PR after architecture review; see the ADR's own status note. ADR 0010 stays `Accepted` until ADR 0021 is `Accepted` *and* the strangler implementation has shipped.
+
+**Background.** Improvement 3 in [`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md) § 3 originally called for "collapse dual pipelines + delete legacy `ArchiForge.*` folders in one explicit refactor". A repo scan showed (a) the folders were truly empty and trivially safe to delete, and (b) the dual-pipeline interface families are governed by an Accepted ADR (0010) that cannot be overruled in a single refactor PR without a superseding ADR. The work was therefore split into Phase A (folder cleanup + CI guard, this entry), Phase B (strangler hardening tests + sharpened navigator, also this entry), and Phase C (the actual interface collapse — gated on ADR 0021 acceptance, deliberately deferred). See the rationale in [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md).
+
+---
+
 ## 2026-04-17 — Order form + ROI model alignment (pricing freeze follow-on)
 
 **Updated:** [docs/go-to-market/ORDER_FORM_TEMPLATE.md](go-to-market/ORDER_FORM_TEMPLATE.md) to replace placeholder pricing with links to [PRICING_PHILOSOPHY.md §5](go-to-market/PRICING_PHILOSOPHY.md). Added:

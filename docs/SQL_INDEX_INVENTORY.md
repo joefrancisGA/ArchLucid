@@ -121,3 +121,27 @@ Rollback: **`Rollback/R092_FK_Outbox_Alerts_Batch1.sql`** drops the constraints 
 | `dbo.AuditEvents.ArtifactId` | *(none)* | No single-column parent key for line-level artifact IDs (**`ArtifactBundleArtifacts`** uniqueness is composite). |
 
 Rollback: **`Rollback/R093_FK_Audit_Recommendations_ConversationMessages_Batch2.sql`** drops the constraints (does not restore deleted messages or nulled audit columns).
+
+## Migration 094 — `RowVersionStamp` (ROWVERSION) on alerts, recommendations, background jobs
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.AlertRecords` | `ALTER TABLE … ADD RowVersionStamp ROWVERSION` when absent | Same optimistic-concurrency pattern as **`dbo.Runs`**; repositories may adopt **`WHERE RowVersionStamp = @expected`** later. |
+| `dbo.RecommendationRecords` | Same | |
+| `dbo.BackgroundJobs` | Same | Worker state transitions benefit from rowversion tokens. |
+
+Rollback: **`Rollback/R094_RowVersion_AlertRecords_RecommendationRecords_BackgroundJobs.sql`** drops the column (coordinate with app if concurrency checks were enabled).
+
+## Migration 095 — CHECK constraints (status / severity / urgency batch)
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.PolicyPacks` | `CK_PolicyPacks_Status` | **`Draft`**, **`Active`**, **`Retired`** — matches **`PolicyPackStatus`**. |
+| `dbo.AlertDeliveryAttempts` | `CK_AlertDeliveryAttempts_Status` | **`Started`**, **`Succeeded`**, **`Failed`** — matches **`AlertDeliveryAttemptStatus`**. |
+| `dbo.AlertRecords` | `CK_AlertRecords_Severity` | **`Info`**, **`Warning`**, **`High`**, **`Critical`** — matches **`AlertSeverity`**. |
+| `dbo.AlertRules` | `CK_AlertRules_Severity` | Same |
+| `dbo.AlertRoutingSubscriptions` | `CK_AlertRoutingSubscriptions_MinimumSeverity` | Same ( **`MinimumSeverity`** column). |
+| `dbo.CompositeAlertRules` | `CK_CompositeAlertRules_Severity` | Same |
+| `dbo.RecommendationRecords` | `CK_RecommendationRecords_Urgency` | **`Critical`**, **`High`**, **`Medium`**, **`Low`** — matches **`RecommendationGenerator.MapUrgency`**. |
+
+Each constraint is skipped when any row would violate the domain (remediate data, then re-run DbUp or ship a follow-up). Rollback: **`Rollback/R095_CheckConstraints_StatusDomains_Batch.sql`**.

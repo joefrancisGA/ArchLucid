@@ -1717,6 +1717,7 @@ BEGIN
         SupportingFindingIdsJson NVARCHAR(MAX) NOT NULL,
         SupportingDecisionIdsJson NVARCHAR(MAX) NOT NULL,
         SupportingArtifactIdsJson NVARCHAR(MAX) NOT NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_RecommendationRecords_Scope_Run NONCLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC),
         INDEX IX_RecommendationRecords_Scope_Status NONCLUSTERED (TenantId, WorkspaceId, ProjectId, Status, LastUpdatedUtc DESC)
     );
@@ -1884,6 +1885,7 @@ BEGIN
         AcknowledgedByUserName NVARCHAR(200) NULL,
         ResolutionComment NVARCHAR(MAX) NULL,
         DeduplicationKey NVARCHAR(500) NOT NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_AlertRecords_Scope_Status_CreatedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, Status, CreatedUtc DESC),
         INDEX IX_AlertRecords_DeduplicationKey NONCLUSTERED (DeduplicationKey)
     );
@@ -2234,7 +2236,7 @@ GO
    dbo.Runs.LegacyRunStatus (nullable) may carry stringified ArchitectureRunStatus when populated by the application.
    No dbo.RunQueue table in this schema.
    No dbo.RecommendationActions table — workflow status is dbo.RecommendationRecords.Status (RecommendationStatus).
-   Other candidate columns (e.g. PolicyPacks.Status, AlertDeliveryAttempts.Status) left unguarded until a later pass.
+   Second-wave policy/alert/urgency domains: migration **095** + trailing **`ArchLucid.sql`** block (PolicyPacks.Status, AlertDeliveryAttempts.Status, severities, RecommendationRecords.Urgency).
 */
 IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_RecommendationRecords_Status')
@@ -2709,6 +2711,7 @@ BEGIN
         RetryCount      INT           NOT NULL CONSTRAINT DF_BackgroundJobs_RetryCount DEFAULT (0),
         MaxRetries      INT           NOT NULL CONSTRAINT DF_BackgroundJobs_MaxRetries DEFAULT (0),
         ResultBlobName  NVARCHAR(1024) NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_BackgroundJobs_State_CreatedUtc NONCLUSTERED (State, CreatedUtc)
     );
 END;
@@ -3763,5 +3766,106 @@ IF OBJECT_ID(N'dbo.ConversationMessages', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.ConversationMessages ADD CONSTRAINT FK_ConversationMessages_ConversationThreads_ThreadId
         FOREIGN KEY (ThreadId) REFERENCES dbo.ConversationThreads (ThreadId);
+END;
+GO
+
+/* 094: RowVersionStamp on AlertRecords, RecommendationRecords, BackgroundJobs (see Migrations/094_RowVersion_AlertRecords_RecommendationRecords_BackgroundJobs.sql). */
+IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AlertRecords', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.AlertRecords ADD RowVersionStamp ROWVERSION;
+GO
+
+IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.RecommendationRecords', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.RecommendationRecords ADD RowVersionStamp ROWVERSION;
+GO
+
+IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.BackgroundJobs', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.BackgroundJobs ADD RowVersionStamp ROWVERSION;
+GO
+
+/* 095: CHECK status/severity/urgency domains (see Migrations/095_CheckConstraints_StatusDomains_Batch.sql). */
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_Status')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.PolicyPacks AS p
+        WHERE p.Status NOT IN (N'Draft', N'Active', N'Retired'))
+BEGIN
+    ALTER TABLE dbo.PolicyPacks ADD CONSTRAINT CK_PolicyPacks_Status
+        CHECK (Status IN (N'Draft', N'Active', N'Retired'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AlertDeliveryAttempts', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AlertDeliveryAttempts_Status')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.AlertDeliveryAttempts AS a
+        WHERE a.Status NOT IN (N'Started', N'Succeeded', N'Failed'))
+BEGIN
+    ALTER TABLE dbo.AlertDeliveryAttempts ADD CONSTRAINT CK_AlertDeliveryAttempts_Status
+        CHECK (Status IN (N'Started', N'Succeeded', N'Failed'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AlertRecords_Severity')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.AlertRecords AS ar
+        WHERE ar.Severity NOT IN (N'Info', N'Warning', N'High', N'Critical'))
+BEGIN
+    ALTER TABLE dbo.AlertRecords ADD CONSTRAINT CK_AlertRecords_Severity
+        CHECK (Severity IN (N'Info', N'Warning', N'High', N'Critical'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AlertRules', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AlertRules_Severity')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.AlertRules AS r
+        WHERE r.Severity NOT IN (N'Info', N'Warning', N'High', N'Critical'))
+BEGIN
+    ALTER TABLE dbo.AlertRules ADD CONSTRAINT CK_AlertRules_Severity
+        CHECK (Severity IN (N'Info', N'Warning', N'High', N'Critical'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AlertRoutingSubscriptions', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AlertRoutingSubscriptions_MinimumSeverity')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.AlertRoutingSubscriptions AS s
+        WHERE s.MinimumSeverity NOT IN (N'Info', N'Warning', N'High', N'Critical'))
+BEGIN
+    ALTER TABLE dbo.AlertRoutingSubscriptions ADD CONSTRAINT CK_AlertRoutingSubscriptions_MinimumSeverity
+        CHECK (MinimumSeverity IN (N'Info', N'Warning', N'High', N'Critical'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.CompositeAlertRules', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_CompositeAlertRules_Severity')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.CompositeAlertRules AS c
+        WHERE c.Severity NOT IN (N'Info', N'Warning', N'High', N'Critical'))
+BEGIN
+    ALTER TABLE dbo.CompositeAlertRules ADD CONSTRAINT CK_CompositeAlertRules_Severity
+        CHECK (Severity IN (N'Info', N'Warning', N'High', N'Critical'));
+END;
+GO
+
+IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_RecommendationRecords_Urgency')
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.RecommendationRecords AS rr
+        WHERE rr.Urgency NOT IN (N'Critical', N'High', N'Medium', N'Low'))
+BEGIN
+    ALTER TABLE dbo.RecommendationRecords ADD CONSTRAINT CK_RecommendationRecords_Urgency
+        CHECK (Urgency IN (N'Critical', N'High', N'Medium', N'Low'));
 END;
 GO
