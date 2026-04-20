@@ -256,6 +256,27 @@ jobs:
           cat "${RUNNER_TEMP}/archiforge-ts-hits.txt"
           exit 1
 
+      - name: Guard — archiforge in marketing UI and terraform-edge (narrow paths)
+        run: |
+          set +e
+          grep -rni "archiforge" \
+            --include="*.ts" --include="*.tsx" --include="*.tf" \
+            'archlucid-ui/src/app/(marketing)' infra/terraform-edge \
+            > "${RUNNER_TEMP}/archiforge-marketing-edge.txt"
+          rc=$?
+          set -e
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::ArchLucid rename guard: grep failed while scanning marketing UI / terraform-edge (rc=$rc)"
+            exit 1
+          fi
+          if [ "$rc" -eq 1 ]; then
+            echo "ArchLucid rename guard: no 'archiforge' in archlucid-ui/src/app/(marketing) or infra/terraform-edge."
+            exit 0
+          fi
+          echo "::error::ArchLucid rename guard: unexpected 'archiforge' in marketing UI or terraform-edge:"
+          cat "${RUNNER_TEMP}/archiforge-marketing-edge.txt"
+          exit 1
+
       - name: Guard — no direct IIntegrationEventPublisher.PublishAsync bypasses
         run: |
           set +e
@@ -331,14 +352,32 @@ jobs:
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
         run: |
-          set -e
+          set -euo pipefail
           dotnet tool restore
           OUT="${{ runner.temp }}/coverage-report-fast-core"
+          COV_DIR="${{ runner.temp }}/coverage-fast-core"
+          if [ ! -d "$COV_DIR" ]; then
+            echo "::error::Coverage directory missing: $COV_DIR"
+            exit 1
+          fi
+          # Do not rely on bash ** glob (globstar is off by default on Ubuntu); enumerate Cobertura files for ReportGenerator.
+          mapfile -d '' -t cov_files < <(find "$COV_DIR" -type f -name 'coverage.cobertura.xml' -print0)
+          if [ "${#cov_files[@]}" -eq 0 ]; then
+            echo "::error::No coverage.cobertura.xml under $COV_DIR (coverlet did not emit Cobertura)."
+            find "$COV_DIR" -type f -maxdepth 6 2>/dev/null | head -n 200 || true
+            exit 1
+          fi
+          report_list=$(IFS=';'; printf '%s' "${cov_files[*]}")
           dotnet reportgenerator \
-            "-reports:${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml" \
+            "-reports:${report_list}" \
             "-targetdir:${OUT}" \
             "-reporttypes:Html;TextSummary;MarkdownSummaryGithub" \
             -verbosity:Info
+          if [ ! -f "${OUT}/SummaryGithub.md" ]; then
+            echo "::error::ReportGenerator did not write SummaryGithub.md under ${OUT}"
+            ls -la "$OUT" || true
+            exit 1
+          fi
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
 
       - uses: actions/upload-artifact@v6
@@ -502,14 +541,31 @@ jobs:
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
         run: |
-          set -e
+          set -euo pipefail
           dotnet tool restore
           OUT="${{ runner.temp }}/coverage-report-full"
+          COV_DIR="${{ runner.temp }}/coverage-full"
+          if [ ! -d "$COV_DIR" ]; then
+            echo "::error::Coverage directory missing: $COV_DIR"
+            exit 1
+          fi
+          mapfile -d '' -t cov_files < <(find "$COV_DIR" -type f -name 'coverage.cobertura.xml' -print0)
+          if [ "${#cov_files[@]}" -eq 0 ]; then
+            echo "::error::No coverage.cobertura.xml under $COV_DIR (coverlet did not emit Cobertura)."
+            find "$COV_DIR" -type f -maxdepth 6 2>/dev/null | head -n 200 || true
+            exit 1
+          fi
+          report_list=$(IFS=';'; printf '%s' "${cov_files[*]}")
           dotnet reportgenerator \
-            "-reports:${{ runner.temp }}/coverage-full/**/coverage.cobertura.xml" \
+            "-reports:${report_list}" \
             "-targetdir:${OUT}" \
             "-reporttypes:Html;TextSummary;MarkdownSummaryGithub;Cobertura" \
             -verbosity:Info
+          if [ ! -f "${OUT}/SummaryGithub.md" ]; then
+            echo "::error::ReportGenerator did not write SummaryGithub.md under ${OUT}"
+            ls -la "$OUT" || true
+            exit 1
+          fi
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 

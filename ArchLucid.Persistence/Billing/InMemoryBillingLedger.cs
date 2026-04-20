@@ -128,6 +128,22 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         return Task.CompletedTask;
     }
 
+    public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken)
+    {
+        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+            _subscriptions[tenantId] = row with { Tier = tierCode };
+
+        return Task.CompletedTask;
+    }
+
+    public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken)
+    {
+        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+            _subscriptions[tenantId] = row with { Seats = seatsPurchased };
+
+        return Task.CompletedTask;
+    }
+
     private sealed record BillingSubRow(
         Guid TenantId,
         Guid WorkspaceId,

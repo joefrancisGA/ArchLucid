@@ -200,4 +200,32 @@ public sealed class SqlBillingLedger(
                 commandType: System.Data.CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
+
+    public async Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                "dbo.sp_Billing_ChangePlan",
+                new { TenantId = tenantId, Tier = tierCode, RawWebhookJson = rawWebhookJson },
+                commandType: System.Data.CommandType.StoredProcedure,
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                "dbo.sp_Billing_ChangeQuantity",
+                new { TenantId = tenantId, SeatsPurchased = seatsPurchased, RawWebhookJson = rawWebhookJson },
+                commandType: System.Data.CommandType.StoredProcedure,
+                cancellationToken: cancellationToken));
+    }
 }

@@ -17,6 +17,7 @@ Stand up a **transactable** SaaS offer that lands buyers in ArchLucid while usin
    - `Billing:AzureMarketplace:OpenIdMetadataAddress` (typically `https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration` or a tenant-specific metadata URL)
    - `Billing:AzureMarketplace:ValidAudiences` includes `https://marketplaceapi.microsoft.com`
    - `Billing:AzureMarketplace:FulfillmentApiEnabled=true` in production (set `false` only in isolated tests without network).
+   - `Billing:AzureMarketplace:GaEnabled` — when `false` (default), `ChangePlan` / `ChangeQuantity` webhooks are acknowledged with **HTTP 202** and `AcknowledgedNoOp` without mutating `dbo.BillingSubscriptions`. Set `true` after validating `planId` → tier mapping and seat counts in your environment.
 5. **Managed identity**
    - Grant the API’s user-assigned or system MI permission to call Marketplace fulfillment APIs per Microsoft guidance.
 
@@ -28,7 +29,21 @@ Stand up a **transactable** SaaS offer that lands buyers in ArchLucid while usin
 | `Suspend` | `sp_Billing_Suspend` |
 | `Reinstate` | `sp_Billing_Reinstate` |
 | `Unsubscribe` | `sp_Billing_Cancel` |
-| `ChangePlan` / `ChangeQuantity` | Acknowledged (no-op today; extend in product backlog) |
+| `ChangePlan` | When `GaEnabled=false`: **202** + `AcknowledgedNoOp`. When `GaEnabled=true`: `sp_Billing_ChangePlan` updates `Tier` from `planId` (substring map: `enterprise` → `Enterprise`, else `Standard`). |
+| `ChangeQuantity` | When `GaEnabled=false`: **202** + `AcknowledgedNoOp`. When `GaEnabled=true`: `sp_Billing_ChangeQuantity` sets `SeatsPurchased` from numeric `quantity`. |
+
+### Example webhook (curl)
+
+Replace `<api-host>` and use a real Microsoft-issued bearer JWT from Partner Center validation flow:
+
+```bash
+curl -sS -X POST "https://<api-host>/v1/billing/webhooks/marketplace" \
+  -H "Authorization: Bearer <marketplace_jwt>" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"ChangePlan","subscriptionId":"<saas_subscription_id>","planId":"contoso-enterprise","purchaser":{"tenantId":"<archlucid_tenant_guid>"}}'
+```
+
+Expect **HTTP 202** while `GaEnabled=false`, or **HTTP 200** when `GaEnabled=true` and the row exists.
 
 ## Related
 

@@ -4,10 +4,12 @@ using System.Text.Json;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Tenancy;
 
 using Azure.Core;
 using Azure.Identity;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Billing.AzureMarketplace;
@@ -17,7 +19,8 @@ public sealed class AzureMarketplaceBillingProvider(
     IBillingLedger ledger,
     BillingWebhookTrialActivator trialActivator,
     IMarketplaceWebhookTokenVerifier tokenVerifier,
-    IHttpClientFactory httpClientFactory) : IBillingProvider
+    IHttpClientFactory httpClientFactory,
+    ILogger<AzureMarketplaceBillingProvider> logger) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
@@ -32,6 +35,9 @@ public sealed class AzureMarketplaceBillingProvider(
 
     private readonly IHttpClientFactory _httpClientFactory =
         httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+
+    private readonly ILogger<AzureMarketplaceBillingProvider> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public string ProviderName => BillingProviderNames.AzureMarketplace;
 
@@ -130,7 +136,8 @@ public sealed class AzureMarketplaceBillingProvider(
             Guid workspaceId = ReadGuid(root, "workspaceId", Core.Scoping.ScopeIds.DefaultWorkspace);
             Guid projectId = ReadGuid(root, "projectId", Core.Scoping.ScopeIds.DefaultProject);
 
-            await DispatchMarketplaceActionAsync(
+            MarketplaceDispatchCompletion completion = await DispatchMarketplaceActionAsync(
+                root,
                 action,
                 tenantId,
                 workspaceId,
@@ -139,7 +146,14 @@ public sealed class AzureMarketplaceBillingProvider(
                 inbound.RawBody,
                 cancellationToken);
 
-            await _ledger.MarkWebhookProcessedAsync(dedupeKey, "Processed", cancellationToken);
+            string webhookResultStatus = completion == MarketplaceDispatchCompletion.DeferredNoIntegration
+                ? "AcknowledgedNoOp"
+                : "Processed";
+
+            await _ledger.MarkWebhookProcessedAsync(dedupeKey, webhookResultStatus, cancellationToken);
+
+            if (completion == MarketplaceDispatchCompletion.DeferredNoIntegration) return BillingWebhookHandleResult.AcceptedDeferred();
+
 
             MarketplaceWebhookReceivedIntegrationPayload integrationPayload = new()
             {
@@ -162,7 +176,14 @@ public sealed class AzureMarketplaceBillingProvider(
         }
     }
 
-    private async Task DispatchMarketplaceActionAsync(
+    private enum MarketplaceDispatchCompletion
+    {
+        PublishIntegrationEnvelope,
+        DeferredNoIntegration,
+    }
+
+    private async Task<MarketplaceDispatchCompletion> DispatchMarketplaceActionAsync(
+        JsonElement root,
         string action,
         Guid tenantId,
         Guid workspaceId,
@@ -177,32 +198,68 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             await _ledger.SuspendSubscriptionAsync(tenantId, cancellationToken);
 
-            return;
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
         if (string.Equals(normalized, "Reinstate", StringComparison.OrdinalIgnoreCase))
         {
             await _ledger.ReinstateSubscriptionAsync(tenantId, cancellationToken);
 
-            return;
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
         if (string.Equals(normalized, "Unsubscribe", StringComparison.OrdinalIgnoreCase))
         {
             await _ledger.CancelSubscriptionAsync(tenantId, cancellationToken);
 
-            return;
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
-        if (string.Equals(normalized, "ChangePlan", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(normalized, "ChangeQuantity", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(normalized, "ChangePlan", StringComparison.OrdinalIgnoreCase))
+        {
+            BillingOptions billing = _billingOptions.CurrentValue;
 
-            return;
+            if (!billing.AzureMarketplace.GaEnabled)
+            {
+                _logger.LogInformation(
+                    "Marketplace ChangePlan acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false). TenantId={TenantId}",
+                    tenantId);
 
+                return MarketplaceDispatchCompletion.DeferredNoIntegration;
+            }
+
+            string tierCode = MarketplaceWebhookPayloadParser.TryGetPlanId(root, out string? planId)
+                ? MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+                : nameof(TenantTier.Standard);
+
+            await _ledger.ChangePlanAsync(tenantId, tierCode, rawBody, cancellationToken);
+
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+        }
+
+        if (string.Equals(normalized, "ChangeQuantity", StringComparison.OrdinalIgnoreCase))
+        {
+            BillingOptions billing = _billingOptions.CurrentValue;
+
+            if (!billing.AzureMarketplace.GaEnabled)
+            {
+                _logger.LogInformation(
+                    "Marketplace ChangeQuantity acknowledged without subscription mutation (Billing:AzureMarketplace:GaEnabled=false). TenantId={TenantId}",
+                    tenantId);
+
+                return MarketplaceDispatchCompletion.DeferredNoIntegration;
+            }
+
+            int seats = MarketplaceWebhookPayloadParser.ReadQuantity(root, 1);
+
+            await _ledger.ChangeQuantityAsync(tenantId, seats, rawBody, cancellationToken);
+
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+        }
 
         if (string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(normalized, "Purchase", StringComparison.OrdinalIgnoreCase))
-
+        {
             await ActivateIfRequestedAsync(
                 tenantId,
                 workspaceId,
@@ -211,6 +268,10 @@ public sealed class AzureMarketplaceBillingProvider(
                 rawBody,
                 cancellationToken);
 
+            return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+        }
+
+        return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
     }
 
     private async Task ActivateIfRequestedAsync(

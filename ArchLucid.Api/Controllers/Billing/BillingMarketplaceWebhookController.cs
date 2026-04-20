@@ -44,6 +44,9 @@ public sealed class BillingMarketplaceWebhookController(
 
     [HttpPost("marketplace")]
     [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> MarketplaceAsync(CancellationToken cancellationToken)
     {
         Request.EnableBuffering();
@@ -74,7 +77,7 @@ public sealed class BillingMarketplaceWebhookController(
         BillingWebhookHandleResult result =
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
-        if (result is { Succeeded: true, DuplicateIgnored: false, MarketplaceWebhookReceived: not null })
+        if (result is { Succeeded: true, DuplicateIgnored: false, Returns202Accepted: false, MarketplaceWebhookReceived: not null })
             await MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync(
                 _integrationEventOutbox,
                 _integrationEventPublisher,
@@ -84,7 +87,11 @@ public sealed class BillingMarketplaceWebhookController(
                 cancellationToken);
 
 
-        if (result.DuplicateIgnored || result.Succeeded) return Ok();
+        if (result.DuplicateIgnored) return Ok();
+
+        if (result is { Succeeded: true, Returns202Accepted: true }) return StatusCode(StatusCodes.Status202Accepted);
+
+        if (result.Succeeded) return Ok();
 
 
         return this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook rejected.", ProblemTypes.BadRequest);
