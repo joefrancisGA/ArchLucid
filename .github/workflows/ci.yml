@@ -106,7 +106,7 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
-      - name: Guard — reference-customer status (auto-flip: strict once any Published row exists)
+      - name: "Guard — reference-customer status (auto-flip: strict once any Published row exists)"
         # Auto-flip semantics:
         #   - refcust-warn outcome == 'success'  =>  at least one Status: Published row exists today.
         #   - From that day on, this step re-runs the same check WITHOUT continue-on-error,
