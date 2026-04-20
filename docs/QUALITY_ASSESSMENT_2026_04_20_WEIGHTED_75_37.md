@@ -120,20 +120,22 @@ What suppresses the score:
 
 ---
 
-### 3.4 Architectural Integrity — 75 / 100 (weight 7, gap 175)
+### 3.4 Architectural Integrity — 75 / 100 (weight 7, gap 175) — *revised upward to 83 in §6*
 
-**Justification.** Bounded contexts are visible (`Contracts`, `Contracts.Abstractions`, `Application`, `Coordinator`, `AgentRuntime`, `ContextIngestion`, `KnowledgeGraph`, `Decisioning`, `Provenance`, `Retrieval`, `ArtifactSynthesis`, `Persistence` + four sub-projects `Persistence.{Alerts,Coordination,Integration,Runtime,Advisory}`, `Host.Core`, `Host.Composition`). 21 ADRs document architectural decisions including the convergence of two run tables (ADR 0012), dual-persistence (ADR 0002), URL-path API versioning (ADR 0006), and "Azure primary platform permanent" (ADR 0020).
+> **Correction (added 2026-04-20 after deeper inspection).** `ArchLucid.Architecture.Tests` **already exists** with 17 NetArchTest-based assertions: Core/Contracts/Contracts.Abstractions isolation, persistence sub-module DAG (Coordination/Integration must not reference Runtime/Advisory/Alerts), hexagonal isolation for Decisioning/KnowledgeGraph/ContextIngestion/ArtifactSynthesis, CLI must not depend on Persistence or the API host assembly, plus a custom source-scanning lint that forbids direct `IIntegrationEventPublisher.PublishAsync` calls outside the two authorized wrappers. **My original 75 understated this** — see §6 for the corrected score (~83). The remaining gap is in the **next** layer of assertions and in the consolidation work, which is what improvement #3 should target.
 
-What hurts:
+**Justification.** Bounded contexts are visible (`Contracts`, `Contracts.Abstractions`, `Application`, `Coordinator`, `AgentRuntime`, `ContextIngestion`, `KnowledgeGraph`, `Decisioning`, `Provenance`, `Retrieval`, `ArtifactSynthesis`, `Persistence` + four sub-projects `Persistence.{Alerts,Coordination,Integration,Runtime,Advisory}`, `Host.Core`, `Host.Composition`). 21 ADRs document architectural decisions including the convergence of two run tables (ADR 0012), dual-persistence (ADR 0002), URL-path API versioning (ADR 0006), and "Azure primary platform permanent" (ADR 0020). Mechanical layer enforcement is **already in place** for the leaf tier (Core, Contracts) and the persistence sub-DAG.
 
-- **No mechanical guard** that the layering documented in ADRs holds. There is `docs/ARCHITECTURE_CONSTRAINTS.md` but no `NetArchTest`/`ArchUnitNET` test project I can find that fails when, e.g., `ArchLucid.Application` references `ArchLucid.Persistence` directly, or when a controller bypasses `Application` to talk to a SQL repository.
+What still hurts:
+
+- The boundary tests do not yet pin the **upper** tiers: there is no assertion that `ArchLucid.Application` depends on `ArchLucid.Persistence` only via interfaces (today `Application` references the assembly directly per `csproj`), and there is no assertion that `ArchLucid.Api` controllers depend only on `Application` and not on persistence repositories.
 - `PROJECT_CONSOLIDATION_PROPOSAL.md` is open — i.e. the team has noticed that the project graph has accumulated overlap that is not yet reconciled.
-- `ArchLucid.Persistence.Alerts` carries methods named `AlertIntegrationEventPublishing` (taking raw `ILogger` rather than `ILogger<T>`) — small but tells me the boundary between "Persistence" and "Integration outbox" is fuzzy in places.
+- One-class-per-file is enforced by convention but not by analyzer.
 
-**Tradeoffs.** Mechanical architecture tests are noisy on day one and tend to grow exemption lists. They pay back over multi-year maintenance — exactly the timescale ArchLucid is designed for.
+**Tradeoffs.** Adding the upper-tier assertions risks failing on legitimate cases (`Application` may need persistence types in domain primitives) — they are best added as `Trait("Category","Quarantine")` and tightened as violations are removed.
 
 **Improvements.**
-1. Add `ArchLucid.Architecture.Tests` boundary tests (NetArchTest) pinning: no project depends on `Persistence*` except `Host.*`, `Application`, and the `Persistence.*` siblings; controllers depend only on `Application`.
+1. Add the next ring of NetArchTest assertions: `Api` must not reference `ArchLucid.Persistence*` directly; `Application` to `Persistence` only via `Contracts.Abstractions` interfaces; one-top-level-public-type-per-file source lint.
 2. Land one round of the consolidation proposal: pick the two smallest sibling projects with the heaviest mutual coupling and merge them, with an ADR.
 
 ---
