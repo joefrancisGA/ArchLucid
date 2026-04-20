@@ -10,24 +10,18 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-**Pick your persona (canonical Day-1):** **[docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md)** (engineering), **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** (platform), **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** (security), **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** (copy-paste commands). A short redirect hub lives at **[docs/START_HERE.md](docs/START_HERE.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**.
+**Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, start with **First 30 minutes** — it is the only path that needs nothing but Docker.
 
-## Key documentation
+| You are a... | Start here |
+|---|---|
+| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** |
+| **Operator running a real pilot** (curl, CLI, release smoke) | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) |
+| **Developer** about to commit code | [docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md) |
+| **SRE / Platform** owner | [docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md) |
+| **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md) |
+| **Executive sponsor / buyer** | [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md) |
 
-| Doc | Purpose |
-|-----|---------|
-| **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)** | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters |
-| **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** | **Measurement companion:** what to measure, what success looks like, and how sponsors can justify a pilot without turning the ROI model into a second buyer story |
-| **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** | **Usage guidance:** when to stay in Core Pilot and when Advanced Analysis or Enterprise Controls are worth using, without turning the guide into a second buyer or ROI brief |
-| **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** | **Operator Day-1:** health, curl, CLI, smoke/tests (commands only) |
-| **[docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md)** | **Developer Day-1:** toolchain, local API + SQL, Core tests, one small PR |
-| **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** | **SRE / Platform Day-1:** health model, deploy order, Terraform validate, migrations posture |
-| **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** | **Security Day-1:** trust boundaries, authZ, RLS, supply chain |
-| **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** | **Future packaging map:** how today’s layer model could evolve into stronger commercial boundaries later |
-| **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** | **Reference-customer index:** real, publishable case-study assets (today: one placeholder seed). Drives the `−15%` reference-discount re-rate gate in [PRICING_PHILOSOPHY.md § 5.4](docs/go-to-market/PRICING_PHILOSOPHY.md#54-discount-stack-work-down) and is enforced by `scripts/ci/check_reference_customer_status.py` (non-blocking warn until the first row reaches `Status: Published`). |
-| **[docs/archive/README.md](docs/archive/README.md)** | **Archive index** — historical write-ups (including superseded long-form onboarding bodies) |
-
-Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is linked from **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)** and the Day-1 docs above.
+A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 
 ## Product layers
 

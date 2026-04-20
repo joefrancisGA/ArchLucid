@@ -1,9 +1,14 @@
-# Quality assessment (archived)
+# Quality assessment (redirect)
 
-This file path is kept so bookmarks and external links keep working.
+> **Scope:** This file path is preserved so existing bookmarks and external links keep resolving. The active assessment moves on a regular cadence — always look here for the canonical pointer.
 
-**Historical content** (April 2026 snapshot, not maintained against the current tree): [archive/QUALITY_ASSESSMENT.md](archive/QUALITY_ASSESSMENT.md).
+**Canonical current weighted assessment:** [QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md).
 
-**Canonical current weighted assessment:** [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md).
+**Improvement-decision log (which prompts are unblocked, which need product input):** [QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md](QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md).
 
-**Cursor prompts for Improvement 3** (single solution + quality-doc hygiene): [CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md).
+**Historical content** (April 2026 snapshot, not maintained against the current tree): [archive/QUALITY_ASSESSMENT.md](archive/QUALITY_ASSESSMENT.md). Older dated assessments live alongside the active set today; archival of stale weighted assessments is governed by [archive/quality/README.md](archive/quality/README.md).
+
+**Companion cursor prompts:**
+
+- Latest set (six improvements from the 75.37 assessment) — see § 5 of the canonical file linked above.
+- Historical: [CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md), [CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART2.md](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART2.md), [CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md), [CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md).

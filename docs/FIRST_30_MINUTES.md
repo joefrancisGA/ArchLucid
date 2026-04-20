@@ -1,138 +1,190 @@
-# First 30 minutes with ArchLucid (operator)
+> **Scope:** First-time **operator** evaluating ArchLucid on a laptop. Goal: from `git clone` to "I committed a manifest and saw a finding" in ~30 minutes, using only Docker (no .NET SDK, no Node, no cloud keys).
 
-> **Scope:** A single-page path that takes a first-time **operator** from `git clone` to "I committed a manifest and saw a finding." If you are a developer, SRE, or security engineer, start at the persona Day-1 doc instead — see [docs/onboarding/](onboarding/).
->
-> **Status:** Draft scaffold added 2026-04-20 to compress cognitive load. Screenshots are placeholders; commands are derived from existing scripts. Validate locally and update the screenshots before pinning from the README.
+# First 30 minutes — ArchLucid (operator)
 
-This page intentionally does **not** explain the layer model, the seam tests, the trial enforcement, or the marketplace flow. Those exist and are documented elsewhere — but on minute zero they are noise. Get a manifest committed first, then come back.
+This is the **single canonical first-run path**. If a different document tells you to install .NET or Node *before* you have something working, prefer this one — those tools are useful later, not first.
+
+You will:
+
+1. Start the full stack in Docker (Contoso demo seed, simulator agents — no AI keys needed).
+2. Open the operator UI and create a run from the sample preset.
+3. Watch the run execute, commit a versioned manifest, and open at least one finding.
+4. Tear it down cleanly.
+
+If you get stuck, jump to the **[Troubleshooting](#troubleshooting)** section at the end.
 
 ---
 
-## Prerequisites (verify in 60 seconds)
+## Prerequisites (one check)
 
-- Windows 10/11, macOS, or Linux with [.NET 10 SDK](https://dotnet.microsoft.com/download).
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) running.
-- Node.js 22+ (only required for step 9 — the operator UI).
-- ~6 GB free disk for SQL Server + Azurite + image cache.
+- **Docker Desktop** (Windows / macOS) or **Docker Engine** (Linux), running and reachable from your shell. That is the only requirement for this walkthrough.
 
-If any of these is missing, install it before starting; otherwise step 2 will fail in a way that is hard to diagnose.
+```bash
+docker info
+```
+
+If that prints engine info (no error), you are ready. If not, start Docker Desktop / the Docker daemon and try again.
+
+> **Ports used:** `1433` (SQL), `3000` (UI), `5000` (API), `6379` (Redis), `10000-10002` (Azurite). If any of those are already bound on your machine, stop the conflicting process before continuing.
 
 ---
 
 ## The 10 commands
 
-Run them in order, in a fresh terminal at the repo root. Expected wall-clock time: 25–30 minutes on a developer laptop the first time, ~6 minutes on subsequent runs.
+> Run these from **a fresh terminal**. Lines beginning with `#` are comments — do not paste them.
 
-### 1. Clone and enter the repo
+### 1. Get the code
 
 ```bash
 git clone https://github.com/joefrancisGA/ArchLucid.git
 cd ArchLucid
 ```
 
-**Expect:** repo at HEAD of `main`. Go to step 2.
+> *What to expect:* the repository clones into `./ArchLucid/`. You are now at the repo root for the rest of this walkthrough.
 
-![cloned repo](placeholder-step-1.png)
+![Cloned repo screenshot — placeholder](placeholder-01-cloned.png)
 
-### 2. Bring up SQL Server, Azurite, and Redis in Docker
+### 2. Start the demo stack
 
-```bash
-dotnet run --project ArchLucid.Cli -- dev up
+**Windows (PowerShell):**
+
+```powershell
+.\scripts\demo-start.ps1
 ```
 
-**Expect:** three containers healthy after ~90 seconds. SQL Server on `localhost,1433`, Azurite on `localhost:10000–10002`, Redis on `localhost:6379`.
-
-If `dev up` complains about port conflicts, stop competing local services and rerun. Go to step 3.
-
-![dev up containers healthy](placeholder-step-2.png)
-
-### 3. Start the API (DbUp will run migrations automatically)
+**macOS / Linux (bash):**
 
 ```bash
-dotnet run --project ArchLucid.Api
+./scripts/demo-start.sh
 ```
 
-**Expect:** the API listening on `http://localhost:5072` (or whatever port the launchSettings shows). DbUp creates the `ArchLucid` database and applies every migration in `ArchLucid.Persistence/Migrations/` in order. **Leave this terminal running.** Open a new terminal for step 4.
+> *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the operator UI at `http://localhost:3000/runs/new` in your default browser. **Simulator agents** are enabled — no Azure OpenAI key required.
 
-![api startup logs](placeholder-step-3.png)
+![Demo stack starting — placeholder](placeholder-02-demo-up.png)
 
-### 4. Confirm the API is healthy
+### 3. Sanity-check the API
 
 ```bash
-curl -sS http://localhost:5072/health/ready
+curl -s http://localhost:5000/health/ready
 ```
 
-**Expect:** `200 OK` with a JSON body listing `Db`, `Schema`, `CompliancePack`, and `TempDir` as `Healthy`. If you see anything else, stop here and read [docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md) — the rest of the steps assume readiness. Go to step 5.
+> *What to expect:* JSON like `{"status":"Healthy", ...}` with per-check entries for SQL, schema, compliance rule pack, and temp dir. If you see `Unhealthy`, see [Troubleshooting](#troubleshooting).
 
-### 5. Run the doctor command
+### 4. Confirm the build identity
 
 ```bash
-dotnet run --project ArchLucid.Cli -- doctor
+curl -s http://localhost:5000/version
 ```
 
-**Expect:** a section-by-section pass report covering API reachability, DB migration version, and storage. This is the same checklist you would run before reporting an issue. Go to step 6.
+> *What to expect:* JSON with `informationalVersion`, `commitSha`, `runtimeFramework`, and `environment`. This is what you cite to support if you file an issue.
 
-### 6. Create your first run from the seeded sample request
+### 5. Open the operator UI
+
+If your browser did not auto-open:
+
+```text
+http://localhost:3000/runs/new
+```
+
+> *What to expect:* the **New run** wizard, with three product layers visible in the sidebar (Core Pilot is the default). The sample-run preset is already loaded — you do not have to invent a brief.
+
+![New-run wizard — placeholder](placeholder-03-new-run.png)
+
+### 6. Submit the sample run
+
+In the **New run** wizard, **leave every field at its default** and click **Submit**. (The default brief is the deterministic `PilotService` sample — it always succeeds against simulator agents.)
+
+> *What to expect:* the UI navigates to the run detail page. The run starts in `Created` and quickly moves through `WaitingForResults`. You will see topology, cost, and compliance agent rows appear.
+
+### 7. Watch the run execute (CLI mirror)
+
+In a second terminal:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- run create --request enterprise-rag-request.json
+curl -s http://localhost:5000/v1/architecture/run/$(\
+  curl -s "http://localhost:5000/v1/architecture/runs?pageSize=1" | \
+  python -c "import sys,json;print(json.load(sys.stdin)['items'][0]['runId'])")
 ```
 
-**Expect:** a JSON response with a `runId` GUID and `status: Created`. Copy the `runId` — you'll use it in step 7. Go to step 7.
+(One line is fine if you copy it as-is. Pure-shell PowerShell variant: open the run in the UI and copy the **Run ID** from the URL, then `curl -s http://localhost:5000/v1/architecture/run/<RUN_ID>`.)
 
-![run create output](placeholder-step-6.png)
+> *What to expect:* the JSON response shows `status`, the agent task list, and any submitted results. The status will progress to `ReadyForCommit` once all simulator agents have reported.
 
-### 7. Execute the run
+### 8. Commit the manifest
+
+In the UI, on the run detail page, click **Commit**. (Or via curl, replacing `<RUN_ID>`):
 
 ```bash
-dotnet run --project ArchLucid.Cli -- run execute --run-id <paste-runId-from-step-6>
+curl -s -X POST http://localhost:5000/v1/architecture/run/<RUN_ID>/commit
 ```
 
-**Expect:** the agents (Topology, Cost, Compliance, Critic) execute against the seeded request. Wall time: ~30–90 seconds depending on whether you have an LLM key configured (the simulator runs without one). The CLI prints the manifest version when the commit completes. Go to step 8.
+> *What to expect:* a JSON response with a `manifestVersion` (e.g. `1`). The UI now shows a **Manifest** tab populated with the merged decisions.
 
-### 8. Read the committed manifest and any findings
+![Manifest committed — placeholder](placeholder-04-manifest-committed.png)
+
+### 9. Open a finding
+
+In the UI sidebar, open **Findings** (under the run). Click any row.
+
+> *What to expect:* a **Finding detail** panel with category, severity, evidence, and the agent that produced it. **You have now exercised the full Core Pilot loop**: request → execute → commit → reviewable artifact.
+
+![Finding detail — placeholder](placeholder-05-finding.png)
+
+### 10. Tear down
+
+When you are done, stop and remove the containers:
 
 ```bash
-dotnet run --project ArchLucid.Cli -- run show --run-id <runId>
+docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack down -v
 ```
 
-**Expect:** manifest version, scope, and a list of findings with severity. **You have completed the Core Pilot loop.** Go to step 9 if you want to see the same output in the UI.
-
-![run show with findings](placeholder-step-8.png)
-
-### 9. (Optional) Open the operator UI
-
-```bash
-cd archlucid-ui && npm install && npm run dev
-```
-
-**Expect:** Next.js on `http://localhost:3000`. Open it, log in with the development bypass, and navigate to **Runs → your run** to see the manifest, findings, and `View trace` link.
-
-### 10. Tear everything down when you're done
-
-```bash
-dotnet run --project ArchLucid.Cli -- dev down
-```
-
-**Expect:** containers stopped and removed. The database volume persists by default; pass `--purge` to drop it as well.
+> *What to expect:* containers stop, volumes are removed (note the `-v`), and your machine is back to its pre-demo state. **Drop `-v`** if you want to keep the SQL data for next time.
 
 ---
 
 ## What you just proved
 
-- The full Core Pilot loop works end-to-end on your machine: **request → run → execute → committed manifest → reviewable findings**.
-- The CLI, API, and UI agree on the same `runId` and the same trace ID.
-- DbUp ran every migration cleanly against an empty catalog.
+| Capability | Where you saw it |
+|---|---|
+| API health and build provenance | Steps 3 + 4 |
+| Run lifecycle (create → execute → commit) | Steps 6 → 8 |
+| Versioned, reviewable manifest | Step 8 |
+| Typed findings with evidence | Step 9 |
+| Operator UI (Core Pilot layer) | Steps 5 → 9 |
+
+This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, graph) and **Enterprise Controls** (governance approvals, policy packs, alerts) are progressive disclosures from the same UI — see **[docs/OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)** for when to reach for them.
 
 ---
 
-## Next, depending on your role
+## Where to go next (by persona)
 
-| If you want to… | Read |
+| You are a... | Read next |
 |---|---|
-| Understand what each layer (Core Pilot / Advanced Analysis / Enterprise Controls) means commercially | [docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) and [docs/PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) |
-| See how the run is traced through OpenTelemetry | [docs/OBSERVABILITY.md](OBSERVABILITY.md) and [docs/runbooks/TRACE_A_RUN.md](runbooks/TRACE_A_RUN.md) |
-| Understand why the auth defaults are fail-closed | [docs/SECURITY.md](SECURITY.md) |
-| Plan a deployment to Azure | [docs/DEPLOYMENT.md](DEPLOYMENT.md) and [docs/DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) |
+| **Operator** running a real pilot | [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) (commands), [docs/CORE_PILOT.md](CORE_PILOT.md) (walkthrough), [docs/PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure success) |
+| **Developer** about to commit code | [docs/onboarding/day-one-developer.md](onboarding/day-one-developer.md) |
+| **SRE / platform** owner | [docs/onboarding/day-one-sre.md](onboarding/day-one-sre.md) |
+| **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](onboarding/day-one-security.md) |
+| **Executive sponsor / buyer** | [docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) |
 
-If you got stuck at any step, [docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md) is the right place — issues with `dev up`, DbUp, or `/health/ready` are common on first install and well-covered there.
+---
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `docker info` errors out | Start Docker Desktop or the Docker daemon. On Windows ensure it has finished starting (the whale icon is solid white). |
+| `demo-start.*` times out at 120 s | Run `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack logs api` and look for the failing dependency. Most common cause: a port (1433 / 3000 / 5000) is already bound. |
+| Browser does not open the UI | Open `http://localhost:3000/runs/new` manually. |
+| `health/ready` returns `Unhealthy` for `sql` | Wait 30 seconds and retry — SQL Server takes a moment to apply DbUp migrations on first boot. |
+| `commit` returns 422 | The run does not yet have one result per required agent. Wait for the simulator agents to finish (look at the run's **Tasks** tab) and retry. |
+| You want to start over | Run the **Step 10** teardown command, then re-run **Step 2**. |
+
+Deeper guides: **[docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md)** and **[docs/CONTAINERIZATION.md](CONTAINERIZATION.md)**.
+
+---
+
+## Why this document exists
+
+A first-time operator should not have to choose between four onboarding paths and three commands before they have a working stack. **This document is the single front door.** Every other onboarding doc is intentionally **persona-specific** (developer / SRE / security / sponsor) — they assume you have already completed this 30-minute path and want to go deeper for your role.
+
+Screenshot placeholders (`placeholder-*.png`) are intentional — they will be replaced by the next release-smoke run; tracking is in [`docs/PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md). Do not block on them; the commands themselves are authoritative.
