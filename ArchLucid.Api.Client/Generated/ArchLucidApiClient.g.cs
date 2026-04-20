@@ -25789,6 +25789,59 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum CitationKind
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Manifest")]
+        Manifest = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Finding")]
+        Finding = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DecisionTrace")]
+        DecisionTrace = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"EvidenceBundle")]
+        EvidenceBundle = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"GraphSnapshot")]
+        GraphSnapshot = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ContextSnapshot")]
+        ContextSnapshot = 5,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CitationReference
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("kind")]
+        public CitationKind Kind { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("label")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Label { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("runId")]
+        public System.Guid? RunId { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ClientErrorReport
     {
 
@@ -32583,6 +32636,9 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class RunExplanationSummary
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("citations")]
+        public System.Collections.Generic.ICollection<CitationReference> Citations { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceGapCount")]
         public int ComplianceGapCount { get; set; }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CitationChips } from "@/components/explanation/CitationChips";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import type { RunExplanationSummary } from "@/types/explanation";
@@ -8,6 +9,7 @@ export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
   loading: boolean;
   error: string | null;
+  runId: string;
 };
 
 /** Maps API `riskPosture` string to accessible badge colors (Low / Medium / High / Critical). */
@@ -65,7 +67,7 @@ function confidencePercent(confidence: number): number {
 /**
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
-export function RunExplanationSection({ summary, loading, error }: RunExplanationSectionProps) {
+export function RunExplanationSection({ summary, loading, error, runId }: RunExplanationSectionProps) {
   if (loading) {
     return (
       <div aria-busy="true">
@@ -199,6 +201,8 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
           {summary.faithfulnessWarning}
         </p>
       ) : null}
+
+      <CitationChips citations={summary.citations ?? []} runId={runId} />
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
         <div style={{ marginBottom: 16 }}>

@@ -464,11 +464,23 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_aggregate_faithfulness_fallback_total",
             description: "Aggregate run explanation used deterministic narrative after low faithfulness vs findings.");
 
+    /// <summary>Citation chips emitted on aggregate explanations (label <c>kind</c>: <c>CitationKind</c> enum name).</summary>
+    public static readonly Counter<long> ExplanationCitationsEmitted =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_citations_emitted_total",
+            description: "Citation references attached to aggregate run explanations (label kind).");
+
     /// <summary>Rows detected by consistency probes referencing missing authority state (labels <c>table</c>, <c>column</c>).</summary>
     public static readonly Counter<long> DataConsistencyOrphansDetected =
         AppMeter.CreateCounter<long>(
             "archlucid_data_consistency_orphans_detected_total",
             description: "Orphan coordinator rows detected (labels table, column: LeftRunId or RightRunId).");
+
+    /// <summary>Environment-graded alert when orphan count meets threshold (labels <c>table</c>, <c>column</c>).</summary>
+    public static readonly Counter<long> DataConsistencyAlerts =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_consistency_alerts_total",
+            description: "Data consistency enforcement alert increments (labels table, column).");
 
     /// <summary><c>ArchLucid.Jobs.Cli</c> / <c>IArchLucidJob</c> executions (labels: <c>job_name</c>, <c>exit_class</c>).</summary>
     public static readonly Counter<long> ContainerJobRunsTotal =

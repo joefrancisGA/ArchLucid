@@ -369,7 +369,7 @@ export default async function RunDetailPage({
           )}
           {!explanationFailure && (
             <>
-              <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
+              <RunExplanationSection summary={explanationSummary} loading={false} error={null} runId={runId} />
               {(() => {
                 const traceRows =
                   explanationSummary?.findingTraceConfidences ??

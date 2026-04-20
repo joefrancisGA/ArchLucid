@@ -199,6 +199,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
             ThemeSummaries = [],
             OverallAssessment = "assessment",
             RiskPosture = "Low",
+            Citations = [],
         };
     }
 

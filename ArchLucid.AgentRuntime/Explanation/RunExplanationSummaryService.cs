@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
@@ -88,6 +89,14 @@ public sealed class RunExplanationSummaryService(
         IReadOnlyList<FindingTraceConfidenceDto> findingConfidences =
             FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
 
+        IReadOnlyList<CitationReference> citations = RunExplanationCitationBuilder.Build(detail);
+        foreach (CitationReference c in citations)
+
+            ArchLucidInstrumentation.ExplanationCitationsEmitted.Add(
+                1,
+                new KeyValuePair<string, object?>("kind", c.Kind.ToString()));
+
+
         List<string> themeSummaries = BuildThemeSummaries(explanation.KeyDrivers);
         string riskPosture = AuthorityManifestRiskPosture.Derive(manifest);
         string overallAssessment = BuildOverallAssessment(explanation, manifest, riskPosture);
@@ -107,6 +116,7 @@ public sealed class RunExplanationSummaryService(
             UsedDeterministicFallback = usedDeterministicFallback,
             FaithfulnessWarning = faithfulnessWarning,
             FindingTraceConfidences = findingConfidences.Count > 0 ? findingConfidences : null,
+            Citations = citations,
         };
     }
 

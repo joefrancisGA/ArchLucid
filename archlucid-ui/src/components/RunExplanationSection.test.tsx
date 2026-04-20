@@ -52,20 +52,20 @@ describe("riskPostureBadgeColors", () => {
 
 describe("RunExplanationSection", () => {
   it("shows loading state", () => {
-    render(<RunExplanationSection summary={null} loading={true} error={null} />);
+    render(<RunExplanationSection summary={null} loading={true} error={null} runId="r1" />);
 
     expect(screen.getByText("Loading explanation…")).toBeInTheDocument();
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
   it("shows error alert", () => {
-    render(<RunExplanationSection summary={null} loading={false} error="Boom" />);
+    render(<RunExplanationSection summary={null} loading={false} error="Boom" runId="r1" />);
 
     expect(screen.getByRole("alert")).toHaveTextContent("Boom");
   });
 
   it("renders risk badge, confidence progress, and themes", () => {
-    render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} />);
+    render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />);
 
     expect(screen.getByRole("status", { name: /risk posture medium/i })).toBeInTheDocument();
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
@@ -77,14 +77,14 @@ describe("RunExplanationSection", () => {
   it("shows Not available when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 
-    render(<RunExplanationSection summary={s} loading={false} error={null} />);
+    render(<RunExplanationSection summary={s} loading={false} error={null} runId="r1" />);
 
     expect(screen.getByText("Not available")).toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
   it("reveals provenance in details", () => {
-    render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} />);
+    render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />);
 
     fireEvent.click(screen.getByText("Provenance metadata"));
 

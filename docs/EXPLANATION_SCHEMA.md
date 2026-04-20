@@ -66,8 +66,9 @@ Implementation: `ArchLucid.Api.Controllers.ExplanationController.AggregateRunExp
 | `decisionCount` | number | `GoldenManifest.Decisions.Count`. |
 | `unresolvedIssueCount` | number | `GoldenManifest.UnresolvedIssues.Items.Count`. |
 | `complianceGapCount` | number | `GoldenManifest.Compliance.Gaps.Count`. |
+| `citations` | array | Optional **`CitationReference`**: `kind` (string enum), `id`, `label`, optional `runId` — persisted artifact links for the aggregate narrative (see [explainability/CITATION_BOUND_RENDERING.md](explainability/CITATION_BOUND_RENDERING.md)). Older APIs may omit the array. |
 
-Granular single-run narrative remains on **`GET /v1/explain/runs/{runId}/explain`** (`ExplanationResult` only). Aggregate adds themes, posture, counts, and reuses the same LLM path once per request.
+Granular single-run narrative remains on **`GET /v1/explain/runs/{runId}/explain`** (`ExplanationResult` only). Aggregate adds themes, posture, counts, **citations**, and reuses the same LLM path once per request.
 
 ## ExplanationProvenance
 

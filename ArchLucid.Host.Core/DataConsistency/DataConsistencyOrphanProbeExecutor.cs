@@ -13,12 +13,16 @@ namespace ArchLucid.Host.Core.DataConsistency;
 /// </summary>
 public sealed class DataConsistencyOrphanProbeExecutor(
     IOptionsMonitor<DataConsistencyProbeOptions> optionsMonitor,
+    IOptionsMonitor<DataConsistencyEnforcementOptions> enforcementOptionsMonitor,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
     ILogger<DataConsistencyOrphanProbeExecutor> logger) : IDataConsistencyOrphanProbeExecutor
 {
     private readonly IOptionsMonitor<DataConsistencyProbeOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IOptionsMonitor<DataConsistencyEnforcementOptions> _enforcementOptionsMonitor =
+        enforcementOptionsMonitor ?? throw new ArgumentNullException(nameof(enforcementOptionsMonitor));
 
     private readonly IDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
@@ -77,6 +81,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 cancellationToken)
             .ConfigureAwait(false);
 
+        await ApplyEnforcementAsync(connection, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
+            .ConfigureAwait(false);
+
         if (sampleCap <= 0)
             return;
 
@@ -89,6 +96,62 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         await LogRemediationDryRunSamplesAsync(connection, sampleCap, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
             .ConfigureAwait(false);
+    }
+
+    private async Task ApplyEnforcementAsync(
+        DbConnection connection,
+        long leftCount,
+        long rightCount,
+        long goldenCount,
+        long findingsCount,
+        CancellationToken ct)
+    {
+        DataConsistencyEnforcementOptions enf = _enforcementOptionsMonitor.CurrentValue;
+
+        if (enf.Mode == DataConsistencyEnforcementMode.Off)
+            return;
+
+
+        int threshold = Math.Max(1, enf.AlertThreshold);
+
+        if (enf.Mode == DataConsistencyEnforcementMode.Alert || enf.Mode == DataConsistencyEnforcementMode.Quarantine)
+        {
+            TryRecordAlert(leftCount, threshold, "ComparisonRecords", "LeftRunId");
+            TryRecordAlert(rightCount, threshold, "ComparisonRecords", "RightRunId");
+            TryRecordAlert(goldenCount, threshold, "GoldenManifests", "RunId");
+            TryRecordAlert(findingsCount, threshold, "FindingsSnapshots", "RunId");
+        }
+
+        if (enf.Mode != DataConsistencyEnforcementMode.Quarantine || goldenCount <= 0)
+            return;
+
+
+        int cap = Math.Clamp(enf.MaxRowsPerBatch, 1, 5000);
+
+        await using DbCommand command = connection.CreateCommand();
+        command.CommandText = DataConsistencyEnforcementSql.InsertOrphanGoldenManifestsMissingRun;
+        DbParameter maxRowsParameter = command.CreateParameter();
+        maxRowsParameter.ParameterName = "@MaxRows";
+        maxRowsParameter.Value = cap;
+        command.Parameters.Add(maxRowsParameter);
+
+        int inserted = await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
+
+        if (inserted > 0)
+
+            _logger.LogWarning("Data consistency quarantine inserted {Inserted} orphan GoldenManifests row(s).", inserted);
+    }
+
+    private static void TryRecordAlert(long count, int threshold, string table, string column)
+    {
+        if (count < threshold)
+            return;
+
+
+        ArchLucidInstrumentation.DataConsistencyAlerts.Add(
+            1,
+            new KeyValuePair<string, object?>("table", table),
+            new KeyValuePair<string, object?>("column", column));
     }
 
     private async Task LogRemediationDryRunSamplesAsync(

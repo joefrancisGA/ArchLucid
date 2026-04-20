@@ -136,8 +136,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
         services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
-        services.AddScoped<ITenantOnboardingStateRepository, SqlTenantOnboardingStateRepository>();
-        services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
+        // In-memory hosts intentionally omit ISqlConnectionFactory; first-session SQL persistence is not modeled here.
+        services.AddSingleton<IFirstSessionLifecycleHook>(NoOpFirstSessionLifecycleHook.Instance);
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
 

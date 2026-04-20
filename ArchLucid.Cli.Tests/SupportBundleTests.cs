@@ -28,6 +28,22 @@ public sealed class SupportBundleTests
     }
 
     [Fact]
+    public void RedactSensitivePatterns_strips_bearer_api_key_and_connection_secrets()
+    {
+        const string raw = """
+            {"h":"Authorization: Bearer supersecret","x":"X-Api-Key: abcdef","c":"Server=x;Password=hunter2;AccountKey=akey;"}
+            """;
+
+        string redacted = SupportBundleRedactor.RedactSensitivePatterns(raw);
+
+        redacted.Should().NotContain("supersecret");
+        redacted.Should().NotContain("abcdef");
+        redacted.Should().NotContain("hunter2");
+        redacted.Should().NotContain("akey");
+        redacted.Should().Contain("[REDACTED]");
+    }
+
+    [Fact]
     public async Task CollectAsync_with_mock_http_produces_all_sections()
     {
         using HttpMessageHandler handler = new StubApiHandler();

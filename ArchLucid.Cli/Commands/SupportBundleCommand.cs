@@ -82,7 +82,7 @@ internal static class SupportBundleCommand
 
         SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
 
-        string written = SupportBundleArchiveWriter.WriteDirectory(payload, bundleDir);
+        string written = SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, bundleDir);
 
         Console.WriteLine("ArchLucid support bundle written to:");
         Console.WriteLine(written);
