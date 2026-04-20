@@ -365,6 +365,24 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_expirations_total",
             description: "Trial lifecycle transitions applied by automation (label: reason).");
 
+    /// <summary>First successful golden-manifest commit per tenant (Core Pilot onboarding funnel).</summary>
+    public static readonly Counter<long> FirstSessionCompletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_first_session_completed_total",
+            description: "Increments once per tenant on first successful manifest commit.");
+
+    /// <summary>Deny-list redactions applied before Azure OpenAI and trace persistence (label <c>category</c>).</summary>
+    public static readonly Counter<long> LlmPromptRedactionsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_prompt_redactions_total",
+            description: "Outbound LLM prompt redactions (labels: email|ssn|credit_card|jwt|api_key|custom).");
+
+    /// <summary>LLM completions while <c>LlmPromptRedaction:Enabled</c> is false (audit deliberate bypass).</summary>
+    public static readonly Counter<long> LlmPromptRedactionSkippedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_prompt_redaction_skipped_total",
+            description: "LLM completions observed while prompt redaction is disabled.");
+
     /// <summary>Billing checkout attempts (labels: <c>provider</c>, <c>tier</c>, <c>outcome</c>).</summary>
     public static readonly Counter<long> BillingCheckoutsTotal =
         AppMeter.CreateCounter<long>(
@@ -622,6 +640,32 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "reason", r } };
 
         TrialExpirationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="FirstSessionCompletedTotal"/> once per tenant (caller must gate).</summary>
+    public static void RecordFirstSessionCompleted() => FirstSessionCompletedTotal.Add(1);
+
+    /// <summary>Records <see cref="LlmPromptRedactionsTotal"/> for a category bucket.</summary>
+    public static void RecordLlmPromptRedactions(string category, int matchCount)
+    {
+        if (matchCount <= 0)
+            return;
+
+
+        string c = string.IsNullOrWhiteSpace(category) ? "unknown" : category.Trim();
+        TagList tags = new() { { "category", c } };
+
+        LlmPromptRedactionsTotal.Add(matchCount, tags);
+    }
+
+    /// <summary>Increments <see cref="LlmPromptRedactionSkippedTotal"/> when redaction is disabled.</summary>
+    public static void RecordLlmPromptRedactionSkipped(int count = 1)
+    {
+        if (count <= 0)
+            return;
+
+
+        LlmPromptRedactionSkippedTotal.Add(count);
     }
 
     /// <summary>Increments <see cref="BillingCheckoutsTotal"/>.</summary>

@@ -13,6 +13,7 @@ const PAGES = [
   { name: "Trial onboarding start", path: "/onboarding/start" },
   { name: "Getting started", path: "/getting-started" },
   { name: "Onboarding", path: "/onboarding" },
+  { name: "Core Pilot onboard", path: "/onboard" },
   { name: "New run wizard", path: "/runs/new" },
   { name: "Runs", path: "/runs?projectId=default" },
   { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },

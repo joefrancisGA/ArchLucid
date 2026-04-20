@@ -28,7 +28,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 | Client → API | Fake tokens, stolen API keys | Tampered bodies | — | TLS + JWT validation / API key | Rate limits, outbox flood | Privilege via mis-roles | Entra roles, least-privilege policies, **`ArchLucidPolicies`** |
 | Client → API (trial) | External IdP token replay, weak local passwords | Hosted IdP / ArchLucid SQL tamper | — | External ID tenant binding + JwtBearer issuer rules; PBKDF2 + optional HIBP | Credential stuffing, cache poisoning | Over-privileged minted JWTs | **`Auth:Trial:Modes`**, **`TrialBootstrapEmailVerificationPolicy`**, lockout + role gates (**`docs/security/TRIAL_AUTH.md`**) |
 | API → SQL | SQL auth misuse | SQL injection | — | RLS + parameterized Dapper | DB DoS, heavy queries | `db_owner` misuse | Managed identity / scoped SQL user, RLS **`SESSION_CONTEXT`** |
-| API → LLM | — | Prompt injection → unsafe actions | — | **PII / secrets in prompts** (see **`AGENT_TRACE_FORENSICS.md`**) | Token exhaustion, 429 storms | — | Quotas, circuit breakers, optional prompt redaction backlog |
+| API → LLM | — | Prompt injection → unsafe actions | — | **PII / secrets in prompts** (see **`AGENT_TRACE_FORENSICS.md`**, **`docs/runbooks/LLM_PROMPT_REDACTION.md`**) | Token exhaustion, 429 storms | — | Quotas, circuit breakers, deny-list **`LlmPromptRedaction`** (on by default in shipped appsettings) |
 | API → Blob | SAS misuse | Object tamper | — | Blob exfiltration | — | — | Private endpoint, MI, container ACLs |
 | Worker → Service Bus | — | Message tamper | — | Payload leak | Queue flood | — | Namespace auth, DLQ, admin retry APIs |
 | Billing webhooks (Stripe / Azure Marketplace) | Forged webhook replay, stolen signing secrets | Tampered payloads → wrong tenant conversion | — | **Stripe-Signature** HMAC + **Marketplace JWT** validation; **dbo.BillingWebhookEvents** idempotency key | Webhook flood | Replay after partial failure | Anonymous endpoints only after crypto verification; return **200** only after SQL commit; see **`docs/BILLING.md`** |
@@ -52,7 +52,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 - **Review cadence:** After major features touching auth, RLS, or LLM prompts.
 - **Drills:** Geo-failover (**`docs/runbooks/GEO_FAILOVER_DRILL.md`**).
-- **Gaps to track in backlog:** Formal pen test, expanded RLS table coverage, systematic PII redaction in prompts.
+- **Gaps to track in backlog:** Formal third-party pen test (templates in **`docs/security/PEN_TEST_*`**), residual uncovered tables per **`MULTI_TENANT_RLS.md`** §9, and continuous improvement of deny-list patterns beyond the built-in **`PromptRedactor`** rules.
 
 ## Related
 

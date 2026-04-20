@@ -1,6 +1,6 @@
 # Runbooks index
 
-**Last reviewed:** 2026-04-19
+**Last reviewed:** 2026-04-20
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 
@@ -33,6 +33,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) | Metrics, SLOs, Grafana panels. |
 | **P2** | [INFRASTRUCTURE_OPS.md](./INFRASTRUCTURE_OPS.md) | Terraform stacks (APIM, Front Door, Entra, private endpoints): validate, roll out, triage. |
 | **P2** | [MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Roll Marketplace `ChangePlan` / `ChangeQuantity` back to `AcknowledgedNoOp` (flip `Billing:AzureMarketplace:GaEnabled=false`); the supported escape hatch for the 2026-04-20 GA flip. |
+| **P2** | [LLM_PROMPT_REDACTION.md](./LLM_PROMPT_REDACTION.md) | **`LlmPromptRedaction`** toggles, metrics (`archlucid_llm_prompt_redactions_total`), and forensics alignment with **`AgentExecutionTraceRecorder`**. |
 | **P3** | [GEO_FAILOVER_DRILL.md](./GEO_FAILOVER_DRILL.md) | **Scheduled drill:** measure RTO/RPO, record T0–T3, smoke after cutover. |
 | **P3** | [LOAD_TEST_RATE_LIMITS.md](./LOAD_TEST_RATE_LIMITS.md) | Load testing against rate-limited endpoints. |
 | **P3** | [REDIS_HEALTH.md](./REDIS_HEALTH.md) | Redis used for dev compose / cache patterns; connectivity and health checks. |

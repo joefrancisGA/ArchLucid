@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Safety;
@@ -111,6 +112,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
+        services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
+        services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
+        services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.AddSingleton<IAgentOutputEvaluator, AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputSemanticEvaluator, AgentOutputSemanticEvaluator>();
         services.AddSingleton<IAgentOutputEvaluationHarness, AgentOutputEvaluationHarness>();
@@ -341,6 +345,9 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
             IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+            IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
+            IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
             IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
             ILogger<LlmCompletionAccountingClient> accountingLogger =
                 sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
@@ -352,6 +359,8 @@ public static partial class ServiceCollectionExtensions
                 quotaOpts,
                 telemetryOpts,
                 labelTelemetryOpts,
+                redactionOpts,
+                promptRedactor,
                 usageMetering,
                 accountingLogger);
 
@@ -608,6 +617,9 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
         IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+        IOptionsMonitor<LlmPromptRedactionOptions> redactionOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
+        IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
         IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
         ILogger<LlmCompletionAccountingClient> accountingLogger =
             sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
@@ -619,6 +631,8 @@ public static partial class ServiceCollectionExtensions
             quotaOpts,
             telemetryOpts,
             labelTelemetryOpts,
+            redactionOpts,
+            promptRedactor,
             usageMetering,
             accountingLogger);
 

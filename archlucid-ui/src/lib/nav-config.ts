@@ -164,6 +164,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
+        href: "/onboard",
+        label: "First session",
+        title: "Core Pilot four-step wizard (request → seed → commit → hand-off)",
+        icon: ClipboardList,
+        tier: "essential",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
         href: "/runs/new",
         label: "New run",
         title: navTitleWithShortcut(

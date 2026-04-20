@@ -28,6 +28,7 @@ Record **explicit acceptance** of residual risks when **SQL Server RLS** is enab
 |-----------|---------|----------------|
 | Missing `SESSION_CONTEXT` on pooled connection | Deny-by-default predicates when policy **ON** | Misconfigured host strand legitimate traffic or leak rows if bypass used |
 | Uncovered child tables | Code review + parameterized queries | Higher blast radius on SQL injection or query omission |
+| Predicate complexity | Simple `rls.archiforge_scope_predicate` plus tenant-only **`rls.archiforge_tenant_predicate`** (DbUp **096**) on additional tables | Future schema drift may delay RLS coverage on new tables; two predicate shapes must stay in sync with session context keys |
 
 ### Uncovered tables inventory (mirror of MULTI_TENANT_RLS §9)
 
@@ -38,7 +39,6 @@ The following remain **application-scoped** (no `TenantId` / `WorkspaceId` / `Pr
 - **Operational:** `dbo.BackgroundJobs`, `dbo.HostLeaderLeases`.
 
 When denormalization migrations land (e.g. **046** pattern), update [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) §9 and trim this list in the same change set.
-| Predicate complexity | Simple `rls.archiforge_scope_predicate` | Future schema drift may delay RLS coverage on new tables |
 
 ## 6. Data flow
 

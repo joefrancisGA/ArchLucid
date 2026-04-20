@@ -39,6 +39,8 @@ If blob keys are **null**, check the three **`Full*Inline`** columns (or the sam
 
 Full prompts may contain **customer architecture details, credentials in prose, or personal data**. Treat blob containers **and** SQL **`Full*Inline`** columns with the same classification as **application secrets adjacent data**. Align lifecycle with **`docs/AUDIT_RETENTION_POLICY.md`** and your org’s data-retention policy. There is **no** configuration flag to skip Real-mode full prompt persistence; only **Simulator** mode avoids blob/inline full-text writes.
 
+When **`LlmPromptRedaction:Enabled`** is **true**, **`AgentExecutionTraceRecorder`** applies the same **`IPromptRedactor`** deny-list to the strings chosen for blob and inline persistence (defense-in-depth; not a substitute for prompt engineering and secrets hygiene). Operators: **`docs/runbooks/LLM_PROMPT_REDACTION.md`**.
+
 ## Reliability
 
 ### Inline persistence (after trace insert)

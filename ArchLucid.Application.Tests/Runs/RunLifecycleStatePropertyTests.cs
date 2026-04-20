@@ -374,6 +374,7 @@ public sealed class RunLifecycleStatePropertyTests
                 Options.Create(new PreCommitGovernanceGateOptions()),
                 Mock.Of<IAuditService>(),
                 NoOpTrialFunnelCommitHook.Instance,
+                NoOpFirstSessionLifecycleHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

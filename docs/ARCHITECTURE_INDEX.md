@@ -151,6 +151,7 @@
 - **Provenance / retrieval indexing** – `docs/runbooks/PROVENANCE_INDEXING.md`
 - **API key rotation** – `docs/runbooks/API_KEY_ROTATION.md`
 - **Marketplace `ChangePlan` / `ChangeQuantity` rollback** – `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md` (flip `Billing:AzureMarketplace:GaEnabled=false` without redeploying; supported escape hatch for the 2026-04-20 GA flip)
+- **LLM prompt redaction** – `docs/runbooks/LLM_PROMPT_REDACTION.md` (`LlmPromptRedaction`, outbound + trace persistence alignment)
 - **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
 - **Infrastructure index (Terraform roots)** – `infra/README.md`
 - **Integration event catalog (Service Bus `com.archlucid.*` types + JSON schemas)** – `docs/INTEGRATION_EVENT_CATALOG.md`, `docs/INTEGRATION_EVENT_SCHEMA_REGISTRY.md` (see also `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`)

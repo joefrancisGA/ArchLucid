@@ -289,6 +289,14 @@ export async function commitArchitectureRun(runId: string): Promise<unknown> {
   return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/commit`, {});
 }
 
+/** Seeds deterministic fake agent results for a run (POST /v1/architecture/run/{runId}/seed-fake-results; non-Production only). */
+export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
+  return apiPostJson<{ resultCount?: number }>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/seed-fake-results`,
+    {},
+  );
+}
+
 /** Linkage graph + trace timeline for a coordinator architecture run. */
 export async function getArchitectureRunProvenance(
   runId: string,

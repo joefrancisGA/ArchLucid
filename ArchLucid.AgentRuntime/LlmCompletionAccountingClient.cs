@@ -1,5 +1,6 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
@@ -19,6 +20,8 @@ public sealed class LlmCompletionAccountingClient(
     IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
     IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
     IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
+    IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
+    IPromptRedactor promptRedactor,
     IUsageMeteringService usageMetering,
     ILogger<LlmCompletionAccountingClient> logger)
     : IAgentCompletionClient
@@ -29,6 +32,11 @@ public sealed class LlmCompletionAccountingClient(
     private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions = quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
     private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
     private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
+    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions =
+        redactionOptions ?? throw new ArgumentNullException(nameof(redactionOptions));
+
+    private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
     private readonly ILogger<LlmCompletionAccountingClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -47,9 +55,32 @@ public sealed class LlmCompletionAccountingClient(
             _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
 
 
+        LlmPromptRedactionOptions redactionOpts = _redactionOptions.CurrentValue;
+        string outboundSystem = systemPrompt;
+        string outboundUser = userPrompt;
+
+        if (!redactionOpts.Enabled)
+        {
+            ArchLucidInstrumentation.RecordLlmPromptRedactionSkipped(1);
+        }
+        else
+        {
+            PromptRedactionOutcome systemOutcome = _promptRedactor.Redact(systemPrompt);
+            PromptRedactionOutcome userOutcome = _promptRedactor.Redact(userPrompt);
+
+            foreach (KeyValuePair<string, int> kv in systemOutcome.CountsByCategory)
+                ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
+
+            foreach (KeyValuePair<string, int> kv in userOutcome.CountsByCategory)
+                ArchLucidInstrumentation.RecordLlmPromptRedactions(kv.Key, kv.Value);
+
+            outboundSystem = systemOutcome.Text;
+            outboundUser = userOutcome.Text;
+        }
+
         try
         {
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+            return await _inner.CompleteJsonAsync(outboundSystem, outboundUser, cancellationToken);
         }
         finally
         {

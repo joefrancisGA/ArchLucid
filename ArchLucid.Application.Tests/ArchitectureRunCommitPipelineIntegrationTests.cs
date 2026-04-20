@@ -157,6 +157,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             Options.Create(new PreCommitGovernanceGateOptions()),
             Mock.Of<IAuditService>(),
             NoOpTrialFunnelCommitHook.Instance,
+            NoOpFirstSessionLifecycleHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
@@ -364,6 +365,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             auditService.Object,
             NoOpTrialFunnelCommitHook.Instance,
+            NoOpFirstSessionLifecycleHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         Func<Task> act = async () => await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
@@ -545,6 +547,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             Mock.Of<IAuditService>(),
             NoOpTrialFunnelCommitHook.Instance,
+            NoOpFirstSessionLifecycleHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);

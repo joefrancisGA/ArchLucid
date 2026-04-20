@@ -386,6 +386,7 @@ public sealed class CoordinatorAuditDurableTests
             Options.Create(new PreCommitGovernanceGateOptions()),
             auditService.Object,
             NoOpTrialFunnelCommitHook.Instance,
+            NoOpFirstSessionLifecycleHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult result = await sut.CommitRunAsync(runId);

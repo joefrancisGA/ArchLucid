@@ -2,7 +2,7 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-20
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -16,8 +16,18 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 - **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../CONFIGURATION_KEY_VAULT.md)).
 - **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../SECURITY.md) (PII / exports).
 - **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../SECURITY.md).
+- **LLM outbound hygiene:** Optional deny-list **prompt redaction** before Azure OpenAI and aligned redaction for trace persistence (`LlmPromptRedaction`); see [../runbooks/LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md).
 
 For a **STRIDE-oriented** view of the whole product boundary, see [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
+
+---
+
+## Penetration testing (scaffolding)
+
+Formal third-party pen tests are **scheduled per customer / release train**, not implied by CI smoke alone. Procurement-ready templates:
+
+- [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
+- [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
 
 ---
 

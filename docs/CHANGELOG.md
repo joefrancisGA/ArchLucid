@@ -8,6 +8,20 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-20 — Tenant-only RLS expansion, first-session metric, LLM prompt redaction, `/onboard` wizard (Quality Assessment follow-up)
+
+**Database (DbUp):** **`096_RlsTenantIdOnlyTables.sql`** introduces **`rls.archiforge_tenant_predicate(@TenantId)`** and adds **FILTER + BLOCK** predicates on **`dbo.SentEmails`**, **`dbo.TenantLifecycleTransitions`**, and **`dbo.TenantTrialSeatOccupants`** under existing **`rls.ArchiforgeTenantScope`**. **`097_TenantOnboardingState.sql`** adds **`dbo.TenantOnboardingState`** (`FirstSessionCompletedUtc`) with the same tenant-only predicate when objects exist. Rollbacks: **`Rollback/R096_RlsTenantIdOnlyTables.sql`**, **`Rollback/R097_TenantOnboardingState.sql`**. Consolidated parity: **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
+
+**Application:** **`IFirstSessionLifecycleHook`** / **`SqlFirstSessionLifecycleHook`** records the first successful golden-manifest commit per tenant via **`ITenantOnboardingStateRepository`**; emits **`archlucid_first_session_completed_total`**. **`LlmPromptRedactionOptions`** + **`IPromptRedactor`** redact prompts on **`LlmCompletionAccountingClient`** and trace/blob paths in **`AgentExecutionTraceRecorder`**; counters **`archlucid_llm_prompt_redactions_total`**, **`archlucid_llm_prompt_redaction_skipped_total`**. Production-like hosts log a warning when redaction is disabled (**`LlmPromptRedactionProductionWarningPostConfigure`**).
+
+**UI:** Operator route **`/onboard`** (Core Pilot nav) — four-step first-session wizard using existing architecture API helpers.
+
+**Tests:** **`ArchLucid.Core.Tests/Llm/Redaction/PromptRedactorTests.cs`**. **`archlucid-ui`** unit test **`OnboardWizardClient.test.tsx`**.
+
+**Docs / trust:** Updated **`docs/SQL_SCRIPTS.md`**, **`docs/security/MULTI_TENANT_RLS.md`**, **`docs/security/RLS_RISK_ACCEPTANCE.md`**, **`docs/runbooks/LLM_PROMPT_REDACTION.md`**, **`docs/runbooks/README.md`**, **`docs/OBSERVABILITY.md`**, **`docs/ONBOARDING_WIZARD.md`**, **`docs/go-to-market/TRUST_CENTER.md`**, **`docs/security/SYSTEM_THREAT_MODEL.md`**, **`docs/AGENT_TRACE_FORENSICS.md`**, **`docs/ARCHITECTURE_INDEX.md`**, **`SECURITY.md`**, pen-test templates **`docs/security/PEN_TEST_SOW_TEMPLATE.md`** and **`docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`**.
+
+---
+
 ## 2026-04-20 — Marketplace `ChangePlan` / `ChangeQuantity` GA + Stryker target for `ArchLucid.Api` (Quality Assessment 2026-04-20 § Improvement 4)
 
 **Changed (default behavior):** [`ArchLucid.Api/appsettings.json`](../ArchLucid.Api/appsettings.json) and [`ArchLucid.Api/appsettings.Production.json`](../ArchLucid.Api/appsettings.Production.json) now ship with `Billing:AzureMarketplace:GaEnabled=true`. Marketplace `ChangePlan` and `ChangeQuantity` webhooks are mutating in production by default; both reach the `Processed` terminal state and call the existing `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` stored procedures. The previous `AcknowledgedNoOp` short-circuit is **not** removed — it is intentionally preserved as the supported zero-deploy rollback path.

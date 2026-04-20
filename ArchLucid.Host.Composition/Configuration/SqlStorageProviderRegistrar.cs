@@ -206,6 +206,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         // Scoped: DapperTrialFunnelOperationalMetricsReader takes ISqlConnectionFactory (scoped); hosted service resolves it per scope.
         services.AddScoped<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
+        services.AddScoped<ITenantOnboardingStateRepository, SqlTenantOnboardingStateRepository>();
+        services.AddScoped<IFirstSessionLifecycleHook, SqlFirstSessionLifecycleHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
