@@ -87,9 +87,22 @@ jobs:
           python -m unittest test_check_concept_vocabulary
 
       - name: Guard — reference-customer status (non-blocking until first Published row)
-        # Becomes blocking the day docs/go-to-market/reference-customers/README.md
-        # has a row with Status: Published. See docs/go-to-market/PRICING_PHILOSOPHY.md § 5.4.
+        # Surfaces as warn-only while no row has Status: Published. The auto-flip
+        # step below makes regression (removing or downgrading a Published row)
+        # merge-blocking the moment the first row reaches Published — no manual
+        # CI edit required at re-rate time. See docs/go-to-market/PRICING_PHILOSOPHY.md § 5.4.
+        id: refcust-warn
         continue-on-error: true
+        run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
+
+      - name: Guard — reference-customer status (auto-flip: strict once any Published row exists)
+        # Auto-flip semantics:
+        #   - refcust-warn outcome == 'success'  =>  at least one Status: Published row exists today.
+        #   - From that day on, this step re-runs the same check WITHOUT continue-on-error,
+        #     so any regression (downgrade or removal of the only Published row) fails CI.
+        #   - While zero Published rows exist, this step is skipped and the warn step is the only signal.
+        # See docs/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md (Improvement 1, ref-customer guard).
+        if: steps.refcust-warn.outcome == 'success'
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
       - name: Guard — reference-customer status check unit tests
@@ -241,6 +254,14 @@ jobs:
 
       - name: Guard — migration rollback scripts (latest ten)
         run: python3 scripts/ci/assert_rollback_scripts_exist.py
+
+      - name: Guard — migration numbering (warn-only)
+        # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).
+        # Flip to blocking after the historical 035_/096_ duplicates are renumbered (gated on
+        # confirming no production catalog has applied them — see
+        # docs/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md, question 5.1).
+        continue-on-error: true
+        run: python3 scripts/ci/check_migration_numbering.py
 
       - name: Guard — legacy configuration sunset date
         run: python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
