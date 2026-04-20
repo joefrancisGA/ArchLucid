@@ -2,7 +2,7 @@ using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Caching;
 
-/// <summary>Removes both current and legacy hot-path keys after writes (prefix migration from ArchiForge-era <c>af:hot:</c>).</summary>
+/// <summary>Removes both current and legacy hot-path keys after writes (prefix migration from legacy <c>af:hot:</c>).</summary>
 public static class HotPathCacheEviction
 {
     public static async Task RemoveManifestAsync(

@@ -7,7 +7,7 @@ public static class HotPathCacheKeys
 {
     private const string Prefix = "al:hot:";
 
-    /// <summary>Legacy prefix (ArchiForge-era); eviction and read promotion still honor these keys.</summary>
+    /// <summary>Legacy <c>af:hot:</c> prefix (pre-rename); eviction and read promotion still honor these keys.</summary>
     private const string LegacyPrefix = "af:hot:";
 
     /// <summary>Golden manifest by authority scope + manifest id.</summary>
