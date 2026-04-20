@@ -145,3 +145,19 @@ Rollback: **`Rollback/R094_RowVersion_AlertRecords_RecommendationRecords_Backgro
 | `dbo.RecommendationRecords` | `CK_RecommendationRecords_Urgency` | **`Critical`**, **`High`**, **`Medium`**, **`Low`** — matches **`RecommendationGenerator.MapUrgency`**. |
 
 Each constraint is skipped when any row would violate the domain (remediate data, then re-run DbUp or ship a follow-up). Rollback: **`Rollback/R095_CheckConstraints_StatusDomains_Batch.sql`**.
+
+## Migration 096 — `ISJSON` CHECK constraints (core JSON payloads)
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.AuditEvents.DataJson` | `CK_AuditEvents_DataJson_IsJson` | **`CHECK (ISJSON(DataJson)=1)`** |
+| `dbo.AgentExecutionTraces.TraceJson` | `CK_AgentExecutionTraces_TraceJson_IsJson` | |
+| `dbo.AgentResults.ResultJson` | `CK_AgentResults_ResultJson_IsJson` | |
+| `dbo.ComparisonRecords.PayloadJson` | `CK_ComparisonRecords_PayloadJson_IsJson` | |
+| `dbo.DecisionTraces.EventJson` | `CK_DecisionTraces_EventJson_IsJson` | |
+| `dbo.DecisioningTraces` | `CK_DecisioningTraces_*Json_IsJson` (four columns) | Applied / accepted / rejected / notes JSON |
+| `dbo.AuthorityPipelineWorkOutbox.PayloadJson` | `CK_AuthorityPipelineWorkOutbox_PayloadJson_IsJson` | |
+| `dbo.RecommendationRecords` | Three **`Supporting*IdsJson`** checks | |
+| `dbo.BackgroundJobs.WorkUnitJson` | `CK_BackgroundJobs_WorkUnitJson_IsJson` | |
+
+Wide manifest / snapshot JSON (**`GoldenManifests`**, **`ContextSnapshots`**, …) are **not** in this slice — add in a follow-up after catalog validation. Rollback: **`Rollback/R096_CheckJson_CorePayloadColumns.sql`**.
