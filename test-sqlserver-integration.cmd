@@ -1,7 +1,8 @@
 @echo off
+REM Legacy shim: delegates to test.cmd SqlServerIntegration. See docs/TEST_EXECUTION_MODEL.md.
+REM Set ARCHLUCID_SQL_TEST to a full SQL connection string before running.
+REM Will be retired after 2026-Q3; new docs/runbooks should call test.cmd SqlServerIntegration directly.
 setlocal
 cd /d "%~dp0"
-REM 54R — Dapper + SQL Server persistence tests. Set ARCHLUCID_SQL_TEST (see docs/BUILD.md).
-REM See docs/TEST_EXECUTION_MODEL.md
-dotnet test ArchiForge.Persistence.Tests --filter "Category=SqlServerContainer"
+call "%~dp0test.cmd" SqlServerIntegration
 exit /b %ERRORLEVEL%

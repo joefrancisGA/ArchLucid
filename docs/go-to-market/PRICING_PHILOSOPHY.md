@@ -189,6 +189,20 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 **All three gates cleared:** fair-value pricing (~$408–$817 / seat / month) becomes defensible. Re-rate to Professional seat ~$299 / seat / month as a full-discount-cleared target.
 
+### 5.4 Discount-stack work-down
+
+> **Why this section.** § 5.3 above describes *what triggers a re-rate*. This section is the **operational tracker** that names *who is driving each gate to clear*, *when* it is expected to clear, *what evidence will close it*, and *which CI / repo signal* will tell finance the gate is ready for a pricing review. The discount magnitudes in § 5.1 and the locked prices in § 5.2 are **unchanged** by this section — it is a project-management overlay, not a price change.
+
+| Discount line | Magnitude | Owner | Target close date | Evidence link | Re-rate trigger |
+|---------------|-----------|-------|-------------------|---------------|-----------------|
+| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); SOC 2 attestation available under NDA | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or executive summary) approved for prospect distribution |
+| Reference discount (named, published reference customer) | −15% | TBD (product marketing) | TBD (gated on first design partner closing) | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI guard `scripts/ci/check_reference_customer_status.py` flips from non-blocking warn to blocking gate the same day | At least **one** row in the reference-customers index has `Status: Published` and the CI guard step in `.github/workflows/ci.yml` no longer carries `continue-on-error: true` |
+| Self-serve discount (trial / billing loop in production) | −10% | TBD (platform PM) | Cleared in-repo as of 2026-04-17; awaits product-leadership pricing review | Merge-blocking `ui-e2e-live` runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) — see § 5.3 Gate #3 | Product leadership signs off on the engineering signal; no further evidence required |
+
+**How this table is maintained.** Every PR that materially advances a gate (e.g., publishes a real reference customer, lands the SOC 2 attestation, completes the pen-test exec summary) updates the matching row's *Owner* and *Target close date* fields and adds a one-line entry to [`docs/CHANGELOG.md`](../CHANGELOG.md). When all three rows reach a "ready for re-rate" state, finance triggers the re-rate gate decision in § 5.3 — this table does **not** authorize price changes on its own.
+
+**Cross-references.** The reference-customers index and case-study placeholder live in [`reference-customers/`](reference-customers/). The CI guard backing the reference row is `scripts/ci/check_reference_customer_status.py`, wired non-blocking in `.github/workflows/ci.yml`. Both are described from the discoverability side in [`README.md`](../../README.md) "Key documentation".
+
 ---
 
 ## 6. Expansion levers

@@ -6,7 +6,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 **Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)**. The rest of this repository should stay aligned with that summary rather than competing with it.
 
-**Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate.
+**Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate. User-visible changes are tracked in **[docs/CHANGELOG.md](docs/CHANGELOG.md)**; the breaking-only narrative continues to live in **[BREAKING_CHANGES.md](BREAKING_CHANGES.md)**.
 
 ## Getting started
 
@@ -24,6 +24,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** | **SRE / Platform Day-1:** health model, deploy order, Terraform validate, migrations posture |
 | **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** | **Security Day-1:** trust boundaries, authZ, RLS, supply chain |
 | **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** | **Future packaging map:** how today’s layer model could evolve into stronger commercial boundaries later |
+| **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** | **Reference-customer index:** real, publishable case-study assets (today: one placeholder seed). Drives the `−15%` reference-discount re-rate gate in [PRICING_PHILOSOPHY.md § 5.4](docs/go-to-market/PRICING_PHILOSOPHY.md#54-discount-stack-work-down) and is enforced by `scripts/ci/check_reference_customer_status.py` (non-blocking warn until the first row reaches `Status: Published`). |
 | **[docs/archive/README.md](docs/archive/README.md)** | **Archive index** — historical write-ups (including superseded long-form onboarding bodies) |
 
 Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is linked from **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)** and the Day-1 docs above.

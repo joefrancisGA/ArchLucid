@@ -1,8 +1,7 @@
-# Fast core: Suite=Core, excluding Category=Slow and Category=Integration.
-# See docs/TEST_EXECUTION_MODEL.md
+# Legacy shim: delegates to test.ps1 -Tier FastCore. See docs/TEST_EXECUTION_MODEL.md.
+# This script will be retired after 2026-Q3; new docs/runbooks should call .\test.ps1 -Tier FastCore directly.
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $root
-dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+& (Join-Path $root 'test.ps1') -Tier FastCore
 exit $LASTEXITCODE

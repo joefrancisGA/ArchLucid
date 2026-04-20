@@ -31,6 +31,13 @@ STRYKER_TARGETS: list[tuple[str, str]] = [
     ("AgentRuntime", "stryker-config.agentruntime.json"),
     ("Coordinator", "stryker-config.coordinator.json"),
     ("Decisioning", "stryker-config.decisioning.json"),
+    ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
+    # Api added 2026-04-20 (Quality Assessment Improvement 4). Honest starting
+    # threshold of break=55 because HTTP wiring code is mutation-rich; the
+    # baseline floor in stryker-baselines.json starts at 55.0 and is ratcheted
+    # by re-running this script after a coverage uplift PR. See
+    # docs/MUTATION_TESTING_STRYKER.md "API target (advisory)".
+    ("Api", "stryker-config.api.json"),
 ]
 
 

@@ -54,8 +54,10 @@
   - `docs/ARCHITECTURE_COMPONENTS.md`
 - **Architecture constraint tests** – NetArchTest + assembly-reference rules (`ArchLucid.Architecture.Tests`, `Suite=Core`)  
   - `docs/ARCHITECTURE_CONSTRAINTS.md`
-- **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`)  
+- **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`); now opens with a "Which path do I use?" decision tree and a "Why we have not collapsed these" section linking ADR 0010, ADR 0012, and proposed ADR 0021  
   - `docs/DUAL_PIPELINE_NAVIGATOR.md`
+- **Coordinator pipeline strangler plan** – proposed phased retirement of the Coordinator interface family in favour of the Authority family; **`Status: Proposed`** — implementation gated on architecture-review acceptance per the ADR's own decision-review gate  
+  - `docs/adr/0021-coordinator-pipeline-strangler-plan.md`
 - **DI registration map** – `AddArchLucidApplicationServices` order (`ArchLucid.Host.Composition`), `AddArchLucidStorage`, partial `ServiceCollectionExtensions`, config gates  
   - `docs/DI_REGISTRATION_MAP.md`
 - **Key flows** – run, export, comparison, replay sequences  
@@ -108,6 +110,8 @@
 
 - **Glossary** – 20 domain terms (authority run, golden manifest, finding engine, policy pack …)  
   - `docs/GLOSSARY.md`
+- **Concepts (canonical vocabulary)** – adjudicates between competing terms (e.g. Microsoft Entra ID over its legacy name); enforced by `scripts/ci/check_concept_vocabulary.py` against `docs/` (excluding `docs/archive/`)  
+  - `docs/CONCEPTS.md`
 - **Changelog** – per-release summaries (55R → latest); archived design-session logs in `docs/archive/`  
   - `docs/CHANGELOG.md`
 - **ADRs** – 11 numbered decisions; no shared prefix IDs  
@@ -146,6 +150,7 @@
 - **Comparison replay rate limits** – `docs/runbooks/COMPARISON_REPLAY_RATE_LIMITS.md`
 - **Provenance / retrieval indexing** – `docs/runbooks/PROVENANCE_INDEXING.md`
 - **API key rotation** – `docs/runbooks/API_KEY_ROTATION.md`
+- **Marketplace `ChangePlan` / `ChangeQuantity` rollback** – `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md` (flip `Billing:AzureMarketplace:GaEnabled=false` without redeploying; supported escape hatch for the 2026-04-20 GA flip)
 - **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
 - **Infrastructure index (Terraform roots)** – `infra/README.md`
 - **Integration event catalog (Service Bus `com.archlucid.*` types + JSON schemas)** – `docs/INTEGRATION_EVENT_CATALOG.md`, `docs/INTEGRATION_EVENT_SCHEMA_REGISTRY.md` (see also `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`)

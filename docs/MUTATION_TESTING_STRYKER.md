@@ -18,6 +18,7 @@ The repo includes **`stryker-config.json`** at the solution root for **Persisten
 - **`stryker-config.coordinator.json`** — `ArchLucid.Coordinator` + `ArchLucid.Coordinator.Tests`
 - **`stryker-config.decisioning.json`** — `ArchLucid.Decisioning` + `ArchLucid.Decisioning.Tests`
 - **`stryker-config.persistence-coordination.json`** — `ArchLucid.Persistence.Coordination` + `ArchLucid.Persistence.Tests` (scheduled workflow label **PersistenceCoordination**)
+- **`stryker-config.api.json`** — `ArchLucid.Api` + `ArchLucid.Api.Tests` (scheduled workflow label **Api**, added 2026-04-20). HTTP wiring code is mutation-rich, so this config starts at an honest **`thresholds.break = 55`** floor and a baseline of **55.0**, not the **70** used by the older configs. The intent is to ratchet upward on every `refresh_stryker_baselines.py` run that follows a coverage uplift PR — see § "API target (advisory ratchet)" below.
 
 Each config enables **`json`** alongside `progress` and `html` so CI can parse **`mutation-report.json`** (mutation-testing-elements schema).
 
@@ -58,7 +59,21 @@ dotnet dotnet-stryker -f stryker-config.agentruntime.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.coordinator.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.decisioning.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.persistence-coordination.json -s ArchLucid.sln
+dotnet dotnet-stryker -f stryker-config.api.json -s ArchLucid.sln
 ```
+
+## API target (advisory ratchet)
+
+`stryker-config.api.json` is the newest target. Its baseline of **55.0** and `thresholds.break = 55` are intentionally lower than the **70** used by the older modules: the `ArchLucid.Api` assembly is dominated by HTTP wiring (controllers, middleware, model binding, problem-details mapping) which has a high mutant density relative to assertion-rich domain code.
+
+**Why advisory:** the new target is added to the scheduled matrix but is treated as advisory in practice — failures should be triaged as test gaps, not merge blockers, until the baseline has been ratcheted at least twice. The intended ratchet sequence is:
+
+1. Land the next ArchLucid.Api coverage uplift PR (more controller / middleware unit tests).
+2. Run `python3 scripts/ci/refresh_stryker_baselines.py --only Api --merge-existing` from the repo root after `dotnet tool restore`.
+3. Commit the updated `stryker-baselines.json` (the script floors to one decimal and writes `_measuredDate`).
+4. Repeat at the next coverage uplift; once the measured score sits comfortably above **65**, raise `thresholds.break` in `stryker-config.api.json` to **65** in a follow-up PR.
+
+The long-term target is to bring the API config in line with the other modules at **70 / 70**, but only as observed scores justify each step.
 
 ## Scheduled CI
 

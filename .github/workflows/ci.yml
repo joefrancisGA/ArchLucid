@@ -70,6 +70,33 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: Guard — no legacy ArchiForge.* workspace directories
+        run: python scripts/ci/check_no_legacy_archiforge_dirs.py
+
+      - name: Guard — legacy ArchiForge.* directory check unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_no_legacy_archiforge_dirs
+
+      - name: Guard — concept vocabulary (docs/CONCEPTS.md § 1)
+        run: python scripts/ci/check_concept_vocabulary.py
+
+      - name: Guard — concept vocabulary check unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_concept_vocabulary
+
+      - name: Guard — reference-customer status (non-blocking until first Published row)
+        # Becomes blocking the day docs/go-to-market/reference-customers/README.md
+        # has a row with Status: Published. See docs/go-to-market/PRICING_PHILOSOPHY.md § 5.4.
+        continue-on-error: true
+        run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
+
+      - name: Guard — reference-customer status check unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_reference_customer_status
+
       - name: AuditEvents read path — no NOLOCK hint
         run: python scripts/ci/assert_no_audit_events_nolock.py
 
