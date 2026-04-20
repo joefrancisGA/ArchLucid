@@ -28,6 +28,7 @@ When a file moves here:
 |---|---|---|
 | *(none yet — this folder was created 2026-04-20 as part of the cognitive-load improvement)* | — | — |
 
-## Companion CI guard (planned)
+## Companion CI guards
 
-A non-blocking CI job named `docs-stale-assessment-warn` is planned (not yet wired) to scan the top level of `docs/` and warn when more than one file from the same assessment family lives there. Until that ships, this is a manual hygiene step at the end of each release.
+- **Doc scope header (shipped 2026-04-20):** `scripts/ci/check_doc_scope_header.py` runs in `.github/workflows/ci.yml` after `check_doc_links.py` with `continue-on-error: true` until active docs under `docs/` (excluding `docs/archive/`) all open with `> **Scope:**`. See the script docstring for the exact rule and README HTML exception.
+- **Stale assessment index (planned):** a non-blocking job named `docs-stale-assessment-warn` may later warn when more than one file from the same assessment family lives at the top level of `docs/`. Until that ships, demotion remains a manual hygiene step at the end of each release.
