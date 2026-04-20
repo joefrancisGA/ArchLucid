@@ -61,6 +61,17 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_doc_links.py
 
+      - name: Doc scope header (warn-only)
+        # Surfaces docs missing a leading `> **Scope:**` blockquote (see scripts/ci/check_doc_scope_header.py).
+        # README.md uses `<!-- **Scope:** ... -->` instead. Flip to blocking after back-fill.
+        continue-on-error: true
+        run: python scripts/ci/check_doc_scope_header.py
+
+      - name: Doc scope header check unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_doc_scope_header
+
       - name: Runbook freshness (informational)
         run: python scripts/ci/check_doc_freshness.py
 

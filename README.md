@@ -1,3 +1,5 @@
+<!-- **Scope:** Repository overview, persona entrypoints, and pointers into `docs/`; canonical operator first-run is `docs/FIRST_30_MINUTES.md`. -->
+
 # ArchLucid
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package. It helps teams produce committed manifests, reviewable artifacts, and stronger governance evidence with less manual assembly and less ambiguity about what changed and why.
