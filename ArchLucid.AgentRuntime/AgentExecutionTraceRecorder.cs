@@ -4,7 +4,9 @@ using System.Text.Json;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -25,6 +27,8 @@ public sealed class AgentExecutionTraceRecorder(
     IArtifactBlobStore blobStore,
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
+    IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
+    IPromptRedactor promptRedactor,
     ILogger<AgentExecutionTraceRecorder> logger)
     : IAgentExecutionTraceRecorder
 {
@@ -52,6 +56,11 @@ public sealed class AgentExecutionTraceRecorder(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions =
+        redactionOptions ?? throw new ArgumentNullException(nameof(redactionOptions));
+
+    private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
 
     private readonly ILogger<AgentExecutionTraceRecorder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -113,15 +122,29 @@ public sealed class AgentExecutionTraceRecorder(
             ? AgentExecutionTraceModelMetadata.UnspecifiedModelVersion
             : modelVersion.Trim();
 
+        string storeSystem = systemPrompt;
+        string storeUser = userPrompt;
+        string storeRaw = rawResponse;
+
+        if (_redactionOptions.CurrentValue.Enabled)
+        {
+            PromptRedactionOutcome systemOutcome = _promptRedactor.Redact(systemPrompt);
+            PromptRedactionOutcome userOutcome = _promptRedactor.Redact(userPrompt);
+            PromptRedactionOutcome rawOutcome = _promptRedactor.Redact(rawResponse);
+            storeSystem = systemOutcome.Text;
+            storeUser = userOutcome.Text;
+            storeRaw = rawOutcome.Text;
+        }
+
         AgentExecutionTrace trace = new()
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,
             TaskId = taskId,
             AgentType = agentType,
-            SystemPrompt = Truncate(systemPrompt, MaxContentLength),
-            UserPrompt = Truncate(userPrompt, MaxContentLength),
-            RawResponse = Truncate(rawResponse, MaxContentLength),
+            SystemPrompt = Truncate(storeSystem, MaxContentLength),
+            UserPrompt = Truncate(storeUser, MaxContentLength),
+            RawResponse = Truncate(storeRaw, MaxContentLength),
             ParsedResultJson = parsedResultJson,
             ParseSucceeded = parseSucceeded,
             ErrorMessage = errorMessage,
@@ -147,9 +170,9 @@ public sealed class AgentExecutionTraceRecorder(
             trace.TraceId,
             runId,
             agentType,
-            systemPrompt,
-            userPrompt,
-            rawResponse,
+            storeSystem,
+            storeUser,
+            storeRaw,
             cancellationToken);
     }
 

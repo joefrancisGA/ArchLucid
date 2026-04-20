@@ -1,6 +1,8 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -143,6 +145,11 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         Mock<ILlmCostEstimator> cost = new();
         cost.Setup(c => c.EstimateUsd(It.IsAny<int>(), It.IsAny<int>())).Returns(1.23m);
 
+        Mock<IOptionsMonitor<LlmPromptRedactionOptions>> redactionMonitor = new();
+        redactionMonitor.Setup(m => m.CurrentValue).Returns(new LlmPromptRedactionOptions { Enabled = false });
+
+        IPromptRedactor redactor = new PromptRedactor(redactionMonitor.Object, NullLogger<PromptRedactor>.Instance);
+
         return new AgentExecutionTraceRecorderImpl(
             repo,
             cost.Object,
@@ -151,6 +158,8 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
             blobStore ?? Mock.Of<IArtifactBlobStore>(),
             new NoOpAuditService(),
             new FixedScopeProvider(),
+            redactionMonitor.Object,
+            redactor,
             NullLogger<AgentExecutionTraceRecorderImpl>.Instance);
     }
 }

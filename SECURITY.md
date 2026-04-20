@@ -34,6 +34,8 @@ We will send an **initial acknowledgment within 48 hours** and aim to provide a 
 
 - **Authentication:** Entra ID (JWT Bearer) and optional **API key** mode; sensitive comparisons use fixed-time helpers (e.g. `CryptographicOperations.FixedTimeEquals`) where applicable.
 - **Authorization:** **RBAC** (three app roles mapped to five authorization policies) and **SQL row-level security (RLS)** enforced for production SQL deployments — see [docs/security/MULTI_TENANT_RLS.md](docs/security/MULTI_TENANT_RLS.md).
+- **LLM prompts:** Deny-list **redaction** (`LlmPromptRedaction`) before Azure OpenAI and for persisted trace text when enabled — see [docs/runbooks/LLM_PROMPT_REDACTION.md](docs/runbooks/LLM_PROMPT_REDACTION.md).
+- **Independent test:** Penetration test **SoW** and **redacted summary** templates live under [docs/security/PEN_TEST_SOW_TEMPLATE.md](docs/security/PEN_TEST_SOW_TEMPLATE.md) and [docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md](docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md) for customer-facing engagements.
 - **Transport:** **HTTPS** for production-style deployments; **HSTS** enabled in production hosting paths.
 - **HTTP security headers:** Baseline headers include **Content-Security-Policy** (`default-src 'none'` for API JSON responses), **X-Frame-Options: DENY**, and **X-Content-Type-Options: nosniff** (see `ArchLucid.Host.Core` middleware).
 - **Secrets:** Prefer **Azure Key Vault**; CI runs **gitleaks**; production startup validation rejects **placeholder API keys**.

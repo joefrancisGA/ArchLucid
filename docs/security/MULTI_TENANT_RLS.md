@@ -80,7 +80,7 @@ flowchart LR
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
 - **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchLucid.sql` for greenfield parity.
 
-## 9. Covered tables and known gaps (DbUp 036 + 046)
+## 9. Covered tables and known gaps (DbUp 036 + 046 + 096 + 097)
 
 **In policy `rls.ArchiforgeTenantScope` (FILTER on all listed tables; ships `STATE = OFF`):**
 
@@ -99,6 +99,15 @@ flowchart LR
 - `dbo.RetrievalIndexingOutbox`, `dbo.ArchitectureRunIdempotency`
 - `dbo.ProductLearningPilotSignals`, `dbo.ProductLearningImprovementThemes`, `dbo.ProductLearningImprovementPlans`
 - `dbo.EvolutionCandidateChangeSets`
+
+**Tenant-only rows (DbUp 096 + 097) — same policy, predicate `rls.archiforge_tenant_predicate(TenantId)`:**
+
+When **`096`** has run, these tables use **tenant id only** (no workspace/project on the row). The predicate still honors **`af_rls_bypass`** and **`af_tenant_id`** in **`SESSION_CONTEXT`**:
+
+- `dbo.SentEmails`
+- `dbo.TenantLifecycleTransitions`
+- `dbo.TenantTrialSeatOccupants`
+- `dbo.TenantOnboardingState` (**097** — first golden-manifest commit timestamp per tenant)
 
 **Not covered (no scope triple on row — application must enforce):**
 

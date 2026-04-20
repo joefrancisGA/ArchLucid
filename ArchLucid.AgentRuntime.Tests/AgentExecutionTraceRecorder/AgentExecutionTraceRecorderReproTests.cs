@@ -613,6 +613,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
         services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
+        services.Configure<ArchLucid.Core.Configuration.LlmPromptRedactionOptions>(o => o.Enabled = false);
+        services.AddSingleton<ArchLucid.Core.Llm.Redaction.IPromptRedactor, ArchLucid.Core.Llm.Redaction.PromptRedactor>();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
         services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
         ServiceProvider provider = services.BuildServiceProvider();

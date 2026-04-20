@@ -27,6 +27,9 @@
 | **`archlucid_explanation_faithfulness_ratio`** | Histogram | — | Heuristic overlap of aggregate explanation tokens vs finding **`ExplainabilityTrace`** text (**`ExplanationFaithfulnessChecker`** on **`RunExplanationSummaryService`**). |
 | **`archlucid_circuit_breaker_*`** | Counter | — | State transitions, rejections, probe outcomes. |
 | **`archlucid_llm_*`** | Counter | — | Token usage, retries (see `ArchLucidInstrumentation` source). |
+| **`archlucid_llm_prompt_redactions_total`** | Counter | **`category`** | Deny-list replacements applied on the **LLM accounting** path before the model call. |
+| **`archlucid_llm_prompt_redaction_skipped_total`** | Counter | — | Model calls observed while **`LlmPromptRedaction:Enabled`** is **false** (audit deliberate bypass). |
+| **`archlucid_first_session_completed_total`** | Counter | — | Once per tenant on first successful golden-manifest commit (Core Pilot funnel; SQL **`TenantOnboardingState`**). |
 | **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | — | **`agent_type`**: Topology, Cost, Compliance, Critic. Fraction of expected **`AgentResult`** JSON keys present on **`ParsedResultJson`** (see **`AgentOutputEvaluationRecorder`**). |
 | **`archlucid_agent_output_parse_failures_total`** | Counter | — | **`agent_type`**. **`ParsedResultJson`** is not a JSON object or failed JSON parse when re-checked for metrics. |
 | **`archlucid_agent_trace_blob_upload_failures_total`** | Counter | — | **`agent_type`**, **`blob_type`** (`system_prompt`, `user_prompt`, `response`). Incremented when a blob write exhausts all retry attempts. |

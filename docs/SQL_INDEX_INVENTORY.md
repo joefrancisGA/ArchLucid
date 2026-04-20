@@ -161,3 +161,16 @@ Each constraint is skipped when any row would violate the domain (remediate data
 | `dbo.BackgroundJobs.WorkUnitJson` | `CK_BackgroundJobs_WorkUnitJson_IsJson` | |
 
 Wide manifest / snapshot JSON (**`GoldenManifests`**, **`ContextSnapshots`**, …) are **not** in this slice — add in a follow-up after catalog validation. Rollback: **`Rollback/R096_CheckJson_CorePayloadColumns.sql`**.
+
+## Migration 098 — `IntegrationEventOutbox` dead-letter and pending-with-retry indexes
+
+**Note:** Migration **`097`** is **`TenantOnboardingState`**; outbox operator indexes ship as **098**.
+
+| Index | Table | Key columns | Filter / INCLUDE | Query pattern |
+|-------|-------|-------------|------------------|---------------|
+| `IX_IntegrationEventOutbox_DeadLetteredUtc` | `IntegrationEventOutbox` | `DeadLetteredUtc DESC`, `EventType` | **Filter:** `DeadLetteredUtc IS NOT NULL` — **INCLUDE:** scope + `RetryCount`, `LastErrorMessage` | Dead-letter dashboards and audits (sparse). |
+| `IX_IntegrationEventOutbox_PendingWithRetries` | `IntegrationEventOutbox` | `NextRetryUtc ASC`, `CreatedUtc ASC` | **Filter:** pending, not dead-letter, **`RetryCount > 0`** — **INCLUDE:** `EventType`, scope, `RetryCount`, `LastErrorMessage` | Stuck / backoff sweeps without scanning the full pending queue. |
+
+`RetrievalIndexingOutbox` / `AuthorityPipelineWorkOutbox` already have **`IX_*_Pending`** filtered on `ProcessedUtc IS NULL`; additional filtered indexes can follow if telemetry shows residual table scans.
+
+Rollback: **`Rollback/R098_OutboxDeadLetterStuckRowIndexes.sql`**.

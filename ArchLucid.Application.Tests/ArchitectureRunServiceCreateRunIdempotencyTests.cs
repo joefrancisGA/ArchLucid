@@ -287,6 +287,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 Options.Create(new PreCommitGovernanceGateOptions()),
                 Mock.Of<IAuditService>(),
                 NoOpTrialFunnelCommitHook.Instance,
+                NoOpFirstSessionLifecycleHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

@@ -47,6 +47,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IAuditService auditService,
     ITrialFunnelCommitHook trialFunnelCommitHook,
+    IFirstSessionLifecycleHook firstSessionLifecycleHook,
     ILogger<ArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -78,6 +79,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
     private readonly ITrialFunnelCommitHook _trialFunnelCommitHook =
         trialFunnelCommitHook ?? throw new ArgumentNullException(nameof(trialFunnelCommitHook));
+
+    private readonly IFirstSessionLifecycleHook _firstSessionLifecycleHook =
+        firstSessionLifecycleHook ?? throw new ArgumentNullException(nameof(firstSessionLifecycleHook));
 
     private readonly ILogger<ArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -406,6 +410,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         await _trialFunnelCommitHook
             .OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _firstSessionLifecycleHook
+            .OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Information))

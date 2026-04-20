@@ -65,6 +65,8 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | `094_RowVersion_AlertRecords_RecommendationRecords_BackgroundJobs.sql` | **`RowVersionStamp ROWVERSION`** on **`dbo.AlertRecords`**, **`dbo.RecommendationRecords`**, **`dbo.BackgroundJobs`** when missing (optimistic concurrency; mirrors **`Runs`** / **`GoldenManifests`**). Greenfield **`ArchLucid.sql`** includes column in **`CREATE TABLE`**. Rollback: **`Rollback/R094_*.sql`**. |
 | `095_CheckConstraints_StatusDomains_Batch.sql` | **CHECK** domains: **`PolicyPacks.Status`**, **`AlertDeliveryAttempts.Status`**, alert **severity** columns, **`RecommendationRecords.Urgency`**. Each added only when no violating rows exist. Rollback: **`Rollback/R095_*.sql`**. |
 | `096_CheckJson_CorePayloadColumns.sql` | **CHECK (ISJSON(…)=1)** on core JSON **`NVARCHAR(MAX)`** payloads (audit, agent traces/results, comparisons, decision traces, authority outbox, recommendation id arrays, background job work units). Skipped per column when any row fails **`ISJSON`**. Rollback: **`Rollback/R096_*.sql`**. |
+| `097_TenantOnboardingState.sql` | **`dbo.TenantOnboardingState`** (per-tenant first-session marker) + RLS bind when policy exists. |
+| `098_OutboxDeadLetterStuckRowIndexes.sql` | Filtered indexes on **`dbo.IntegrationEventOutbox`**: dead-lettered rows and pending rows with **`RetryCount > 0`** (operator / backoff sweeps). Rollback: **`Rollback/R098_*.sql`**. |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 

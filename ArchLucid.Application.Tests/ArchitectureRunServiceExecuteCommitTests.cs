@@ -1079,6 +1079,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Options.Create(new PreCommitGovernanceGateOptions()),
                 Mock.Of<IAuditService>(),
                 NoOpTrialFunnelCommitHook.Instance,
+                NoOpFirstSessionLifecycleHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 
@@ -1187,6 +1188,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 preCommitGovernanceGateOptions,
                 auditService,
                 NoOpTrialFunnelCommitHook.Instance,
+                NoOpFirstSessionLifecycleHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

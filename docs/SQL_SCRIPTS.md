@@ -133,6 +133,9 @@ Read the file top-down; major comment banners include:
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
 | **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations) plus RLS predicate when **`ArchiforgeTenantScope`** exists. |
 | **051_AuditEvents_DenyUpdateDelete.sql** | When database role **`ArchLucidApp`** exists: **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** (append-only enforcement). Skips if role absent. See **`docs/AUDIT_COVERAGE_MATRIX.md`**. |
+| **096_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R096_CheckJson_CorePayloadColumns.sql`**. |
+| **096_RlsTenantIdOnlyTables.sql** | Adds **`rls.archiforge_tenant_predicate(@TenantId)`** and attaches **FILTER + BLOCK** predicates on **`dbo.SentEmails`**, **`dbo.TenantLifecycleTransitions`**, **`dbo.TenantTrialSeatOccupants`** to existing **`rls.ArchiforgeTenantScope`** (idempotent). Rollback: **`Rollback/R096_RlsTenantIdOnlyTables.sql`**. |
+| **097_TenantOnboardingState.sql** | **`dbo.TenantOnboardingState`** (`TenantId` PK, **`FirstSessionCompletedUtc`**) + tenant-only RLS when **`096`** predicate exists. Rollback: **`Rollback/R097_*.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
