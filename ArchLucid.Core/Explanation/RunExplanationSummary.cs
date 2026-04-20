@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Explanation;
+
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
@@ -70,5 +72,12 @@ public sealed class RunExplanationSummary
     {
         get; init;
     }
+
+    /// <summary>Persisted artifacts backing narrative text (manifest, traces, findings, optional bundle).</summary>
+    public IReadOnlyList<CitationReference> Citations
+    {
+        get; init;
+    }
+        = [];
 }
 

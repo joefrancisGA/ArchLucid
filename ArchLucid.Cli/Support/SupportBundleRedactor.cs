@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace ArchLucid.Cli.Support;
 
@@ -7,6 +8,18 @@ namespace ArchLucid.Cli.Support;
 /// </summary>
 public static class SupportBundleRedactor
 {
+    private static readonly Regex BearerHeader = new(
+        @"(?i)(Authorization\s*:\s*Bearer\s+)[^\s\r\n]+",
+        RegexOptions.Compiled);
+
+    private static readonly Regex ApiKeyHeader = new(
+        @"(?i)(X-Api-Key\s*:\s*)[^\r\n]+",
+        RegexOptions.Compiled);
+
+    private static readonly Regex ConnectionSecret = new(
+        @"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+",
+        RegexOptions.Compiled);
+
     private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
     [
         "PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING"
@@ -104,5 +117,21 @@ public static class SupportBundleRedactor
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Applies pattern redaction suitable for JSON/text written into a support bundle (never trusted public).
+    /// </summary>
+    public static string RedactSensitivePatterns(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text ?? string.Empty;
+
+
+        string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
+        s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = ConnectionSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+
+        return s;
     }
 }

@@ -54,6 +54,20 @@ export type ExplanationResult = {
   findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
 };
 
+/** Persisted artifact reference emitted with aggregate explanations (API: PascalCase → camelCase in JSON). */
+export type CitationReference = {
+  kind:
+    | "Manifest"
+    | "Finding"
+    | "DecisionTrace"
+    | "EvidenceBundle"
+    | "GraphSnapshot"
+    | "ContextSnapshot";
+  id: string;
+  label: string;
+  runId?: string | null;
+};
+
 /** Aggregate executive view for a run (themes, posture, counts + nested explanation). */
 export type RunExplanationSummary = {
   explanation: ExplanationResult;
@@ -70,6 +84,8 @@ export type RunExplanationSummary = {
   usedDeterministicFallback?: boolean;
   faithfulnessWarning?: string | null;
   findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
+  /** Persisted artifacts backing the narrative; absent on older APIs. */
+  citations?: CitationReference[] | null;
 };
 
 /** Deterministic factual explainability for one finding (never LLM-derived). */

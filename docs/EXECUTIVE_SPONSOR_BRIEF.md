@@ -134,3 +134,9 @@ After a strong pilot, a sponsor should be able to say:
 > ArchLucid shortened the path from request to reviewable architecture output, reduced manual packaging effort, and improved the evidence available for architecture and governance review. The pilot justified broader use in selected architecture workflows.
 
 That is a credible sponsor-level outcome.
+
+---
+
+## 10. Limits of AI explanations (citations vs. proof)
+
+Explanations in ArchLucid combine **LLM-generated narrative** with **persisted artifacts** (manifests, findings, decision traces, optional bundles). The UI surfaces **citation links** to those artifacts so reviewers know **where the system grounded** an answer. That improves transparency; it does **not** turn an LLM paragraph into a **legal attestation** or a **formal verification**. The sponsor-safe stance: treat AI text as **decision support**; treat manifests, findings, traces, and governance records as **reviewable evidence** for human sign-off.

@@ -50,6 +50,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.Configure<DataConsistencyProbeOptions>(
             configuration.GetSection(DataConsistencyProbeOptions.SectionName));
 
+        services.Configure<DataConsistencyEnforcementOptions>(
+            configuration.GetSection(DataConsistencyEnforcementOptions.SectionName));
+
         services.AddOptions<ArchLucidOptions>()
             .Configure<IConfiguration>(
                 static (opts, cfg) =>

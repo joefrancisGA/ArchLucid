@@ -64,6 +64,16 @@
   - `docs/ARCHITECTURE_FLOWS.md`
 - **Observability** – `ArchLucid` meter, key histograms/counters, `ActivitySource` names, tag conventions (`archlucid.stage.name`, authority pipeline stages)  
   - `docs/OBSERVABILITY.md`
+- **Citation-bound aggregate explanations** – `CitationReference` list on `RunExplanationSummary`  
+  - `docs/explainability/CITATION_BOUND_RENDERING.md`
+- **Data consistency enforcement (orphan probes + optional quarantine)**  
+  - `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`
+- **Tier-1 support runbook + Grafana starter**  
+  - `docs/support/TIER_1_RUNBOOK.md`, `docs/support/GRAFANA_DASHBOARD_TIER_1.json`
+- **Pilot / cost deployment companions**  
+  - `docs/deployment/PILOT_PROFILE.md`, `docs/deployment/PER_TENANT_COST_MODEL.md`
+- **Buyer journey (outside-in)**  
+  - `docs/go-to-market/BUYER_JOURNEY.md`, `docs/go-to-market/COMPETITOR_CONTRAST.md`, `docs/go-to-market/NOT_A_FIT.md`
 - **Explainability trace coverage + faithfulness heuristic** – trace completeness ratio, aggregate explanation token overlap vs finding traces  
   - `docs/EXPLAINABILITY_TRACE_COVERAGE.md`
 - **Code coverage (merged line gate, scripts)**  

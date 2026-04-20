@@ -33,5 +33,6 @@ export function fixtureRunExplanationSummary(): RunExplanationSummary {
     decisionCount: 1,
     unresolvedIssueCount: 0,
     complianceGapCount: 0,
+    citations: [],
   };
 }

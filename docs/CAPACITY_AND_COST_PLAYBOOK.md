@@ -59,3 +59,5 @@ Schedule a **60–90 minute** monthly review owned by **platform + FinOps** (or 
 **Outputs:** short notes (what changed, what to tune next month) in the team channel or ticket; open work items only when a threshold or architecture change is required.
 
 **Risk note:** Tight budgets or low log caps can **block or truncate** legitimate usage. Prefer **generous defaults** in examples, then **tighten** using two months of Cost Management data.
+
+**Per-tenant sketch:** For sponsor-facing **line-item** math (Pilot / Standard / Heavy), see [deployment/PER_TENANT_COST_MODEL.md](deployment/PER_TENANT_COST_MODEL.md).

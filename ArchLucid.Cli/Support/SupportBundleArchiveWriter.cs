@@ -49,6 +49,34 @@ public static class SupportBundleArchiveWriter
         return outputDirectory;
     }
 
+    /// <summary>Applies <see cref="SupportBundleRedactor.RedactSensitivePatterns"/> to every JSON section after serialization.</summary>
+    public static string WriteDirectoryWithRedaction(SupportBundlePayload payload, string outputDirectory)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+        ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
+
+        Directory.CreateDirectory(outputDirectory);
+
+        WriteRedactedFile(Path.Combine(outputDirectory, ManifestFileName), SupportBundleCollector.SerializeIndented(payload.Manifest));
+        string readme = SupportBundleReadme.Build(
+            payload.Manifest.CreatedUtc,
+            string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
+                ? "(unknown)"
+                : payload.ConfigSummary.ApiBaseUrlRedacted,
+            payload.Manifest.CliWorkingDirectory);
+        WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
+        WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName), SupportBundleCollector.SerializeIndented(payload.Build));
+        WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName), SupportBundleCollector.SerializeIndented(payload.Health));
+        WriteRedactedFile(Path.Combine(outputDirectory, ApiContractFileName), SupportBundleCollector.SerializeIndented(payload.ApiContract));
+        WriteRedactedFile(Path.Combine(outputDirectory, ConfigFileName), SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
+        WriteRedactedFile(Path.Combine(outputDirectory, EnvironmentFileName), SupportBundleCollector.SerializeIndented(payload.Environment));
+        WriteRedactedFile(Path.Combine(outputDirectory, WorkspaceFileName), SupportBundleCollector.SerializeIndented(payload.Workspace));
+        WriteRedactedFile(Path.Combine(outputDirectory, ReferencesFileName), SupportBundleCollector.SerializeIndented(payload.References));
+        WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
+
+        return outputDirectory;
+    }
+
     /// <summary>
     /// Creates <paramref name="zipPath"/> containing the contents of <paramref name="bundleDirectory"/> (flat file list at zip root).
     /// </summary>
@@ -90,5 +118,10 @@ public static class SupportBundleArchiveWriter
     private static void WriteFile(string path, string utf8Json)
     {
         File.WriteAllText(path, utf8Json, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+    }
+
+    private static void WriteRedactedFile(string path, string content)
+    {
+        WriteFile(path, SupportBundleRedactor.RedactSensitivePatterns(content));
     }
 }

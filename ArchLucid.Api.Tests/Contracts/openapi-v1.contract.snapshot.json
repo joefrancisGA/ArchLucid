@@ -2338,6 +2338,43 @@
         },
         "type": "object"
       },
+      "CitationKind": {
+        "enum": [
+          "Manifest",
+          "Finding",
+          "DecisionTrace",
+          "EvidenceBundle",
+          "GraphSnapshot",
+          "ContextSnapshot"
+        ]
+      },
+      "CitationReference": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CitationKind"
+          },
+          "label": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "label",
+          "runId"
+        ],
+        "type": "object"
+      },
       "ClientErrorReport": {
         "properties": {
           "context": {
@@ -8909,6 +8946,12 @@
       },
       "RunExplanationSummary": {
         "properties": {
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/CitationReference"
+            },
+            "type": "array"
+          },
           "complianceGapCount": {
             "format": "int32",
             "type": "integer"
