@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -13,7 +14,8 @@ namespace ArchLucid.Persistence.Billing.Stripe;
 public sealed class StripeBillingProvider(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,
-    BillingWebhookTrialActivator trialActivator) : IBillingProvider
+    BillingWebhookTrialActivator trialActivator,
+    IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
@@ -22,6 +24,9 @@ public sealed class StripeBillingProvider(
 
     private readonly BillingWebhookTrialActivator _trialActivator =
         trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
+
+    private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
+        changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
 
     public string ProviderName => BillingProviderNames.Stripe;
 
@@ -124,7 +129,8 @@ public sealed class StripeBillingProvider(
                 inbound.RawBody,
                 inbound.StripeSignatureHeader,
                 signingSecret,
-                tolerance: 300);
+                tolerance: 300,
+                throwOnApiVersionMismatch: false);
         }
         catch (StripeException ex)
         {
@@ -188,6 +194,18 @@ public sealed class StripeBillingProvider(
         int seats = ParsePositiveInt(session.Metadata, "seats", 1);
         int workspaces = ParsePositiveInt(session.Metadata, "workspaces", 1);
         string subscriptionId = session.SubscriptionId ?? session.Id;
+
+        string planToken = checkoutTier switch
+        {
+            BillingCheckoutTier.Pro => "archlucid-stripe-pro",
+            BillingCheckoutTier.Enterprise => "archlucid-stripe-enterprise",
+            _ => "archlucid-stripe-team",
+        };
+
+        using JsonDocument planDoc = JsonDocument.Parse(
+            JsonSerializer.Serialize(new Dictionary<string, string> { ["planId"] = planToken }));
+
+        await _changePlanWebhookMutationHandler.HandleAsync(tenantId, planDoc.RootElement, rawBody, cancellationToken);
 
         await _trialActivator.OnSubscriptionActivatedAsync(
             tenantId,

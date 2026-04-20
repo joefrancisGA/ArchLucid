@@ -4,6 +4,16 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Pending questions + PLG reference + owner security assessment draft
+
+**GTM / reference customers:** New placeholder case study [`go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md`](go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md) and table row **First paying tenant (PLG)** in [`go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) (ship-trial-first path). PLG note in same README.
+
+**Trust / security:** [`go-to-market/TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md) — SOC 2 row set to **Deferred**; penetration section distinguishes **owner self-assessment** vs third-party; links [`security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md). [`security/pen-test-summaries/README.md`](security/pen-test-summaries/README.md) indexes the owner-assessment draft.
+
+**Operations:** New [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) (resolved vs open decisions + six-prompt execution status). [`QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) §9 points to it.
+
+---
+
 ## 2026-04-20 — Quality prompts execution (ADR 0021 Phase 1, tier 402 gates, pilot scorecard, SaaS profile)
 
 **Architecture / ADR:** [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) moved to **Accepted**; added `IUnifiedGoldenManifestReader` + `UnifiedGoldenManifestReader`; `ManifestsController` now consumes the unified reader. Navigator + scope updates: [`DUAL_PIPELINE_NAVIGATOR.md`](DUAL_PIPELINE_NAVIGATOR.md), [`V1_SCOPE.md`](V1_SCOPE.md), new runbook [`runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).

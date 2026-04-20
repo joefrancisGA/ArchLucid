@@ -9,7 +9,7 @@ namespace ArchLucid.Cli.Support;
 public static class SupportBundleRedactor
 {
     private static readonly Regex BearerHeader = new(
-        @"(?i)(Authorization\s*:\s*Bearer\s+)[^\s\r\n]+",
+        @"(?i)(Authorization\s*:\s*Bearer\s+)[^\s\r\n""]+",
         RegexOptions.Compiled);
 
     private static readonly Regex ApiKeyHeader = new(

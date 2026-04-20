@@ -2,6 +2,7 @@
 # SQL required for the API E2E block unless -SkipE2E. See docs/RELEASE_SMOKE.md
 param(
     [string] $SqlConnectionString = '',
+    [Alias('BaseUrl')]
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipE2E,
     [switch] $SkipUi,

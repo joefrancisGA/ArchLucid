@@ -71,6 +71,8 @@ public sealed class TrialTenantBootstrapServiceTests
                     It.IsAny<Guid>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -113,6 +115,7 @@ public sealed class TrialTenantBootstrapServiceTests
         audit.Verify(
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
             Times.Once);
+        repo.Verify(r => r.EnqueueTrialArchitecturePreseedAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

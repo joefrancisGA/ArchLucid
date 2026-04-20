@@ -21,7 +21,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         const string sql = """
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId
+                                    TrialStatus, TrialSampleRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
                              FROM dbo.Tenants
                              WHERE Id = @Id;
                              """;
@@ -44,7 +45,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         const string sql = """
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId
+                                    TrialStatus, TrialSampleRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
                              FROM dbo.Tenants
                              WHERE Slug = @Slug;
                              """;
@@ -65,7 +67,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         const string sql = """
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId
+                                    TrialStatus, TrialSampleRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
                              FROM dbo.Tenants
                              WHERE EntraTenantId = @EntraTenantId;
                              """;
@@ -86,7 +89,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         const string sql = """
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId
+                                    TrialStatus, TrialSampleRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
                              FROM dbo.Tenants
                              ORDER BY CreatedUtc DESC;
                              """;
@@ -446,6 +450,65 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     }
 
     /// <inheritdoc />
+    public async Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             UPDATE dbo.Tenants
+                             SET TrialArchitecturePreseedEnqueuedUtc = SYSUTCDATETIME()
+                             WHERE Id = @Id
+                               AND TrialWelcomeRunId IS NULL
+                               AND (TrialArchitecturePreseedEnqueuedUtc IS NULL);
+                             """;
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             SELECT TOP (@Take) Id
+                             FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
+                             WHERE TrialArchitecturePreseedEnqueuedUtc IS NOT NULL
+                               AND TrialWelcomeRunId IS NULL
+                               AND TrialStatus = @Active
+                             ORDER BY TrialArchitecturePreseedEnqueuedUtc ASC;
+                             """;
+
+        IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Take = Math.Clamp(take, 1, 50),
+                    Active = TrialLifecycleStatus.Active,
+                },
+                cancellationToken: ct));
+
+        return ids.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             UPDATE dbo.Tenants
+                             SET TrialWelcomeRunId = @WelcomeRunId
+                             WHERE Id = @Id
+                               AND TrialWelcomeRunId IS NULL;
+                             """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Id = tenantId, WelcomeRunId = welcomeRunId }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
     public async Task<bool> TryRecordTrialLifecycleTransitionAsync(
         Guid tenantId,
         string expectedCurrentStatus,
@@ -793,6 +856,16 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             get; init;
         }
 
+        public DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc
+        {
+            get; init;
+        }
+
+        public Guid? TrialWelcomeRunId
+        {
+            get; init;
+        }
+
         internal TenantRecord ToRecord() =>
             new()
             {
@@ -811,6 +884,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 TrialSeatsUsed = TrialSeatsUsed,
                 TrialStatus = TrialStatus,
                 TrialSampleRunId = TrialSampleRunId,
+                TrialArchitecturePreseedEnqueuedUtc = TrialArchitecturePreseedEnqueuedUtc,
+                TrialWelcomeRunId = TrialWelcomeRunId,
             };
     }
 }

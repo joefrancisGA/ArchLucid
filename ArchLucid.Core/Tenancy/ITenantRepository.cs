@@ -90,4 +90,13 @@ public interface ITenantRepository
 
     /// <summary>E2E harness only: sets <see cref="TenantRecord.TrialExpiresUtc"/> (clock tests; never product code).</summary>
     Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct);
+
+    /// <summary>Marks a self-service trial tenant for background simulator pre-seed (idempotent).</summary>
+    Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct);
+
+    /// <summary>Tenants with trial pre-seed enqueued but not yet completed.</summary>
+    Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct);
+
+    /// <summary>Persists the committed welcome run id after pre-seed completes.</summary>
+    Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct);
 }

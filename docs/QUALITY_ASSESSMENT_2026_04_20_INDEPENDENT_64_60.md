@@ -495,6 +495,8 @@ counts; placeholders only; do not move existing security docs.
 
 ## 9. Pending questions for the user
 
+**Consolidated list (living document):** [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) — owner decisions, execution status for the six §8 prompts, and remaining open items. The numbered list below is the **2026-04-20 assessment snapshot**; prefer `PENDING_QUESTIONS.md` when answering *what is still open?*
+
 These are decisions or facts I cannot make on my own. When you next ask me what is pending, I will be ready with this exact list.
 
 1. **Reference customer name and tier.** Which design partner are you authorized to publish first, and which pricing tier do they sit in? Required to fill in `<<CUSTOMER_NAME>>`, `<<TIER>>`, and the design-partner term in the case study under §8.1.

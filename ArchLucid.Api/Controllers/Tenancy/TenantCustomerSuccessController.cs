@@ -1,4 +1,5 @@
 using ArchLucid.Api.Models.CustomerSuccess;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
@@ -68,9 +69,12 @@ public sealed class TenantCustomerSuccessController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> PostProductFeedbackAsync(
-        [FromBody] ProductFeedbackRequest request,
+        [FromBody] ProductFeedbackRequest? request,
         CancellationToken cancellationToken)
     {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         ProductFeedbackSubmission submission = new()

@@ -123,6 +123,8 @@ public sealed class TrialTenantBootstrapService(
                     },
                     cancellationToken);
 
+                await _tenantRepository.EnqueueTrialArchitecturePreseedAsync(result.TenantId, cancellationToken);
+
                 ArchLucidInstrumentation.RecordTrialSignup("self_service", "trial_provisioned");
             }
             catch (Exception ex)

@@ -92,6 +92,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSeatsUsed = 1,
             TrialStatus = null,
             TrialSampleRunId = null,
+            TrialArchitecturePreseedEnqueuedUtc = null,
+            TrialWelcomeRunId = null,
         };
 
         if (!_byId.TryAdd(tenantId, record))
@@ -170,6 +172,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSeatsUsed = existing.TrialSeatsUsed,
             TrialStatus = existing.TrialStatus,
             TrialSampleRunId = existing.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = existing.TrialWelcomeRunId,
         };
 
         _byId[tenantId] = updated;
@@ -209,6 +213,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSeatsUsed = 1,
             TrialStatus = TrialLifecycleStatus.Active,
             TrialSampleRunId = sampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = null,
+            TrialWelcomeRunId = null,
         };
 
         _byId[tenantId] = updated;
@@ -246,6 +252,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSeatsUsed = existing.TrialSeatsUsed,
             TrialStatus = TrialLifecycleStatus.Converted,
             TrialSampleRunId = existing.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = existing.TrialWelcomeRunId,
         };
 
         _byId[tenantId] = updated;
@@ -442,12 +450,77 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.CompletedTask;
+
+
+            if (existing.TrialWelcomeRunId is not null || existing.TrialArchitecturePreseedEnqueuedUtc is not null)
+                return Task.CompletedTask;
+
+
+            _byId[tenantId] = CopyTenant(existing, trialArchitecturePreseedEnqueuedUtc: DateTimeOffset.UtcNow);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            List<Guid> ids = _byId.Values
+                .Where(static t =>
+                    t.TrialArchitecturePreseedEnqueuedUtc is not null
+                    && t.TrialWelcomeRunId is null
+                    && string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+                .OrderBy(static t => t.TrialArchitecturePreseedEnqueuedUtc)
+                .Take(Math.Clamp(take, 1, 50))
+                .Select(static t => t.Id)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<Guid>>(ids);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+                return Task.CompletedTask;
+
+
+            if (existing.TrialWelcomeRunId is not null)
+                return Task.CompletedTask;
+
+
+            _byId[tenantId] = CopyTenant(existing, trialWelcomeRunId: welcomeRunId);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static TenantRecord CopyTenant(
         TenantRecord source,
         int? trialRunsUsed = null,
         int? trialSeatsUsed = null,
         string? trialStatus = null,
-        DateTimeOffset? trialExpiresUtc = null) =>
+        DateTimeOffset? trialExpiresUtc = null,
+        DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
+        Guid? trialWelcomeRunId = null) =>
         new()
         {
             Id = source.Id,
@@ -465,6 +538,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSeatsUsed = trialSeatsUsed ?? source.TrialSeatsUsed,
             TrialStatus = trialStatus ?? source.TrialStatus,
             TrialSampleRunId = source.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc =
+                trialArchitecturePreseedEnqueuedUtc ?? source.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = trialWelcomeRunId ?? source.TrialWelcomeRunId,
         };
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)

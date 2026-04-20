@@ -4,7 +4,7 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-04-20
+**Last reviewed:** 2026-04-21
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -24,9 +24,11 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ---
 
-## Penetration testing (scaffolding)
+## Penetration testing and security assessments
 
-Formal third-party pen tests are **scheduled per customer / release train**, not implied by CI smoke alone. Procurement-ready templates:
+**Owner-conducted (interim):** until a funded third-party engagement completes, ArchLucid may publish an **internal security self-assessment** (not a pen test, not SOC 2). Draft scaffold: [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md).
+
+**Third-party (procurement-grade):** formal external pen tests are **scheduled per customer / release train**, not implied by CI smoke alone. Procurement-ready templates:
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
@@ -65,7 +67,7 @@ Formal third-party pen tests are **scheduled per customer / release train**, not
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | In progress (attestation unfunded) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). |
+| **SOC 2** (Type I / II) | **Deferred** (CPA attestation unfunded — revisit when ARR justifies) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
 
