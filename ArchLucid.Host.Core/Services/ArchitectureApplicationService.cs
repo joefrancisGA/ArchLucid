@@ -116,13 +116,7 @@ public sealed class ArchitectureApplicationService(
             await uow.CommitAsync(cancellationToken);
 
             if (logger.IsEnabled(LogLevel.Information))
-
-                logger.LogInformation(
-                    "Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-                    LogSanitizer.Sanitize(runId),
-                    LogSanitizer.Sanitize(result.ResultId),
-                    result.AgentType,
-                    newStatus);
+                logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
 
 
             return new SubmitResultResult(true, result.ResultId, null);

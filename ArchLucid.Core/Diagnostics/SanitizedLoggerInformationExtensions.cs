@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Common;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Diagnostics;
@@ -123,5 +125,29 @@ public static class SanitizedLoggerInformationExtensions
             "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
             safeRunId,
             resultCount);
+    }
+
+    /// <summary>
+    /// Logs successful agent result submission (run id + result id from request body, status from persistence), with user-derived strings sanitized.
+    /// </summary>
+    public static void LogInformationAgentResultSubmitted(
+        this ILogger logger,
+        string userRunId,
+        string userResultId,
+        AgentType agentType,
+        ArchitectureRunStatus newStatus)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeResultId = LogSanitizer.Sanitize(userResultId);
+
+        // codeql[cs/log-forging]: userRunId and userResultId sanitized immediately above; agentType and newStatus are enums (no CRLF injection).
+        logger.LogInformation(
+            "Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+            safeRunId,
+            safeResultId,
+            agentType,
+            newStatus);
     }
 }
