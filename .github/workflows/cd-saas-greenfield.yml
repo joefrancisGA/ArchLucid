@@ -1,0 +1,113 @@
+# cd-saas-greenfield.yml
+# -----------------------
+# Status: DRAFT (workflow_dispatch only). Do NOT enable schedule until OIDC
+# federation is configured against the dedicated greenfield-test subscription
+# AND a successful manual run has been reviewed.
+#
+# Purpose
+#   Prove every quarter that infra/terraform applies cleanly against an empty
+#   Azure subscription, that DbUp migrates a greenfield SQL catalog, and that
+#   the API reaches /health/ready.
+#
+# Required repository secrets (add when enabling):
+#   AZURE_GREENFIELD_TENANT_ID
+#   AZURE_GREENFIELD_SUBSCRIPTION_ID
+#   AZURE_GREENFIELD_CLIENT_ID    # OIDC federated identity for this workflow only
+#
+# Cleanup contract
+#   The destroy job runs in `if: always()` to avoid orphan spend. If destroy
+#   fails, the run is marked failed and #ops is paged via the existing
+#   alerting path documented in docs/runbooks/INFRASTRUCTURE_OPS.md.
+
+name: cd-saas-greenfield (DRAFT)
+
+on:
+  workflow_dispatch:
+    inputs:
+      keep_after_apply:
+        description: "Skip destroy at the end (for debugging only — costs money)."
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+  # schedule:
+  #   - cron: "0 6 1 * *"   # 1st of month, 06:00 UTC — enable after first successful manual run.
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.9.5"
+  RG_NAME: "archlucid-greenfield-${{ github.run_id }}"
+  REGION: "eastus2"
+
+jobs:
+  apply:
+    name: terraform apply (greenfield)
+    runs-on: ubuntu-latest
+    outputs:
+      api_host: ${{ steps.terraform_outputs.outputs.api_host }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: TODO — azure/login@v2 with OIDC
+        run: |
+          echo "DRAFT: replace this step with azure/login@v2 once secrets exist."
+          echo "Tenant=$AZURE_GREENFIELD_TENANT_ID Sub=$AZURE_GREENFIELD_SUBSCRIPTION_ID"
+        env:
+          AZURE_GREENFIELD_TENANT_ID: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
+          AZURE_GREENFIELD_SUBSCRIPTION_ID: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Validate every infra stack (no apply)
+        run: |
+          set -eux
+          for d in infra/terraform infra/terraform-storage infra/terraform-keyvault \
+                   infra/terraform-monitoring infra/terraform-container-apps \
+                   infra/terraform-sql-failover infra/terraform-otel-collector; do
+            (cd "$d" && terraform init -backend=false && terraform validate)
+          done
+
+      - name: TODO — terraform apply minimal SaaS stack
+        run: |
+          echo "DRAFT: orchestrate apply order:"
+          echo "  1) terraform-monitoring (Log Analytics, AppInsights)"
+          echo "  2) terraform-keyvault   (KV + access policies)"
+          echo "  3) terraform-storage    (CMK-ready storage account)"
+          echo "  4) terraform-sql-failover (logical server + greenfield empty DB)"
+          echo "  5) terraform-container-apps (env + API revision)"
+          echo "  6) terraform-otel-collector (after main.tf has resources)"
+
+      - id: terraform_outputs
+        name: TODO — emit api_host from terraform outputs
+        run: echo "api_host=PLACEHOLDER.archlucid.io" >> "$GITHUB_OUTPUT"
+
+  smoke:
+    name: smoke (/health/ready + archlucid doctor)
+    runs-on: ubuntu-latest
+    needs: apply
+    steps:
+      - name: TODO — wait for /health/ready
+        run: |
+          echo "DRAFT: curl --retry 30 --retry-delay 10 https://${{ needs.apply.outputs.api_host }}/health/ready"
+
+      - name: TODO — archlucid doctor against deployed API
+        run: |
+          echo "DRAFT: dotnet run --project ArchLucid.Cli -- doctor --api https://${{ needs.apply.outputs.api_host }}"
+
+  destroy:
+    name: terraform destroy (cleanup)
+    runs-on: ubuntu-latest
+    needs: [apply, smoke]
+    if: always() && inputs.keep_after_apply != 'true'
+    steps:
+      - name: TODO — terraform destroy in reverse order
+        run: |
+          echo "DRAFT: destroy stacks in reverse order; on failure, page #ops."
+          echo "Resource group target: $RG_NAME"

@@ -1,0 +1,33 @@
+# docs/archive/quality/ — historical quality and marketability assessments
+
+> **Scope:** Demotion target for quality / marketability / correctness assessments older than the **current quarter**. This folder exists so the active `docs/` set stays small enough for a human to scan.
+
+## Demotion policy
+
+A `docs/*ASSESSMENT*.md` file moves here when **all** of the following are true:
+
+1. A newer file in the **same family** (Marketability, Quality, Correctness) exists at the top level of `docs/`.
+2. The file is **referenced for context only** by the newer file (i.e., it is not load-bearing for any operational runbook, ADR, or shipped CI script).
+3. The file is older than 90 days **or** has been superseded by a release tagged after it.
+
+When a file moves here:
+
+- Update any internal links via `rg <old-path> -l` and rewrite to the new location.
+- Add a one-line entry to this README naming the file and the date it was archived.
+- Do **not** delete; keep the historical record so deltas can be reconstructed.
+
+## What is **not** archived here
+
+- ADRs (`docs/adr/`) — those have their own status field (`Accepted`, `Superseded by`).
+- Runbooks (`docs/runbooks/`) — runbooks are operational; if one becomes stale, fix it or delete it deliberately.
+- The most recent file in each assessment family — keep it on the top level.
+
+## Archive log
+
+| Date archived | File | Reason |
+|---|---|---|
+| *(none yet — this folder was created 2026-04-20 as part of the cognitive-load improvement)* | — | — |
+
+## Companion CI guard (planned)
+
+A non-blocking CI job named `docs-stale-assessment-warn` is planned (not yet wired) to scan the top level of `docs/` and warn when more than one file from the same assessment family lives there. Until that ships, this is a manual hygiene step at the end of each release.
