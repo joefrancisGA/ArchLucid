@@ -8,6 +8,7 @@ Contributor onboarding was **consolidated 2026-04-17** so this repo has **one ca
 
 | Persona | Document |
 |---------|-----------|
+| **Architecture + ownership (everyone)** | [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) |
 | **Anyone — install order (read first)** | **[INSTALL_ORDER.md](INSTALL_ORDER.md)** |
 | **Developer** | [onboarding/day-one-developer.md](onboarding/day-one-developer.md) |
 | **SRE / Platform** | [onboarding/day-one-sre.md](onboarding/day-one-sre.md) |

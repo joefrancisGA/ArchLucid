@@ -4,6 +4,8 @@
 
 Read these in order when you are new to the ArchLucid codebase. They balance **system map**, **contracts**, **security**, and **how we test**.
 
+**Before the table:** skim **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** (C4 + ownership) and **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** (operator route map) — they are the canonical entry surfaces for Prompt 12.
+
 | # | Document | What you will learn | Time |
 |---|----------|---------------------|------|
 | 1 | [START_HERE.md](START_HERE.md) | Contributor decision tree, layers, where to open first | ~10 min |

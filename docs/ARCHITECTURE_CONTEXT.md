@@ -2,6 +2,8 @@
 
 ## ArchLucid architecture (Context)
 
+**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
+
 **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist.
 
 ### Purpose

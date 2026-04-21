@@ -91,6 +91,17 @@ jobs:
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
 
+      - name: Architecture poster line budget (Prompt 12)
+        run: python scripts/ci/check_doc_size_budget.py --max-lines 500 docs/ARCHITECTURE_ON_ONE_PAGE.md
+
+      - name: Doc size budget guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_doc_size_budget
+
+      - name: Mermaid syntax (mermaid-cli when available)
+        run: python scripts/ci/check_mermaid_syntax.py docs/ARCHITECTURE_ON_ONE_PAGE.md
+
       - name: Runbook freshness (informational)
         run: python scripts/ci/check_doc_freshness.py
 

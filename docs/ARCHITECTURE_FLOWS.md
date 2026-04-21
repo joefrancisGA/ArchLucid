@@ -2,6 +2,8 @@
 
 ## ArchLucid architecture (Key flows)
 
+**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
+
 This doc describes the main runtime flows in “sequence narrative” form. It’s meant to be readable without diagrams.
 
 ---

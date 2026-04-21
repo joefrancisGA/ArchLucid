@@ -4,6 +4,8 @@
 
 **Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
 
+**Canonical route × API × CLI map:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).
+
 ---
 
 ## What it is

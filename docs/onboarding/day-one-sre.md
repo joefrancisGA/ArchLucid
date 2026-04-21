@@ -2,6 +2,8 @@
 
 # Day one — SRE / Platform (week one)
 
+**Canonical operator action map:** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md) — routes, APIs, and CLI in one table (health, deploy, governance surfaces).
+
 **Goal:** Know how the **ArchLucid** service **starts**, **fails**, and **deploys** in your environment. **Not** full Terraform depth for every optional root.
 
 > **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers SRE / Platform week-one tasks **after** install.
