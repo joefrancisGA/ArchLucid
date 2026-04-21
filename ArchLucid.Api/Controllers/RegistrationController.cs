@@ -212,10 +212,9 @@ public sealed class RegistrationController(
         string trimmed = raw.Trim();
         StringBuilder builder = new(trimmed.Length);
 
-        foreach (char c in trimmed)
+        foreach (var c in trimmed.Where(c => !char.IsControl(c)))
         {
-            if (!char.IsControl(c))
-                builder.Append(c);
+            builder.Append(c);
         }
 
         if (builder.Length == 0)

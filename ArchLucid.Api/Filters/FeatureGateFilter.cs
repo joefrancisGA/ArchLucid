@@ -20,14 +20,15 @@ public sealed class FeatureGateFilter(
     FeatureGateKey key,
     IOptions<DemoOptions> demoOptions) : IAsyncActionFilter
 {
-    private readonly FeatureGateKey _key = key;
     private readonly IOptions<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context is null) throw new ArgumentNullException(nameof(context));
-        if (next is null) throw new ArgumentNullException(nameof(next));
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+        if (next is null)
+            throw new ArgumentNullException(nameof(next));
 
         if (IsGateOpen())
         {
@@ -44,7 +45,7 @@ public sealed class FeatureGateFilter(
     /// member must be added here — the discard arm closes by default so unmapped keys cannot accidentally
     /// open a route.
     /// </summary>
-    private bool IsGateOpen() => _key switch
+    private bool IsGateOpen() => key switch
     {
         FeatureGateKey.DemoEnabled => _demoOptions.Value?.Enabled is true,
         _ => false,

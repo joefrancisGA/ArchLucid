@@ -170,7 +170,7 @@ public sealed class RunLifecycleStateMachineCommandPropertyTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
                 new NoOpDistributedCreateRunIdempotencyLock(),
-                Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+                Options.Create(new ArchitectureRunCreateOptions()),
                 TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(

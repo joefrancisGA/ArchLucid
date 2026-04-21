@@ -226,7 +226,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("At most 50 approval request ids are allowed per request.", ProblemTypes.ValidationFailed);
 
 
-        string decision = (body.Decision ?? string.Empty).Trim();
+        string decision = (body.Decision).Trim();
 
         if (decision.Length == 0)
             return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);

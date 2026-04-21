@@ -45,10 +45,7 @@ public sealed class TenantExecDigestPreferencesController(
         ExecDigestPreferencesResponse? row =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (row is null)
-            return Ok(ExecDigestPreferencesResponse.Unconfigured(scope.TenantId));
-
-        return Ok(row);
+        return Ok(row ?? ExecDigestPreferencesResponse.Unconfigured(scope.TenantId));
     }
 
     /// <summary>Upserts digest preferences (Execute+).</summary>

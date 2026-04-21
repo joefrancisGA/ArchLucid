@@ -35,7 +35,12 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
 
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
         traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
@@ -101,7 +106,7 @@ public sealed class PilotRunDeltaComputerTests
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
         detail.Run.RunId = ContosoRetailDemoIdentifiers.RunBaseline;
 
-        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _, out _, out _);
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -115,7 +120,7 @@ public sealed class PilotRunDeltaComputerTests
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
         detail.Run.RequestId = "req-contoso-demo-abc123def456";
 
-        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _, out _, out _);
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -188,10 +193,7 @@ public sealed class PilotRunDeltaComputerTests
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
         detail.Results = []; // No findings on this run.
 
-        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(
-            out _,
-            out Mock<IAgentExecutionTraceRepository> traces,
-            out _,
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out Mock<IAgentExecutionTraceRepository> traces,
             out Mock<IFindingEvidenceChainService> evidence);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
@@ -211,7 +213,7 @@ public sealed class PilotRunDeltaComputerTests
         ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
         detail.Manifest = null;
 
-        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _, out _, out _);
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
 
         PilotRunDeltas result = await sut.ComputeAsync(detail);
 
@@ -222,7 +224,7 @@ public sealed class PilotRunDeltaComputerTests
     [Fact]
     public async Task ComputeAsync_NullDetail_Throws()
     {
-        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _, out _, out _);
+        PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
 
         Func<Task> act = () => sut.ComputeAsync(null!);
 
@@ -281,21 +283,18 @@ public sealed class PilotRunDeltaComputerTests
             Times.Never);
     }
 
-    private static PilotRunDeltaComputer BuildSutWithEmptyDependencies(
-        out Mock<IAuditRepository> audit,
-        out Mock<IAgentExecutionTraceRepository> traces,
-        out Mock<IScopeContextProvider> scope,
+    private static PilotRunDeltaComputer BuildSutWithEmptyDependencies(out Mock<IAgentExecutionTraceRepository> traces,
         out Mock<IFindingEvidenceChainService> evidence)
     {
         evidence = new Mock<IFindingEvidenceChainService>();
         traces = new Mock<IAgentExecutionTraceRepository>();
         traces.Setup(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        audit = new Mock<IAuditRepository>();
+        Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.GetFilteredAsync(
                 It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        scope = new Mock<IScopeContextProvider>();
+        Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
         evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((FindingEvidenceChainResponse?)null);
