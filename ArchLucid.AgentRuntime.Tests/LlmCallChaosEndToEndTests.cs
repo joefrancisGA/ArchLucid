@@ -23,12 +23,12 @@ public sealed class LlmCallChaosEndToEndTests
         int wave = 0;
         ChaosFaultStrategyOptions chaos = new()
         {
-            InjectionRate = 1.0
+            InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref wave) <= 2),
+            FaultGenerator = static _ =>
+                new ValueTask<Exception?>(
+                    new HttpRequestException("429", null, HttpStatusCode.TooManyRequests))
         };
-        chaos.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref wave) <= 2);
-        chaos.FaultGenerator = static _ =>
-            new ValueTask<Exception?>(
-                new HttpRequestException("429", null, HttpStatusCode.TooManyRequests));
 
         ResiliencePipeline retryAndChaos = new ResiliencePipelineBuilder()
             .AddRetry(
