@@ -40,6 +40,10 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
         try
         {
             await using SqlCommand cmd = connection.CreateCommand();
+            // SqlClient defaults CommandTimeout to 30s. sp_getapplock may block for @LockTimeout milliseconds; if the
+            // command timeout fires first, the client aborts while still waiting for the lock (k6 then reports ~30.3s
+            // POST latency and create_run checks fail). Align ADO.NET timeout with the lock wait budget + headroom.
+            cmd.CommandTimeout = SqlCommandTimeoutSecondsForLockWait(lockTimeoutMs);
             cmd.CommandText =
                 """
                 DECLARE @result int;
@@ -69,6 +73,23 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
 
             throw;
         }
+    }
+
+    /// <summary>
+    /// Maps lock wait milliseconds to <see cref="SqlCommand.CommandTimeout"/> seconds (0 = unlimited per SqlClient).
+    /// </summary>
+    private static int SqlCommandTimeoutSecondsForLockWait(int lockTimeoutMs)
+    {
+        if (lockTimeoutMs <= 0)
+            return 0;
+
+        // Ceiling to whole seconds, add buffer for scheduling. Max orchestrator lock is 600s; command timeout must exceed that.
+        int seconds = (lockTimeoutMs + 999) / 1000 + 30;
+
+        if (seconds > 660)
+            return 660;
+
+        return seconds;
     }
 
     private static string NormalizeResourceName(string lockResourceName)

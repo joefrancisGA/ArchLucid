@@ -194,6 +194,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
+            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
@@ -302,6 +303,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
+            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 

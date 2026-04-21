@@ -1,0 +1,28 @@
+import { describe, expect, it } from "vitest";
+
+import { WHY_ARCHLUCID_COMPARISON_ROWS } from "./why-archlucid-comparison";
+
+/** Every ArchLucid proof line must point at a docs/ or adr/ path so claims stay traceable to the repo. */
+const CITATION_EVIDENCE = /docs\/|docs\\|adr\/|adr\\/i;
+
+describe("WHY_ARCHLUCID_COMPARISON_ROWS", () => {
+  it("has at least one row", () => {
+    expect(WHY_ARCHLUCID_COMPARISON_ROWS.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("requires a docs/ or adr/ citation on every ArchLucid cell", () => {
+    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
+      expect(row.archlucidCitation.trim().length, `dimension=${row.dimension}`).toBeGreaterThan(10);
+      expect(row.archlucidCitation, `dimension=${row.dimension}`).toMatch(CITATION_EVIDENCE);
+    }
+  });
+
+  it("keeps competitor columns non-empty", () => {
+    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
+      expect(row.leanix.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
+      expect(row.ardoq.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
+      expect(row.megaHopex.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
+      expect(row.archlucid.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
+    }
+  });
+});
