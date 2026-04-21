@@ -2,6 +2,8 @@
 
 ## ArchLucid architecture (Containers)
 
+**Canonical poster:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
+
 **Product name:** **ArchLucid**. **`ArchLucid.*`** below refers to deployable projects and libraries until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
 
 This is a pragmatic C4 “containers” view: **deployable processes** and major libraries, with their responsibilities and relationships.

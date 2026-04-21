@@ -4,6 +4,8 @@
 
 **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.)
 
+**Canonical operator action map:** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
+
 > **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
 
 **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker)

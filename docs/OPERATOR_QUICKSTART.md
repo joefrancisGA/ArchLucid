@@ -2,6 +2,8 @@
 
 # Operator quickstart — ArchLucid (commands only) (56R)
 
+**Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).
+
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.
 
 ## What ArchLucid does (one paragraph)

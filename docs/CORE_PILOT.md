@@ -8,6 +8,8 @@
 
 **Canonical buyer narrative:** For sponsor-facing summary and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**. This document is the operator-facing first-pilot path, not a second buyer summary.
 
+**Canonical maps:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) (C4 + ownership) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) (route × API × CLI).
+
 **Related docs:**
 - [docs/PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 — *Code seams* / *Contributor drift guard*: keep operator **nav**, **`LayerHeader`**, and **API** policies aligned when a route sits on the Core Pilot path vs discovery-only surfaces. **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** guards **tier → authority** composition vs **Core Pilot** defaults (incl. Advanced **Ask-only** strip when disclosure is off). **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** guards the shared **Execute** numeric line between **nav** (**`ExecuteAuthority`** link rows) and **mutation soft-enable** (see [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 *Read vs Execute in the UI*). **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** guards every catalog **`ExecuteAuthority`** nav row at Read vs Execute rank plus shell bootstrap vs mutation flag. **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** guards Enterprise **inspect-first** layout when mutation is off (**UI only**).
 - [docs/V1_SCOPE.md](V1_SCOPE.md) §4 — authoritative V1 boundary and extended-operation inventory.

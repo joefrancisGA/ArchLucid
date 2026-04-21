@@ -4,6 +4,10 @@
 
 ### Orientation
 
+- **Architecture poster (canonical C4 + ownership + happy path)** — read this before the long-form architecture set  
+  - `docs/ARCHITECTURE_ON_ONE_PAGE.md`
+- **Operator atlas (canonical route × API × CLI map)** — single table for operator surfaces  
+  - `docs/OPERATOR_ATLAS.md`
 - **V1 scope contract (product boundary for pilots and releases)** — what is in/out of V1, operator happy path, minimum release criteria  
   - `docs/V1_SCOPE.md`
 - **V1 release checklist (actionable gates before handoff)** — scope freeze, deploy, health, operator flow, exports, naming, support bundle, recovery, deferrals  
@@ -36,8 +40,8 @@
   - `docs/ONBOARDING_HAPPY_PATH.md`, `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`
 - **System map (Mermaid flows + entry points)**  
   - `docs/SYSTEM_MAP.md`
-- **One-page system view (nodes/edges/ops)**  
-  - `docs/ARCHITECTURE_ON_A_PAGE.md`
+- **One-page system view (nodes/edges/ops — flowchart narrative)**  
+  - `docs/ARCHITECTURE_ON_A_PAGE.md` — superseded as *first* architecture entry by **`ARCHITECTURE_ON_ONE_PAGE.md`** (C4 poster); kept for objective/constraint narrative overlap.
 - **Bounded context map (domain boundaries + Mermaid)**  
   - `docs/bounded-context-map.md`
 - **Solution project map (`ArchLucid.*` ↔ contexts)**  

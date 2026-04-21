@@ -26,7 +26,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md) |
 | **Executive sponsor / buyer** | [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md) |
 
-A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
+A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 
 ## Product layers
 
@@ -334,9 +334,11 @@ To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
 
 ## Architecture docs (internal)
 
-For a deeper understanding of how ArchLucid fits together:
+**Canonical poster (start here):** [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](docs/ARCHITECTURE_ON_ONE_PAGE.md) — C4 system context + containers, ownership table, happy-path trace. **Operator action map:** [`docs/OPERATOR_ATLAS.md`](docs/OPERATOR_ATLAS.md) — every major UI route with API + CLI + authority hints.
 
-- `docs/ARCHITECTURE_INDEX.md` – starting point; links to all other docs.
+For deeper dives after the poster:
+
+- `docs/ARCHITECTURE_INDEX.md` – full doc map and indexes everything below.
 - `docs/ARCHITECTURE_CONTEXT.md` – high-level system context and qualities.
 - `docs/ARCHITECTURE_CONTAINERS.md` – projects/containers and their responsibilities.
 - `docs/ARCHITECTURE_COMPONENTS.md` – key components to touch when changing behavior.

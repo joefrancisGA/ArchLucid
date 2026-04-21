@@ -2,6 +2,8 @@
 
 # Architecture on a page (ArchLucid)
 
+**Prefer for C4 + ownership:** **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** (Prompt 12 canonical poster). This page keeps the **structured architecture-output** narrative (objective → operational considerations) and the **legacy flowchart** block.
+
 ## 1. Objective
 
 Give architects and operators a **single-page** view of **nodes, edges, and trust boundaries** so the system can be redrawn as a C4 or sequence diagram without re-reading the whole repo.
