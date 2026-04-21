@@ -1,0 +1,87 @@
+{
+  "rulePackId": "saas-vertical-v1",
+  "name": "SOC 2 Type II multi-tenant SaaS",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "saas-ctrl-001",
+      "controlId": "SAAS-001",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme logging",
+      "appliesToCategory": "logging",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Centralized tamper-evident logging for regulated data flows (anchor: SOC 2 CC6/CC7 logical access and change management)."
+    },
+    {
+      "ruleId": "saas-ctrl-002",
+      "controlId": "SAAS-002",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme encryption",
+      "appliesToCategory": "encryption",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Encryption in transit and at rest for regulated identifiers; key rotation cadence explicit."
+    },
+    {
+      "ruleId": "saas-ctrl-003",
+      "controlId": "SAAS-003",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme access",
+      "appliesToCategory": "access",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Role-based access with periodic recertification; break-glass documented."
+    },
+    {
+      "ruleId": "saas-ctrl-004",
+      "controlId": "SAAS-004",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme thirdparty",
+      "appliesToCategory": "thirdparty",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Subprocessor inventory and DPAs / vendor risk reviews before production connectivity."
+    },
+    {
+      "ruleId": "saas-ctrl-005",
+      "controlId": "SAAS-005",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme segmentation",
+      "appliesToCategory": "segmentation",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Network segmentation between regulated and non-regulated tiers; deny-by-default east-west."
+    },
+    {
+      "ruleId": "saas-ctrl-006",
+      "controlId": "SAAS-006",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme dr",
+      "appliesToCategory": "dr",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Backup, restore, and RTO/RPO tested quarterly for regulated datasets."
+    },
+    {
+      "ruleId": "saas-ctrl-007",
+      "controlId": "SAAS-007",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme changes",
+      "appliesToCategory": "changes",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Change windows, CAB approval, and automated drift detection for production configs."
+    },
+    {
+      "ruleId": "saas-ctrl-008",
+      "controlId": "SAAS-008",
+      "controlName": "SOC 2 Type II multi-tenant SaaS \u2014 control theme monitoring",
+      "appliesToCategory": "monitoring",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Security monitoring and alerting on privileged actions and data exfiltration patterns."
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
+import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 
 export type WizardStepPresetProps = {
@@ -56,6 +57,41 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardFooter>
         </Card>
       ) : null}
+
+      <div className="mb-6">
+        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          Start from a vertical template
+        </h3>
+        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Pre-fill the wizard with regulated-industry starters (see{" "}
+          <Link href="https://github.com/joefrancisGA/ArchLucid/blob/main/templates/README.md#vertical-industry-starters-prompt-11">
+            templates/README.md
+          </Link>
+          ). Pair with a matching policy pack from Policy packs → Import a vertical policy pack.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {verticalBriefWizardPresets.map((preset) => (
+            <Card key={preset.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardDescription>{preset.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1" />
+              <CardFooter>
+                <Button
+                  type="button"
+                  className="w-full"
+                  variant="secondary"
+                  onClick={() => selectPreset(preset.id, preset.values)}
+                >
+                  Use vertical template
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {wizardPresets.map((preset) => (
           <Card key={preset.id} className="flex flex-col">

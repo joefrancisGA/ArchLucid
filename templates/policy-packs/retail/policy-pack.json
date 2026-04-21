@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "rtl-ctrl-001",
+    "rtl-ctrl-002",
+    "rtl-ctrl-003",
+    "rtl-ctrl-004",
+    "rtl-ctrl-005",
+    "rtl-ctrl-006",
+    "rtl-ctrl-007",
+    "rtl-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "retail",
+    "regulatoryAnchor": "PCI-DSS cardholder data environment segmentation and tokenization"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "fs-ctrl-001",
+    "fs-ctrl-002",
+    "fs-ctrl-003",
+    "fs-ctrl-004",
+    "fs-ctrl-005",
+    "fs-ctrl-006",
+    "fs-ctrl-007",
+    "fs-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "financial-services",
+    "regulatoryAnchor": "GLBA customer financial privacy; SOX IT general controls for material systems"
+  }
+}

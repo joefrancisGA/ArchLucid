@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "ps-ctrl-001",
+    "ps-ctrl-002",
+    "ps-ctrl-003",
+    "ps-ctrl-004",
+    "ps-ctrl-005",
+    "ps-ctrl-006",
+    "ps-ctrl-007",
+    "ps-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "public-sector",
+    "regulatoryAnchor": "GDPR Art. 32 security; DPIA-driven proportionality for EU agency workloads"
+  }
+}

@@ -84,6 +84,10 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
     - **Parity probe write path:** Nightly **`.github/workflows/coordinator-parity-daily.yml`** can `git push` marker upserts into `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` on `main` when `contents: write` is permitted. Confirm **auto-commit to docs on default branch** is acceptable, or require a **bot PR** / **manual paste** instead (branch protection may block pushes — confirm token policy).
     - **ADR 0022 lifecycle:** After **14 contiguous** green daily rows in the automated table, should **ADR 0022** flip to **Superseded** immediately, or stay until an actual Phase 3 **deletion** ADR ships?
 
+17. **Vertical starter — public-sector regulatory framing (Prompt 11)** — Repo templates ship a **EU / GDPR**-anchored public-sector brief and policy pack (`templates/briefs/public-sector/`, `templates/policy-packs/public-sector/`). Confirm whether a **US (FedRAMP / StateRAMP)** variant should be added, replace the EU default, or ship **both** with clear picker labels.
+
+18. **Vertical starter templates — tiering (Prompt 11)** — Five industry verticals are included in **Core Pilot** content (`templates/README.md`, wizard + policy-pack import UI). Confirm whether any vertical should be **paid-tier only** or remain **shipping with trial** until packaging changes.
+
 ---
 
 ## Related

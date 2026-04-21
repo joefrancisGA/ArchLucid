@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "hc-ctrl-001",
+    "hc-ctrl-002",
+    "hc-ctrl-003",
+    "hc-ctrl-004",
+    "hc-ctrl-005",
+    "hc-ctrl-006",
+    "hc-ctrl-007",
+    "hc-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "healthcare",
+    "regulatoryAnchor": "HIPAA Security Rule minimum necessary; PHI encryption and audit controls"
+  }
+}
