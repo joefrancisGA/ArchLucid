@@ -90,11 +90,39 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 ---
 
+## Surfaced by 2026-04-21 second independent assessment (weighted **67.61%**)
+
+These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) §4 and the eight Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md). Each is **owner-only** — the assistant cannot answer them from repository state.
+
+19. **First-paying-tenant graduation owner** — who watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`? (Specific to Improvement 1 / Prompt 1.)
+
+20. **Pen-test execution window for the awarded Aeronova SoW** — schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. (Improvement 2 / Prompt 2.)
+
+21. **PGP key custodian for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
+
+22. **Marketplace + Stripe live go-live calendar** — Partner Center seller verification, tax profile, payout account, **and** Stripe live API key + webhook secret. Decide whether Marketplace and Stripe live flip on the same day or staged. (Improvement 3 / Prompt 3, supersedes nothing — re-emphasises items 8 and 9.)
+
+23. **Microsoft Teams connector scope** — notification-only first, or two-way (approve a governance request from Teams)? Two-way requires a registered Teams app manifest in M365 admin. (Improvement 6 / Prompt 6.)
+
+24. **ADR 0021 strangler completion target date** — Prompt 7 lands the regression CI guard and the `migrate / keep / delete` inventory but stops at naming the **completion** date. Owner names the date; ADR 0028 is drafted from that date. (Improvement 7 / Prompt 7.)
+
+25. **Golden-cohort dedicated Azure OpenAI deployment + monthly token budget** — needed to flip the nightly real-LLM golden-cohort run from optional to mandatory. (Improvement 8 / Prompt 8 — same shape as item 15 but specific to the cohort.)
+
+26. **VPAT publication decision** — produce a formal VPAT for accessibility published on the Trust Center, or stay with the WCAG 2.1 AA self-attestation in `ACCESSIBILITY.md`? (Adjacent to item 12 — accessibility publication channel.)
+
+27. **Aggregate ROI bulletin publication cadence** — Improvement 5's "publish a sanitized aggregate ROI bulletin quarterly" needs an owner approval before the first bulletin can ship: which percentile bands (p50 / p90), what minimum tenant N before publication, who signs off on each issue.
+
+28. **Customer-supplied baseline soft-required at signup** — flip `baselineReviewCycleHours` from optional to soft-required (skippable but defaulted to model). Owner approves the UX change and the privacy-notice update.
+
+---
+
 ## Related
 
 | Doc | Use |
 |-----|-----|
-| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) | Latest weighted independent assessment (64.14%) |
+| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) | **Latest** weighted independent assessment (67.61%) |
+| [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md) | Eight paste-ready Cursor prompts for the 67.61% assessment |
+| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) | Earlier 2026-04-21 assessment (64.14%) |
 | [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md) | Six paste-ready Cursor prompts; #3 and #4 stop at owner gates |
 | [`docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) | Prior assessment + §8 prompts |
 | [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 | Reference-customer CI guard and discount re-rate |

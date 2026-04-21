@@ -96,6 +96,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
+                // Parallel idempotency integration tests hold sp_getapplock while the first create-run completes; cold CI SQL + greenfield DbUp can exceed the default 120s waiter budget.
+                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "300000",
             });
         });
     }

@@ -15,6 +15,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -39,6 +40,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IUsageMeteringService usageMetering,
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
+    IOptions<ArchitectureRunCreateOptions> createRunOptions,
     TimeProvider timeProvider,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
@@ -59,6 +61,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
     private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
         distributedCreateRunIdempotencyLock ?? throw new ArgumentNullException(nameof(distributedCreateRunIdempotencyLock));
+    private readonly int _distributedIdempotencyLockTimeoutMs = ClampDistributedLockTimeout(
+        createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions)));
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -66,7 +70,18 @@ public sealed class ArchitectureRunCreateOrchestrator(
     /// <c>sp_getapplock</c> wait budget while another request holds the same idempotency key.
     /// The lock spans coordinator + persistence; parallel bursts must not time out waiting for the first winner.
     /// </summary>
-    private const int DistributedCreateRunLockTimeoutMs = 120_000;
+    private static int ClampDistributedLockTimeout(IOptions<ArchitectureRunCreateOptions> options)
+    {
+        int ms = options.Value.DistributedIdempotencyLockTimeoutMilliseconds;
+
+        if (ms < 1_000)
+            return 1_000;
+
+        if (ms > 600_000)
+            return 600_000;
+
+        return ms;
+    }
 
     private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
 
@@ -88,7 +103,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             string gateKey = BuildIdempotencyGateKey(idempotency);
 
             await using (IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
-                .AcquireExclusiveSessionLockAsync(gateKey, DistributedCreateRunLockTimeoutMs, cancellationToken)
+                .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken)
                 .ConfigureAwait(false))
             {
                 CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);

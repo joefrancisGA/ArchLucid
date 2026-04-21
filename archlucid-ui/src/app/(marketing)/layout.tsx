@@ -30,6 +30,9 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 <Link href="/signup">Start free trial</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
+                <Link href="/why">Why ArchLucid</Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
                 <Link href="/demo/preview">See a real commit</Link>
               </Button>
             </nav>
