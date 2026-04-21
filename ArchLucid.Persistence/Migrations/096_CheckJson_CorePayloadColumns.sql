@@ -127,10 +127,17 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_BackgroundJobs_WorkUnitJson_IsJson')
-   AND NOT EXISTS (SELECT 1 FROM dbo.BackgroundJobs AS t WHERE ISJSON(t.WorkUnitJson) <> 1)
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_BackgroundJobs_WorkUnitJson_IsJson'
+         AND parent_object_id = OBJECT_ID(N'dbo.BackgroundJobs'))
 BEGIN
-    ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_WorkUnitJson_IsJson
-        CHECK (ISJSON(WorkUnitJson) = 1);
+    /* Deferred name resolution: dbo.BackgroundJobs may be created only by ISchemaBootstrapper (ArchLucid.sql) after DbUp. */
+    EXEC (N'
+        IF NOT EXISTS (SELECT 1 FROM dbo.BackgroundJobs AS t WHERE ISJSON(t.WorkUnitJson) <> 1)
+            ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_WorkUnitJson_IsJson
+                CHECK (ISJSON(WorkUnitJson) = 1);
+    ');
 END;
 GO

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchLucid</c> plus in-memory auxiliary storage.
+/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchLucid</c> with the same <c>ArchLucid:StorageProvider</c> as local Development (Sql + Dapper repositories).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -48,15 +48,15 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Development");
 
         builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
-        builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
             // Last-in wins over appsettings / user secrets: keep integration tests off real OpenAI and
             // avoid circuit-breaker 503s; relax rate limits so parallel runs do not exhaust shared windows.
+            // Storage stays Sql (appsettings.json) so dbo.Tenants / governance tier filters and Dapper repositories
+            // match the ephemeral SQL catalog created for this factory.
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucid:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",

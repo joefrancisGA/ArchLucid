@@ -37,6 +37,9 @@ public static class ArchLucidPersistenceStartup
                 DatabaseMigrator.Run(connectionString);
 
                 app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+
+                if (app.Environment.IsDevelopment())
+                    DevelopmentDefaultScopeTenantBootstrap.TryEnsure(connectionString, app.Logger);
             }
         }
 

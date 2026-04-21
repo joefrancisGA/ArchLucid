@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - label: Persistence
-            config: stryker-config.json
+            config: stryker-config.persistence.json
           - label: Application
             config: stryker-config.application.json
           - label: AgentRuntime

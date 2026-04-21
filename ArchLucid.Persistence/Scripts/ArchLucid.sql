@@ -3534,15 +3534,8 @@ BEGIN
 END;
 GO
 
-/* 091: READ_COMMITTED_SNAPSHOT (see Migrations/091_ReadCommittedSnapshotIsolation.sql). */
-IF NOT EXISTS (
-    SELECT 1
-    FROM sys.databases
-    WHERE database_id = DB_ID()
-      AND is_read_committed_snapshot_on = 1)
-BEGIN
-    ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON;
-END;
+/* 091: RCSI is applied after DbUp by DatabaseMigrator (ALTER DATABASE cannot run inside typical batch transactions). */
+SELECT 1;
 GO
 
 /* 092: FK outbox + alerts batch 1 (see Migrations/092_FK_Outbox_Alerts_Batch1.sql). */
@@ -4001,11 +3994,17 @@ END;
 GO
 
 IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_BackgroundJobs_WorkUnitJson_IsJson')
-   AND NOT EXISTS (SELECT 1 FROM dbo.BackgroundJobs AS t WHERE ISJSON(t.WorkUnitJson) <> 1)
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_BackgroundJobs_WorkUnitJson_IsJson'
+         AND parent_object_id = OBJECT_ID(N'dbo.BackgroundJobs'))
 BEGIN
-    ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_WorkUnitJson_IsJson
-        CHECK (ISJSON(WorkUnitJson) = 1);
+    EXEC (N'
+        IF NOT EXISTS (SELECT 1 FROM dbo.BackgroundJobs AS t WHERE ISJSON(t.WorkUnitJson) <> 1)
+            ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_WorkUnitJson_IsJson
+                CHECK (ISJSON(WorkUnitJson) = 1);
+    ');
 END;
 GO
 
