@@ -1,35 +1,37 @@
-> **Scope:** Penetration test — redacted summary (2026 Q2). **Pre-report placeholder** — narrative tables below stay **TBD** until Aeronova delivers the customer-shareable excerpt.
+> **Scope:** Penetration test — redacted summary (customer template) - full detail, tables, and links in the sections below. Repository procurement anchor (not a finding): [`2026-Q2-SOW.md`](2026-Q2-SOW.md). Replace every `TODO` only from assessor-approved customer-shareable text — **do not invent severities, counts, or themes.**
 
-# Penetration test — redacted summary (2026 Q2)
+**Status:** Awaiting assessor delivery — DO NOT PUBLISH
 
-**Status:** **Engagement active** — replace placeholder severity counts and remediation table when the assessor’s redacted excerpt is approved for publication.
+# Penetration test — redacted summary (customer template)
+
+**Purpose:** Publishable **one-to-two page** summary after an internal full report exists. Remove internal hostnames, account emails, and stack traces.
 
 ## Engagement
 
 | Field | Value |
 |-------|--------|
 | Vendor | ArchLucid |
-| Assessor | **Aeronova Red Team LLC** (see [SoW](2026-Q2-SOW.md)) |
-| Kickoff | **2026-05-06** (remote) |
+| Assessor | `<TODO: legal entity>` |
+| Window | `<TODO: UTC start>` – `<TODO: UTC end>` |
 | Environment | Staging / pre-production (not customer production) |
 
 ## Scope summary
 
-Per [SoW](2026-Q2-SOW.md): public **v1** HTTPS API (OpenAPI), **archlucid-ui**, multi-tenant **RLS** + documented break-glass, **JWT + API keys**, **Stripe billing webhooks**, **LLM** prompt boundary + redaction + content safety.
+`<TODO: one paragraph: APIs, UI, identity mode, data stores in test>.`
 
 ## Findings overview
 
 | Severity | Count | Representative themes |
 |----------|-------|------------------------|
-| Critical | — | Awaiting final report |
-| High | — | Awaiting final report |
-| Medium | — | Awaiting final report |
-| Low | — | Awaiting final report |
+| Critical | `<TODO:n>` | `<TODO: assessor themes only>` |
+| High | `<TODO:n>` | `<TODO: assessor themes only>` |
+| Medium | `<TODO:n>` | `<TODO: assessor themes only>` |
+| Low | `<TODO:n>` | `<TODO: assessor themes only>` |
 
 ## Remediation status
 
-No customer-facing closure claims until the assessor’s report is negotiated and re-test windows are agreed.
+`<TODO: table: finding id → owner → target date → verified date>.`
 
 ## Statement
 
-ArchLucid **does not** warrant closure of any findings as of this placeholder date; residual risk is governed by [`../RLS_RISK_ACCEPTANCE.md`](../RLS_RISK_ACCEPTANCE.md) and the product backlog.
+ArchLucid **`does` / `does not`** warrant that all findings are closed as of `<TODO: date>`; residual risk is governed by [`RLS_RISK_ACCEPTANCE.md`](../RLS_RISK_ACCEPTANCE.md) and product backlog.

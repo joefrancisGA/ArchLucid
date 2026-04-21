@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
@@ -38,12 +39,19 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
         if (string.IsNullOrWhiteSpace(body.SummaryReference))
             return this.BadRequestProblem("SummaryReference is required.", ProblemTypes.ValidationFailed);
 
+        if (!string.IsNullOrWhiteSpace(body.PublishedOn))
+        {
+            if (!DateOnly.TryParse(body.PublishedOn.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                return this.BadRequestProblem("PublishedOn must be a calendar date (YYYY-MM-DD).", ProblemTypes.ValidationFailed);
+        }
+
         string payload = JsonSerializer.Serialize(
             new
             {
                 assessmentCode = body.AssessmentCode.Trim(),
                 summaryReference = body.SummaryReference.Trim(),
                 assessorDisplayName = body.AssessorDisplayName?.Trim(),
+                publishedOn = string.IsNullOrWhiteSpace(body.PublishedOn) ? null : body.PublishedOn.Trim(),
             });
 
         await _auditService.LogAsync(

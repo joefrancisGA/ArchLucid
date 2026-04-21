@@ -21,6 +21,7 @@ type PublicationPayload = {
   assessmentCode?: string;
   summaryReference?: string;
   assessorDisplayName?: string;
+  publishedOn?: string;
 };
 
 function parsePayload(dataJson: string): PublicationPayload {
@@ -97,7 +98,8 @@ export default function SecurityTrustPage() {
         </div>
         {latest ? (
           <p className="mt-2 mb-0 text-xs text-emerald-900/80 dark:text-emerald-200/80">
-            Recorded {new Date(latest.occurredUtc).toLocaleString()} — assessor:{" "}
+            Recorded {new Date(latest.occurredUtc).toLocaleString()}
+            {payload.publishedOn ? ` — publication date: ${payload.publishedOn}` : ""} — assessor:{" "}
             {payload.assessorDisplayName ?? "see summary"}.
           </p>
         ) : null}

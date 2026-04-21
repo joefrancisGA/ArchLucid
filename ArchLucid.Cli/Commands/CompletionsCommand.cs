@@ -16,6 +16,7 @@ public static class CompletionsCommand
         "try",
         "trial",
         "roi-bulletin",
+        "security-trust",
         "run",
         "status",
         "trace",

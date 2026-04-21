@@ -72,6 +72,17 @@ namespace ArchLucid.Cli
                     case "roi-bulletin":
                         return await RoiBulletinCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                    case "security-trust":
+                        if (normalized.Length > 1 && normalized[1] == "publish")
+                            return await SecurityTrustPublishCommand.RunAsync(normalized.Skip(2).ToArray());
+
+
+                        Console.WriteLine(
+                            "Usage: archlucid security-trust publish --kind pen-test --date <YYYY-MM-DD> "
+                            + "--summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>]");
+
+                        return CliExitCode.UsageError;
+
                     case "marketplace":
                         if (normalized.Length > 1 && normalized[1] == "preflight")
                             return await MarketplacePreflightCommand.RunAsync(normalized.Skip(2).ToArray());
@@ -214,7 +225,7 @@ namespace ArchLucid.Cli
         private static void WriteNoCommandMessage()
         {
                 const string Plain =
-                "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>], marketplace preflight [--repo <dir>], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
+                "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
 
             if (CliExecutionContext.JsonOutput)
 
