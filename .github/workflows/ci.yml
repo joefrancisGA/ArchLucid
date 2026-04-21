@@ -114,6 +114,16 @@ jobs:
       - name: Marketplace pricing tier alignment vs PRICING_PHILOSOPHY
         run: python scripts/ci/assert_marketplace_pricing_alignment.py
 
+      - name: "Advisory — PGP public key vs Trust Center (set merge-blocking when pgp-key.txt exists)"
+        continue-on-error: true
+        # When archlucid-ui/public/.well-known/pgp-key.txt is committed, flip continue-on-error to false on this step.
+        run: python scripts/ci/assert_pgp_key_present.py
+
+      - name: PGP key presence guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_assert_pgp_key_present
+
       - name: Guard — no legacy ArchiForge.* workspace directories
         run: python scripts/ci/check_no_legacy_archiforge_dirs.py
 

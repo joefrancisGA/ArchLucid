@@ -34,7 +34,9 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 2. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
 
-3. **PGP for `security@archlucid.dev`** — [`SECURITY.md`](../SECURITY.md) still has a TODO: generate key pair, publish public key, link from Trust Center.
+    - **Custodian:** confirm the **canonical security contact mailbox** for procurement and assessor hand-offs — **`security@archlucid.dev`** vs **`security@archlucid.com`** (some docs use `.dev` only; align `SECURITY.md`, Trust Center, and the PGP UID before publication).
+
+3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key; see items **10** / **21** for the CI guard and mailbox alignment.
 
 4. **Next Microsoft-aligned workflow integration** — GitHub manifest-delta and Azure DevOps pipeline tasks are shipped ([`GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md), [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)). **ServiceNow and Confluence are explicitly out of scope for now** (see Resolved table). Next anchor is a **product** call among remaining Microsoft surfaces (e.g. Teams / Logic Apps fan-out per ADR 0019), not Atlassian/ITSM.
 
@@ -73,6 +75,8 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 10. **PGP key for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
 
+    - **Custodian:** confirm **`security@archlucid.dev`** vs **`security@archlucid.com`** as the UID / mailbox tied to the published key (must match Trust Center + `SECURITY.md`).
+
 11. **Workflow-integration sequencing (rescoped)** — **Prompt 5 (ServiceNow + Confluence) is deferred** — see Resolved table. When picking the next integration, sequence **Microsoft-native** options (Teams notifications, Logic Apps standard workflows, deeper ADO/GitHub) rather than Confluence/ServiceNow unless strategy changes.
 
 12. **WCAG 2.2 AA conformance publication channel** — Trust Center page only, or also a public `/accessibility` page on the marketing site? Whether to create an `accessibility@archlucid.dev` alias or reuse `security@`.
@@ -102,7 +106,11 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 20. **Pen-test execution window for the awarded Aeronova SoW** — schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. (Improvement 2 / Prompt 2.)
 
+    - **Custodian:** confirm **`security@archlucid.dev`** vs **`security@archlucid.com`** for assessor comms and the eventual PGP UID so `SECURITY.md` / Trust Center / key material stay consistent.
+
 21. **PGP key custodian for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
+
+    - **Custodian:** confirm the **canonical email address** on the key (`security@archlucid.dev` vs `security@archlucid.com`) and update Trust Center + `SECURITY.md` together so buyers see one address.
 
 22. **Marketplace + Stripe live go-live calendar** — Partner Center seller verification, tax profile, payout account, **and** Stripe live API key + webhook secret. Decide whether Marketplace and Stripe live flip on the same day or staged. (Improvement 3 / Prompt 3, supersedes nothing — re-emphasises items 8 and 9.)
 

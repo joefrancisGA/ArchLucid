@@ -48,8 +48,6 @@ Security patches are applied to the **latest release branch / current default br
 
 ## PGP / encrypted email
 
-**PGP encryption for vulnerability reports is not currently supported.** This section will be updated when a key is provisioned.
+**PGP key material:** the canonical public key path is **`/.well-known/pgp-key.txt`** on the marketing site (source file [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt)). **Publication is pending** until the security custodian generates the key pair and commits that file — see [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) (items **3**, **10**, **21** and the custodian email-domain note under item **21**).
 
 **Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.com/.well-known/security.txt` when the marketing site is live.
-
-**TODO (product / security ops):** Generate a vendor PGP key pair for `security@archlucid.dev`, publish the public key at **`/.well-known/pgp-key.txt`**, link from this section and from the Trust Center, and document key rotation in [`docs/security/pen-test-summaries/README.md`](docs/security/pen-test-summaries/README.md) once the first external pen-test summary ships.

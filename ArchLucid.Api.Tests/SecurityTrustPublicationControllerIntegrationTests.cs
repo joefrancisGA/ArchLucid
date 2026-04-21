@@ -24,6 +24,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
             AssessmentCode = "2026-Q2",
             SummaryReference = "docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md",
             AssessorDisplayName = "Aeronova Red Team LLC",
+            PublishedOn = "2026-07-29",
         };
 
         HttpResponseMessage post =
@@ -44,5 +45,22 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         JsonElement first = doc.RootElement[0];
         first.GetProperty("eventType").GetString().Should().Be("SecurityAssessmentPublished");
         first.GetProperty("dataJson").GetString().Should().Contain("2026-Q2");
+        first.GetProperty("dataJson").GetString().Should().Contain("2026-07-29");
+    }
+
+    [Fact]
+    public async Task Post_publications_returns_400_when_published_on_is_not_a_date()
+    {
+        SecurityAssessmentPublicationRequest body = new()
+        {
+            AssessmentCode = "2026-Q2",
+            SummaryReference = "docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md",
+            PublishedOn = "not-a-date",
+        };
+
+        HttpResponseMessage post =
+            await Client.PostAsJsonAsync("/v1/admin/security-trust/publications", body, JsonOptions);
+
+        post.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

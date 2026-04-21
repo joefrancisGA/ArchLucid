@@ -84,6 +84,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 ## Contact
 
 - **Security inquiries:** `security@archlucid.dev` (replace with your production security contact when published).
+- **PGP (optional):** when the security custodian publishes a key, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) § PGP). Until that file exists, use plain email for coordinated disclosure.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).
 

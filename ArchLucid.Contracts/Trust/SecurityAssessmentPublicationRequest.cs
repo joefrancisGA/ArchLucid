@@ -13,4 +13,7 @@ public sealed class SecurityAssessmentPublicationRequest
 
     /// <summary>Optional assessor legal name as published on the cover letter.</summary>
     public string? AssessorDisplayName { get; set; }
+
+    /// <summary>Publication calendar date (<c>YYYY-MM-DD</c>) for Trust Center / audit consumers.</summary>
+    public string? PublishedOn { get; set; }
 }
