@@ -13,7 +13,7 @@
 
 ## Configuration
 
-The repo includes **`stryker-config.json`** at the solution root for **Persistence**, plus:
+The repo includes **`stryker-config.persistence.json`** (and the equivalent root **`stryker-config.json`**) for **Persistence** (scheduled CI label **Persistence**; thresholds **high 70 / low 55 / break 55**), plus:
 
 - **`stryker-config.application.json`** — `ArchLucid.Application` + `ArchLucid.Application.Tests`
 - **`stryker-config.agentruntime.json`** — `ArchLucid.AgentRuntime` + `ArchLucid.AgentRuntime.Tests`

@@ -103,11 +103,11 @@ npm run test:e2e
 
 ### Stryker.NET mutation configs (repo root)
 
-Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config with **`-s ArchLucid.sln`**, reporters **`progress` / `html` / `json`**, then **`scripts/ci/assert_stryker_score_vs_baseline.py`** vs **`scripts/ci/stryker-baselines.json`** (**mutation score baselines 70.0** per module after the latest ratchet; assert tolerance **0.10** pp). Pull requests also trigger **`.github/workflows/stryker-pr.yml`**, which plans targets with **`scripts/ci/stryker_pr_plan.py`** and runs **`dotnet dotnet-stryker … --since:<base>`** only for affected modules (**`continue-on-error: true`** until policy tightens). Narrative and baseline refresh: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**. All listed configs use thresholds **high 80 / low 70 / break 70** (`low` must be ≥ `break` per Stryker.NET; baseline regression in **`stryker-baselines.json`** is a separate script gate).
+Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config with **`-s ArchLucid.sln`**, reporters **`progress` / `html` / `json`**, then **`scripts/ci/assert_stryker_score_vs_baseline.py`** vs **`scripts/ci/stryker-baselines.json`** (**mutation score baselines 70.0** per module after the latest ratchet; assert tolerance **0.10** pp). Pull requests also trigger **`.github/workflows/stryker-pr.yml`**, which plans targets with **`scripts/ci/stryker_pr_plan.py`** and runs **`dotnet dotnet-stryker … --since:<base>`** only for affected modules (**`continue-on-error: true`** until policy tightens). Narrative and baseline refresh: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**. Most configs use thresholds **high 80 / low 70 / break 70** (`low` must be ≥ `break` per Stryker.NET; baseline regression in **`stryker-baselines.json`** is a separate script gate). **Persistence** uses **`stryker-config.persistence.json`** (**high 70 / low 55 / break 55**) in scheduled CI.
 
 | Config file | Code project | Test project |
 |-------------|--------------|--------------|
-| `stryker-config.json` | `ArchLucid.Persistence` | `ArchLucid.Persistence.Tests` |
+| `stryker-config.persistence.json` (alias: `stryker-config.json`) | `ArchLucid.Persistence` | `ArchLucid.Persistence.Tests` |
 | `stryker-config.application.json` | `ArchLucid.Application` | `ArchLucid.Application.Tests` |
 | `stryker-config.agentruntime.json` | `ArchLucid.AgentRuntime` | `ArchLucid.AgentRuntime.Tests` |
 | `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |

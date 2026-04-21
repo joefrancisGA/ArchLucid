@@ -3,6 +3,8 @@ using System.Reflection;
 using DbUp;
 using DbUp.Engine;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
@@ -31,6 +33,7 @@ public static class DatabaseMigrator
         {
             GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
             RunWithScriptFilter(connectionString, static _ => true);
+            TryEnableReadCommittedSnapshotIfNeeded(connectionString);
         }
     }
 
@@ -56,6 +59,7 @@ public static class DatabaseMigrator
 
             HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
             RunWithScriptFilter(connectionString, allowed.Contains);
+            TryEnableReadCommittedSnapshotIfNeeded(connectionString);
         }
     }
 
@@ -80,6 +84,7 @@ public static class DatabaseMigrator
 
         // Per-script transactions: a single transaction across all embedded scripts breaks SQL Server when later
         // migrations include security-policy / RLS DDL and other statements that do not compose in one long transaction.
+        // Migration 091 (RCSI) is a no-op here; see TryEnableReadCommittedSnapshotIfNeeded (ALTER DATABASE cannot run in DbUp's transaction).
         UpgradeEngine upgrader = DeployChanges.To
             .SqlDatabase(connectionString)
             .WithScripts(scripts)
@@ -99,6 +104,29 @@ public static class DatabaseMigrator
         throw new InvalidOperationException(
             "Database migration failed. See inner exception for the SQL Server error. DbUp message: " + detail,
             result.Error);
+    }
+
+    /// <summary>
+    /// Enables READ_COMMITTED_SNAPSHOT outside DbUp: <c>ALTER DATABASE</c> is rejected inside DbUp's per-script transaction.
+    /// </summary>
+    private static void TryEnableReadCommittedSnapshotIfNeeded(string connectionString)
+    {
+        using SqlConnection connection = new(connectionString);
+        connection.Open();
+
+        const string sql = """
+            IF NOT EXISTS (
+                SELECT 1
+                FROM sys.databases
+                WHERE database_id = DB_ID()
+                  AND is_read_committed_snapshot_on = 1)
+            BEGIN
+                ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON;
+            END
+            """;
+
+        using SqlCommand command = new(sql, connection);
+        command.ExecuteNonQuery();
     }
 
     private static string ReadEmbeddedScript(Assembly assembly, string name)

@@ -20,7 +20,7 @@ from pathlib import Path
 
 # (label, config) — order matches .github/workflows/stryker-scheduled.yml
 FULL_MATRIX: list[tuple[str, str]] = [
-    ("Persistence", "stryker-config.json"),
+    ("Persistence", "stryker-config.persistence.json"),
     ("Application", "stryker-config.application.json"),
     ("AgentRuntime", "stryker-config.agentruntime.json"),
     ("Coordinator", "stryker-config.coordinator.json"),
@@ -86,7 +86,7 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
 
     if p.startswith("ArchLucid.Persistence.Tests/"):
         return [
-            ("Persistence", "stryker-config.json"),
+            ("Persistence", "stryker-config.persistence.json"),
             ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
         ]
 
@@ -101,7 +101,7 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
             return []
 
     if p.startswith("ArchLucid.Persistence/"):
-        return [("Persistence", "stryker-config.json")]
+        return [("Persistence", "stryker-config.persistence.json")]
 
     if p.startswith("ArchLucid.Application.Tests/"):
         return [("Application", "stryker-config.application.json")]
@@ -163,17 +163,17 @@ def _write_github_output(run: bool, include: list[dict[str, str]]) -> None:
 
 def _self_test() -> None:
     assert plan_matrix([]) == []
-    assert len(plan_matrix(["stryker-config.json"])) == len(FULL_MATRIX)
+    assert len(plan_matrix(["stryker-config.persistence.json"])) == len(FULL_MATRIX)
     assert plan_matrix(["ArchLucid.Decisioning/Foo.cs"]) == [
         ("Decisioning", "stryker-config.decisioning.json"),
     ]
     assert plan_matrix(["ArchLucid.Persistence.Tests/x.cs"]) == [
-        ("Persistence", "stryker-config.json"),
+        ("Persistence", "stryker-config.persistence.json"),
         ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
     ]
     assert plan_matrix(["ArchLucid.Persistence.Runtime/x.cs"]) == []
     assert plan_matrix(["ArchLucid.Persistence/Sql/x.cs"]) == [
-        ("Persistence", "stryker-config.json"),
+        ("Persistence", "stryker-config.persistence.json"),
     ]
     assert plan_matrix(["ArchLucid.Persistence.Coordination/x.cs"]) == [
         ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),

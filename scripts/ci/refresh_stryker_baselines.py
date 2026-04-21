@@ -26,7 +26,7 @@ from pathlib import Path
 
 
 STRYKER_TARGETS: list[tuple[str, str]] = [
-    ("Persistence", "stryker-config.json"),
+    ("Persistence", "stryker-config.persistence.json"),
     ("Application", "stryker-config.application.json"),
     ("AgentRuntime", "stryker-config.agentruntime.json"),
     ("Coordinator", "stryker-config.coordinator.json"),

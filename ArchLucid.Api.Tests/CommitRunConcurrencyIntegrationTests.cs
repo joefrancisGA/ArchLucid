@@ -11,7 +11,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel <c>POST /v1/architecture/run/{runId}/commit</c> after execute: idempotent commit returns the same manifest version for every winner.
+/// Parallel <c>POST /v1/architecture/run/{runId}/commit</c> after execute: coordinator reconciliation returns the same
+/// manifest version for every parallel caller once the first commit wins.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -58,23 +59,33 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);
 
-        string? manifestVersion = null;
-
-        foreach (HttpResponseMessage response in responses)
+        try
         {
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            string? manifestVersion = null;
 
-            CommitRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-            payload.Should().NotBeNull();
-            payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
-
-            if (manifestVersion is null)
+            foreach (HttpResponseMessage response in responses)
             {
-                manifestVersion = payload.Manifest.Metadata.ManifestVersion;
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                CommitRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                payload.Should().NotBeNull();
+                payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+
+                if (manifestVersion is null)
+                {
+                    manifestVersion = payload.Manifest.Metadata.ManifestVersion;
+                }
+                else
+                {
+                    payload.Manifest.Metadata.ManifestVersion.Should().Be(manifestVersion);
+                }
             }
-            else
+        }
+        finally
+        {
+            foreach (HttpResponseMessage response in responses)
             {
-                payload.Manifest.Metadata.ManifestVersion.Should().Be(manifestVersion);
+                response.Dispose();
             }
         }
     }
