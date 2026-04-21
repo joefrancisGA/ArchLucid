@@ -13,6 +13,7 @@ import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
+import type { DemoExplainResponse } from "@/types/demo-explain";
 import type {
   ComparisonExplanation,
   FindingExplainability,
@@ -517,6 +518,27 @@ export type WhyArchLucidSnapshot = {
 /** GETs the `/v1/pilots/why-archlucid-snapshot` JSON snapshot used by the proof page. */
 export async function getWhyArchLucidSnapshot(): Promise<WhyArchLucidSnapshot> {
   return apiGet<WhyArchLucidSnapshot>("/v1/pilots/why-archlucid-snapshot");
+}
+
+/**
+ * GETs the side-by-side provenance + explanation payload used by the operator-shell
+ * `/demo/explain` proof route. Returns `null` when the API responds 404 — that covers both
+ * "demo seed has not been applied yet" and "deployment is not `Demo:Enabled=true`" (the
+ * `[FeatureGate(DemoEnabled)]` filter on the server returns 404 by design so production-like
+ * hosts cannot leak the demo surface). Callers should render a friendly fallback in either case.
+ */
+export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest("/v1/demo/explain");
+  const h = withCorrelationHeaders(headers);
+  const response = await fetch(url, { cache: "no-store", headers: h });
+  const text = await response.text();
+
+  if (response.status === 404) return null;
+
+  if (!response.ok) throw buildApiRequestErrorFromParts(response, text);
+
+  return JSON.parse(text) as DemoExplainResponse;
 }
 
 /** Persisted explainability trace + narrative for a single finding (no LLM). */

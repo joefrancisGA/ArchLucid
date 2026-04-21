@@ -3592,6 +3592,40 @@
         },
         "type": "object"
       },
+      "DemoExplainResponse": {
+        "properties": {
+          "demoStatusMessage": {
+            "type": "string"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isDemoData": {
+            "type": "boolean"
+          },
+          "manifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceGraph": {
+            "$ref": "#/components/schemas/GraphViewModel"
+          },
+          "runExplanation": {
+            "$ref": "#/components/schemas/RunExplanationSummary"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "runExplanation",
+          "provenanceGraph"
+        ],
+        "type": "object"
+      },
       "DeterminismCheckRequest": {
         "properties": {
           "commitReplays": {
@@ -23310,6 +23344,35 @@
         ]
       }
     },
+    "/v1/demo/explain": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoExplainResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DemoExplain"
+        ]
+      }
+    },
     "/v1/demo/seed": {
       "post": {
         "responses": {
@@ -30414,6 +30477,9 @@
     },
     {
       "name": "Demo"
+    },
+    {
+      "name": "DemoExplain"
     },
     {
       "name": "Diagnostics"

@@ -1,0 +1,327 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side provenance + explanation layout for the demo tenant 1`] = `
+<main
+  aria-busy="false"
+  class="mx-auto max-w-6xl space-y-6 p-4"
+  data-testid="demo-explain-page"
+>
+  <header
+    class="space-y-2"
+  >
+    <h1
+      class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+    >
+      Demo · Provenance + citations
+    </h1>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      The full 
+      <code>
+        ProvenanceGraph
+      </code>
+       for the latest committed demo-seed run, rendered side-by-side with the citations-bound aggregate explanation. Both panels come from one server-side 
+      <code>
+        DemoReadModelClient
+      </code>
+       call against the demo tenant — this route never exposes production data.
+    </p>
+    <div
+      class="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+      data-testid="demo-explain-status-banner"
+    >
+      <span
+        class="font-semibold"
+      >
+        demo tenant — replace before publishing
+      </span>
+       · run
+       
+      <code>
+        6e8c4a102b1f4c9a9d3e10b2a4f0c501
+      </code>
+       
+      · manifest 
+      <code>
+        v3
+      </code>
+       
+      · generated 
+      <code>
+        2026-04-20T12:00:00.000Z
+      </code>
+    </div>
+  </header>
+  <section
+    aria-label="Provenance and explanation"
+    class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+  >
+    <section
+      aria-labelledby="demo-explain-graph-heading"
+      class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+      data-testid="demo-explain-provenance-graph"
+    >
+      <header
+        class="space-y-1"
+      >
+        <h2
+          class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          id="demo-explain-graph-heading"
+        >
+          Provenance graph
+        </h2>
+        <p
+          class="text-xs text-neutral-500"
+        >
+          3
+           nodes · 
+          2
+           edges
+        </p>
+      </header>
+      <ol
+        class="space-y-2 text-sm"
+        data-testid="demo-explain-provenance-graph-nodes"
+      >
+        <li
+          class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <p
+            class="font-medium text-neutral-900 dark:text-neutral-100"
+          >
+            Run baseline
+             
+            <span
+              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Run
+            </span>
+          </p>
+          <p
+            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+          >
+            n-run
+          </p>
+          <ul
+            class="mt-1 list-disc pl-5 text-xs text-neutral-600 dark:text-neutral-400"
+          >
+            <li>
+              <span
+                class="text-neutral-500"
+              >
+                Produced
+                 →
+              </span>
+               
+              <code>
+                n-manifest
+              </code>
+            </li>
+          </ul>
+        </li>
+        <li
+          class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <p
+            class="font-medium text-neutral-900 dark:text-neutral-100"
+          >
+            Golden manifest v3
+             
+            <span
+              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Manifest
+            </span>
+          </p>
+          <p
+            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+          >
+            n-manifest
+          </p>
+          <ul
+            class="mt-1 list-disc pl-5 text-xs text-neutral-600 dark:text-neutral-400"
+          >
+            <li>
+              <span
+                class="text-neutral-500"
+              >
+                Surfaced
+                 →
+              </span>
+               
+              <code>
+                n-finding
+              </code>
+            </li>
+          </ul>
+        </li>
+        <li
+          class="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <p
+            class="font-medium text-neutral-900 dark:text-neutral-100"
+          >
+            Public storage
+             
+            <span
+              class="rounded bg-neutral-200 px-1 py-0.5 text-xs font-normal text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Finding
+            </span>
+          </p>
+          <p
+            class="mt-0.5 font-mono text-[11px] text-neutral-500"
+          >
+            n-finding
+          </p>
+        </li>
+      </ol>
+    </section>
+    <section
+      aria-labelledby="demo-explain-explanation-heading"
+      class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+      data-testid="demo-explain-run-explanation"
+    >
+      <header
+        class="space-y-1"
+      >
+        <h2
+          class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          id="demo-explain-explanation-heading"
+        >
+          Aggregate explanation & citations
+        </h2>
+        <p
+          class="text-xs text-neutral-500"
+        >
+          6
+           findings · 
+          4
+           decisions ·
+           
+          2
+           citations
+        </p>
+      </header>
+      <div
+        class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Overall assessment
+        </h3>
+        <p
+          class="mt-1 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          Healthy baseline with two open mediums.
+        </p>
+        <p
+          class="mt-1 text-xs text-neutral-500"
+        >
+          Risk posture: 
+          <code>
+            Moderate
+          </code>
+        </p>
+      </div>
+      <div>
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Themes
+        </h3>
+        <ul
+          class="mt-1 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          <li>
+            Theme A
+          </li>
+          <li>
+            Theme B
+          </li>
+        </ul>
+      </div>
+      <div
+        data-testid="demo-explain-citations"
+      >
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Citations (
+          2
+          )
+        </h3>
+        <ul
+          class="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          <li
+            class="font-mono text-xs"
+          >
+            <span
+              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Manifest
+            </span>
+             
+            <span>
+              contoso-baseline-v1
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              (
+              m-1
+              )
+            </span>
+          </li>
+          <li
+            class="font-mono text-xs"
+          >
+            <span
+              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Finding
+            </span>
+             
+            <span>
+              Public storage
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              (
+              f-1
+              )
+            </span>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </section>
+  <footer
+    class="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
+  >
+    Source: 
+    <code>
+      GET /v1/demo/explain
+    </code>
+     (server-side 
+    <code>
+      DemoReadModelClient
+    </code>
+    , hard-pinned to the demo tenant; same application services as
+    <code>
+       /v1/explain
+    </code>
+     and 
+    <code>
+      /v1/provenance
+    </code>
+    ).
+  </footer>
+</main>
+`;

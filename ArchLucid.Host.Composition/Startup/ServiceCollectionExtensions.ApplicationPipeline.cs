@@ -28,6 +28,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Host.Composition.ValueReports;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -133,6 +134,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<SponsorOnePagerPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
+        services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();
         services.Configure<ValueReportComputationOptions>(
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();

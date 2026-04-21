@@ -42,6 +42,14 @@ Every architecture recommendation ArchLucid produces comes with a complete chain
 - Explanation faithfulness checking (token overlap heuristic with aggregate fallback)
 - Full agent execution trace persistence (prompt/response forensics in blob storage)
 
+**Live deep link in the staging funnel:**
+
+The unauthenticated proof route **`/demo/explain`** (operator shell) renders the **provenance graph and the citations-bound aggregate explanation side-by-side**, sourced from the seeded Contoso Retail Modernization run. The route is hard-blocked from non-`Demo:Enabled=true` deployments by the `[FeatureGate(FeatureGateKey.DemoEnabled)]` filter — production hosts return `404` so the demo surface cannot leak. Sponsors and pilot evaluators can hit the staging URL directly:
+
+- Staging deep link: `https://staging.archlucid.example.com/demo/explain` (replace host with the active staging deployment)
+- Backing API: `GET /v1/demo/explain` — server-side `DemoReadModelClient` composes the same application services as `/v1/explain` and `/v1/provenance`, but **hard-pinned to the demo tenant scope** (the underlying authenticated routes are unchanged)
+- Always returns `IsDemoData=true` and a "demo tenant — replace before publishing" status banner so screenshots cannot be quoted as production telemetry
+
 ### Pillar 3: Enterprise governance
 
 Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.
