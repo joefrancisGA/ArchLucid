@@ -8,6 +8,7 @@ Contributor onboarding was **consolidated 2026-04-17** so this repo has **one ca
 
 | Persona | Document |
 |---------|-----------|
+| **Anyone — install order (read first)** | **[INSTALL_ORDER.md](INSTALL_ORDER.md)** |
 | **Developer** | [onboarding/day-one-developer.md](onboarding/day-one-developer.md) |
 | **SRE / Platform** | [onboarding/day-one-sre.md](onboarding/day-one-sre.md) |
 | **Security / GRC** | [onboarding/day-one-security.md](onboarding/day-one-security.md) |

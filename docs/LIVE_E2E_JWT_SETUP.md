@@ -2,6 +2,8 @@
 
 # Live E2E — JwtBearer with a local RSA public key (CI / lab)
 
+> **Install order moved.** See [INSTALL_ORDER.md](INSTALL_ORDER.md) for base toolchain; this doc covers JWT/E2E-only configuration **after** install.
+
 ## Objective
 
 Run Playwright **`live-api-*.spec.ts`** against **`ArchLucidAuth:Mode=JwtBearer`** when Entra metadata is unavailable, by validating JWTs with **`ArchLucidAuth:JwtSigningPublicKeyPemPath`** plus **`JwtLocalIssuer`** / **`JwtLocalAudience`**.

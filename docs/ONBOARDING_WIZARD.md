@@ -2,11 +2,13 @@
 
 # Onboarding wizards (operator UI)
 
+> **Install order moved.** See [INSTALL_ORDER.md](INSTALL_ORDER.md). This page describes in-product routes only (week-one tasks after install).
+
 ArchLucid ships **two** complementary surfaces:
 
 | Route | Purpose |
 |-------|--------|
-| **`/onboarding`** and **`/onboarding/start`** | General **getting started** and trial-aligned flows (sample run links, education steps). |
+| **`/onboarding`** and **`/onboarding/start`** | General **first-run orientation** and trial-aligned flows (sample run links, education steps). |
 | **`/onboard`** | **Core Pilot — first session** linear wizard: create architecture run → optional fake-result seed (non-Production) → commit golden manifest → hand-off link. Requires **`ExecuteAuthority`**. |
 
 The **`/onboard`** path exists so pilot teams can complete a **first manifest commit** without navigating Advanced Analysis or Enterprise Controls. It calls the same authenticated API helpers as the main shell (`createArchitectureRun`, `seedFakeArchitectureRunResults`, `commitArchitectureRun`).

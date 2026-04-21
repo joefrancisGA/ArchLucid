@@ -12,6 +12,10 @@ ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structu
 
 ## Environment
 
+> **Install order moved.** See [INSTALL_ORDER.md](INSTALL_ORDER.md). This page now only covers operator commands **after** the local or hosted environment is running.
+
+## Local API (example)
+
 ```bash
 cd ArchLucid.Api
 dotnet user-secrets set "ConnectionStrings:ArchLucid" "Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
@@ -41,7 +45,7 @@ curl -s http://localhost:5128/health/ready
 curl -s http://localhost:5128/version
 ```
 
-(Optional: pipe through `python -m json.tool` or `jq` if installed.)
+(Optional: pipe through `python -m json.tool` or `jq` if available.)
 
 **CLI doctor (API must be running):**
 

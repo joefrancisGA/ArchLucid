@@ -2,6 +2,8 @@
 
 # Onboarding happy path (redirect)
 
+> **Install order moved.** See [INSTALL_ORDER.md](INSTALL_ORDER.md). This page now only redirects to the request walkthrough **after** install.
+
 For **one HTTP request** through the API (create run → execute → commit) and related contracts, use the developer Day-1 doc plus **[API_CONTRACTS.md](API_CONTRACTS.md)**.
 
 **Canonical:** [onboarding/day-one-developer.md](onboarding/day-one-developer.md) (mental model + code pointers)

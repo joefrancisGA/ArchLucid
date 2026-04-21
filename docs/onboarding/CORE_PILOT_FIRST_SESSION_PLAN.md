@@ -4,6 +4,8 @@
 
 **Objective.** Reduce time-to-value on the default **Core Pilot** path: architecture request → run → committed manifest → reviewable artifacts and aggregate explanation.
 
+> **Install order moved.** See [../INSTALL_ORDER.md](../INSTALL_ORDER.md). This file is analysis only (week-one tasks after install).
+
 ## CLI ↔ API ↔ UI map
 
 | Step | `ArchLucid.Cli` (see `Program.cs` cases) | REST (`ArchLucid.Api`) | Operator UI |

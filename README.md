@@ -12,7 +12,9 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-**Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, start with **First 30 minutes** — it is the only path that needs nothing but Docker.
+**Canonical install order (any role):** **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
+
+**Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, **Docker-only evaluation:** **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** needs nothing but Docker.
 
 | You are a... | Start here |
 |---|---|
@@ -71,10 +73,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Prerequisites
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- SQL Server (LocalDB, Express, or full) with a database for ArchLucid
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archlucid dev up`)
-- Node.js 22+ (optional; for the operator UI in `archlucid-ui` — aligns with CI)
+See **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](global.json), Docker, Node **22** per CI, SQL) and verification commands.
 
 ## Operator UI (`archlucid-ui`)
 
