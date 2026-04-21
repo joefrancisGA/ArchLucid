@@ -104,6 +104,7 @@ public sealed class FirstValueReportBuilder(
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
+        AppendFindingFeedbackMarkdownSection(sb, valueWindowSnapshot);
         AppendFindingsSection(sb, deltas);
         AppendElapsedSection(sb, deltas);
         AppendDecisionTraceSection(sb, detail, runId, baseUrl);
@@ -155,6 +156,19 @@ public sealed class FirstValueReportBuilder(
     /// Computed-deltas table — the single block sponsors should look at first. Every row is derived from persisted
     /// run state via <see cref="IPilotRunDeltaComputer"/>; see field-by-field docs on <see cref="PilotRunDeltas"/>.
     /// </summary>
+    private static void AppendFindingFeedbackMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
+    {
+        sb.AppendLine("## Finding feedback (thumbs, tenant window)");
+        sb.AppendLine();
+        sb.AppendLine("| Metric | Value |");
+        sb.AppendLine("| --- | ---: |");
+        sb.AppendLine(
+            $"| Net score (up − down) | {snapshot.FindingFeedbackNetScore.ToString(CultureInfo.InvariantCulture)} |");
+        sb.AppendLine(
+            $"| Votes recorded | {snapshot.FindingFeedbackVoteCount.ToString(CultureInfo.InvariantCulture)} |");
+        sb.AppendLine();
+    }
+
     private static void AppendComputedDeltasSection(StringBuilder sb, PilotRunDeltas deltas)
     {
         sb.AppendLine("## Computed deltas (from this run)");

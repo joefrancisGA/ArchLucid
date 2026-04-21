@@ -131,6 +131,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
+        services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
         services.AddScoped<FirstValueReportBuilder>();

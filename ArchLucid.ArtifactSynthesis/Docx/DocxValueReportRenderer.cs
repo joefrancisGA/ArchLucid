@@ -48,6 +48,13 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             body.AppendChild(Paragraph($"Governance-class audit events: {snapshot.GovernanceEventsHandledCount}"));
             body.AppendChild(Paragraph($"Drift / alert-class audit events: {snapshot.DriftAlertEventsCaughtCount}"));
 
+            body.AppendChild(Paragraph("Per-finding feedback (thumbs)", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(
+                Paragraph(
+                    $"Net score (thumbs up minus thumbs down) in window: {snapshot.FindingFeedbackNetScore}"));
+            body.AppendChild(
+                Paragraph($"Votes recorded in window: {snapshot.FindingFeedbackVoteCount}"));
+
             body.AppendChild(Paragraph("Runs by legacy status (created in window)", bold: true, fontSizeHalfPoints: 28));
 
             if (snapshot.RunStatusRows.Count == 0)

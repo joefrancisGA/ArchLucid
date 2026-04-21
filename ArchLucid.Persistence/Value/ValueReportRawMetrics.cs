@@ -8,6 +8,8 @@ public sealed record ValueReportRawMetrics(
     int ManifestsCommittedCount,
     int GovernanceEventCount,
     int DriftAlertEventCount,
+    int FindingFeedbackNetScore,
+    int FindingFeedbackVoteCount,
     decimal? TenantBaselineReviewCycleHours,
     string? TenantBaselineReviewCycleSource,
     DateTimeOffset? TenantBaselineReviewCycleCapturedUtc,

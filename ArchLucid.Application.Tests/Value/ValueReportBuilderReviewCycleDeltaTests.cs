@@ -22,6 +22,8 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             0,
             0,
             0,
+            0,
+            0,
             null,
             null,
             null,
@@ -40,6 +42,8 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
     {
         ValueReportRawMetrics raw = new(
             [],
+            0,
+            0,
             0,
             0,
             0,
@@ -66,6 +70,8 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             0,
             0,
             0,
+            0,
+            0,
             null,
             null,
             null,
@@ -84,6 +90,8 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
     {
         ValueReportRawMetrics raw = new(
             [],
+            0,
+            0,
             0,
             0,
             0,

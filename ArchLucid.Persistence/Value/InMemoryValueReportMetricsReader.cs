@@ -9,6 +9,8 @@ public sealed class InMemoryValueReportMetricsReader : IValueReportMetricsReader
         0,
         0,
         0,
+        0,
+        0,
         TenantBaselineReviewCycleHours: null,
         TenantBaselineReviewCycleSource: null,
         TenantBaselineReviewCycleCapturedUtc: null,

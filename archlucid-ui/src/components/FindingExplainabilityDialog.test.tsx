@@ -28,6 +28,14 @@ describe("FindingExplainabilityDialog", () => {
     };
 
     const spy = vi.spyOn(api, "getFindingExplainability").mockResolvedValue(sample);
+    vi.spyOn(api, "getFindingLlmAudit").mockResolvedValue({
+      traceId: "t1",
+      agentType: "Topology",
+      systemPromptRedacted: "",
+      userPromptRedacted: "",
+      rawResponseRedacted: "",
+      redactionCountsByCategory: {},
+    });
 
     render(
       <FindingExplainabilityDialog open={true} onOpenChange={() => {}} runId="run-a" findingId="f-1" />,
@@ -46,6 +54,14 @@ describe("FindingExplainabilityDialog", () => {
 
   it("shows API problem when fetch fails", async () => {
     vi.spyOn(api, "getFindingExplainability").mockRejectedValue(new Error("boom"));
+    vi.spyOn(api, "getFindingLlmAudit").mockResolvedValue({
+      traceId: "t1",
+      agentType: "Topology",
+      systemPromptRedacted: "",
+      userPromptRedacted: "",
+      rawResponseRedacted: "",
+      redactionCountsByCategory: {},
+    });
 
     render(
       <FindingExplainabilityDialog open={true} onOpenChange={() => {}} runId="run-a" findingId="f-1" />,
