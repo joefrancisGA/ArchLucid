@@ -40,6 +40,9 @@ public interface ITenantRepository
         int runsLimit,
         int seatsLimit,
         Guid sampleRunId,
+        decimal? baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset? baselineReviewCycleCapturedUtc,
         CancellationToken ct);
 
     /// <summary>Marks an active self-service trial as converted after billing activation.</summary>

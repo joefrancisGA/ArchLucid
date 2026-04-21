@@ -56,6 +56,8 @@ For one representative architecture workflow, record:
 4. **How much governance evidence is missing or manually reconstructed** during review?
 5. **How much architect time is spent on packaging and review preparation rather than on design quality?**
 
+ArchLucid now optionally captures the **median hours from architecture request to reviewable package** (question 1) electronically at **self-service trial signup** (`POST /v1/register` — optional `baselineReviewCycleHours` / `baselineReviewCycleSource`), persists it on the tenant row, and surfaces **before vs measured** review-cycle deltas automatically in the tenant **value-report DOCX** and the **first-value Markdown** report (same copy via `ValueReportReviewCycleSectionFormatter` / `DocxValueReportRenderer`), so sponsors see a consistent narrative without operator post-editing when the prospect supplied a number or when the conservative ROI-model default applies.
+
 ### 3.2 Keep the baseline light
 
 Do not create a giant measurement program. For most pilots, a simple baseline is enough:

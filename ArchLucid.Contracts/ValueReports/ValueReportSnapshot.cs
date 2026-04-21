@@ -24,4 +24,12 @@ public sealed record ValueReportSnapshot(
     decimal AnnualizedLlmCostUsd,
     decimal BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel,
     decimal NetAnnualizedValueVersusRoiBaselineUsd,
-    decimal RoiAnnualizedPercentVersusRoiBaseline);
+    decimal RoiAnnualizedPercentVersusRoiBaseline,
+    decimal? TenantBaselineReviewCycleHours,
+    string? TenantBaselineReviewCycleSource,
+    DateTimeOffset? TenantBaselineReviewCycleCapturedUtc,
+    decimal? MeasuredAverageReviewCycleHoursForWindow,
+    int MeasuredReviewCycleSampleSize,
+    ReviewCycleBaselineProvenance ReviewCycleBaselineProvenance,
+    decimal? ReviewCycleHoursDelta,
+    decimal? ReviewCycleHoursDeltaPercent);

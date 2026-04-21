@@ -22,7 +22,12 @@ public sealed class ValueReportBuilderTests
             RunsCompletedCount: 2,
             ManifestsCommittedCount: 4,
             GovernanceEventCount: 10,
-            DriftAlertEventCount: 8);
+            DriftAlertEventCount: 8,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0);
 
         Mock<IValueReportMetricsReader> reader = new();
         reader

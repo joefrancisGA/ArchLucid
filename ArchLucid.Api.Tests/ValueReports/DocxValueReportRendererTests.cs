@@ -37,7 +37,15 @@ public sealed class DocxValueReportRendererTests
             AnnualizedLlmCostUsd: 500m,
             BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 27_360m,
             NetAnnualizedValueVersusRoiBaselineUsd: 72_140m,
-            RoiAnnualizedPercentVersusRoiBaseline: 263.67m);
+            RoiAnnualizedPercentVersusRoiBaseline: 263.67m,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: null,
+            ReviewCycleHoursDeltaPercent: null);
 
         byte[] docx = await sut.RenderAsync(snapshot, CancellationToken.None);
 

@@ -7,8 +7,10 @@ public interface ITrialTenantBootstrapService
 {
     /// <summary>Best-effort: demo seed under tenant scope + trial SQL metadata; failures are logged only.</summary>
     /// <param name="auditActorEmail">Email used for durable audit actor fields.</param>
+    /// <param name="baselineReviewCycle">When non-null, persisted on <c>dbo.Tenants</c> with the trial commit.</param>
     Task TryBootstrapAfterSelfRegistrationAsync(
         TenantProvisioningResult result,
         string auditActorEmail,
+        TrialSignupBaselineReviewCycleCapture? baselineReviewCycle,
         CancellationToken cancellationToken);
 }

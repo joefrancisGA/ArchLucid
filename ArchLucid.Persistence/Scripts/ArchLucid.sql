@@ -2975,6 +2975,28 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'BaselineReviewCycleHours') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        BaselineReviewCycleHours DECIMAL(9,2) NULL,
+        BaselineReviewCycleSource NVARCHAR(256) NULL,
+        BaselineReviewCycleCapturedUtc DATETIMEOFFSET(7) NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Tenants', N'BaselineReviewCycleHours') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_Tenants_BaselineReviewCycleHours_Positive'
+         AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_BaselineReviewCycleHours_Positive
+        CHECK (BaselineReviewCycleHours IS NULL OR BaselineReviewCycleHours > 0);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.TenantTrialSeatOccupants', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantTrialSeatOccupants

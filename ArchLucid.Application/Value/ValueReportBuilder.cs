@@ -58,6 +58,29 @@ public sealed class ValueReportBuilder(
             .Select(static c => new ValueReportRunStatusRow(c.LegacyRunStatusLabel, c.Count))
             .ToList();
 
+        ReviewCycleBaselineProvenance reviewProvenance;
+        decimal? reviewDeltaHours = null;
+        decimal? reviewDeltaPercent = null;
+
+        if (raw.MeasuredAverageReviewCycleHoursForWindow is null)
+        {
+            reviewProvenance = ReviewCycleBaselineProvenance.NoMeasurementYet;
+        }
+        else
+        {
+            decimal measuredHours = raw.MeasuredAverageReviewCycleHoursForWindow.Value;
+            decimal baselineReviewHours = raw.TenantBaselineReviewCycleHours ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
+
+            reviewProvenance = raw.TenantBaselineReviewCycleHours is not null
+                ? ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
+                : ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions;
+
+            reviewDeltaHours = baselineReviewHours - measuredHours;
+            reviewDeltaPercent = baselineReviewHours > 0m
+                ? 100m * (baselineReviewHours - measuredHours) / baselineReviewHours
+                : null;
+        }
+
         return new ValueReportSnapshot(
             tenantId,
             workspaceId,
@@ -79,6 +102,14 @@ public sealed class ValueReportBuilder(
             annualizedLlmUsd,
             baseline,
             net,
-            roiPercent);
+            roiPercent,
+            raw.TenantBaselineReviewCycleHours,
+            raw.TenantBaselineReviewCycleSource,
+            raw.TenantBaselineReviewCycleCapturedUtc,
+            raw.MeasuredAverageReviewCycleHoursForWindow,
+            raw.MeasuredReviewCycleSampleSize,
+            reviewProvenance,
+            reviewDeltaHours,
+            reviewDeltaPercent);
     }
 }

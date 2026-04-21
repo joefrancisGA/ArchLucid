@@ -50,4 +50,22 @@ public sealed class TenantTrialStatusResponse
     {
         get; init;
     }
+
+    /// <summary>Tenant-supplied median review-cycle hours at signup, when captured.</summary>
+    public decimal? BaselineReviewCycleHours
+    {
+        get; init;
+    }
+
+    /// <summary>Optional provenance note for <see cref="BaselineReviewCycleHours"/>.</summary>
+    public string? BaselineReviewCycleSource
+    {
+        get; init;
+    }
+
+    /// <summary>UTC when baseline review-cycle fields were captured at signup.</summary>
+    public DateTimeOffset? BaselineReviewCycleCapturedUtc
+    {
+        get; init;
+    }
 }

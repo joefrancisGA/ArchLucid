@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
@@ -47,6 +48,20 @@ public sealed class RegistrationController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        string? normalizedBaselineSource = NormalizeBaselineReviewCycleSource(body.BaselineReviewCycleSource);
+
+        if (body.BaselineReviewCycleHours is null && normalizedBaselineSource is not null)
+            return this.BadRequestProblem(
+                "BaselineReviewCycleHours is required when BaselineReviewCycleSource is provided.",
+                ProblemTypes.ValidationFailed);
+
+        if (body.BaselineReviewCycleHours is { } baselineHours)
+        {
+            if (baselineHours <= 0m || baselineHours > 10_000m)
+                return this.BadRequestProblem(
+                    "BaselineReviewCycleHours must be greater than 0 and at most 10000.",
+                    ProblemTypes.TrialBaselineOutOfRange);
+        }
 
         string actorEmail = body.AdminEmail.Trim();
 
@@ -117,7 +132,33 @@ public sealed class RegistrationController(
                 },
                 cancellationToken);
 
-            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, cancellationToken);
+            TrialSignupBaselineReviewCycleCapture? baselineCapture = body.BaselineReviewCycleHours is { } h
+                ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, DateTimeOffset.UtcNow)
+                : null;
+
+            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, baselineCapture, cancellationToken);
+
+            if (baselineCapture is not null)
+            {
+                await _audit.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.TrialBaselineReviewCycleCaptured,
+                        ActorUserId = actor,
+                        ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim(),
+                        TenantId = result.TenantId,
+                        WorkspaceId = Guid.Empty,
+                        ProjectId = Guid.Empty,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                baselineReviewCycleHours = baselineCapture.Hours,
+                                baselineReviewCycleSource = normalizedBaselineSource,
+                                capturedUtc = baselineCapture.CapturedUtc,
+                            }),
+                    },
+                    cancellationToken);
+            }
 
             return StatusCode(StatusCodes.Status201Created, result);
         }
@@ -159,5 +200,27 @@ public sealed class RegistrationController(
 
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+    }
+
+    private static string? NormalizeBaselineReviewCycleSource(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        string trimmed = raw.Trim();
+        StringBuilder builder = new(trimmed.Length);
+
+        foreach (char c in trimmed)
+        {
+            if (!char.IsControl(c))
+                builder.Append(c);
+        }
+
+        if (builder.Length == 0)
+            return null;
+
+        string s = builder.ToString();
+
+        return s.Length > 256 ? s[..256] : s;
     }
 }

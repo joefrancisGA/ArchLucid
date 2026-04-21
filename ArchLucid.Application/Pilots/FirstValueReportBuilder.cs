@@ -1,11 +1,14 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,10 +21,14 @@ namespace ArchLucid.Application.Pilots;
 /// Computed deltas (wall-clock, findings-by-severity, audit rows, LLM calls, top-severity evidence chain) are
 /// resolved by <see cref="IPilotRunDeltaComputer"/> so this builder and <see cref="SponsorOnePagerPdfBuilder"/>
 /// stay in lockstep — the same numbers appear in the Markdown sibling and in the sponsor PDF wrapper.
+/// The review-cycle delta section uses the same <see cref="ValueReportSnapshot"/> as the tenant value-report DOCX
+/// (default 30-day UTC window ending now; see <c>ValueReportController</c>).
 /// </remarks>
 public sealed class FirstValueReportBuilder(
     IRunDetailQueryService runDetailQuery,
     IPilotRunDeltaComputer deltaComputer,
+    ValueReportBuilder valueReportBuilder,
+    IScopeContextProvider scopeProvider,
     ILogger<FirstValueReportBuilder> logger)
 {
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
@@ -32,6 +39,12 @@ public sealed class FirstValueReportBuilder(
 
     private readonly IPilotRunDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+
+    private readonly ValueReportBuilder _valueReportBuilder =
+        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly ILogger<FirstValueReportBuilder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -62,6 +75,17 @@ public sealed class FirstValueReportBuilder(
 
         PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
 
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset start = end.AddDays(-30);
+        ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            start,
+            end,
+            cancellationToken);
+
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
         StringBuilder sb = new();
@@ -79,6 +103,7 @@ public sealed class FirstValueReportBuilder(
 
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendComputedDeltasSection(sb, deltas);
+        ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         AppendFindingsSection(sb, deltas);
         AppendElapsedSection(sb, deltas);
         AppendDecisionTraceSection(sb, detail, runId, baseUrl);

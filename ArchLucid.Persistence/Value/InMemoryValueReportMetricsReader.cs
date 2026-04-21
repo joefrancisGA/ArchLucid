@@ -3,7 +3,17 @@ namespace ArchLucid.Persistence.Value;
 /// <summary>In-memory storage mode: no SQL projections — metrics are zero unless tests replace this registration.</summary>
 public sealed class InMemoryValueReportMetricsReader : IValueReportMetricsReader
 {
-    private static readonly ValueReportRawMetrics Empty = new([], 0, 0, 0, 0);
+    private static readonly ValueReportRawMetrics Empty = new(
+        [],
+        0,
+        0,
+        0,
+        0,
+        TenantBaselineReviewCycleHours: null,
+        TenantBaselineReviewCycleSource: null,
+        TenantBaselineReviewCycleCapturedUtc: null,
+        MeasuredAverageReviewCycleHoursForWindow: null,
+        MeasuredReviewCycleSampleSize: 0);
 
     public Task<ValueReportRawMetrics> ReadAsync(
         Guid tenantId,

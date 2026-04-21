@@ -19,4 +19,10 @@ public sealed class TenantRegistrationRequest
     {
         get; init;
     }
+
+    /// <summary>Optional: median hours from architecture request to reviewable package (current state).</summary>
+    public decimal? BaselineReviewCycleHours { get; init; }
+
+    /// <summary>Optional short provenance (e.g. team estimate); max 256 after trim.</summary>
+    public string? BaselineReviewCycleSource { get; init; }
 }
