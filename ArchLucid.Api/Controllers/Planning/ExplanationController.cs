@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
@@ -35,6 +36,7 @@ public sealed class ExplanationController(
     IComparisonService comparison,
     IExplanationService explanation,
     IRunExplanationSummaryService runExplanationSummary,
+    IFindingLlmAuditService findingLlmAudit,
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
     ILogger<ExplanationController> logger)
@@ -156,6 +158,29 @@ public sealed class ExplanationController(
                 t,
                 score.CompletenessRatio),
         };
+
+        return Ok(body);
+    }
+
+    /// <summary>
+    /// Returns deny-list redacted system/user prompts and raw LLM completion for the best-matching agent trace for this finding.
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/findings/{findingId}/llm-audit")]
+    [ProducesResponseType(typeof(FindingLlmAuditResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingLlmAudit(
+        Guid runId,
+        string findingId,
+        CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+
+        FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
+
+        if (body is null)
+            return this.NotFoundProblem(
+                $"Finding '{findingId}' on run '{runId}' has no resolvable agent execution trace in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
         return Ok(body);
     }

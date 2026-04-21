@@ -188,6 +188,8 @@ public sealed class FirstValueReportBuilderTests
                     0,
                     0,
                     0,
+                    0,
+                    0,
                     null,
                     null,
                     null,

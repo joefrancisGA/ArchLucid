@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Badge } from "@/components/ui/badge";
@@ -218,6 +219,9 @@ export function FindingExplainabilityDialog({
                   ))}
                 </ul>
               </section>
+            ) : null}
+            {findingId !== null && findingId.trim().length > 0 ? (
+              <FindingExplainPanel runId={runId} findingId={findingId.trim()} />
             ) : null}
             <div className="flex justify-end border-t border-neutral-200 pt-3 dark:border-neutral-700">
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>

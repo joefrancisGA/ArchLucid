@@ -96,6 +96,18 @@ export type FindingExplainabilityEvidence = {
   ruleId: string;
 };
 
+/** Redacted LLM audit slice for one finding (`GET /v1/explain/runs/.../findings/.../llm-audit`). */
+export type FindingLlmAudit = {
+  traceId: string;
+  agentType: string;
+  systemPromptRedacted: string;
+  userPromptRedacted: string;
+  rawResponseRedacted: string;
+  modelDeploymentName?: string | null;
+  modelVersion?: string | null;
+  redactionCountsByCategory: Record<string, number>;
+};
+
 /** Deterministic explainability payload for one finding (`GET /v1/explain/runs/.../findings/.../explainability`). */
 export type FindingExplainability = {
   findingId: string;

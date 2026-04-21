@@ -45,7 +45,9 @@ public sealed class DocxValueReportRendererTests
             MeasuredReviewCycleSampleSize: 0,
             ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
             ReviewCycleHoursDelta: null,
-            ReviewCycleHoursDeltaPercent: null);
+            ReviewCycleHoursDeltaPercent: null,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0);
 
         byte[] docx = await sut.RenderAsync(snapshot, CancellationToken.None);
 
@@ -63,5 +65,6 @@ public sealed class DocxValueReportRendererTests
         xml.Should().Contain("ROI vs ROI_MODEL.md baseline");
         xml.Should().Contain("Governance-class audit events");
         xml.Should().Contain("Drift / alert-class audit events");
+        xml.Should().Contain("Per-finding feedback (thumbs)");
     }
 }

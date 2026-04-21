@@ -108,6 +108,19 @@ WHERE TenantId = @TenantId
         long drift = await connection.QuerySingleAsync<long>(
             new CommandDefinition(driftSql, parameters, cancellationToken: cancellationToken));
 
+        const string findingFeedbackSql = """
+SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
+FROM dbo.FindingFeedback
+WHERE TenantId = @TenantId
+  AND WorkspaceId = @WorkspaceId
+  AND ProjectId = @ProjectId
+  AND CreatedUtc >= @FromUtc
+  AND CreatedUtc < @ToUtc;
+""";
+
+        FindingFeedbackAggRow feedbackAgg = await connection.QuerySingleAsync<FindingFeedbackAggRow>(
+            new CommandDefinition(findingFeedbackSql, parameters, cancellationToken: cancellationToken));
+
         const string tenantBaselineSql = """
 SELECT BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
 FROM dbo.Tenants
@@ -147,11 +160,20 @@ WHERE m.TenantId = @TenantId
             (int)Math.Min(int.MaxValue, manifests),
             (int)Math.Min(int.MaxValue, governance),
             (int)Math.Min(int.MaxValue, drift),
+            (int)Math.Clamp(feedbackAgg.NetScore, int.MinValue, int.MaxValue),
+            (int)Math.Min(int.MaxValue, feedbackAgg.VoteCount),
             tenantBaseline?.BaselineReviewCycleHours,
             tenantBaseline?.BaselineReviewCycleSource,
             tenantBaseline?.BaselineReviewCycleCapturedUtc,
             measuredAvg,
             sampleSize);
+    }
+
+    private sealed class FindingFeedbackAggRow
+    {
+        public long NetScore { get; init; }
+
+        public long VoteCount { get; init; }
     }
 
     private sealed class TenantBaselineRow

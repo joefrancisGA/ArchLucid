@@ -1,0 +1,27 @@
+# Nightly golden cohort contract + placeholder for simulator/real-LLM drift (see tests/golden-cohort/README.md).
+name: golden-cohort-nightly
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  cohort-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test golden cohort JSON contract
+        run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~GoldenCohortContractTests" --configuration Release
+
+      # Real LLM / manifest drift runner is intentionally not wired here until budget approval (docs/PENDING_QUESTIONS.md item 15).
+      # When enabled, set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true and Azure OpenAI secrets in GitHub Environments.

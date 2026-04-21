@@ -161,6 +161,8 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
                 ManifestsCommittedCount: 1,
                 GovernanceEventCount: 1,
                 DriftAlertEventCount: 1,
+                FindingFeedbackNetScore: 0,
+                FindingFeedbackVoteCount: 0,
                 TenantBaselineReviewCycleHours: null,
                 TenantBaselineReviewCycleSource: null,
                 TenantBaselineReviewCycleCapturedUtc: null,

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "cohortName": "architecture-golden-20",
+  "description": "Representative architecture requests for nightly simulator drift checks. SHA placeholders must be replaced after a locked baseline run (see README).",
+  "items": [
+    {
+      "id": "gc-001",
+      "title": "Baseline Azure web workload (single region)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost", "Topology"]
+    },
+    {
+      "id": "gc-002",
+      "title": "Multi-region active/active API with Service Bus",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology", "Cost"]
+    },
+    {
+      "id": "gc-003",
+      "title": "Lift-and-shift VM fleet with ExpressRoute",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost"]
+    },
+    {
+      "id": "gc-004",
+      "title": "Kubernetes ingress + internal-only APIs",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology", "Compliance"]
+    },
+    {
+      "id": "gc-005",
+      "title": "Data platform — ADLS + Synapse consumption",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost", "Topology"]
+    },
+    {
+      "id": "gc-006",
+      "title": "Zero-trust segmentation for line-of-business tiers",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance", "Topology"]
+    },
+    {
+      "id": "gc-007",
+      "title": "Event-driven claims processing (Functions + Cosmos)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost", "Topology"]
+    },
+    {
+      "id": "gc-008",
+      "title": "Batch analytics export to partner SFTP",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance", "Cost"]
+    },
+    {
+      "id": "gc-009",
+      "title": "SAP adjacent integration hub (Logic Apps)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology"]
+    },
+    {
+      "id": "gc-010",
+      "title": "PCI-scoped payment capture (tokenization boundary)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance", "Topology"]
+    },
+    {
+      "id": "gc-011",
+      "title": "IoT telemetry hot path + cold archive",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost", "Topology"]
+    },
+    {
+      "id": "gc-012",
+      "title": "Contact center omnichannel (voice + chat)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology"]
+    },
+    {
+      "id": "gc-013",
+      "title": "DR drill — regional failover for stateful services",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology", "Cost"]
+    },
+    {
+      "id": "gc-014",
+      "title": "Secrets rotation posture (KV + managed identities)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance"]
+    },
+    {
+      "id": "gc-015",
+      "title": "Multi-tenant SaaS control plane isolation",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance", "Topology"]
+    },
+    {
+      "id": "gc-016",
+      "title": "Edge manufacturing MES integration",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology", "Cost"]
+    },
+    {
+      "id": "gc-017",
+      "title": "Regulated health data — FHIR facade",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Compliance", "Topology"]
+    },
+    {
+      "id": "gc-018",
+      "title": "FinOps guardrails — budget + anomaly routing",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost"]
+    },
+    {
+      "id": "gc-019",
+      "title": "Graph-heavy recommendation service (GPU inference)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Cost", "Topology"]
+    },
+    {
+      "id": "gc-020",
+      "title": "Legacy mainframe bridge (MQ + API gateway)",
+      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "expectedFindingCategories": ["Topology", "Compliance"]
+    }
+  ]
+}

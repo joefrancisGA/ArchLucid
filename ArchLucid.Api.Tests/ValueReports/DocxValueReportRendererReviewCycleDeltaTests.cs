@@ -50,7 +50,9 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
             sample,
             provenance,
             delta,
-            deltaPct);
+            deltaPct,
+            0,
+            0);
 
     [Fact]
     public async Task RenderAsync_NoMeasurementYet_shows_heading_and_italic_stub()

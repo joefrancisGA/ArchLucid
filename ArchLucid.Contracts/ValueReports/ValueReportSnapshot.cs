@@ -32,4 +32,6 @@ public sealed record ValueReportSnapshot(
     int MeasuredReviewCycleSampleSize,
     ReviewCycleBaselineProvenance ReviewCycleBaselineProvenance,
     decimal? ReviewCycleHoursDelta,
-    decimal? ReviewCycleHoursDeltaPercent);
+    decimal? ReviewCycleHoursDeltaPercent,
+    int FindingFeedbackNetScore,
+    int FindingFeedbackVoteCount);

@@ -110,6 +110,8 @@ public sealed class ValueReportBuilder(
             raw.MeasuredReviewCycleSampleSize,
             reviewProvenance,
             reviewDeltaHours,
-            reviewDeltaPercent);
+            reviewDeltaPercent,
+            raw.FindingFeedbackNetScore,
+            raw.FindingFeedbackVoteCount);
     }
 }

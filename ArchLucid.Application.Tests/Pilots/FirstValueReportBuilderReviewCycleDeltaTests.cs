@@ -44,7 +44,9 @@ public sealed class FirstValueReportBuilderReviewCycleDeltaTests
             MeasuredReviewCycleSampleSize: 2,
             ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.TenantSuppliedAtSignup,
             ReviewCycleHoursDelta: 6m,
-            ReviewCycleHoursDeltaPercent: 60m);
+            ReviewCycleHoursDeltaPercent: 60m,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0);
 
         StringBuilder sb = new();
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, snapshot);

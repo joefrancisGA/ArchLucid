@@ -17,6 +17,7 @@ import type { DemoExplainResponse } from "@/types/demo-explain";
 import type {
   ComparisonExplanation,
   FindingExplainability,
+  FindingLlmAudit,
   RunExplanation,
   RunExplanationSummary,
 } from "@/types/explanation";
@@ -551,6 +552,29 @@ export async function getFindingExplainability(runId: string, findingId: string)
 
   return apiGet<FindingExplainability>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
+  );
+}
+
+/** Redacted LLM prompt/completion audit for one finding (ReadAuthority). */
+export async function getFindingLlmAudit(runId: string, findingId: string): Promise<FindingLlmAudit> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  return apiGet<FindingLlmAudit>(
+    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
+  );
+}
+
+/** Records thumbs feedback for a finding (ExecuteAuthority). */
+export async function postFindingFeedback(
+  runId: string,
+  findingId: string,
+  score: -1 | 1,
+): Promise<void> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  await apiPostJson(
+    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/feedback`,
+    { score },
   );
 }
 

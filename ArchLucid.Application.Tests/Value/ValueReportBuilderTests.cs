@@ -23,6 +23,8 @@ public sealed class ValueReportBuilderTests
             ManifestsCommittedCount: 4,
             GovernanceEventCount: 10,
             DriftAlertEventCount: 8,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
             TenantBaselineReviewCycleHours: null,
             TenantBaselineReviewCycleSource: null,
             TenantBaselineReviewCycleCapturedUtc: null,

@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.CustomerSuccess;
+using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Tenancy;
@@ -32,6 +33,7 @@ using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.CustomerSuccess;
+using ArchLucid.Persistence.Feedback;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Diagnostics;
@@ -75,6 +77,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITenantCustomerSuccessRepository, InMemoryTenantCustomerSuccessRepository>();
+        services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
