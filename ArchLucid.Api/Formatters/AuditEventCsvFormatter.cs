@@ -30,12 +30,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         if (type is null)
             return false;
 
-
-        if (type == typeof(string))
-            return false;
-
-
-        return typeof(IEnumerable<AuditEvent>).IsAssignableFrom(type);
+        return type != typeof(string) && typeof(IEnumerable<AuditEvent>).IsAssignableFrom(type);
     }
 
     public override async Task WriteResponseBodyAsync(
@@ -47,7 +42,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
 
         if (context.Object is not IEnumerable<AuditEvent> events)
             throw new InvalidOperationException(
-                $"{nameof(AuditEventCsvFormatter)} expected {nameof(IEnumerable<AuditEvent>)}.");
+                $"{nameof(AuditEventCsvFormatter)} expected {nameof(IEnumerable<>)}.");
 
 
         if (context.HttpContext.Items.TryGetValue(CsvAttachmentFileNameItemKey, out object? nameObj)
@@ -62,10 +57,8 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         }
 
         Stream responseStream = context.HttpContext.Response.Body;
-        await using StreamWriter writer = new(responseStream, selectedEncoding, bufferSize: 16_384, leaveOpen: true)
-        {
-            NewLine = "\n",
-        };
+        await using StreamWriter writer = new(responseStream, selectedEncoding, bufferSize: 16_384, leaveOpen: true);
+        writer.NewLine = "\n";
 
         await writer.WriteLineAsync(HeaderLine);
 
@@ -106,11 +99,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
 
     private static string FormatNullableGuid(Guid? value)
     {
-        if (!value.HasValue)
-            return string.Empty;
-
-
-        return value.Value.ToString("D", CultureInfo.InvariantCulture);
+        return !value.HasValue ? string.Empty : value.Value.ToString("D", CultureInfo.InvariantCulture);
     }
 
     /// <summary>

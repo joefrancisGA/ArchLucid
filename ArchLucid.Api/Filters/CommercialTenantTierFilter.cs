@@ -16,7 +16,6 @@ public sealed class CommercialTenantTierFilter(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeContextProvider) : IAsyncActionFilter
 {
-    private readonly TenantTier _minimumTier = minimumTier;
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -24,7 +23,7 @@ public sealed class CommercialTenantTierFilter(
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context.HttpContext.User?.Identity?.IsAuthenticated is not true)
+        if (context.HttpContext.User.Identity?.IsAuthenticated is not true)
         {
             await next();
 
@@ -57,12 +56,12 @@ public sealed class CommercialTenantTierFilter(
             return;
         }
 
-        if ((int)tenant.Tier < (int)_minimumTier)
+        if ((int)tenant.Tier < (int)minimumTier)
         {
             context.Result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
                 context.HttpContext,
                 tenant.Tier,
-                _minimumTier,
+                minimumTier,
                 context.HttpContext.Request.Path.Value);
 
             return;

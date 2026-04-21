@@ -4,12 +4,12 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Contracts.ValueReports;
 
 using Asp.Versioning;
 
@@ -81,7 +81,11 @@ public sealed class ValueReportController(
             string location = $"{Request.PathBase}/v1.0/value-report/jobs/{jobId:D}/docx";
             Response.Headers.Location = location;
 
-            return Accepted(new { jobId, status = "pending" });
+            return Accepted(new
+            {
+                jobId,
+                status = "pending"
+            });
         }
 
         ValueReportSnapshot snapshot = await _valueReportBuilder.BuildAsync(
@@ -131,7 +135,7 @@ public sealed class ValueReportController(
         if (!r.Found)
             return this.NotFoundProblem("Value report job was not found.", ProblemTypes.ResourceNotFound);
 
-        if (r.Completed && r.DocxBytes is not null)
+        if (r is { Completed: true, DocxBytes: not null })
         {
             return File(
                 r.DocxBytes,

@@ -14,9 +14,6 @@ public sealed class TrialLimitExceededAuditFilter : IAsyncExceptionFilter
     /// <inheritdoc />
     public Task OnExceptionAsync(ExceptionContext context)
     {
-        if (context.Exception is not TrialLimitExceededException ex)
-            return Task.CompletedTask;
-
-        return TrialLimitProblemResponse.TryLogAuditAsync(context.HttpContext, ex, context.HttpContext.RequestAborted);
+        return context.Exception is not TrialLimitExceededException ex ? Task.CompletedTask : TrialLimitProblemResponse.TryLogAuditAsync(context.HttpContext, ex, context.HttpContext.RequestAborted);
     }
 }
