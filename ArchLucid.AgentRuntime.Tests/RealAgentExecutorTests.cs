@@ -141,12 +141,10 @@ public sealed class RealAgentExecutorTests
     {
         List<Activity> completed = [];
 
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == ArchLucidInstrumentation.AgentHandler.Name,
-            Sample = (ref _) => ActivitySamplingResult.AllData,
-            ActivityStopped = completed.Add,
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == ArchLucidInstrumentation.AgentHandler.Name;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllData;
+        listener.ActivityStopped = completed.Add;
 
         ActivitySource.AddActivityListener(listener);
 

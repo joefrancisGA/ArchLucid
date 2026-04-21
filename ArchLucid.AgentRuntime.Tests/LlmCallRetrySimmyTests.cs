@@ -25,12 +25,12 @@ public sealed class LlmCallRetrySimmyTests
 
         ChaosFaultStrategyOptions chaosOptions = new()
         {
-            InjectionRate = 1.0
+            InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2),
+            FaultGenerator = static _ =>
+                new ValueTask<Exception?>(
+                    new HttpRequestException("429", null, HttpStatusCode.TooManyRequests))
         };
-        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
-        chaosOptions.FaultGenerator = static _ =>
-            new ValueTask<Exception?>(
-                new HttpRequestException("429", null, HttpStatusCode.TooManyRequests));
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
             .AddRetry(

@@ -219,20 +219,16 @@ public sealed class CachingRunExplanationSummaryServiceTests
             ArgumentNullException.ThrowIfNull(factory);
 
             if (_store.TryGetValue(key, out object? boxed) && boxed is T typed)
-            {
                 return Task.FromResult<T?>(typed);
-            }
 
-            if (legacyCacheKey is not null
-                && _store.TryGetValue(legacyCacheKey, out object? leg) && leg is T legTyped)
-            {
-                _store[key] = legTyped;
-                _store.Remove(legacyCacheKey);
+            if (legacyCacheKey is null
+                || !_store.TryGetValue(legacyCacheKey, out object? leg) ||
+                leg is not T legTyped)
+                return MaterializeAsync(key, factory, ct);
+            _store[key] = legTyped;
+            _store.Remove(legacyCacheKey);
 
-                return Task.FromResult<T?>(legTyped);
-            }
-
-            return MaterializeAsync(key, factory, ct);
+            return Task.FromResult<T?>(legTyped);
         }
 
         public Task RemoveAsync(string key, CancellationToken ct)

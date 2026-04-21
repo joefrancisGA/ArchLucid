@@ -8,12 +8,12 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 public sealed class AgentOutputEvaluatorTests
 {
-    private readonly AgentOutputEvaluator sut = new();
+    private readonly AgentOutputEvaluator _sut = new();
 
     [Fact]
     public void Evaluate_When_json_invalid_sets_parse_failure_and_zero_ratio()
     {
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", "{not-json", AgentType.Topology);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", "{not-json", AgentType.Topology);
 
         score.IsJsonParseFailure.Should().BeTrue();
         score.StructuralCompletenessRatio.Should().Be(0.0);
@@ -23,7 +23,7 @@ public sealed class AgentOutputEvaluatorTests
     [Fact]
     public void Evaluate_When_root_is_array_sets_parse_failure()
     {
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", "[1,2]", AgentType.Cost);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", "[1,2]", AgentType.Cost);
 
         score.IsJsonParseFailure.Should().BeTrue();
     }
@@ -36,7 +36,7 @@ public sealed class AgentOutputEvaluatorTests
             {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.5,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
             """;
 
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", json, AgentType.Topology);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", json, AgentType.Topology);
 
         score.IsJsonParseFailure.Should().BeFalse();
         score.StructuralCompletenessRatio.Should().Be(1.0);
@@ -46,7 +46,7 @@ public sealed class AgentOutputEvaluatorTests
     [Fact]
     public void Evaluate_When_empty_object_counts_all_keys_missing_without_parse_failure()
     {
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", "{}", AgentType.Compliance);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", "{}", AgentType.Compliance);
 
         score.IsJsonParseFailure.Should().BeFalse();
         score.StructuralCompletenessRatio.Should().Be(0.0);
@@ -58,7 +58,7 @@ public sealed class AgentOutputEvaluatorTests
     {
         const string json = """{"claims":[],"evidenceRefs":[],"confidence":0.3,"findings":[],"proposedChanges":null}""";
 
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", json, AgentType.Critic);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", json, AgentType.Critic);
 
         score.IsJsonParseFailure.Should().BeFalse();
         score.StructuralCompletenessRatio.Should().BeApproximately(5.0 / 10.0, 0.0001);
@@ -68,7 +68,7 @@ public sealed class AgentOutputEvaluatorTests
     [Fact]
     public void Evaluate_When_parsed_json_null_scores_zero_without_parse_failure_flag()
     {
-        AgentOutputEvaluationScore score = sut.Evaluate("t1", null, AgentType.Topology);
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", null, AgentType.Topology);
 
         score.IsJsonParseFailure.Should().BeFalse();
         score.StructuralCompletenessRatio.Should().Be(0.0);

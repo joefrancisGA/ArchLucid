@@ -10,6 +10,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -161,7 +163,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         semantic[0].Value.Should().BeGreaterThan(0.0);
     }
 
-    private readonly record struct DoubleMeasurementRecord(string Name, double Value, IReadOnlyList<KeyValuePair<string, object?>> Tags);
+    private readonly record struct DoubleMeasurementRecord(string Name, double Value, [UsedImplicitly] IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
     private sealed class EvaluationHistogramCapture : IDisposable
     {

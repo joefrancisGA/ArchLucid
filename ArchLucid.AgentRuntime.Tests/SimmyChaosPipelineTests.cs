@@ -27,7 +27,7 @@ public sealed class SimmyChaosPipelineTests
             .Build();
 
         Func<Task> act = async () =>
-            await pipeline.ExecuteAsync(static async ct => await Task.FromResult("ok"), CancellationToken.None);
+            await pipeline.ExecuteAsync(static async _ => await Task.FromResult("ok"), CancellationToken.None);
 
         await act.Should().ThrowAsync<TimeoutRejectedException>();
     }
@@ -41,10 +41,9 @@ public sealed class SimmyChaosPipelineTests
         ChaosFaultStrategyOptions chaosOptions = new()
         {
             InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2),
+            FaultGenerator = static _ => new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613))
         };
-
-        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
-        chaosOptions.FaultGenerator = static _ => new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613));
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
             .AddRetry(

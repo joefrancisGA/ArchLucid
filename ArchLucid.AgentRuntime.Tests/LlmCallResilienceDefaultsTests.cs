@@ -74,12 +74,7 @@ public sealed class LlmCallResilienceDefaultsTests
             {
                 int n = Interlocked.Increment(ref calls);
 
-                if (n == 1)
-                {
-                    throw CreateClientResultException(429);
-                }
-
-                return ValueTask.CompletedTask;
+                return n == 1 ? throw CreateClientResultException(429) : ValueTask.CompletedTask;
             },
             CancellationToken.None);
 
@@ -138,7 +133,7 @@ public sealed class LlmCallResilienceDefaultsTests
             baseDelay: TimeSpan.FromMilliseconds(1));
 
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         int calls = 0;
 
@@ -196,6 +191,6 @@ public sealed class LlmCallResilienceDefaultsTests
         Mock<PipelineResponse> response = new();
         response.SetupGet(r => r.Status).Returns(status);
 
-        return new ClientResultException("test", response.Object, null);
+        return new ClientResultException("test", response.Object);
     }
 }
