@@ -40,6 +40,36 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\templates\policy-packs\financial-services\compliance-rules.json" Link="Templates\PolicyPacks\financial-services\compliance-rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\financial-services\policy-pack.json" Link="Templates\PolicyPacks\financial-services\policy-pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\healthcare\compliance-rules.json" Link="Templates\PolicyPacks\healthcare\compliance-rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\healthcare\policy-pack.json" Link="Templates\PolicyPacks\healthcare\policy-pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\retail\compliance-rules.json" Link="Templates\PolicyPacks\retail\compliance-rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\retail\policy-pack.json" Link="Templates\PolicyPacks\retail\policy-pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\saas\compliance-rules.json" Link="Templates\PolicyPacks\saas\compliance-rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\saas\policy-pack.json" Link="Templates\PolicyPacks\saas\policy-pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\public-sector\compliance-rules.json" Link="Templates\PolicyPacks\public-sector\compliance-rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\templates\policy-packs\public-sector\policy-pack.json" Link="Templates\PolicyPacks\public-sector\policy-pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

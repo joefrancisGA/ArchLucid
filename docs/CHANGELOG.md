@@ -4,6 +4,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Vertical starter briefs + policy packs (Prompt 11)
+
+**Templates / accelerators:** Five paired vertical starters under **`templates/briefs/{vertical}/brief.md`** and **`templates/policy-packs/{vertical}/`** (compliance JSON + `policy-pack.json`) for **financial-services**, **healthcare**, **retail**, **saas**, **public-sector**; index table in **`templates/README.md`**. **Operator UI:** new-run wizard step **Start from a vertical template** (`vertical-wizard-presets.ts`, `WizardStepPreset.tsx`); policy packs page **Import a vertical policy pack** loads static **`/vertical-templates/{slug}/policy-pack.json`**. **Tests:** **`VerticalStarterPolicyPackLoadingTests`** copies template JSON into **`ArchLucid.Decisioning.Tests`** output and asserts **`ComplianceRulePackGovernanceFilter`** returns a non-empty rule list. **Owner gates** in **`docs/PENDING_QUESTIONS.md`** items **17–18** (EU vs US public-sector; paid-tier vs Core Pilot).
+
+---
+
 ## 2026-04-21 — Weekly executive digest email (Prompt 10)
 
 **Sponsor loop automation:** Per-tenant **`dbo.TenantExecDigestPreferences`** (migration **103**) stores schedule (**IANA timezone**, **day-of-week**, **hour**), **recipient mailboxes**, and an **email enabled** flag. **`IExecDigestComposer`** / **`ExecDigestComposer`** assemble a UTC-window digest from existing services (**compliance drift** daily buckets, **committed manifests** in-window with **pilot delta** significance proxy, optional **findings delta** line) with graceful omission when data is missing. **`ExecDigestWeeklyDeliveryScanner`** + **`ExecDigestWeeklyHostedService`** (hourly leader-elected poll) and CLI job **`exec-digest-weekly`** send through **`IExecDigestEmailDispatcher`** using embedded Razor **`ExecDigest`** + **`SentEmails`** idempotency **`exec-digest:{tenant}:{iso-week}`**. **API:** **`GET/POST /v1/tenant/exec-digest-preferences`** (Read / Execute) and anonymous **`GET /v1/notifications/exec-digest/unsubscribe?token=…`** (**`IDataProtection`**, disables email). **UI:** **`/settings/exec-digest`**. Static mirrors: **`templates/email/exec-digest.html`** / **`.txt`**. Tests: composer unit test, unsubscribe token round-trip, **`ExecDigestWeeklyArchLucidJob`** smoke.

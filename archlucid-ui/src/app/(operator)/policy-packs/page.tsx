@@ -46,6 +46,7 @@ import {
   policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
+import { showSuccess } from "@/lib/toast";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -68,6 +69,14 @@ const DEFAULT_CONTENT = `{
   "advisoryDefaults": {},
   "metadata": {}
 }`;
+
+const VERTICAL_POLICY_PACK_IMPORTS: ReadonlyArray<{ slug: string; label: string }> = [
+  { slug: "financial-services", label: "Financial services" },
+  { slug: "healthcare", label: "Healthcare" },
+  { slug: "retail", label: "Retail / PCI" },
+  { slug: "saas", label: "SaaS / SOC 2" },
+  { slug: "public-sector", label: "Public sector (EU)" },
+];
 
 export default function PolicyPacksPage() {
   const canMutatePacks = useEnterpriseMutationCapability();
@@ -94,6 +103,7 @@ export default function PolicyPacksPage() {
   const [compareLeftId, setCompareLeftId] = useState("");
   const [compareRightId, setCompareRightId] = useState("");
   const [showVersionDiff, setShowVersionDiff] = useState(false);
+  const [verticalImportSlug, setVerticalImportSlug] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -166,6 +176,46 @@ export default function PolicyPacksPage() {
       }
     })();
   }, [selectedPackId]);
+
+  async function importVerticalPolicyPack(slug: string, label: string) {
+    setFailure(null);
+    setVerticalImportSlug(slug);
+    try {
+      const response: Response = await fetch(`/vertical-templates/${slug}/policy-pack.json`);
+
+      if (!response.ok) {
+        setFailure(uiFailureFromMessage(`${label}: could not load template (HTTP ${response.status}).`));
+        return;
+      }
+
+      const bodyText: string = await response.text();
+      let parsed: unknown;
+
+      try {
+        parsed = JSON.parse(bodyText);
+      } catch {
+        setFailure(uiFailureFromMessage(`${label}: template JSON is invalid.`));
+        return;
+      }
+
+      const doc = parsed as PolicyPackContentDocument;
+
+      if (!Array.isArray(doc.complianceRuleKeys) || doc.complianceRuleKeys.length === 0) {
+        setFailure(uiFailureFromMessage(`${label}: template is missing complianceRuleKeys.`));
+        return;
+      }
+
+      setCreateJson(JSON.stringify(parsed, null, 2));
+      const verticalKey: string = doc.metadata?.vertical ?? slug;
+      setName(`${label} (${verticalKey})`);
+      setDescription(`Imported vertical starter policy pack (${slug}). Review JSON before publishing.`);
+      showSuccess(`${label} template loaded into the create form.`);
+    } catch (e: unknown) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setVerticalImportSlug(null);
+    }
+  }
 
   async function onCreate() {
     if (!canMutatePacks) {
@@ -460,6 +510,34 @@ export default function PolicyPacksPage() {
           </p>
         )}
         <div className={cn(!canMutatePacks && "opacity-90")}>
+          <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-vertical-import-heading">
+            <h4 id="policy-packs-vertical-import-heading" style={{ marginTop: 0, marginBottom: 8 }}>
+              Import a vertical policy pack
+            </h4>
+            <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Loads the starter <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">policy-pack.json</code>{" "}
+              shipped under{" "}
+              <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">archlucid-ui/public/vertical-templates/</code>{" "}
+              (mirrors <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">templates/policy-packs/</code> in
+              the repo). Fills the create form below — adjust name and JSON, then create and publish.
+            </p>
+            <div className="mb-2 flex flex-wrap gap-2">
+              {VERTICAL_POLICY_PACK_IMPORTS.map((row) => (
+                <Button
+                  key={row.slug}
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  disabled={verticalImportSlug !== null || !canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  onClick={() => void importVerticalPolicyPack(row.slug, row.label)}
+                >
+                  {verticalImportSlug === row.slug ? "Loading…" : row.label}
+                </Button>
+              ))}
+            </div>
+          </section>
+
           <section style={{ marginBottom: 32 }}>
             <h4 style={{ marginTop: 0, marginBottom: 8 }}>Create pack</h4>
             <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>

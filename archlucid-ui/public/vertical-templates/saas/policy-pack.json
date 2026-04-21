@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "saas-ctrl-001",
+    "saas-ctrl-002",
+    "saas-ctrl-003",
+    "saas-ctrl-004",
+    "saas-ctrl-005",
+    "saas-ctrl-006",
+    "saas-ctrl-007",
+    "saas-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "saas",
+    "regulatoryAnchor": "SOC 2 CC6/CC7 logical access and change management"
+  }
+}
