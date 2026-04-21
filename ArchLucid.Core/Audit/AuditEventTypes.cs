@@ -141,6 +141,12 @@ public static class AuditEventTypes
 
     public const string CircuitBreakerProbeOutcome = "CircuitBreakerProbeOutcome";
 
+    /// <summary>
+    /// Trust center: a third-party or owner-approved security assessment summary was published for procurement / customer review
+    /// (payload: assessment code, summary reference, optional assessor display name).
+    /// </summary>
+    public const string SecurityAssessmentPublished = "SecurityAssessmentPublished";
+
     /// <summary>SaaS tenant registry: new tenant + default workspace identifiers created (or idempotent replay).</summary>
     public const string TenantProvisioned = "TenantProvisioned";
 
@@ -164,6 +170,9 @@ public static class AuditEventTypes
 
     /// <summary>Signup or trial bootstrap failed after <see cref="TrialSignupAttempted"/> (payload includes stage/reason).</summary>
     public const string TrialSignupFailed = "TrialSignupFailed";
+
+    /// <summary>Prospect supplied optional review-cycle baseline hours at trial signup (persisted on <c>dbo.Tenants</c>).</summary>
+    public const string TrialBaselineReviewCycleCaptured = "TrialBaselineReviewCycleCaptured";
 
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";

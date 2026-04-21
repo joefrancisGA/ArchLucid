@@ -9685,6 +9685,23 @@
         },
         "type": "object"
       },
+      "SecurityAssessmentPublicationRequest": {
+        "properties": {
+          "assessmentCode": {
+            "type": "string"
+          },
+          "assessorDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "summaryReference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityDelta": {
         "properties": {
           "baseStatus": {
@@ -10125,6 +10142,28 @@
       },
       "TenantRecord": {
         "properties": {
+          "baselineReviewCycleCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baselineReviewCycleHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -10235,6 +10274,21 @@
             "maxLength": 320,
             "type": "string"
           },
+          "baselineReviewCycleHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "organizationName": {
             "maxLength": 200,
             "type": "string"
@@ -10262,6 +10316,28 @@
       },
       "TenantTrialStatusResponse": {
         "properties": {
+          "baselineReviewCycleCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baselineReviewCycleHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "daysRemaining": {
             "format": "int32",
             "type": [
@@ -11414,6 +11490,58 @@
         },
         "tags": [
           "Admin"
+        ]
+      }
+    },
+    "/v1/admin/security-trust/publications": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/SecurityAssessmentPublicationRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecurityAssessmentPublicationRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecurityAssessmentPublicationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "SecurityTrustPublication"
         ]
       }
     },
@@ -30561,6 +30689,9 @@
     },
     {
       "name": "ScopeDebug"
+    },
+    {
+      "name": "SecurityTrustPublication"
     },
     {
       "name": "TenantCustomerSuccess"

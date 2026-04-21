@@ -108,12 +108,66 @@ WHERE TenantId = @TenantId
         long drift = await connection.QuerySingleAsync<long>(
             new CommandDefinition(driftSql, parameters, cancellationToken: cancellationToken));
 
+        const string tenantBaselineSql = """
+SELECT BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
+FROM dbo.Tenants
+WHERE Id = @TenantId;
+""";
+
+        TenantBaselineRow? tenantBaseline = await connection.QuerySingleOrDefaultAsync<TenantBaselineRow>(
+            new CommandDefinition(
+                tenantBaselineSql,
+                new { TenantId = tenantId },
+                cancellationToken: cancellationToken));
+
+        const string reviewCycleSql = """
+SELECT
+    AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
+    COUNT_BIG(*) AS Cnt
+FROM dbo.GoldenManifests m
+INNER JOIN dbo.Runs r ON m.RunId = r.RunId
+WHERE m.TenantId = @TenantId
+  AND m.WorkspaceId = @WorkspaceId
+  AND m.ProjectId = @ProjectId
+  AND m.CreatedUtc >= @FromUtc
+  AND m.CreatedUtc < @ToUtc
+  AND (m.ArchivedUtc IS NULL)
+  AND (r.ArchivedUtc IS NULL);
+""";
+
+        ReviewCycleMeasureRow measure = await connection.QuerySingleAsync<ReviewCycleMeasureRow>(
+            new CommandDefinition(reviewCycleSql, parameters, cancellationToken: cancellationToken));
+
+        decimal? measuredAvg = measure.Cnt == 0 ? null : measure.AvgHours;
+        int sampleSize = measure.Cnt > int.MaxValue ? int.MaxValue : (int)measure.Cnt;
+
         return new ValueReportRawMetrics(
             statusCounts,
             (int)Math.Min(int.MaxValue, runsCompleted),
             (int)Math.Min(int.MaxValue, manifests),
             (int)Math.Min(int.MaxValue, governance),
-            (int)Math.Min(int.MaxValue, drift));
+            (int)Math.Min(int.MaxValue, drift),
+            tenantBaseline?.BaselineReviewCycleHours,
+            tenantBaseline?.BaselineReviewCycleSource,
+            tenantBaseline?.BaselineReviewCycleCapturedUtc,
+            measuredAvg,
+            sampleSize);
+    }
+
+    private sealed class TenantBaselineRow
+    {
+        public decimal? BaselineReviewCycleHours { get; init; }
+
+        public string? BaselineReviewCycleSource { get; init; }
+
+        public DateTimeOffset? BaselineReviewCycleCapturedUtc { get; init; }
+    }
+
+    private sealed class ReviewCycleMeasureRow
+    {
+        public decimal? AvgHours { get; init; }
+
+        public long Cnt { get; init; }
     }
 
     private sealed class RunStatusSqlRow

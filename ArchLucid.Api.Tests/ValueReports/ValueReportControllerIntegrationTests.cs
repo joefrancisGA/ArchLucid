@@ -162,7 +162,12 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
                 RunsCompletedCount: 1,
                 ManifestsCommittedCount: 1,
                 GovernanceEventCount: 1,
-                DriftAlertEventCount: 1);
+                DriftAlertEventCount: 1,
+                TenantBaselineReviewCycleHours: null,
+                TenantBaselineReviewCycleSource: null,
+                TenantBaselineReviewCycleCapturedUtc: null,
+                MeasuredAverageReviewCycleHoursForWindow: null,
+                MeasuredReviewCycleSampleSize: 0);
 
             return Task.FromResult(raw);
         }

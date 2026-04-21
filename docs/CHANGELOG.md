@@ -4,6 +4,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Trial signup captures baseline review-cycle time; value-report DOCX renders before/after delta
+
+**Pilot ROI — instrumented baseline:** Optional `baselineReviewCycleHours` / `baselineReviewCycleSource` on **`POST /v1/register`** validate and persist on **`dbo.Tenants`** (migration **101**). **`GET /v1/tenant/trial-status`** echoes the captured trio. Tenant **value-report DOCX** (`DocxValueReportRenderer`) and **first-value Markdown** (`FirstValueReportBuilder`) render a shared **Review-cycle delta (before vs measured)** section from `ValueReportReviewCycleSectionFormatter`, using measured run→manifest window averages from SQL and falling back to **`ValueReportComputationOptions.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest`** when the prospect skipped the question — with explicit provenance labels. Audit: **`TrialBaselineReviewCycleCaptured`**. Docs: **`PILOT_ROI_MODEL.md`** §3.1 note, **`PILOT_GUIDE.md`** curl example.
+
+---
+
 ## 2026-04-21 — ADR 0021 Phase 3 blocked (exit gates)
 
 **Architectural integrity — strangler Phase 3 not executed:** [ADR 0022](adr/0022-coordinator-phase3-deferred.md) records **failed** ADR 0021 § Phase 3 exit gates: **(iv)** `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` still has `*(TBD)*` rows only (no 14-day zero-write window); **Phase 2 catalog** — no `AuditEventTypes.Run` nested class in `AuditEventTypes.cs`. Mechanical verification: [`artifacts/phase3/gate-verification.md`](../artifacts/phase3/gate-verification.md). **No** coordinator concrete/interface deletion, **no** `IRunCommitOrchestrator` façade — fail-closed per strangler governance. **Follow-up:** unblock PR A after parity + Phase 2 evidence; **PR B** (audit constants + interface deletion) remains **≥ 2026-07-21** (30-day gate (i) after PR A + **Sunset 2026-07-20**).

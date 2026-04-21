@@ -39,7 +39,7 @@ public sealed class TrialTenantBootstrapServiceTests
             WasAlreadyProvisioned = true,
         };
 
-        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "a@b.com", CancellationToken.None);
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "a@b.com", null, CancellationToken.None);
 
         demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
         repo.Verify(
@@ -50,6 +50,9 @@ public sealed class TrialTenantBootstrapServiceTests
                 It.IsAny<int>(),
                 It.IsAny<int>(),
                 It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -69,6 +72,9 @@ public sealed class TrialTenantBootstrapServiceTests
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<Guid>(),
+                    It.IsAny<decimal?>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<DateTimeOffset?>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -99,7 +105,7 @@ public sealed class TrialTenantBootstrapServiceTests
             WasAlreadyProvisioned = false,
         };
 
-        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", CancellationToken.None);
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, CancellationToken.None);
 
         demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Once);
         repo.Verify(
@@ -110,6 +116,9 @@ public sealed class TrialTenantBootstrapServiceTests
                 10,
                 3,
                 ContosoRetailDemoIds.ForTenant(tenantId).AuthorityRunBaselineId,
+                null,
+                null,
+                null,
                 It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
@@ -143,7 +152,7 @@ public sealed class TrialTenantBootstrapServiceTests
             WasAlreadyProvisioned = false,
         };
 
-        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", CancellationToken.None);
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", null, CancellationToken.None);
 
         demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
         audit.Verify(

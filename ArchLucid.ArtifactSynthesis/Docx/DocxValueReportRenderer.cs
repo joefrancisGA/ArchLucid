@@ -70,6 +70,9 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
                     $"From drift/alert events: {snapshot.EstimatedArchitectHoursSavedFromDriftEvents:0.##} architect-hours"));
             body.AppendChild(Paragraph($"Total (composite): {snapshot.EstimatedTotalArchitectHoursSaved:0.##} architect-hours"));
 
+            foreach (ValueReportReviewCycleParagraph p in ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot))
+                body.AppendChild(Paragraph(p.Text, bold: p.Bold, italic: p.Italic, fontSizeHalfPoints: p.FontSizeHalfPoints));
+
             body.AppendChild(Paragraph("LLM cost (estimated)", bold: true, fontSizeHalfPoints: 28));
             body.AppendChild(Paragraph($"Window USD (completed runs × model rate): {snapshot.EstimatedLlmCostForWindowUsd:0.##}"));
             body.AppendChild(Paragraph(snapshot.EstimatedLlmCostMethodologyNote));

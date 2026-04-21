@@ -1,13 +1,18 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -24,7 +29,7 @@ public sealed class FirstValueReportPdfBuilderTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
-        FirstValueReportBuilder markdown = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
 
         byte[]? pdf = await sut.BuildPdfAsync("missing", "http://localhost:5000");
@@ -52,7 +57,7 @@ public sealed class FirstValueReportPdfBuilderTests
                 LlmCallCount = 0,
             });
 
-        FirstValueReportBuilder markdown = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
 
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-md-1", "http://localhost:5000");
@@ -71,12 +76,53 @@ public sealed class FirstValueReportPdfBuilderTests
     {
         Mock<IRunDetailQueryService> query = new();
         Mock<IPilotRunDeltaComputer> deltas = new();
-        FirstValueReportBuilder markdown = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
         FirstValueReportPdfBuilder sut = new(markdown);
 
         Func<Task> act = () => sut.BuildPdfAsync(string.Empty, "http://localhost:5000");
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    private static FirstValueReportBuilder CreateMarkdownBuilder(IRunDetailQueryService query, IPilotRunDeltaComputer deltas)
+    {
+        Mock<IValueReportMetricsReader> metrics = new();
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ValueReportRawMetrics(
+                    [],
+                    0,
+                    0,
+                    0,
+                    0,
+                    null,
+                    null,
+                    null,
+                    null,
+                    0));
+
+        Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
+        opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
+
+        ValueReportBuilder valueReport = new(metrics.Object, opt.Object);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        return new FirstValueReportBuilder(query, deltas, valueReport, scope.Object, NullLogger<FirstValueReportBuilder>.Instance);
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()

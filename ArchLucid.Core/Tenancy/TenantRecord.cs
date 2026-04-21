@@ -85,4 +85,22 @@ public sealed class TenantRecord
     {
         get; init;
     }
+
+    /// <summary>Optional: prospect median hours from architecture request to reviewable package (trial signup).</summary>
+    public decimal? BaselineReviewCycleHours
+    {
+        get; init;
+    }
+
+    /// <summary>Optional short provenance for <see cref="BaselineReviewCycleHours"/>.</summary>
+    public string? BaselineReviewCycleSource
+    {
+        get; init;
+    }
+
+    /// <summary>When <see cref="BaselineReviewCycleHours"/> was captured (signup time).</summary>
+    public DateTimeOffset? BaselineReviewCycleCapturedUtc
+    {
+        get; init;
+    }
 }

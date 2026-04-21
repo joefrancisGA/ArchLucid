@@ -37,6 +37,7 @@ public sealed class TrialTenantBootstrapService(
     public async Task TryBootstrapAfterSelfRegistrationAsync(
         TenantProvisioningResult result,
         string auditActorEmail,
+        TrialSignupBaselineReviewCycleCapture? baselineReviewCycle,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -101,6 +102,9 @@ public sealed class TrialTenantBootstrapService(
                     runsLimit: 10,
                     seatsLimit: 3,
                     demoIds.AuthorityRunBaselineId,
+                    baselineReviewCycle is null ? null : baselineReviewCycle.Hours,
+                    baselineReviewCycle?.SourceNote,
+                    baselineReviewCycle?.CapturedUtc,
                     cancellationToken);
 
                 string actor = auditActorEmail.Trim();

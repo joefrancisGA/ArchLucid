@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -7,10 +8,14 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -27,7 +32,7 @@ public sealed class FirstValueReportBuilderTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
-        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
 
         string? md = await sut.BuildMarkdownAsync("abc", "http://localhost:5000");
 
@@ -70,12 +75,13 @@ public sealed class FirstValueReportBuilderTests
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
-        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
 
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
         md!.Should().Contain("Computed deltas (from this run)");
+        md.Should().Contain("Review-cycle delta (before vs measured)");
         md.Should().Contain("v2");
         md.Should().Contain("SysA");
         md.Should().Contain("| Warning | 2 |");
@@ -110,7 +116,7 @@ public sealed class FirstValueReportBuilderTests
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
 
-        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
 
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
@@ -163,5 +169,46 @@ public sealed class FirstValueReportBuilderTests
             Manifest = manifest,
             DecisionTraces = [],
         };
+    }
+
+    private static FirstValueReportBuilder CreateSut(IRunDetailQueryService query, IPilotRunDeltaComputer deltas)
+    {
+        Mock<IValueReportMetricsReader> metrics = new();
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ValueReportRawMetrics(
+                    [],
+                    0,
+                    0,
+                    0,
+                    0,
+                    null,
+                    null,
+                    null,
+                    null,
+                    0));
+
+        Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
+        opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
+
+        ValueReportBuilder valueReport = new(metrics.Object, opt.Object);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        return new FirstValueReportBuilder(query, deltas, valueReport, scope.Object, NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

@@ -22,7 +22,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE Id = @Id;
                              """;
@@ -46,7 +47,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE Slug = @Slug;
                              """;
@@ -68,7 +70,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE EntraTenantId = @EntraTenantId;
                              """;
@@ -90,7 +93,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              ORDER BY CreatedUtc DESC;
                              """;
@@ -108,6 +112,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         int runsLimit,
         int seatsLimit,
         Guid sampleRunId,
+        decimal? baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset? baselineReviewCycleCapturedUtc,
         CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
@@ -121,7 +128,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                  TrialSeatsLimit = @TrialSeatsLimit,
                                  TrialSeatsUsed = 1,
                                  TrialStatus = @TrialStatus,
-                                 TrialSampleRunId = @TrialSampleRunId
+                                 TrialSampleRunId = @TrialSampleRunId,
+                                 BaselineReviewCycleHours = @BaselineReviewCycleHours,
+                                 BaselineReviewCycleSource = @BaselineReviewCycleSource,
+                                 BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc
                              WHERE Id = @Id;
                              """;
 
@@ -137,6 +147,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     TrialSeatsLimit = seatsLimit,
                     TrialStatus = TrialLifecycleStatus.Active,
                     TrialSampleRunId = sampleRunId,
+                    BaselineReviewCycleHours = baselineReviewCycleHours,
+                    BaselineReviewCycleSource = baselineReviewCycleSource,
+                    BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
                 },
                 cancellationToken: ct));
     }
@@ -866,6 +879,21 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             get; init;
         }
 
+        public decimal? BaselineReviewCycleHours
+        {
+            get; init;
+        }
+
+        public string? BaselineReviewCycleSource
+        {
+            get; init;
+        }
+
+        public DateTimeOffset? BaselineReviewCycleCapturedUtc
+        {
+            get; init;
+        }
+
         internal TenantRecord ToRecord() =>
             new()
             {
@@ -886,6 +914,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 TrialSampleRunId = TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = TrialArchitecturePreseedEnqueuedUtc,
                 TrialWelcomeRunId = TrialWelcomeRunId,
+                BaselineReviewCycleHours = BaselineReviewCycleHours,
+                BaselineReviewCycleSource = BaselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = BaselineReviewCycleCapturedUtc,
             };
     }
 }

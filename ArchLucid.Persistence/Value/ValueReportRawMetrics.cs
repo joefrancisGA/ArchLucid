@@ -7,4 +7,9 @@ public sealed record ValueReportRawMetrics(
     int RunsCompletedCount,
     int ManifestsCommittedCount,
     int GovernanceEventCount,
-    int DriftAlertEventCount);
+    int DriftAlertEventCount,
+    decimal? TenantBaselineReviewCycleHours,
+    string? TenantBaselineReviewCycleSource,
+    DateTimeOffset? TenantBaselineReviewCycleCapturedUtc,
+    decimal? MeasuredAverageReviewCycleHoursForWindow,
+    int MeasuredReviewCycleSampleSize);

@@ -65,6 +65,9 @@ public sealed class TenantTrialController(
                     TrialRunsUsed = tenant.TrialRunsUsed,
                     TrialSeatsUsed = tenant.TrialSeatsUsed,
                     TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+                    BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
+                    BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+                    BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
                 });
 
 
@@ -101,6 +104,9 @@ public sealed class TenantTrialController(
                 TrialSeatsLimit = tenant.TrialSeatsLimit,
                 TrialSampleRunId = tenant.TrialSampleRunId,
                 TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+                BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
+                BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
             });
     }
 

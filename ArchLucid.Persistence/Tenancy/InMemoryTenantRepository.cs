@@ -92,6 +92,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = null,
             TrialArchitecturePreseedEnqueuedUtc = null,
             TrialWelcomeRunId = null,
+            BaselineReviewCycleHours = null,
+            BaselineReviewCycleSource = null,
+            BaselineReviewCycleCapturedUtc = null,
         };
 
         if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
@@ -133,6 +136,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = null,
             TrialArchitecturePreseedEnqueuedUtc = null,
             TrialWelcomeRunId = null,
+            BaselineReviewCycleHours = null,
+            BaselineReviewCycleSource = null,
+            BaselineReviewCycleCapturedUtc = null,
         };
 
         if (!_byId.TryAdd(tenantId, record))
@@ -213,6 +219,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = existing.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
+            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
         };
 
         _byId[tenantId] = updated;
@@ -228,6 +237,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         int runsLimit,
         int seatsLimit,
         Guid sampleRunId,
+        decimal? baselineReviewCycleHours,
+        string? baselineReviewCycleSource,
+        DateTimeOffset? baselineReviewCycleCapturedUtc,
         CancellationToken ct)
     {
         _ = ct;
@@ -254,6 +266,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = sampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = null,
             TrialWelcomeRunId = null,
+            BaselineReviewCycleHours = baselineReviewCycleHours,
+            BaselineReviewCycleSource = baselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
         };
 
         _byId[tenantId] = updated;
@@ -293,6 +308,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = existing.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
+            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
         };
 
         _byId[tenantId] = updated;
@@ -580,6 +598,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialArchitecturePreseedEnqueuedUtc =
                 trialArchitecturePreseedEnqueuedUtc ?? source.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = trialWelcomeRunId ?? source.TrialWelcomeRunId,
+            BaselineReviewCycleHours = source.BaselineReviewCycleHours,
+            BaselineReviewCycleSource = source.BaselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,
         };
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
