@@ -1,3 +1,5 @@
+> **Scope:** Operators and GTM owners publishing the transactable Azure Marketplace SaaS offer; not webhook protocol deep-dive (see linked billing docs).
+
 # Azure Marketplace — publication checklist (operator)
 
 ## Objective

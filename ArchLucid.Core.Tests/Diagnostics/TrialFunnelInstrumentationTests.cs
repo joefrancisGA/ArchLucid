@@ -86,6 +86,23 @@ public sealed class TrialFunnelInstrumentationTests
     }
 
     [Fact]
+    public void SponsorBannerFirstCommitBadgeRenderedTotal_add_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.SponsorBannerFirstCommitBadgeRenderedTotal;
+
+        using TrialFunnelCapture c = TrialFunnelCapture.Start();
+
+        Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        ArchLucidInstrumentation.RecordSponsorBannerFirstCommitBadgeRendered(tenantId, "1-3");
+
+        c.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid.ui.sponsor_banner.first_commit_badge_rendered"
+            && m.Value == 1
+            && m.Tags.Any(t => t.Key == "tenant_id" && (string?)t.Value == tenantId.ToString("D"))
+            && m.Tags.Any(t => t.Key == "days_since_first_commit_bucket" && (string?)t.Value == "1-3"));
+    }
+
+    [Fact]
     public void BillingCheckoutsTotal_add_emits_measurement()
     {
         _ = ArchLucidInstrumentation.BillingCheckoutsTotal;
@@ -143,6 +160,7 @@ public sealed class TrialFunnelInstrumentationTests
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",
             "archlucid_billing_checkouts_total",
+            "archlucid.ui.sponsor_banner.first_commit_badge_rendered",
         ];
 
         private static readonly string[] DoubleNames =

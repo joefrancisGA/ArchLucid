@@ -3592,6 +3592,53 @@
         },
         "type": "object"
       },
+      "DemoCommitPagePreviewResponse": {
+        "properties": {
+          "artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/DemoPreviewArtifact"
+            },
+            "type": "array"
+          },
+          "authorityChain": {
+            "$ref": "#/components/schemas/DemoPreviewAuthorityChain"
+          },
+          "demoStatusMessage": {
+            "type": "string"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isDemoData": {
+            "type": "boolean"
+          },
+          "manifest": {
+            "$ref": "#/components/schemas/DemoPreviewManifestSummary"
+          },
+          "pipelineTimeline": {
+            "items": {
+              "$ref": "#/components/schemas/DemoPreviewTimelineItem"
+            },
+            "type": "array"
+          },
+          "run": {
+            "$ref": "#/components/schemas/DemoPreviewRun"
+          },
+          "runExplanation": {
+            "$ref": "#/components/schemas/RunExplanationSummary"
+          }
+        },
+        "required": [
+          "run",
+          "manifest",
+          "authorityChain",
+          "artifacts",
+          "pipelineTimeline",
+          "runExplanation"
+        ],
+        "type": "object"
+      },
       "DemoExplainResponse": {
         "properties": {
           "demoStatusMessage": {
@@ -3623,6 +3670,193 @@
         "required": [
           "runExplanation",
           "provenanceGraph"
+        ],
+        "type": "object"
+      },
+      "DemoPreviewArtifact": {
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "artifactType": {
+            "type": "string"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifactId",
+          "artifactType",
+          "name",
+          "format",
+          "createdUtc",
+          "contentHash"
+        ],
+        "type": "object"
+      },
+      "DemoPreviewAuthorityChain": {
+        "properties": {
+          "artifactBundleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "contextSnapshotId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingsSnapshotId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "goldenManifestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "graphSnapshotId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "DemoPreviewManifestSummary": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decisionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "hasUnresolvedIssues": {
+            "type": "boolean"
+          },
+          "hasWarnings": {
+            "type": "boolean"
+          },
+          "manifestHash": {
+            "type": "string"
+          },
+          "manifestId": {
+            "type": "string"
+          },
+          "operatorSummary": {
+            "type": "string"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unresolvedIssueCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "manifestId",
+          "runId",
+          "createdUtc",
+          "manifestHash",
+          "ruleSetId",
+          "ruleSetVersion",
+          "status",
+          "operatorSummary"
+        ],
+        "type": "object"
+      },
+      "DemoPreviewRun": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId",
+          "projectId",
+          "createdUtc"
+        ],
+        "type": "object"
+      },
+      "DemoPreviewTimelineItem": {
+        "properties": {
+          "actorUserName": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "occurredUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId",
+          "occurredUtc",
+          "eventType",
+          "actorUserName"
         ],
         "type": "object"
       },
@@ -9815,6 +10049,17 @@
         },
         "type": "object"
       },
+      "SponsorBannerFirstCommitBadgeRequest": {
+        "properties": {
+          "daysSinceFirstCommitBucket": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "StringSegment": {
         "properties": {
           "buffer": {
@@ -10209,6 +10454,13 @@
               "string"
             ]
           },
+          "trialFirstManifestCommittedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "trialRunsLimit": {
             "format": "int32",
             "type": [
@@ -10343,6 +10595,13 @@
             "type": [
               "null",
               "integer"
+            ]
+          },
+          "firstCommitUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
             ]
           },
           "status": {
@@ -23501,6 +23760,41 @@
         ]
       }
     },
+    "/v1/demo/preview": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoCommitPagePreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "304": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Not Modified"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DemoCommitPagePreview"
+        ]
+      }
+    },
     "/v1/demo/seed": {
       "post": {
         "responses": {
@@ -23589,6 +23883,78 @@
                   },
                   {
                     "$ref": "#/components/schemas/ClientErrorReport"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ClientErrorTelemetry"
+        ]
+      }
+    },
+    "/v1/diagnostics/sponsor-banner-first-commit-badge": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SponsorBannerFirstCommitBadgeRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SponsorBannerFirstCommitBadgeRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SponsorBannerFirstCommitBadgeRequest"
                   }
                 ]
               }
@@ -30605,6 +30971,9 @@
     },
     {
       "name": "Demo"
+    },
+    {
+      "name": "DemoCommitPagePreview"
     },
     {
       "name": "DemoExplain"

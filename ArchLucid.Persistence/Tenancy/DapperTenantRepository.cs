@@ -22,7 +22,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                     BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE Id = @Id;
@@ -47,7 +47,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                     BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE Slug = @Slug;
@@ -70,7 +70,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                     BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              WHERE EntraTenantId = @EntraTenantId;
@@ -93,7 +93,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
                                     TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
                                     TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId,
+                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                     BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
                              FROM dbo.Tenants
                              ORDER BY CreatedUtc DESC;
@@ -879,6 +879,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             get; init;
         }
 
+        public DateTimeOffset? TrialFirstManifestCommittedUtc
+        {
+            get; init;
+        }
+
         public decimal? BaselineReviewCycleHours
         {
             get; init;
@@ -914,6 +919,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 TrialSampleRunId = TrialSampleRunId,
                 TrialArchitecturePreseedEnqueuedUtc = TrialArchitecturePreseedEnqueuedUtc,
                 TrialWelcomeRunId = TrialWelcomeRunId,
+                TrialFirstManifestCommittedUtc = TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = BaselineReviewCycleHours,
                 BaselineReviewCycleSource = BaselineReviewCycleSource,
                 BaselineReviewCycleCapturedUtc = BaselineReviewCycleCapturedUtc,

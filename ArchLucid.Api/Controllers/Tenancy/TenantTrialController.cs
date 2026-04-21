@@ -58,13 +58,14 @@ public sealed class TenantTrialController(
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus))
-                return Ok(
+            return Ok(
                 new TenantTrialStatusResponse
                 {
                     Status = "None",
                     TrialRunsUsed = tenant.TrialRunsUsed,
                     TrialSeatsUsed = tenant.TrialSeatsUsed,
                     TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+                    FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
                     BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                     BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
                     BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
@@ -104,6 +105,7 @@ public sealed class TenantTrialController(
                 TrialSeatsLimit = tenant.TrialSeatsLimit,
                 TrialSampleRunId = tenant.TrialSampleRunId,
                 TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+                FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                 BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
                 BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,

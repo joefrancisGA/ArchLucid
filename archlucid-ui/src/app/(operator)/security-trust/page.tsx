@@ -103,7 +103,13 @@ export default function SecurityTrustPage() {
         ) : null}
       </section>
 
-      {loadError ? <OperatorApiProblem failure={loadError} /> : null}
+      {loadError ? (
+        <OperatorApiProblem
+          problem={loadError.problem}
+          fallbackMessage={loadError.message}
+          correlationId={loadError.correlationId}
+        />
+      ) : null}
 
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Repository trust center</h2>

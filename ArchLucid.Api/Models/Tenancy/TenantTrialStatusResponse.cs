@@ -51,6 +51,15 @@ public sealed class TenantTrialStatusResponse
         get; init;
     }
 
+    /// <summary>
+    /// UTC of the first committed golden manifest for this tenant, when known. Drives the operator UI sponsor banner
+    /// days-since-first-commit badge (<c>dbo.Tenants.TrialFirstManifestCommittedUtc</c>).
+    /// </summary>
+    public DateTimeOffset? FirstCommitUtc
+    {
+        get; init;
+    }
+
     /// <summary>Tenant-supplied median review-cycle hours at signup, when captured.</summary>
     public decimal? BaselineReviewCycleHours
     {

@@ -31,6 +31,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0021](0021-coordinator-pipeline-strangler-plan.md) | Coordinator pipeline strangler plan — phased retirement of the Coordinator interface family (**Status: Accepted**); Phase 3 code deletion merge-blocked until exit gates in ADR 0021 § Phase 3 |
 | [0022](0022-coordinator-phase3-deferred.md) | Phase 3 coordinator retirement **blocked** (2026-04-21) — failed gates: (iv) parity TBD; Phase 2 `AuditEventTypes.Run` catalog not found — see ADR |
 | [0024](0024-azure-devops-pipeline-task-parity-with-github-action.md) | Azure DevOps pipeline YAML parity with GitHub Actions — manifest delta job summary + sticky PR thread + PR status (**Status: Accepted**) |
+| [0027](0027-demo-preview-cached-anonymous-commit-page.md) | Cached anonymous marketing **`GET /v1/demo/preview`** + **`/demo/preview`** page (**Status: Accepted**) |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

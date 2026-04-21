@@ -1,3 +1,5 @@
+> **Scope:** Git server administrators installing server-side secret scanning; not client-side hook alternatives or ArchLucid application runtime security.
+
 # Gitleaks — server-side pre-receive hook
 
 **Goal:** Block pushes that introduce secrets into the canonical Git server **before** objects become reachable from default branches.

@@ -20,7 +20,8 @@ public sealed class MemoryHotPathReadCache(
         string key,
         Func<CancellationToken, Task<T?>> factory,
         CancellationToken ct,
-        string? legacyCacheKey = null)
+        string? legacyCacheKey = null,
+        int? absoluteExpirationSecondsOverride = null)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(factory);
@@ -32,18 +33,22 @@ public sealed class MemoryHotPathReadCache(
             && _memoryCache.TryGetValue(legacyCacheKey, out object? legacyBoxed)
             && legacyBoxed is T legacyTyped)
         {
-            PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped);
+            PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped, absoluteExpirationSecondsOverride);
 
             return Task.FromResult<T?>(legacyTyped);
         }
 
-        return MaterializeAsync(key, factory, ct);
+        return MaterializeAsync(key, factory, ct, absoluteExpirationSecondsOverride);
     }
 
-    private void PromoteLegacyToPrimary<T>(string key, string legacyCacheKey, T value)
+    private void PromoteLegacyToPrimary<T>(
+        string key,
+        string legacyCacheKey,
+        T value,
+        int? absoluteExpirationSecondsOverride)
         where T : class
     {
-        TimeSpan ttl = ResolveTtl();
+        TimeSpan ttl = ResolveTtl(absoluteExpirationSecondsOverride);
 
         using (ICacheEntry entry = _memoryCache.CreateEntry(key))
         {
@@ -57,7 +62,8 @@ public sealed class MemoryHotPathReadCache(
     private async Task<T?> MaterializeAsync<T>(
         string key,
         Func<CancellationToken, Task<T?>> factory,
-        CancellationToken ct)
+        CancellationToken ct,
+        int? absoluteExpirationSecondsOverride)
         where T : class
     {
         T? created = await factory(ct);
@@ -65,7 +71,7 @@ public sealed class MemoryHotPathReadCache(
         if (created is null)
             return null;
 
-        TimeSpan ttl = ResolveTtl();
+        TimeSpan ttl = ResolveTtl(absoluteExpirationSecondsOverride);
 
         using (ICacheEntry entry = _memoryCache.CreateEntry(key))
         {
@@ -76,9 +82,9 @@ public sealed class MemoryHotPathReadCache(
         return created;
     }
 
-    private TimeSpan ResolveTtl()
+    private TimeSpan ResolveTtl(int? absoluteExpirationSecondsOverride)
     {
-        int seconds = _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
+        int seconds = absoluteExpirationSecondsOverride ?? _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
 
         if (seconds < 1)
             seconds = 60;

@@ -193,7 +193,15 @@ public static class ArchLucidStorageServiceCollectionExtensions
                                        ?? new HotPathCacheOptions();
 
         if (!snapshot.Enabled)
+        {
+            // Hot-path repository decorators stay off, but a lightweight in-process cache is still registered so
+            // optional consumers (e.g. `GET /v1/demo/preview`) can cache small read-only bundles without forcing
+            // `HotPathCache:Enabled=true` on Development profiles that disable SQL hot-path caching.
+            services.AddMemoryCache();
+            services.AddSingleton<IHotPathReadCache, MemoryHotPathReadCache>();
+
             return;
+        }
 
         string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
 

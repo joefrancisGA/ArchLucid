@@ -295,6 +295,18 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_cache_misses_total",
             description: "Aggregate explanation cache misses (LLM call required).");
 
+    /// <summary>In-process cache hits for <c>GET /v1/demo/preview</c> (marketing commit-page bundle).</summary>
+    public static readonly Counter<long> DemoPreviewCacheHits =
+        AppMeter.CreateCounter<long>(
+            "archlucid.demo.preview.cache_hit_total",
+            description: "Demo marketing preview bundle cache hits (GET /v1/demo/preview).");
+
+    /// <summary>In-process cache misses for <c>GET /v1/demo/preview</c> (factory invoked).</summary>
+    public static readonly Counter<long> DemoPreviewCacheMisses =
+        AppMeter.CreateCounter<long>(
+            "archlucid.demo.preview.cache_miss_total",
+            description: "Demo marketing preview bundle cache misses (GET /v1/demo/preview).");
+
     /// <summary>Schema validation of raw <c>AgentResult</c> LLM JSON (labels: <c>agent_type</c>, <c>outcome</c>=valid|invalid).</summary>
     public static readonly Counter<long> AgentResultSchemaValidationsTotal =
         AppMeter.CreateCounter<long>(
@@ -370,6 +382,15 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_first_session_completed_total",
             description: "Increments once per tenant on first successful manifest commit.");
+
+    /// <summary>
+    /// Operator UI sponsor banner showed the days-since-first-commit badge (labels: <c>tenant_id</c>, <c>days_since_first_commit_bucket</c>).
+    /// </summary>
+    public static readonly Counter<long> SponsorBannerFirstCommitBadgeRenderedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.ui.sponsor_banner.first_commit_badge_rendered",
+            description:
+            "Sponsor banner first-commit badge render (operator shell). Labels: tenant_id, days_since_first_commit_bucket.");
 
     /// <summary>Deny-list redactions applied before Azure OpenAI and trace persistence (label <c>category</c>).</summary>
     public static readonly Counter<long> LlmPromptRedactionsTotal =
@@ -652,6 +673,19 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "reason", r } };
 
         TrialExpirationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="SponsorBannerFirstCommitBadgeRenderedTotal"/>.</summary>
+    public static void RecordSponsorBannerFirstCommitBadgeRendered(Guid tenantId, string daysSinceFirstCommitBucket)
+    {
+        string bucket = string.IsNullOrWhiteSpace(daysSinceFirstCommitBucket) ? "unknown" : daysSinceFirstCommitBucket.Trim();
+        TagList tags = new()
+        {
+            { "tenant_id", tenantId.ToString("D") },
+            { "days_since_first_commit_bucket", bucket },
+        };
+
+        SponsorBannerFirstCommitBadgeRenderedTotal.Add(1, tags);
     }
 
     /// <summary>Increments <see cref="FirstSessionCompletedTotal"/> once per tenant (caller must gate).</summary>

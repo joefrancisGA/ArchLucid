@@ -30,7 +30,8 @@ public sealed class DistributedHotPathReadCache(
         string key,
         Func<CancellationToken, Task<T?>> factory,
         CancellationToken ct,
-        string? legacyCacheKey = null)
+        string? legacyCacheKey = null,
+        int? absoluteExpirationSecondsOverride = null)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(factory);
@@ -46,7 +47,7 @@ public sealed class DistributedHotPathReadCache(
 
             if (fromLegacy is not null)
             {
-                await PromoteLegacyToPrimaryAsync(key, legacyCacheKey, fromLegacy, ct);
+                await PromoteLegacyToPrimaryAsync(key, legacyCacheKey, fromLegacy, ct, absoluteExpirationSecondsOverride);
 
                 return fromLegacy;
             }
@@ -60,7 +61,7 @@ public sealed class DistributedHotPathReadCache(
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(created, JsonEntitySerializer.EntityJsonOptions);
         DistributedCacheEntryOptions entryOptions = new()
         {
-            AbsoluteExpirationRelativeToNow = ResolveTtl()
+            AbsoluteExpirationRelativeToNow = ResolveTtl(absoluteExpirationSecondsOverride)
         };
 
         await _distributedCache.SetAsync(key, payload, entryOptions, ct);
@@ -95,22 +96,23 @@ public sealed class DistributedHotPathReadCache(
         string primaryKey,
         string legacyKey,
         T value,
-        CancellationToken ct)
+        CancellationToken ct,
+        int? absoluteExpirationSecondsOverride)
         where T : class
     {
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(value, JsonEntitySerializer.EntityJsonOptions);
         DistributedCacheEntryOptions entryOptions = new()
         {
-            AbsoluteExpirationRelativeToNow = ResolveTtl()
+            AbsoluteExpirationRelativeToNow = ResolveTtl(absoluteExpirationSecondsOverride)
         };
 
         await _distributedCache.SetAsync(primaryKey, payload, entryOptions, ct);
         await _distributedCache.RemoveAsync(legacyKey, ct);
     }
 
-    private TimeSpan ResolveTtl()
+    private TimeSpan ResolveTtl(int? absoluteExpirationSecondsOverride)
     {
-        int seconds = _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
+        int seconds = absoluteExpirationSecondsOverride ?? _optionsMonitor.CurrentValue.AbsoluteExpirationSeconds;
 
         if (seconds < 1)
             seconds = 60;

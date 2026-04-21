@@ -219,6 +219,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = existing.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
@@ -308,6 +309,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = existing.TrialSampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
@@ -481,6 +483,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                 ratio = (double)t.TrialRunsUsed / lim;
 
 
+            _byId[tenantId] = CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
+
             return Task.FromResult<TrialFirstManifestCommitOutcome?>(
                 new TrialFirstManifestCommitOutcome
                 {
@@ -577,7 +581,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         string? trialStatus = null,
         DateTimeOffset? trialExpiresUtc = null,
         DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
-        Guid? trialWelcomeRunId = null) =>
+        Guid? trialWelcomeRunId = null,
+        DateTimeOffset? trialFirstManifestCommittedUtc = null) =>
         new()
         {
             Id = source.Id,
@@ -598,6 +603,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialArchitecturePreseedEnqueuedUtc =
                 trialArchitecturePreseedEnqueuedUtc ?? source.TrialArchitecturePreseedEnqueuedUtc,
             TrialWelcomeRunId = trialWelcomeRunId ?? source.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = trialFirstManifestCommittedUtc ?? source.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = source.BaselineReviewCycleHours,
             BaselineReviewCycleSource = source.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,

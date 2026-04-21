@@ -1,5 +1,6 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -7,21 +8,39 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using Moq;
+
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class ClientErrorTelemetryControllerTests
 {
-    private static ClientErrorTelemetryController CreateController()
+    private static ClientErrorTelemetryController CreateController(IScopeContextProvider? scopeProviderOverride = null)
     {
-        ClientErrorTelemetryController controller = new(NullLogger<ClientErrorTelemetryController>.Instance);
+        IScopeContextProvider scopeProvider = scopeProviderOverride ?? CreateDefaultScopeProvider();
+
+        ClientErrorTelemetryController controller = new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider);
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext(),
         };
 
         return controller;
+    }
+
+    private static IScopeContextProvider CreateDefaultScopeProvider()
+    {
+        ScopeContext ctx = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
+            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000"),
+        };
+        Mock<IScopeContextProvider> mock = new();
+        mock.Setup(s => s.GetCurrentScope()).Returns(ctx);
+
+        return mock.Object;
     }
 
     [Fact]
@@ -80,6 +99,38 @@ public sealed class ClientErrorTelemetryControllerTests
                 Message = "overflow",
                 Context = ctx,
             });
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
+
+    [Fact]
+    public void PostSponsorBannerFirstCommitBadge_valid_bucket_returns_204()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = controller.PostSponsorBannerFirstCommitBadge(
+            new SponsorBannerFirstCommitBadgeRequest { DaysSinceFirstCommitBucket = "4-7" });
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public void PostSponsorBannerFirstCommitBadge_invalid_bucket_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = controller.PostSponsorBannerFirstCommitBadge(
+            new SponsorBannerFirstCommitBadgeRequest { DaysSinceFirstCommitBucket = "nope" });
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
+
+    [Fact]
+    public void PostSponsorBannerFirstCommitBadge_null_body_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = controller.PostSponsorBannerFirstCommitBadge(null);
 
         result.Should().BeAssignableTo<ObjectResult>();
     }
