@@ -4,18 +4,19 @@
 
 **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.)
 
+> **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
+
 **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker)
 
 ---
 
 ## Scope (3–5 outcomes — check off by end of week one)
 
-- [ ] **1. Toolchain** — .NET 10 SDK, `git clone`, `dotnet restore`, then `dotnet build ArchLucid.sln` at repo root (Release optional). Fix any restore errors before continuing.
-- [ ] **2. Local API + SQL** — SQL reachable (Docker: `dotnet run --project ArchLucid.Cli -- dev up` from repo root, or your own instance). Set `ConnectionStrings:ArchLucid` (Development: `dotnet user-secrets set` in `ArchLucid.Api`). Run `dotnet run --project ArchLucid.Api` and confirm **`GET http://localhost:5128/health/ready`** returns **200** (JSON shows SQL + schema checks when `StorageProvider=Sql`).
-- [ ] **3. Fast tests** — Run the Core corset (matches CI fast job):  
+- [ ] **1. Toolchain done** — You finished the **Local dev** column in the canonical one-pager (see [../START_HERE.md](../START_HERE.md) first table row) — SDK, Docker/`dev up`, connection string, API **`/health/ready`**, optional UI `npm ci`.
+- [ ] **2. Fast tests** — Run the Core corset (matches CI fast job):  
   `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../TEST_EXECUTION_MODEL.md)).
-- [ ] **4. One contract** — Skim [API_CONTRACTS.md](../API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
-- [ ] **5. Small change** — Open a PR with a **tiny** change (doc typo, test name, log message) so you practice the full loop (build + Core tests + green CI).
+- [ ] **3. One contract** — Skim [API_CONTRACTS.md](../API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
+- [ ] **4. Small change** — Open a PR with a **tiny** change (doc typo, test name, log message) so you practice the full loop (build + Core tests + green CI).
 
 ---
 

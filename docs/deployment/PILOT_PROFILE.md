@@ -4,6 +4,8 @@
 
 ## Objective
 
+> **Install order moved.** See [../INSTALL_ORDER.md](../INSTALL_ORDER.md) for laptop + Azure pilot toolchains; this page covers cost posture only (week-one tasks after install).
+
 Run a **short-lived** ArchLucid environment (single region, reduced HA) to prove **Core Pilot** value without paying the full **production** multi-stack bill ([REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md)).
 
 ## Assumptions
@@ -45,9 +47,9 @@ Private endpoints for **Key Vault** and **Storage**; least-privilege managed ide
 
 ## Operational considerations
 
-- **Apply order** still follows [../REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md) — pilot **skips** optional roots rather than reordering network foundations.
+- **Apply order:** start from **[`infra/terraform-pilot/README.md`](../../infra/terraform-pilot/README.md)** (canonical profile); use the **multi-root** table in [../REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md) only when you **opt in** to separate state per directory. Pilot **skips** optional roots rather than reordering network foundations.
 - **Graduate** to production by **promoting tfvars + enabling** secondary pieces (Front Door, SQL failover, higher monitoring retention) — not by silent URL hacks.
-- **Starter root:** [`infra/terraform-pilot/README.md`](../../infra/terraform-pilot/README.md) documents composition intent (thin wrapper; roots remain modular).
+- **Starter root:** [`infra/terraform-pilot/README.md`](../../infra/terraform-pilot/README.md) — opinionated defaults and nested stack metadata; modular `infra/terraform-*` roots remain for the opt-in path.
 
 ## Related
 
