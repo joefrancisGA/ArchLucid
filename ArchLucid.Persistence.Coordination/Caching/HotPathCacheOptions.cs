@@ -7,7 +7,10 @@ public sealed class HotPathCacheOptions
 {
     public const string SectionName = "HotPathCache";
 
-    /// <summary>When false, repositories hit SQL directly (no <see cref="IHotPathReadCache"/> registration in the API host).</summary>
+    /// <summary>
+    /// When false, repository decorators hit SQL directly; the API host may still register a small in-memory
+    /// <see cref="IHotPathReadCache"/> for optional read-model caches that must not imply SQL hot-path caching is on.
+    /// </summary>
     public bool Enabled
     {
         get; set;

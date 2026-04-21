@@ -50,6 +50,17 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 
 Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
 
+## Demo anonymous surfaces (`/v1/demo`)
+
+Anonymous, **read-only** routes gated by **`[FeatureGate(FeatureGateKey.DemoEnabled)]`** (non-demo deployments return **`404`** before the action runs). Both use the **`fixed`** rate-limit policy. JSON uses **camelCase** (same MVC JSON options as the rest of `v1`).
+
+| Method | Path | Response | Notes |
+|--------|------|----------|-------|
+| `GET` | **`/v1/demo/explain`** | **`DemoExplainResponse`** | Latest committed demo-seed run: provenance graph + aggregate explanation. **404** `ProblemTypes.RunNotFound` when no committed demo run exists. |
+| `GET` | **`/v1/demo/preview`** | **`DemoCommitPagePreviewResponse`** | Single bundled projection (run + authority chain + manifest summary + artifacts + pipeline timeline + aggregate explanation). **404** `ProblemTypes.RunNotFound` when unavailable. **`Cache-Control`:** `public, max-age=300, s-maxage=300, stale-while-revalidate=60`. **`ETag`:** SHA-256 (hex) over the UTF-8 JSON body; **`304`** when **`If-None-Match`** matches. In-process cache TTL: **`Demo:PreviewCacheSeconds`** (default **300**, clamped **30–3600**). |
+
+Marketing UI: **`archlucid-ui/src/app/(marketing)/demo/preview/page.tsx`** (ISR **`revalidate = 300`**). See **`docs/DEMO_PREVIEW.md`**.
+
 ## Pilots (`/v1/pilots`)
 
 Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and live under **`/v1/pilots`**.
@@ -60,6 +71,14 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 | `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
 
 CLI: `archlucid first-value-report <runId> [--save]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
+
+## Tenant self-service (`/v1/tenant`)
+
+| Method | Path | Response | Notes |
+|--------|------|----------|-------|
+| `GET` | **`/v1/tenant/trial-status`** | **`TenantTrialStatusResponse`** | **ReadAuthority**. Trial window metadata plus optional baseline review-cycle fields. **`firstCommitUtc`** (`DateTimeOffset?`, JSON camelCase): UTC of the tenant’s **first committed golden manifest** when known (`dbo.Tenants.TrialFirstManifestCommittedUtc`). Present on both the **Status = "None"** (non-trial / blank `TrialStatus`) and active-trial branches when the column is set — drives the sponsor banner day badge in the operator UI. |
+
+Optional operator telemetry (same policy: **ReadAuthority**): **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`** with body **`{ "daysSinceFirstCommitBucket": "0" \| "1-3" \| "4-7" \| "8-30" \| "30+" }`** — increments **`archlucid.ui.sponsor_banner.first_commit_badge_rendered`** with **`tenant_id`** from ambient scope (see **`docs/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`**).
 
 ## List pagination (runs and alerts)
 

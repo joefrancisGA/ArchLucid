@@ -31,6 +31,12 @@ curl -sS -X POST "https://localhost:5001/v1/register" ^
 
 The operator shell will gain a signup form for these fields in a follow-up UI PR; this API contract ships first.
 
+## Post-commit sponsor banner (first commit clock)
+
+After the first golden manifest commit, the operator-shell run detail page (`/runs/[runId]`) shows the **“Email this run to your sponsor”** banner when the run has a manifest. The banner may add a small **“Day N since first commit”** badge (UTC full days since this tenant’s first committed manifest, from **`GET /v1/tenant/trial-status`** field **`firstCommitUtc`**) so the sponsor pitch is anchored in the tenant’s own clock. Details: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**.
+
+Sponsors who do not have an operator install can preview a real commit page at **`/demo/preview`** on your marketing host (URL as deployed); the data is the **ArchLucid demo seed**, not your tenant. See **`docs/DEMO_PREVIEW.md`**.
+
 ## Pull-request decoration in your CI
 
 ArchLucid surfaces **`GET /v1/compare`** Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:

@@ -2,6 +2,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -19,8 +20,50 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/diagnostics")]
 [EnableRateLimiting("fixed")]
-public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryController> logger) : ControllerBase
+public sealed class ClientErrorTelemetryController(
+    ILogger<ClientErrorTelemetryController> logger,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    private static readonly HashSet<string> SponsorBannerDayBuckets =
+    [
+        "0",
+        "1-3",
+        "4-7",
+        "8-30",
+        "30+",
+    ];
+
+    private readonly ILogger<ClientErrorTelemetryController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    /// <summary>Records sponsor-banner first-commit badge render (low-cardinality counter).</summary>
+    [HttpPost("sponsor-banner-first-commit-badge")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult PostSponsorBannerFirstCommitBadge([FromBody] SponsorBannerFirstCommitBadgeRequest? body)
+    {
+        if (body is null || string.IsNullOrWhiteSpace(body.DaysSinceFirstCommitBucket))
+            return this.BadRequestProblem(
+                "daysSinceFirstCommitBucket is required.",
+                ProblemTypes.ValidationFailed);
+
+
+        string bucket = body.DaysSinceFirstCommitBucket.Trim();
+
+        if (!SponsorBannerDayBuckets.Contains(bucket))
+            return this.BadRequestProblem(
+                "daysSinceFirstCommitBucket must be one of: 0, 1-3, 4-7, 8-30, 30+.",
+                ProblemTypes.ValidationFailed);
+
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ArchLucidInstrumentation.RecordSponsorBannerFirstCommitBadgeRendered(scope.TenantId, bucket);
+
+        return NoContent();
+    }
 
     /// <summary>Records a client-side error report at Warning level (sanitized).</summary>
     [HttpPost("client-error")]
@@ -69,9 +112,9 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
 
         }
 
-        if (logger.IsEnabled(LogLevel.Warning))
+        if (_logger.IsEnabled(LogLevel.Warning))
 
-            logger.LogWarning(
+            _logger.LogWarning(
                 "Operator shell client error: {ClientErrorMessage} | Path={ClientErrorPathname} | UA={ClientErrorUserAgent} | At={ClientErrorTimestamp} | Stack={ClientErrorStack}",
                 LogSanitizer.Sanitize(message),
                 LogSanitizer.Sanitize(pathname ?? string.Empty),

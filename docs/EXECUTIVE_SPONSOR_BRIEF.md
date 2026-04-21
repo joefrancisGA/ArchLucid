@@ -10,7 +10,7 @@
 
 **Related:** [README.md](../README.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [CORE_PILOT.md](CORE_PILOT.md) · [go-to-market/POSITIONING.md](go-to-market/POSITIONING.md) (short positioning; must stay consistent with this brief)
 
-**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. Contract details: [API_CONTRACTS.md §Pilots](API_CONTRACTS.md#pilots-v1pilots).
+**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known, the banner can show a small **“Day N since first commit”** badge (UTC day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](API_CONTRACTS.md#pilots-v1pilots).
 
 ---
 

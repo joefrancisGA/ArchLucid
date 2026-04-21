@@ -50,6 +50,14 @@ export function WelcomeMarketingPage() {
             <Link href="/auth/signin">Sign in</Link>
           </Button>
         </div>
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/demo/preview">See a real commit page</Link>
+          </Button>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            Anchored in real ArchLucid services. No signup.
+          </p>
+        </div>
       </section>
 
       <section aria-labelledby="pillars-heading" className="mb-14">

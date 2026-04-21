@@ -408,6 +408,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
 
+        // TODO(post-V1): backfill TrialFirstManifestCommittedUtc for non-trial tenants (column is trial-gated today) — see CHANGELOG (sponsor banner first-commit badge).
+
         await _trialFunnelCommitHook
             .OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken)
             .ConfigureAwait(false);

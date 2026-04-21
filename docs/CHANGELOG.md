@@ -4,6 +4,18 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Cached anonymous `/demo/preview` commit-page surface for marketing
+
+Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so sponsors and buyers can see a real ArchLucid commit page sourced from the demo seed **without signing in**. In-process cache (**5 min** TTL via **`Demo:PreviewCacheSeconds`**) plus HTTP **`Cache-Control`** + Next.js **`revalidate = 300`** keeps the surface cheap under marketing-traffic spikes. New read model **`IDemoCommitPagePreviewClient`** composes the same services as the operator run detail view; **`IDemoSeedRunResolver`** shares canonical-run resolution with **`DemoReadModelClient`**. Docs: **`docs/DEMO_PREVIEW.md`**, ADR **`docs/adr/0027-demo-preview-cached-anonymous-commit-page.md`**.
+
+---
+
+## 2026-04-21 — Sponsor banner “Day N since first commit” badge
+
+**Buyer trust — time anchored in tenant data:** The post-commit **`EmailRunToSponsorBanner`** (`archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`) now loads **`GET /v1/tenant/trial-status`** and, when **`firstCommitUtc`** is present, shows a small **“Day N since first commit”** badge next to **Time to value** (UTC full-day count since the tenant’s first committed golden manifest). The value is sourced from existing **`dbo.Tenants.TrialFirstManifestCommittedUtc`** via **`TenantRecord`** / **`TenantTrialStatusResponse.FirstCommitUtc`** (no migration). Optional render telemetry: counter **`archlucid.ui.sponsor_banner.first_commit_badge_rendered`** and **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`**. Docs: **[`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)**; API contract note in **[`API_CONTRACTS.md`](API_CONTRACTS.md)**.
+
+---
+
 ## 2026-04-21 — Azure DevOps Pipelines YAML parity with GitHub manifest-delta actions (ADR 0024)
 
 **Buyer CI — Azure DevOps:** New pipeline templates **[`integrations/azure-devops-task-manifest-delta/`](../integrations/azure-devops-task-manifest-delta/)** (job summary via `##vso[task.uploadsummary]`) and **[`integrations/azure-devops-task-manifest-delta-pr-comment/`](../integrations/azure-devops-task-manifest-delta-pr-comment/)** (sticky PR thread + PR status via Git REST 7.1). Both reuse **[`integrations/github-action-manifest-delta/fetch-manifest-delta.mjs`](../integrations/github-action-manifest-delta/fetch-manifest-delta.mjs)** (single Markdown source of truth). **`AzureDevOpsPullRequestWireFormat`** centralizes JSON bodies; parity tests: **`ArchLucid.Integrations.AzureDevOps.Tests/AzureDevOpsRequestBodyParityWithPipelineTaskTests.cs`**, Node **`node --test`** (CI matrix: Linux / Windows / macOS). Docs: **[`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)**, **[`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md)**; server-side doc renamed to **[`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md)** with **[`AZURE_DEVOPS_PR_DECORATION.md`](integrations/AZURE_DEVOPS_PR_DECORATION.md)** redirect. ADR: **[`0024`](adr/0024-azure-devops-pipeline-task-parity-with-github-action.md)**. Optional fetch soft-fail: **`ARCHLUCID_COMPARE_WARN_ONLY=1`** (404 → warning + exit 0).

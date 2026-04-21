@@ -212,7 +212,8 @@ public sealed class CachingRunExplanationSummaryServiceTests
             string key,
             Func<CancellationToken, Task<T?>> factory,
             CancellationToken ct,
-            string? legacyCacheKey = null)
+            string? legacyCacheKey = null,
+            int? absoluteExpirationSecondsOverride = null)
             where T : class
         {
             ArgumentNullException.ThrowIfNull(factory);

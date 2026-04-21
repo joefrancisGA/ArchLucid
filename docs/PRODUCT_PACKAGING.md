@@ -119,12 +119,15 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 
 Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **run detail** copy keep **Advanced Analysis** and **Enterprise Controls** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
+**Marketing proof (no operator install):** the public **`/demo/preview`** page (and **`GET /v1/demo/preview`**) shows a read-only commit-page projection of the latest committed **demo seed** run — complementing the operator-shell **`/demo/explain`** route, which focuses on provenance + citations side-by-side. See **`docs/DEMO_PREVIEW.md`**.
+
 **Anti-creep rule:** Core Pilot is the default wedge and first buying motion. Advanced Analysis and Enterprise Controls should only be introduced when the next analytical or governance question actually requires them.
 
 ### Capability inventory
 
 | Capability | API surface | UI surface | CLI surface |
 |------------|-------------|------------|-------------|
+| Public demo commit page (read-only) | `GET /v1/demo/preview` | Marketing `/demo/preview` | — |
 | Create architecture request | `POST /v1/architecture/request` | New run wizard (7-step) | `archlucid run create` |
 | Execute run (coordinator or authority path) | `POST /v1/architecture/run/{runId}/execute` | Pipeline timeline (auto-poll) | `archlucid run execute` |
 | Commit golden manifest | `POST /v1/architecture/run/{runId}/commit` | Commit run button on run detail | `archlucid run commit` |
@@ -235,7 +238,7 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Private endpoint Terraform modules | `infra/modules/front-door` | — | Azure networking |
 | DPA template, subprocessors, SOC 2 roadmap | — | — | [go-to-market/TRUST_CENTER.md](go-to-market/TRUST_CENTER.md) |
 | Customer-managed key (CMK) for SQL TDE | `infra/modules/sql-tde-cmk` | — | Azure Key Vault |
-| Trial enforcement (seat and run limits) | `GET /v1/tenant/trial-status` | Trial banner in operator shell | `ArchLucid:Trial:*` |
+| Trial enforcement (seat and run limits) | `GET /v1/tenant/trial-status` | Trial banner in operator shell; sponsor banner may read **`firstCommitUtc`** for “Day N since first commit” | `ArchLucid:Trial:*` |
 | Billing checkout | `POST /v1/tenant/billing/checkout` | Trial banner — Convert to paid | Stripe bridge |
 
 ### Navigation (operator UI)

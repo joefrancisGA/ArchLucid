@@ -1,16 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { downloadFirstValueReportPdf } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { AUTH_MODE } from "@/lib/auth-config";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { isJwtAuthMode } from "@/lib/oidc/config";
+import { isLikelySignedIn } from "@/lib/oidc/session";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 export type EmailRunToSponsorBannerProps = {
   runId: string;
 };
+
+type TrialStatusPayload = {
+  firstCommitUtc?: string | null;
+};
+
+function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
+  const commitMs = new Date(firstCommitIso).getTime();
+
+  if (Number.isNaN(commitMs)) {
+    return null;
+  }
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  return Math.max(0, Math.floor((nowMs - commitMs) / msPerDay));
+}
 
 /**
  * Non-modal post-commit CTA: downloads a sponsor-shareable PDF projection of the canonical first-value-report
@@ -26,6 +47,74 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+  const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
+  const telemetrySentRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTrialStatus(): Promise<void> {
+      if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          "/api/proxy/v1/tenant/trial-status",
+          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+        );
+
+        if (!res.ok) {
+          return;
+        }
+
+        const json = (await res.json()) as TrialStatusPayload;
+
+        if (cancelled) {
+          return;
+        }
+
+        const iso = json.firstCommitUtc;
+
+        if (typeof iso !== "string" || iso.length === 0) {
+          setBadgeDayN(null);
+
+          return;
+        }
+
+        const n = computeUtcDayN(iso, Date.now());
+
+        if (n === null) {
+          setBadgeDayN(null);
+
+          return;
+        }
+
+        setBadgeDayN(n);
+      } catch {
+        /* graceful: banner without badge */
+      }
+    }
+
+    void loadTrialStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (badgeDayN === null) {
+      return;
+    }
+
+    if (telemetrySentRef.current) {
+      return;
+    }
+
+    telemetrySentRef.current = true;
+    recordSponsorBannerFirstCommitBadge(badgeDayN);
+  }, [badgeDayN]);
 
   async function onDownload(): Promise<void> {
     setBusy(true);
@@ -59,8 +148,18 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
       aria-label="Email this run to your sponsor"
       className="mb-6 max-w-3xl rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40"
     >
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-        Time to value
+      <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
+        <span>Time to value</span>
+        {badgeDayN !== null ? (
+          <span
+            data-testid="email-run-to-sponsor-first-commit-badge"
+            title="UTC days since your tenant's first committed golden manifest"
+            aria-label={`Day ${badgeDayN} since your tenant's first committed golden manifest`}
+            className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
+          >
+            Day {badgeDayN} since first commit
+          </span>
+        ) : null}
       </p>
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-100">
         This run is committed. Send your sponsor a one-page PDF derived from the first-value-report Markdown so they

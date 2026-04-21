@@ -29,6 +29,9 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/signup">Start free trial</Link>
               </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/demo/preview">See a real commit</Link>
+              </Button>
             </nav>
           </div>
           <div className="flex items-center gap-2">

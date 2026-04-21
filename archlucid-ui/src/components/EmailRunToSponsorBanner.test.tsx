@@ -1,18 +1,39 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/api", () => ({
   downloadFirstValueReportPdf: vi.fn(),
 }));
 
+vi.mock("@/lib/sponsor-banner-telemetry", () => ({
+  recordSponsorBannerFirstCommitBadge: vi.fn(),
+}));
+
 import { downloadFirstValueReportPdf } from "@/lib/api";
+import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import { EmailRunToSponsorBanner } from "./EmailRunToSponsorBanner";
 
 const mockDownload = vi.mocked(downloadFirstValueReportPdf);
+const mockTelemetry = vi.mocked(recordSponsorBannerFirstCommitBadge);
 
 describe("EmailRunToSponsorBanner", () => {
-  it("renders the time-to-value heading and primary CTA copy", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ firstCommitUtc: null }),
+      } as Response),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
+  it("renders the time-to-value heading and primary CTA copy", async () => {
     render(<EmailRunToSponsorBanner runId="run-42" />);
 
     expect(screen.getByTestId("email-run-to-sponsor-banner")).toBeInTheDocument();
@@ -20,6 +41,10 @@ describe("EmailRunToSponsorBanner", () => {
     expect(
       screen.getByRole("button", { name: /email this run to your sponsor/i }),
     ).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
   });
 
   it("invokes downloadFirstValueReportPdf with the run id when the primary action is clicked", async () => {
@@ -67,5 +92,57 @@ describe("EmailRunToSponsorBanner", () => {
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-primary-action")).not.toBeDisabled();
     });
+  });
+
+  it("renders Day 4 badge when firstCommitUtc is four and a half UTC-day periods earlier", async () => {
+    const nowMs = Date.now();
+    const anchorIso = new Date(nowMs - 4.5 * 24 * 60 * 60 * 1000).toISOString();
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ firstCommitUtc: anchorIso }),
+    } as Response);
+
+    render(<EmailRunToSponsorBanner runId="run-42" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
+        "Day 4 since first commit",
+      );
+    });
+
+    expect(mockTelemetry).toHaveBeenCalledWith(4);
+  });
+
+  it("hides the badge when firstCommitUtc is null", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ firstCommitUtc: null }),
+    } as Response);
+
+    render(<EmailRunToSponsorBanner runId="run-42" />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("email-run-to-sponsor-first-commit-badge")).toBeNull();
+    expect(mockTelemetry).not.toHaveBeenCalled();
+  });
+
+  it("hides the badge when trial-status returns 5xx", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+      json: async () => ({}),
+    } as Response);
+
+    render(<EmailRunToSponsorBanner runId="run-42" />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByTestId("email-run-to-sponsor-first-commit-badge")).toBeNull();
+    expect(mockTelemetry).not.toHaveBeenCalled();
   });
 });

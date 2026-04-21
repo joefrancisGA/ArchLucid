@@ -1,3 +1,5 @@
+> **Scope:** Internal execution log for maintainers — what shipped from a prompt batch versus owner-blocked items; not a customer-facing changelog.
+
 # Seven improvements — execution log (2026-04-21)
 
 This file records what was implemented from the seven-improvement prompt set versus what remains **owner-blocked**.

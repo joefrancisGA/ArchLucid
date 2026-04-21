@@ -37,6 +37,15 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 | Worker → SQL (trial lifecycle + hard purge) | Mis-timed transitions, operator panic deletes | Orphan / cross-tenant purge if mis-scoped | — | **Idempotent** `TryRecordTrialLifecycleTransitionAsync`; `SqlTenantHardPurgeService` scopes **`WHERE TenantId=@TenantId`**; **`dbo.AuditEvents`** excluded | Long `DELETE TOP` loops | Break-glass abuse | **`SqlRowLevelSecurityBypassAmbient`** policy + **`TrialLifecycleSchedulerHostedService`** leader lease; see **`docs/runbooks/TRIAL_LIFECYCLE.md`** |
 | Logs / audit | — | Log forging (**CWE-117**) | Repudiation if audit skipped | Sensitive data in logs | Log volume DoS | — | **`LogSanitizer`**, append-only **`dbo.AuditEvents`** (role **DENY**) |
 
+### 5.1 Anonymous demo read surfaces (`/v1/demo/*`)
+
+| Route | Auth | Gate | Rate limit | Data scope | Caching / staleness |
+|-------|------|------|------------|------------|---------------------|
+| **`GET /v1/demo/explain`** | **AllowAnonymous** | **`Demo:Enabled`** (`FeatureGate`) | **`fixed`** | Hard-pinned demo tenant / seeded Contoso identifiers only | No response-body cache at the controller |
+| **`GET /v1/demo/preview`** | **AllowAnonymous** | **`Demo:Enabled`** (`FeatureGate`) | **`fixed`** | Same scope; flat JSON bundle (run + manifest + artifacts + timeline + aggregate explanation) | In-process **`IHotPathReadCache`** entry (TTL **`Demo:PreviewCacheSeconds`**, default 5 minutes); stable cache key with **run/manifest identity inside the cached value** so re-seed propagates on next miss; HTTP **`Cache-Control`** + SHA-256 **`ETag`** (**`304`** when **`If-None-Match`** matches) |
+
+**Privacy posture:** responses set **`isDemoData=true`** and fictional Contoso naming from the seed; **`noindex`** on the marketing page prevents search engines from indexing demo metrics as production telemetry.
+
 ## 6. Data flow (high level)
 
 1. **Authority run:** HTTP → transactional SQL → outboxes → worker indexing / integration publish.

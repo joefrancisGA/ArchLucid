@@ -134,7 +134,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<SponsorOnePagerPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
+        services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();
+        services.AddScoped<IDemoCommitPagePreviewClient, DemoCommitPagePreviewClient>();
         services.Configure<ValueReportComputationOptions>(
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();

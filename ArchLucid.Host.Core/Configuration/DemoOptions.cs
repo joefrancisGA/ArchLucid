@@ -18,4 +18,10 @@ public sealed class DemoOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// Absolute TTL in seconds for the in-process cache entry backing <c>GET /v1/demo/preview</c>.
+    /// Clamped to 30–3600 when applied by the controller (invalid/zero falls back to 300).
+    /// </summary>
+    public int PreviewCacheSeconds { get; set; } = 300;
 }
