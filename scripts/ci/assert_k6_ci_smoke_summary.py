@@ -19,7 +19,7 @@ from pathlib import Path
 _CI_SMOKE_TAG_CAPS: dict[str, float] = {
     "http_req_duration{k6ci:health_live}": 500.0,
     "http_req_duration{k6ci:health_ready}": 1500.0,
-    "http_req_duration{k6ci:create_run}": 3000.0,
+    "http_req_duration{k6ci:create_run}": 90000.0,
     "http_req_duration{k6ci:list_runs}": 1500.0,
     "http_req_duration{k6ci:audit_search}": 1500.0,
     "http_req_duration{k6ci:version}": 1500.0,

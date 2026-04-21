@@ -30,6 +30,7 @@ using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.CustomerSuccess;
@@ -66,6 +67,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 {
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
+        DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(configuration);
+
         string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
                                   ?? throw new InvalidOperationException(
                                       "Missing connection string 'ArchLucid'.");
@@ -196,6 +199,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
+        services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
 
         services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(

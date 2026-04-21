@@ -4,6 +4,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Reference evidence CLI + pilot deltas API + admin ZIP (Prompt 1 / GTM)
+
+**Proof-of-ROI tooling:** New CLI **`archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]`** (tenant-scoped API key) downloads **`pilot-run-deltas.json`**, first-value Markdown/PDF, and sponsor one-pager when available; refuses Contoso demo runs unless **`--include-demo`**. Admin path **`--tenant <tenantId>`** calls **`GET /v1/admin/tenants/{tenantId}/reference-evidence`** (AdminAuthority) for a ZIP built server-side under **`AmbientScopeContext`**. New HTTP **`GET /v1/pilots/runs/{runId}/pilot-run-deltas`** returns **`PilotRunDeltasResponse`** JSON. Persistence: **`IReferenceEvidenceRunLookup`** + **`SqlReferenceEvidenceRunLookup`** / in-memory stub. Application: **`IReferenceEvidenceAdminExportService`** + **`ReferenceEvidenceAdminExportService`**, **`PilotRunDeltasResponseMapper`**. Contracts: **`PilotRunDeltasResponse`**. Docs: **`docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md`**, **`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`**.
+
+---
+
 ## 2026-04-21 — Cached anonymous `/demo/preview` commit-page surface for marketing
 
 Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so sponsors and buyers can see a real ArchLucid commit page sourced from the demo seed **without signing in**. In-process cache (**5 min** TTL via **`Demo:PreviewCacheSeconds`**) plus HTTP **`Cache-Control`** + Next.js **`revalidate = 300`** keeps the surface cheap under marketing-traffic spikes. New read model **`IDemoCommitPagePreviewClient`** composes the same services as the operator run detail view; **`IDemoSeedRunResolver`** shares canonical-run resolution with **`DemoReadModelClient`**. Docs: **`docs/DEMO_PREVIEW.md`**, ADR **`docs/adr/0027-demo-preview-cached-anonymous-commit-page.md`**.

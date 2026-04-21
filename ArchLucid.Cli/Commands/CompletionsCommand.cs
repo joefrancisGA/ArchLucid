@@ -23,6 +23,7 @@ public static class CompletionsCommand
         "artifacts",
         "first-value-report",
         "sponsor-one-pager",
+        "reference-evidence",
         "comparisons",
         "health",
         "doctor",

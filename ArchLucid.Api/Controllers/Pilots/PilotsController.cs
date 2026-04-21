@@ -1,7 +1,9 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
@@ -29,7 +31,9 @@ public sealed class PilotsController(
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
-    IWhyArchLucidSnapshotService whyArchLucidSnapshotService) : ControllerBase
+    IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
+    IRunDetailQueryService runDetailQueryService,
+    IPilotRunDeltaComputer pilotRunDeltaComputer) : ControllerBase
 {
     /// <summary>
     /// Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
@@ -62,6 +66,25 @@ public sealed class PilotsController(
 
 
         return Content(markdown, "text/markdown; charset=utf-8");
+    }
+
+    /// <summary>
+    /// JSON proof-of-ROI deltas for <paramref name="runId"/> (same numbers as the first-value report and sponsor PDF).
+    /// </summary>
+    [HttpGet("runs/{runId}/pilot-run-deltas")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PilotRunDeltasResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPilotRunDeltas(string runId, CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);
+
+        PilotRunDeltas deltas = await pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
+
+        return Ok(PilotRunDeltasResponseMapper.ToResponse(deltas));
     }
 
     /// <summary>

@@ -21,4 +21,13 @@ public sealed class ArchLucidPersistenceOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// When greater than zero, sets Dapper's global <c>SqlMapper.Settings.CommandTimeout</c> (seconds) for SQL-backed hosts.
+    /// SqlClient defaults to 30s per command; long authority create paths on cold CI can exceed that without this knob.
+    /// </summary>
+    public int DefaultSqlCommandTimeoutSeconds
+    {
+        get; set;
+    }
 }
