@@ -40,7 +40,7 @@ The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 
-The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
+The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
 ---
 
@@ -62,6 +62,8 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `first-value-report <runId> [--save]` | Downloads sponsor Markdown from **`GET /v1/pilots/runs/{runId}/first-value-report`** (`text/markdown`). Prints to stdout, or writes `first-value-{runId}.md` in the current directory with **`--save`**. Uses **`ARCHLUCID_API_URL`** / **`ARCHLUCID_API_KEY`** like other CLI commands. |
+| `reference-evidence --run <runId> [--out <dir>] [--include-demo]` | Writes a **reference-evidence** folder: **`pilot-run-deltas.json`** (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`), **`first-value-report.md`**, **`first-value-report.pdf`**, **`sponsor-one-pager.pdf`** when endpoints succeed. Refuses Contoso demo runs unless **`--include-demo`**. Default output: **`./reference-evidence/<runId>/`**. |
+| `reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]` | **AdminAuthority** only: downloads **`GET /v1/admin/tenants/{tenantId}/reference-evidence`** as **`reference-evidence-{tenantId}.zip`** (default directory **`./reference-evidence/tenant-{tenantId}/`**). |
 | `health` | Check API connectivity (`GET /health`). Exit **0** if OK; **3** if unreachable; **2** if the API base URL is invalid. With global `--json`, prints one JSON object per line (stderr on failure, stdout on success). |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
 | `support-bundle` | Writes a **pilot/support** folder (and optional `--zip`): **`README.txt`** (triage order), **`manifest.json`** (format **1.1**, `triageReadOrder`), **`build.json`**, **`health.json`**, **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`**, **`environment.json`**, **`workspace.json`**, **`references.json`**, **`logs.json`**. No connection strings or API key **values**. Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, `--zip`. |

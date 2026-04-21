@@ -1269,6 +1269,15 @@ namespace ArchLucid.Api.Client.Generated
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<DemoExplainResponse> ExplainAsync(System.Threading.CancellationToken cancellationToken);
 
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DemoCommitPagePreviewResponse> PreviewGETAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<DemoCommitPagePreviewResponse> PreviewGETAsync(System.Threading.CancellationToken cancellationToken);
+
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task SeedAsync();
@@ -1460,12 +1469,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewAsync(CreateGovernancePreviewRequest body);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -16580,6 +16589,100 @@ namespace ArchLucid.Api.Client.Generated
             }
         }
 
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<DemoCommitPagePreviewResponse> PreviewGETAsync()
+        {
+            return PreviewGETAsync(System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<DemoCommitPagePreviewResponse> PreviewGETAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/demo/preview"
+                    urlBuilder_.Append("v1/demo/preview");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<DemoCommitPagePreviewResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        if (status_ == 304)
+                        {
+                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ArchLucidApiException("Not Modified", status_, responseText_, headers_, null);
+                        }
+                        else
+                        if (status_ == 404)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         public virtual System.Threading.Tasks.Task SeedAsync()
@@ -18601,15 +18704,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewAsync(CreateGovernancePreviewRequest body)
+        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body)
         {
-            return PreviewAsync(body, System.Threading.CancellationToken.None);
+            return PreviewPOSTAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -28780,6 +28883,54 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoCommitPagePreviewResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifacts")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<DemoPreviewArtifact> Artifacts { get; set; } = new System.Collections.ObjectModel.Collection<DemoPreviewArtifact>();
+
+        [System.Text.Json.Serialization.JsonPropertyName("authorityChain")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public DemoPreviewAuthorityChain AuthorityChain { get; set; } = new DemoPreviewAuthorityChain();
+
+        [System.Text.Json.Serialization.JsonPropertyName("demoStatusMessage")]
+        public string DemoStatusMessage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
+        public System.DateTimeOffset GeneratedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("isDemoData")]
+        public bool IsDemoData { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifest")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public DemoPreviewManifestSummary Manifest { get; set; } = new DemoPreviewManifestSummary();
+
+        [System.Text.Json.Serialization.JsonPropertyName("pipelineTimeline")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public System.Collections.Generic.ICollection<DemoPreviewTimelineItem> PipelineTimeline { get; set; } = new System.Collections.ObjectModel.Collection<DemoPreviewTimelineItem>();
+
+        [System.Text.Json.Serialization.JsonPropertyName("run")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public DemoPreviewRun Run { get; set; } = new DemoPreviewRun();
+
+        [System.Text.Json.Serialization.JsonPropertyName("runExplanation")]
+        [System.ComponentModel.DataAnnotations.Required]
+        public RunExplanationSummary RunExplanation { get; set; } = new RunExplanationSummary();
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class DemoExplainResponse
     {
 
@@ -28805,6 +28956,204 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public string RunId { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoPreviewArtifact
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ArtifactId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactType")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ArtifactType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("contentHash")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ContentHash { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.DateTimeOffset CreatedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("format")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Format { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Name { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoPreviewAuthorityChain
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactBundleId")]
+        public string ArtifactBundleId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
+        public string ContextSnapshotId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
+        public string DecisionTraceId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
+        public string FindingsSnapshotId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
+        public string GoldenManifestId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
+        public string GraphSnapshotId { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoPreviewManifestSummary
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.DateTimeOffset CreatedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
+        public int DecisionCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasUnresolvedIssues")]
+        public bool HasUnresolvedIssues { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasWarnings")]
+        public bool HasWarnings { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestHash")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ManifestHash { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ManifestId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("operatorSummary")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string OperatorSummary { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string RuleSetId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("ruleSetVersion")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string RuleSetVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("runId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string RunId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Status { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
+        public int UnresolvedIssueCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("warningCount")]
+        public int WarningCount { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoPreviewRun
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.DateTimeOffset CreatedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("projectId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ProjectId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("runId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string RunId { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class DemoPreviewTimelineItem
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("actorUserName")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ActorUserName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("correlationId")]
+        public string CorrelationId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("eventId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string EventId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("eventType")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string EventType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public System.DateTimeOffset OccurredUtc { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

@@ -85,6 +85,9 @@ namespace ArchLucid.Cli
 
                         return CliExitCode.UsageError;
 
+                    case "reference-evidence":
+                        return await ReferenceEvidenceCommand.RunAsync(normalized.Skip(1).ToArray());
+
                     case "run":
                         bool quick = normalized.Length > 1 && normalized[1] == "--quick";
 
@@ -189,7 +192,7 @@ namespace ArchLucid.Cli
         private static void WriteNoCommandMessage()
         {
             const string Plain =
-                "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
+                "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
 
             if (CliExecutionContext.JsonOutput)
 

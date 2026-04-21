@@ -2,7 +2,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-21
+**Last updated:** 2026-04-21 (extended with items 5–16 from the 2026-04-21 independent assessment)
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
 
@@ -51,9 +51,41 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 ---
 
+## Still open — surfaced by 2026-04-21 independent assessment
+
+These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 9 and the six Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md). Each is **owner-only** — the assistant cannot answer them from repository state.
+
+5. **External pen-test scope and budget** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window. Picks up where item 2 above leaves off.
+
+6. **SOC 2 Type I assessor + audit period start date** — readiness gap report scaffolds in Prompt 4 only land if an assessor is named.
+
+7. **Reference-customer publication ownership and discount-for-reference percent** — Prompt 1 will pre-build the publication runbook + evidence-pack template + CLI tool but stops at "who graduates the first row in `reference-customers/README.md`?" Suggest 15% per [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 if you don't want to negotiate per deal.
+
+8. **Marketplace publication go-live decision** — sign off on Azure Marketplace SaaS plan SKUs (aligned to PRICING_PHILOSOPHY tiers), legal entity, lead-form webhook URL. Prompt 3 pre-builds the alignment guard and the publication checklist diff; cannot create a real listing.
+
+9. **Stripe production go-live policy decisions** — chargeback / refund / dunning text for the order-form template; legal entity name on customer statements; live API key + webhook secret. Prompt 3 lands the production-safety guards but no live keys.
+
+10. **PGP key for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
+
+11. **Workflow-integration sequencing** — Prompt 5 builds **ServiceNow CR + Confluence page publishing**. Owner confirms (a) ServiceNow OAuth client registration vs basic-auth tradeoff, (b) Confluence space key and parent page id (per-tenant config or platform-wide default), (c) whether Jira issue creation should bump above either (suggest no — pick two and ship them).
+
+12. **WCAG 2.2 AA conformance publication channel** — Trust Center page only, or also a public `/accessibility` page on the marketing site? Whether to create an `accessibility@archlucid.dev` alias or reuse `security@`.
+
+13. **Public price list publication on marketing site** — `PRICING_PHILOSOPHY.md` is internal today. Marketplace publication (item 8) makes price public anyway; do we publish on the marketing site simultaneously or stay quote-on-request elsewhere?
+
+14. **Cross-tenant pattern-library implementing ADR ownership** — approved per item above (`Resolved` table) but the implementing ADR has not been drafted; who owns it?
+
+15. **Golden-cohort LLM budget approval** — Prompt 6 stands up a nightly golden-cohort drift detector. Owner approves a dedicated Azure OpenAI deployment + estimated monthly token budget for the nightly run.
+
+16. **ADR 0021 Phase 3 sunset clock confirmation** — Prompt 2 unblocks Phase 3 by adding `AuditEventTypes.Run` and the parity probe. Owner confirms the legacy `CoordinatorRun*` constants can be sunset on the existing **2026-07-20** clock, and whether the parity probe is allowed to write to `docs/` from CI (or must open a PR).
+
+---
+
 ## Related
 
 | Doc | Use |
 |-----|-----|
-| [`docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) | Original assessment + §8 prompts |
+| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) | Latest weighted independent assessment (64.14%) |
+| [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md) | Six paste-ready Cursor prompts; #3 and #4 stop at owner gates |
+| [`docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) | Prior assessment + §8 prompts |
 | [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 | Reference-customer CI guard and discount re-rate |

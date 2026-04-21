@@ -31,6 +31,8 @@ export ARCHLUCID_ALLOW_RLS_BYPASS=true
 export ArchLucid__Persistence__AllowRlsBypass=true
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
+# k6 create_run hits the full authority pipeline; SqlClient's default 30s per-command limit surfaces as ~30.3s HTTP latency under cold SQL.
+export ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds=120
 
 nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${LOG_FILE}" 2>&1 &
 echo $! > "${PID_FILE}"
