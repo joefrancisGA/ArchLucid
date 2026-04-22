@@ -1,0 +1,22 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "psus-ctrl-001",
+    "psus-ctrl-002",
+    "psus-ctrl-003",
+    "psus-ctrl-004",
+    "psus-ctrl-005",
+    "psus-ctrl-006",
+    "psus-ctrl-007",
+    "psus-ctrl-008"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "public-sector-us",
+    "regulatoryAnchor": "FedRAMP Moderate / StateRAMP Moderate baseline (NIST SP 800-53 Rev. 5)"
+  }
+}

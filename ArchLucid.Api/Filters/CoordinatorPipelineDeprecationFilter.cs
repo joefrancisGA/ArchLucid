@@ -23,11 +23,14 @@ namespace ArchLucid.Api.Filters;
 public sealed class CoordinatorPipelineDeprecationFilter : IAsyncActionFilter
 {
     /// <summary>
-    /// Per RFC 8594 §3 the earliest date the resource may be removed. Set to <b>2026-07-20</b> — one full
-    /// quarter from the ADR 0021 Phase 2 ship date (2026-04-21), giving published clients a reasonable
-    /// window to migrate to the unified Authority routes once ADR 0021 Phase 3 lands.
+    /// Per RFC 8594 §3 the earliest date the resource may be removed. **Accelerated 2026-04-21** to
+    /// <b>2026-05-15</b> by owner Q&amp;A decision (see ADR 0029, which Supersedes the earlier Draft ADR 0028
+    /// completion scaffold) — ArchLucid is pre-release, so the original 90-day post-Phase-2 buffer
+    /// (2026-07-20) was collapsed. ADR 0021 Phase 3 deletion PR (PR A) is scheduled to merge on or before
+    /// this date once parity gate (iv) — 14 contiguous green daily rows — clears. Updating the date
+    /// requires editing this file (PR-reviewed) and amending ADR 0029.
     /// </summary>
-    public const string SunsetHttpDate = "Mon, 20 Jul 2026 00:00:00 GMT";
+    public const string SunsetHttpDate = "Fri, 15 May 2026 00:00:00 GMT";
 
     /// <summary>
     /// RFC 8288 link header pointing at ADR 0021 (the canonical migration target). The link is rendered

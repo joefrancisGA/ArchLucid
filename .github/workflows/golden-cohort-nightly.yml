@@ -1,4 +1,9 @@
 # Nightly golden cohort: JSON contract (always) + optional simulator drift when baseline SHAs are locked in repo.
+#
+# Owner approval to lock baseline SHAs was granted 2026-04-21 (PENDING_QUESTIONS.md item 33). Until an operator runs
+# `archlucid golden-cohort lock-baseline --write` (see tests/golden-cohort/README.md) AND sets the repository variable
+# ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED to "true", only the JSON contract job runs and the cohort-simulator-drift
+# job is skipped. The skip is intentional, not a misconfiguration.
 name: golden-cohort-nightly
 
 on:

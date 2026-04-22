@@ -13,12 +13,12 @@ Record **why** [ADR 0021 Phase 3](0021-coordinator-pipeline-strangler-plan.md) *
 
 ## Assumptions
 
-- Platform/SRE will fill `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` with **14 contiguous daily rows** showing **zero Coordinator-pipeline writes** before merge-block is lifted on gate **(iv)**.
+- ~~Platform/SRE will fill `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` with **14 contiguous daily rows** showing **zero Coordinator-pipeline writes** before merge-block is lifted on gate **(iv)**.~~ **Superseded 2026-04-21** — gate (iv) was waived for the pre-release window per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) § Operational considerations (no customer traffic exists pre-release, so the rows the gate measures cannot accumulate). The runbook stays live; gate (iv) is restored automatically the moment ArchLucid ships V1 to a paying customer.
 - Phase 2 **audit catalog** work ([ADR 0021](0021-coordinator-pipeline-strangler-plan.md) § Phase 2) may still be incomplete until `AuditEventTypes.Run` (or equivalent unified catalog) exists and is the active read path in dashboards and exports.
 
 ## Constraints
 
-- **Non-reversible Phase 3** deletions require **all** of ADR 0021 § Phase 3 exit gates **(i)–(iv)** and the **30-day** / **Sunset 2026-07-20** sequencing described in the strangler plan — not a single forced PR.
+- **Non-reversible Phase 3** deletions require ADR 0021 § Phase 3 exit gates **(ii)** and **(iii)** to be green — gates **(i)** and **(iv)** are **waived for the pre-release window** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (rationale: no published clients to protect with a 30-day soak; no customer traffic to measure with the parity probe). The Sunset header date (`2026-05-15`) is the **latest-by** deadline, not a wait-for-evidence one. (The earlier Draft [ADR 0028 — completion scaffold](0028-coordinator-strangler-completion.md) is now Superseded by 0029.)
 - **No** edits to historical SQL migrations **001–028**; behaviour changes continue via new migrations + `ArchLucid.Persistence/Scripts/ArchLucid.sql` when schema work resumes.
 - **Integration event** documentation still names coordinator-prefixed audit semantics in at least one row — silent removal would violate [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../INTEGRATION_EVENTS_AND_WEBHOOKS.md) consumer expectations without a deprecation cycle.
 
@@ -26,14 +26,17 @@ Record **why** [ADR 0021 Phase 3](0021-coordinator-pipeline-strangler-plan.md) *
 
 ```mermaid
 flowchart LR
-  Gates[Exit gates i to iv]
-  Parity[Parity runbook TBD rows]
-  Phase2[Phase 2 Run catalog]
+  GatesActive[Gates ii and iii \nstill in force]
+  GatesWaived[Gates i and iv \nwaived pre-release \nADR 0029]
+  Phase2[Phase 2 Run catalog \nshipped 2026-04-21]
   Code[Coordinator interfaces and concretes]
-  Gates -->|fail| Block[Phase 3 blocked]
-  Parity --> Gates
-  Phase2 --> Gates
-  Block --> Code
+  PRA[PR A deletion]
+  V1Ship[V1 ships to paying customer]
+  GatesActive -->|green| PRA
+  GatesWaived -.->|restored| PRA
+  Phase2 --> GatesActive
+  PRA --> Code
+  V1Ship -. restores .-> GatesWaived
 ```
 
 ## Component breakdown
@@ -42,8 +45,8 @@ flowchart LR
 |-----------|-------------------|
 | `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` | **Retained** — no deletion |
 | Coordinator concretes (`InMemoryCoordinator*`, split implementations on `GoldenManifestRepository` / `DecisionTraceRepository` if any) | **Retained** |
-| `AuditEventTypes.CoordinatorRun*` constants | **Retained** (Sunset **2026-07-20** per API deprecation policy); dual-written with **`AuditEventTypes.Run.*`** (Phase 2 catalog shipped **2026-04-21**) |
-| `IRunCommitOrchestrator` façade | **Introduced** (**2026-04-21**) — `RunCommitOrchestratorFacade` delegates to `ArchitectureRunCommitOrchestrator`; Phase 3 deletion PRs still **blocked** until exit gates **(i)–(iv)** |
+| `AuditEventTypes.CoordinatorRun*` constants | **Retained** (Sunset **2026-05-15** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) — accelerated from the originally published `2026-07-20`); dual-written with **`AuditEventTypes.Run.*`** (Phase 2 catalog shipped **2026-04-21**) |
+| `IRunCommitOrchestrator` façade | **Introduced** (**2026-04-21**) — `RunCommitOrchestratorFacade` delegates to `ArchitectureRunCommitOrchestrator`; Phase 3 deletion PRs are **unblocked** for the pre-release window with gates (i) and (iv) waived per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md). PR A may merge once gates **(ii)** and **(iii)** clear inside its own CI run. |
 
 ## Data flow
 
@@ -59,10 +62,10 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 
 | Gate | Verdict | Notes |
 |------|---------|-------|
-| **(i)** | Not satisfied for “delete interfaces today” | No `git log -D` history for deleted concretes yet; forward-looking **30-day** window applies **after** concrete-deletion PR merges |
+| **(i)** | **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) | Original gate required **30-day** window after concrete-deletion PR; ADR 0029 documents why this gate does not apply pre-release (no published clients to protect). Gates **(ii)–(iv)** remain in force. |
 | **(ii)** | Not recorded here | Run `dotnet test --filter "Suite=Core\|Suite=Integration"` and attach log under `artifacts/phase3/` when unblocking |
 | **(iii)** | Not verified here | Confirm latest `main` CI green for `live-api-*.spec.ts` within 7 days |
-| **(iv)** | **FAIL** | `COORDINATOR_TO_AUTHORITY_PARITY.md` template rows are still `*(TBD)*` — **no 14-day zero-write window** |
+| **(iv)** | **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21 owner Q&A follow-up) | Original gate required `COORDINATOR_TO_AUTHORITY_PARITY.md` to show 14 contiguous green daily rows of **Coordinator-pipeline writes = 0**. Pre-release there is no customer traffic, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block. ADR 0029 § Operational considerations explains the rationale. Restored automatically if V1 ships to a paying customer before PR A merges. |
 | **Phase 2 catalog** | **Partial (2026-04-21)** | `AuditEventTypes.Run` nested class + dual-write landed; dashboards/exports migration + Sunset log-warning cadence still per ADR 0021 § Phase 2 exit gate |
 
 - **Artifacts:** [`artifacts/phase3/gate-verification.md`](../../artifacts/phase3/gate-verification.md)
@@ -86,7 +89,7 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 
 ## Follow-up (unblock Phase 3)
 
-1. Fill parity runbook with **14 contiguous** daily windows and **Coordinator writes = 0** (gate **iv**).
-2. Complete Phase 2 **Run.*` audit catalog** (or document explicit waiver in ADR with platform sign-off).
-3. Re-verify gates **(ii)** and **(iii)** on `main`.
-4. Execute **PR A** / **PR B** sequencing per ADR 0021 (concretes first, **30 days**, then interfaces; audit constants after **2026-07-20** Sunset).
+1. ~~Fill parity runbook with **14 contiguous** daily windows and **Coordinator writes = 0** (gate **iv**).~~ **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md). Restored automatically the moment ArchLucid ships V1 to a paying customer.
+2. Phase 2 **`Run.*` audit catalog** shipped 2026-04-21 — dual-write live; Sunset log-warning cadence per ADR 0021 § Phase 2 still tracked there.
+3. Verify gates **(ii)** and **(iii)** are green on the **PR A branch** (not on `main` — they are produced inside PR A's own CI run).
+4. Execute **PR A** / **PR B** sequencing per ADR 0021 — accelerated by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md): concretes + interfaces in a **single PR A** on or before **2026-05-15** (post-PR-A 30-day soak gate **(i)** waived for pre-release); audit constants in **PR B** after the **2026-05-15** Sunset.

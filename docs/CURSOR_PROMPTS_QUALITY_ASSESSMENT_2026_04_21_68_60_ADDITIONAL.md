@@ -275,7 +275,7 @@ no default schedule change that surprises on-call without doc notice.
 ## How to use these prompts
 
 - **Pairing:** Prompt **A** reduces architectural risk; **B–D** commercial motion; **E–F** procurement; **G** audit customer handoff; **H** reliability culture.
-- **OpenAPI:** Any new public route → regenerate [`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`](ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json) per `OPENAPI_CONTRACT_DRIFT.md`.
+- **OpenAPI:** Any new public route → regenerate [`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`](../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json) per `OPENAPI_CONTRACT_DRIFT.md`.
 - **Migrations:** New SQL → new numbered migration + `ArchLucid.sql` + `Rollback/R*.sql` per repo rules.
 
 ---

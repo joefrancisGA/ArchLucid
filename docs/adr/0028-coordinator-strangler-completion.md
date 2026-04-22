@@ -1,7 +1,9 @@
-> **Status:** Draft  
+> **Status:** Superseded by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21)
 > **Supersedes / relates:** [0021-coordinator-pipeline-strangler-plan.md](0021-coordinator-pipeline-strangler-plan.md)
 
 # ADR 0028 — Coordinator strangler completion (scaffold)
+
+> **Superseded 2026-04-21.** The `_TODO (owner)_` placeholders in this scaffold (calendar date for Phase 3 completion + ADR 0022 state transition) were resolved by owner Q&A on 2026-04-21 and are now recorded in **[ADR 0029 — Coordinator strangler acceleration to 2026-05-15](0029-coordinator-strangler-acceleration-2026-05-15.md)**. Read ADR 0029 for the calendar date, the post-PR-A 30-day-soak-gate waiver rationale (pre-release context), the atomic surface area for the `Sunset:` constant change, and the lifecycle for ADR 0022. The exit-gate framing below remains conceptually correct but is **not** the operative decision record — ADR 0029 is.
 
 ## Objective
 

@@ -28,20 +28,34 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         int parallel)
     {
-        Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+        // Default HttpClient.Timeout is 100s. A parallel burst waits on Task.WhenAll — cold CI SQL + greenfield DbUp +
+        // sp_getapplock contention can exceed that per slot, surfacing as TaskCanceledException during response buffering.
+        TimeSpan savedTimeout = client.Timeout;
 
-        for (int i = 0; i < parallel; i++)
+        if (parallel > 1)
+            client.Timeout = TimeSpan.FromMinutes(6);
+
+        try
         {
-            HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
+            Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+
+            for (int i = 0; i < parallel; i++)
             {
-                Content = JsonContent(body),
-            };
+                HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
+                {
+                    Content = JsonContent(body),
+                };
 
-            request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
-            tasks[i] = client.SendAsync(request);
+                request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+                tasks[i] = client.SendAsync(request);
+            }
+
+            return await Task.WhenAll(tasks);
         }
-
-        return await Task.WhenAll(tasks);
+        finally
+        {
+            client.Timeout = savedTimeout;
+        }
     }
 
     internal static async Task<HttpResponseMessage> PostSingleArchitectureRequestAsync(

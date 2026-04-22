@@ -9,10 +9,15 @@ When `enable_teams_notifications_logic_app = true`, this module provisions a ded
 ## Workflow design (author in Designer)
 
 1. **Service Bus trigger** — subscribe to the integration topic (see [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../../../docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
-2. **Filter / switch** on `eventType` (catalog: [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json)):
+2. **Filter / switch** on `eventType` (catalog: [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json)). The v1 default trigger set was extended on **2026-04-21** (PENDING_QUESTIONS.md item 32):
    - `com.archlucid.authority.run.completed` — run committed path.
    - `com.archlucid.governance.approval.submitted` — governance approval requested.
    - `com.archlucid.alert.fired` — alert raised.
+   - `com.archlucid.compliance.drift.escalated` — compliance drift breached its threshold and escalated. **(added 2026-04-21)**
+   - `com.archlucid.advisory.scan.completed` — advisory finding scan committed a fresh result. **(added 2026-04-21)**
+   - `com.archlucid.seat.reservation.released` — a trial seat reservation expired or was released, freeing capacity. **(added 2026-04-21)**
+
+   Card layout convention: **headline (bold)**, **tenant + workspace** as a sub-line, **action link** to the operator UI route most relevant to the event (run page / governance approval page / alert page / compliance dashboard / advisory finding / trial seat dashboard). Re-use the existing Adaptive Card schema; no new card variants per trigger.
 3. **HTTP GET** (optional) — `GET /v1/notifications/customer-channel-preferences` with managed identity or API key to respect tenant Teams toggles when fan-out is centralized.
 4. **HTTP POST Incoming Webhook** — build an **Adaptive Card** JSON body; webhook URL from **Key Vault Get Secret** action using the secret **name** stored per tenant via the ArchLucid API.
 

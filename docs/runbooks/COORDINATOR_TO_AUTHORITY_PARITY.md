@@ -36,11 +36,17 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 |--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
 <!-- /coordinator-parity-probe:table -->
 
-## Phase 3 gate status (2026-04-21)
+## Phase 3 gate status (2026-04-21, updated 2026-04-21)
 
-**ADR 0021 Phase 3 is merge-blocked:** the template above still contains only `*(TBD)*` placeholders — there is **no** 14-day contiguous window with **Coordinator-pipeline writes = 0**. Until Platform fills daily rows here, gate **(iv)** fails and coordinator code **must not** be deleted. See [ADR 0022 — blocked record](../adr/0022-coordinator-phase3-deferred.md) and [`artifacts/phase3/gate-verification.md`](../../artifacts/phase3/gate-verification.md).
+**ADR 0021 Phase 3 is unblocked for the pre-release window.** Gates **(i)** (30-day post-PR-A soak) and **(iv)** (14 contiguous green daily rows in the parity table above) are both **waived** per [ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md) (owner Q&A 2026-04-21 + follow-up). Gate (iv) was waived because pre-release there is no customer traffic on either pipeline, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block on shipping V1. Gates **(ii)** (`dotnet test --filter "Suite=Core|Suite=Integration"` green) and **(iii)** (live-API E2E green within 7 days on `main`) **remain in force** — both are mechanical and produced inside the deletion PR's CI run.
 
-**Closing report:** *Not available — reopen this subsection after 14 contiguous zero-write days are recorded and ADR 0022 is superseded by a “Phase 3 shipped” ADR.*
+**Cut-over date: 2026-05-15** (latest-by; PR A may merge earlier once gates (ii) and (iii) clear). ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](../adr/0028-coordinator-strangler-completion.md).
+
+**Both waivers expire automatically** if ArchLucid ships V1 to a paying customer before PR A merges — at that point the assistant amends ADR 0029 to restore both gates and recomputes the cut-over date. After V1 ships, any *future* coordinator-style refactor (none currently planned) must satisfy gates (i)–(iv) in full; the daily probe and runbook stay live for that purpose.
+
+**Daily probe status.** [`coordinator-parity-daily.yml`](../../.github/workflows/coordinator-parity-daily.yml) is wired and will start populating the table above the moment the `ARCHLUCID_COORDINATOR_PARITY_ODBC` repo secret is set. Until then the table stays at `*(TBD)*` — that is now an **expected** pre-release state, not a merge blocker.
+
+**Closing report:** *Not available — pre-release. Reopen this subsection if a future change ever restores gate (iv) (e.g., post-V1 coordinator-style refactor) and 14 contiguous zero-write days are recorded.*
 
 ## Related
 

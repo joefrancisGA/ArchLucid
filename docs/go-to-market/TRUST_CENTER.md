@@ -78,7 +78,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | **Type I readiness funded** (Q2–Q3 2026 scoping; **no** CPA opinion yet) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). External readiness consultant + CPA firm selection tracked under G-001 in the self-assessment. |
+| **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). **Revisit trigger:** owner-defined ARR threshold (tracked in `docs/PENDING_QUESTIONS.md` item 6 — assistant cannot set the dollar figure). External readiness consultant + CPA firm selection paused until that trigger fires; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
 
@@ -86,7 +86,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ## Contact
 
-- **Security inquiries:** `security@archlucid.dev` (replace with your production security contact when published).
+- **Security inquiries:** `security@archlucid.com` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
 - **PGP (optional):** when the security custodian publishes a key, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) § PGP). Until that file exists, use plain email for coordinated disclosure.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).

@@ -18,8 +18,8 @@
 >
 > **2026-04-21 update — Phase 2 deprecation signal kicked off.** The mutating coordinator routes on `RunsController`
 > (`POST /v1/architecture/request`, `…/run/{id}/execute`, `…/replay`, `…/determinism-check`, `…/commit`, `…/result`, `…/seed-fake-results`)
-> now carry the standards-track deprecation triplet on every response — `Deprecation: true` (RFC 9745), `Sunset: Mon, 20 Jul 2026 00:00:00 GMT`
-> (RFC 8594, one full quarter of migration window), and a `Link` header pointing back at this ADR (RFC 8288). The route-scoped signal is
+> now carry the standards-track deprecation triplet on every response — `Deprecation: true` (RFC 9745), `Sunset: Fri, 15 May 2026 00:00:00 GMT`
+> (RFC 8594; **accelerated 2026-04-21** from the originally published `Mon, 20 Jul 2026 00:00:00 GMT` per **[ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md)** — ArchLucid is pre-release, so the 90-day customer-migration buffer collapsed; ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](0028-coordinator-strangler-completion.md)), and a `Link` header pointing back at this ADR (RFC 8288). The route-scoped signal is
 > emitted by `CoordinatorPipelineDeprecationFilter` mounted via `[CoordinatorPipelineDeprecated]` so non-coordinator routes
 > (`RunQueryController`, `ManifestsController`) stay clean. This satisfies the published [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) deprecation policy
 > and starts the Phase 3 sunset clock.

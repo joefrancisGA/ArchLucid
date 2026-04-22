@@ -1,3 +1,12 @@
+> **ARCHIVED 2026-04-21 — Superseded.** This historical summary of one early `SchemaValidationService` improvement pass was kept at the repository root long after the work shipped. Per owner Q&A 2026-04-21 (`docs/PENDING_QUESTIONS.md` — "`IMPROVEMENTS_COMPLETE.md` at repo root → archive") and the [Quality Assessment 2026-04-21 (Independent — 68.60%)](../QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §1.23 anchor, it was moved here so the repo root no longer signals "improvements are done" — they're not, and the dated quality-assessment series is the canonical signal of what's outstanding. The technical content below is preserved verbatim for historical reference; **do not** treat it as current architectural guidance.
+>
+> **Canonical replacements:**
+> - Component-level history: see the dated `docs/CHANGELOG.md` entries.
+> - Outstanding improvements: see the most recent `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_*.md` and matching `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21*.md`.
+> - Open product/operations decisions: see `docs/PENDING_QUESTIONS.md`.
+
+---
+
 # Schema Validation Service - Complete Improvements Summary
 
 ## ✅ What Was Improved
