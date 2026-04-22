@@ -17,6 +17,8 @@ If you get stuck, jump to the **[Troubleshooting](#troubleshooting)** section at
 
 > **Validating the public trial funnel against staging?** Use **`dotnet run --project ArchLucid.Cli -- trial smoke --org "Smoke-$(date +%s)" --email trial-smoke@example.invalid --baseline-hours 16`** (PowerShell: replace `$(date +%s)` with `(Get-Date -UFormat %s)`). It is a pure-HTTP loop — no Docker, no SQL on your laptop — that calls **`POST /v1/register` → `GET /v1/tenant/trial-status` → `GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. See [`docs/CLI_USAGE.md#archlucid-trial-smoke`](CLI_USAGE.md#archlucid-trial-smoke) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
+> **Operator funnel metrics (optional):** after you are signed into the operator shell, the home page shows **process-lifetime** counts from **`GET /v1/diagnostics/operator-task-success-rates`** (see [`docs/OBSERVABILITY.md`](OBSERVABILITY.md) for `archlucid_operator_task_success_total`). These reset when the API host restarts — useful for demos, not a substitute for long-window analytics.
+
 ---
 
 ## Prerequisites (one check)

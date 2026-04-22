@@ -6,7 +6,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
-import { downloadValueReportDocx } from "@/lib/api";
+import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { buildAuthMeProxyRequestInit } from "@/lib/current-principal";
@@ -41,6 +41,7 @@ export default function ValueReportPage() {
   });
   const [toUtc, setToUtc] = useState(() => new Date().toISOString().slice(0, 16));
   const [busy, setBusy] = useState(false);
+  const [boardBusy, setBoardBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -76,6 +77,36 @@ export default function ValueReportPage() {
     }
   }
 
+  async function onBoardPack(): Promise<void> {
+    setBoardBusy(true);
+    setError(null);
+
+    try {
+      const now = new Date();
+      const month = now.getUTCMonth() + 1;
+      const year = now.getUTCFullYear();
+      const quarter = Math.floor((month - 1) / 3) + 1;
+
+      await downloadBoardPackPdf(year, quarter);
+    } catch (e: unknown) {
+      if (isApiRequestError(e)) {
+        setError({
+          message: e.message,
+          problem: e.problem,
+          correlationId: e.correlationId,
+        });
+      } else {
+        setError({
+          message: e instanceof Error ? e.message : "Could not generate board pack.",
+          problem: null,
+          correlationId: null,
+        });
+      }
+    } finally {
+      setBoardBusy(false);
+    }
+  }
+
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-4">
       <LayerHeader pageKey="value-report" />
@@ -107,6 +138,15 @@ export default function ValueReportPage() {
         </label>
         <Button type="button" disabled={!canMutate || busy} onClick={() => void onGenerate()}>
           {busy ? "Generating…" : "Download DOCX"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!canMutate || boardBusy}
+          onClick={() => void onBoardPack()}
+          title="Uses the current UTC calendar quarter"
+        >
+          {boardBusy ? "Board pack…" : "Quarterly board pack (PDF)"}
         </Button>
       </div>
       {!canMutate ? (

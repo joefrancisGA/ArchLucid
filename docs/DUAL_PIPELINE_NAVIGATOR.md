@@ -43,6 +43,8 @@ The two pipelines look duplicative on first read. They are not. The boundary is 
 
 The right way to challenge this boundary is to write a superseding ADR that extends ADR 0021 with concrete migration evidence (run-volume parity, replay parity, perf comparison, customer-visible audit shape). The wrong way is a "while I'm in here" refactor PR.
 
+**Strangler inventory + CI ceiling (2026-04-21 follow-on).** See [`architecture/COORDINATOR_STRANGLER_INVENTORY.md`](architecture/COORDINATOR_STRANGLER_INVENTORY.md) for migrate / keep / delete rows, [`scripts/ci/assert_coordinator_reference_ceiling.py`](../scripts/ci/assert_coordinator_reference_ceiling.py) for non-test reference-count regression (paired with—not a duplicate of—the type allow list in `DualPipelineRegistrationDisciplineTests`), and draft [`adr/0028-coordinator-strangler-completion.md`](adr/0028-coordinator-strangler-completion.md) for exit gates.
+
 ---
 
 ## Architecture overview

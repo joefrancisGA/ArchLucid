@@ -98,6 +98,12 @@ curl -s -X POST "$BASE/v1/architecture/run/RUN_ID/execute" -H "X-Correlation-ID:
 curl -s -X POST "$BASE/v1/architecture/run/RUN_ID/commit" -H "X-Correlation-ID: pilot-demo-3"
 ```
 
+**Traceability bundle (audit hand-off ZIP):** `GET /v1/architecture/run/{runId}/traceability-bundle.zip` returns `application/zip` with run summary, a scoped audit slice, and decision traces. The API applies a **size cap** and may respond with **413** when the bundle would exceed it. Use the same **ReadAuthority** auth and scope headers as other `/v1/architecture/...` reads.
+
+```bash
+curl -sS -o traceability-RUN_ID.zip "$BASE/v1/architecture/run/RUN_ID/traceability-bundle.zip"
+```
+
 ---
 
 ## Operator UI

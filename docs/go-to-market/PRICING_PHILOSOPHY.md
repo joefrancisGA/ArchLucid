@@ -10,6 +10,8 @@
 
 **Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md) and [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md).
 
+**Quote path vs live checkout (2026-04-22):** When Stripe / Marketplace checkout is not yet enabled for a segment, buyers can submit **`POST /v1/marketing/pricing/quote-request`** from the public **`/pricing`** page (rate-limited, honeypot). Requests append to **`dbo.MarketingPricingQuoteRequests`** for sales follow-up — they **do not** auto-provision tenants. Owner CRM + mailbox decisions remain in **`docs/PENDING_QUESTIONS.md`** item **13**.
+
 ---
 
 ## 1. Pricing principles

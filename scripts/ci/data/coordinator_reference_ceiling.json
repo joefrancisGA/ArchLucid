@@ -1,0 +1,7 @@
+{
+  "description": "Baseline counts of coordinator interface name tokens in non-test ArchLucid*.cs sources. assert_coordinator_reference_ceiling.py fails if any count increases (strangler drift).",
+  "tokens": {
+    "ICoordinatorGoldenManifestRepository": 12,
+    "ICoordinatorDecisionTraceRepository": 11
+  }
+}

@@ -17,6 +17,8 @@ Use this file as a **stable entry point** for paste-ready improvement prompts. D
 | **[QUALITY_IMPROVEMENT_PROMPTS.md](QUALITY_IMPROVEMENT_PROMPTS.md)** | Older quality prompt inventory (superseded in part by weighted doc). |
 | **[CURSOR_PROMPTS_BACKGROUND_TO_CONTAINER_JOBS.md](CURSOR_PROMPTS_BACKGROUND_TO_CONTAINER_JOBS.md)** | Move background hosted services (advisory scan, archival, trial lifecycle, Cosmos change feed, Service Bus consumer, etc.) to **Azure Container Apps Jobs** (chosen over Functions on cost + private-endpoint grounds). Includes shared CLI runner, Terraform module, KEDA scalers, observability, rollback drill. |
 | **[CURSOR_PROMPTS_LOGIC_APPS.md](CURSOR_PROMPTS_LOGIC_APPS.md)** | Azure Logic Apps (Standard): governance approval routing, trial lifecycle email, marketplace fulfillment hand-off, incident ChatOps (**`LOGIC_APPS_INCIDENT_CHATOPS.md`** runbook), customer promotion notifications — plus **repo execution** notes (ADR 0019, Terraform root, Marketplace integration event). |
+| **[CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md)** | **68.60%** assessment — primary **eight** improvements (reference customer, trial funnel, ROI bulletin, Marketplace/Stripe guards, `/why` PDF pack, pen-test/PGP trust, Teams, golden cohort). |
+| **[CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md)** | Same assessment — **eight follow-on** prompts **A–H** (strangler inventory + CI ceiling, board-pack PDF, task-success telemetry, pricing quote request, compliance journey page, procurement ZIP, per-run traceability ZIP, quarterly chaos game day). |
 
 | Area | Document |
 |------|----------|

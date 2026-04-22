@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
 
@@ -25,6 +26,7 @@ export default async function PricingPage(props: PricingPageProps) {
         signupHref={signupHref}
         signupCallToActionLabel="Start trial"
       />
+      <MarketingPricingQuotePanel />
     </main>
   );
 }

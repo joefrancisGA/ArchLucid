@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
@@ -39,7 +40,8 @@ public sealed class RunQueryController(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ITraceabilityBundleBuilder traceabilityBundleBuilder) : ControllerBase
 {
     /// <summary>
     /// Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId"/>.
@@ -242,6 +244,42 @@ public sealed class RunQueryController(
 
 
         return Ok(chain);
+    }
+
+    /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
+    [HttpGet("run/{runId}/traceability-bundle.zip")]
+    [Produces("application/zip")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    public async Task<IActionResult> GetTraceabilityBundleZip(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        const long maxZipBytes = 1_500_000L;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
+
+            if (zip is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            return File(zip, "application/zip", $"traceability-{runId}.zip");
+        }
+        catch (TraceabilityBundleTooLargeException ex)
+        {
+            return StatusCode(
+                StatusCodes.Status413PayloadTooLarge,
+                new
+                {
+                    title = "Traceability bundle exceeds size cap",
+                    detail = ex.Message,
+                    attemptedBytes = ex.AttemptedBytes,
+                    maxBytes = ex.MaxBytes,
+                });
+        }
     }
 
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)

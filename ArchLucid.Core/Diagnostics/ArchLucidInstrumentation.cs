@@ -392,6 +392,14 @@ public static class ArchLucidInstrumentation
             description: "Increments once per tenant on first successful manifest commit.");
 
     /// <summary>
+    /// Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> | <c>first_session_completed</c>).
+    /// </summary>
+    public static readonly Counter<long> OperatorTaskSuccessTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_operator_task_success_total",
+            description: "Server-side verified onboarding milestones (label task=first_run_committed|first_session_completed).");
+
+    /// <summary>
     /// Operator UI sponsor banner showed the days-since-first-commit badge (labels: <c>tenant_id</c>, <c>days_since_first_commit_bucket</c>).
     /// </summary>
     public static readonly Counter<long> SponsorBannerFirstCommitBadgeRenderedTotal =
@@ -701,6 +709,18 @@ public static class ArchLucidInstrumentation
 
     /// <summary>Increments <see cref="FirstSessionCompletedTotal"/> once per tenant (caller must gate).</summary>
     public static void RecordFirstSessionCompleted() => FirstSessionCompletedTotal.Add(1);
+
+    /// <summary>Increments <see cref="OperatorTaskSuccessTotal"/> for a low-cardinality <paramref name="task"/> label.</summary>
+    public static void RecordOperatorTaskSuccess(string task)
+    {
+        string t = string.IsNullOrWhiteSpace(task) ? "unknown" : task.Trim();
+        if (t is not ("first_run_committed" or "first_session_completed"))
+            throw new ArgumentOutOfRangeException(nameof(task), "task must be first_run_committed or first_session_completed.");
+
+        TagList tags = new() { { "task", t } };
+
+        OperatorTaskSuccessTotal.Add(1, tags);
+    }
 
     /// <summary>Records <see cref="LlmPromptRedactionsTotal"/> for a category bucket.</summary>
     public static void RecordLlmPromptRedactions(string category, int matchCount)

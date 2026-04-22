@@ -42,6 +42,17 @@ A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost
 
 The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
+**Quarterly board-pack PDF (`ExecuteAuthority`, Standard tier):** `POST /v1/pilots/board-pack.pdf` with JSON body `{ "year": 2026, "quarter": 1 }` returns `application/pdf`. Example (bash) with scope headers + API key:
+
+```bash
+curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
+  -H "Authorization: Bearer $ARCHLUCID_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "x-tenant-id: $TENANT_ID" -H "x-workspace-id: $WORKSPACE_ID" -H "x-project-id: $PROJECT_ID" \
+  -d '{"year":2026,"quarter":1}' \
+  --output board-pack-Q1-2026.pdf
+```
+
 ---
 
 ## Commands

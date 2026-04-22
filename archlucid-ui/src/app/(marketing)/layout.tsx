@@ -35,6 +35,9 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/demo/preview">See a real commit</Link>
               </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/compliance-journey">Compliance journey</Link>
+              </Button>
             </nav>
           </div>
           <div className="flex items-center gap-2">

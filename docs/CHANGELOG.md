@@ -4,6 +4,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-22 — Assessment follow-on A–H (`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`)
+
+**A (strangler):** `docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`, `scripts/ci/assert_coordinator_reference_ceiling.py` + baseline JSON + unittest discover in `ci.yml`, draft **`docs/adr/0028-coordinator-strangler-completion.md`**, cross-link from **`docs/DUAL_PIPELINE_NAVIGATOR.md`**. **B:** `POST /v1/pilots/board-pack.pdf` + `BoardPackPdfBuilder` (exec digest + value-report reuse), value-report UI CTA. **C:** `archlucid_operator_task_success_total` + `GET /v1/diagnostics/operator-task-success-rates` + operator home tile. **D:** `POST /v1/marketing/pricing/quote-request` + migration **106** + pricing form. **E:** marketing **`/compliance-journey`**. **F:** `scripts/build_procurement_pack.{sh,ps1}` + Trust Center / integration catalog notes. **G:** `GET /v1/architecture/run/{runId}/traceability-bundle.zip` + `TraceabilityBundleBuilder`. **H:** `docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`, Simmy workflow_dispatch inputs, `docs/quality/game-day-log/README.md`, `docs/TEST_EXECUTION_MODEL.md` link, **`PENDING_QUESTIONS.md`** item **34**. OpenAPI snapshot refreshed.
+
 ## 2026-04-22 — PLG reference publication scaffolding (Prompt 1) + Microsoft Teams connector (Prompt 7) from `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`
 
 **Reference customer (PLG):** Owner substitution checklist table at the top of **`docs/go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md`**; committed demo sample **`docs/go-to-market/reference-customers/samples/pilot-run-deltas.demo-tenant.json`**; one-page scaffold pointer **`docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_DEMO_SCAFFOLD.md`**. **Row state convention:** **Drafting → Customer review** is normal assistant/CS prep work; **Customer review → Published** is **owner-only** (same discipline as `README.md` table + `check_reference_customer_status.py` merge-blocking flip when Published).

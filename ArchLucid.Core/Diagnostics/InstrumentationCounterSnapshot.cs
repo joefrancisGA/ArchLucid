@@ -15,4 +15,8 @@ public sealed class InstrumentationCounterSnapshot
     /// <summary>Sum of <c>archlucid_findings_produced_total</c> measurements grouped by the <c>severity</c> tag.</summary>
     public IReadOnlyDictionary<string, long> FindingsProducedBySeverity { get; init; } =
         new Dictionary<string, long>(StringComparer.Ordinal);
+
+    /// <summary>Sum of <c>archlucid_operator_task_success_total</c> grouped by the <c>task</c> tag (process lifetime).</summary>
+    public IReadOnlyDictionary<string, long> OperatorTaskSuccessByTask { get; init; } =
+        new Dictionary<string, long>(StringComparer.Ordinal);
 }

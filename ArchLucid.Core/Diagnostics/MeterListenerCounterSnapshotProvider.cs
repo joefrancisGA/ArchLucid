@@ -4,8 +4,9 @@ namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Subscribes to the <c>ArchLucid</c> <see cref="Meter"/> at construction and accumulates measurements for the
-/// counters used by the <c>/why-archlucid</c> proof page (<c>archlucid_runs_created_total</c> and
-/// <c>archlucid_findings_produced_total</c> grouped by <c>severity</c>).
+/// counters used by the <c>/why-archlucid</c> proof page and operator diagnostics
+/// (<c>archlucid_runs_created_total</c>, <c>archlucid_findings_produced_total</c> by <c>severity</c>,
+/// <c>archlucid_operator_task_success_total</c> by <c>task</c>).
 /// </summary>
 /// <remarks>
 /// Designed to be registered as a <c>Singleton</c> so the listener stays alive for the host's lifetime; counts are
@@ -16,11 +17,15 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
 {
     private const string RunsCreatedInstrumentName = "archlucid_runs_created_total";
     private const string FindingsProducedInstrumentName = "archlucid_findings_produced_total";
+    private const string OperatorTaskSuccessInstrumentName = "archlucid_operator_task_success_total";
     private const string SeverityTag = "severity";
+    private const string TaskTag = "task";
     private const string UnknownSeverity = "unknown";
+    private const string UnknownTask = "unknown";
 
     private readonly Lock _gate = new();
     private readonly Dictionary<string, long> _findingsBySeverity = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, long> _operatorTaskSuccess = new(StringComparer.Ordinal);
     private readonly MeterListener _listener;
     private long _runsCreated;
 
@@ -43,6 +48,7 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
             {
                 RunsCreatedTotal = _runsCreated,
                 FindingsProducedBySeverity = new Dictionary<string, long>(_findingsBySeverity, StringComparer.Ordinal),
+                OperatorTaskSuccessByTask = new Dictionary<string, long>(_operatorTaskSuccess, StringComparer.Ordinal),
             };
     }
 
@@ -55,7 +61,8 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName) return false;
 
         return instrument.Name == RunsCreatedInstrumentName
-            || instrument.Name == FindingsProducedInstrumentName;
+            || instrument.Name == FindingsProducedInstrumentName
+            || instrument.Name == OperatorTaskSuccessInstrumentName;
     }
 
     private void OnInstrumentPublished(Instrument instrument, MeterListener listener)
@@ -89,6 +96,19 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
                 _findingsBySeverity.TryGetValue(severity, out long current);
                 _findingsBySeverity[severity] = current + measurement;
             }
+
+            return;
+        }
+
+        if (instrument.Name == OperatorTaskSuccessInstrumentName)
+        {
+            string task = ResolveTaskTag(tags);
+
+            lock (_gate)
+            {
+                _operatorTaskSuccess.TryGetValue(task, out long current);
+                _operatorTaskSuccess[task] = current + measurement;
+            }
         }
     }
 
@@ -102,5 +122,17 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         }
 
         return UnknownSeverity;
+    }
+
+    private static string ResolveTaskTag(ReadOnlySpan<KeyValuePair<string, object?>> tags)
+    {
+        foreach (KeyValuePair<string, object?> tag in tags)
+        {
+            if (!string.Equals(tag.Key, TaskTag, StringComparison.Ordinal)) continue;
+            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s)) return s;
+            if (tag.Value is { } o) return o.ToString() ?? UnknownTask;
+        }
+
+        return UnknownTask;
     }
 }

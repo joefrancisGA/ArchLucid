@@ -1467,6 +1467,11 @@ export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/v1/artifacts/runs/${runId}/export`;
 }
 
+/** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
+export function getTraceabilityBundleDownloadUrl(runId: string): string {
+  return `/api/proxy/v1/architecture/run/${encodeURIComponent(runId)}/traceability-bundle.zip`;
+}
+
 /** DOCX package; optional compare + AI narrative flags. */
 export function getArchitecturePackageDocxUrl(
   runId: string,
@@ -1526,6 +1531,51 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
     `ArchLucid-first-value-report-${runId}.pdf`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
+}
+
+/**
+ * POST `/v1/pilots/board-pack.pdf` — quarterly sponsor PDF (`ExecuteAuthority`, Standard+ tier on API).
+ * Browser-only download.
+ */
+export async function downloadBoardPackPdf(year: number, quarter: number): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadBoardPackPdf is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = "/v1/pilots/board-pack.pdf";
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set("Accept", "application/pdf, application/json");
+  headers.set("Content-Type", "application/json");
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+    body: JSON.stringify({ year, quarter }),
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw buildApiRequestErrorFromParts(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `ArchLucid-board-pack-Q${quarter}-${year}.pdf`;
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");

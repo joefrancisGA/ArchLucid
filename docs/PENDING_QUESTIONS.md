@@ -83,6 +83,8 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 13. **Public price list publication on marketing site** — `PRICING_PHILOSOPHY.md` is internal today. Marketplace publication (item 8) makes price public anyway; do we publish on the marketing site simultaneously or stay quote-on-request elsewhere?
 
+    - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path; CRM / Salesforce owner decisions still apply before production mail-forwarding.
+
 14. **Cross-tenant pattern-library implementing ADR ownership** — approved per item above (`Resolved` table) but the implementing ADR has not been drafted; who owns it?
 
 15. **Golden-cohort LLM budget approval** — Prompt 6 stands up a nightly golden-cohort drift detector. Owner approves a dedicated Azure OpenAI deployment + estimated monthly token budget for the nightly run.
@@ -143,6 +145,8 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 32. **Microsoft Teams notification triggers beyond v1 defaults** — Repo ships Logic Apps + API wiring for **`com.archlucid.authority.run.completed`**, **`com.archlucid.governance.approval.submitted`**, and **`com.archlucid.alert.fired`** (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Which **additional** `eventType` values (e.g. `com.archlucid.advisory.scan.completed`, compliance drift escalations) should the first production workflow subscribe to?
 
 33. **Golden-cohort baseline SHA lock timing** — Lock committed-manifest SHA-256 values in `tests/golden-cohort/cohort.json` from a **single approved Simulator run today** (`archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true` for that shell only), **or** wait for product review to approve the cohort scenario list before locking? Either path is valid; the CLI `--write` gate exists so SHAs are not rewritten without an explicit owner ack.
+
+34. **Production Simmy / fault-injection game day** — The `simmy-chaos-scheduled.yml` workflow exposes a **`production`** `environment` input for documentation symmetry only. **Default remains staging-only execution.** Owner must approve any real production chaos (customer notification, SLO ownership, blast radius, rollback). See [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](runbooks/GAME_DAY_CHAOS_QUARTERLY.md).
 
 ---
 
