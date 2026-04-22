@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
@@ -124,6 +125,15 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
         IRunCommitOrchestrator facade = scope.ServiceProvider.GetRequiredService<IRunCommitOrchestrator>();
 
         facade.Should().BeOfType<RunCommitOrchestratorFacade>();
+    }
+
+    [Fact]
+    public void IArchitectureRunCommitOrchestrator_resolves_to_RunCommitPathSelector()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IArchitectureRunCommitOrchestrator commit = scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
+
+        commit.Should().BeOfType<RunCommitPathSelector>();
     }
 
     [Fact]
