@@ -94,10 +94,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "security-trust": {
     layerBadge: "Enterprise Controls",
-    headline: "Procurement-facing security posture and published assessments.",
-    useWhen: "Use when buyers need CAIQ/SIG pointers, pen-test publication status, and trust-center cross-links.",
-    firstPilotNote: "Assessment badge lights when an admin records a SecurityAssessmentPublished audit via API.",
-    enterpriseFootnote: "Read-oriented; publication is Admin API + audit trail.",
+    headline: "Procurement-facing security posture and NDA-gated pen-test summaries.",
+    useWhen: "Use when buyers need CAIQ/SIG pointers, Trust Center links, and the NDA path for redacted pen-test excerpts.",
+    firstPilotNote:
+      "Redacted third-party summaries are NDA-only — contact security@ from this page; no public pen-test body is hosted here.",
+    enterpriseFootnote: "Read-oriented; Admin API may still emit SecurityAssessmentPublished for audit/SIEM without implying public publication.",
   },
   "teams-notifications": {
     layerBadge: "Enterprise Controls",

@@ -42,13 +42,16 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Per owner decision 2026-04-22 (PENDING_QUESTIONS item 34), production chaos is
+      # out of scope for v1 and beyond. Reopening requires an explicit ADR — do not loosen
+      # this guard via PR review alone.
       - name: Production workflow_dispatch gate (PENDING_QUESTIONS item 34)
         if: github.event_name == 'workflow_dispatch'
         env:
           PRODUCTION_INPUT: ${{ github.event.inputs.production }}
         run: |
           if [ -n "${PRODUCTION_INPUT}" ]; then
-            echo "::error::workflow_dispatch input 'production' must remain empty. Staging-only; owner approval required for production chaos."
+            echo "::error::workflow_dispatch input 'production' must remain empty. Staging-only; production chaos is out of scope for v1+ (PENDING_QUESTIONS item 34) — reopen only via ADR."
             exit 1
           fi
 

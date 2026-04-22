@@ -94,7 +94,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         blobName = blobName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
 
         List<string> parts = [];
-        parts.AddRange(blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Select(part => SanitizeSegment(part)).Where(s => s.Length > 0));
+        parts.AddRange(blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Select(SanitizeSegment).Where(s => s.Length > 0));
 
         return parts.Count > 0 ? Path.Combine(parts.ToArray()) : "payload.bin";
     }
