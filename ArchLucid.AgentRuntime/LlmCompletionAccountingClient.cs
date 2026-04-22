@@ -61,7 +61,7 @@ public sealed class LlmCompletionAccountingClient(
 
         if (!redactionOpts.Enabled)
         {
-            ArchLucidInstrumentation.RecordLlmPromptRedactionSkipped(1);
+            ArchLucidInstrumentation.RecordLlmPromptRedactionSkipped();
         }
         else
         {

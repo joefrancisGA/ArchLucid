@@ -1,4 +1,3 @@
-using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
@@ -39,9 +38,8 @@ public static class RunExplanationCitationBuilder
             }
         }
 
-        if (detail.ArtifactBundle is ArtifactBundle b)
+        if (detail.ArtifactBundle is { } b)
             list.Add(new CitationReference(CitationKind.EvidenceBundle, b.BundleId.ToString("D"), "Artifact bundle", runId));
-
 
         return list;
     }

@@ -1,8 +1,6 @@
 using System.Globalization;
 using System.Text;
 
-using System.Linq;
-
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
@@ -29,8 +27,8 @@ internal static class WhyArchLucidPackSourceMapper
             '\n',
             new[]
             {
-                $"| Field | Value |",
-                $"|-------|-------|",
+                "| Field | Value |",
+                "|-------|-------|",
                 $"| ManifestId | `{m.ManifestId}` |",
                 $"| RunId | `{m.RunId}` |",
                 $"| CreatedUtc | {m.CreatedUtc:O} |",
@@ -53,8 +51,8 @@ internal static class WhyArchLucidPackSourceMapper
             '\n',
             new[]
             {
-                $"| Chain id | Value |",
-                $"|----------|-------|",
+                "| Chain id | Value |",
+                "|----------|-------|",
                 Row("ContextSnapshotId", chain.ContextSnapshotId),
                 Row("GraphSnapshotId", chain.GraphSnapshotId),
                 Row("FindingsSnapshotId", chain.FindingsSnapshotId),
@@ -160,16 +158,25 @@ internal static class WhyArchLucidPackSourceMapper
 
         delta.AppendLine();
 
-        if (explain.FindingTraceConfidences is { Count: > 0 } ftc)
-        {
-            delta.AppendLine("**Finding trace completeness (first rows)**");
-            delta.AppendLine();
+        if (explain.FindingTraceConfidences is not { Count: > 0 } ftc)
+            return new WhyArchLucidPackSourceDto(
+                run.RunId,
+                run.ProjectId,
+                manifestMd,
+                authorityMd,
+                artifacts.ToString(),
+                timeline.ToString(),
+                explainBody.ToString(),
+                citations.ToString(),
+                delta.ToString());
 
-            foreach (FindingTraceConfidenceDto row in ftc.Take(5))
-            {
-                delta.AppendLine(
-                    $"- Finding `{row.FindingId}` — ratio {row.TraceCompletenessRatio.ToString(CultureInfo.InvariantCulture)} ({row.TraceConfidenceLabel})");
-            }
+        delta.AppendLine("**Finding trace completeness (first rows)**");
+        delta.AppendLine();
+
+        foreach (FindingTraceConfidenceDto row in ftc.Take(5))
+        {
+            delta.AppendLine(
+                $"- Finding `{row.FindingId}` — ratio {row.TraceCompletenessRatio.ToString(CultureInfo.InvariantCulture)} ({row.TraceConfidenceLabel})");
         }
 
         return new WhyArchLucidPackSourceDto(
