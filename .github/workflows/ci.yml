@@ -184,10 +184,13 @@ jobs:
         # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 — then fix or set merge-blocking.
         run: python scripts/ci/assert_pgp_key_present.py
 
-      - name: PGP key presence guard unit tests
+      - name: PGP key presence + golden cohort budget probe unit tests
         run: |
+          python -m pip install --upgrade pip
+          pip install requests
           cd scripts/ci
           python -m unittest test_assert_pgp_key_present
+          python -m unittest test_golden_cohort_budget_probe
 
       - name: Guard — no legacy ArchiForge.* workspace directories
         run: python scripts/ci/check_no_legacy_archiforge_dirs.py
