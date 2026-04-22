@@ -15,6 +15,7 @@ public static class MarketplaceWebhookPayloadParser
 
         string p = planId.Trim();
 
+        // ReSharper disable once ConvertIfStatementToReturnStatement
         if (p.Contains("enterprise", StringComparison.OrdinalIgnoreCase))
             return nameof(TenantTier.Enterprise);
 
@@ -48,14 +49,11 @@ public static class MarketplaceWebhookPayloadParser
         if (q.ValueKind == JsonValueKind.Number && q.TryGetInt32(out int n))
             return Math.Max(1, n);
 
-        if (q.ValueKind == JsonValueKind.String)
-        {
-            string? s = q.GetString();
+        if (q.ValueKind != JsonValueKind.String)
+            return Math.Max(1, fallback);
 
-            if (int.TryParse(s, out int parsed))
-                return Math.Max(1, parsed);
-        }
+        string? s = q.GetString();
 
-        return Math.Max(1, fallback);
+        return Math.Max(1, int.TryParse(s, out int parsed) ? parsed : fallback);
     }
 }

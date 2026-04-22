@@ -24,19 +24,12 @@ public static class IntegrationEventServiceBusApplicationProperties
 
 
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.GovernancePromotionActivatedV1))
-
             return TryResolveGovernancePromotionActivated(payloadUtf8);
-
 
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertFiredV1))
             return TryResolveAlertFired(payloadUtf8);
 
-
-        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1))
-            return TryResolveAlertResolved(payloadUtf8);
-
-
-        return null;
+        return IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1) ? TryResolveAlertResolved(payloadUtf8) : null;
     }
 
     private static IReadOnlyDictionary<string, object>? TryResolveGovernancePromotionActivated(ReadOnlyMemory<byte> payloadUtf8)
@@ -47,7 +40,6 @@ public static class IntegrationEventServiceBusApplicationProperties
 
             if (!doc.RootElement.TryGetProperty("environment", out JsonElement envEl))
                 return null;
-
 
             string? env = envEl.GetString();
 
@@ -80,20 +72,16 @@ public static class IntegrationEventServiceBusApplicationProperties
                 string? sev = sevEl.GetString();
 
                 if (!string.IsNullOrWhiteSpace(sev))
-
                     map[SeverityPropertyName] = sev.Trim().ToLowerInvariant();
-
             }
 
-            if (doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
-            {
-                string? dedupe = dedupeEl.GetString();
+            if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
+                return map.Count > 0 ? map : null;
 
-                if (!string.IsNullOrWhiteSpace(dedupe))
+            string? dedupe = dedupeEl.GetString();
 
-                    map[DeduplicationKeyPropertyName] = dedupe.Trim();
-
-            }
+            if (!string.IsNullOrWhiteSpace(dedupe))
+                map[DeduplicationKeyPropertyName] = dedupe.Trim();
 
             return map.Count > 0 ? map : null;
         }

@@ -15,12 +15,6 @@ public static class BillingPlanMutationPolicy
     /// </summary>
     public static bool WebhookPlanMutationsEnabled(BillingOptions billing)
     {
-        if (billing is null)
-            return false;
-
-        if (billing.AzureMarketplace.GaEnabled)
-            return true;
-
-        return string.Equals(billing.Provider, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase);
+        return billing.AzureMarketplace.GaEnabled || string.Equals(billing.Provider, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase);
     }
 }
