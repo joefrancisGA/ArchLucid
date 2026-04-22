@@ -12,7 +12,7 @@
 | Mechanism | When | Purpose |
 |-----------|------|---------|
 | **Main CI — job `Resilience: Simmy chaos tests` (`chaos-tests`)** | Every push / PR to `main` or `master`, after **`.NET: full regression (SQL)`** succeeds | Runs `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` with the same Simmy/Chaos FQN filter as `simmy-chaos-scheduled.yml`; uploads TRX as artifact **`chaos-test-results`**. |
-| **`.github/workflows/simmy-chaos-scheduled.yml`** | Weekly cron + manual dispatch | Second line of defense; same test filter today; can be extended later for longer or parameterized suites. |
+| **`.github/workflows/simmy-chaos-scheduled.yml`** | Quarterly cron (**14:00 UTC** on calendar dates in [`docs/quality/game-day-log/README.md`](quality/game-day-log/README.md)) + manual dispatch (staging-only) | Second line of defense; same test filter today; closing-report paths are echoed in the job summary for paste-back. |
 
 **Triage when `chaos-tests` fails**
 

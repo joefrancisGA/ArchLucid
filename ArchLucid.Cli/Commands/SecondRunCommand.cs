@@ -86,7 +86,7 @@ internal static class SecondRunCommand
                     return null;
 
 
-                return (ArchitectureRunStatus)detail.Run.Status;
+                return detail.Run.Status;
             },
             options.CommitDeadline,
             options.PollInterval,

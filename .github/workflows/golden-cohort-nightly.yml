@@ -1,9 +1,9 @@
-# Nightly golden cohort: JSON contract (always) + optional simulator drift when baseline SHAs are locked in repo.
+# Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
+# ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
 #
-# Owner approval to lock baseline SHAs was granted 2026-04-21 (PENDING_QUESTIONS.md item 33). Until an operator runs
-# `archlucid golden-cohort lock-baseline --write` (see tests/golden-cohort/README.md) AND sets the repository variable
-# ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED to "true", only the JSON contract job runs and the cohort-simulator-drift
-# job is skipped. The skip is intentional, not a misconfiguration.
+# Baseline SHAs in tests/golden-cohort/cohort.json were captured from an approved Simulator run (item 33, 2026-04-21).
+# CI (doc-markdown-links job) also runs scripts/ci/assert_golden_cohort_baseline_locked.py with the locked flag so a
+# PR cannot regress to placeholder SHAs while the repo treats the baseline as locked.
 name: golden-cohort-nightly
 
 on:
@@ -58,6 +58,11 @@ jobs:
         run: |
           dotnet restore ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
           dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-restore -c Release
+
+      - name: Assert cohort.json has no placeholder SHAs while baseline locked
+        env:
+          ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
+        run: python scripts/ci/assert_golden_cohort_baseline_locked.py
 
       - name: Archive prior drift summary (best-effort)
         run: |

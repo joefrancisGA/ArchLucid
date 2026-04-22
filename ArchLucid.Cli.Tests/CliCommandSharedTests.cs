@@ -80,8 +80,10 @@ public sealed class CliCommandSharedTests
                 new()
                 {
                     TaskId = "t1",
+                    RunId = "run-1",
                     Objective = "obj",
-                    AgentType = (int)AgentType.Topology,
+                    AgentType = AgentType.Topology,
+                    Status = AgentTaskStatus.Created,
                 },
             ];
 
@@ -91,7 +93,7 @@ public sealed class CliCommandSharedTests
                 "http://localhost/",
                 "run-1",
                 "req-1",
-                2,
+                ArchitectureRunStatus.TasksGenerated,
                 created,
                 tasks,
                 manifestVersion: "mv1");

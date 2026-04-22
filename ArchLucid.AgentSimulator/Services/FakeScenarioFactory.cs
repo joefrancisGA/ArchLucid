@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -9,6 +12,20 @@ namespace ArchLucid.AgentSimulator.Services;
 
 public static class FakeScenarioFactory
 {
+    /// <summary>
+    /// Fixed synthetic timestamp for Simulator <see cref="AgentResult.CreatedUtc"/> so golden-cohort locks and
+    /// determinism tests do not depend on wall-clock time.
+    /// </summary>
+    private static readonly DateTime SimulatorSyntheticCreatedUtc = new(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+
+    /// <summary>128-bit lowercase hex id (same shape as <c>Guid.ToString("N")</c>) derived from run + task + slot.</summary>
+    private static string StableHexId(string runId, string taskId, string slot)
+    {
+        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes($"{runId}|{taskId}|{slot}"));
+
+        return Convert.ToHexString(digest.AsSpan(0, 16)).ToLowerInvariant();
+    }
+
     public static AgentResult CreateTopologyResult(
         string runId,
         string taskId,
@@ -16,7 +33,7 @@ public static class FakeScenarioFactory
     {
         return new AgentResult
         {
-            ResultId = Guid.NewGuid().ToString("N"),
+            ResultId = StableHexId(runId, taskId, "topology-result"),
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Topology,
@@ -38,7 +55,7 @@ public static class FakeScenarioFactory
             [
                 new ArchitectureFinding
                 {
-                    FindingId = Guid.NewGuid().ToString("N"),
+                    FindingId = StableHexId(runId, taskId, "topology-finding-0"),
                     SourceAgent = AgentType.Topology,
                     Severity = "Info",
                     Category = "Topology",
@@ -48,7 +65,7 @@ public static class FakeScenarioFactory
             ],
             ProposedChanges = new ManifestDeltaProposal
             {
-                ProposalId = Guid.NewGuid().ToString("N"),
+                ProposalId = StableHexId(runId, taskId, "topology-proposal"),
                 SourceAgent = AgentType.Topology,
                 AddedServices =
                 [
@@ -124,7 +141,7 @@ public static class FakeScenarioFactory
                     "Topology is optimized for MVP simplicity."
                 ]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
 
@@ -135,7 +152,7 @@ public static class FakeScenarioFactory
     {
         return new AgentResult
         {
-            ResultId = Guid.NewGuid().ToString("N"),
+            ResultId = StableHexId(runId, taskId, "cost-result"),
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Cost,
@@ -155,7 +172,7 @@ public static class FakeScenarioFactory
             [
                 new ArchitectureFinding
                 {
-                    FindingId = Guid.NewGuid().ToString("N"),
+                    FindingId = StableHexId(runId, taskId, "cost-finding-0"),
                     SourceAgent = AgentType.Cost,
                     Severity = "Info",
                     Category = "Cost",
@@ -165,14 +182,14 @@ public static class FakeScenarioFactory
             ],
             ProposedChanges = new ManifestDeltaProposal
             {
-                ProposalId = Guid.NewGuid().ToString("N"),
+                ProposalId = StableHexId(runId, taskId, "cost-proposal"),
                 SourceAgent = AgentType.Cost,
                 Warnings =
                 [
                     "Search and token usage should be tracked from day one."
                 ]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
 
@@ -196,7 +213,7 @@ public static class FakeScenarioFactory
 
         return new AgentResult
         {
-            ResultId = Guid.NewGuid().ToString("N"),
+            ResultId = StableHexId(runId, taskId, "compliance-result"),
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Compliance,
@@ -216,7 +233,7 @@ public static class FakeScenarioFactory
             [
                 new ArchitectureFinding
                 {
-                    FindingId = Guid.NewGuid().ToString("N"),
+                    FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
                     SourceAgent = AgentType.Compliance,
                     Severity = "High",
                     Category = "Compliance",
@@ -225,7 +242,7 @@ public static class FakeScenarioFactory
                 },
                 new ArchitectureFinding
                 {
-                    FindingId = Guid.NewGuid().ToString("N"),
+                    FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
                     SourceAgent = AgentType.Compliance,
                     Severity = "High",
                     Category = "Compliance",
@@ -235,7 +252,7 @@ public static class FakeScenarioFactory
             ],
             ProposedChanges = new ManifestDeltaProposal
             {
-                ProposalId = Guid.NewGuid().ToString("N"),
+                ProposalId = StableHexId(runId, taskId, "compliance-proposal"),
                 SourceAgent = AgentType.Compliance,
                 RequiredControls = requiredControls,
                 Warnings =
@@ -243,7 +260,7 @@ public static class FakeScenarioFactory
                     "Any public network access should require explicit exception review."
                 ]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
 
@@ -254,7 +271,7 @@ public static class FakeScenarioFactory
     {
         return new AgentResult
         {
-            ResultId = Guid.NewGuid().ToString("N"),
+            ResultId = StableHexId(runId, taskId, "critic-result"),
             TaskId = taskId,
             RunId = runId,
             AgentType = AgentType.Critic,
@@ -273,7 +290,7 @@ public static class FakeScenarioFactory
             [
                 new ArchitectureFinding
                 {
-                    FindingId = Guid.NewGuid().ToString("N"),
+                    FindingId = StableHexId(runId, taskId, "critic-finding-0"),
                     SourceAgent = AgentType.Critic,
                     Severity = "Info",
                     Category = "Critic",
@@ -283,14 +300,14 @@ public static class FakeScenarioFactory
             ],
             ProposedChanges = new ManifestDeltaProposal
             {
-                ProposalId = Guid.NewGuid().ToString("N"),
+                ProposalId = StableHexId(runId, taskId, "critic-proposal"),
                 SourceAgent = AgentType.Critic,
                 Warnings =
                 [
                     "Future growth may justify revisiting hosting and indexing topology."
                 ]
             },
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = SimulatorSyntheticCreatedUtc
         };
     }
 }

@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Compile Include="ArchLucidApiClientPackage.cs" />
+    <Compile Include="ArchLucidApiClientSerializerSettings.cs" />
   </ItemGroup>
 
   <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">

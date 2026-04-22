@@ -1,127 +1,182 @@
 {
   "schemaVersion": 1,
   "cohortName": "architecture-golden-20",
-  "description": "Representative architecture requests for nightly simulator drift checks. SHA placeholders must be replaced after a locked baseline run (see README).",
+  "description": "Representative architecture requests for nightly simulator drift checks. Baseline SHAs are locked from an approved Simulator run (see README; PENDING_QUESTIONS item 33).",
   "items": [
     {
       "id": "gc-001",
       "title": "Baseline Azure web workload (single region)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost", "Topology"]
+      "expectedCommittedManifestSha256": "bdd6adef59a26bab3c68f6c9b7c76f2dd3cb242c786c44f29076fdc02f0a0f02",
+      "expectedFindingCategories": [
+        "Cost",
+        "Topology"
+      ]
     },
     {
       "id": "gc-002",
       "title": "Multi-region active/active API with Service Bus",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology", "Cost"]
+      "expectedCommittedManifestSha256": "fb9e127f9387b9e9c0d485db9186e2d4deaa7b152a0e1166e10ed49e294112f9",
+      "expectedFindingCategories": [
+        "Topology",
+        "Cost"
+      ]
     },
     {
       "id": "gc-003",
       "title": "Lift-and-shift VM fleet with ExpressRoute",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost"]
+      "expectedCommittedManifestSha256": "eef7ce9b3062572d4ac9cf8e20840148a68c5c2d82803529fe4761786ffb8992",
+      "expectedFindingCategories": [
+        "Cost"
+      ]
     },
     {
       "id": "gc-004",
-      "title": "Kubernetes ingress + internal-only APIs",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology", "Compliance"]
+      "title": "Kubernetes ingress \u002B internal-only APIs",
+      "expectedCommittedManifestSha256": "d829f780bd5b4088b3eca656b1d40926faf0707e80077faea387ca2b76b85511",
+      "expectedFindingCategories": [
+        "Topology",
+        "Compliance"
+      ]
     },
     {
       "id": "gc-005",
-      "title": "Data platform — ADLS + Synapse consumption",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost", "Topology"]
+      "title": "Data platform \u2014 ADLS \u002B Synapse consumption",
+      "expectedCommittedManifestSha256": "e6013fec8222152d5ed4f97dfcd236f06666fcc0c3e80d9d2295a6072eefd981",
+      "expectedFindingCategories": [
+        "Cost",
+        "Topology"
+      ]
     },
     {
       "id": "gc-006",
       "title": "Zero-trust segmentation for line-of-business tiers",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance", "Topology"]
+      "expectedCommittedManifestSha256": "321955d8c9c2438d8f35fb044dae32ee8fb17852101c10c12470a590ad284cdf",
+      "expectedFindingCategories": [
+        "Compliance",
+        "Topology"
+      ]
     },
     {
       "id": "gc-007",
-      "title": "Event-driven claims processing (Functions + Cosmos)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost", "Topology"]
+      "title": "Event-driven claims processing (Functions \u002B Cosmos)",
+      "expectedCommittedManifestSha256": "56f20d1c90e829029329efe9bb7c591f34c0b39623b5995f9a6d2858da09567b",
+      "expectedFindingCategories": [
+        "Cost",
+        "Topology"
+      ]
     },
     {
       "id": "gc-008",
       "title": "Batch analytics export to partner SFTP",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance", "Cost"]
+      "expectedCommittedManifestSha256": "1e74a1758e72861117d6f7eba0d5b34172371f6f0d6670df6fbc49f9194e645b",
+      "expectedFindingCategories": [
+        "Compliance",
+        "Cost"
+      ]
     },
     {
       "id": "gc-009",
       "title": "SAP adjacent integration hub (Logic Apps)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology"]
+      "expectedCommittedManifestSha256": "13e2c1e505aef453bbd6958d1c393b8ec4a27aa0d8e658f6587818a0846eb0f3",
+      "expectedFindingCategories": [
+        "Topology"
+      ]
     },
     {
       "id": "gc-010",
       "title": "PCI-scoped payment capture (tokenization boundary)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance", "Topology"]
+      "expectedCommittedManifestSha256": "5016684137e0fa7e1fc200c4358932a76eb725523bf106b3fdbaaad5087b0074",
+      "expectedFindingCategories": [
+        "Compliance",
+        "Topology"
+      ]
     },
     {
       "id": "gc-011",
-      "title": "IoT telemetry hot path + cold archive",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost", "Topology"]
+      "title": "IoT telemetry hot path \u002B cold archive",
+      "expectedCommittedManifestSha256": "db1c498da7e7a7ff4c870e4fa0af007c2db1e70419ad2c8653337c7a460f3c30",
+      "expectedFindingCategories": [
+        "Cost",
+        "Topology"
+      ]
     },
     {
       "id": "gc-012",
-      "title": "Contact center omnichannel (voice + chat)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology"]
+      "title": "Contact center omnichannel (voice \u002B chat)",
+      "expectedCommittedManifestSha256": "5c6f971286ac381a5760b36fd8887ff5808c352e7ad82e75e8541e78debcba64",
+      "expectedFindingCategories": [
+        "Topology"
+      ]
     },
     {
       "id": "gc-013",
-      "title": "DR drill — regional failover for stateful services",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology", "Cost"]
+      "title": "DR drill \u2014 regional failover for stateful services",
+      "expectedCommittedManifestSha256": "d5843680eef0f938e38f5d921723b65c01df76b0ca6c2d546261744f2cc41d39",
+      "expectedFindingCategories": [
+        "Topology",
+        "Cost"
+      ]
     },
     {
       "id": "gc-014",
-      "title": "Secrets rotation posture (KV + managed identities)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance"]
+      "title": "Secrets rotation posture (KV \u002B managed identities)",
+      "expectedCommittedManifestSha256": "71111677dd503fdac3fa674c637b1bdafdf6bfec79a14e6ef8d67d5dc3443b4c",
+      "expectedFindingCategories": [
+        "Compliance"
+      ]
     },
     {
       "id": "gc-015",
       "title": "Multi-tenant SaaS control plane isolation",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance", "Topology"]
+      "expectedCommittedManifestSha256": "0eb5cbaeb9c337388063671c682287a301bc10ce0d771f2cf0e77cd237c62c60",
+      "expectedFindingCategories": [
+        "Compliance",
+        "Topology"
+      ]
     },
     {
       "id": "gc-016",
       "title": "Edge manufacturing MES integration",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology", "Cost"]
+      "expectedCommittedManifestSha256": "cec2cc4fcbf53aeecf8bc11115a70470a9c27681b6ce0a781adff5e868ca2539",
+      "expectedFindingCategories": [
+        "Topology",
+        "Cost"
+      ]
     },
     {
       "id": "gc-017",
-      "title": "Regulated health data — FHIR facade",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Compliance", "Topology"]
+      "title": "Regulated health data \u2014 FHIR facade",
+      "expectedCommittedManifestSha256": "80703ba52991b45b15ae364afda4c640b21572607ce83e76c662cebca319cfd0",
+      "expectedFindingCategories": [
+        "Compliance",
+        "Topology"
+      ]
     },
     {
       "id": "gc-018",
-      "title": "FinOps guardrails — budget + anomaly routing",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost"]
+      "title": "FinOps guardrails \u2014 budget \u002B anomaly routing",
+      "expectedCommittedManifestSha256": "68815a518714fac1a86d4d45261031240d3fd3622c0fda064ce85cbf04df9d72",
+      "expectedFindingCategories": [
+        "Cost"
+      ]
     },
     {
       "id": "gc-019",
       "title": "Graph-heavy recommendation service (GPU inference)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Cost", "Topology"]
+      "expectedCommittedManifestSha256": "67a4519977f5f435d9674819d09dd57dc7eb74c5b1e2e3f1dcf84e219e25a448",
+      "expectedFindingCategories": [
+        "Cost",
+        "Topology"
+      ]
     },
     {
       "id": "gc-020",
-      "title": "Legacy mainframe bridge (MQ + API gateway)",
-      "expectedCommittedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "expectedFindingCategories": ["Topology", "Compliance"]
+      "title": "Legacy mainframe bridge (MQ \u002B API gateway)",
+      "expectedCommittedManifestSha256": "d5577415b242698b478a3d3db8311586c3e9554ca48e1ab2095187b3ea625ba5",
+      "expectedFindingCategories": [
+        "Topology",
+        "Compliance"
+      ]
     }
   ]
 }
