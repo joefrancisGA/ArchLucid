@@ -100,7 +100,7 @@ public sealed class CoordinatorAuditDurableTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+            Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
@@ -489,7 +489,7 @@ public sealed class CoordinatorAuditDurableTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
-            Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+            Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 

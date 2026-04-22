@@ -95,9 +95,8 @@ public sealed class FindingEvidenceChainServiceTests
         out Mock<IAuthorityQueryService> authority,
         out Mock<IAgentExecutionTraceRepository> traces)
     {
-        Mock<IScopeContextProvider> scope;
         authority = new Mock<IAuthorityQueryService>();
-        scope = new Mock<IScopeContextProvider>();
+        Mock<IScopeContextProvider> scope = new();
         traces = new Mock<IAgentExecutionTraceRepository>();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 

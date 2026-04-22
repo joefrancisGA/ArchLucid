@@ -13,7 +13,7 @@ public sealed class GoldenCohortDriftMarkdownTests
     {
         GoldenCohortDriftRow[] rows =
         [
-            new GoldenCohortDriftRow("gc-001", "aa", "bb", false, "Cost", "Topology", false),
+            new("gc-001", "aa", "bb", false, "Cost", "Topology", false),
         ];
 
         string md = GoldenCohortDriftMarkdown.BuildReport(DateTimeOffset.Parse("2026-04-21T12:00:00Z"), rows, "Preamble line.");
