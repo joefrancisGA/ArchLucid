@@ -4,8 +4,9 @@ namespace ArchLucid.Api.Models.Evolution;
 
 internal static class EvolutionCandidateChangeSetResponseMapper
 {
-    internal static EvolutionCandidateChangeSetResponse ToResponse(this EvolutionCandidateChangeSetRecord record) =>
-        new()
+    internal static EvolutionCandidateChangeSetResponse ToResponse(this EvolutionCandidateChangeSetRecord record)
+    {
+        return new EvolutionCandidateChangeSetResponse
         {
             CandidateChangeSetId = record.CandidateChangeSetId,
             SourcePlanId = record.SourcePlanId,
@@ -14,11 +15,13 @@ internal static class EvolutionCandidateChangeSetResponseMapper
             Summary = record.Summary,
             DerivationRuleVersion = record.DerivationRuleVersion,
             CreatedUtc = record.CreatedUtc,
-            CreatedByUserId = record.CreatedByUserId,
+            CreatedByUserId = record.CreatedByUserId
         };
+    }
 
-    internal static EvolutionSimulationRunResponse ToResponse(this EvolutionSimulationRunRecord record) =>
-        new()
+    internal static EvolutionSimulationRunResponse ToResponse(this EvolutionSimulationRunRecord record)
+    {
+        return new EvolutionSimulationRunResponse
         {
             SimulationRunId = record.SimulationRunId,
             BaselineArchitectureRunId = record.BaselineArchitectureRunId,
@@ -26,6 +29,7 @@ internal static class EvolutionCandidateChangeSetResponseMapper
             OutcomeJson = record.OutcomeJson,
             WarningsJson = record.WarningsJson,
             CompletedUtc = record.CompletedUtc,
-            IsShadowOnly = record.IsShadowOnly,
+            IsShadowOnly = record.IsShadowOnly
         };
+    }
 }

@@ -4,7 +4,7 @@ using ArchLucid.Api.Models;
 
 namespace ArchLucid.Api.Services;
 
-/// <summary>Serializes <see cref="BatchReplayManifestDocument"/> for inclusion in batch replay ZIP files.</summary>
+/// <summary>Serializes <see cref="BatchReplayManifestDocument" /> for inclusion in batch replay ZIP files.</summary>
 public static class BatchReplayManifestSerializer
 {
     public const string ManifestEntryName = "batch-replay-manifest.json";

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
-/// Maps common application exceptions to RFC 9457 Problem Details responses (obsoletes RFC 7807).
-/// Keeps controllers focused on HTTP mapping by centralizing exception handling.
+///     Maps common application exceptions to RFC 9457 Problem Details responses (obsoletes RFC 7807).
+///     Keeps controllers focused on HTTP mapping by centralizing exception handling.
 /// </summary>
 public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
 {
@@ -14,7 +14,8 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
         if (context.ExceptionHandled)
             return;
 
-        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, context.HttpContext, out ObjectResult? result))
+        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, context.HttpContext,
+                out ObjectResult? result))
             return;
 
         context.Result = result;

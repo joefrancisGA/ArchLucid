@@ -5,7 +5,7 @@ using ArchLucid.Api.Models.Evolution;
 
 namespace ArchLucid.Api.Services.Evolution;
 
-/// <summary>Renders <see cref="EvolutionSimulationReportDocument"/> as Markdown.</summary>
+/// <summary>Renders <see cref="EvolutionSimulationReportDocument" /> as Markdown.</summary>
 public static class EvolutionSimulationReportMarkdownFormatter
 {
     public static string Format(EvolutionSimulationReportDocument document)
@@ -91,7 +91,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
                 md.AppendLine($"  - `{id}`");
 
 
-
         md.AppendLine();
     }
 
@@ -112,7 +111,8 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
         foreach (EvolutionSimulationReportRunEntry run in runs)
         {
-            md.AppendLine($"### Run {i.ToString(CultureInfo.InvariantCulture)} — baseline `{run.BaselineArchitectureRunId}`");
+            md.AppendLine(
+                $"### Run {i.ToString(CultureInfo.InvariantCulture)} — baseline `{run.BaselineArchitectureRunId}`");
             md.AppendLine();
             md.AppendLine($"- **Simulation run ID:** `{run.SimulationRunId:D}`");
             md.AppendLine($"- **Evaluation mode:** {EscapeInline(run.EvaluationMode)}");
@@ -223,6 +223,8 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
     private static string EscapeInline(string? text)
     {
-        return string.IsNullOrEmpty(text) ? "—" : text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(text)
+            ? "—"
+            : text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
     }
 }

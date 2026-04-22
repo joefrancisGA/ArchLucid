@@ -3,71 +3,133 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// API projection of a persisted <c>RecommendationRecord</c> for <c>GET</c> / <c>POST …/action</c> advisory endpoints (excludes supporting-id JSON blobs).
+///     API projection of a persisted <c>RecommendationRecord</c> for <c>GET</c> / <c>POST …/action</c> advisory endpoints
+///     (excludes supporting-id JSON blobs).
 /// </summary>
 /// <remarks>
-/// Mapped from <see cref="ArchLucid.Decisioning.Advisory.Workflow.RecommendationRecord"/> in <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController"/>.
+///     Mapped from <see cref="ArchLucid.Decisioning.Advisory.Workflow.RecommendationRecord" /> in
+///     <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController" />.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class RecommendationRecordResponse
 {
     public Guid RecommendationId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid TenantId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid WorkspaceId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid ProjectId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? ComparedToRunId
     {
-        get; set;
+        get;
+        set;
     }
-    public string Title { get; set; } = null!;
-    public string Category { get; set; } = null!;
-    public string Rationale { get; set; } = null!;
-    public string SuggestedAction { get; set; } = null!;
-    public string Urgency { get; set; } = null!;
-    public string ExpectedImpact { get; set; } = null!;
+
+    public string Title
+    {
+        get;
+        set;
+    } = null!;
+
+    public string Category
+    {
+        get;
+        set;
+    } = null!;
+
+    public string Rationale
+    {
+        get;
+        set;
+    } = null!;
+
+    public string SuggestedAction
+    {
+        get;
+        set;
+    } = null!;
+
+    public string Urgency
+    {
+        get;
+        set;
+    } = null!;
+
+    public string ExpectedImpact
+    {
+        get;
+        set;
+    } = null!;
+
     public int PriorityScore
     {
-        get; set;
+        get;
+        set;
     }
-    public string Status { get; set; } = null!;
+
+    public string Status
+    {
+        get;
+        set;
+    } = null!;
+
     public DateTime CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime LastUpdatedUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? ReviewedByUserId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? ReviewedByUserName
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? ReviewComment
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? ResolutionRationale
     {
-        get; set;
+        get;
+        set;
     }
 }

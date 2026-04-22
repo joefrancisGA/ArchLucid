@@ -6,6 +6,7 @@ public sealed class TenantTrialConvertRequest
     /// <summary>Target commercial tier label for audit only (e.g. Team, Enterprise).</summary>
     public string? TargetTier
     {
-        get; init;
+        get;
+        init;
     }
 }

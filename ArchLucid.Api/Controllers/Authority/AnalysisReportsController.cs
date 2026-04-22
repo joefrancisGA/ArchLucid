@@ -1,8 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
-using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -11,6 +9,8 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -29,11 +29,13 @@ using AppConsultingDocxProfileRecommendationRequest =
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Builds and exports consolidated analysis reports for a committed run (markdown, DOCX, consulting templates, async jobs).
+///     Builds and exports consolidated analysis reports for a committed run (markdown, DOCX, consulting templates, async
+///     jobs).
 /// </summary>
 /// <remarks>
-/// Uses <see cref="IArchitectureAnalysisService"/> for report assembly and <see cref="IRunDetailQueryService"/> for run context.
-/// Base route <c>v1/architecture</c> with <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
+///     Uses <see cref="IArchitectureAnalysisService" /> for report assembly and <see cref="IRunDetailQueryService" /> for
+///     run context.
+///     Base route <c>v1/architecture</c> with <see cref="ArchLucidPolicies.ExecuteAuthority" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -57,7 +59,8 @@ public sealed class AnalysisReportsController(
     : ControllerBase
 {
     /// <summary>
-    /// Builds a structured <see cref="ArchLucid.Application.Analysis.ArchitectureAnalysisReport"/> for <paramref name="runId"/> using optional section flags in the body.
+    ///     Builds a structured <see cref="ArchLucid.Application.Analysis.ArchitectureAnalysisReport" /> for
+    ///     <paramref name="runId" /> using optional section flags in the body.
     /// </summary>
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
@@ -78,7 +81,8 @@ public sealed class AnalysisReportsController(
 
         try
         {
-            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            ArchitectureAnalysisReport
+                report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
 
             Guid? auditRunId = Guid.TryParse(runId, out Guid parsedRunId) ? parsedRunId : null;
 
@@ -98,9 +102,9 @@ public sealed class AnalysisReportsController(
                             request.IncludeManifest,
                             request.IncludeDiagram,
                             request.IncludeSummary,
-                            request.IncludeDeterminismCheck,
+                            request.IncludeDeterminismCheck
                         },
-                        AuditJsonSerializationOptions.Instance),
+                        AuditJsonSerializationOptions.Instance)
                 },
                 cancellationToken);
 
@@ -114,7 +118,8 @@ public sealed class AnalysisReportsController(
     }
 
     /// <summary>
-    /// Returns the same analysis content as <c>analysis-report</c> serialized to markdown in JSON (<see cref="ArchitectureAnalysisExportResponse"/>).
+    ///     Returns the same analysis content as <c>analysis-report</c> serialized to markdown in JSON (
+    ///     <see cref="ArchitectureAnalysisExportResponse" />).
     /// </summary>
     [HttpPost("run/{runId}/analysis-report/export")]
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
@@ -135,14 +140,12 @@ public sealed class AnalysisReportsController(
 
         try
         {
-            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            ArchitectureAnalysisReport
+                report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
             string markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return Ok(new ArchitectureAnalysisExportResponse
             {
-                RunId = runId,
-                Format = "markdown",
-                FileName = $"analysis_{runId}.md",
-                Content = markdown
+                RunId = runId, Format = "markdown", FileName = $"analysis_{runId}.md", Content = markdown
             });
         }
         catch (InvalidOperationException ex)
@@ -171,7 +174,8 @@ public sealed class AnalysisReportsController(
 
         try
         {
-            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            ArchitectureAnalysisReport
+                report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
             string markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"analysis-report-{runId}.md");
         }
@@ -236,8 +240,8 @@ public sealed class AnalysisReportsController(
 
         AnalysisReportDocxWorkUnit workUnit = new(
             AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
-            FileName: $"analysis-report-{runId}.docx",
-            ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            $"analysis-report-{runId}.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
         string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
 
@@ -257,7 +261,7 @@ public sealed class AnalysisReportsController(
         // requested profile key and recommendation inputs.
         ResolvedConsultingDocxExportProfile resolved = consultingDocxExportProfileSelector.Resolve(
             request.Profile,
-            new Application.Analysis.ConsultingDocxProfileRecommendationRequest());
+            new AppConsultingDocxProfileRecommendationRequest());
 
         return Ok(new ConsultingDocxResolveProfileResponse
         {
@@ -319,21 +323,22 @@ public sealed class AnalysisReportsController(
                 request.TemplateProfile,
                 ConsultingDocxExportAuditMapper.ToRecommendationRequest(request));
 
-            PersistedAnalysisExportRequest persistedRequest = ConsultingDocxExportAuditMapper.ToPersistedRequest(request);
+            PersistedAnalysisExportRequest persistedRequest =
+                ConsultingDocxExportAuditMapper.ToPersistedRequest(request);
 
             const string consultingDocxExportType = "analysis-report-consulting-docx";
 
             await runExportAuditService.RecordAsync(
                 runId,
                 consultingDocxExportType,
-                format: "docx",
-                fileName: $"analysis-report-consulting-{runId}.docx",
-                templateProfile: resolvedProfile.SelectedProfileName,
-                templateProfileDisplayName: resolvedProfile.SelectedProfileDisplayName,
-                wasAutoSelected: resolvedProfile.WasAutoSelected,
-                resolutionReason: resolvedProfile.ResolutionReason,
-                manifestVersion: loaded.Detail!.Run.CurrentManifestVersion,
-                analysisRequest: persistedRequest,
+                "docx",
+                $"analysis-report-consulting-{runId}.docx",
+                resolvedProfile.SelectedProfileName,
+                resolvedProfile.SelectedProfileDisplayName,
+                resolvedProfile.WasAutoSelected,
+                resolvedProfile.ResolutionReason,
+                loaded.Detail!.Run.CurrentManifestVersion,
+                persistedRequest,
                 cancellationToken: cancellationToken);
 
             return ApiFileResults.RangeBytes(
@@ -367,8 +372,8 @@ public sealed class AnalysisReportsController(
 
         ConsultingDocxWorkUnit workUnit = new(
             ConsultingDocxJobPayloadMapper.ToPayload(runId, request),
-            FileName: $"analysis-report-consulting-{runId}.docx",
-            ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            $"analysis-report-consulting-{runId}.docx",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
         string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
 
@@ -396,34 +401,38 @@ public sealed class AnalysisReportsController(
                 NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices
             });
 
-        return Ok(new ConsultingDocxProfileRecommendationResponse
-        {
-            Recommendation = recommendation
-        });
+        return Ok(new ConsultingDocxProfileRecommendationResponse { Recommendation = recommendation });
     }
 
     // â”€â”€ Private helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
-    /// Loads the canonical run detail for <paramref name="runId"/>.
-    /// Returns a non-null <see cref="RunDetailLookup.Error"/> (404 problem) when the run is not found.
+    ///     Loads the canonical run detail for <paramref name="runId" />.
+    ///     Returns a non-null <see cref="RunDetailLookup.Error" /> (404 problem) when the run is not found.
     /// </summary>
     private async Task<RunDetailLookup> LoadRunDetailOrNotFoundAsync(string runId, CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        return detail is null ? new RunDetailLookup { Error = this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) } : new RunDetailLookup { Detail = detail };
+        return detail is null
+            ? new RunDetailLookup
+            {
+                Error = this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+            }
+            : new RunDetailLookup { Detail = detail };
     }
 
     private sealed class RunDetailLookup
     {
         public IActionResult? Error
         {
-            get; init;
+            get;
+            init;
         }
+
         public ArchitectureRunDetail? Detail
         {
-            get; init;
+            get;
+            init;
         }
     }
 }
-

@@ -5,16 +5,19 @@ public sealed class LearningPlanEvidenceCountsResponse
 {
     public int LinkedSignalCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int LinkedArtifactCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int LinkedArchitectureRunCount
     {
-        get; init;
+        get;
+        init;
     }
 }

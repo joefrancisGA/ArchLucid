@@ -1,13 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
-/// 59R learning-to-planning read APIs: themes, improvement plans, priority scores, and evidence-style counts.
+///     59R learning-to-planning read APIs: themes, improvement plans, priority scores, and evidence-style counts.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -36,7 +36,7 @@ public sealed class LearningController(
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = true,
+        WriteIndented = true
     };
 
     /// <summary>Lists improvement themes for the current scope (newest first).</summary>
@@ -112,11 +112,13 @@ public sealed class LearningController(
         [FromQuery] string? maxPlans,
         CancellationToken cancellationToken)
     {
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake,
+                out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
+                out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
@@ -128,7 +130,8 @@ public sealed class LearningController(
     }
 
     /// <summary>
-    /// Bounded export: markdown (JSON wrapper) or structured JSON — top themes, prioritized plans, and evidence references.
+    ///     Bounded export: markdown (JSON wrapper) or structured JSON — top themes, prioritized plans, and evidence
+    ///     references.
     /// </summary>
     [HttpGet("report")]
     [ProducesResponseType(typeof(LearningPlanningReportExportResponse), StatusCodes.Status200OK)]
@@ -143,11 +146,13 @@ public sealed class LearningController(
         [FromQuery] string? maxReportRunLinks,
         CancellationToken cancellationToken)
     {
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake,
+                out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
+                out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
@@ -171,7 +176,8 @@ public sealed class LearningController(
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
 
 
-        if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun, out string? runError))
+        if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun,
+                out string? runError))
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
 
 
@@ -183,7 +189,7 @@ public sealed class LearningController(
             MaxPlans = planTake,
             MaxSignalRefsPerPlan = maxSig,
             MaxArtifactRefsPerPlan = maxArt,
-            MaxRunRefsPerPlan = maxRun,
+            MaxRunRefsPerPlan = maxRun
         };
 
         LearningPlanningReportDocument document =
@@ -198,13 +204,11 @@ public sealed class LearningController(
         return Ok(
             new LearningPlanningReportExportResponse
             {
-                Format = "markdown",
-                FileName = "learning-planning-report-59r.md",
-                Content = markdown,
+                Format = "markdown", FileName = "learning-planning-report-59r.md", Content = markdown
             });
     }
 
-    /// <summary>Same payload as <see cref="GetPlanningReport"/> as a downloadable <c>.md</c> or <c>.json</c> file.</summary>
+    /// <summary>Same payload as <see cref="GetPlanningReport" /> as a downloadable <c>.md</c> or <c>.json</c> file.</summary>
     [HttpGet("report/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -217,11 +221,13 @@ public sealed class LearningController(
         [FromQuery] string? maxReportRunLinks,
         CancellationToken cancellationToken)
     {
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake,
+                out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
-        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
+        if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
+                out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
@@ -245,7 +251,8 @@ public sealed class LearningController(
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
 
 
-        if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun, out string? runError))
+        if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun,
+                out string? runError))
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
 
 
@@ -257,7 +264,7 @@ public sealed class LearningController(
             MaxPlans = planTake,
             MaxSignalRefsPerPlan = maxSig,
             MaxArtifactRefsPerPlan = maxArt,
-            MaxRunRefsPerPlan = maxRun,
+            MaxRunRefsPerPlan = maxRun
         };
 
         LearningPlanningReportDocument document =
@@ -285,7 +292,7 @@ public sealed class LearningController(
         {
             TenantId = scopeContext.TenantId,
             WorkspaceId = scopeContext.WorkspaceId,
-            ProjectId = scopeContext.ProjectId,
+            ProjectId = scopeContext.ProjectId
         };
     }
 }

@@ -5,26 +5,31 @@ public sealed class PilotScorecardResponse
 {
     public Guid TenantId
     {
-        get; set;
+        get;
+        set;
     }
 
     public DateTimeOffset PeriodStart
     {
-        get; set;
+        get;
+        set;
     }
 
     public DateTimeOffset PeriodEnd
     {
-        get; set;
+        get;
+        set;
     }
 
     public int RunsInPeriod
     {
-        get; set;
+        get;
+        set;
     }
 
     public int RunsWithCommittedManifest
     {
-        get; set;
+        get;
+        set;
     }
 }

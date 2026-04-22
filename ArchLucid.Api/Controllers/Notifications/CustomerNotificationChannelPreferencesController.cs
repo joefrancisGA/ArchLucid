@@ -16,11 +16,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Notifications;
 
 /// <summary>
-/// Customer notification channel toggles for the current tenant (governance promotion Logic Apps fan-out).
+///     Customer notification channel toggles for the current tenant (governance promotion Logic Apps fan-out).
 /// </summary>
 /// <remarks>
-/// Does not return email addresses or webhook secrets — operators configure connectors / Key Vault. When no SQL row
-/// exists, GET returns conservative defaults with <see cref="TenantNotificationChannelPreferencesResponse.IsConfigured"/> false.
+///     Does not return email addresses or webhook secrets — operators configure connectors / Key Vault. When no SQL row
+///     exists, GET returns conservative defaults with
+///     <see cref="TenantNotificationChannelPreferencesResponse.IsConfigured" /> false.
 /// </remarks>
 [ApiController]
 [Authorize]
@@ -32,14 +33,14 @@ public sealed class CustomerNotificationChannelPreferencesController(
     ITenantNotificationChannelPreferencesRepository preferencesRepository,
     IAuditService auditService) : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITenantNotificationChannelPreferencesRepository _preferencesRepository =
         preferencesRepository ?? throw new ArgumentNullException(nameof(preferencesRepository));
 
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Gets channel toggles for <c>tenantId</c> from the caller’s scope (Logic Apps HTTP action).</summary>
     [HttpGet("customer-channel-preferences")]
@@ -106,8 +107,8 @@ public sealed class CustomerNotificationChannelPreferencesController(
                     {
                         email = saved.EmailCustomerNotificationsEnabled,
                         teams = saved.TeamsCustomerNotificationsEnabled,
-                        outboundWebhook = saved.OutboundWebhookCustomerNotificationsEnabled,
-                    }),
+                        outboundWebhook = saved.OutboundWebhookCustomerNotificationsEnabled
+                    })
             },
             cancellationToken);
 

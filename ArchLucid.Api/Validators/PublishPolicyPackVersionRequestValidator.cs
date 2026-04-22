@@ -5,10 +5,12 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation rules for <see cref="PublishPolicyPackVersionRequest"/> (<c>POST …/policy-packs/{id}/publish</c>).
+///     FluentValidation rules for <see cref="PublishPolicyPackVersionRequest" /> (<c>POST …/policy-packs/{id}/publish</c>
+///     ).
 /// </summary>
 /// <remarks>
-/// Ensures version label matches the same SemVer-style rules as assign, and <c>ContentJson</c> is parseable JSON before persistence.
+///     Ensures version label matches the same SemVer-style rules as assign, and <c>ContentJson</c> is parseable JSON
+///     before persistence.
 /// </remarks>
 public sealed class PublishPolicyPackVersionRequestValidator : AbstractValidator<PublishPolicyPackVersionRequest>
 {

@@ -5,11 +5,12 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation for <see cref="CompositeAlertRule"/> bodies on <c>POST …/composite-alert-rules</c> (scope ids stamped server-side).
+///     FluentValidation for <see cref="CompositeAlertRule" /> bodies on <c>POST …/composite-alert-rules</c> (scope ids
+///     stamped server-side).
 /// </summary>
 public sealed class CompositeAlertRuleBodyValidator : AbstractValidator<CompositeAlertRule>
 {
-    /// <summary>Requires name, severity, operator, and at least one <see cref="CompositeAlertRule.Conditions"/> entry.</summary>
+    /// <summary>Requires name, severity, operator, and at least one <see cref="CompositeAlertRule.Conditions" /> entry.</summary>
     public CompositeAlertRuleBodyValidator()
     {
         RuleFor(x => x.Name).NotEmpty();

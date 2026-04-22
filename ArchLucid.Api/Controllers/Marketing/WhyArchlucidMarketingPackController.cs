@@ -13,8 +13,8 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Marketing;
 
 /// <summary>
-/// Anonymous marketing artifact: bundled PDF proof pack for the public <c>/why</c> page, sourced only from
-/// <see cref="IDemoCommitPagePreviewClient"/> (same deterministic demo data as <c>GET /v1/demo/preview</c>).
+///     Anonymous marketing artifact: bundled PDF proof pack for the public <c>/why</c> page, sourced only from
+///     <see cref="IDemoCommitPagePreviewClient" /> (same deterministic demo data as <c>GET /v1/demo/preview</c>).
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
@@ -26,14 +26,14 @@ public sealed class WhyArchlucidMarketingPackController(
     IDemoCommitPagePreviewClient previewClient,
     WhyArchLucidPackPdfBuilder pdfBuilder) : ControllerBase
 {
-    private readonly IDemoCommitPagePreviewClient _previewClient =
-        previewClient ?? throw new ArgumentNullException(nameof(previewClient));
-
     private readonly WhyArchLucidPackPdfBuilder _pdfBuilder =
         pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
+    private readonly IDemoCommitPagePreviewClient _previewClient =
+        previewClient ?? throw new ArgumentNullException(nameof(previewClient));
+
     /// <summary>
-    /// Returns a single PDF (manifest excerpt, explanation, citations, timeline, plus sourced incumbent scaffold).
+    ///     Returns a single PDF (manifest excerpt, explanation, citations, timeline, plus sourced incumbent scaffold).
     /// </summary>
     [HttpGet("why-archlucid-pack.pdf")]
     [Produces("application/pdf")]

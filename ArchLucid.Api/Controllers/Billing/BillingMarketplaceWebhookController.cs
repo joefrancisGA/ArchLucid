@@ -15,7 +15,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Billing;
 
-/// <summary>Azure Marketplace SaaS fulfillment webhooks (JWT verified inside <see cref="AzureMarketplaceBillingProvider"/>).</summary>
+/// <summary>
+///     Azure Marketplace SaaS fulfillment webhooks (JWT verified inside
+///     <see cref="AzureMarketplaceBillingProvider" />).
+/// </summary>
 [ApiController]
 [AllowAnonymous]
 [ApiVersion("1.0")]
@@ -27,9 +30,6 @@ public sealed class BillingMarketplaceWebhookController(
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<BillingMarketplaceWebhookController> logger) : ControllerBase
 {
-    private readonly AzureMarketplaceBillingProvider _marketplaceBillingProvider =
-        marketplaceBillingProvider ?? throw new ArgumentNullException(nameof(marketplaceBillingProvider));
-
     private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
         integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
 
@@ -42,6 +42,9 @@ public sealed class BillingMarketplaceWebhookController(
     private readonly ILogger<BillingMarketplaceWebhookController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly AzureMarketplaceBillingProvider _marketplaceBillingProvider =
+        marketplaceBillingProvider ?? throw new ArgumentNullException(nameof(marketplaceBillingProvider));
+
     [HttpPost("marketplace")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,7 +56,7 @@ public sealed class BillingMarketplaceWebhookController(
 
         string rawBody;
 
-        using (StreamReader reader = new(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
+        using (StreamReader reader = new(Request.Body, Encoding.UTF8, true))
             rawBody = await reader.ReadToEndAsync(cancellationToken);
 
         string auth = Request.Headers.Authorization.ToString();
@@ -64,16 +67,16 @@ public sealed class BillingMarketplaceWebhookController(
             auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             bearer = auth["Bearer ".Length..].Trim();
 
-        BillingWebhookInbound inbound = new()
-        {
-            RawBody = rawBody,
-            MarketplaceAuthorizationBearer = bearer,
-        };
+        BillingWebhookInbound inbound = new() { RawBody = rawBody, MarketplaceAuthorizationBearer = bearer };
 
         BillingWebhookHandleResult result =
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
-        if (result is { Succeeded: true, DuplicateIgnored: false, Returns202Accepted: false, MarketplaceWebhookReceived: not null })
+        if (result is
+            {
+                Succeeded: true, DuplicateIgnored: false, Returns202Accepted: false,
+                MarketplaceWebhookReceived: not null
+            })
             await MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync(
                 _integrationEventOutbox,
                 _integrationEventPublisher,
@@ -88,6 +91,8 @@ public sealed class BillingMarketplaceWebhookController(
         if (result is { Succeeded: true, Returns202Accepted: true })
             return StatusCode(StatusCodes.Status202Accepted);
 
-        return result.Succeeded ? Ok() : this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook rejected.", ProblemTypes.BadRequest);
+        return result.Succeeded
+            ? Ok()
+            : this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook rejected.", ProblemTypes.BadRequest);
     }
 }

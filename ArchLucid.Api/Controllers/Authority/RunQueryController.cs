@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Read-only HTTP API for architecture runs: detail, provenance, decisions, evidence, traces, and list.
+///     Read-only HTTP API for architecture runs: detail, provenance, decisions, evidence, traces, and list.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -44,7 +44,7 @@ public sealed class RunQueryController(
     ITraceabilityBundleBuilder traceabilityBundleBuilder) : ControllerBase
 {
     /// <summary>
-    /// Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId"/>.
+    ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
     /// </summary>
     [HttpGet("run/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
@@ -76,7 +76,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    /// Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted trace timeline.
+    ///     Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted
+    ///     trace timeline.
     /// </summary>
     [HttpGet("runs/{runId}/provenance")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
@@ -98,7 +99,8 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    /// Returns decision-tree nodes materialized for <paramref name="runId"/> after commit (empty before commit yields 404).
+    ///     Returns decision-tree nodes materialized for <paramref name="runId" /> after commit (empty before commit yields
+    ///     404).
     /// </summary>
     [HttpGet("run/{runId}/decisions")]
     [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
@@ -119,14 +121,11 @@ public sealed class RunQueryController(
                 ProblemTypes.ResourceNotFound);
 
 
-        return Ok(new DecisionNodeResponse
-        {
-            Decisions = decisions.ToList()
-        });
+        return Ok(new DecisionNodeResponse { Decisions = decisions.ToList() });
     }
 
     /// <summary>
-    /// Returns the hydrated <see cref="AgentEvidencePackage"/> used when agents ran for <paramref name="runId"/>.
+    ///     Returns the hydrated <see cref="AgentEvidencePackage" /> used when agents ran for <paramref name="runId" />.
     /// </summary>
     [HttpGet("run/{runId}/evidence")]
     [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
@@ -144,14 +143,12 @@ public sealed class RunQueryController(
             return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
 
 
-        return Ok(new AgentEvidencePackageResponse
-        {
-            Evidence = evidence
-        });
+        return Ok(new AgentEvidencePackageResponse { Evidence = evidence });
     }
 
     /// <summary>
-    /// Returns a page of <see cref="AgentExecutionTrace"/> rows for <paramref name="runId"/> (prompt/response audit trail).
+    ///     Returns a page of <see cref="AgentExecutionTrace" /> rows for <paramref name="runId" /> (prompt/response audit
+    ///     trail).
     /// </summary>
     [HttpGet("run/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
@@ -183,11 +180,12 @@ public sealed class RunQueryController(
         };
         (int skip, int take) = paging.Normalize();
 
-        (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(
-            runId,
-            offset: skip,
-            limit: take,
-            cancellationToken: cancellationToken);
+        (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
+            await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+                runId,
+                skip,
+                take,
+                cancellationToken);
 
         return Ok(new AgentExecutionTraceResponse
         {
@@ -199,7 +197,7 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    /// Lists recent runs visible in the current scope (summary rows for dashboards and pickers).
+    ///     Lists recent runs visible in the current scope (summary rows for dashboards and pickers).
     /// </summary>
     [HttpGet("runs")]
     [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
@@ -224,7 +222,7 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    /// Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
+    ///     Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
     /// </summary>
     [HttpGet("run/{runId}/findings/{findingId}/evidence-chain")]
     [ProducesResponseType(typeof(FindingEvidenceChainResponse), StatusCodes.Status200OK)]
@@ -263,7 +261,9 @@ public sealed class RunQueryController(
         {
             byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
 
-            return zip is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : File(zip, "application/zip", $"traceability-{runId}.zip");
+            return zip is null
+                ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+                : File(zip, "application/zip", $"traceability-{runId}.zip");
         }
         catch (TraceabilityBundleTooLargeException ex)
         {
@@ -274,7 +274,7 @@ public sealed class RunQueryController(
                     title = "Traceability bundle exceeds size cap",
                     detail = ex.Message,
                     attemptedBytes = ex.AttemptedBytes,
-                    maxBytes = ex.MaxBytes,
+                    maxBytes = ex.MaxBytes
                 });
         }
     }

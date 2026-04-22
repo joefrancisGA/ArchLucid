@@ -1,12 +1,12 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Explanation;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -26,9 +26,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Downloads a Word architecture package for a run, with optional compare run, optional run explanation, and optional comparison narrative.
+///     Downloads a Word architecture package for a run, with optional compare run, optional run explanation, and optional
+///     comparison narrative.
 /// </summary>
-/// <remarks>Route prefix <c>api/docx</c>; combines <see cref="IAuthorityQueryService"/>, artifacts, <see cref="IComparisonService"/>, and <see cref="IExplanationService"/>.</remarks>
+/// <remarks>
+///     Route prefix <c>api/docx</c>; combines <see cref="IAuthorityQueryService" />, artifacts,
+///     <see cref="IComparisonService" />, and <see cref="IExplanationService" />.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -45,16 +49,20 @@ public sealed class DocxExportController(
     IAuditService auditService)
     : ControllerBase
 {
-    /// <summary>Streams a DOCX architecture package for <paramref name="runId"/>.</summary>
+    /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
     /// <param name="compareWithRunId">When set, embeds manifest comparison (and optional comparison narrative) vs this run.</param>
-    /// <param name="explainRun">When <see langword="true"/>, generates run-level <see cref="ExplanationResult"/> via LLM.</param>
-    /// <param name="includeComparisonExplanation">When <see langword="true"/> and comparison exists, generates <see cref="ComparisonExplanationResult"/>.</param>
+    /// <param name="explainRun">When <see langword="true" />, generates run-level <see cref="ExplanationResult" /> via LLM.</param>
+    /// <param name="includeComparisonExplanation">
+    ///     When <see langword="true" /> and comparison exists, generates
+    ///     <see cref="ComparisonExplanationResult" />.
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
     [HttpGet("runs/{runId:guid}/architecture-package")]
     [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
-    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK,
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExportRunDocx(
         Guid runId,
@@ -68,7 +76,8 @@ public sealed class DocxExportController(
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (runDetail.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound);
 
         GoldenManifest? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
@@ -79,11 +88,15 @@ public sealed class DocxExportController(
         ComparisonResult? manifestComparison = null;
         if (compareWithRunId is not null)
         {
-            RunDetailDto? targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+            RunDetailDto? targetDetail =
+                await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
             if (targetDetail is null)
-                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.",
+                    ProblemTypes.RunNotFound);
             if (targetDetail.GoldenManifest is null)
-                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+                return this.NotFoundProblem(
+                    $"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound);
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
 
@@ -95,7 +108,8 @@ public sealed class DocxExportController(
         if (explainRun)
         {
             DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
-            DecisionProvenanceGraph? graph = snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+            DecisionProvenanceGraph? graph =
+                snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
             runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);
         }
 
@@ -120,13 +134,8 @@ public sealed class DocxExportController(
                 RunId = runId,
                 ManifestId = manifest.ManifestId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        compareWithRunId,
-                        byteCount = result.Content.Length,
-                    },
-                    AuditJsonSerializationOptions.Instance),
+                    new { runId, compareWithRunId, byteCount = result.Content.Length },
+                    AuditJsonSerializationOptions.Instance)
             },
             ct);
 

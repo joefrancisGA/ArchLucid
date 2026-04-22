@@ -5,43 +5,55 @@ public sealed class EvolutionSimulationPlanSnapshotPayload
 {
     public Guid PlanId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Title
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Summary
     {
-        get; init;
+        get;
+        init;
     }
 
     public int PriorityScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? PriorityExplanation
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Status
     {
-        get; init;
+        get;
+        init;
     }
 
     public int ActionStepCount
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<string> LinkedArchitectureRunIds { get; init; } = [];
+    public IReadOnlyList<string> LinkedArchitectureRunIds
+    {
+        get;
+        init;
+    } = [];
 }

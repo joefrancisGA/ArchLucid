@@ -1,6 +1,6 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Compare;
 
@@ -13,9 +13,9 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// HTTP API for comparing golden manifests or two authority runs within the caller’s scope.
+///     HTTP API for comparing golden manifests or two authority runs within the caller’s scope.
 /// </summary>
-/// <remarks>Routes under <c>api/authority/compare</c>; delegates to <see cref="IAuthorityCompareService"/>.</remarks>
+/// <remarks>Routes under <c>api/authority/compare</c>; delegates to <see cref="IAuthorityCompareService" />.</remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -29,7 +29,10 @@ public sealed class AuthorityCompareController(
     /// <param name="leftManifestId">First manifest.</param>
     /// <param name="rightManifestId">Second manifest.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ManifestComparisonResponse"/>, 404 when either id is missing in scope, or 409 when both exist but belong to different stored scopes.</returns>
+    /// <returns>
+    ///     <see cref="ManifestComparisonResponse" />, 404 when either id is missing in scope, or 409 when both exist but
+    ///     belong to different stored scopes.
+    /// </returns>
     [HttpGet("manifests")]
     [ProducesResponseType(typeof(ManifestComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -64,7 +67,7 @@ public sealed class AuthorityCompareController(
     /// <param name="leftRunId">First run.</param>
     /// <param name="rightRunId">Second run.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunComparisonResponse"/>, or 404 when either run is missing from the current scope.</returns>
+    /// <returns><see cref="RunComparisonResponse" />, or 404 when either run is missing from the current scope.</returns>
     [HttpGet("runs")]
     [ProducesResponseType(typeof(RunComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,7 +92,7 @@ public sealed class AuthorityCompareController(
                 ? null
                 : MapManifest(result.ManifestComparison),
             RunLevelDiffCount = result.RunLevelDiffs.Count,
-            HasManifestComparison = result.ManifestComparison is not null,
+            HasManifestComparison = result.ManifestComparison is not null
         });
     }
 
@@ -105,7 +108,7 @@ public sealed class AuthorityCompareController(
             RemovedCount = result.RemovedCount,
             ChangedCount = result.ChangedCount,
             Diffs = result.Diffs.Select(MapDiff).ToList(),
-            DiffCount = result.Diffs.Count,
+            DiffCount = result.Diffs.Count
         };
     }
 

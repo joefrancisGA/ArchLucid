@@ -4,8 +4,13 @@ public sealed class LearningThemesListResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<LearningThemeResponse> Themes { get; init; } = [];
+    public IReadOnlyList<LearningThemeResponse> Themes
+    {
+        get;
+        init;
+    } = [];
 }

@@ -1,11 +1,11 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
-/// Read-only governance preview: compare manifest governance for hypothetical activation or between environments.
+///     Read-only governance preview: compare manifest governance for hypothetical activation or between environments.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -45,9 +45,7 @@ public sealed class GovernancePreviewController(
         {
             GovernancePreviewRequest request = new()
             {
-                RunId = body.RunId,
-                ManifestVersion = body.ManifestVersion,
-                Environment = body.Environment
+                RunId = body.RunId, ManifestVersion = body.ManifestVersion, Environment = body.Environment
             };
             GovernancePreviewResult result = await previewService.PreviewActivationAsync(request, cancellationToken);
             return Ok(result);
@@ -84,10 +82,10 @@ public sealed class GovernancePreviewController(
         {
             GovernanceEnvironmentComparisonRequest request = new()
             {
-                SourceEnvironment = body.SourceEnvironment,
-                TargetEnvironment = body.TargetEnvironment
+                SourceEnvironment = body.SourceEnvironment, TargetEnvironment = body.TargetEnvironment
             };
-            GovernanceEnvironmentComparisonResult result = await previewService.CompareEnvironmentsAsync(request, cancellationToken);
+            GovernanceEnvironmentComparisonResult result =
+                await previewService.CompareEnvironmentsAsync(request, cancellationToken);
             return Ok(result);
         }
         catch (ArgumentException ex)

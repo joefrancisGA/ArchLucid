@@ -7,31 +7,43 @@ public sealed class ConsultingDocxProfileRecommendationRequest
 {
     public string? Audience
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool ExternalDelivery
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool ExecutiveFriendly
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool RegulatedEnvironment
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool NeedDetailedEvidence
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool NeedExecutionTraces
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool NeedDeterminismOrCompareAppendices
     {
-        get; set;
+        get;
+        set;
     }
 }
-

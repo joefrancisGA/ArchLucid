@@ -8,18 +8,20 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace ArchLucid.Api.Filters;
 
 /// <summary>
-/// Enforces a minimum <see cref="TenantTier"/> for the current scope (loaded from <c>dbo.Tenants</c>).
-/// Returns <c>402 Payment Required</c> when the tenant is below the required tier (product decision: Stripe-style code).
+///     Enforces a minimum <see cref="TenantTier" /> for the current scope (loaded from <c>dbo.Tenants</c>).
+///     Returns <c>402 Payment Required</c> when the tenant is below the required tier (product decision: Stripe-style
+///     code).
 /// </summary>
 public sealed class CommercialTenantTierFilter(
     TenantTier minimumTier,
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeContextProvider) : IAsyncActionFilter
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -41,7 +43,7 @@ public sealed class CommercialTenantTierFilter(
                 Title = "Forbidden",
                 Status = StatusCodes.Status403Forbidden,
                 Detail = "Tenant record was not found for the current scope.",
-                Instance = context.HttpContext.Request.Path.Value,
+                Instance = context.HttpContext.Request.Path.Value
             };
 
             ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
@@ -49,8 +51,7 @@ public sealed class CommercialTenantTierFilter(
             ProblemCorrelation.Attach(problem, context.HttpContext);
             context.Result = new ObjectResult(problem)
             {
-                StatusCode = problem.Status,
-                ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType },
+                StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
             };
 
             return;

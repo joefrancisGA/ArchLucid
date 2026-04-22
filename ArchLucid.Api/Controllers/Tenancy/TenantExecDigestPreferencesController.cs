@@ -26,13 +26,14 @@ public sealed class TenantExecDigestPreferencesController(
     ITenantExecDigestPreferencesRepository preferencesRepository,
     IAuditService auditService) : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITenantExecDigestPreferencesRepository _preferencesRepository =
         preferencesRepository ?? throw new ArgumentNullException(nameof(preferencesRepository));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Reads digest preferences (defaults when no row exists).</summary>
     [HttpGet("exec-digest-preferences")]
@@ -116,8 +117,8 @@ public sealed class TenantExecDigestPreferencesController(
                         recipientCount = saved.RecipientEmails.Count,
                         timeZone = saved.IanaTimeZoneId,
                         dayOfWeek = saved.DayOfWeek,
-                        hourOfDay = saved.HourOfDay,
-                    }),
+                        hourOfDay = saved.HourOfDay
+                    })
             },
             cancellationToken);
 

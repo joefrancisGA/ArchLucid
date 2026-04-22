@@ -15,8 +15,8 @@ using JetBrains.Annotations;
 namespace ArchLucid.Api.Services.Evolution;
 
 /// <summary>
-/// Builds 60R candidates from persisted 59R plans and runs shadow evaluation via read-only architecture analysis only
-/// (no replay commits, no manifest writes, no agent re-execution through this path).
+///     Builds 60R candidates from persisted 59R plans and runs shadow evaluation via read-only architecture analysis only
+///     (no replay commits, no manifest writes, no agent re-execution through this path).
 /// </summary>
 public sealed class EvolutionSimulationService(
     IProductLearningPlanningRepository planningRepository,
@@ -32,7 +32,7 @@ public sealed class EvolutionSimulationService(
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     /// <inheritdoc />
@@ -66,7 +66,7 @@ public sealed class EvolutionSimulationService(
             PriorityExplanation = plan.PriorityExplanation,
             Status = plan.Status,
             ActionStepCount = plan.ActionSteps.Count,
-            LinkedArchitectureRunIds = sortedRunIds,
+            LinkedArchitectureRunIds = sortedRunIds
         };
 
         string snapshotJson = JsonSerializer.Serialize(snapshot, JsonOptions);
@@ -86,7 +86,7 @@ public sealed class EvolutionSimulationService(
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = DerivationRuleVersion,
             CreatedUtc = createdUtc,
-            CreatedByUserId = createdByUserId,
+            CreatedByUserId = createdByUserId
         };
 
         await candidateRepository.InsertAsync(record, cancellationToken);
@@ -103,8 +103,8 @@ public sealed class EvolutionSimulationService(
         return RunSimulationAsync(
             candidateChangeSetId,
             scope,
-            deleteExistingRunsForCandidate: false,
-            useEvaluationEnvelope: false,
+            false,
+            false,
             cancellationToken);
     }
 
@@ -117,8 +117,8 @@ public sealed class EvolutionSimulationService(
         return RunSimulationAsync(
             candidateChangeSetId,
             scope,
-            deleteExistingRunsForCandidate: true,
-            useEvaluationEnvelope: true,
+            true,
+            true,
             cancellationToken);
     }
 
@@ -218,7 +218,7 @@ public sealed class EvolutionSimulationService(
             IncludeSummary = true,
             IncludeDeterminismCheck = false,
             IncludeManifestCompare = false,
-            IncludeAgentResultCompare = false,
+            IncludeAgentResultCompare = false
         };
 
         try
@@ -227,28 +227,28 @@ public sealed class EvolutionSimulationService(
                 await architectureAnalysisService.BuildAsync(request, cancellationToken);
 
             ShadowOutcomeDto outcome = new(
-                Error: null,
-                ArchitectureRunId: runId,
-                EvaluationMode: EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
-                RunStatus: report.Run.Status.ToString(),
-                ManifestVersion: report.Run.CurrentManifestVersion,
-                HasManifest: report.Manifest is not null,
-                SummaryLength: report.Summary?.Length ?? 0,
-                WarningCount: report.Warnings.Count);
+                null,
+                runId,
+                EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
+                report.Run.Status.ToString(),
+                report.Run.CurrentManifestVersion,
+                report.Manifest is not null,
+                report.Summary?.Length ?? 0,
+                report.Warnings.Count);
 
             return (outcome, report.Warnings, report);
         }
         catch (RunNotFoundException)
         {
             ShadowOutcomeDto outcome = new(
-                Error: $"Run '{runId}' was not found.",
-                ArchitectureRunId: runId,
-                EvaluationMode: EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
-                RunStatus: null,
-                ManifestVersion: null,
-                HasManifest: false,
-                SummaryLength: 0,
-                WarningCount: 0);
+                $"Run '{runId}' was not found.",
+                runId,
+                EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis,
+                null,
+                null,
+                false,
+                0,
+                0);
 
             return (outcome, [], null);
         }
@@ -268,11 +268,7 @@ public sealed class EvolutionSimulationService(
         {
             SimulationEvaluationResult evaluationResult =
                 await simulationEvaluationService.EvaluateAsync(
-                    new SimulationEvaluationRequest
-                    {
-                        BaselineReport = report,
-                        BaselineArchitectureRunId = runId,
-                    },
+                    new SimulationEvaluationRequest { BaselineReport = report, BaselineArchitectureRunId = runId },
                     cancellationToken);
 
             evaluationScore = evaluationResult.Score;
@@ -281,11 +277,11 @@ public sealed class EvolutionSimulationService(
         }
 
         EvolutionOutcomeEnvelopeV2 envelope = new(
-            SchemaVersion: "60R-v2",
-            Shadow: shadow,
-            Evaluation: evaluationScore,
-            ExplanationSummary: explanationSummary,
-            ExplanationDetailJson: explanationDetailJson);
+            "60R-v2",
+            shadow,
+            evaluationScore,
+            explanationSummary,
+            explanationDetailJson);
 
         return JsonSerializer.Serialize(envelope, JsonOptions);
     }
@@ -307,7 +303,7 @@ public sealed class EvolutionSimulationService(
             OutcomeJson = outcomeJson,
             WarningsJson = warningsJson,
             CompletedUtc = completedUtc,
-            IsShadowOnly = true,
+            IsShadowOnly = true
         };
 
         await simulationRunRepository.InsertAsync(record, cancellationToken);
@@ -330,7 +326,10 @@ public sealed class EvolutionSimulationService(
         [UsedImplicitly]
         string SchemaVersion,
         [property: JsonPropertyName("shadow")] ShadowOutcomeDto Shadow,
-        [property: JsonPropertyName("evaluation")] EvaluationScore? Evaluation,
-        [property: JsonPropertyName("explanationSummary")] string? ExplanationSummary,
-        [property: JsonPropertyName("explanationDetailJson")] string? ExplanationDetailJson);
+        [property: JsonPropertyName("evaluation")]
+        EvaluationScore? Evaluation,
+        [property: JsonPropertyName("explanationSummary")]
+        string? ExplanationSummary,
+        [property: JsonPropertyName("explanationDetailJson")]
+        string? ExplanationDetailJson);
 }

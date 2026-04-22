@@ -1,6 +1,6 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Provenance;
 
@@ -15,11 +15,12 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-/// Provenance graph queries for UI (alias of authority graph endpoints under <c>/api/provenance</c>).
+///     Provenance graph queries for UI (alias of authority graph endpoints under <c>/api/provenance</c>).
 /// </summary>
 /// <remarks>
-/// All three actions return a <see cref="GraphViewModel"/> for the run scoped to the caller's tenant/workspace/project.
-/// Returns 404 with Problem Details when the run or graph snapshot is missing.
+///     All three actions return a <see cref="GraphViewModel" /> for the run scoped to the caller's
+///     tenant/workspace/project.
+///     Returns 404 with Problem Details when the run or graph snapshot is missing.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -34,7 +35,7 @@ public sealed class ProvenanceController(
     /// <summary>Returns the full provenance graph for a run.</summary>
     /// <param name="runId">Architecture run id.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The full <see cref="GraphViewModel"/>, or 404 when the run or snapshot is missing.</returns>
+    /// <returns>The full <see cref="GraphViewModel" />, or 404 when the run or snapshot is missing.</returns>
     [HttpGet("runs/{runId:guid}/graph")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status404NotFound)]
@@ -63,14 +64,18 @@ public sealed class ProvenanceController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null
-            ? this.NotFoundProblem($"Decision graph node '{decisionKey}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+            ? this.NotFoundProblem($"Decision graph node '{decisionKey}' for run '{runId}' was not found.",
+                ProblemTypes.ResourceNotFound)
             : Ok(vm);
     }
 
     /// <summary>Returns the neighbourhood sub-graph around a specific node in the provenance graph.</summary>
     /// <param name="runId">Architecture run id.</param>
     /// <param name="nodeId">Provenance graph node id.</param>
-    /// <param name="depth">Hop depth (clamped to [1, <see cref="ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute"/>]).</param>
+    /// <param name="depth">
+    ///     Hop depth (clamped to [1, <see cref="ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute" />
+    ///     ]).
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Neighbourhood sub-graph, or 404 when the run or node is missing.</returns>
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
@@ -86,7 +91,8 @@ public sealed class ProvenanceController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null
-            ? this.NotFoundProblem($"Provenance node '{nodeId}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+            ? this.NotFoundProblem($"Provenance node '{nodeId}' for run '{runId}' was not found.",
+                ProblemTypes.ResourceNotFound)
             : Ok(vm);
     }
 }

@@ -19,11 +19,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         DateTime generatedUtc = DateTime.UtcNow;
         List<LearningThemeResponse> themes = rows.Select(MapTheme).ToList();
 
-        return new LearningThemesListResponse
-        {
-            GeneratedUtc = generatedUtc,
-            Themes = themes,
-        };
+        return new LearningThemesListResponse { GeneratedUtc = generatedUtc, Themes = themes };
     }
 
     public async Task<LearningPlansListResponse> GetPlansAsync(
@@ -51,14 +47,11 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
 
 
         List<LearningPlanListItemResponse> plans = rows
-            .Select(p => MapPlanListItem(p, themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
+            .Select(p => MapPlanListItem(p,
+                themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
             .ToList();
 
-        return new LearningPlansListResponse
-        {
-            GeneratedUtc = generatedUtc,
-            Plans = plans,
-        };
+        return new LearningPlansListResponse { GeneratedUtc = generatedUtc, Plans = plans };
     }
 
     public async Task<LearningPlanDetailResponse?> GetPlanByIdAsync(
@@ -88,7 +81,8 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         await Task.WhenAll(signalsTask, artifactsTask, runsTask).ConfigureAwait(false);
 
         IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord> signals = await signalsTask.ConfigureAwait(false);
-        IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord> artifacts = await artifactsTask.ConfigureAwait(false);
+        IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord> artifacts =
+            await artifactsTask.ConfigureAwait(false);
         IReadOnlyList<string> runs = await runsTask.ConfigureAwait(false);
 
         return new LearningPlanDetailResponse
@@ -107,9 +101,9 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             {
                 LinkedSignalCount = signals.Count,
                 LinkedArtifactCount = artifacts.Count,
-                LinkedArchitectureRunCount = runs.Count,
+                LinkedArchitectureRunCount = runs.Count
             },
-            Theme = theme is null ? null : MapTheme(theme),
+            Theme = theme is null ? null : MapTheme(theme)
         };
     }
 
@@ -143,18 +137,21 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             PlanCount = plans.Count,
             TotalThemeEvidenceSignals = totalThemeEvidence,
             MaxPlanPriorityScore = plans.Count == 0 ? null : plans.Max(p => p.PriorityScore),
-            TotalLinkedSignalsAcrossPlans = linkCounts.Sum(),
+            TotalLinkedSignalsAcrossPlans = linkCounts.Sum()
         };
     }
 
     public Task<LearningPlanningReportDocument> GetPlanningReportAsync(
         ProductLearningScope scope,
         LearningPlanningReportLimits limits,
-        CancellationToken cancellationToken) =>
-        LearningPlanningReportBuilder.BuildAsync(planningRepository, scope, limits, cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        return LearningPlanningReportBuilder.BuildAsync(planningRepository, scope, limits, cancellationToken);
+    }
 
-    private static LearningThemeResponse MapTheme(ProductLearningImprovementThemeRecord t) =>
-        new()
+    private static LearningThemeResponse MapTheme(ProductLearningImprovementThemeRecord t)
+    {
+        return new LearningThemeResponse
         {
             ThemeId = t.ThemeId,
             ThemeKey = t.ThemeKey,
@@ -170,13 +167,15 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             DerivationRuleVersion = t.DerivationRuleVersion,
             Status = t.Status,
             CreatedUtc = t.CreatedUtc,
-            CreatedByUserId = t.CreatedByUserId,
+            CreatedByUserId = t.CreatedByUserId
         };
+    }
 
     private static LearningPlanListItemResponse MapPlanListItem(
         ProductLearningImprovementPlanRecord p,
-        ProductLearningImprovementThemeRecord? theme) =>
-        new()
+        ProductLearningImprovementThemeRecord? theme)
+    {
+        return new LearningPlanListItemResponse
         {
             PlanId = p.PlanId,
             ThemeId = p.ThemeId,
@@ -186,15 +185,18 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             PriorityExplanation = p.PriorityExplanation,
             Status = p.Status,
             CreatedUtc = p.CreatedUtc,
-            ThemeEvidenceSignalCount = theme?.EvidenceSignalCount,
+            ThemeEvidenceSignalCount = theme?.EvidenceSignalCount
         };
+    }
 
-    private static LearningPlanStepResponse MapStep(ProductLearningImprovementPlanActionStep s) =>
-        new()
+    private static LearningPlanStepResponse MapStep(ProductLearningImprovementPlanActionStep s)
+    {
+        return new LearningPlanStepResponse
         {
             Ordinal = s.Ordinal,
             ActionType = s.ActionType,
             Description = s.Description,
-            AcceptanceCriteria = s.AcceptanceCriteria,
+            AcceptanceCriteria = s.AcceptanceCriteria
         };
+    }
 }

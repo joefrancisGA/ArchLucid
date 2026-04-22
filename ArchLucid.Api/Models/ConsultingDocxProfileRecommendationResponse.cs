@@ -7,6 +7,9 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ConsultingDocxProfileRecommendationResponse
 {
-    public ConsultingDocxProfileRecommendation Recommendation { get; set; } = new();
+    public ConsultingDocxProfileRecommendation Recommendation
+    {
+        get;
+        set;
+    } = new();
 }
-

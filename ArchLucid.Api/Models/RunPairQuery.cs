@@ -6,6 +6,15 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class RunPairQuery
 {
-    public string LeftRunId { get; set; } = string.Empty;
-    public string RightRunId { get; set; } = string.Empty;
+    public string LeftRunId
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string RightRunId
+    {
+        get;
+        set;
+    } = string.Empty;
 }

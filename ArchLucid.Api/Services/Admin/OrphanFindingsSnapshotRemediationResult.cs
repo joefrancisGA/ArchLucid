@@ -1,7 +1,7 @@
 namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>
-/// Result of <see cref="IAdminDiagnosticsService.RemediateOrphanFindingsSnapshotsAsync"/>.
+///     Result of <see cref="IAdminDiagnosticsService.RemediateOrphanFindingsSnapshotsAsync" />.
 /// </summary>
 public sealed record OrphanFindingsSnapshotRemediationResult(
     bool DryRun,

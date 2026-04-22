@@ -1,15 +1,15 @@
 namespace ArchLucid.Api.Http;
 
 /// <summary>
-/// Well-known custom HTTP response header names written by ArchLucid API endpoints.
-/// Centralised here to prevent typos and to make it easy to keep server code, tests,
-/// and client docs in sync.
+///     Well-known custom HTTP response header names written by ArchLucid API endpoints.
+///     Centralised here to prevent typos and to make it easy to keep server code, tests,
+///     and client docs in sync.
 /// </summary>
 public static class ArchLucidHttpHeaders
 {
     /// <summary>
-    /// Set on comparison summary responses when the result was persisted.
-    /// Value is the <c>ComparisonRecordId</c> of the newly created record.
+    ///     Set on comparison summary responses when the result was persisted.
+    ///     Value is the <c>ComparisonRecordId</c> of the newly created record.
     /// </summary>
     public const string ComparisonRecordId = "X-ArchLucid-ComparisonRecordId";
 
@@ -47,14 +47,14 @@ public static class ArchLucidHttpHeaders
     public const string PersistedReplayRecordId = "X-ArchLucid-PersistedReplayRecordId";
 
     /// <summary>
-    /// Set on batch comparison replay ZIP responses when at least one ID failed and at least one succeeded.
-    /// Value is <c>true</c>.
+    ///     Set on batch comparison replay ZIP responses when at least one ID failed and at least one succeeded.
+    ///     Value is <c>true</c>.
     /// </summary>
     public const string BatchReplayPartial = "X-ArchLucid-Batch-Partial";
 
     /// <summary>
-    /// Set on governance workflow responses when <c>?dryRun=true</c> was used: validation ran but nothing was persisted.
-    /// Value is <c>true</c>.
+    ///     Set on governance workflow responses when <c>?dryRun=true</c> was used: validation ran but nothing was persisted.
+    ///     Value is <c>true</c>.
     /// </summary>
     public const string DryRun = "X-ArchLucid-DryRun";
 }

@@ -5,22 +5,29 @@ public sealed class AlertsAcknowledgeBatchItemResult
 {
     public Guid AlertId
     {
-        get; set;
+        get;
+        set;
     }
 
     public bool Succeeded
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? Message
     {
-        get; set;
+        get;
+        set;
     }
 }
 
 /// <summary>Response for <c>POST /v1/alerts/acknowledge-batch</c>.</summary>
 public sealed class AlertsAcknowledgeBatchResponse
 {
-    public IReadOnlyList<AlertsAcknowledgeBatchItemResult> Results { get; set; } = [];
+    public IReadOnlyList<AlertsAcknowledgeBatchItemResult> Results
+    {
+        get;
+        set;
+    } = [];
 }

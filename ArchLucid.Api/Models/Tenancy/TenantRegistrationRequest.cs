@@ -7,22 +7,39 @@ public sealed class TenantRegistrationRequest
 {
     [Required]
     [MaxLength(200)]
-    public string OrganizationName { get; init; } = string.Empty;
+    public string OrganizationName
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [Required]
     [EmailAddress]
     [MaxLength(320)]
-    public string AdminEmail { get; init; } = string.Empty;
+    public string AdminEmail
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [MaxLength(200)]
     public string? AdminDisplayName
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Optional: median hours from architecture request to reviewable package (current state).</summary>
-    public decimal? BaselineReviewCycleHours { get; init; }
+    public decimal? BaselineReviewCycleHours
+    {
+        get;
+        init;
+    }
 
     /// <summary>Optional short provenance (e.g. team estimate); max 256 after trim.</summary>
-    public string? BaselineReviewCycleSource { get; init; }
+    public string? BaselineReviewCycleSource
+    {
+        get;
+        init;
+    }
 }

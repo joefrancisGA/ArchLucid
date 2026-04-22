@@ -43,4 +43,3 @@ public sealed class ConsultingDocxProfileRecommendationRequestValidator
             .MaximumLength(500).WithMessage("Audience must not exceed 500 characters.");
     }
 }
-

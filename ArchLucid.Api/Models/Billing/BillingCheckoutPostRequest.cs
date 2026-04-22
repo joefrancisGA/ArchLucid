@@ -6,25 +6,37 @@ public sealed class BillingCheckoutPostRequest
     /// <summary>One of <c>Team</c>, <c>Pro</c>, or <c>Enterprise</c>.</summary>
     public string? TargetTier
     {
-        get; init;
+        get;
+        init;
     }
 
-    public int Seats { get; init; } = 1;
+    public int Seats
+    {
+        get;
+        init;
+    } = 1;
 
-    public int Workspaces { get; init; } = 1;
+    public int Workspaces
+    {
+        get;
+        init;
+    } = 1;
 
     public string? BillingEmail
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ReturnUrl
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CancelUrl
     {
-        get; init;
+        get;
+        init;
     }
 }

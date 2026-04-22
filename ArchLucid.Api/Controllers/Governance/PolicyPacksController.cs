@@ -1,10 +1,10 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
@@ -16,16 +16,20 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
-/// Versioned policy pack CRUD, publish, assign, and effective-governance reads for the ambient tenant/workspace/project.
+///     Versioned policy pack CRUD, publish, assign, and effective-governance reads for the ambient
+///     tenant/workspace/project.
 /// </summary>
 /// <remarks>
-/// <para>
-/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchLucidPolicies.AdminAuthority"/>; reads require
-/// <see cref="ArchLucidPolicies.ReadAuthority"/>. Request bodies are validated with FluentValidation (see validators for <see cref="CreatePolicyPackRequest"/>, etc.).
-/// </para>
-/// <para>
-/// <strong>Scope:</strong> All operations use <see cref="IScopeContextProvider.GetCurrentScope"/> for tenant/workspace/project ids (headers or JWT claims).
-/// </para>
+///     <para>
+///         <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require
+///         <see cref="ArchLucidPolicies.AdminAuthority" />; reads require
+///         <see cref="ArchLucidPolicies.ReadAuthority" />. Request bodies are validated with FluentValidation (see
+///         validators for <see cref="CreatePolicyPackRequest" />, etc.).
+///     </para>
+///     <para>
+///         <strong>Scope:</strong> All operations use <see cref="IScopeContextProvider.GetCurrentScope" /> for
+///         tenant/workspace/project ids (headers or JWT claims).
+///     </para>
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -44,7 +48,7 @@ public sealed class PolicyPacksController(
     : ControllerBase
 {
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
-    /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService"/>.</remarks>
+    /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService" />.</remarks>
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -95,7 +99,8 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>
-    /// Assigns an existing published version to a governance tier (<see cref="AssignPolicyPackRequest.ScopeLevel"/>) for the current scope.
+    ///     Assigns an existing published version to a governance tier (<see cref="AssignPolicyPackRequest.ScopeLevel" />) for
+    ///     the current scope.
     /// </summary>
     /// <returns>404 with <c>policy-pack-version-not-found</c> when the version row does not exist.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentCreated</c>. Default scope level is Project when omitted or blank in JSON.</remarks>
@@ -198,9 +203,13 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>
-    /// Returns each applicable enabled assignment as a separate <see cref="ResolvedPolicyPack"/> (raw <c>ContentJson</c> per pack)—no merge.
+    ///     Returns each applicable enabled assignment as a separate <see cref="ResolvedPolicyPack" /> (raw <c>ContentJson</c>
+    ///     per pack)—no merge.
     /// </summary>
-    /// <remarks>For merged effective document and precedence, use <c>GET …/effective-content</c> or <c>GET …/governance-resolution</c>.</remarks>
+    /// <remarks>
+    ///     For merged effective document and precedence, use <c>GET …/effective-content</c> or
+    ///     <c>GET …/governance-resolution</c>.
+    /// </remarks>
     [HttpGet("effective")]
     [ProducesResponseType(typeof(EffectivePolicyPackSet), StatusCodes.Status200OK)]
     public async Task<ActionResult<EffectivePolicyPackSet>> GetEffective(CancellationToken ct = default)
@@ -217,11 +226,13 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>
-    /// Returns the single merged <see cref="PolicyPackContentDocument"/> after hierarchical resolution (project &gt; workspace &gt; tenant, pin, recency).
+    ///     Returns the single merged <see cref="PolicyPackContentDocument" /> after hierarchical resolution (project &gt;
+    ///     workspace &gt; tenant, pin, recency).
     /// </summary>
     /// <remarks>
-    /// Implemented via <see cref="IEffectiveGovernanceLoader"/> → <see cref="IEffectiveGovernanceResolver"/> (decisions/conflicts omitted here).
-    /// Used by alert/compliance/advisory code paths indirectly through the same loader in persistence services.
+    ///     Implemented via <see cref="IEffectiveGovernanceLoader" /> → <see cref="IEffectiveGovernanceResolver" />
+    ///     (decisions/conflicts omitted here).
+    ///     Used by alert/compliance/advisory code paths indirectly through the same loader in persistence services.
     /// </remarks>
     [HttpGet("effective-content")]
     [ProducesResponseType(typeof(PolicyPackContentDocument), StatusCodes.Status200OK)]

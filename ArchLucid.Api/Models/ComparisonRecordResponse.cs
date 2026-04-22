@@ -7,6 +7,9 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ComparisonRecordResponse
 {
-    public ComparisonRecord Record { get; set; } = new();
+    public ComparisonRecord Record
+    {
+        get;
+        set;
+    } = new();
 }
-

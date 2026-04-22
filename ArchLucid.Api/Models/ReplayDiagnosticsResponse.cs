@@ -6,5 +6,9 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ReplayDiagnosticsResponse
 {
-    public List<ReplayDiagnosticsEntryDto> RecentReplays { get; set; } = [];
+    public List<ReplayDiagnosticsEntryDto> RecentReplays
+    {
+        get;
+        set;
+    } = [];
 }

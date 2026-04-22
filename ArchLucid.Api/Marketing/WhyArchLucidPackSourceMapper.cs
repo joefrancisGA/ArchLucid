@@ -9,8 +9,8 @@ using ArchLucid.Host.Core.Demo;
 namespace ArchLucid.Api.Marketing;
 
 /// <summary>
-/// Maps the anonymous demo preview bundle into <see cref="WhyArchLucidPackSourceDto"/> fragments for
-/// <see cref="WhyArchLucidPackBuilder"/> — keeps <c>ArchLucid.Application</c> free of Host.Core demo DTOs.
+///     Maps the anonymous demo preview bundle into <see cref="WhyArchLucidPackSourceDto" /> fragments for
+///     <see cref="WhyArchLucidPackBuilder" /> — keeps <c>ArchLucid.Application</c> free of Host.Core demo DTOs.
 /// </summary>
 internal static class WhyArchLucidPackSourceMapper
 {
@@ -27,38 +27,26 @@ internal static class WhyArchLucidPackSourceMapper
             '\n',
             new[]
             {
-                "| Field | Value |",
-                "|-------|-------|",
-                $"| ManifestId | `{m.ManifestId}` |",
-                $"| RunId | `{m.RunId}` |",
-                $"| CreatedUtc | {m.CreatedUtc:O} |",
-                $"| ManifestHash | `{m.ManifestHash}` |",
-                $"| RuleSetId | `{m.RuleSetId}` |",
+                "| Field | Value |", "|-------|-------|", $"| ManifestId | `{m.ManifestId}` |",
+                $"| RunId | `{m.RunId}` |", $"| CreatedUtc | {m.CreatedUtc:O} |",
+                $"| ManifestHash | `{m.ManifestHash}` |", $"| RuleSetId | `{m.RuleSetId}` |",
                 $"| RuleSetVersion | `{m.RuleSetVersion}` |",
                 $"| DecisionCount | {m.DecisionCount.ToString(CultureInfo.InvariantCulture)} |",
                 $"| WarningCount | {m.WarningCount.ToString(CultureInfo.InvariantCulture)} |",
                 $"| UnresolvedIssueCount | {m.UnresolvedIssueCount.ToString(CultureInfo.InvariantCulture)} |",
-                $"| Status | {m.Status} |",
-                $"| HasWarnings | {m.HasWarnings.ToString()} |",
-                $"| HasUnresolvedIssues | {m.HasUnresolvedIssues.ToString()} |",
-                string.Empty,
-                "**Operator summary (excerpt)**",
-                string.Empty,
-                m.OperatorSummary.Trim(),
+                $"| Status | {m.Status} |", $"| HasWarnings | {m.HasWarnings.ToString()} |",
+                $"| HasUnresolvedIssues | {m.HasUnresolvedIssues.ToString()} |", string.Empty,
+                "**Operator summary (excerpt)**", string.Empty, m.OperatorSummary.Trim()
             });
 
         string authorityMd = string.Join(
             '\n',
             new[]
             {
-                "| Chain id | Value |",
-                "|----------|-------|",
-                Row("ContextSnapshotId", chain.ContextSnapshotId),
-                Row("GraphSnapshotId", chain.GraphSnapshotId),
-                Row("FindingsSnapshotId", chain.FindingsSnapshotId),
-                Row("GoldenManifestId", chain.GoldenManifestId),
-                Row("DecisionTraceId", chain.DecisionTraceId),
-                Row("ArtifactBundleId", chain.ArtifactBundleId),
+                "| Chain id | Value |", "|----------|-------|", Row("ContextSnapshotId", chain.ContextSnapshotId),
+                Row("GraphSnapshotId", chain.GraphSnapshotId), Row("FindingsSnapshotId", chain.FindingsSnapshotId),
+                Row("GoldenManifestId", chain.GoldenManifestId), Row("DecisionTraceId", chain.DecisionTraceId),
+                Row("ArtifactBundleId", chain.ArtifactBundleId)
             });
 
         StringBuilder artifacts = new();
@@ -191,8 +179,13 @@ internal static class WhyArchLucidPackSourceMapper
             delta.ToString());
     }
 
-    private static string Row(string label, string? value) =>
-        $"| {label} | {(string.IsNullOrWhiteSpace(value) ? "—" : $"`{value}`")} |";
+    private static string Row(string label, string? value)
+    {
+        return $"| {label} | {(string.IsNullOrWhiteSpace(value) ? "—" : $"`{value}`")} |";
+    }
 
-    private static string Md(string value) => value.Replace("|", "\\|", StringComparison.Ordinal);
+    private static string Md(string value)
+    {
+        return value.Replace("|", "\\|", StringComparison.Ordinal);
+    }
 }

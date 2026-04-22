@@ -5,8 +5,13 @@ public sealed class EvolutionSimulateResponse
 {
     public required EvolutionCandidateChangeSetResponse Candidate
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns { get; init; } = [];
+    public IReadOnlyList<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns
+    {
+        get;
+        init;
+    } = [];
 }

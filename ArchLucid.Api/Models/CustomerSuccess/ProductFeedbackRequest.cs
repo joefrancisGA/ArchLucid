@@ -8,23 +8,27 @@ public sealed class ProductFeedbackRequest
     /// <summary>Optional stable finding reference (e.g. fingerprint or graph node id).</summary>
     public string? FindingRef
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid? RunId
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>-1 = thumbs down, 0 = neutral, 1 = thumbs up.</summary>
     [Range(-1, 1)]
     public short Score
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? Comment
     {
-        get; init;
+        get;
+        init;
     }
 }

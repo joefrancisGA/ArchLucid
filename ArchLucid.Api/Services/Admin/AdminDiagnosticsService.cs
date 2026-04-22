@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -28,54 +29,62 @@ public sealed class AdminDiagnosticsService(
     IOptions<ArchLucidOptions> archLucidOptions,
     IAuditService auditService) : IAdminDiagnosticsService
 {
-    private readonly IAuthorityPipelineWorkRepository _authorityPipelineWork =
-        authorityPipelineWork ?? throw new ArgumentNullException(nameof(authorityPipelineWork));
-
-    private readonly IRetrievalIndexingOutboxRepository _retrievalIndexingOutbox =
-        retrievalIndexingOutbox ?? throw new ArgumentNullException(nameof(retrievalIndexingOutbox));
-
-    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
-        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
-
-    private readonly IHostLeaderLeaseRepository _hostLeaderLeases =
-        hostLeaderLeases ?? throw new ArgumentNullException(nameof(hostLeaderLeases));
-
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
-    private readonly IDbConnectionFactory _connectionFactory =
-        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
+    private readonly IAuthorityPipelineWorkRepository _authorityPipelineWork =
+        authorityPipelineWork ?? throw new ArgumentNullException(nameof(authorityPipelineWork));
+
+    private readonly IDbConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    private readonly IHostLeaderLeaseRepository _hostLeaderLeases =
+        hostLeaderLeases ?? throw new ArgumentNullException(nameof(hostLeaderLeases));
+
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
+        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
+
+    private readonly IRetrievalIndexingOutboxRepository _retrievalIndexingOutbox =
+        retrievalIndexingOutbox ?? throw new ArgumentNullException(nameof(retrievalIndexingOutbox));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
     {
         long authorityPending = await _authorityPipelineWork.CountPendingAsync(cancellationToken);
         long retrievalPending = await _retrievalIndexingOutbox.CountPendingAsync(cancellationToken);
-        long integrationPending = await _integrationEventOutbox.CountIntegrationOutboxPublishPendingAsync(cancellationToken);
+        long integrationPending =
+            await _integrationEventOutbox.CountIntegrationOutboxPublishPendingAsync(cancellationToken);
         long integrationDead = await _integrationEventOutbox.CountIntegrationOutboxDeadLetterAsync(cancellationToken);
 
         return new AdminOutboxSnapshot(authorityPending, retrievalPending, integrationPending, integrationDead);
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> GetLeasesAsync(CancellationToken cancellationToken = default) =>
-        _hostLeaderLeases.ListAllAsync(cancellationToken);
+    public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> GetLeasesAsync(CancellationToken cancellationToken = default)
+    {
+        return _hostLeaderLeases.ListAllAsync(cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListIntegrationOutboxDeadLettersAsync(
         int maxRows,
-        CancellationToken cancellationToken = default) =>
-        _integrationEventOutbox.ListDeadLettersAsync(maxRows, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, cancellationToken);
+    }
 
     /// <inheritdoc />
-    public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default) =>
-        _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
+    public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId,
+        CancellationToken cancellationToken = default)
+    {
+        return _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
+    }
 
     /// <inheritdoc />
     public async Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(
@@ -89,10 +98,14 @@ public sealed class AdminDiagnosticsService(
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);
 
-        long left = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId, cancellationToken);
-        long right = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId, cancellationToken);
-        long golden = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GoldenManifestsRunId, cancellationToken);
-        long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId, cancellationToken);
+        long left = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId,
+            cancellationToken);
+        long right = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId,
+            cancellationToken);
+        long golden = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
+            cancellationToken);
+        long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
+            cancellationToken);
 
         return new DataConsistencyOrphanCounts(left, right, golden, findings);
     }
@@ -127,7 +140,6 @@ public sealed class AdminDiagnosticsService(
             while (await reader.ReadAsync(cancellationToken))
 
                 candidateIds.Add(reader.GetString(0));
-
         }
 
         if (dryRun)
@@ -158,7 +170,6 @@ public sealed class AdminDiagnosticsService(
                 while (await reader.ReadAsync(cancellationToken))
 
                     deletedIds.Add(reader.GetString(0));
-
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -175,12 +186,7 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.ComparisonRecordOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            comparisonRecordIds = deletedIds,
-                        }),
+                        new { dryRun = false, deletedCount = deletedIds.Count, comparisonRecordIds = deletedIds })
                 },
                 cancellationToken);
 
@@ -218,7 +224,6 @@ public sealed class AdminDiagnosticsService(
             while (await reader.ReadAsync(cancellationToken))
 
                 candidateIds.Add(reader.GetGuid(0).ToString("D"));
-
         }
 
         if (dryRun)
@@ -242,7 +247,7 @@ public sealed class AdminDiagnosticsService(
                 bundleDelete.CommandText = "DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;";
                 DbParameter mid = bundleDelete.CreateParameter();
                 mid.ParameterName = "@ManifestId";
-                mid.Value = Guid.Parse(manifestId, System.Globalization.CultureInfo.InvariantCulture);
+                mid.Value = Guid.Parse(manifestId, CultureInfo.InvariantCulture);
                 bundleDelete.Parameters.Add(mid);
                 await bundleDelete.ExecuteNonQueryAsync(cancellationToken);
             }
@@ -252,13 +257,13 @@ public sealed class AdminDiagnosticsService(
                 await using DbCommand deleteManifest = connection.CreateCommand();
                 deleteManifest.Transaction = transaction;
                 deleteManifest.CommandText = """
-                    DELETE FROM dbo.GoldenManifests
-                    OUTPUT deleted.ManifestId
-                    WHERE ManifestId = @ManifestId;
-                    """;
+                                             DELETE FROM dbo.GoldenManifests
+                                             OUTPUT deleted.ManifestId
+                                             WHERE ManifestId = @ManifestId;
+                                             """;
                 DbParameter mid = deleteManifest.CreateParameter();
                 mid.ParameterName = "@ManifestId";
-                mid.Value = Guid.Parse(manifestId, System.Globalization.CultureInfo.InvariantCulture);
+                mid.Value = Guid.Parse(manifestId, CultureInfo.InvariantCulture);
                 deleteManifest.Parameters.Add(mid);
 
                 await using DbDataReader reader = await deleteManifest.ExecuteReaderAsync(cancellationToken);
@@ -266,7 +271,6 @@ public sealed class AdminDiagnosticsService(
                 if (await reader.ReadAsync(cancellationToken))
 
                     deletedIds.Add(reader.GetGuid(0).ToString("D"));
-
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -283,12 +287,7 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.GoldenManifestOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            manifestIds = deletedIds,
-                        }),
+                        new { dryRun = false, deletedCount = deletedIds.Count, manifestIds = deletedIds })
                 },
                 cancellationToken);
 
@@ -326,7 +325,6 @@ public sealed class AdminDiagnosticsService(
             while (await reader.ReadAsync(cancellationToken))
 
                 candidateIds.Add(reader.GetGuid(0).ToString("D"));
-
         }
 
         if (dryRun)
@@ -348,13 +346,13 @@ public sealed class AdminDiagnosticsService(
                 await using DbCommand deleteSnapshot = connection.CreateCommand();
                 deleteSnapshot.Transaction = transaction;
                 deleteSnapshot.CommandText = """
-                    DELETE FROM dbo.FindingsSnapshots
-                    OUTPUT deleted.FindingsSnapshotId
-                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                    """;
+                                             DELETE FROM dbo.FindingsSnapshots
+                                             OUTPUT deleted.FindingsSnapshotId
+                                             WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                             """;
                 DbParameter sid = deleteSnapshot.CreateParameter();
                 sid.ParameterName = "@FindingsSnapshotId";
-                sid.Value = Guid.Parse(snapshotId, System.Globalization.CultureInfo.InvariantCulture);
+                sid.Value = Guid.Parse(snapshotId, CultureInfo.InvariantCulture);
                 deleteSnapshot.Parameters.Add(sid);
 
                 await using DbDataReader reader = await deleteSnapshot.ExecuteReaderAsync(cancellationToken);
@@ -362,7 +360,6 @@ public sealed class AdminDiagnosticsService(
                 if (await reader.ReadAsync(cancellationToken))
 
                     deletedIds.Add(reader.GetGuid(0).ToString("D"));
-
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -379,12 +376,7 @@ public sealed class AdminDiagnosticsService(
                 {
                     EventType = AuditEventTypes.FindingsSnapshotOrphansRemediated,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            findingsSnapshotIds = deletedIds,
-                        }),
+                        new { dryRun = false, deletedCount = deletedIds.Count, findingsSnapshotIds = deletedIds })
                 },
                 cancellationToken);
 
@@ -395,14 +387,18 @@ public sealed class AdminDiagnosticsService(
     /// <inheritdoc />
     public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
-        CancellationToken cancellationToken = default) =>
-        _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        return _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
         IReadOnlyList<Guid> runIds,
-        CancellationToken cancellationToken = default) =>
-        _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        return _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+    }
 
     private static async Task<long> ExecuteCountAsync(
         DbConnection connection,
@@ -412,6 +408,6 @@ public sealed class AdminDiagnosticsService(
         await using DbCommand command = connection.CreateCommand();
         command.CommandText = sql;
         object? scalar = await command.ExecuteScalarAsync(cancellationToken);
-        return scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
+        return scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
     }
 }

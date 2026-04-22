@@ -53,12 +53,12 @@ internal static class EntraMultiTenantJwtBearerConfigurator
                 if (allowList.All(g => g != tid))
 
                     ctx.Fail("Entra tenant id is not listed in ArchLucidAuth:AllowedEntraTenantIds.");
-
-            },
+            }
         };
     }
 
-    private static string ValidateIssuer(string? issuer, SecurityToken securityToken, TokenValidationParameters validationParameters)
+    private static string ValidateIssuer(string? issuer, SecurityToken securityToken,
+        TokenValidationParameters validationParameters)
     {
         _ = securityToken;
         _ = validationParameters;
@@ -69,7 +69,9 @@ internal static class EntraMultiTenantJwtBearerConfigurator
 
         string trimmed = issuer.Trim();
 
-        return !AzureAdIssuerV2.IsMatch(trimmed) ? throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Azure AD v2.0 issuer.") : trimmed;
+        return !AzureAdIssuerV2.IsMatch(trimmed)
+            ? throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Azure AD v2.0 issuer.")
+            : trimmed;
     }
 
     private static IReadOnlyList<Guid> ParseAllowedEntraTenantIds(string? raw)
@@ -85,7 +87,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
             if (Guid.TryParse(part, out Guid g))
 
                 list.Add(g);
-
 
 
         return list;

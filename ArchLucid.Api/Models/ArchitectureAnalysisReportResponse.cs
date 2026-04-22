@@ -7,5 +7,9 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ArchitectureAnalysisReportResponse
 {
-    public ArchitectureAnalysisReport Report { get; set; } = new();
+    public ArchitectureAnalysisReport Report
+    {
+        get;
+        set;
+    } = new();
 }

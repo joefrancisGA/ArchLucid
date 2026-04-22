@@ -31,11 +31,11 @@ public sealed class FindingFeedbackController(
     private readonly IFindingFeedbackRepository _findingFeedbackRepository =
         findingFeedbackRepository ?? throw new ArgumentNullException(nameof(findingFeedbackRepository));
 
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
     private readonly ILogger<FindingFeedbackController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Append-only thumbs vote for one finding on a run.</summary>
     [HttpPost("runs/{runId:guid}/findings/{findingId}/feedback")]
@@ -54,7 +54,7 @@ public sealed class FindingFeedbackController(
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
 
-        if (request.Score is not (-1) and not 1)
+        if (request.Score is not -1 and not 1)
             return this.BadRequestProblem("Score must be -1 or 1.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -79,7 +79,7 @@ public sealed class FindingFeedbackController(
             ProjectId = scope.ProjectId,
             RunId = runId,
             FindingId = findingId.Trim(),
-            Score = request.Score,
+            Score = request.Score
         };
 
         await _findingFeedbackRepository.InsertAsync(submission, cancellationToken);

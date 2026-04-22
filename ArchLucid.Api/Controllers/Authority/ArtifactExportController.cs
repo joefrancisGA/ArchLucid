@@ -1,11 +1,11 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
@@ -19,12 +19,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// HTTP API for listing, downloading, and packaging synthesized artifacts produced for a golden manifest.
+///     HTTP API for listing, downloading, and packaging synthesized artifacts produced for a golden manifest.
 /// </summary>
 /// <remarks>
-/// Routes are prefixed <c>api/artifacts</c> and require the <see cref="ArchLucidPolicies.ReadAuthority"/> policy.
-/// Artifact descriptors are resolved from the artifact query service; packaging (ZIP export) is performed
-/// by <see cref="IArtifactPackagingService"/>. All download operations emit an <c>ArtifactExported</c> audit event.
+///     Routes are prefixed <c>api/artifacts</c> and require the <see cref="ArchLucidPolicies.ReadAuthority" /> policy.
+///     Artifact descriptors are resolved from the artifact query service; packaging (ZIP export) is performed
+///     by <see cref="IArtifactPackagingService" />. All download operations emit an <c>ArtifactExported</c> audit event.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -41,13 +41,12 @@ public sealed class ArtifactExportController(
 {
     private static readonly JsonSerializerOptions ExportJsonOptions = new()
     {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <summary>
-    /// Lists artifact descriptors for a golden manifest. Returns <c>200 OK</c> with a JSON array (possibly empty)
-    /// sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
+    ///     Lists artifact descriptors for a golden manifest. Returns <c>200 OK</c> with a JSON array (possibly empty)
+    ///     sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
@@ -65,13 +64,15 @@ public sealed class ArtifactExportController(
                 ProblemTypes.ManifestNotFound);
 
 
-        IReadOnlyList<ArtifactDescriptor> artifacts = await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
+        IReadOnlyList<ArtifactDescriptor> artifacts =
+            await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
         return Ok(artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId)).ToList());
     }
 
     /// <summary>
-    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifest�s bundle.
+    ///     JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is
+    ///     not in that manifest�s bundle.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
@@ -90,7 +91,8 @@ public sealed class ArtifactExportController(
                 ProblemTypes.ManifestNotFound);
 
 
-        SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+        SynthesizedArtifact? artifact =
+            await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
             return this.NotFoundProblem(
                 $"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
@@ -100,7 +102,10 @@ public sealed class ArtifactExportController(
         return Ok(ArtifactDescriptorResponse.From(artifact));
     }
 
-    /// <summary>Downloads one synthesized artifact file. Requires manifest in scope; same 404 semantics as the descriptor endpoint.</summary>
+    /// <summary>
+    ///     Downloads one synthesized artifact file. Requires manifest in scope; same 404 semantics as the descriptor
+    ///     endpoint.
+    /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -119,18 +124,18 @@ public sealed class ArtifactExportController(
                 ProblemTypes.ManifestNotFound);
 
 
-        SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+        SynthesizedArtifact? artifact =
+            await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
-            return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
+                ProblemTypes.ResourceNotFound);
 
         ArtifactFileExport file = artifactPackagingService.BuildSingleFileExport(artifact);
 
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.ArtifactDownloaded,
-                ManifestId = manifestId,
-                ArtifactId = artifactId
+                EventType = AuditEventTypes.ArtifactDownloaded, ManifestId = manifestId, ArtifactId = artifactId
             },
             ct);
 
@@ -138,8 +143,9 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>
-    /// ZIP of all artifacts for the manifest (stable entry order: name then id). <c>404</c> with manifest-not-found when
-    /// the manifest is missing; <c>404</c> with resource-not-found when the manifest exists but has no bundle or zero artifacts.
+    ///     ZIP of all artifacts for the manifest (stable entry order: name then id). <c>404</c> with manifest-not-found when
+    ///     the manifest is missing; <c>404</c> with resource-not-found when the manifest exists but has no bundle or zero
+    ///     artifacts.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/bundle")]
     [Produces("application/zip")]
@@ -158,7 +164,8 @@ public sealed class ArtifactExportController(
                 ProblemTypes.ManifestNotFound);
 
 
-        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
+        IReadOnlyList<SynthesizedArtifact> artifacts =
+            await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' has no artifact bundle or the bundle contains no artifacts. " +
@@ -169,17 +176,16 @@ public sealed class ArtifactExportController(
         ArtifactPackage package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
 
         await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.BundleDownloaded,
-                ManifestId = manifestId
-            },
+            new AuditEvent { EventType = AuditEventTypes.BundleDownloaded, ManifestId = manifestId },
             ct);
 
         return File(package.Content, package.ContentType, package.PackageFileName);
     }
 
-    /// <summary>ZIP export of run manifest, trace, and artifacts when the run is committed; artifacts ordered like the manifest bundle list.</summary>
+    /// <summary>
+    ///     ZIP export of run manifest, trace, and artifacts when the run is committed; artifacts ordered like the
+    ///     manifest bundle list.
+    /// </summary>
     [HttpGet("runs/{runId:guid}/export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -195,7 +201,8 @@ public sealed class ArtifactExportController(
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (runDetail.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{runId}' has no committed golden manifest available for export.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Run '{runId}' has no committed golden manifest available for export.",
+                ProblemTypes.ManifestNotFound);
 
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
@@ -214,7 +221,7 @@ public sealed class ArtifactExportController(
         {
             ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
             ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
-            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
+            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine
         };
 
         ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(

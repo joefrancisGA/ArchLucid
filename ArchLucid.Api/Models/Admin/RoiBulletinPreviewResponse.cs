@@ -5,26 +5,31 @@ public sealed class RoiBulletinPreviewResponse
 {
     public string Quarter
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     public int TenantCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? MeanBaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? MedianBaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? P90BaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 }

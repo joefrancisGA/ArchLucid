@@ -17,7 +17,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Controllers.E2e;
 
 /// <summary>
-/// Non-production harness for live E2E (trial clock + billing activation). Gated by shared secret; returns 404 when disabled.
+///     Non-production harness for live E2E (trial clock + billing activation). Gated by shared secret; returns 404 when
+///     disabled.
 /// </summary>
 [ApiController]
 [AllowAnonymous]
@@ -30,6 +31,9 @@ public sealed class E2EHarnessController(
     ITenantRepository tenantRepository,
     BillingWebhookTrialActivator billingWebhookTrialActivator) : ControllerBase
 {
+    private readonly BillingWebhookTrialActivator _billingWebhookTrialActivator =
+        billingWebhookTrialActivator ?? throw new ArgumentNullException(nameof(billingWebhookTrialActivator));
+
     private readonly IWebHostEnvironment _environment =
         environment ?? throw new ArgumentNullException(nameof(environment));
 
@@ -38,9 +42,6 @@ public sealed class E2EHarnessController(
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly BillingWebhookTrialActivator _billingWebhookTrialActivator =
-        billingWebhookTrialActivator ?? throw new ArgumentNullException(nameof(billingWebhookTrialActivator));
 
     [HttpPost("trial/set-expires")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -88,7 +89,7 @@ public sealed class E2EHarnessController(
                 ProblemTypes.ResourceNotFound);
 
 
-        if (!Enum.TryParse(body.CheckoutTier.Trim(), ignoreCase: true, out BillingCheckoutTier tier))
+        if (!Enum.TryParse(body.CheckoutTier.Trim(), true, out BillingCheckoutTier tier))
 
             tier = BillingCheckoutTier.Team;
 
@@ -108,8 +109,8 @@ public sealed class E2EHarnessController(
             subscriptionId,
             tierStorageCode,
             checkoutLabel,
-            seats: 1,
-            workspaces: 1,
+            1,
+            1,
             rawJson,
             cancellationToken);
 

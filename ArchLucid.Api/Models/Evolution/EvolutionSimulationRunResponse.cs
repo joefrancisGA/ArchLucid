@@ -5,36 +5,43 @@ public sealed class EvolutionSimulationRunResponse
 {
     public Guid SimulationRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string BaselineArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string EvaluationMode
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string OutcomeJson
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? WarningsJson
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTime CompletedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IsShadowOnly
     {
-        get; init;
+        get;
+        init;
     }
 }

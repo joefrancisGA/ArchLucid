@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Api.ProblemDetails;
@@ -9,6 +8,7 @@ using ArchLucid.Api.ProductLearning;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Evolution;
 
@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Evolution;
 
 /// <summary>
-/// 60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
+///     60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
@@ -38,7 +38,7 @@ public sealed class EvolutionController(
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = true,
+        WriteIndented = true
     };
 
     /// <summary>Creates a reviewable candidate from a persisted 59R improvement plan (copies a JSON snapshot).</summary>
@@ -58,7 +58,7 @@ public sealed class EvolutionController(
                 await evolutionSimulationService.CreateCandidateFromImprovementPlanAsync(
                     planId,
                     scope,
-                    createdByUserId: null,
+                    null,
                     cancellationToken);
 
             return Ok(record.ToResponse());
@@ -69,7 +69,10 @@ public sealed class EvolutionController(
         }
     }
 
-    /// <summary>Runs read-only architecture analysis for each baseline run linked on the source plan (persists shadow rows; no commits/replays).</summary>
+    /// <summary>
+    ///     Runs read-only architecture analysis for each baseline run linked on the source plan (persists shadow rows; no
+    ///     commits/replays).
+    /// </summary>
     [HttpPost("candidates/{candidateId:guid}/shadow-evaluate")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionShadowEvaluateResponse), StatusCodes.Status200OK)]
@@ -86,7 +89,7 @@ public sealed class EvolutionController(
 
             EvolutionShadowEvaluateResponse body = new()
             {
-                SimulationRuns = runs.Select(static r => r.ToResponse()).ToList(),
+                SimulationRuns = runs.Select(static r => r.ToResponse()).ToList()
             };
 
             return Ok(body);
@@ -102,7 +105,8 @@ public sealed class EvolutionController(
     }
 
     /// <summary>
-    /// Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation scores.
+    ///     Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation
+    ///     scores.
     /// </summary>
     [HttpPost("simulate/{candidateId:guid}")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -133,7 +137,7 @@ public sealed class EvolutionController(
             EvolutionSimulateResponse body = new()
             {
                 Candidate = candidate.ToResponse(),
-                SimulationRuns = runs.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList(),
+                SimulationRuns = runs.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList()
             };
 
             return Ok(body);
@@ -173,7 +177,7 @@ public sealed class EvolutionController(
         {
             Candidate = row.ToResponse(),
             PlanSnapshotJson = row.PlanSnapshotJson,
-            SimulationRuns = sims.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList(),
+            SimulationRuns = sims.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList()
         };
 
         return Ok(body);
@@ -243,7 +247,7 @@ public sealed class EvolutionController(
 
         EvolutionCandidateChangeSetListResponse body = new()
         {
-            Candidates = rows.Select(static r => r.ToResponse()).ToList(),
+            Candidates = rows.Select(static r => r.ToResponse()).ToList()
         };
 
         return Ok(body);
@@ -274,7 +278,7 @@ public sealed class EvolutionController(
         {
             Candidate = row.ToResponse(),
             PlanSnapshotJson = row.PlanSnapshotJson,
-            SimulationRuns = sims.Select(static s => s.ToResponse()).ToList(),
+            SimulationRuns = sims.Select(static s => s.ToResponse()).ToList()
         };
 
         return Ok(body);
@@ -288,7 +292,7 @@ public sealed class EvolutionController(
         {
             TenantId = scopeContext.TenantId,
             WorkspaceId = scopeContext.WorkspaceId,
-            ProjectId = scopeContext.ProjectId,
+            ProjectId = scopeContext.ProjectId
         };
     }
 }

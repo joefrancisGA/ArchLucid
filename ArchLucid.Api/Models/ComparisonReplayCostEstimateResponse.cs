@@ -1,44 +1,61 @@
+using ArchLucid.Application.Analysis;
+
 namespace ArchLucid.Api.Models;
 
 /// <summary>
-/// API projection of <see cref="ArchLucid.Application.Analysis.ComparisonReplayCostEstimate"/>.
+///     API projection of <see cref="ArchLucid.Application.Analysis.ComparisonReplayCostEstimate" />.
 /// </summary>
 public sealed class ComparisonReplayCostEstimateResponse
 {
     public required string ComparisonRecordId
     {
-        get; init;
-    }
-    public required string ComparisonType
-    {
-        get; init;
-    }
-    public required string Format
-    {
-        get; init;
-    }
-    public required string ReplayMode
-    {
-        get; init;
-    }
-    public bool PersistReplay
-    {
-        get; init;
-    }
-    public int ApproximateRelativeScore
-    {
-        get; init;
-    }
-    public required string RelativeCostBand
-    {
-        get; init;
-    }
-    public required IReadOnlyList<string> Factors
-    {
-        get; init;
+        get;
+        init;
     }
 
-    public static ComparisonReplayCostEstimateResponse FromDomain(Application.Analysis.ComparisonReplayCostEstimate estimate)
+    public required string ComparisonType
+    {
+        get;
+        init;
+    }
+
+    public required string Format
+    {
+        get;
+        init;
+    }
+
+    public required string ReplayMode
+    {
+        get;
+        init;
+    }
+
+    public bool PersistReplay
+    {
+        get;
+        init;
+    }
+
+    public int ApproximateRelativeScore
+    {
+        get;
+        init;
+    }
+
+    public required string RelativeCostBand
+    {
+        get;
+        init;
+    }
+
+    public required IReadOnlyList<string> Factors
+    {
+        get;
+        init;
+    }
+
+    public static ComparisonReplayCostEstimateResponse FromDomain(ComparisonReplayCostEstimate estimate)
     {
         ArgumentNullException.ThrowIfNull(estimate);
 

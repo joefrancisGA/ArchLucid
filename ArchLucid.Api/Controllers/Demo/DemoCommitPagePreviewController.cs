@@ -15,18 +15,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Demo;
 
 /// <summary>
-/// Public, read-only marketing surface: one JSON bundle shaped like the operator commit page for the latest committed demo-seed run.
+///     Public, read-only marketing surface: one JSON bundle shaped like the operator commit page for the latest committed
+///     demo-seed run.
 /// </summary>
 /// <remarks>
-/// <para>
-/// <b>Cache key:</b> stable <c>demo-preview:bundle:v1:latest</c>. The resolved <see cref="DemoCommitPagePreviewResponse.Run"/> id and
-/// manifest identity live inside the cached value, so a re-seed that produces a new run replaces the payload on the next cache miss
-/// without a distributed invalidation hook (TTL-only staleness, up to <see cref="DemoOptions.PreviewCacheSeconds"/>).
-/// </para>
+///     <para>
+///         <b>Cache key:</b> stable <c>demo-preview:bundle:v1:latest</c>. The resolved
+///         <see cref="DemoCommitPagePreviewResponse.Run" /> id and
+///         manifest identity live inside the cached value, so a re-seed that produces a new run replaces the payload on
+///         the next cache miss
+///         without a distributed invalidation hook (TTL-only staleness, up to
+///         <see cref="DemoOptions.PreviewCacheSeconds" />).
+///     </para>
 /// </remarks>
 [ApiController]
 [ApiVersion("1.0")]
@@ -40,22 +45,23 @@ public sealed class DemoCommitPagePreviewController(
     IOptionsMonitor<DemoOptions> demoOptions) : ControllerBase
 {
     /// <summary>
-    /// Stable v1 bundle key. Run id + manifest version are carried in the cached <see cref="DemoCommitPagePreviewResponse"/>, not in the key,
-    /// so the entry hot-swaps after TTL on re-seed without explicit eviction.
+    ///     Stable v1 bundle key. Run id + manifest version are carried in the cached
+    ///     <see cref="DemoCommitPagePreviewResponse" />, not in the key,
+    ///     so the entry hot-swaps after TTL on re-seed without explicit eviction.
     /// </summary>
     private const string PreviewBundleCacheKey = "demo-preview:bundle:v1:latest";
 
     private const string PreviewCacheControl =
         "public, max-age=300, s-maxage=300, stale-while-revalidate=60";
 
-    private readonly IDemoCommitPagePreviewClient _previewClient =
-        previewClient ?? throw new ArgumentNullException(nameof(previewClient));
+    private readonly IOptionsMonitor<DemoOptions> _demoOptions =
+        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
 
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
-    private readonly IOptionsMonitor<DemoOptions> _demoOptions =
-        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+    private readonly IDemoCommitPagePreviewClient _previewClient =
+        previewClient ?? throw new ArgumentNullException(nameof(previewClient));
 
     /// <summary>Returns the bundled commit-page preview JSON for the latest committed demo-seed run.</summary>
     [HttpGet("preview")]
@@ -96,7 +102,7 @@ public sealed class DemoCommitPagePreviewController(
         Response.Headers["Cache-Control"] = PreviewCacheControl;
         Response.Headers["ETag"] = etag;
 
-        if (!Request.Headers.TryGetValue("If-None-Match", out Microsoft.Extensions.Primitives.StringValues inm))
+        if (!Request.Headers.TryGetValue("If-None-Match", out StringValues inm))
             return File(body, "application/json");
 
         if (inm.OfType<string>().Any(candidate => string.Equals(candidate.Trim(), etag, StringComparison.Ordinal)))

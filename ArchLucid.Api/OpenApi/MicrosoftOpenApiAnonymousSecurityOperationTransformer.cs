@@ -7,9 +7,11 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-/// Clears inherited document <c>security</c> on <see cref="AllowAnonymousAttribute"/> actions in the Microsoft OpenAPI document.
+///     Clears inherited document <c>security</c> on <see cref="AllowAnonymousAttribute" /> actions in the Microsoft
+///     OpenAPI document.
 /// </summary>
-public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformer(IConfiguration configuration) : IOpenApiOperationTransformer
+public sealed class MicrosoftOpenApiAnonymousSecurityOperationTransformer(IConfiguration configuration)
+    : IOpenApiOperationTransformer
 {
     public Task TransformAsync(
         OpenApiOperation operation,

@@ -26,7 +26,8 @@ public static class ApiFileResults
     }
 
     /// <summary>Standard download without range support (e.g. small ZIP payloads).</summary>
-    public static IActionResult SimpleBytes(byte[]? bytes, string contentType, string fileName) =>
-        new FileContentResult(bytes ?? [], contentType) { FileDownloadName = fileName };
+    public static IActionResult SimpleBytes(byte[]? bytes, string contentType, string fileName)
+    {
+        return new FileContentResult(bytes ?? [], contentType) { FileDownloadName = fileName };
+    }
 }
-

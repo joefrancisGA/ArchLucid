@@ -18,8 +18,8 @@ public interface IEvolutionSimulationService
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Clears prior simulation rows for the candidate, re-runs linked baselines, persists outcomes with embedded
-    /// evaluation scores (60R-v2 JSON envelope).
+    ///     Clears prior simulation rows for the candidate, re-runs linked baselines, persists outcomes with embedded
+    ///     evaluation scores (60R-v2 JSON envelope).
     /// </summary>
     Task<IReadOnlyList<EvolutionSimulationRunRecord>> SimulateCandidateWithEvaluationAsync(
         Guid candidateChangeSetId,

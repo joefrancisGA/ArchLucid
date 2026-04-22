@@ -32,7 +32,7 @@ internal static class EvolutionOutcomeParser
             IsShadowOnly = record.IsShadowOnly,
             EvaluationScore = evaluation,
             EvaluationExplanationSummary = explanationSummary,
-            OutcomeSchemaVersion = schemaVersion,
+            OutcomeSchemaVersion = schemaVersion
         };
     }
 
@@ -79,7 +79,6 @@ internal static class EvolutionOutcomeParser
             if (ev.ValueKind == JsonValueKind.Object)
 
                 evaluation = JsonSerializer.Deserialize<EvaluationScoreResponse>(ev.GetRawText(), ParseOptions);
-
         }
         catch (JsonException)
         {

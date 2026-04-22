@@ -26,6 +26,7 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
 
         RuleFor(x => x.Content)
             .NotNull().WithMessage("Infrastructure declaration Content must not be null.")
-            .MaximumLength(2_000_000).WithMessage("Infrastructure declaration Content must not exceed 2000000 characters.");
+            .MaximumLength(2_000_000)
+            .WithMessage("Infrastructure declaration Content must not exceed 2000000 characters.");
     }
 }

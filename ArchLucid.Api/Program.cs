@@ -17,7 +17,8 @@ using ArchLucid.Host.Core.Startup.Validation;
 
 namespace ArchLucid.Api;
 
-[ExcludeFromCodeCoverage(Justification = "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
 {
     public static void Main(string[] args)
@@ -27,13 +28,13 @@ public partial class Program
         // Optional tuning (observability, replay batch limits, DOCX export profiles, integration hooks). Loaded after default JSON; see docs/PILOT_GUIDE.md.
         builder.Configuration.AddJsonFile(
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),
-            optional: true,
-            reloadOnChange: true);
+            true,
+            true);
 
         builder.Configuration.AddJsonFile(
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.SaaS.json"),
-            optional: true,
-            reloadOnChange: true);
+            true,
+            true);
 
         // Advanced.json is chained after default env vars, so it can override ARCHLUCID_* / ArchLucid__* (e.g.
         // ArchLucid:Persistence:AllowRlsBypass=false for fail-closed defaults). Re-apply environment variables so
@@ -64,7 +65,7 @@ public partial class Program
         builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
             builder.Environment,
-            telemetryServiceName: "ArchLucid.Api");
+            "ArchLucid.Api");
         builder.Services.AddArchLucidRateLimiting(builder.Configuration);
         builder.Services.Configure<E2EHarnessOptions>(builder.Configuration.GetSection(E2EHarnessOptions.SectionName));
         builder.Services.AddArchLucidCors(builder.Configuration);
@@ -92,7 +93,6 @@ public partial class Program
                         LogSanitizer.Sanitize(error));
 
 
-
             throw new InvalidOperationException(
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
@@ -107,7 +107,6 @@ public partial class Program
 
                 app.Logger.LogWarning(
                     "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
-
 
 
         StartupConfigurationDiagnostics.LogIfEnabled(

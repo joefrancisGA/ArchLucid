@@ -7,6 +7,7 @@ public sealed class SeedFakeResultsResponse
 {
     public int ResultCount
     {
-        get; set;
+        get;
+        set;
     }
 }

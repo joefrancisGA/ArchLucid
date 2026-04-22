@@ -6,7 +6,7 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-/// Aligns <c>MapOpenApi</c> output with Swashbuckle auth metadata for <c>/openapi/v1.json</c>.
+///     Aligns <c>MapOpenApi</c> output with Swashbuckle auth metadata for <c>/openapi/v1.json</c>.
 /// </summary>
 public sealed class MicrosoftOpenApiAuthDocumentTransformer(IConfiguration configuration) : IOpenApiDocumentTransformer
 {

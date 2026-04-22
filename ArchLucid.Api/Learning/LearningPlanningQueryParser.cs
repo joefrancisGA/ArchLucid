@@ -19,8 +19,9 @@ internal static class LearningPlanningQueryParser
 
     public const int MaxMaxReportEvidenceRefsPerPlan = 500;
 
-    public static bool TryParseMaxItems(string? raw, string queryParameterName, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxItems(string? raw, string queryParameterName, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxItems,
             MinMaxItems,
@@ -28,13 +29,17 @@ internal static class LearningPlanningQueryParser
             queryParameterName,
             out value,
             out error);
+    }
 
     /// <summary>Reuses product-learning format rules (<c>markdown</c> / <c>json</c>).</summary>
-    public static bool TryParseReportFormat(string? raw, out string formatNormalized, out string? error) =>
-        ProductLearningQueryParser.TryParseReportFormat(raw, out formatNormalized, out error);
+    public static bool TryParseReportFormat(string? raw, out string formatNormalized, out string? error)
+    {
+        return ProductLearningQueryParser.TryParseReportFormat(raw, out formatNormalized, out error);
+    }
 
-    public static bool TryParseMaxReportSignalLinksPerPlan(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportSignalLinksPerPlan(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportEvidenceRefsPerPlan,
             MinMaxReportEvidenceRefsPerPlan,
@@ -42,9 +47,11 @@ internal static class LearningPlanningQueryParser
             "maxReportSignalLinks",
             out value,
             out error);
+    }
 
-    public static bool TryParseMaxReportArtifactLinksPerPlan(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportArtifactLinksPerPlan(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportEvidenceRefsPerPlan,
             MinMaxReportEvidenceRefsPerPlan,
@@ -52,9 +59,11 @@ internal static class LearningPlanningQueryParser
             "maxReportArtifactLinks",
             out value,
             out error);
+    }
 
-    public static bool TryParseMaxReportRunLinksPerPlan(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportRunLinksPerPlan(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportEvidenceRefsPerPlan,
             MinMaxReportEvidenceRefsPerPlan,
@@ -62,6 +71,7 @@ internal static class LearningPlanningQueryParser
             "maxReportRunLinks",
             out value,
             out error);
+    }
 
     private static bool TryParseBoundedInt(
         string? raw,

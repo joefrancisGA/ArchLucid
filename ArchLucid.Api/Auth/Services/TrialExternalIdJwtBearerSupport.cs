@@ -6,8 +6,8 @@ namespace ArchLucid.Api.Auth.Services;
 internal static class TrialExternalIdJwtBearerSupport
 {
     /// <summary>
-    /// When trial External ID is enabled, extends an existing strict issuer validator (for example multi-tenant Entra)
-    /// to also accept Entra External ID (CIAM) issuers.
+    ///     When trial External ID is enabled, extends an existing strict issuer validator (for example multi-tenant Entra)
+    ///     to also accept Entra External ID (CIAM) issuers.
     /// </summary>
     public static void TryAllowConsumerIdentityIssuers(JwtBearerOptions options, bool trialExternalIdEnabled)
     {
@@ -19,6 +19,9 @@ internal static class TrialExternalIdJwtBearerSupport
         if (prior is null)
             return;
 
-        options.TokenValidationParameters.IssuerValidator = (issuer, securityToken, validationParameters) => ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer) ? issuer! : prior(issuer, securityToken, validationParameters);
+        options.TokenValidationParameters.IssuerValidator = (issuer, securityToken, validationParameters) =>
+            ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer)
+                ? issuer!
+                : prior(issuer, securityToken, validationParameters);
     }
 }

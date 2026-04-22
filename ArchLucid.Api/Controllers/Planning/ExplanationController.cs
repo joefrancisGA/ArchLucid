@@ -23,9 +23,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-/// LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.
+///     LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.
 /// </summary>
-/// <remarks>Routes under <c>api/explain</c>; uses <see cref="IExplanationService"/> and <see cref="IComparisonService"/> for compare narrative.</remarks>
+/// <remarks>
+///     Routes under <c>api/explain</c>; uses <see cref="IExplanationService" /> and <see cref="IComparisonService" />
+///     for compare narrative.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -45,7 +48,7 @@ public sealed class ExplanationController(
     /// <summary>Stakeholder explanation for one run�s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ExplanationResult"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
+    /// <returns><see cref="ExplanationResult" /> JSON, or 404 when the run or manifest is missing in scope.</returns>
     [HttpGet("runs/{runId:guid}/explain")]
     [ProducesResponseType(typeof(ExplanationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -88,7 +91,7 @@ public sealed class ExplanationController(
     /// <summary>Executive rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
     /// <param name="runId">Run to summarize.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunExplanationSummary"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
+    /// <returns><see cref="RunExplanationSummary" /> JSON, or 404 when the run or manifest is missing in scope.</returns>
     [HttpGet("runs/{runId:guid}/aggregate")]
     [ProducesResponseType(typeof(RunExplanationSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -105,7 +108,7 @@ public sealed class ExplanationController(
     }
 
     /// <summary>
-    /// Returns persisted <c>ExplainabilityTrace</c> fields for one finding on an authority run (no LLM).
+    ///     Returns persisted <c>ExplainabilityTrace</c> fields for one finding on an authority run (no LLM).
     /// </summary>
     [HttpGet("runs/{runId:guid}/findings/{findingId}/explainability")]
     [ProducesResponseType(typeof(FindingExplainabilityResult), StatusCodes.Status200OK)]
@@ -154,14 +157,15 @@ public sealed class ExplanationController(
                 match.Title,
                 match.EngineType,
                 t,
-                score.CompletenessRatio),
+                score.CompletenessRatio)
         };
 
         return Ok(body);
     }
 
     /// <summary>
-    /// Returns deny-list redacted system/user prompts and raw LLM completion for the best-matching agent trace for this finding.
+    ///     Returns deny-list redacted system/user prompts and raw LLM completion for the best-matching agent trace for this
+    ///     finding.
     /// </summary>
     [HttpGet("runs/{runId:guid}/findings/{findingId}/llm-audit")]
     [ProducesResponseType(typeof(FindingLlmAuditResult), StatusCodes.Status200OK)]
@@ -187,7 +191,7 @@ public sealed class ExplanationController(
     /// <param name="baseRunId">Baseline run.</param>
     /// <param name="targetRunId">Target run.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ComparisonExplanationResult"/> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
+    /// <returns><see cref="ComparisonExplanationResult" /> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
     [HttpGet("compare/explain")]
     [ProducesResponseType(typeof(ComparisonExplanationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]

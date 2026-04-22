@@ -35,7 +35,7 @@ internal static class ProductLearningQueryParser
 
     public const int MaxMaxReportTriagePreview = 25;
 
-    /// <summary><paramref name="formatNormalized"/> is <c>markdown</c> or <c>json</c> (lowercase).</summary>
+    /// <summary><paramref name="formatNormalized" /> is <c>markdown</c> or <c>json</c> (lowercase).</summary>
     public static bool TryParseReportFormat(string? raw, out string formatNormalized, out string? error)
     {
         formatNormalized = "markdown";
@@ -63,8 +63,9 @@ internal static class ProductLearningQueryParser
         return false;
     }
 
-    public static bool TryParseMaxReportArtifacts(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportArtifacts(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportArtifacts,
             MinMaxReportArtifacts,
@@ -72,9 +73,11 @@ internal static class ProductLearningQueryParser
             "maxReportArtifacts",
             out value,
             out error);
+    }
 
-    public static bool TryParseMaxReportImprovements(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportImprovements(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportImprovements,
             MinMaxReportImprovements,
@@ -82,9 +85,11 @@ internal static class ProductLearningQueryParser
             "maxReportImprovements",
             out value,
             out error);
+    }
 
-    public static bool TryParseMaxReportTriagePreview(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxReportTriagePreview(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxReportTriagePreview,
             MinMaxReportTriagePreview,
@@ -92,8 +97,9 @@ internal static class ProductLearningQueryParser
             "maxReportTriage",
             out value,
             out error);
+    }
 
-    /// <summary>Empty or whitespace <paramref name="since"/> yields <c>null</c> (all time).</summary>
+    /// <summary>Empty or whitespace <paramref name="since" /> yields <c>null</c> (all time).</summary>
     public static bool TryParseOptionalSince(string? since, out DateTime? sinceUtc, out string? error)
     {
         sinceUtc = null;
@@ -117,8 +123,9 @@ internal static class ProductLearningQueryParser
         return true;
     }
 
-    public static bool TryParseMaxImprovementOpportunities(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxImprovementOpportunities(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxImprovementOpportunities,
             MinMaxImprovementOpportunities,
@@ -126,9 +133,11 @@ internal static class ProductLearningQueryParser
             "maxOpportunities",
             out value,
             out error);
+    }
 
-    public static bool TryParseMaxTriageQueueItems(string? raw, out int value, out string? error) =>
-        TryParseBoundedInt(
+    public static bool TryParseMaxTriageQueueItems(string? raw, out int value, out string? error)
+    {
+        return TryParseBoundedInt(
             raw,
             DefaultMaxTriageQueueItems,
             MinMaxTriageQueueItems,
@@ -136,6 +145,7 @@ internal static class ProductLearningQueryParser
             "maxTriageItems",
             out value,
             out error);
+    }
 
     private static bool TryParseBoundedInt(
         string? raw,

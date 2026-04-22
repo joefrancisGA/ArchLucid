@@ -1,9 +1,9 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
@@ -21,10 +21,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Read-only HTTP surface for authority runs and golden-manifest summaries scoped to the caller’s tenant/workspace/project.
+///     Read-only HTTP surface for authority runs and golden-manifest summaries scoped to the caller’s
+///     tenant/workspace/project.
 /// </summary>
 /// <remarks>
-/// Delegates to <see cref="IAuthorityQueryService"/>; routes under <c>api/authority</c>. Run detail returns <see cref="RunDetailDto"/> directly (embedded domain models).
+///     Delegates to <see cref="IAuthorityQueryService" />; routes under <c>api/authority</c>. Run detail returns
+///     <see cref="RunDetailDto" /> directly (embedded domain models).
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -40,11 +42,14 @@ public sealed class AuthorityQueryController(
 {
     /// <summary>Lists recent runs for an authority project slug (e.g. <c>default</c>).</summary>
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
-    /// <param name="take">Max rows when <paramref name="page"/> is not set (default 20, clamped 1–200).</param>
-    /// <param name="page">One-based page. When set, response is <see cref="PagedResponse{T}"/> of <see cref="RunSummaryResponse"/>.</param>
-    /// <param name="pageSize">Page size when <paramref name="page"/> is set (clamped 1–200; default 50).</param>
+    /// <param name="take">Max rows when <paramref name="page" /> is not set (default 20, clamped 1–200).</param>
+    /// <param name="page">
+    ///     One-based page. When set, response is <see cref="PagedResponse{T}" /> of
+    ///     <see cref="RunSummaryResponse" />.
+    /// </param>
+    /// <param name="pageSize">Page size when <paramref name="page" /> is set (clamped 1–200; default 50).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Newest-first. Without <paramref name="page"/>: JSON array. With <paramref name="page"/>: paged envelope.</returns>
+    /// <returns>Newest-first. Without <paramref name="page" />: JSON array. With <paramref name="page" />: paged envelope.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(PagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
@@ -92,13 +97,15 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
-        return result is null ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(ToRunSummaryResponse(result));
+        return result is null
+            ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(ToRunSummaryResponse(result));
     }
 
     /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunDetailDto"/> JSON, or 404 when missing or out of scope.</returns>
+    /// <returns><see cref="RunDetailDto" /> JSON, or 404 when missing or out of scope.</returns>
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -110,11 +117,13 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
-        return result is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(result);
+        return result is null
+            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(result);
     }
 
     /// <summary>
-    /// Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
+    ///     Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
     /// </summary>
     [HttpGet("runs/{runId:guid}/pipeline-timeline")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
@@ -136,7 +145,7 @@ public sealed class AuthorityQueryController(
                 OccurredUtc = i.OccurredUtc,
                 EventType = i.EventType,
                 ActorUserName = i.ActorUserName,
-                CorrelationId = i.CorrelationId,
+                CorrelationId = i.CorrelationId
             })
             .ToList();
 
@@ -162,7 +171,7 @@ public sealed class AuthorityQueryController(
     /// <summary>Gets compact counts/metadata for a golden manifest in the current scope.</summary>
     /// <param name="manifestId">Manifest primary key.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ManifestSummaryResponse"/>, or 404 when unknown or out of scope.</returns>
+    /// <returns><see cref="ManifestSummaryResponse" />, or 404 when unknown or out of scope.</returns>
     [HttpGet("manifests/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -192,12 +201,13 @@ public sealed class AuthorityQueryController(
             HasWarnings = result.WarningCount > 0,
             HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
             OperatorSummary =
-                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
+                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}"
         });
     }
 
     /// <summary>
-    /// Returns a structural provenance graph (nodes + edges) linking graph, findings, rules, decisions, manifest, and artifacts.
+    ///     Returns a structural provenance graph (nodes + edges) linking graph, findings, rules, decisions, manifest, and
+    ///     artifacts.
     /// </summary>
     /// <remarks>Requires a completed authority pipeline; coordinator-only runs return 422.</remarks>
     [HttpGet("runs/{runId:guid}/provenance")]
@@ -241,8 +251,9 @@ public sealed class AuthorityQueryController(
         return Ok(graph);
     }
 
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>
-        new()
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)
+    {
+        return new RunSummaryResponse
         {
             RunId = x.RunId,
             ProjectId = x.ProjectId,
@@ -259,6 +270,7 @@ public sealed class AuthorityQueryController(
             HasFindingsSnapshot = x.HasFindingsSnapshot,
             HasGoldenManifest = x.HasGoldenManifest,
             HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle,
+            HasArtifactBundle = x.HasArtifactBundle
         };
+    }
 }

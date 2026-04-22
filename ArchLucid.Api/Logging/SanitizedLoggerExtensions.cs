@@ -3,13 +3,13 @@ using ArchLucid.Core.Diagnostics;
 namespace ArchLucid.Api.Logging;
 
 /// <summary>
-/// Structured <see cref="ILogger"/> helpers for user-derived strings that must pass through
-/// <see cref="LogSanitizer"/> (CWE-117).
+///     Structured <see cref="ILogger" /> helpers for user-derived strings that must pass through
+///     <see cref="LogSanitizer" /> (CWE-117).
 /// </summary>
 /// <remarks>
-/// CodeQL <c>cs/log-forging</c> does not always propagate the custom <see cref="LogSanitizer.Sanitize"/>
-/// barrier model through <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, params object?[])"/>
-/// <c>params</c> boxing at controller call sites. Sanitizing in this helper keeps barrier and sink adjacent.
+///     CodeQL <c>cs/log-forging</c> does not always propagate the custom <see cref="LogSanitizer.Sanitize" />
+///     barrier model through <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, params object?[])" />
+///     <c>params</c> boxing at controller call sites. Sanitizing in this helper keeps barrier and sink adjacent.
 /// </remarks>
 internal static class SanitizedLoggerExtensions
 {

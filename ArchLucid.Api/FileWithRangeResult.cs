@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api;
 
 /// <summary>
-/// Returns file content with support for HTTP Range requests (RFC 7233).
-/// Sets Accept-Ranges: bytes and responds with 206 Partial Content when a valid Range header is present.
+///     Returns file content with support for HTTP Range requests (RFC 7233).
+///     Sets Accept-Ranges: bytes and responds with 206 Partial Content when a valid Range header is present.
 /// </summary>
 public sealed class FileWithRangeResult(
     HttpRequest request,
@@ -38,7 +38,8 @@ public sealed class FileWithRangeResult(
             response.ContentType = contentType;
             response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
 
-            await response.Body.WriteAsync(fileContents.AsMemory((int)start, (int)length), context.HttpContext.RequestAborted);
+            await response.Body.WriteAsync(fileContents.AsMemory((int)start, (int)length),
+                context.HttpContext.RequestAborted);
             return;
         }
 
@@ -50,7 +51,7 @@ public sealed class FileWithRangeResult(
     }
 
     /// <summary>
-    /// Parses "bytes=start-end" (inclusive). Returns null if header is missing, invalid, or out of range.
+    ///     Parses "bytes=start-end" (inclusive). Returns null if header is missing, invalid, or out of range.
     /// </summary>
     private static (long Start, long End)? ParseRange(string? rangeHeader, long totalLength)
     {

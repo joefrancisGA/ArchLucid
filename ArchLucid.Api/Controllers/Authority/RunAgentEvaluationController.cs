@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// On-demand structural and semantic evaluation of agent traces for a run.
+///     On-demand structural and semantic evaluation of agent traces for a run.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -32,7 +32,8 @@ public sealed class RunAgentEvaluationController(
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
-    /// On-demand structural and semantic evaluation of <see cref="AgentExecutionTrace.ParsedResultJson"/> for traces in the run (no metrics).
+    ///     On-demand structural and semantic evaluation of <see cref="AgentExecutionTrace.ParsedResultJson" /> for traces in
+    ///     the run (no metrics).
     /// </summary>
     [HttpGet("run/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
@@ -45,9 +46,10 @@ public sealed class RunAgentEvaluationController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
-        IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        List<AgentOutputEvaluationScore> scores = new(capacity: traces.Count);
+        List<AgentOutputEvaluationScore> scores = new(traces.Count);
         int skipped = 0;
         List<double> ratiosForAverage = [];
         List<double> semanticForAverage = [];
@@ -60,12 +62,14 @@ public sealed class RunAgentEvaluationController(
                 continue;
             }
 
-            AgentOutputEvaluationScore score = agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            AgentOutputEvaluationScore score =
+                agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
             score.BlobUploadFailed = trace.BlobUploadFailed;
 
             if (!score.IsJsonParseFailure)
             {
-                score.Semantic = agentOutputSemanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+                score.Semantic =
+                    agentOutputSemanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
                 ratiosForAverage.Add(score.StructuralCompletenessRatio);
                 semanticForAverage.Add(score.Semantic.OverallSemanticScore);
             }
@@ -88,7 +92,7 @@ public sealed class RunAgentEvaluationController(
             Scores = scores,
             TracesSkippedCount = skipped,
             AverageStructuralCompletenessRatio = averageStructural,
-            AverageSemanticScore = averageSemantic,
+            AverageSemanticScore = averageSemantic
         };
 
         return Ok(summary);

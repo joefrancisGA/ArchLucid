@@ -6,11 +6,11 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation rules for <see cref="ContextDocumentRequest"/> items embedded in an
-/// <see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.Documents"/> collection.
-/// Validates the document name, supported content type, and content size.
-/// Name and ContentType reject whitespace-only values (FluentValidation <c>NotEmpty()</c> allows spaces).
-/// Content types must match <see cref="SupportedContextDocumentContentTypes.IsSupported"/> (same rule as parsers).
+///     FluentValidation rules for <see cref="ContextDocumentRequest" /> items embedded in an
+///     <see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.Documents" /> collection.
+///     Validates the document name, supported content type, and content size.
+///     Name and ContentType reject whitespace-only values (FluentValidation <c>NotEmpty()</c> allows spaces).
+///     Content types must match <see cref="SupportedContextDocumentContentTypes.IsSupported" /> (same rule as parsers).
 /// </summary>
 public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextDocumentRequest>
 {
@@ -26,11 +26,10 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
             .WithMessage("Document ContentType is required and cannot be whitespace-only.")
             .MaximumLength(255).WithMessage("Document ContentType must not exceed 255 characters.")
             .Must(SupportedContextDocumentContentTypes.IsSupported)
-            .WithMessage(
-                _ =>
-                    "Document ContentType must be a supported MIME type: "
-                    + string.Join(", ", SupportedContextDocumentContentTypes.All)
-                    + ".");
+            .WithMessage(_ =>
+                "Document ContentType must be a supported MIME type: "
+                + string.Join(", ", SupportedContextDocumentContentTypes.All)
+                + ".");
 
         RuleFor(x => x.Content)
             .NotNull().WithMessage("Document Content must not be null.")

@@ -5,10 +5,11 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation rules for <see cref="CreatePolicyPackRequest"/> (<c>POST …/policy-packs</c>).
+///     FluentValidation rules for <see cref="CreatePolicyPackRequest" /> (<c>POST …/policy-packs</c>).
 /// </summary>
 /// <remarks>
-/// Wired in API startup with the other policy pack validators. Failures surface as HTTP 400 with validation problem details.
+///     Wired in API startup with the other policy pack validators. Failures surface as HTTP 400 with validation problem
+///     details.
 /// </remarks>
 public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreatePolicyPackRequest>
 {

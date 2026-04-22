@@ -6,11 +6,13 @@ public sealed class E2eHarnessTrialExpiresPostRequest
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset ExpiresUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

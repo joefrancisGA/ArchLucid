@@ -6,5 +6,9 @@ namespace ArchLucid.Api.Models;
 public sealed class FindingFeedbackPostRequest
 {
     /// <summary>-1 (thumbs down) or +1 (thumbs up).</summary>
-    public short Score { get; set; }
+    public short Score
+    {
+        get;
+        set;
+    }
 }

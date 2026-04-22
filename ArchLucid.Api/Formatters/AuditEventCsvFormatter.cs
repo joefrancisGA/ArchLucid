@@ -9,7 +9,7 @@ using Microsoft.Net.Http.Headers;
 namespace ArchLucid.Api.Formatters;
 
 /// <summary>
-/// Serializes <see cref="AuditEvent"/> collections as RFC 4180-style CSV (<c>text/csv</c>) for audit exports.
+///     Serializes <see cref="AuditEvent" /> collections as RFC 4180-style CSV (<c>text/csv</c>) for audit exports.
 /// </summary>
 public sealed class AuditEventCsvFormatter : TextOutputFormatter
 {
@@ -49,15 +49,12 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
             && nameObj is string fileName
             && !string.IsNullOrWhiteSpace(fileName))
         {
-            ContentDispositionHeaderValue disposition = new("attachment")
-            {
-                FileName = fileName,
-            };
+            ContentDispositionHeaderValue disposition = new("attachment") { FileName = fileName };
             context.HttpContext.Response.Headers.ContentDisposition = disposition.ToString();
         }
 
         Stream responseStream = context.HttpContext.Response.Body;
-        await using StreamWriter writer = new(responseStream, selectedEncoding, bufferSize: 16_384, leaveOpen: true);
+        await using StreamWriter writer = new(responseStream, selectedEncoding, 16_384, true);
         writer.NewLine = "\n";
 
         await writer.WriteLineAsync(HeaderLine);
@@ -91,7 +88,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         {
             DateTimeKind.Utc => occurredUtc,
             DateTimeKind.Local => occurredUtc.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(occurredUtc, DateTimeKind.Utc),
+            _ => DateTime.SpecifyKind(occurredUtc, DateTimeKind.Utc)
         };
 
         return utc.ToString("O", CultureInfo.InvariantCulture);
@@ -103,7 +100,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     }
 
     /// <summary>
-    /// RFC 4180-style escaping: double quotes around fields that contain comma, quote, or newline; quotes doubled.
+    ///     RFC 4180-style escaping: double quotes around fields that contain comma, quote, or newline; quotes doubled.
     /// </summary>
     internal static string EscapeCsvField(string? value)
     {

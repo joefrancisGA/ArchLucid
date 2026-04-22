@@ -6,8 +6,8 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>
-/// Reserves a trial seat for the authenticated principal before authorization so seat exhaustion surfaces as
-/// <c>402 Payment Required</c> with the same problem contract as other trial blocks.
+///     Reserves a trial seat for the authenticated principal before authorization so seat exhaustion surfaces as
+///     <c>402 Payment Required</c> with the same problem contract as other trial blocks.
 /// </summary>
 public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
 {

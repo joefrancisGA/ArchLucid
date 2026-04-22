@@ -1,3 +1,5 @@
+using System.Threading.RateLimiting;
+
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
@@ -10,11 +12,13 @@ namespace ArchLucid.Api.Startup;
 internal static class InfrastructureExtensions
 {
     /// <summary>
-    /// Registers ArchLucid authorization policies (see <see cref="ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies"/>).
+    ///     Registers ArchLucid authorization policies (see
+    ///     <see cref="ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies" />).
     /// </summary>
     /// <remarks>
-    /// Fallback policy requires an authenticated principal; use <c>[AllowAnonymous]</c> only for intentional public surface
-    /// (e.g. <c>/version</c>, <c>/health/live</c>, <c>/health/ready</c>).
+    ///     Fallback policy requires an authenticated principal; use <c>[AllowAnonymous]</c> only for intentional public
+    ///     surface
+    ///     (e.g. <c>/version</c>, <c>/health/live</c>, <c>/health/ready</c>).
     /// </remarks>
     public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {
@@ -61,13 +65,13 @@ internal static class InfrastructureExtensions
                 {
                     string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
 
-                    return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                    return RateLimitPartition.GetFixedWindowLimiter(
                         $"registration:{ip}",
-                        _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                        _ => new FixedWindowRateLimiterOptions
                         {
                             PermitLimit = registrationPermitLimit,
                             Window = TimeSpan.FromMinutes(registrationWindowMinutes),
-                            QueueLimit = registrationQueueLimit,
+                            QueueLimit = registrationQueueLimit
                         });
                 });
 
@@ -102,22 +106,18 @@ internal static class InfrastructureExtensions
                     : user;
 
                 string partitionKey = $"{key}:{(isHeavy ? "heavy" : "light")}";
-                return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                return RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey,
-                    _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = permits,
-                        Window = window,
-                        QueueLimit = 0
-                    });
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = permits, Window = window, QueueLimit = 0 });
             });
         });
         return services;
     }
 
     /// <summary>
-    /// Registers CORS policy <c>ArchLucid</c>. When <c>Cors:AllowedOrigins</c> is empty, no browser origin is allowed.
-    /// Methods and headers are explicit by default; override via <c>Cors:AllowedMethods</c> and <c>Cors:AllowedHeaders</c>.
+    ///     Registers CORS policy <c>ArchLucid</c>. When <c>Cors:AllowedOrigins</c> is empty, no browser origin is allowed.
+    ///     Methods and headers are explicit by default; override via <c>Cors:AllowedMethods</c> and <c>Cors:AllowedHeaders</c>
+    ///     .
     /// </summary>
     public static IServiceCollection AddArchLucidCors(
         this IServiceCollection services,
@@ -131,7 +131,7 @@ internal static class InfrastructureExtensions
             "X-Api-Key",
             "X-Correlation-ID",
             "Idempotency-Key",
-            "Accept",
+            "Accept"
         ];
 
         services.AddCors(options =>

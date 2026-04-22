@@ -6,7 +6,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchLucid.Api.Swagger;
 
-/// <summary>Enriches the generated OpenAPI schema for merged policy content (see also operation examples on policy pack POSTs).</summary>
+/// <summary>
+///     Enriches the generated OpenAPI schema for merged policy content (see also operation examples on policy pack
+///     POSTs).
+/// </summary>
 public sealed class PolicyPackContentDocumentSchemaFilter : ISchemaFilter
 {
     public void Apply(IOpenApiSchema schema, SchemaFilterContext context)

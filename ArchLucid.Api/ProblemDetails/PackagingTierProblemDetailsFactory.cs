@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.ProblemDetails;
 
-/// <summary>Builds RFC 9457 <c>402 Payment Required</c> bodies when a route is gated on <see cref="TenantTier"/>.</summary>
+/// <summary>Builds RFC 9457 <c>402 Payment Required</c> bodies when a route is gated on <see cref="TenantTier" />.</summary>
 internal static class PackagingTierProblemDetailsFactory
 {
     internal static ObjectResult CreatePaymentRequired(
@@ -20,7 +20,7 @@ internal static class PackagingTierProblemDetailsFactory
             Status = StatusCodes.Status402PaymentRequired,
             Detail =
                 $"This capability requires commercial tier {requiredTier} or higher. The current tenant tier is {currentTier}. Upgrade the workspace (see docs/go-to-market/PRICING_PHILOSOPHY.md) or use billing checkout.",
-            Instance = string.IsNullOrWhiteSpace(instancePath) ? null : instancePath,
+            Instance = string.IsNullOrWhiteSpace(instancePath) ? null : instancePath
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
@@ -31,8 +31,7 @@ internal static class PackagingTierProblemDetailsFactory
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType },
+            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 }

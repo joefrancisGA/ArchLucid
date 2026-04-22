@@ -6,22 +6,57 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ManifestSummaryJsonResponse
 {
-    public string ManifestVersion { get; set; } = string.Empty;
-    public string SystemName { get; set; } = string.Empty;
+    public string ManifestVersion
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string SystemName
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public int ServiceCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int DatastoreCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int RelationshipCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> RequiredControls { get; set; } = [];
-    public List<ManifestSummaryServiceItem> Services { get; set; } = [];
-    public List<ManifestSummaryDatastoreItem> Datastores { get; set; } = [];
-    public List<ManifestSummaryRelationshipItem> Relationships { get; set; } = [];
+
+    public List<string> RequiredControls
+    {
+        get;
+        set;
+    } = [];
+
+    public List<ManifestSummaryServiceItem> Services
+    {
+        get;
+        set;
+    } = [];
+
+    public List<ManifestSummaryDatastoreItem> Datastores
+    {
+        get;
+        set;
+    } = [];
+
+    public List<ManifestSummaryRelationshipItem> Relationships
+    {
+        get;
+        set;
+    } = [];
 }

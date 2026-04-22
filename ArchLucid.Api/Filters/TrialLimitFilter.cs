@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Authorization.Policy;
 namespace ArchLucid.Api.Filters;
 
 /// <summary>
-/// Authorization handler enforcing <see cref="TrialActiveRequirement"/> via <see cref="TrialLimitGate"/> (HTTP-only wiring;
-/// worker paths rely on <see cref="ArchLucid.Core.Tenancy.ITenantRepository.TryIncrementActiveTrialRunAsync"/> throwing).
+///     Authorization handler enforcing <see cref="TrialActiveRequirement" /> via <see cref="TrialLimitGate" /> (HTTP-only
+///     wiring;
+///     worker paths rely on <see cref="ArchLucid.Core.Tenancy.ITenantRepository.TryIncrementActiveTrialRunAsync" />
+///     throwing).
 /// </summary>
 public sealed class TrialLimitAuthorizationHandler : AuthorizationHandler<TrialActiveRequirement>
 {

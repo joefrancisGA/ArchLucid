@@ -5,41 +5,49 @@ public sealed class EvolutionSimulationReportCandidateSection
 {
     public Guid CandidateChangeSetId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid SourcePlanId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Status
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Title
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Summary
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string DerivationRuleVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CreatedByUserId
     {
-        get; init;
+        get;
+        init;
     }
 }
