@@ -62,6 +62,7 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+# Also ignores any ``docs/artifacts/`` tree — use ``docs/evidence/`` for checked-in Phase 3 narrative (see docs/evidence/phase3/).
 
 # Local Docker publish diagnostics / R2R probes (not source; regenerate from Docker builds)
 _docker_publish_diag/

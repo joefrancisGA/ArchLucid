@@ -67,12 +67,12 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 | Gate | Verdict | Notes |
 |------|---------|-------|
 | **(i)** | **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) | Original gate required **30-day** window after concrete-deletion PR; ADR 0029 documents why this gate does not apply pre-release (no published clients to protect). Gates **(ii)–(iv)** remain in force. |
-| **(ii)** | Not recorded here | Run `dotnet test --filter "Suite=Core\|Suite=Integration"` and attach log under `artifacts/phase3/` when unblocking |
+| **(ii)** | Not recorded here | Run `dotnet test --filter "Suite=Core\|Suite=Integration"` and attach log under `docs/evidence/phase3/` when unblocking |
 | **(iii)** | Not verified here | Confirm latest `main` CI green for `live-api-*.spec.ts` within 7 days |
 | **(iv)** | **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21 owner Q&A follow-up) | Original gate required `COORDINATOR_TO_AUTHORITY_PARITY.md` to show 14 contiguous green daily rows of **Coordinator-pipeline writes = 0**. Pre-release there is no customer traffic, the daily probe needs a SQL secret that only meaningfully exists post-V1, and holding the gate would create a chicken-and-egg block. ADR 0029 § Operational considerations explains the rationale. Restored automatically if V1 ships to a paying customer before PR A merges. |
 | **Phase 2 catalog** | **Partial (2026-04-21)** | `AuditEventTypes.Run` nested class + dual-write landed; dashboards/exports migration + Sunset log-warning cadence still per ADR 0021 § Phase 2 exit gate |
 
-- **Artifacts:** [`artifacts/phase3/gate-verification.md`](../artifacts/phase3/gate-verification.md)
+- **Artifacts:** [`evidence/phase3/gate-verification.md`](../evidence/phase3/gate-verification.md)
 
 - **Parity excerpt (inline — not 14 days):**
 
