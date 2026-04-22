@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
-/// Extension methods for returning RFC 9457 Problem Details from controllers (obsoletes RFC 7807).
+///     Extension methods for returning RFC 9457 Problem Details from controllers (obsoletes RFC 7807).
 /// </summary>
 public static class ProblemDetailsExtensions
 {
     private const string ProblemJsonMediaType = ApplicationProblemMapper.ProblemJsonMediaType;
 
     /// <summary>
-    /// Returns 400 Bad Request with a Problem Details body.
+    ///     Returns 400 Bad Request with a Problem Details body.
     /// </summary>
     public static IActionResult BadRequestProblem(
         this ControllerBase controller,
@@ -32,15 +32,11 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Returns 404 Not Found with a Problem Details body.
+    ///     Returns 404 Not Found with a Problem Details body.
     /// </summary>
     public static IActionResult NotFoundProblem(
         this ControllerBase controller,
@@ -59,11 +55,7 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     public static IActionResult ConflictProblem(
@@ -83,11 +75,7 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>Returns 409 when optional pre-commit governance blocks commit.</summary>
@@ -115,15 +103,11 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Returns 422 Unprocessable Entity with a Problem Details body (e.g. batch replay where every ID failed).
+    ///     Returns 422 Unprocessable Entity with a Problem Details body (e.g. batch replay where every ID failed).
     /// </summary>
     public static IActionResult UnprocessableEntityProblem(
         this ControllerBase controller,
@@ -142,17 +126,13 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Returns 500 Internal Server Error with a Problem Details body. Use only for genuine server-side faults
-    /// where the caller cannot recover by changing the request — transient downstream failures should prefer
-    /// <see cref="ServiceUnavailableProblem(ControllerBase, string, string?, string?)"/> so clients retry.
+    ///     Returns 500 Internal Server Error with a Problem Details body. Use only for genuine server-side faults
+    ///     where the caller cannot recover by changing the request — transient downstream failures should prefer
+    ///     <see cref="ServiceUnavailableProblem(ControllerBase, string, string?, string?)" /> so clients retry.
     /// </summary>
     public static IActionResult InternalServerErrorProblem(
         this ControllerBase controller,
@@ -171,15 +151,11 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Returns 503 Service Unavailable with a Problem Details body (e.g. database timeout, transient downstream failure).
+    ///     Returns 503 Service Unavailable with a Problem Details body (e.g. database timeout, transient downstream failure).
     /// </summary>
     public static IActionResult ServiceUnavailableProblem(
         this ControllerBase controller,
@@ -198,15 +174,11 @@ public static class ProblemDetailsExtensions
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Converts common InvalidOperationException variants to consistent ProblemDetails.
+    ///     Converts common InvalidOperationException variants to consistent ProblemDetails.
     /// </summary>
     public static IActionResult InvalidOperationProblem(
         this ControllerBase controller,

@@ -4,11 +4,16 @@ namespace ArchLucid.Api.Controllers.Alerts;
 public sealed class AlertsAcknowledgeBatchRequest
 {
     /// <summary>Alert ids in the current scope (max 100).</summary>
-    public IReadOnlyList<Guid> AlertIds { get; set; } = [];
+    public IReadOnlyList<Guid> AlertIds
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>Optional operator comment stored on acknowledge.</summary>
     public string? Comment
     {
-        get; set;
+        get;
+        set;
     }
 }

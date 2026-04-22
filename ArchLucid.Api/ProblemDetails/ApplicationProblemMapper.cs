@@ -13,15 +13,16 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
-/// Single mapping path from application exceptions to <see cref="ObjectResult"/> problem+json responses.
-/// Used by <see cref="ApiProblemDetailsExceptionFilter"/> and <see cref="ProblemDetailsExtensions.InvalidOperationProblem"/>.
+///     Single mapping path from application exceptions to <see cref="ObjectResult" /> problem+json responses.
+///     Used by <see cref="ApiProblemDetailsExceptionFilter" /> and
+///     <see cref="ProblemDetailsExtensions.InvalidOperationProblem" />.
 /// </summary>
 public static class ApplicationProblemMapper
 {
     public const string ProblemJsonMediaType = "application/problem+json";
 
     /// <summary>
-    /// Maps exceptions handled globally by the API (filter). Returns false if not mapped.
+    ///     Maps exceptions handled globally by the API (filter). Returns false if not mapped.
     /// </summary>
     public static bool TryMapUnhandledException(Exception ex, HttpContext httpContext, out ObjectResult? result)
     {
@@ -127,17 +128,16 @@ public static class ApplicationProblemMapper
             instance,
             httpContext);
         return true;
-
     }
 
     /// <summary>
-    /// Maps <see cref="InvalidOperationException"/> to a 400 Bad Request response.
-    /// "Not found" scenarios must use typed exceptions (<see cref="RunNotFoundException"/>,
-    /// <see cref="ConflictException"/>, etc.) so they are handled by
-    /// <see cref="TryMapUnhandledException"/> before reaching this method.
+    ///     Maps <see cref="InvalidOperationException" /> to a 400 Bad Request response.
+    ///     "Not found" scenarios must use typed exceptions (<see cref="RunNotFoundException" />,
+    ///     <see cref="ConflictException" />, etc.) so they are handled by
+    ///     <see cref="TryMapUnhandledException" /> before reaching this method.
     /// </summary>
     /// <param name="badRequestProblemType"></param>
-    /// <param name="httpContext">Current request; used to stamp <see cref="ProblemCorrelation.ExtensionKey"/>.</param>
+    /// <param name="httpContext">Current request; used to stamp <see cref="ProblemCorrelation.ExtensionKey" />.</param>
     /// <param name="ex"></param>
     /// <param name="instance"></param>
     public static ObjectResult MapInvalidOperation(
@@ -180,23 +180,19 @@ public static class ApplicationProblemMapper
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             problem.Extensions["driftSummary"] = drift.Summary;
 
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
     }
 
     /// <summary>
-    /// Maps SQL Server timeouts (<see cref="SqlException"/> with <c>Number == -2</c>),
-    /// deadlock victims (<c>1205</c>) to <see cref="StatusCodes.Status409Conflict"/>,
-    /// <see cref="TimeoutException"/> to 503, and other <see cref="DbException"/> to 503 Service Unavailable.
+    ///     Maps SQL Server timeouts (<see cref="SqlException" /> with <c>Number == -2</c>),
+    ///     deadlock victims (<c>1205</c>) to <see cref="StatusCodes.Status409Conflict" />,
+    ///     <see cref="TimeoutException" /> to 503, and other <see cref="DbException" /> to 503 Service Unavailable.
     /// </summary>
     /// <remarks>
-    /// <see cref="SqlException.Number"/> <c>-2</c> is the canonical SQL Server timeout error code.
-    /// Deadlock (<c>1205</c>) from parallel writers is treated like other commit races so clients receive 409, not 503.
-    /// Remaining database-origin exceptions are surfaced as retryable 503 so clients and load balancers
-    /// can distinguish transient failures from permanent 500 errors.
+    ///     <see cref="SqlException.Number" /> <c>-2</c> is the canonical SQL Server timeout error code.
+    ///     Deadlock (<c>1205</c>) from parallel writers is treated like other commit races so clients receive 409, not 503.
+    ///     Remaining database-origin exceptions are surfaced as retryable 503 so clients and load balancers
+    ///     can distinguish transient failures from permanent 500 errors.
     /// </remarks>
     public static bool TryMapDatabaseException(
         Exception ex,
@@ -257,7 +253,10 @@ public static class ApplicationProblemMapper
         return true;
     }
 
-    /// <summary>Walks <see cref="Exception.InnerException"/> chain for a <see cref="SqlException"/> with the given <see cref="SqlException.Number"/>.</summary>
+    /// <summary>
+    ///     Walks <see cref="Exception.InnerException" /> chain for a <see cref="SqlException" /> with the given
+    ///     <see cref="SqlException.Number" />.
+    /// </summary>
     private static SqlException? TryFindSqlExceptionWithNumber(Exception ex, int number)
     {
         for (Exception? e = ex; e is not null; e = e.InnerException)
@@ -292,10 +291,6 @@ public static class ApplicationProblemMapper
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, httpContext);
 
-        return new ObjectResult(problem)
-        {
-            StatusCode = statusCode,
-            ContentTypes = { ProblemJsonMediaType }
-        };
+        return new ObjectResult(problem) { StatusCode = statusCode, ContentTypes = { ProblemJsonMediaType } };
     }
 }

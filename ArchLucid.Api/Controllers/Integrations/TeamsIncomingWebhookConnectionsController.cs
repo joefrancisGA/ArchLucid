@@ -27,14 +27,14 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     ITenantTeamsIncomingWebhookConnectionRepository connectionRepository,
     IAuditService auditService) : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITenantTeamsIncomingWebhookConnectionRepository _connectionRepository =
         connectionRepository ?? throw new ArgumentNullException(nameof(connectionRepository));
 
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <summary>Returns the Key Vault reference (never the webhook URL) for the caller's tenant.</summary>
     [HttpGet("connections")]
@@ -59,7 +59,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                     Label = null,
                     KeyVaultSecretName = null,
                     EnabledTriggers = TeamsNotificationTriggerCatalog.All,
-                    UpdatedUtc = DateTimeOffset.UtcNow,
+                    UpdatedUtc = DateTimeOffset.UtcNow
                 });
         }
 
@@ -72,7 +72,10 @@ public sealed class TeamsIncomingWebhookConnectionsController(
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public IActionResult GetTriggerCatalog() => Ok(TeamsNotificationTriggerCatalog.All);
+    public IActionResult GetTriggerCatalog()
+    {
+        return Ok(TeamsNotificationTriggerCatalog.All);
+    }
 
     /// <summary>Upserts the Key Vault secret name used to resolve the Teams incoming webhook URL at delivery time.</summary>
     [HttpPost("connections")]
@@ -148,9 +151,8 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                 ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    keyVaultSecretNameLength = trimmed.Length,
-                    enabledTriggerCount = saved.EnabledTriggers.Count,
-                }),
+                    keyVaultSecretNameLength = trimmed.Length, enabledTriggerCount = saved.EnabledTriggers.Count
+                })
             },
             cancellationToken);
 
@@ -180,7 +182,7 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
-                    DataJson = "{}",
+                    DataJson = "{}"
                 },
                 cancellationToken);
         }

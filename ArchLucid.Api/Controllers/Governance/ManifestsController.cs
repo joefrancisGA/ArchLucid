@@ -1,5 +1,4 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Diagrams;
@@ -8,9 +7,10 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Host.Core.Services;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
-/// Provides read access to golden manifests, manifest diffs, and manifest-level export operations.
+///     Provides read access to golden manifests, manifest diffs, and manifest-level export operations.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -52,6 +52,7 @@ public sealed class ManifestsController(
     private const string DiagramLayoutDefault = "LR";
     private const string RelationshipLabelsDefault = "type";
     private const string GroupByDefault = "none";
+
     [HttpGet("manifest/compare")]
     [ProducesResponseType(typeof(ManifestCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -66,9 +67,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestCompareResponse
         {
-            LeftManifest = loaded.Left!,
-            RightManifest = loaded.Right!,
-            Diff = loaded.Diff!
+            LeftManifest = loaded.Left!, RightManifest = loaded.Right!, Diff = loaded.Diff!
         });
     }
 
@@ -109,7 +108,8 @@ public sealed class ManifestsController(
             return loaded.Error;
 
         string summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
-        string content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
+        string content =
+            manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
         return Ok(new ManifestCompareExportResponse
         {
@@ -134,7 +134,8 @@ public sealed class ManifestsController(
             return loaded.Error;
 
         string summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
-        string content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
+        string content =
+            manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
         string fileName = $"compare_{leftVersion}_to_{rightVersion}.md";
         return ApiFileResults.RangeText(Request, content, "text/markdown", fileName);
@@ -147,8 +148,11 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
-        return manifest is null ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound) : Ok(manifest);
+        GoldenManifest? manifest =
+            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        return manifest is null
+            ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound)
+            : Ok(manifest);
     }
 
     [HttpGet("manifest/{manifestVersion}/diagram")]
@@ -158,18 +162,14 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest =
+            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string mermaid = diagramGenerator.GenerateMermaid(manifest);
 
-        return Ok(new DiagramResponse
-        {
-            ManifestVersion = manifestVersion,
-            Format = FormatMermaid,
-            Diagram = mermaid
-        });
+        return Ok(new DiagramResponse { ManifestVersion = manifestVersion, Format = FormatMermaid, Diagram = mermaid });
     }
 
     [HttpGet("manifest/{manifestVersion}/diagram/v2")]
@@ -184,7 +184,8 @@ public sealed class ManifestsController(
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest =
+            await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -200,9 +201,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestDiagramResponse
         {
-            ManifestVersion = manifestVersion,
-            DiagramType = DiagramTypeMermaid,
-            Content = mermaid
+            ManifestVersion = manifestVersion, DiagramType = DiagramTypeMermaid, Content = mermaid
         });
     }
 
@@ -219,7 +218,8 @@ public sealed class ManifestsController(
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest =
+            await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -267,13 +267,14 @@ public sealed class ManifestsController(
                     })
                     .ToList(),
                 Relationships = includeRelationships
-                    ? manifest.Relationships.Take(clampedMaxRelationships ?? int.MaxValue).Select(r => new ManifestSummaryRelationshipItem
-                    {
-                        SourceId = r.SourceId,
-                        TargetId = r.TargetId,
-                        RelationshipType = r.RelationshipType.ToString(),
-                        Description = r.Description
-                    }).ToList()
+                    ? manifest.Relationships.Take(clampedMaxRelationships ?? int.MaxValue).Select(r =>
+                        new ManifestSummaryRelationshipItem
+                        {
+                            SourceId = r.SourceId,
+                            TargetId = r.TargetId,
+                            RelationshipType = r.RelationshipType.ToString(),
+                            Description = r.Description
+                        }).ToList()
                     : []
             });
 
@@ -297,10 +298,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestSummaryResponse
         {
-            ManifestVersion = manifestVersion,
-            Format = FormatMarkdown,
-            Content = content,
-            Summary = content
+            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = content, Summary = content
         });
     }
 
@@ -311,7 +309,8 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -319,10 +318,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestSummaryResponse
         {
-            ManifestVersion = manifestVersion,
-            Format = FormatMarkdown,
-            Content = markdown,
-            Summary = markdown
+            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = markdown, Summary = markdown
         });
     }
 
@@ -333,7 +329,8 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -342,10 +339,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestBundleResponse
         {
-            ManifestVersion = manifestVersion,
-            Manifest = manifest,
-            Diagram = diagram,
-            Summary = summary
+            ManifestVersion = manifestVersion, Manifest = manifest, Diagram = diagram, Summary = summary
         });
     }
 
@@ -356,7 +350,8 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -366,9 +361,7 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestExportContentResponse
         {
-            ManifestVersion = manifestVersion,
-            Format = FormatMarkdown,
-            Content = markdown
+            ManifestVersion = manifestVersion, Format = FormatMarkdown, Content = markdown
         });
     }
 
@@ -379,7 +372,8 @@ public sealed class ManifestsController(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
+            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -394,8 +388,8 @@ public sealed class ManifestsController(
     // ── Private helpers ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Validates and loads both manifest versions, then produces their diff.
-    /// Returns a non-null <see cref="LoadedManifestPair.Error"/> on any validation or 404 failure.
+    ///     Validates and loads both manifest versions, then produces their diff.
+    ///     Returns a non-null <see cref="LoadedManifestPair.Error" /> on any validation or 404 failure.
     /// </summary>
     private async Task<LoadedManifestPair> LoadAndCompareManifestPairAsync(
         string leftVersion,
@@ -403,33 +397,51 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(leftVersion))
-            return new LoadedManifestPair { Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed) };
+            return new LoadedManifestPair
+            {
+                Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed)
+            };
 
         if (string.IsNullOrWhiteSpace(rightVersion))
-            return new LoadedManifestPair { Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed) };
+            return new LoadedManifestPair
+            {
+                Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed)
+            };
 
         GoldenManifest? left = await unifiedGoldenManifestReader.GetByVersionAsync(leftVersion, cancellationToken);
 
         if (left is null)
-            return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound) };
+            return new LoadedManifestPair
+            {
+                Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.",
+                    ProblemTypes.ManifestNotFound)
+            };
 
         GoldenManifest? right = await unifiedGoldenManifestReader.GetByVersionAsync(rightVersion, cancellationToken);
 
-        return right is null ? new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound) } : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+        return right is null
+            ? new LoadedManifestPair
+            {
+                Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.",
+                    ProblemTypes.ManifestNotFound)
+            }
+            : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
     }
 
     /// <summary>
-    /// Loads a manifest by version together with its associated evidence package.
-    /// Returns <c>(null, null)</c> when the manifest does not exist.
+    ///     Loads a manifest by version together with its associated evidence package.
+    ///     Returns <c>(null, null)</c> when the manifest does not exist.
     /// </summary>
     private async Task<(GoldenManifest? Manifest, AgentEvidencePackage? Evidence)> LoadManifestWithEvidenceAsync(
         string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest =
+            await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return (null, null);
-        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        AgentEvidencePackage? evidence =
+            await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         return (manifest, evidence);
     }
 
@@ -437,20 +449,26 @@ public sealed class ManifestsController(
     {
         public GoldenManifest? Left
         {
-            get; init;
+            get;
+            init;
         }
+
         public GoldenManifest? Right
         {
-            get; init;
+            get;
+            init;
         }
+
         public ManifestDiffResult? Diff
         {
-            get; init;
+            get;
+            init;
         }
+
         public IActionResult? Error
         {
-            get; init;
+            get;
+            init;
         }
     }
 }
-

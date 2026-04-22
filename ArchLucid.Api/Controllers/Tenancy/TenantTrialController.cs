@@ -2,8 +2,8 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Core.Audit;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -19,7 +19,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Self-service trial status for the tenant in <see cref="IScopeContextProvider"/> scope.</summary>
+/// <summary>Self-service trial status for the tenant in <see cref="IScopeContextProvider" /> scope.</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
@@ -31,16 +31,17 @@ public sealed class TenantTrialController(
     IBillingTrialConversionGate billingTrialConversionGate,
     IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ControllerBase
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IBillingTrialConversionGate _billingTrialConversionGate =
+        billingTrialConversionGate ?? throw new ArgumentNullException(nameof(billingTrialConversionGate));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IBillingTrialConversionGate _billingTrialConversionGate =
-        billingTrialConversionGate ?? throw new ArgumentNullException(nameof(billingTrialConversionGate));
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
         trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
@@ -68,7 +69,7 @@ public sealed class TenantTrialController(
                     FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
                     BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                     BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-                    BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
+                    BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc
                 });
 
 
@@ -108,7 +109,7 @@ public sealed class TenantTrialController(
                 FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
                 BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
                 BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
-                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
+                BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc
             });
     }
 
@@ -159,10 +160,7 @@ public sealed class TenantTrialController(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        targetTier = body?.TargetTier,
-                    }),
+                    new { targetTier = body?.TargetTier })
             },
             cancellationToken);
 

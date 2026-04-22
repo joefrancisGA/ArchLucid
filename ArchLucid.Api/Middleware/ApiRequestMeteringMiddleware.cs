@@ -5,9 +5,13 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Middleware;
 
-/// <summary>Records one <see cref="UsageMeterKind.ApiRequest"/> per completed versioned API call when metering is enabled.</summary>
+/// <summary>
+///     Records one <see cref="UsageMeterKind.ApiRequest" /> per completed versioned API call when metering is
+///     enabled.
+/// </summary>
 /// <remarks>
-/// Implements <see cref="IMiddleware"/> so <see cref="IUsageMeteringService"/> (scoped) is resolved per request, not at pipeline build time.
+///     Implements <see cref="IMiddleware" /> so <see cref="IUsageMeteringService" /> (scoped) is resolved per request, not
+///     at pipeline build time.
 /// </remarks>
 public sealed class ApiRequestMeteringMiddleware(
     IScopeContextProvider scopeProvider,
@@ -15,17 +19,17 @@ public sealed class ApiRequestMeteringMiddleware(
     IOptionsMonitor<MeteringOptions> meteringOptions,
     ILogger<ApiRequestMeteringMiddleware> logger) : IMiddleware
 {
+    private readonly ILogger<ApiRequestMeteringMiddleware> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<MeteringOptions> _meteringOptions =
+        meteringOptions ?? throw new ArgumentNullException(nameof(meteringOptions));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IUsageMeteringService _usageMetering =
         usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
-
-    private readonly IOptionsMonitor<MeteringOptions> _meteringOptions =
-        meteringOptions ?? throw new ArgumentNullException(nameof(meteringOptions));
-
-    private readonly ILogger<ApiRequestMeteringMiddleware> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -60,7 +64,7 @@ public sealed class ApiRequestMeteringMiddleware(
                         Kind = UsageMeterKind.ApiRequest,
                         Quantity = 1,
                         RecordedUtc = DateTimeOffset.UtcNow,
-                        CorrelationId = context.TraceIdentifier,
+                        CorrelationId = context.TraceIdentifier
                     },
                     context.RequestAborted)
                 .ConfigureAwait(false);
@@ -70,7 +74,6 @@ public sealed class ApiRequestMeteringMiddleware(
             if (_logger.IsEnabled(LogLevel.Warning))
 
                 _logger.LogWarning(ex, "Usage metering failed for API request (tenant {TenantId}).", scope.TenantId);
-
         }
     }
 }

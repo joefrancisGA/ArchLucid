@@ -7,13 +7,13 @@ using ArchLucid.Contracts.Evolution;
 
 namespace ArchLucid.Api.Services.Evolution;
 
-/// <summary>Builds <see cref="EvolutionSimulationReportDocument"/> from persisted evolution rows.</summary>
+/// <summary>Builds <see cref="EvolutionSimulationReportDocument" /> from persisted evolution rows.</summary>
 public static class EvolutionSimulationReportBuilder
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static EvolutionSimulationReportDocument Build(
@@ -35,7 +35,7 @@ public static class EvolutionSimulationReportBuilder
             Summary = candidate.Summary,
             DerivationRuleVersion = candidate.DerivationRuleVersion,
             CreatedUtc = candidate.CreatedUtc,
-            CreatedByUserId = candidate.CreatedByUserId,
+            CreatedByUserId = candidate.CreatedByUserId
         };
 
         IReadOnlyList<string> linked = planSnapshot?.LinkedArchitectureRunIds ?? [];
@@ -47,7 +47,8 @@ public static class EvolutionSimulationReportBuilder
                      .ThenBy(static r => r.SimulationRunId))
         {
             EvolutionSimulationRunWithEvaluationResponse parsed = EvolutionOutcomeParser.ToRunWithEvaluation(run);
-            EvolutionOutcomeShadowReader.TryReadShadow(run.OutcomeJson, out EvolutionShadowOutcomeSnapshot? shadow, out string shadowKind);
+            EvolutionOutcomeShadowReader.TryReadShadow(run.OutcomeJson, out EvolutionShadowOutcomeSnapshot? shadow,
+                out string shadowKind);
 
             IReadOnlyList<string> diffLines = BuildDiffSummaryLines(
                 run.BaselineArchitectureRunId,
@@ -71,7 +72,7 @@ public static class EvolutionSimulationReportBuilder
                     ShadowOutcome = shadow,
                     EvaluationScore = parsed.EvaluationScore,
                     EvaluationExplanationSummary = parsed.EvaluationExplanationSummary,
-                    DiffSummaryLines = diffLines,
+                    DiffSummaryLines = diffLines
                 });
         }
 
@@ -81,7 +82,7 @@ public static class EvolutionSimulationReportBuilder
             Candidate = candidateSection,
             PlanSnapshotJson = candidate.PlanSnapshotJson,
             PlanSnapshot = planSnapshot,
-            SimulationRuns = entries,
+            SimulationRuns = entries
         };
     }
 
@@ -163,7 +164,8 @@ public static class EvolutionSimulationReportBuilder
     {
         if (evaluation is null)
         {
-            lines.Add("Evaluation: no structured score block in this outcome (legacy flat JSON or missing evaluation).");
+            lines.Add(
+                "Evaluation: no structured score block in this outcome (legacy flat JSON or missing evaluation).");
 
             return;
         }
@@ -181,7 +183,6 @@ public static class EvolutionSimulationReportBuilder
         if (evaluation.RegressionSignals.Count > 0)
 
             lines.Add($"Evaluation: regression signals — {string.Join("; ", evaluation.RegressionSignals)}");
-
     }
 
     private static string FormatNullableDouble(double? value)

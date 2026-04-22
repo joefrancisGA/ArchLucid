@@ -15,7 +15,8 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Server-sent events stream for run summary polling (operator UI). Sends periodic <c>status</c> events and a terminal <c>complete</c> event.
+///     Server-sent events stream for run summary polling (operator UI). Sends periodic <c>status</c> events and a terminal
+///     <c>complete</c> event.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -28,10 +29,13 @@ public sealed class AuthorityRunEventsController(
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    /// <summary>Streams <c>text/event-stream</c> with run summary JSON until golden manifest is ready or the server times out (~5 minutes).</summary>
+    /// <summary>
+    ///     Streams <c>text/event-stream</c> with run summary JSON until golden manifest is ready or the server times out
+    ///     (~5 minutes).
+    /// </summary>
     [HttpGet("runs/{runId:guid}/events")]
     [Produces("text/event-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -50,7 +54,7 @@ public sealed class AuthorityRunEventsController(
         string? lastPayloadFingerprint = null;
 
         while (!cancellationToken.IsCancellationRequested
-            && DateTime.UtcNow - startedUtc <= maxDuration)
+               && DateTime.UtcNow - startedUtc <= maxDuration)
         {
             RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
 
@@ -103,8 +107,9 @@ public sealed class AuthorityRunEventsController(
         await Response.Body.FlushAsync(cancellationToken);
     }
 
-    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>
-        new()
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)
+    {
+        return new RunSummaryResponse
         {
             RunId = x.RunId,
             ProjectId = x.ProjectId,
@@ -121,6 +126,7 @@ public sealed class AuthorityRunEventsController(
             HasFindingsSnapshot = x.HasFindingsSnapshot,
             HasGoldenManifest = x.HasGoldenManifest,
             HasDecisionTrace = x.HasDecisionTrace,
-            HasArtifactBundle = x.HasArtifactBundle,
+            HasArtifactBundle = x.HasArtifactBundle
         };
+    }
 }

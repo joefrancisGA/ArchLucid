@@ -27,15 +27,17 @@ public sealed class BillingCheckoutController(
     IScopeContextProvider scopeProvider,
     IAuditService auditService) : ControllerBase
 {
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IBillingLedger _billingLedger =
+        billingLedger ?? throw new ArgumentNullException(nameof(billingLedger));
+
     private readonly IBillingProviderRegistry _billingProviderRegistry =
         billingProviderRegistry ?? throw new ArgumentNullException(nameof(billingProviderRegistry));
 
-    private readonly IBillingLedger _billingLedger = billingLedger ?? throw new ArgumentNullException(nameof(billingLedger));
-
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost("checkout")]
     [SkipTrialWriteLimit]
@@ -86,11 +88,7 @@ public sealed class BillingCheckoutController(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        provider = providerForAudit.ProviderName,
-                        tier = tier.ToString(),
-                    }),
+                    new { provider = providerForAudit.ProviderName, tier = tier.ToString() })
             },
             cancellationToken);
 
@@ -104,7 +102,7 @@ public sealed class BillingCheckoutController(
             Workspaces = body.Workspaces,
             BillingEmail = body.BillingEmail,
             ReturnUrl = body.ReturnUrl.Trim(),
-            CancelUrl = body.CancelUrl.Trim(),
+            CancelUrl = body.CancelUrl.Trim()
         };
 
         IBillingProvider provider = _billingProviderRegistry.ResolveActiveProvider();
@@ -138,8 +136,8 @@ public sealed class BillingCheckoutController(
                     {
                         provider = provider.ProviderName,
                         tier = tier.ToString(),
-                        providerSessionId = result.ProviderSessionId,
-                    }),
+                        providerSessionId = result.ProviderSessionId
+                    })
             },
             cancellationToken);
 
@@ -148,7 +146,7 @@ public sealed class BillingCheckoutController(
             {
                 CheckoutUrl = result.CheckoutUrl,
                 ProviderSessionId = result.ProviderSessionId,
-                ExpiresUtc = result.ExpiresUtc,
+                ExpiresUtc = result.ExpiresUtc
             });
     }
 
@@ -162,7 +160,7 @@ public sealed class BillingCheckoutController(
         {
             "Pro" => BillingCheckoutTier.Pro,
             "Enterprise" => BillingCheckoutTier.Enterprise,
-            _ => BillingCheckoutTier.Team,
+            _ => BillingCheckoutTier.Team
         };
     }
 }

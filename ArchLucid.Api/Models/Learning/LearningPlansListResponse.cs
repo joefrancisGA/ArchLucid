@@ -4,8 +4,13 @@ public sealed class LearningPlansListResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<LearningPlanListItemResponse> Plans { get; init; } = [];
+    public IReadOnlyList<LearningPlanListItemResponse> Plans
+    {
+        get;
+        init;
+    } = [];
 }

@@ -6,12 +6,14 @@ public sealed class PilotScorecardPostRequest
     /// <summary>Inclusive range start (UTC).</summary>
     public DateTimeOffset? PeriodStart
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Exclusive range end (UTC).</summary>
     public DateTimeOffset? PeriodEnd
     {
-        get; set;
+        get;
+        set;
     }
 }

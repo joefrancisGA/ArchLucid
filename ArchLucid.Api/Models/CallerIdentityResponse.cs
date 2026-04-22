@@ -9,9 +9,14 @@ public sealed class CallerIdentityResponse
     /// <summary>The caller's identity name derived from the authentication token.</summary>
     public string? Name
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>The full list of claims present on the caller's principal.</summary>
-    public IReadOnlyList<CallerClaimResponse> Claims { get; init; } = [];
+    public IReadOnlyList<CallerClaimResponse> Claims
+    {
+        get;
+        init;
+    } = [];
 }

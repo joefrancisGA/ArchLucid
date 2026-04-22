@@ -7,8 +7,16 @@ namespace ArchLucid.Api.Models;
 public sealed class CallerClaimResponse
 {
     /// <summary>The claim type URI or short name.</summary>
-    public string Type { get; init; } = string.Empty;
+    public string Type
+    {
+        get;
+        init;
+    } = string.Empty;
 
     /// <summary>The claim value.</summary>
-    public string Value { get; init; } = string.Empty;
+    public string Value
+    {
+        get;
+        init;
+    } = string.Empty;
 }

@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// Lists alerts and applies lifecycle actions (acknowledge / resolve / suppress) for the caller’s tenant/workspace/project scope.
+///     Lists alerts and applies lifecycle actions (acknowledge / resolve / suppress) for the caller’s
+///     tenant/workspace/project scope.
 /// </summary>
 /// <remarks>
-/// Scope comes from <see cref="IScopeContextProvider"/>; alert <strong>evaluation</strong> is performed by orchestration paths
-/// (<c>AlertService</c> / composite service), not from this controller.
+///     Scope comes from <see cref="IScopeContextProvider" />; alert <strong>evaluation</strong> is performed by
+///     orchestration paths
+///     (<c>AlertService</c> / composite service), not from this controller.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -34,9 +36,9 @@ public sealed class AlertsController(
 {
     /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>
     /// <param name="status">When set, restricts to alerts with this status string (repository-defined).</param>
-    /// <param name="take">Max rows (capped by repository). Used when <paramref name="page"/> is not set.</param>
-    /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}"/>.</param>
-    /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page"/> is set.</param>
+    /// <param name="take">Max rows (capped by repository). Used when <paramref name="page" /> is not set.</param>
+    /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}" />.</param>
+    /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page" /> is set.</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRecord>), StatusCodes.Status200OK)]
@@ -142,18 +144,15 @@ public sealed class AlertsController(
 
 
         if (body.AlertIds.Count > 100)
-            return this.BadRequestProblem("At most 100 alert ids are allowed per request.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("At most 100 alert ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
 
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
 
-        AlertActionRequest action = new()
-        {
-            Action = AlertActionType.Acknowledge,
-            Comment = body.Comment,
-        };
+        AlertActionRequest action = new() { Action = AlertActionType.Acknowledge, Comment = body.Comment };
 
         List<AlertsAcknowledgeBatchItemResult> results = [];
         HashSet<Guid> seen = [];
@@ -171,9 +170,7 @@ public sealed class AlertsController(
                 results.Add(
                     new AlertsAcknowledgeBatchItemResult
                     {
-                        AlertId = alertId,
-                        Succeeded = false,
-                        Message = "Alert not found in the current scope.",
+                        AlertId = alertId, Succeeded = false, Message = "Alert not found in the current scope."
                     });
                 continue;
             }
@@ -185,26 +182,22 @@ public sealed class AlertsController(
                 results.Add(
                     new AlertsAcknowledgeBatchItemResult
                     {
-                        AlertId = alertId,
-                        Succeeded = false,
-                        Message = "Alert could not be acknowledged.",
+                        AlertId = alertId, Succeeded = false, Message = "Alert could not be acknowledged."
                     });
                 continue;
             }
 
             results.Add(
-                new AlertsAcknowledgeBatchItemResult
-                {
-                    AlertId = alertId,
-                    Succeeded = true,
-                });
+                new AlertsAcknowledgeBatchItemResult { AlertId = alertId, Succeeded = true });
         }
 
         return Ok(new AlertsAcknowledgeBatchResponse { Results = results });
     }
 
-    private static bool MatchesScope(AlertRecord alert, ScopeContext scope) =>
-        alert.TenantId == scope.TenantId &&
-        alert.WorkspaceId == scope.WorkspaceId &&
-        alert.ProjectId == scope.ProjectId;
+    private static bool MatchesScope(AlertRecord alert, ScopeContext scope)
+    {
+        return alert.TenantId == scope.TenantId &&
+               alert.WorkspaceId == scope.WorkspaceId &&
+               alert.ProjectId == scope.ProjectId;
+    }
 }

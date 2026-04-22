@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Models;
@@ -23,11 +23,14 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
-/// Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator actions (accept/defer/etc.).
+///     Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator
+///     actions (accept/defer/etc.).
 /// </summary>
 /// <remarks>
-/// Routes are under <c>api/advisory</c> (unversioned path). Uses <see cref="IScopeContextProvider"/> for tenant/workspace/project.
-/// Plans feed learning and composite alert metrics; scheduled scans extend this path via <see cref="AdvisorySchedulingController"/> and <c>AdvisoryScanRunner</c>.
+///     Routes are under <c>api/advisory</c> (unversioned path). Uses <see cref="IScopeContextProvider" /> for
+///     tenant/workspace/project.
+///     Plans feed learning and composite alert metrics; scheduled scans extend this path via
+///     <see cref="AdvisorySchedulingController" /> and <c>AdvisoryScanRunner</c>.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -45,13 +48,20 @@ public sealed class AdvisoryController(
     : ControllerBase
 {
     /// <summary>
-    /// Builds an <see cref="ImprovementPlan"/> from the run�s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
+    ///     Builds an <see cref="ImprovementPlan" /> from the run�s golden manifest and findings, optionally compared to
+    ///     another run, then persists recommendations for the scope.
     /// </summary>
     /// <param name="runId">Authority run whose golden manifest and findings drive the plan.</param>
     /// <param name="compareToRunId">When set, manifests are compared and diff-based signals are included.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ImprovementPlanResponse"/> after persisting rows via <see cref="IRecommendationWorkflowService.PersistPlanAsync"/>.</returns>
-    /// <remarks>Audits <see cref="AuditEventTypes.RecommendationGenerated"/>. Returns 404 when the run or optional baseline lacks a golden manifest.</remarks>
+    /// <returns>
+    ///     <see cref="ImprovementPlanResponse" /> after persisting rows via
+    ///     <see cref="IRecommendationWorkflowService.PersistPlanAsync" />.
+    /// </returns>
+    /// <remarks>
+    ///     Audits <see cref="AuditEventTypes.RecommendationGenerated" />. Returns 404 when the run or optional baseline
+    ///     lacks a golden manifest.
+    /// </remarks>
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -65,7 +75,8 @@ public sealed class AdvisoryController(
         if (run is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (run.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound);
 
         FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
 
@@ -74,9 +85,12 @@ public sealed class AdvisoryController(
         {
             RunDetailDto? baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
             if (baseRun is null)
-                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.",
+                    ProblemTypes.RunNotFound);
             if (baseRun.GoldenManifest is null)
-                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+                return this.NotFoundProblem(
+                    $"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound);
 
             ComparisonResult comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
 
@@ -106,7 +120,7 @@ public sealed class AdvisoryController(
             {
                 EventType = AuditEventTypes.RecommendationGenerated,
                 RunId = plan.RunId,
-                DataJson = JsonSerializer.Serialize(new { recommendationCount = plan.Recommendations.Count }),
+                DataJson = JsonSerializer.Serialize(new { recommendationCount = plan.Recommendations.Count })
             },
             ct);
 
@@ -114,10 +128,9 @@ public sealed class AdvisoryController(
     }
 
     /// <summary>Lists recommendation rows previously stored for the given run in the current scope.</summary>
-
-    /// <param name="runId">Authority run id; must match persisted <see cref="RecommendationRecord.RunId"/>.</param>
+    /// <param name="runId">Authority run id; must match persisted <see cref="RecommendationRecord.RunId" />.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync"/>.</returns>
+    /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync" />.</returns>
     [HttpGet("runs/{runId:guid}/recommendations")]
     [ProducesResponseType(typeof(IReadOnlyList<RecommendationRecordResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RecommendationRecordResponse>>> ListRecommendations(
@@ -137,12 +150,15 @@ public sealed class AdvisoryController(
     }
 
     /// <summary>
-    /// Applies accept/reject/defer/implemented to a recommendation; requires execute authority and audits the outcome.
+    ///     Applies accept/reject/defer/implemented to a recommendation; requires execute authority and audits the outcome.
     /// </summary>
     /// <param name="recommendationId">Primary key of the recommendation row.</param>
-    /// <param name="request">Must use a <see cref="RecommendationActionRequest.Action"/> value matching <see cref="RecommendationActionType"/> constants.</param>
+    /// <param name="request">
+    ///     Must use a <see cref="RecommendationActionRequest.Action" /> value matching
+    ///     <see cref="RecommendationActionType" /> constants.
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Updated <see cref="RecommendationRecordResponse"/>.</returns>
+    /// <returns>Updated <see cref="RecommendationRecordResponse" />.</returns>
     /// <remarks>400 when action is unknown; 404 when the id does not exist. Audit event type follows the action.</remarks>
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -171,7 +187,8 @@ public sealed class AdvisoryController(
             ct);
 
         if (updated is null)
-            return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         string eventType = request.Action switch
         {
@@ -187,21 +204,24 @@ public sealed class AdvisoryController(
             {
                 EventType = eventType,
                 RunId = updated.RunId,
-                DataJson = JsonSerializer.Serialize(new { recommendationId, action = request.Action }),
+                DataJson = JsonSerializer.Serialize(new { recommendationId, action = request.Action })
             },
             ct);
 
         return Ok(ToRecordResponse(updated));
     }
 
-    private static bool IsKnownRecommendationAction(string? action) =>
-        action is RecommendationActionType.Accept
+    private static bool IsKnownRecommendationAction(string? action)
+    {
+        return action is RecommendationActionType.Accept
             or RecommendationActionType.Reject
             or RecommendationActionType.Defer
             or RecommendationActionType.MarkImplemented;
+    }
 
-    private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest) =>
-        new()
+    private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest)
+    {
+        return new FindingsSnapshot
         {
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
             FindingsSnapshotId = manifest.FindingsSnapshotId,
@@ -211,9 +231,11 @@ public sealed class AdvisoryController(
             CreatedUtc = manifest.CreatedUtc,
             Findings = []
         };
+    }
 
-    private static ImprovementPlanResponse ToResponse(ImprovementPlan plan) =>
-        new()
+    private static ImprovementPlanResponse ToResponse(ImprovementPlan plan)
+    {
+        return new ImprovementPlanResponse
         {
             RunId = plan.RunId,
             ComparedToRunId = plan.ComparedToRunId,
@@ -231,9 +253,11 @@ public sealed class AdvisoryController(
                 PriorityScore = x.PriorityScore
             }).ToList()
         };
+    }
 
-    private static RecommendationRecordResponse ToRecordResponse(RecommendationRecord r) =>
-        new()
+    private static RecommendationRecordResponse ToRecordResponse(RecommendationRecord r)
+    {
+        return new RecommendationRecordResponse
         {
             RecommendationId = r.RecommendationId,
             TenantId = r.TenantId,
@@ -254,6 +278,7 @@ public sealed class AdvisoryController(
             ReviewedByUserId = r.ReviewedByUserId,
             ReviewedByUserName = r.ReviewedByUserName,
             ReviewComment = r.ReviewComment,
-            ResolutionRationale = r.ResolutionRationale,
+            ResolutionRationale = r.ResolutionRationale
         };
+    }
 }

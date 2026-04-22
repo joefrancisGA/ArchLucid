@@ -29,15 +29,16 @@ public sealed class TrialLocalIdentityAuthController(
     ILocalTrialJwtIssuer jwtIssuer,
     IAuditService auditService) : ControllerBase
 {
-    private readonly IOptions<TrialAuthOptions> _trialOptions =
-        trialOptions ?? throw new ArgumentNullException(nameof(trialOptions));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITrialLocalIdentityService _identity =
         identity ?? throw new ArgumentNullException(nameof(identity));
 
     private readonly ILocalTrialJwtIssuer _jwtIssuer = jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IOptions<TrialAuthOptions> _trialOptions =
+        trialOptions ?? throw new ArgumentNullException(nameof(trialOptions));
 
     /// <summary>Registers a pending user; email must be verified before trial provisioning when LocalIdentity is enabled.</summary>
     [HttpPost("register")]
@@ -66,7 +67,7 @@ public sealed class TrialLocalIdentityAuthController(
                 TenantId = Guid.Empty,
                 WorkspaceId = Guid.Empty,
                 ProjectId = Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new { channel = "trial_local_register" }),
+                DataJson = JsonSerializer.Serialize(new { channel = "trial_local_register" })
             },
             cancellationToken);
 
@@ -79,7 +80,10 @@ public sealed class TrialLocalIdentityAuthController(
 
             return StatusCode(
                 StatusCodes.Status201Created,
-                new TrialLocalRegisterResponse { UserId = created.UserId, VerificationToken = created.VerificationToken });
+                new TrialLocalRegisterResponse
+                {
+                    UserId = created.UserId, VerificationToken = created.VerificationToken
+                });
         }
         catch (ArgumentException ex)
         {
@@ -94,7 +98,10 @@ public sealed class TrialLocalIdentityAuthController(
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
-                    DataJson = JsonSerializer.Serialize(new { stage = "trial_local_register", reason = ex.GetType().Name }),
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        stage = "trial_local_register", reason = ex.GetType().Name
+                    })
                 },
                 cancellationToken);
 
@@ -113,7 +120,10 @@ public sealed class TrialLocalIdentityAuthController(
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
-                    DataJson = JsonSerializer.Serialize(new { stage = "trial_local_register", reason = ex.GetType().Name }),
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        stage = "trial_local_register", reason = ex.GetType().Name
+                    })
                 },
                 cancellationToken);
 
@@ -121,7 +131,7 @@ public sealed class TrialLocalIdentityAuthController(
         }
     }
 
-    /// <summary>Confirms email ownership using the token returned from <see cref="RegisterAsync"/>.</summary>
+    /// <summary>Confirms email ownership using the token returned from <see cref="RegisterAsync" />.</summary>
     [HttpPost("verify-email")]
     [EnableRateLimiting("registration")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +149,9 @@ public sealed class TrialLocalIdentityAuthController(
 
         bool ok = await _identity.VerifyEmailAsync(body.Email, body.Token, cancellationToken);
 
-        return !ok ? this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed) : NoContent();
+        return !ok
+            ? this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed)
+            : NoContent();
     }
 
     /// <summary>Issues a JWT suitable for <c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c> validation (Reader role by default).</summary>
@@ -175,12 +187,12 @@ public sealed class TrialLocalIdentityAuthController(
         return Ok(
             new TrialLocalTokenResponse
             {
-                AccessToken = jwt,
-                TokenType = "Bearer",
-                ExpiresInSeconds = lifetimeSeconds,
+                AccessToken = jwt, TokenType = "Bearer", ExpiresInSeconds = lifetimeSeconds
             });
     }
 
-    private bool IsLocalIdentityEnabled() =>
-        TrialAuthModeConstants.HasMode(_trialOptions.Value.Modes, TrialAuthModeConstants.LocalIdentity);
+    private bool IsLocalIdentityEnabled()
+    {
+        return TrialAuthModeConstants.HasMode(_trialOptions.Value.Modes, TrialAuthModeConstants.LocalIdentity);
+    }
 }

@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -9,6 +8,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -24,7 +24,7 @@ using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportReques
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.
+///     Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -50,12 +50,10 @@ public sealed class ExportsController(
         if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IReadOnlyList<RunExportRecord> records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<RunExportRecord> records =
+            await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        return Ok(new RunExportHistoryResponse
-        {
-            Exports = records.ToList()
-        });
+        return Ok(new RunExportHistoryResponse { Exports = records.ToList() });
     }
 
     [HttpGet("run/exports/{exportRecordId}")]
@@ -67,12 +65,10 @@ public sealed class ExportsController(
     {
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (record is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
-        return Ok(new RunExportRecordResponse
-        {
-            Record = record
-        });
+        return Ok(new RunExportRecordResponse { Record = record });
     }
 
     [HttpGet("run/exports/compare")]
@@ -83,16 +79,14 @@ public sealed class ExportsController(
         [FromQuery] string rightExportRecordId,
         CancellationToken cancellationToken)
     {
-        LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        LoadedExportRecordPair loaded =
+            await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
         if (loaded.Error is not null)
             return loaded.Error;
 
         ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
 
-        return Ok(new ExportRecordDiffResponse
-        {
-            Diff = diff
-        });
+        return Ok(new ExportRecordDiffResponse { Diff = diff });
     }
 
     [HttpPost("run/exports/compare/summary")]
@@ -105,7 +99,8 @@ public sealed class ExportsController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        LoadedExportRecordPair loaded =
+            await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
         if (loaded.Error is not null)
             return loaded.Error;
 
@@ -115,11 +110,7 @@ public sealed class ExportsController(
         string summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
         if (!request.Persist)
-            return Ok(new ExportRecordDiffSummaryResponse
-            {
-                Format = "markdown",
-                Summary = summary
-            });
+            return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = summary });
 
         string comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
             diff,
@@ -137,17 +128,13 @@ public sealed class ExportsController(
                         comparisonId = comparisonRecordId,
                         sourceExportRecordId = leftExportRecordId,
                         leftExportRecordId,
-                        rightExportRecordId,
+                        rightExportRecordId
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             cancellationToken);
 
-        return Ok(new ExportRecordDiffSummaryResponse
-        {
-            Format = "markdown",
-            Summary = summary
-        });
+        return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = summary });
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay")]
@@ -165,8 +152,7 @@ public sealed class ExportsController(
         ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
-                ExportRecordId = exportRecordId,
-                RecordReplayExport = request.RecordReplayExport
+                ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport
             },
             cancellationToken);
 
@@ -190,8 +176,7 @@ public sealed class ExportsController(
         ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
-                ExportRecordId = exportRecordId,
-                RecordReplayExport = request.RecordReplayExport
+                ExportRecordId = exportRecordId, RecordReplayExport = request.RecordReplayExport
             },
             cancellationToken);
 
@@ -199,16 +184,15 @@ public sealed class ExportsController(
 
         return Ok(new ReplayExportMetadataResponse
         {
-            ExportRecordId = result.ExportRecordId,
-            Format = result.Format,
-            FileName = result.FileName
+            ExportRecordId = result.ExportRecordId, Format = result.Format, FileName = result.FileName
         });
     }
 
     // ── Private helpers ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Durable audit when replay persisted a new export row (<see cref="ArchLucid.Application.Analysis.ReplayExportRequest.RecordReplayExport"/>).
+    ///     Durable audit when replay persisted a new export row (
+    ///     <see cref="ArchLucid.Application.Analysis.ReplayExportRequest.RecordReplayExport" />).
     /// </summary>
     private async Task TryLogReplayExportRecordedAsync(
         ReplayExportResult result,
@@ -230,16 +214,16 @@ public sealed class ExportsController(
                     {
                         sourceExportRecordId = result.ExportRecordId,
                         recordedReplayExportRecordId = result.RecordedReplayExportRecordId,
-                        runId = result.RunId,
+                        runId = result.RunId
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             cancellationToken);
     }
 
     /// <summary>
-    /// Validates query parameters and loads both export records.
-    /// Returns a non-null <see cref="LoadedExportRecordPair.Error"/> on any validation or 404 failure.
+    ///     Validates query parameters and loads both export records.
+    ///     Returns a non-null <see cref="LoadedExportRecordPair.Error" /> on any validation or 404 failure.
     /// </summary>
     private async Task<LoadedExportRecordPair> LoadExportRecordPairAsync(
         string leftExportRecordId,
@@ -247,34 +231,54 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(leftExportRecordId))
-            return new LoadedExportRecordPair { Error = this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed) };
+            return new LoadedExportRecordPair
+            {
+                Error = this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed)
+            };
 
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
-            return new LoadedExportRecordPair { Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed) };
+            return new LoadedExportRecordPair
+            {
+                Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed)
+            };
 
         RunExportRecord? left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
-            return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
+            return new LoadedExportRecordPair
+            {
+                Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.",
+                    ProblemTypes.ResourceNotFound)
+            };
 
         RunExportRecord? right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
 
-        return right is null ? new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) } : new LoadedExportRecordPair { Left = left, Right = right };
+        return right is null
+            ? new LoadedExportRecordPair
+            {
+                Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.",
+                    ProblemTypes.ResourceNotFound)
+            }
+            : new LoadedExportRecordPair { Left = left, Right = right };
     }
 
     private sealed class LoadedExportRecordPair
     {
         public IActionResult? Error
         {
-            get; init;
+            get;
+            init;
         }
+
         public RunExportRecord? Left
         {
-            get; init;
+            get;
+            init;
         }
+
         public RunExportRecord? Right
         {
-            get; init;
+            get;
+            init;
         }
     }
 }
-

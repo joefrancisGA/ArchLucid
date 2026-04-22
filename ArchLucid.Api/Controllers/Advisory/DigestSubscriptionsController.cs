@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
@@ -18,11 +18,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
-/// Manages <see cref="DigestSubscription"/> routes for architecture digests (email/webhook delivery after advisory scans).
+///     Manages <see cref="DigestSubscription" /> routes for architecture digests (email/webhook delivery after advisory
+///     scans).
 /// </summary>
 /// <remarks>
-/// Parallels alert routing: create/list/toggle subscriptions and inspect <see cref="DigestDeliveryAttempt"/> history.
-/// Invoked after <see cref="IArchitectureDigestRepository"/> persistence from <c>AdvisoryScanRunner</c> via <see cref="IDigestDeliveryDispatcher"/>.
+///     Parallels alert routing: create/list/toggle subscriptions and inspect <see cref="DigestDeliveryAttempt" /> history.
+///     Invoked after <see cref="IArchitectureDigestRepository" /> persistence from <c>AdvisoryScanRunner</c> via
+///     <see cref="IDigestDeliveryDispatcher" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -69,10 +71,8 @@ public sealed class DigestSubscriptionsController(
                 EventType = AuditEventTypes.DigestSubscriptionCreated,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    subscriptionId = subscription.SubscriptionId,
-                    subscription.Name,
-                    subscription.ChannelType
-                }),
+                    subscriptionId = subscription.SubscriptionId, subscription.Name, subscription.ChannelType
+                })
             },
             ct);
 
@@ -95,7 +95,7 @@ public sealed class DigestSubscriptionsController(
         return Ok(result);
     }
 
-    /// <summary>Toggles <see cref="DigestSubscription.IsEnabled"/> when the row is in scope.</summary>
+    /// <summary>Toggles <see cref="DigestSubscription.IsEnabled" /> when the row is in scope.</summary>
     [HttpPost("{subscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
@@ -106,11 +106,13 @@ public sealed class DigestSubscriptionsController(
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
         subscription.IsEnabled = !subscription.IsEnabled;
         await subscriptionRepository.UpdateAsync(subscription, ct);
@@ -119,11 +121,7 @@ public sealed class DigestSubscriptionsController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.DigestSubscriptionToggled,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    subscriptionId,
-                    enabled = subscription.IsEnabled
-                }),
+                DataJson = JsonSerializer.Serialize(new { subscriptionId, enabled = subscription.IsEnabled })
             },
             ct);
 
@@ -141,13 +139,17 @@ public sealed class DigestSubscriptionsController(
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
+        IReadOnlyList<DigestDeliveryAttempt> attempts =
+            await attemptRepository.ListBySubscriptionAsync(subscriptionId,
+                Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
         return Ok(attempts);
     }
 
@@ -166,14 +168,17 @@ public sealed class DigestSubscriptionsController(
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)
-            return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
         return Ok(attempts);
     }
 
-    private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope) =>
-        subscription.TenantId == scope.TenantId &&
-        subscription.WorkspaceId == scope.WorkspaceId &&
-        subscription.ProjectId == scope.ProjectId;
+    private static bool MatchesScope(DigestSubscription subscription, ScopeContext scope)
+    {
+        return subscription.TenantId == scope.TenantId &&
+               subscription.WorkspaceId == scope.WorkspaceId &&
+               subscription.ProjectId == scope.ProjectId;
+    }
 }

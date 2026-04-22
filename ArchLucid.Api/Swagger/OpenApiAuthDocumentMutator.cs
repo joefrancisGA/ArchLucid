@@ -5,7 +5,7 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.Swagger;
 
 /// <summary>
-/// Shared mutation for <see cref="OpenApiDocument"/> auth metadata (Swashbuckle + Microsoft OpenAPI).
+///     Shared mutation for <see cref="OpenApiDocument" /> auth metadata (Swashbuckle + Microsoft OpenAPI).
 /// </summary>
 internal static class OpenApiAuthDocumentMutator
 {
@@ -22,7 +22,8 @@ internal static class OpenApiAuthDocumentMutator
         if (string.Equals(schemeId, SwaggerOpenApiAuth.BearerSchemeId, StringComparison.Ordinal))
         {
             swaggerDoc.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-            swaggerDoc.Components.SecuritySchemes[SwaggerOpenApiAuth.BearerSchemeId] = CreateBearerScheme(configuration);
+            swaggerDoc.Components.SecuritySchemes[SwaggerOpenApiAuth.BearerSchemeId] =
+                CreateBearerScheme(configuration);
         }
         else if (string.Equals(schemeId, SwaggerOpenApiAuth.ApiKeySchemeId, StringComparison.Ordinal))
         {

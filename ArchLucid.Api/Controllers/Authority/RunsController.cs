@@ -17,15 +17,18 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-/// HTTP API for mutating architecture run operations: create, execute, replay, commit, submit results, and seed.
+///     HTTP API for mutating architecture run operations: create, execute, replay, commit, submit results, and seed.
 /// </summary>
 /// <remarks>
-/// Base route <c>v1/architecture</c>. Read-only endpoints live on <see cref="RunQueryController"/> and <see cref="RunAgentEvaluationController"/>.
-/// Mutating endpoints require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; reads use <see cref="ArchLucidPolicies.ReadAuthority"/>.
+///     Base route <c>v1/architecture</c>. Read-only endpoints live on <see cref="RunQueryController" /> and
+///     <see cref="RunAgentEvaluationController" />.
+///     Mutating endpoints require <see cref="ArchLucidPolicies.ExecuteAuthority" />; reads use
+///     <see cref="ArchLucidPolicies.ReadAuthority" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -48,9 +51,13 @@ public sealed partial class RunsController(
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
 
     /// <summary>
-    /// Creates a run, evidence bundle, and starter tasks from <paramref name="request"/>; supports <c>Idempotency-Key</c> replay semantics.
+    ///     Creates a run, evidence bundle, and starter tasks from <paramref name="request" />; supports <c>Idempotency-Key</c>
+    ///     replay semantics.
     /// </summary>
-    /// <returns>201 with <see cref="CreateArchitectureRunResponse"/> for new runs, or 200 with <c>Idempotency-Replayed</c> header when the key matches a prior success.</returns>
+    /// <returns>
+    ///     201 with <see cref="CreateArchitectureRunResponse" /> for new runs, or 200 with <c>Idempotency-Replayed</c>
+    ///     header when the key matches a prior success.
+    /// </returns>
     [HttpPost("request")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
@@ -68,7 +75,7 @@ public sealed partial class RunsController(
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
-        if (Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues rawKeyHeader))
+        if (Request.Headers.TryGetValue("Idempotency-Key", out StringValues rawKeyHeader))
         {
             string trimmedKey = rawKeyHeader.ToString().Trim();
 
@@ -76,16 +83,17 @@ public sealed partial class RunsController(
                 return this.BadRequestProblem(
                     $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
                     ProblemTypes.ValidationFailed);
-
         }
 
         CreateRunIdempotencyState? idempotency = TryBuildCreateRunIdempotency(request);
 
         try
         {
-            CreateRunResult result = await architectureRunService.CreateRunAsync(request, idempotency, cancellationToken);
+            CreateRunResult result =
+                await architectureRunService.CreateRunAsync(request, idempotency, cancellationToken);
 
-            CreateArchitectureRunResponse response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
+            CreateArchitectureRunResponse response =
+                RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
 
             LogRunCreated(result.Run.RunId, request.RequestId, user, correlationId);
 
@@ -93,20 +101,17 @@ public sealed partial class RunsController(
                 return CreatedAtAction(
                     nameof(RunQueryController.GetRun),
                     "RunQuery",
-                    new
-                    {
-                        runId = result.Run.RunId
-                    },
+                    new { runId = result.Run.RunId },
                     response);
 
             Response.Headers.Append("Idempotency-Replayed", "true");
 
             return Ok(response);
-
         }
         catch (ConflictException ex)
         {
-            logger.LogWarningWithSanitizedUserArg(ex, "CreateRun conflict for request '{RequestId}'.", request.RequestId);
+            logger.LogWarningWithSanitizedUserArg(ex, "CreateRun conflict for request '{RequestId}'.",
+                request.RequestId);
 
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
@@ -119,7 +124,7 @@ public sealed partial class RunsController(
 
     private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
     {
-        if (!Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues raw) ||
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
             string.IsNullOrWhiteSpace(raw.ToString()))
 
             return null;
@@ -138,9 +143,9 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Dispatches all pending tasks for <paramref name="runId"/> through the agent executor and persists results.
+    ///     Dispatches all pending tasks for <paramref name="runId" /> through the agent executor and persists results.
     /// </summary>
-    /// <returns><see cref="ExecuteRunResponse"/> with agent results.</returns>
+    /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
     [HttpPost("run/{runId}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -176,7 +181,8 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Re-executes agents for <paramref name="runId"/> under <paramref name="request"/>.<see cref="ReplayRunRequest.ExecutionMode"/> and optionally commits a replay manifest.
+    ///     Re-executes agents for <paramref name="runId" /> under <paramref name="request" />.
+    ///     <see cref="ReplayRunRequest.ExecutionMode" /> and optionally commits a replay manifest.
     /// </summary>
     [HttpPost("run/{runId}/replay")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -228,7 +234,8 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Runs bounded replay iterations for <paramref name="runId"/> to compare agent results and manifest hashes against the baseline run.
+    ///     Runs bounded replay iterations for <paramref name="runId" /> to compare agent results and manifest hashes against
+    ///     the baseline run.
     /// </summary>
     [HttpPost("run/{runId}/determinism-check")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -250,10 +257,7 @@ public sealed partial class RunsController(
         {
             DeterminismCheckResult result = await determinismCheckService.RunAsync(request, cancellationToken);
 
-            return Ok(new DeterminismCheckResponse
-            {
-                Result = result
-            });
+            return Ok(new DeterminismCheckResponse { Result = result });
         }
         catch (InvalidOperationException ex)
         {
@@ -263,7 +267,8 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Merges agent results through the decision engine and persists the golden manifest and decision traces for <paramref name="runId"/>.
+    ///     Merges agent results through the decision engine and persists the golden manifest and decision traces for
+    ///     <paramref name="runId" />.
     /// </summary>
     [HttpPost("run/{runId}/commit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -322,7 +327,8 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult"/> for an in-progress run (custom agent integrations).
+    ///     Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult" /> for an in-progress run (custom agent
+    ///     integrations).
     /// </summary>
     [HttpPost("run/{runId}/result")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -337,9 +343,12 @@ public sealed partial class RunsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-        SubmitResultResult result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
+        SubmitResultResult result =
+            await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
-        return result.Success ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! }) : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
+        return result.Success
+            ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! })
+            : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]
@@ -355,7 +364,8 @@ public sealed partial class RunsController(
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
-        SeedFakeResultsResult result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+        SeedFakeResultsResult result =
+            await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
         if (!result.Success)
             return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 
@@ -364,15 +374,16 @@ public sealed partial class RunsController(
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
     }
 
-    private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)
+    private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,
+        string defaultBadRequestDetail)
     {
         string detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error;
         return kind switch
         {
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),
-            ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail, ProblemTypes.ResourceNotFound),
-            _ => this.BadRequestProblem(detail),
+            ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail,
+                ProblemTypes.ResourceNotFound),
+            _ => this.BadRequestProblem(detail)
         };
     }
 }
-

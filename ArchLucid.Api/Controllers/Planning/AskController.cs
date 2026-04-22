@@ -1,6 +1,6 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
@@ -12,9 +12,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-/// Grounded architect assistant: manifest + provenance + optional comparison + retrieval, with threaded conversations.
+///     Grounded architect assistant: manifest + provenance + optional comparison + retrieval, with threaded conversations.
 /// </summary>
-/// <remarks>POST <c>api/ask</c>. Maps validation errors to 400; <see cref="InvalidOperationException"/> from the service to 404.</remarks>
+/// <remarks>
+///     POST <c>api/ask</c>. Maps validation errors to 400; <see cref="InvalidOperationException" /> from the service
+///     to 404.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -28,7 +31,7 @@ public sealed class AskController(
     /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
     /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="AskResponse"/> on success.</returns>
+    /// <returns><see cref="AskResponse" /> on success.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

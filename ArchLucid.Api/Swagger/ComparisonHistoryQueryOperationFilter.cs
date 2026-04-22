@@ -1,15 +1,17 @@
 using ArchLucid.Core.Pagination;
 
+using Microsoft.OpenApi;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchLucid.Api.Swagger;
 
 /// <summary>
-/// Documents GET /architecture/comparisons search (query shape and paging semantics).
+///     Documents GET /architecture/comparisons search (query shape and paging semantics).
 /// </summary>
 public sealed class ComparisonHistoryQueryOperationFilter : IOperationFilter
 {
-    public void Apply(Microsoft.OpenApi.OpenApiOperation operation, OperationFilterContext context)
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         if (!string.Equals(context.MethodInfo?.Name, "SearchComparisonRecords", StringComparison.Ordinal))
             return;

@@ -4,7 +4,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchLucid.Api.Swagger;
 
-/// <summary>Adds markdown JSON examples for policy pack create/publish/assign bodies (policy content JSON matches <c>PolicyPackContentDocument</c>).</summary>
+/// <summary>
+///     Adds markdown JSON examples for policy pack create/publish/assign bodies (policy content JSON matches
+///     <c>PolicyPackContentDocument</c>).
+/// </summary>
 public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
 {
     private const string CreateExample =
@@ -40,7 +43,7 @@ public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
             "Create" => CreateExample,
             "Publish" => PublishExample,
             "Assign" => AssignExample,
-            _ => null,
+            _ => null
         };
 
         if (example is null)

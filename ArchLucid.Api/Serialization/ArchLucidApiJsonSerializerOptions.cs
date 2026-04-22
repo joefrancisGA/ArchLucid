@@ -3,7 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace ArchLucid.Api.Serialization;
 
-/// <summary>JSON options aligned with <c>AddArchLucidMvc().AddJsonOptions</c> for byte-stable serialization (ETags, tests).</summary>
+/// <summary>
+///     JSON options aligned with <c>AddArchLucidMvc().AddJsonOptions</c> for byte-stable serialization (ETags,
+///     tests).
+/// </summary>
 internal static class ArchLucidApiJsonSerializerOptions
 {
     public static readonly JsonSerializerOptions Web = Create();
@@ -14,7 +17,7 @@ internal static class ArchLucidApiJsonSerializerOptions
         {
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
         };
-        options.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true));
+        options.Converters.Add(new JsonStringEnumConverter(null, true));
 
         return options;
     }

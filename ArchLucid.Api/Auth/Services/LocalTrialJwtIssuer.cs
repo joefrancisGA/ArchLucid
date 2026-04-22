@@ -11,9 +11,8 @@ namespace ArchLucid.Api.Auth.Services;
 
 public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
 {
-    private readonly IOptions<TrialAuthOptions> _trialOptions;
-
     private readonly Lazy<RsaSecurityKey> _signingKey;
+    private readonly IOptions<TrialAuthOptions> _trialOptions;
 
     public LocalTrialJwtIssuer(IOptions<TrialAuthOptions> trialOptions)
     {
@@ -22,7 +21,8 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
     }
 
     /// <inheritdoc />
-    public string IssueAccessToken(Guid userId, string email, string role, Guid tenantId, Guid workspaceId, Guid projectId)
+    public string IssueAccessToken(Guid userId, string email, string role, Guid tenantId, Guid workspaceId,
+        Guid projectId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(role);
@@ -30,7 +30,8 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         TrialLocalIdentityOptions local = _trialOptions.Value.LocalIdentity;
 
         if (string.IsNullOrWhiteSpace(local.JwtIssuer) || string.IsNullOrWhiteSpace(local.JwtAudience))
-            throw new InvalidOperationException("Auth:Trial:LocalIdentity:JwtIssuer and JwtAudience must be configured.");
+            throw new InvalidOperationException(
+                "Auth:Trial:LocalIdentity:JwtIssuer and JwtAudience must be configured.");
 
         SigningCredentials creds = new(_signingKey.Value, SecurityAlgorithms.RsaSha256);
 
@@ -46,21 +47,18 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             new("roles", role),
             new("tenant_id", tenantId.ToString("D")),
             new("workspace_id", workspaceId.ToString("D")),
-            new("project_id", projectId.ToString("D")),
+            new("project_id", projectId.ToString("D"))
         ];
 
         JwtSecurityToken token = new(
-            issuer: local.JwtIssuer,
-            audience: local.JwtAudience,
-            claims: claims,
-            notBefore: now.UtcDateTime,
-            expires: expires.UtcDateTime,
-            signingCredentials: creds);
+            local.JwtIssuer,
+            local.JwtAudience,
+            claims,
+            now.UtcDateTime,
+            expires.UtcDateTime,
+            creds);
 
-        JwtSecurityTokenHandler handler = new()
-        {
-            MapInboundClaims = false
-        };
+        JwtSecurityTokenHandler handler = new() { MapInboundClaims = false };
 
         return handler.WriteToken(token);
     }
@@ -73,10 +71,13 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         if (string.IsNullOrEmpty(path))
             throw new InvalidOperationException("Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath is not configured.");
 
-        string resolved = Path.IsPathRooted(path) ? path : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), path));
+        string resolved = Path.IsPathRooted(path)
+            ? path
+            : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), path));
 
         if (!File.Exists(resolved))
-            throw new InvalidOperationException($"Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath points to a missing file: '{resolved}'.");
+            throw new InvalidOperationException(
+                $"Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath points to a missing file: '{resolved}'.");
 
         string pem = File.ReadAllText(resolved);
 

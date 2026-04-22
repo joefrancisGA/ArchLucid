@@ -113,7 +113,7 @@ public sealed class AlertExamplesOperationFilter : IOperationFilter
             ("AlertTuning", "RecommendThreshold") => ThresholdRecommendExample,
             ("AlertRules", "Create") => CreateAlertRuleExample,
             ("CompositeAlertRules", "Create") => CreateCompositeExample,
-            _ => null,
+            _ => null
         };
 
         if (example is null)

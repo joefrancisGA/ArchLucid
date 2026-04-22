@@ -7,62 +7,99 @@ public sealed class ComparisonHistoryQuery
 {
     public string? ComparisonType
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? Label
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime? CreatedFromUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime? CreatedToUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? Tag
     {
-        get; set;
+        get;
+        set;
     }
+
     public string[]? Tags
     {
-        get; set;
+        get;
+        set;
     }
-    public string? SortBy { get; set; } = "createdUtc";
-    public string? SortDir { get; set; } = "desc";
+
+    public string? SortBy
+    {
+        get;
+        set;
+    } = "createdUtc";
+
+    public string? SortDir
+    {
+        get;
+        set;
+    } = "desc";
+
     public string? Cursor
     {
-        get; set;
+        get;
+        set;
     }
+
     public int Skip
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>Page size; 0 or omitted means <see cref="PaginationDefaults.DefaultPageSize"/> (max <see cref="PaginationDefaults.MaxListingTake"/>).</summary>
+    /// <summary>
+    ///     Page size; 0 or omitted means <see cref="PaginationDefaults.DefaultPageSize" /> (max
+    ///     <see cref="PaginationDefaults.MaxListingTake" />).
+    /// </summary>
     public int Limit
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>Merges <see cref="Tag"/> and <see cref="Tags"/> into a distinct list.</summary>
+    /// <summary>Merges <see cref="Tag" /> and <see cref="Tags" /> into a distinct list.</summary>
     public static List<string> NormalizeTagList(string? tag, string[]? tags)
     {
         List<string> normalizedTags = (tags ?? [])

@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Pilots;
 
 /// <summary>
-/// Pilot-facing read models (sponsor summaries, scorecards).
+///     Pilot-facing read models (sponsor summaries, scorecards).
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -36,13 +36,14 @@ public sealed class PilotsController(
     IPilotRunDeltaComputer pilotRunDeltaComputer) : ControllerBase
 {
     /// <summary>
-    /// Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
-    /// API host start) plus the canonical Contoso Retail demo run id used by the page's other read endpoints.
+    ///     Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
+    ///     API host start) plus the canonical Contoso Retail demo run id used by the page's other read endpoints.
     /// </summary>
     [HttpGet("why-archlucid-snapshot")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(WhyArchLucidSnapshotResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<WhyArchLucidSnapshotResponse>> GetWhyArchLucidSnapshot(CancellationToken cancellationToken)
+    public async Task<ActionResult<WhyArchLucidSnapshotResponse>> GetWhyArchLucidSnapshot(
+        CancellationToken cancellationToken)
     {
         WhyArchLucidSnapshotResponse snapshot = await whyArchLucidSnapshotService.BuildAsync(cancellationToken);
 
@@ -50,7 +51,7 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    /// Markdown summary suitable for a sponsor after a first committed run (read-only).
+    ///     Markdown summary suitable for a sponsor after a first committed run (read-only).
     /// </summary>
     [HttpGet("runs/{runId}/first-value-report")]
     [Produces("text/markdown")]
@@ -61,11 +62,13 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         string? markdown = await firstValueReportBuilder.BuildMarkdownAsync(runId, baseForLinks, cancellationToken);
 
-        return markdown is null ? this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound) : Content(markdown, "text/markdown; charset=utf-8");
+        return markdown is null
+            ? this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+            : Content(markdown, "text/markdown; charset=utf-8");
     }
 
     /// <summary>
-    /// JSON proof-of-ROI deltas for <paramref name="runId"/> (same numbers as the first-value report and sponsor PDF).
+    ///     JSON proof-of-ROI deltas for <paramref name="runId" /> (same numbers as the first-value report and sponsor PDF).
     /// </summary>
     [HttpGet("runs/{runId}/pilot-run-deltas")]
     [Produces("application/json")]
@@ -84,9 +87,9 @@ public sealed class PilotsController(
     }
 
     /// <summary>
-    /// PDF projection of the first-value-report Markdown — a one-shot sponsor email attachment for a committed run.
-    /// Mirrors the auth surface of <see cref="GetFirstValueReport"/> (ReadAuthority) so the operator-shell post-commit
-    /// CTA does not introduce a new commercial gate at the click site.
+    ///     PDF projection of the first-value-report Markdown — a one-shot sponsor email attachment for a committed run.
+    ///     Mirrors the auth surface of <see cref="GetFirstValueReport" /> (ReadAuthority) so the operator-shell post-commit
+    ///     CTA does not introduce a new commercial gate at the click site.
     /// </summary>
     [HttpPost("runs/{runId}/first-value-report.pdf")]
     [Produces("application/pdf")]
@@ -97,7 +100,10 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         byte[]? pdf = await firstValueReportPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
 
-        return pdf is null ? this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.", ProblemTypes.RunNotFound) : File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
+        return pdf is null
+            ? this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.",
+                ProblemTypes.RunNotFound)
+            : File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
     }
 
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
@@ -123,14 +129,14 @@ public sealed class PilotsController(
             PeriodStart = summary.PeriodStart,
             PeriodEnd = summary.PeriodEnd,
             RunsInPeriod = summary.RunsInPeriod,
-            RunsWithCommittedManifest = summary.RunsWithCommittedManifest,
+            RunsWithCommittedManifest = summary.RunsWithCommittedManifest
         };
 
         return Ok(response);
     }
 
     /// <summary>
-    /// One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
+    ///     One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
     /// </summary>
     [HttpPost("runs/{runId}/sponsor-one-pager")]
     [RequiresCommercialTenantTier(TenantTier.Standard)]
@@ -143,6 +149,8 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         byte[]? pdf = await sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
 
-        return pdf is null ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound) : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+        return pdf is null
+            ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
+            : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
     }
 }

@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Learning;
 
@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
-/// Reads and rebuilds <see cref="RecommendationLearningProfile"/> aggregates for the caller’s scope (acceptance/rejection patterns by category, urgency, etc.).
+///     Reads and rebuilds <see cref="RecommendationLearningProfile" /> aggregates for the caller’s scope
+///     (acceptance/rejection patterns by category, urgency, etc.).
 /// </summary>
 /// <remarks>
-/// Profiles feed composite alert metrics (acceptance rate via <c>AlertMetricSnapshotBuilder</c>) and advisory UX. Rebuild scans recent recommendation rows via
-/// <c>RecommendationLearningService</c>. Routes: <c>api/recommendation-learning</c>.
+///     Profiles feed composite alert metrics (acceptance rate via <c>AlertMetricSnapshotBuilder</c>) and advisory UX.
+///     Rebuild scans recent recommendation rows via
+///     <c>RecommendationLearningService</c>. Routes: <c>api/recommendation-learning</c>.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -46,18 +48,21 @@ public sealed class RecommendationLearningController(
             scope.ProjectId,
             ct);
 
-        return profile is null ? this.NotFoundProblem("No recommendation learning profile found for the current scope.", ProblemTypes.ResourceNotFound) : Ok(profile);
+        return profile is null
+            ? this.NotFoundProblem("No recommendation learning profile found for the current scope.",
+                ProblemTypes.ResourceNotFound)
+            : Ok(profile);
     }
 
     /// <summary>Recomputes the recommendation learning profile from history, persists it, and records an audit event.</summary>
     /// <remarks>
-    /// Scans recent recommendation acceptance/rejection rows for the current scope via
-    /// <c>RebuildProfileAsync</c> and overwrites the stored profile. An audit event of type
-    /// <c>RecommendationLearningProfileRebuilt</c> is written after a successful rebuild.
-    /// Requires <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
+    ///     Scans recent recommendation acceptance/rejection rows for the current scope via
+    ///     <c>RebuildProfileAsync</c> and overwrites the stored profile. An audit event of type
+    ///     <c>RecommendationLearningProfileRebuilt</c> is written after a successful rebuild.
+    ///     Requires <see cref="ArchLucidPolicies.ExecuteAuthority" />.
     /// </remarks>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>The newly rebuilt <see cref="RecommendationLearningProfile"/>.</returns>
+    /// <returns>The newly rebuilt <see cref="RecommendationLearningProfile" />.</returns>
     [HttpPost("rebuild")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
@@ -75,7 +80,7 @@ public sealed class RecommendationLearningController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.RecommendationLearningProfileRebuilt,
-                DataJson = JsonSerializer.Serialize(new { generatedUtc = profile.GeneratedUtc }),
+                DataJson = JsonSerializer.Serialize(new { generatedUtc = profile.GeneratedUtc })
             },
             ct);
 

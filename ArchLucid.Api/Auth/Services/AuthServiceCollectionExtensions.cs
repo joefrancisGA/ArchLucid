@@ -22,7 +22,8 @@ public static class AuthServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
-        services.Configure<ApiKeyAuthenticationOptions>(configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
+        services.Configure<ApiKeyAuthenticationOptions>(
+            configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
 
         ArchLucidAuthOptions authOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 
@@ -46,7 +47,9 @@ public static class AuthServiceCollectionExtensions
                 })
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
                     ApiKeySchemeName,
-                    _ => { });
+                    _ =>
+                    {
+                    });
 
         else
 
@@ -58,7 +61,9 @@ public static class AuthServiceCollectionExtensions
                 })
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentBypassAuthenticationHandler>(
                     DevelopmentBypassAuthenticationHandler.SchemeName,
-                    _ => { });
+                    _ =>
+                    {
+                    });
 
 
         services.AddScoped<IClaimsTransformation, ArchLucidRoleClaimsTransformation>();
@@ -66,7 +71,8 @@ public static class AuthServiceCollectionExtensions
         return services;
     }
 
-    private static void ConfigureJwtBearer(JwtBearerOptions options, ArchLucidAuthOptions authOptions, IConfiguration configuration)
+    private static void ConfigureJwtBearer(JwtBearerOptions options, ArchLucidAuthOptions authOptions,
+        IConfiguration configuration)
     {
         string pemPath = authOptions.JwtSigningPublicKeyPemPath.Trim();
 
@@ -86,7 +92,7 @@ public static class AuthServiceCollectionExtensions
         {
             ValidateAudience = !string.IsNullOrWhiteSpace(authOptions.Audience),
             RoleClaimType = "roles",
-            NameClaimType = nameClaimType,
+            NameClaimType = nameClaimType
         };
 
         EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, authOptions);
@@ -156,7 +162,7 @@ public static class AuthServiceCollectionExtensions
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(2),
             RoleClaimType = "roles",
-            NameClaimType = nameClaimType,
+            NameClaimType = nameClaimType
         };
     }
 }

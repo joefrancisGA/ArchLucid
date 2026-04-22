@@ -44,7 +44,7 @@ public sealed class OperatorTaskSuccessDiagnosticsController(
                 + "They approximate funnel conversion for the current deployment; rolling 7-day rates require a time-series store.",
             FirstRunCommittedTotal = firstRun,
             FirstSessionCompletedTotal = firstSession,
-            FirstRunCommittedPerSessionRatio = ratio,
+            FirstRunCommittedPerSessionRatio = ratio
         };
 
         return Ok(body);

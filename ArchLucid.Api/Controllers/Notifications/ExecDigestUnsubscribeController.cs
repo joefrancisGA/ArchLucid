@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Persistence.Data.Repositories;
@@ -18,11 +20,11 @@ public sealed class ExecDigestUnsubscribeController(
     IExecDigestUnsubscribeTokenFactory tokenFactory,
     ITenantExecDigestPreferencesRepository preferencesRepository) : ControllerBase
 {
-    private readonly IExecDigestUnsubscribeTokenFactory _tokenFactory =
-        tokenFactory ?? throw new ArgumentNullException(nameof(tokenFactory));
-
     private readonly ITenantExecDigestPreferencesRepository _preferencesRepository =
         preferencesRepository ?? throw new ArgumentNullException(nameof(preferencesRepository));
+
+    private readonly IExecDigestUnsubscribeTokenFactory _tokenFactory =
+        tokenFactory ?? throw new ArgumentNullException(nameof(tokenFactory));
 
     [HttpGet("unsubscribe")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,6 +50,6 @@ public sealed class ExecDigestUnsubscribeController(
         return Content(
             "Executive digest email has been turned off for this tenant.",
             "text/plain",
-            System.Text.Encoding.UTF8);
+            Encoding.UTF8);
     }
 }

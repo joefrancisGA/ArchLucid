@@ -1,5 +1,5 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Models;
@@ -15,12 +15,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-/// HTTP API for retrieving the architecture knowledge graph snapshot associated with a run.
+///     HTTP API for retrieving the architecture knowledge graph snapshot associated with a run.
 /// </summary>
 /// <remarks>
-/// Routes are prefixed <c>api/graph</c> and require the <see cref="ArchLucidPolicies.ReadAuthority"/> policy.
-/// The graph is projected from the <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot"/> stored in the
-/// canonical run detail and returned as a <see cref="GraphViewModel"/> with typed node and edge view models.
+///     Routes are prefixed <c>api/graph</c> and require the <see cref="ArchLucidPolicies.ReadAuthority" /> policy.
+///     The graph is projected from the <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot" /> stored in the
+///     canonical run detail and returned as a <see cref="GraphViewModel" /> with typed node and edge view models.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -33,7 +33,8 @@ public sealed class GraphController(
     : ControllerBase
 {
     /// <summary>
-    /// Returns a <see cref="GraphViewModel"/> for <paramref name="runId"/> when a graph snapshot exists in the caller’s scope.
+    ///     Returns a <see cref="GraphViewModel" /> for <paramref name="runId" /> when a graph snapshot exists in the caller’s
+    ///     scope.
     /// </summary>
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
@@ -45,14 +46,15 @@ public sealed class GraphController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                ProblemTypes.ResourceNotFound);
 
         GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
         return Ok(vm);
     }
 
     /// <summary>
-    /// Returns a page of graph nodes (stable snapshot order) and edges whose endpoints both appear on that page.
+    ///     Returns a page of graph nodes (stable snapshot order) and edges whose endpoints both appear on that page.
     /// </summary>
     [HttpGet("runs/{runId:guid}/nodes")]
     [ProducesResponseType(typeof(GraphNodesPageResponse), StatusCodes.Status200OK)]
@@ -68,7 +70,8 @@ public sealed class GraphController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                ProblemTypes.ResourceNotFound);
 
         GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
         GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
@@ -80,9 +83,7 @@ public sealed class GraphController(
         List<GraphNodeVm> nodes = snapshot.Nodes.Select(MapNode).ToList();
         List<GraphEdgeVm> edges = snapshot.Edges.Select(e => new GraphEdgeVm
         {
-            Source = e.FromNodeId,
-            Target = e.ToNodeId,
-            Type = e.EdgeType
+            Source = e.FromNodeId, Target = e.ToNodeId, Type = e.EdgeType
         }).ToList();
 
         return new GraphViewModel { Nodes = nodes, Edges = edges };
@@ -91,13 +92,8 @@ public sealed class GraphController(
     private static GraphNodesPageResponse MapArchitectureGraphPage(GraphSnapshotNodesPage slice)
     {
         List<GraphNodeVm> nodes = slice.Nodes.Select(MapNode).ToList();
-        List<GraphEdgeVm> edges = slice.Edges.Select(
-                e => new GraphEdgeVm
-                {
-                    Source = e.FromNodeId,
-                    Target = e.ToNodeId,
-                    Type = e.EdgeType
-                })
+        List<GraphEdgeVm> edges = slice.Edges
+            .Select(e => new GraphEdgeVm { Source = e.FromNodeId, Target = e.ToNodeId, Type = e.EdgeType })
             .ToList();
 
         return new GraphNodesPageResponse
@@ -129,10 +125,7 @@ public sealed class GraphController(
 
         return new GraphNodeVm
         {
-            Id = x.NodeId,
-            Label = x.Label,
-            Type = x.NodeType,
-            Metadata = meta.Count > 0 ? meta : null
+            Id = x.NodeId, Label = x.Label, Type = x.NodeType, Metadata = meta.Count > 0 ? meta : null
         };
     }
 }

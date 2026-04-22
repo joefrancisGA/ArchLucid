@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
@@ -17,10 +17,11 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// HTTP API for alert rule what-if simulation and A/B comparison over the caller’s scope (read authority).
+///     HTTP API for alert rule what-if simulation and A/B comparison over the caller’s scope (read authority).
 /// </summary>
 /// <remarks>
-/// Stamps tenant/workspace/project on embedded rule DTOs from <see cref="IScopeContextProvider"/> before invoking <see cref="IRuleSimulationService"/>.
+///     Stamps tenant/workspace/project on embedded rule DTOs from <see cref="IScopeContextProvider" /> before invoking
+///     <see cref="IRuleSimulationService" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -33,7 +34,7 @@ public sealed class AlertSimulationController(
     IAuditService auditService)
     : ControllerBase
 {
-    /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync"/> and audits aggregate counts.</summary>
+    /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync" /> and audits aggregate counts.</summary>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -64,15 +65,18 @@ public sealed class AlertSimulationController(
                     result.EvaluatedRunCount,
                     result.MatchedCount,
                     result.WouldCreateCount,
-                    result.WouldSuppressCount,
-                }),
+                    result.WouldSuppressCount
+                })
             },
             ct);
 
         return Ok(result);
     }
 
-    /// <summary>Runs <see cref="IRuleSimulationService.CompareCandidatesAsync"/> and audits would-create counts per candidate.</summary>
+    /// <summary>
+    ///     Runs <see cref="IRuleSimulationService.CompareCandidatesAsync" /> and audits would-create counts per
+    ///     candidate.
+    /// </summary>
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -101,8 +105,8 @@ public sealed class AlertSimulationController(
                 {
                     request.RuleKind,
                     candidateAWouldCreate = result.CandidateA.WouldCreateCount,
-                    candidateBWouldCreate = result.CandidateB.WouldCreateCount,
-                }),
+                    candidateBWouldCreate = result.CandidateB.WouldCreateCount
+                })
             },
             ct);
 

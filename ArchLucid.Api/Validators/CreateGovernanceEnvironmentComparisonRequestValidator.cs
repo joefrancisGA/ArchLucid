@@ -5,7 +5,9 @@ using FluentValidation;
 
 namespace ArchLucid.Api.Validators;
 
-public sealed class CreateGovernanceEnvironmentComparisonRequestValidator : AbstractValidator<CreateGovernanceEnvironmentComparisonRequest>
+public sealed class
+    CreateGovernanceEnvironmentComparisonRequestValidator : AbstractValidator<
+    CreateGovernanceEnvironmentComparisonRequest>
 {
     private static readonly string[] ValidEnvironments =
         [GovernanceEnvironment.Dev, GovernanceEnvironment.Test, GovernanceEnvironment.Prod];

@@ -4,8 +4,8 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-/// Post-processes the Microsoft OpenAPI document (<c>/openapi/v1.json</c>) for friendlier downstream
-/// code generation (NSwag, Kiota, etc.).
+///     Post-processes the Microsoft OpenAPI document (<c>/openapi/v1.json</c>) for friendlier downstream
+///     code generation (NSwag, Kiota, etc.).
 /// </summary>
 public sealed class MicrosoftOpenApiCodeGenFriendlySchemaTransformer : IOpenApiDocumentTransformer
 {

@@ -3,41 +3,51 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for run-to-run comparison (excludes embedded <see cref="ArchLucid.Persistence.Queries.RunSummaryDto"/> payloads).
+///     JSON contract for run-to-run comparison (excludes embedded
+///     <see cref="ArchLucid.Persistence.Queries.RunSummaryDto" /> payloads).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class RunComparisonResponse
 {
-    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.LeftRunId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.LeftRunId" />
     public Guid LeftRunId
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RightRunId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RightRunId" />
     public Guid RightRunId
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RunLevelDiffs"/>
-    public List<DiffItemResponse> RunLevelDiffs { get; set; } = [];
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RunLevelDiffs" />
+    public List<DiffItemResponse> RunLevelDiffs
+    {
+        get;
+        set;
+    } = [];
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.ManifestComparison"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.ManifestComparison" />
     public ManifestComparisonResponse? ManifestComparison
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>Count of <see cref="RunLevelDiffs"/> (operator-facing aggregate).</summary>
+    /// <summary>Count of <see cref="RunLevelDiffs" /> (operator-facing aggregate).</summary>
     public int RunLevelDiffCount
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>True when a manifest-level comparison payload is present.</summary>
     public bool HasManifestComparison
     {
-        get; set;
+        get;
+        set;
     }
 }

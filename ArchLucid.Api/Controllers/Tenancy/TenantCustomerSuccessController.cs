@@ -44,10 +44,7 @@ public sealed class TenantCustomerSuccessController(
         if (row is null)
         {
             return Ok(
-                new TenantHealthScoreResponse
-                {
-                    IsCalculated = false
-                });
+                new TenantHealthScoreResponse { IsCalculated = false });
         }
 
         return Ok(

@@ -5,7 +5,9 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>Adds optional <c>Deprecation</c>, <c>Sunset</c>, and <c>Link</c> headers for version lifecycle communication.</summary>
-public sealed class ApiDeprecationHeadersMiddleware(RequestDelegate next, IOptionsMonitor<ApiDeprecationOptions> optionsMonitor)
+public sealed class ApiDeprecationHeadersMiddleware(
+    RequestDelegate next,
+    IOptionsMonitor<ApiDeprecationOptions> optionsMonitor)
 {
     public Task InvokeAsync(HttpContext context)
     {

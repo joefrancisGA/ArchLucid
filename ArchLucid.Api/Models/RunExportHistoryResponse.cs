@@ -7,6 +7,9 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class RunExportHistoryResponse
 {
-    public List<RunExportRecord> Exports { get; set; } = [];
+    public List<RunExportRecord> Exports
+    {
+        get;
+        set;
+    } = [];
 }
-

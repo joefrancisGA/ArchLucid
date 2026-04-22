@@ -8,20 +8,26 @@ public sealed class BatchReplayManifestDocument
 {
     public required string GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Comparison record IDs processed, in request order (first occurrence wins for duplicates).</summary>
     public required IReadOnlyList<string> ProcessedComparisonRecordIds
     {
-        get; init;
+        get;
+        init;
     }
+
     public required IReadOnlyList<BatchReplayManifestSuccessEntry> Succeeded
     {
-        get; init;
+        get;
+        init;
     }
+
     public required IReadOnlyList<BatchReplayManifestFailureEntry> Failed
     {
-        get; init;
+        get;
+        init;
     }
 }

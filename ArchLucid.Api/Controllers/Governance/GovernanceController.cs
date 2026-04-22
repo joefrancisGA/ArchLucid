@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
-/// Governance workflow: approval requests, promotions, and environment activations for run manifests.
+///     Governance workflow: approval requests, promotions, and environment activations for run manifests.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -46,20 +46,21 @@ public sealed class GovernanceController(
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
+        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
 
     private readonly IGovernanceDashboardService _governanceDashboardService =
         governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
-
-    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
-        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
 
     private readonly IGovernanceLineageService _governanceLineageService =
         governanceLineageService ?? throw new ArgumentNullException(nameof(governanceLineageService));
 
     private readonly IGovernanceRationaleService _governanceRationaleService =
         governanceRationaleService ?? throw new ArgumentNullException(nameof(governanceRationaleService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -218,12 +219,14 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (body.ApprovalRequestIds.Count == 0)
-            return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.",
+                ProblemTypes.ValidationFailed);
 
         if (body.ApprovalRequestIds.Count > 50)
-            return this.BadRequestProblem("At most 50 approval request ids are allowed per request.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("At most 50 approval request ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
 
-        string decision = (body.Decision).Trim();
+        string decision = body.Decision.Trim();
 
         if (decision.Length == 0)
             return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
@@ -267,11 +270,7 @@ public sealed class GovernanceController(
 
 
                 results.Add(
-                    new GovernanceBatchReviewItemResult
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        Succeeded = true,
-                    });
+                    new GovernanceBatchReviewItemResult { ApprovalRequestId = approvalRequestId, Succeeded = true });
             }
             catch (GovernanceSelfApprovalException ex)
             {
@@ -285,7 +284,7 @@ public sealed class GovernanceController(
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.GovernanceSelfApproval,
-                        Message = ex.Message,
+                        Message = ex.Message
                     });
             }
             catch (GovernanceApprovalReviewConflictException ex)
@@ -300,7 +299,7 @@ public sealed class GovernanceController(
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.Conflict,
-                        Message = ex.Message,
+                        Message = ex.Message
                     });
             }
             catch (InvalidOperationException ex)
@@ -315,7 +314,7 @@ public sealed class GovernanceController(
                         ApprovalRequestId = approvalRequestId,
                         Succeeded = false,
                         ErrorCode = ProblemTypes.BadRequest,
-                        Message = ex.Message,
+                        Message = ex.Message
                     });
             }
 
@@ -510,7 +509,8 @@ public sealed class GovernanceController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<GovernanceEnvironmentActivation> items = await activationRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> items =
+            await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 }

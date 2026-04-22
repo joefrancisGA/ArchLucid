@@ -1,5 +1,5 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
@@ -15,10 +15,11 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
-/// HTTP API for structured golden-manifest comparison between two runs in the caller’s scope (base → target).
+///     HTTP API for structured golden-manifest comparison between two runs in the caller’s scope (base → target).
 /// </summary>
 /// <remarks>
-/// Uses <see cref="IAuthorityQueryService.GetRunDetailAsync"/> for both runs, then <see cref="IComparisonService.Compare"/>. For flat diff lists, see <c>api/authority/compare</c>.
+///     Uses <see cref="IAuthorityQueryService.GetRunDetailAsync" /> for both runs, then
+///     <see cref="IComparisonService.Compare" />. For flat diff lists, see <c>api/authority/compare</c>.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -31,13 +32,14 @@ public sealed class ComparisonController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
-    /// <summary>Structured <see cref="GoldenManifest"/> delta between two runs (base → target).</summary>
+    /// <summary>Structured <see cref="GoldenManifest" /> delta between two runs (base → target).</summary>
     /// <param name="baseRunId">Earlier or baseline run.</param>
     /// <param name="targetRunId">Later or candidate run.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>
-    /// <see cref="ComparisonResult"/> when both runs exist in scope and each has a golden manifest; otherwise 404.
-    /// Delta collections are non-null JSON arrays (empty when no changes). <see cref="ComparisonResult.TotalDeltaCount"/> is the sum of row counts across sections.
+    ///     <see cref="ComparisonResult" /> when both runs exist in scope and each has a golden manifest; otherwise 404.
+    ///     Delta collections are non-null JSON arrays (empty when no changes). <see cref="ComparisonResult.TotalDeltaCount" />
+    ///     is the sum of row counts across sections.
     /// </returns>
     [HttpGet]
     [ProducesResponseType(typeof(ComparisonResult), StatusCodes.Status200OK)]
@@ -58,10 +60,12 @@ public sealed class ComparisonController(
             return this.NotFoundProblem($"Run '{targetRunId}' was not found.", ProblemTypes.RunNotFound);
 
         if (baseRun.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound);
 
         if (targetRun.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.",
+                ProblemTypes.ManifestNotFound);
 
         ComparisonResult result = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         return Ok(result);

@@ -5,13 +5,19 @@ public sealed class EvolutionResultsResponse
 {
     public required EvolutionCandidateChangeSetResponse Candidate
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string PlanSnapshotJson
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns { get; init; } = [];
+    public IReadOnlyList<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns
+    {
+        get;
+        init;
+    } = [];
 }

@@ -3,10 +3,10 @@ using Microsoft.OpenApi;
 namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
-/// Normalizes JSON Schema shapes that confuse common C# OpenAPI generators (e.g. NJsonSchema/NSwag):
-/// <c>type: [integer, string]</c> with <c>format: int32</c> becomes plain integer. The ASP.NET Core
-/// OpenAPI stack can emit integer|string unions for some CLR numeric shapes; clients should treat
-/// these as JSON numbers only.
+///     Normalizes JSON Schema shapes that confuse common C# OpenAPI generators (e.g. NJsonSchema/NSwag):
+///     <c>type: [integer, string]</c> with <c>format: int32</c> becomes plain integer. The ASP.NET Core
+///     OpenAPI stack can emit integer|string unions for some CLR numeric shapes; clients should treat
+///     these as JSON numbers only.
 /// </summary>
 internal static class OpenApiCodeGenFriendlySchemaMutator
 {
@@ -19,7 +19,6 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
         foreach (IOpenApiSchema root in document.Components.Schemas.Values)
 
             Visit(root);
-
     }
 
     private static void Visit(IOpenApiSchema? schema)
@@ -35,7 +34,6 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
             foreach (IOpenApiSchema propertySchema in schema.Properties.Values)
 
                 Visit(propertySchema);
-
 
 
         Visit(schema.Items);
@@ -55,7 +53,6 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
         foreach (IOpenApiSchema item in list)
 
             Visit(item);
-
     }
 
     private static void CollapseIntegerStringUnion(IOpenApiSchema schema)

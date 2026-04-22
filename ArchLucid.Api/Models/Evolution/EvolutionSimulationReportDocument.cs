@@ -5,27 +5,39 @@ public sealed class EvolutionSimulationReportDocument
 {
     public const string ExportSchemaVersion = "60R-simulation-export-v1";
 
-    public string SchemaVersion { get; init; } = ExportSchemaVersion;
+    public string SchemaVersion
+    {
+        get;
+        init;
+    } = ExportSchemaVersion;
 
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public required EvolutionSimulationReportCandidateSection Candidate
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string PlanSnapshotJson
     {
-        get; init;
+        get;
+        init;
     }
 
     public EvolutionSimulationPlanSnapshotPayload? PlanSnapshot
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<EvolutionSimulationReportRunEntry> SimulationRuns { get; init; } = [];
+    public IReadOnlyList<EvolutionSimulationReportRunEntry> SimulationRuns
+    {
+        get;
+        init;
+    } = [];
 }

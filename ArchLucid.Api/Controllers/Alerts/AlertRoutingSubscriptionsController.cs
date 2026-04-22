@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Delivery;
@@ -16,11 +16,12 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// Manages <see cref="AlertRoutingSubscription"/> rows for the caller’s scope and exposes recent <see cref="AlertDeliveryAttempt"/> history per subscription.
+///     Manages <see cref="AlertRoutingSubscription" /> rows for the caller’s scope and exposes recent
+///     <see cref="AlertDeliveryAttempt" /> history per subscription.
 /// </summary>
 /// <remarks>
-/// Create/toggle require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; list/attempts require read authority.
-/// New subscriptions are stamped with ids and scope from <see cref="IScopeContextProvider"/>.
+///     Create/toggle require <see cref="ArchLucidPolicies.ExecuteAuthority" />; list/attempts require read authority.
+///     New subscriptions are stamped with ids and scope from <see cref="IScopeContextProvider" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -69,8 +70,8 @@ public sealed class AlertRoutingSubscriptionsController(
                     subscription.RoutingSubscriptionId,
                     subscription.Name,
                     subscription.ChannelType,
-                    subscription.MinimumSeverity,
-                }),
+                    subscription.MinimumSeverity
+                })
             },
             ct);
 
@@ -93,7 +94,7 @@ public sealed class AlertRoutingSubscriptionsController(
         return Ok(result);
     }
 
-    /// <summary>Toggles <see cref="AlertRoutingSubscription.IsEnabled"/> when the subscription belongs to the current scope.</summary>
+    /// <summary>Toggles <see cref="AlertRoutingSubscription.IsEnabled" /> when the subscription belongs to the current scope.</summary>
     [HttpPost("{routingSubscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
@@ -104,11 +105,14 @@ public sealed class AlertRoutingSubscriptionsController(
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem(
+                $"Routing subscription '{routingSubscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
         subscription.IsEnabled = !subscription.IsEnabled;
         await subscriptionRepository.UpdateAsync(subscription, ct);
@@ -117,11 +121,7 @@ public sealed class AlertRoutingSubscriptionsController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRoutingSubscriptionToggled,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    routingSubscriptionId,
-                    enabled = subscription.IsEnabled,
-                }),
+                DataJson = JsonSerializer.Serialize(new { routingSubscriptionId, enabled = subscription.IsEnabled })
             },
             ct);
 
@@ -142,18 +142,25 @@ public sealed class AlertRoutingSubscriptionsController(
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.",
+                ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem(
+                $"Routing subscription '{routingSubscriptionId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<AlertDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
+        IReadOnlyList<AlertDeliveryAttempt> attempts =
+            await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId,
+                Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
         return Ok(attempts);
     }
 
-    private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope) =>
-        subscription.TenantId == scope.TenantId &&
-        subscription.WorkspaceId == scope.WorkspaceId &&
-        subscription.ProjectId == scope.ProjectId;
+    private static bool MatchesScope(AlertRoutingSubscription subscription, ScopeContext scope)
+    {
+        return subscription.TenantId == scope.TenantId &&
+               subscription.WorkspaceId == scope.WorkspaceId &&
+               subscription.ProjectId == scope.ProjectId;
+    }
 }

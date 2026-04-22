@@ -8,7 +8,21 @@ namespace ArchLucid.Api.Models;
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class CreateArchitectureRunResponse
 {
-    public ArchitectureRun Run { get; set; } = new();
-    public EvidenceBundle EvidenceBundle { get; set; } = new();
-    public List<AgentTask> Tasks { get; set; } = [];
+    public ArchitectureRun Run
+    {
+        get;
+        set;
+    } = new();
+
+    public EvidenceBundle EvidenceBundle
+    {
+        get;
+        set;
+    } = new();
+
+    public List<AgentTask> Tasks
+    {
+        get;
+        set;
+    } = [];
 }

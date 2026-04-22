@@ -26,11 +26,11 @@ public sealed class MarketingPricingQuoteRequestController(
 {
     private const int MaxMessageChars = 2000;
 
-    private readonly IMarketingPricingQuoteRequestRepository _quoteRepository =
-        quoteRepository ?? throw new ArgumentNullException(nameof(quoteRepository));
-
     private readonly ILogger<MarketingPricingQuoteRequestController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IMarketingPricingQuoteRequestRepository _quoteRepository =
+        quoteRepository ?? throw new ArgumentNullException(nameof(quoteRepository));
 
     /// <summary>Append-only quote request (honeypot + rate limit).</summary>
     [HttpPost("quote-request")]
@@ -59,7 +59,8 @@ public sealed class MarketingPricingQuoteRequestController(
             return this.BadRequestProblem("Tier interest is required.", ProblemTypes.ValidationFailed);
 
         if (body.Message.Length > MaxMessageChars)
-            return this.BadRequestProblem($"Message must be at most {MaxMessageChars} characters.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem($"Message must be at most {MaxMessageChars} characters.",
+                ProblemTypes.ValidationFailed);
 
         byte[]? ipHash = TryHashRemoteIp(HttpContext);
 

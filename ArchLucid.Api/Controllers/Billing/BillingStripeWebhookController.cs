@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Billing;
 
-/// <summary>Stripe billing webhooks (signature verified inside <see cref="StripeBillingProvider"/>).</summary>
+/// <summary>Stripe billing webhooks (signature verified inside <see cref="StripeBillingProvider" />).</summary>
 [ApiController]
 [AllowAnonymous]
 [ApiVersion("1.0")]
@@ -29,7 +29,7 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
         string rawBody;
 
-        using (StreamReader reader = new(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
+        using (StreamReader reader = new(Request.Body, Encoding.UTF8, true))
 
             rawBody = await reader.ReadToEndAsync(cancellationToken);
 
@@ -38,8 +38,7 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
         BillingWebhookInbound inbound = new()
         {
-            RawBody = rawBody,
-            StripeSignatureHeader = string.IsNullOrWhiteSpace(signature) ? null : signature,
+            RawBody = rawBody, StripeSignatureHeader = string.IsNullOrWhiteSpace(signature) ? null : signature
         };
 
         BillingWebhookHandleResult result =

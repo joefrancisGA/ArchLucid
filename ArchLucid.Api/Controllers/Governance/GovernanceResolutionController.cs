@@ -1,11 +1,11 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
@@ -19,19 +19,22 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
-/// HTTP surface for <strong>full governance resolution</strong>: effective merged content, per-item decisions, and conflict records for the current scope.
+///     HTTP surface for <strong>full governance resolution</strong>: effective merged content, per-item decisions, and
+///     conflict records for the current scope.
 /// </summary>
 /// <remarks>
-/// <para>
-/// <strong>Why:</strong> Operators need the same explainability the resolver produces without pulling only <see cref="IEffectiveGovernanceLoader"/>
-/// (which drops decisions/conflicts). Complements <c>GET …/policy-packs/effective-content</c>.
-/// </para>
-/// <para>
-/// <strong>Auth:</strong> <see cref="ArchLucidPolicies.ReadAuthority"/>; uses fixed window rate limiting like other governance reads.
-/// </para>
+///     <para>
+///         <strong>Why:</strong> Operators need the same explainability the resolver produces without pulling only
+///         <see cref="IEffectiveGovernanceLoader" />
+///         (which drops decisions/conflicts). Complements <c>GET …/policy-packs/effective-content</c>.
+///     </para>
+///     <para>
+///         <strong>Auth:</strong> <see cref="ArchLucidPolicies.ReadAuthority" />; uses fixed window rate limiting like
+///         other governance reads.
+///     </para>
 /// </remarks>
 /// <param name="scopeProvider">Ambient tenant/workspace/project from JWT or dev bypass headers.</param>
-/// <param name="resolver">Decisioning implementation (<see cref="EffectiveGovernanceResolver"/>).</param>
+/// <param name="resolver">Decisioning implementation (<see cref="EffectiveGovernanceResolver" />).</param>
 /// <param name="auditService">Emits <c>GovernanceResolutionExecuted</c> and optionally <c>GovernanceConflictDetected</c>.</param>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -46,13 +49,15 @@ public sealed class GovernanceResolutionController(
     IAuditService auditService) : ControllerBase
 {
     /// <summary>
-    /// Runs hierarchical governance resolution for the caller’s scope and returns the full <see cref="EffectiveGovernanceResolutionResult"/> JSON.
+    ///     Runs hierarchical governance resolution for the caller’s scope and returns the full
+    ///     <see cref="EffectiveGovernanceResolutionResult" /> JSON.
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>200 with body containing <c>effectiveContent</c>, <c>decisions</c>, <c>conflicts</c>, <c>notes</c>.</returns>
     /// <remarks>
-    /// Always logs <c>GovernanceResolutionExecuted</c> with decision/conflict counts. When <c>conflicts</c> is non-empty, also logs
-    /// <c>GovernanceConflictDetected</c> with a compact projection of conflict keys (avoid huge payloads).
+    ///     Always logs <c>GovernanceResolutionExecuted</c> with decision/conflict counts. When <c>conflicts</c> is non-empty,
+    ///     also logs
+    ///     <c>GovernanceConflictDetected</c> with a compact projection of conflict keys (avoid huge payloads).
     /// </remarks>
     [HttpGet]
     [ProducesResponseType(typeof(EffectiveGovernanceResolutionResult), StatusCodes.Status200OK)]
@@ -77,7 +82,7 @@ public sealed class GovernanceResolutionController(
                     scope.WorkspaceId,
                     scope.ProjectId,
                     result.Decisions.Count,
-                    result.Conflicts.Count)),
+                    result.Conflicts.Count))
             },
             ct);
 
@@ -97,7 +102,7 @@ public sealed class GovernanceResolutionController(
                     scope.WorkspaceId,
                     scope.ProjectId,
                     result.Conflicts.Count,
-                    conflictEntries)),
+                    conflictEntries))
             },
             ct);
 

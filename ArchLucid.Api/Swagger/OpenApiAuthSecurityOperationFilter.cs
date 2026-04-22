@@ -6,8 +6,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace ArchLucid.Api.Swagger;
 
 /// <summary>
-/// Clears inherited document-level <c>security</c> for endpoints that allow anonymous access
-/// (e.g. static docs HTML). When <see cref="SwaggerOpenApiAuth"/> resolves no scheme, this is a no-op.
+///     Clears inherited document-level <c>security</c> for endpoints that allow anonymous access
+///     (e.g. static docs HTML). When <see cref="SwaggerOpenApiAuth" /> resolves no scheme, this is a no-op.
 /// </summary>
 public sealed class OpenApiAuthSecurityOperationFilter(IConfiguration configuration) : IOperationFilter
 {

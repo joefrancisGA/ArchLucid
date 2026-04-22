@@ -3,64 +3,78 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for <see cref="ArchLucid.Persistence.Replay.ReplayValidationResult"/>.
+///     JSON contract for <see cref="ArchLucid.Persistence.Replay.ReplayValidationResult" />.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ReplayValidationResponse
 {
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ContextPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ContextPresent" />
     public bool ContextPresent
     {
-        get; set;
+        get;
+        set;
     }
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.GraphPresent"/>
+
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.GraphPresent" />
     public bool GraphPresent
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.FindingsPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.FindingsPresent" />
     public bool FindingsPresent
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestPresent" />
     public bool ManifestPresent
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.TracePresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.TracePresent" />
     public bool TracePresent
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactsPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactsPresent" />
     public bool ArtifactsPresent
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestHashMatches"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestHashMatches" />
     public bool ManifestHashMatches
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactBundlePresentAfterReplay"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactBundlePresentAfterReplay" />
     public bool ArtifactBundlePresentAfterReplay
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.Notes"/>
-    public List<string> Notes { get; set; } = [];
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.Notes" />
+    public List<string> Notes
+    {
+        get;
+        set;
+    } = [];
 
-    /// <summary>True when <see cref="Notes"/> contains at least one entry.</summary>
+    /// <summary>True when <see cref="Notes" /> contains at least one entry.</summary>
     public bool HasValidationNotes
     {
-        get; set;
+        get;
+        set;
     }
 }

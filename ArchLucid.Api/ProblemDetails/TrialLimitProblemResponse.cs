@@ -18,13 +18,14 @@ internal static class TrialLimitProblemResponse
         httpContext.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
 
         if (body.Value is Microsoft.AspNetCore.Mvc.ProblemDetails p)
-            await httpContext.Response.WriteAsJsonAsync(p, cancellationToken: httpContext.RequestAborted);
+            await httpContext.Response.WriteAsJsonAsync(p, httpContext.RequestAborted);
 
 
         await TryLogAuditAsync(httpContext, ex, httpContext.RequestAborted);
     }
 
-    internal static ObjectResult CreateResult(TrialLimitExceededException ex, string? instance, HttpContext? httpContext)
+    internal static ObjectResult CreateResult(TrialLimitExceededException ex, string? instance,
+        HttpContext? httpContext)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -32,7 +33,7 @@ internal static class TrialLimitProblemResponse
             Title = "Trial limit reached",
             Status = StatusCodes.Status402PaymentRequired,
             Detail = ex.Message,
-            Instance = string.IsNullOrWhiteSpace(instance) ? null : instance,
+            Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.TrialExpired);
@@ -41,9 +42,7 @@ internal static class TrialLimitProblemResponse
 
         problem.Extensions["traceCompleteness"] = new
         {
-            totalFindings = 0,
-            overallCompletenessRatio = 0.0,
-            byEngine = new Dictionary<string, object>(),
+            totalFindings = 0, overallCompletenessRatio = 0.0, byEngine = new Dictionary<string, object>()
         };
 
         problem.Extensions["trialReason"] = ex.Reason.ToString();
@@ -52,17 +51,18 @@ internal static class TrialLimitProblemResponse
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType },
+            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 
-    internal static async Task TryLogAuditAsync(HttpContext httpContext, TrialLimitExceededException ex, CancellationToken ct)
+    internal static async Task TryLogAuditAsync(HttpContext httpContext, TrialLimitExceededException ex,
+        CancellationToken ct)
     {
         try
         {
             IAuditService audit = httpContext.RequestServices.GetRequiredService<IAuditService>();
-            IScopeContextProvider scopeProvider = httpContext.RequestServices.GetRequiredService<IScopeContextProvider>();
+            IScopeContextProvider scopeProvider =
+                httpContext.RequestServices.GetRequiredService<IScopeContextProvider>();
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
             string actor =
@@ -85,8 +85,8 @@ internal static class TrialLimitProblemResponse
                         {
                             trialReason = ex.Reason.ToString(),
                             daysRemaining = ex.DaysRemaining,
-                            detail = ex.Message,
-                        }),
+                            detail = ex.Message
+                        })
                 },
                 ct);
         }

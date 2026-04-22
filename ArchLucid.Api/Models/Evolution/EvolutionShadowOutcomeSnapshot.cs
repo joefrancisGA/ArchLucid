@@ -5,35 +5,49 @@ public sealed class EvolutionShadowOutcomeSnapshot
 {
     public string? Error
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string ArchitectureRunId { get; init; } = string.Empty;
+    public string ArchitectureRunId
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string EvaluationMode { get; init; } = string.Empty;
+    public string EvaluationMode
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public string? RunStatus
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ManifestVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool HasManifest
     {
-        get; init;
+        get;
+        init;
     }
 
     public int SummaryLength
     {
-        get; init;
+        get;
+        init;
     }
 
     public int WarningCount
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -4,7 +4,10 @@ using FluentValidation;
 
 namespace ArchLucid.Api.Validators;
 
-/// <summary>FluentValidation for <see cref="ThresholdRecommendationRequest"/> (<c>POST …/alert-tuning/recommend-threshold</c>).</summary>
+/// <summary>
+///     FluentValidation for <see cref="ThresholdRecommendationRequest" /> (
+///     <c>POST …/alert-tuning/recommend-threshold</c>).
+/// </summary>
 public sealed class ThresholdRecommendationRequestValidator : AbstractValidator<ThresholdRecommendationRequest>
 {
     /// <summary>Requires rule kind, tuned metric, at least one candidate threshold, and positive recent run count.</summary>

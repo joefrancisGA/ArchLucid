@@ -9,12 +9,12 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Filters;
 
 /// <summary>
-/// Short-circuits an action with <c>404 Not Found</c> when the corresponding deployment-level feature
-/// toggle is off. Mounted by <see cref="FeatureGateAttribute"/>; the gate key is the first positional
-/// argument and every other dependency is DI-resolved.
+///     Short-circuits an action with <c>404 Not Found</c> when the corresponding deployment-level feature
+///     toggle is off. Mounted by <see cref="FeatureGateAttribute" />; the gate key is the first positional
+///     argument and every other dependency is DI-resolved.
 /// </summary>
 /// <remarks>
-/// 404 (not 403) is intentional — production-like deployments must not even hint that demo surfaces exist.
+///     404 (not 403) is intentional — production-like deployments must not even hint that demo surfaces exist.
 /// </remarks>
 public sealed class FeatureGateFilter(
     FeatureGateKey key,
@@ -41,15 +41,18 @@ public sealed class FeatureGateFilter(
     }
 
     /// <summary>
-    /// Resolves the feature-toggle backing the supplied gate key. Each new <see cref="FeatureGateKey"/>
-    /// member must be added here — the discard arm closes by default so unmapped keys cannot accidentally
-    /// open a route.
+    ///     Resolves the feature-toggle backing the supplied gate key. Each new <see cref="FeatureGateKey" />
+    ///     member must be added here — the discard arm closes by default so unmapped keys cannot accidentally
+    ///     open a route.
     /// </summary>
-    private bool IsGateOpen() => key switch
+    private bool IsGateOpen()
     {
-        FeatureGateKey.DemoEnabled => _demoOptions.Value?.Enabled is true,
-        _ => false,
-    };
+        return key switch
+        {
+            FeatureGateKey.DemoEnabled => _demoOptions.Value?.Enabled is true,
+            _ => false
+        };
+    }
 
     private static ObjectResult BuildNotFoundResult(ActionExecutingContext context)
     {
@@ -59,7 +62,7 @@ public sealed class FeatureGateFilter(
             Title = "Not Found",
             Status = StatusCodes.Status404NotFound,
             Detail = "The requested route is not available on this deployment.",
-            Instance = context.HttpContext.Request.Path.Value,
+            Instance = context.HttpContext.Request.Path.Value
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
@@ -69,7 +72,7 @@ public sealed class FeatureGateFilter(
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType },
+            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 }

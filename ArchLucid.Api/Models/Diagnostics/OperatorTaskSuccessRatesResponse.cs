@@ -4,12 +4,28 @@ namespace ArchLucid.Api.Models.Diagnostics;
 public sealed class OperatorTaskSuccessRatesResponse
 {
     /// <summary>Human-readable note about the measurement window.</summary>
-    public string WindowNote { get; set; } = string.Empty;
+    public string WindowNote
+    {
+        get;
+        set;
+    } = string.Empty;
 
-    public long FirstRunCommittedTotal { get; set; }
+    public long FirstRunCommittedTotal
+    {
+        get;
+        set;
+    }
 
-    public long FirstSessionCompletedTotal { get; set; }
+    public long FirstSessionCompletedTotal
+    {
+        get;
+        set;
+    }
 
     /// <summary>Ratio first_run_committed / max(first_session_completed,1) when both are process-cumulative.</summary>
-    public double FirstRunCommittedPerSessionRatio { get; set; }
+    public double FirstRunCommittedPerSessionRatio
+    {
+        get;
+        set;
+    }
 }

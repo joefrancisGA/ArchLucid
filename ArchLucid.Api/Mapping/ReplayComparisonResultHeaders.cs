@@ -18,8 +18,10 @@ internal static class ReplayComparisonResultHeaders
     }
 
     /// <summary>Subset of headers for metadata-only replay responses.</summary>
-    public static void ApplyMetadata(HttpResponse response, ReplayComparisonResult result) =>
+    public static void ApplyMetadata(HttpResponse response, ReplayComparisonResult result)
+    {
         ApplyOptionalIdentifiers(response, result);
+    }
 
     private static void ApplyOptionalIdentifiers(HttpResponse response, ReplayComparisonResult result)
     {

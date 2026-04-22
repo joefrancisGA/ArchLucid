@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Composite;
 
@@ -15,11 +15,14 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// API to create and list <see cref="CompositeAlertRule"/> definitions (multi-metric AND/OR rules) for the caller’s scope.
+///     API to create and list <see cref="CompositeAlertRule" /> definitions (multi-metric AND/OR rules) for the caller’s
+///     scope.
 /// </summary>
 /// <remarks>
-/// Validated with <see cref="ArchLucid.Api.Validators.CompositeAlertRuleBodyValidator"/> on create. Child <see cref="AlertRuleCondition.ConditionId"/> values are generated when empty.
-/// Evaluated in production by <c>CompositeAlertService</c> after governance filtering. Mutations require <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
+///     Validated with <see cref="ArchLucid.Api.Validators.CompositeAlertRuleBodyValidator" /> on create. Child
+///     <see cref="AlertRuleCondition.ConditionId" /> values are generated when empty.
+///     Evaluated in production by <c>CompositeAlertService</c> after governance filtering. Mutations require
+///     <see cref="ArchLucidPolicies.ExecuteAuthority" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -65,11 +68,8 @@ public sealed class CompositeAlertRulesController(
                 EventType = AuditEventTypes.CompositeAlertRuleCreated,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    rule.CompositeRuleId,
-                    rule.Name,
-                    rule.Operator,
-                    conditionCount = rule.Conditions.Count,
-                }),
+                    rule.CompositeRuleId, rule.Name, rule.Operator, conditionCount = rule.Conditions.Count
+                })
             },
             ct);
 

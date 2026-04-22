@@ -12,13 +12,14 @@ using Microsoft.Extensions.Primitives;
 namespace ArchLucid.Api.Authentication;
 
 /// <summary>
-/// API key authentication. When <c>Authentication:ApiKey:Enabled</c> is false, authentication fails closed
-/// unless <c>Authentication:ApiKey:DevelopmentBypassAll</c> is true in a non-Production environment
-/// (explicit opt-in for local development only; blocked in Production by API startup and <see cref="ArchLucid.Host.Core.Startup.Validation.ArchLucidConfigurationRules"/>).
+///     API key authentication. When <c>Authentication:ApiKey:Enabled</c> is false, authentication fails closed
+///     unless <c>Authentication:ApiKey:DevelopmentBypassAll</c> is true in a non-Production environment
+///     (explicit opt-in for local development only; blocked in Production by API startup and
+///     <see cref="ArchLucid.Host.Core.Startup.Validation.ArchLucidConfigurationRules" />).
 /// </summary>
 /// <remarks>
-/// Key material is read from <see cref="IOptionsMonitor{ApiKeyAuthenticationOptions}"/> so configuration reload
-/// (e.g. Key Vault rotation) can take effect without restarting the process.
+///     Key material is read from <see cref="IOptionsMonitor{ApiKeyAuthenticationOptions}" /> so configuration reload
+///     (e.g. Key Vault rotation) can take effect without restarting the process.
 /// </remarks>
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -47,7 +48,8 @@ public class ApiKeyAuthenticationHandler(
 
             if (environment.IsProduction())
                 return Task.FromResult(
-                    AuthenticateResult.Fail("Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
+                    AuthenticateResult.Fail(
+                        "Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
 
 
             ClaimsIdentity bypassIdentity = new(
@@ -108,8 +110,8 @@ public class ApiKeyAuthenticationHandler(
     }
 
     /// <summary>
-    /// When <paramref name="raw"/> contains commas, each segment (trimmed) is an acceptable key material
-    /// (zero-downtime rotation: old and new keys during cutover). Empty segments are ignored.
+    ///     When <paramref name="raw" /> contains commas, each segment (trimmed) is an acceptable key material
+    ///     (zero-downtime rotation: old and new keys during cutover). Empty segments are ignored.
     /// </summary>
     private static bool MatchesAnyCommaSeparatedKey(string provided, string? raw)
     {
@@ -132,7 +134,6 @@ public class ApiKeyAuthenticationHandler(
 
                     if (ConstantTimeKeyEquals(provided, expected))
                         return true;
-
                 }
 
                 start = i + 1;
@@ -143,7 +144,7 @@ public class ApiKeyAuthenticationHandler(
     }
 
     /// <summary>
-    /// Compares UTF-8 key material using SHA-256 digests so length and timing do not leak raw key bytes.
+    ///     Compares UTF-8 key material using SHA-256 digests so length and timing do not leak raw key bytes.
     /// </summary>
     private static bool ConstantTimeKeyEquals(string provided, string expected)
     {

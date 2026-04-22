@@ -1,9 +1,9 @@
 using System.Diagnostics;
 
-using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
@@ -43,7 +43,6 @@ internal static class PipelineExtensions
                             "Unhandled exception for {Method} {Path}",
                             LogSanitizer.Sanitize(context.Request.Method),
                             LogSanitizer.Sanitize(context.Request.Path.Value));
-
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
@@ -54,11 +53,7 @@ internal static class PipelineExtensions
                     Detail =
                         "An unhandled exception has occurred. Use the correlationId value in this response (and the X-Correlation-ID header) when contacting support.",
                     Instance = context.Request.Path,
-                    Extensions =
-                    {
-                        ["traceId"] = context.TraceIdentifier,
-                        ["traceParent"] = Activity.Current?.Id,
-                    }
+                    Extensions = { ["traceId"] = context.TraceIdentifier, ["traceParent"] = Activity.Current?.Id }
                 };
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.InternalError);
                 ProblemSupportHints.AttachForProblemType(problem);
@@ -86,7 +81,6 @@ internal static class PipelineExtensions
                         "Ensure this is intentional and restrict access at the network perimeter.");
 
 
-
             app.MapOpenApi().AllowAnonymous();
             app.UseSwagger();
             app.MapScalarApiReference(options =>
@@ -110,23 +104,21 @@ internal static class PipelineExtensions
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
-        app.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
-        })
+        app.MapHealthChecks("/health/live",
+                new HealthCheckOptions { Predicate = static check => check.Tags.Contains(ReadinessTags.Live) })
             .AllowAnonymous();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-            ResponseWriter = static (ctx, r) =>
-                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
-        })
+            {
+                Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+                ResponseWriter = static (ctx, r) =>
+                    DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary)
+            })
             .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
-        {
-            ResponseWriter = static (ctx, r) =>
-                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Detailed),
-        })
+            {
+                ResponseWriter = static (ctx, r) =>
+                    DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Detailed)
+            })
             .RequireAuthorization(ArchLucidPolicies.ReadAuthority);
 
         // OWASP ZAP baseline (and similar spiders) expect 200 on the scan root, /robots.txt, and /sitemap.xml.

@@ -8,20 +8,31 @@ public sealed class RunPipelineTimelineItemResponse
 {
     public Guid EventId
     {
-        get; set;
+        get;
+        set;
     }
 
     public DateTime OccurredUtc
     {
-        get; set;
+        get;
+        set;
     }
 
-    public string EventType { get; set; } = null!;
+    public string EventType
+    {
+        get;
+        set;
+    } = null!;
 
-    public string ActorUserName { get; set; } = null!;
+    public string ActorUserName
+    {
+        get;
+        set;
+    } = null!;
 
     public string? CorrelationId
     {
-        get; set;
+        get;
+        set;
     }
 }

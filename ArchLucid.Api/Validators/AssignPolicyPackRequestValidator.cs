@@ -6,15 +6,19 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation rules for <see cref="AssignPolicyPackRequest"/> (<c>POST …/policy-packs/{id}/assign</c>).
+///     FluentValidation rules for <see cref="AssignPolicyPackRequest" /> (<c>POST …/policy-packs/{id}/assign</c>).
 /// </summary>
 /// <remarks>
-/// Complements domain checks in <see cref="Services.IPolicyPacksAppService.TryAssignAsync"/> (version row existence → 404):
-/// this validator only guards shape and known <see cref="GovernanceScopeLevel"/> values before the app service runs.
+///     Complements domain checks in <see cref="Services.IPolicyPacksAppService.TryAssignAsync" /> (version row existence →
+///     404):
+///     this validator only guards shape and known <see cref="GovernanceScopeLevel" /> values before the app service runs.
 /// </remarks>
 public sealed class AssignPolicyPackRequestValidator : AbstractValidator<AssignPolicyPackRequest>
 {
-    /// <summary>Registers SemVer for <c>Version</c> and whitelist for <c>ScopeLevel</c> via <see cref="GovernanceScopeLevel.TryNormalize"/>.</summary>
+    /// <summary>
+    ///     Registers SemVer for <c>Version</c> and whitelist for <c>ScopeLevel</c> via
+    ///     <see cref="GovernanceScopeLevel.TryNormalize" />.
+    /// </summary>
     public AssignPolicyPackRequestValidator()
     {
         RuleFor(x => x.Version)

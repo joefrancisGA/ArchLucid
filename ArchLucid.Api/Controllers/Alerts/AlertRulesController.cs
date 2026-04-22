@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts;
 
@@ -15,11 +15,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// CRUD-style API for simple (metric) <see cref="AlertRule"/> rows scoped to the caller’s tenant/workspace/project.
+///     CRUD-style API for simple (metric) <see cref="AlertRule" /> rows scoped to the caller’s tenant/workspace/project.
 /// </summary>
 /// <remarks>
-/// Create uses FluentValidation (<see cref="ArchLucid.Api.Validators.AlertRuleBodyValidator"/>). Rules are later filtered at evaluation time by effective policy packs
-/// (<c>PolicyPackGovernanceFilter.FilterAlertRules</c>). Mutations require <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
+///     Create uses FluentValidation (<see cref="ArchLucid.Api.Validators.AlertRuleBodyValidator" />). Rules are later
+///     filtered at evaluation time by effective policy packs
+///     (<c>PolicyPackGovernanceFilter.FilterAlertRules</c>). Mutations require
+///     <see cref="ArchLucidPolicies.ExecuteAuthority" />.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -32,7 +34,7 @@ public sealed class AlertRulesController(
     IAuditService auditService)
     : ControllerBase
 {
-    /// <summary>Creates a rule with new id, scope from <see cref="IScopeContextProvider"/>, and default metadata JSON.</summary>
+    /// <summary>Creates a rule with new id, scope from <see cref="IScopeContextProvider" />, and default metadata JSON.</summary>
     [HttpPost]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]
@@ -57,12 +59,7 @@ public sealed class AlertRulesController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRuleCreated,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    ruleId = rule.RuleId,
-                    rule.Name,
-                    rule.RuleType,
-                }),
+                DataJson = JsonSerializer.Serialize(new { ruleId = rule.RuleId, rule.Name, rule.RuleType })
             },
             ct);
 

@@ -3,11 +3,12 @@ using ArchLucid.Application.Analysis;
 
 namespace ArchLucid.Api.Mapping;
 
-/// <summary>Builds <see cref="ArchitectureAnalysisRequest"/> for consulting DOCX export from API models.</summary>
+/// <summary>Builds <see cref="ArchitectureAnalysisRequest" /> for consulting DOCX export from API models.</summary>
 internal static class ConsultingDocxAnalysisRequestFactory
 {
-    public static ArchitectureAnalysisRequest Create(string runId, ConsultingDocxExportRequest request) =>
-        new()
+    public static ArchitectureAnalysisRequest Create(string runId, ConsultingDocxExportRequest request)
+    {
+        return new ArchitectureAnalysisRequest
         {
             RunId = runId,
             IncludeEvidence = request.IncludeEvidence,
@@ -24,4 +25,5 @@ internal static class ConsultingDocxAnalysisRequestFactory
             IncludeAgentResultCompare = request.IncludeAgentResultCompare,
             CompareRunId = request.CompareRunId
         };
+    }
 }

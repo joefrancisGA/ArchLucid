@@ -38,16 +38,22 @@ public sealed class ValueReportController(
     IAuditService auditService,
     IOptionsMonitor<ValueReportComputationOptions> optionsMonitor) : ControllerBase
 {
-    private readonly ValueReportBuilder _valueReportBuilder =
-        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
-    private readonly IValueReportRenderer _valueReportRenderer =
-        valueReportRenderer ?? throw new ArgumentNullException(nameof(valueReportRenderer));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IValueReportJobQueue _jobQueue = jobQueue ?? throw new ArgumentNullException(nameof(jobQueue));
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IOptionsMonitor<ValueReportComputationOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ValueReportBuilder _valueReportBuilder =
+        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
+    private readonly IValueReportRenderer _valueReportRenderer =
+        valueReportRenderer ?? throw new ArgumentNullException(nameof(valueReportRenderer));
 
     /// <summary>Generates a DOCX value report for the tenant (sync) or enqueues background generation for large windows.</summary>
     [HttpPost("{tenantId:guid}/generate")]
@@ -81,11 +87,7 @@ public sealed class ValueReportController(
             string location = $"{Request.PathBase}/v1.0/value-report/jobs/{jobId:D}/docx";
             Response.Headers.Location = location;
 
-            return Accepted(new
-            {
-                jobId,
-                status = "pending"
-            });
+            return Accepted(new { jobId, status = "pending" });
         }
 
         ValueReportSnapshot snapshot = await _valueReportBuilder.BuildAsync(
@@ -111,8 +113,8 @@ public sealed class ValueReportController(
                         from = start,
                         to = end,
                         byteCount = bytes.Length,
-                        asyncJob = false,
-                    }),
+                        asyncJob = false
+                    })
             },
             cancellationToken);
 
@@ -122,7 +124,7 @@ public sealed class ValueReportController(
             fileName);
     }
 
-    /// <summary>Polls async value-report generation started by <see cref="GenerateAsync"/>.</summary>
+    /// <summary>Polls async value-report generation started by <see cref="GenerateAsync" />.</summary>
     [HttpGet("jobs/{jobId:guid}/docx")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

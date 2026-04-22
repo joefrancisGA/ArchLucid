@@ -5,64 +5,83 @@ public sealed class EvolutionSimulationReportRunEntry
 {
     public Guid SimulationRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string BaselineArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string EvaluationMode
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTime CompletedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IsShadowOnly
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? OutcomeSchemaVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? WarningsJson
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string OutcomeJson
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>How <see cref="ShadowOutcome"/> was obtained: <c>60R-v2</c>, <c>legacy</c>, <c>none</c>, <c>invalid</c>, <c>unparsed</c>.</summary>
+    /// <summary>
+    ///     How <see cref="ShadowOutcome" /> was obtained: <c>60R-v2</c>, <c>legacy</c>, <c>none</c>, <c>invalid</c>,
+    ///     <c>unparsed</c>.
+    /// </summary>
     public required string OutcomeShadowKind
     {
-        get; init;
+        get;
+        init;
     }
 
     public EvolutionShadowOutcomeSnapshot? ShadowOutcome
     {
-        get; init;
+        get;
+        init;
     }
 
     public EvaluationScoreResponse? EvaluationScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? EvaluationExplanationSummary
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<string> DiffSummaryLines { get; init; } = [];
+    public IReadOnlyList<string> DiffSummaryLines
+    {
+        get;
+        init;
+    } = [];
 }

@@ -5,47 +5,74 @@ public sealed class LearningPlanDetailResponse
 {
     public Guid PlanId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Title { get; init; } = string.Empty;
+    public string Title
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Summary { get; init; } = string.Empty;
+    public string Summary
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public int PriorityScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? PriorityExplanation
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Status { get; init; } = string.Empty;
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CreatedByUserId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<LearningPlanStepResponse> ActionSteps { get; init; } = [];
+    public IReadOnlyList<LearningPlanStepResponse> ActionSteps
+    {
+        get;
+        init;
+    } = [];
 
-    public LearningPlanEvidenceCountsResponse EvidenceCounts { get; init; } = new();
+    public LearningPlanEvidenceCountsResponse EvidenceCounts
+    {
+        get;
+        init;
+    } = new();
 
     /// <summary>Parent theme snapshot when available (evidence counts and labels).</summary>
     public LearningThemeResponse? Theme
     {
-        get; init;
+        get;
+        init;
     }
 }

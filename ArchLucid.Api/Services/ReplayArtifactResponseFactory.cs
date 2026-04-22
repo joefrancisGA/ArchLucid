@@ -1,3 +1,5 @@
+using System.Text;
+
 using ArchLucid.Application.Analysis;
 
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Services;
 
 /// <summary>
-/// Centralizes file responses for export replay and comparison replay artifacts (markdown/docx/html/pdf).
+///     Centralizes file responses for export replay and comparison replay artifacts (markdown/docx/html/pdf).
 /// </summary>
 public static class ReplayArtifactResponseFactory
 {
@@ -46,7 +48,9 @@ public static class ReplayArtifactResponseFactory
                 result.FileName);
 
 
-        return string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase) ? ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName) : null;
+        return string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase)
+            ? ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName)
+            : null;
     }
 
     public static IActionResult ComparisonReplayFileOrBadRequest(
@@ -64,7 +68,7 @@ public static class ReplayArtifactResponseFactory
 
         if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase)
             || string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
-            return System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
+            return Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
 
         return result.BinaryContent ?? [];
     }

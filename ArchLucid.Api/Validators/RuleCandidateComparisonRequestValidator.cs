@@ -5,7 +5,8 @@ using FluentValidation;
 namespace ArchLucid.Api.Validators;
 
 /// <summary>
-/// FluentValidation for <see cref="RuleCandidateComparisonRequest"/> (<c>POST …/alert-simulation/compare-candidates</c>).
+///     FluentValidation for <see cref="RuleCandidateComparisonRequest" /> (
+///     <c>POST …/alert-simulation/compare-candidates</c>).
 /// </summary>
 public sealed class RuleCandidateComparisonRequestValidator : AbstractValidator<RuleCandidateComparisonRequest>
 {
@@ -22,16 +23,20 @@ public sealed class RuleCandidateComparisonRequestValidator : AbstractValidator<
             x => x.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase),
             () =>
             {
-                RuleFor(x => x.CandidateASimpleRule).NotNull().WithMessage("CandidateASimpleRule is required for Simple.");
-                RuleFor(x => x.CandidateBSimpleRule).NotNull().WithMessage("CandidateBSimpleRule is required for Simple.");
+                RuleFor(x => x.CandidateASimpleRule).NotNull()
+                    .WithMessage("CandidateASimpleRule is required for Simple.");
+                RuleFor(x => x.CandidateBSimpleRule).NotNull()
+                    .WithMessage("CandidateBSimpleRule is required for Simple.");
             });
 
         When(
             x => x.RuleKind.Equals("Composite", StringComparison.OrdinalIgnoreCase),
             () =>
             {
-                RuleFor(x => x.CandidateACompositeRule).NotNull().WithMessage("CandidateACompositeRule is required for Composite.");
-                RuleFor(x => x.CandidateBCompositeRule).NotNull().WithMessage("CandidateBCompositeRule is required for Composite.");
+                RuleFor(x => x.CandidateACompositeRule).NotNull()
+                    .WithMessage("CandidateACompositeRule is required for Composite.");
+                RuleFor(x => x.CandidateBCompositeRule).NotNull()
+                    .WithMessage("CandidateBCompositeRule is required for Composite.");
             });
     }
 }

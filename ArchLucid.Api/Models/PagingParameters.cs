@@ -2,10 +2,19 @@ namespace ArchLucid.Api.Models;
 
 public sealed class PagingParameters
 {
-    public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 50;
-
     public const int MaxPageSize = 200;
+
+    public int PageNumber
+    {
+        get;
+        set;
+    } = 1;
+
+    public int PageSize
+    {
+        get;
+        set;
+    } = 50;
 
     public (int Skip, int Take) Normalize()
     {
@@ -20,4 +29,3 @@ public sealed class PagingParameters
         return (skip, PageSize);
     }
 }
-

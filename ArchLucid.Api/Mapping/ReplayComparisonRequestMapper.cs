@@ -4,11 +4,12 @@ using AppReplayComparisonRequest = ArchLucid.Application.Analysis.ReplayComparis
 
 namespace ArchLucid.Api.Mapping;
 
-/// <summary>Maps API replay models to Application <see cref="ArchLucid.Application.Analysis.ReplayComparisonRequest"/>.</summary>
+/// <summary>Maps API replay models to Application <see cref="ArchLucid.Application.Analysis.ReplayComparisonRequest" />.</summary>
 internal static class ReplayComparisonRequestMapper
 {
-    public static AppReplayComparisonRequest ToApplication(string comparisonRecordId, ReplayComparisonRequest request) =>
-        new()
+    public static AppReplayComparisonRequest ToApplication(string comparisonRecordId, ReplayComparisonRequest request)
+    {
+        return new AppReplayComparisonRequest
         {
             ComparisonRecordId = comparisonRecordId,
             Format = request.Format,
@@ -16,6 +17,7 @@ internal static class ReplayComparisonRequestMapper
             Profile = request.Profile,
             PersistReplay = request.PersistReplay
         };
+    }
 
     /// <summary>Applies optional <c>format</c> query when the body left format empty, then maps.</summary>
     public static AppReplayComparisonRequest ToApplicationForReplayEndpoint(
@@ -38,22 +40,25 @@ internal static class ReplayComparisonRequestMapper
     }
 
     /// <summary>Used by GET summary when stored markdown is missing — markdown artifact, no persist.</summary>
-    public static AppReplayComparisonRequest ForSummaryMarkdown(string comparisonRecordId) =>
-        new()
+    public static AppReplayComparisonRequest ForSummaryMarkdown(string comparisonRecordId)
+    {
+        return new AppReplayComparisonRequest
         {
             ComparisonRecordId = comparisonRecordId,
             Format = "markdown",
             ReplayMode = "artifact",
             PersistReplay = false
         };
+    }
 
     public static AppReplayComparisonRequest ToApplicationForBatchEntry(
         string comparisonRecordId,
         string format,
         string replayMode,
         string? profile,
-        bool persistReplay) =>
-        new()
+        bool persistReplay)
+    {
+        return new AppReplayComparisonRequest
         {
             ComparisonRecordId = comparisonRecordId,
             Format = format,
@@ -61,4 +66,5 @@ internal static class ReplayComparisonRequestMapper
             Profile = profile,
             PersistReplay = persistReplay
         };
+    }
 }

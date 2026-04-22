@@ -27,10 +27,10 @@ public sealed class RegistrationController(
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap) : ControllerBase
 {
+    private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+
     private readonly ITenantProvisioningService _provisioning =
         provisioning ?? throw new ArgumentNullException(nameof(provisioning));
-
-    private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
 
     private readonly ITrialTenantBootstrapService _trialBootstrap =
         trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
@@ -70,11 +70,12 @@ public sealed class RegistrationController(
             {
                 EventType = AuditEventTypes.TrialSignupAttempted,
                 ActorUserId = actorEmail,
-                ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                ActorUserName =
+                    string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
                 TenantId = Guid.Empty,
                 WorkspaceId = Guid.Empty,
                 ProjectId = Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new { channel = "api_register" }),
+                DataJson = JsonSerializer.Serialize(new { channel = "api_register" })
             },
             cancellationToken);
 
@@ -86,7 +87,7 @@ public sealed class RegistrationController(
                     Name = body.OrganizationName.Trim(),
                     AdminEmail = body.AdminEmail.Trim(),
                     Tier = TenantTier.Free,
-                    AuditActorOverride = body.AdminEmail.Trim(),
+                    AuditActorOverride = body.AdminEmail.Trim()
                 },
                 cancellationToken);
 
@@ -99,11 +100,14 @@ public sealed class RegistrationController(
                     {
                         EventType = AuditEventTypes.TrialSignupFailed,
                         ActorUserId = actorEmail,
-                        ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                        ActorUserName =
+                            string.IsNullOrWhiteSpace(body.AdminDisplayName)
+                                ? actorEmail
+                                : body.AdminDisplayName.Trim(),
                         TenantId = Guid.Empty,
                         WorkspaceId = Guid.Empty,
                         ProjectId = Guid.Empty,
-                        DataJson = JsonSerializer.Serialize(new { stage = "provision", reason = "duplicate_slug" }),
+                        DataJson = JsonSerializer.Serialize(new { stage = "provision", reason = "duplicate_slug" })
                     },
                     cancellationToken);
 
@@ -119,16 +123,13 @@ public sealed class RegistrationController(
                 {
                     EventType = AuditEventTypes.TenantSelfRegistered,
                     ActorUserId = actor,
-                    ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim(),
+                    ActorUserName =
+                        string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim(),
                     TenantId = result.TenantId,
                     WorkspaceId = result.DefaultWorkspaceId,
                     ProjectId = result.DefaultProjectId,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            organizationName = body.OrganizationName.Trim(),
-                            adminEmail = body.AdminEmail.Trim(),
-                        }),
+                        new { organizationName = body.OrganizationName.Trim(), adminEmail = body.AdminEmail.Trim() })
                 },
                 cancellationToken);
 
@@ -136,7 +137,8 @@ public sealed class RegistrationController(
                 ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, DateTimeOffset.UtcNow)
                 : null;
 
-            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, baselineCapture, cancellationToken);
+            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, baselineCapture,
+                cancellationToken);
 
             if (baselineCapture is not null)
             {
@@ -145,7 +147,8 @@ public sealed class RegistrationController(
                     {
                         EventType = AuditEventTypes.TrialBaselineReviewCycleCaptured,
                         ActorUserId = actor,
-                        ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim(),
+                        ActorUserName =
+                            string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim(),
                         TenantId = result.TenantId,
                         WorkspaceId = Guid.Empty,
                         ProjectId = Guid.Empty,
@@ -154,8 +157,8 @@ public sealed class RegistrationController(
                             {
                                 baselineReviewCycleHours = baselineCapture.Hours,
                                 baselineReviewCycleSource = normalizedBaselineSource,
-                                capturedUtc = baselineCapture.CapturedUtc,
-                            }),
+                                capturedUtc = baselineCapture.CapturedUtc
+                            })
                     },
                     cancellationToken);
             }
@@ -179,7 +182,10 @@ public sealed class RegistrationController(
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
-                    DataJson = JsonSerializer.Serialize(new { stage = "validation", reason = ex.GetType().Name, message = ex.Message }),
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        stage = "validation", reason = ex.GetType().Name, message = ex.Message
+                    })
                 },
                 cancellationToken);
 
@@ -198,7 +204,10 @@ public sealed class RegistrationController(
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
-                    DataJson = JsonSerializer.Serialize(new { stage = "validation", reason = ex.GetType().Name, message = ex.Message }),
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        stage = "validation", reason = ex.GetType().Name, message = ex.Message
+                    })
                 },
                 cancellationToken);
 

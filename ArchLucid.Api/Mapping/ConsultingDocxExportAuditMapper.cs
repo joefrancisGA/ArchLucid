@@ -1,15 +1,17 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Analysis;
 
-using AppConsultingDocxProfileRecommendationRequest = ArchLucid.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
+using AppConsultingDocxProfileRecommendationRequest =
+    ArchLucid.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
 namespace ArchLucid.Api.Mapping;
 
-/// <summary>Maps <see cref="ConsultingDocxExportRequest"/> into audit / profile-resolution models.</summary>
+/// <summary>Maps <see cref="ConsultingDocxExportRequest" /> into audit / profile-resolution models.</summary>
 internal static class ConsultingDocxExportAuditMapper
 {
-    /// <summary>Signals for <see cref="IConsultingDocxExportProfileSelector.Resolve"/>.</summary>
-    public static AppConsultingDocxProfileRecommendationRequest ToRecommendationRequest(ConsultingDocxExportRequest request)
+    /// <summary>Signals for <see cref="IConsultingDocxExportProfileSelector.Resolve" />.</summary>
+    public static AppConsultingDocxProfileRecommendationRequest ToRecommendationRequest(
+        ConsultingDocxExportRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -26,8 +28,9 @@ internal static class ConsultingDocxExportAuditMapper
     }
 
     /// <summary>
-    /// Persisted shape for <see cref="IRunExportAuditService.RecordAsync"/>; <c>IncludeSummary</c> is always <see langword="true"/>
-    /// to match <c>DownloadConsultingDocx</c> (analysis always includes the summary section).
+    ///     Persisted shape for <see cref="IRunExportAuditService.RecordAsync" />; <c>IncludeSummary</c> is always
+    ///     <see langword="true" />
+    ///     to match <c>DownloadConsultingDocx</c> (analysis always includes the summary section).
     /// </summary>
     public static PersistedAnalysisExportRequest ToPersistedRequest(ConsultingDocxExportRequest request)
     {

@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Tuning;
 
@@ -15,10 +15,11 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
-/// HTTP API for threshold recommendation (simulation + noise scoring) scoped to the caller’s tenant/workspace/project.
+///     HTTP API for threshold recommendation (simulation + noise scoring) scoped to the caller’s tenant/workspace/project.
 /// </summary>
 /// <remarks>
-/// Stamps scope ids onto <see cref="ThresholdRecommendationRequest.BaseSimpleRule"/> / <see cref="ThresholdRecommendationRequest.BaseCompositeRule"/> before tuning.
+///     Stamps scope ids onto <see cref="ThresholdRecommendationRequest.BaseSimpleRule" /> /
+///     <see cref="ThresholdRecommendationRequest.BaseCompositeRule" /> before tuning.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -33,11 +34,13 @@ public sealed class AlertTuningController(
 {
     private static readonly JsonSerializerOptions AuditJsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false
     };
 
-    /// <summary>Invokes <see cref="IThresholdRecommendationService.RecommendAsync"/> and audits candidate/recommended threshold metadata.</summary>
+    /// <summary>
+    ///     Invokes <see cref="IThresholdRecommendationService.RecommendAsync" /> and audits candidate/recommended
+    ///     threshold metadata.
+    /// </summary>
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,14 +65,15 @@ public sealed class AlertTuningController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertThresholdRecommendationExecuted,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    request.RuleKind,
-                    request.TunedMetricType,
-                    requestedCandidateCount = request.CandidateThresholds.Count,
-                    evaluatedCandidateCount = result.Candidates.Count,
-                    recommendedThreshold = result.RecommendedCandidate?.Candidate.ThresholdValue,
-                }, AuditJsonOptions),
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        request.RuleKind,
+                        request.TunedMetricType,
+                        requestedCandidateCount = request.CandidateThresholds.Count,
+                        evaluatedCandidateCount = result.Candidates.Count,
+                        recommendedThreshold = result.RecommendedCandidate?.Candidate.ThresholdValue
+                    }, AuditJsonOptions)
             },
             ct);
 

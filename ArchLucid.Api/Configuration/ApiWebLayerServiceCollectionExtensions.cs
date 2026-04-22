@@ -8,10 +8,11 @@ using ArchLucid.Host.Core.Configuration;
 namespace ArchLucid.Api.Configuration;
 
 /// <summary>
-/// HTTP/API-only DI registrations that depend on API-layer models (product learning read models, evolution simulation).
+///     HTTP/API-only DI registrations that depend on API-layer models (product learning read models, evolution
+///     simulation).
 /// </summary>
 /// <remarks>
-/// The Worker host does not register these services; it does not expose Learning/Evolution controllers.
+///     The Worker host does not register these services; it does not expose Learning/Evolution controllers.
 /// </remarks>
 public static class ApiWebLayerServiceCollectionExtensions
 {

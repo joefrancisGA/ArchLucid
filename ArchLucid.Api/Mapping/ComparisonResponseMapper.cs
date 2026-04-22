@@ -6,42 +6,35 @@ namespace ArchLucid.Api.Mapping;
 
 internal static class ComparisonResponseMapper
 {
-    public static AgentResultCompareResponse ToAgentResultCompareResponse(AgentResultDiffResult diff) =>
-        new()
-        {
-            Diff = diff
-        };
+    public static AgentResultCompareResponse ToAgentResultCompareResponse(AgentResultDiffResult diff)
+    {
+        return new AgentResultCompareResponse { Diff = diff };
+    }
 
     public static AgentResultCompareSummaryResponse ToAgentResultCompareSummaryResponse(
         string summary,
-        AgentResultDiffResult diff) =>
-        new()
-        {
-            Format = "markdown",
-            Summary = summary,
-            Diff = diff
-        };
+        AgentResultDiffResult diff)
+    {
+        return new AgentResultCompareSummaryResponse { Format = "markdown", Summary = summary, Diff = diff };
+    }
 
-    public static EndToEndReplayComparisonResponse ToEndToEndResponse(EndToEndReplayComparisonReport report) =>
-        new()
-        {
-            Report = report
-        };
+    public static EndToEndReplayComparisonResponse ToEndToEndResponse(EndToEndReplayComparisonReport report)
+    {
+        return new EndToEndReplayComparisonResponse { Report = report };
+    }
 
-    public static EndToEndReplayComparisonSummaryResponse ToEndToEndSummaryResponse(string summary) =>
-        new()
-        {
-            Format = "markdown",
-            Summary = summary
-        };
+    public static EndToEndReplayComparisonSummaryResponse ToEndToEndSummaryResponse(string summary)
+    {
+        return new EndToEndReplayComparisonSummaryResponse { Format = "markdown", Summary = summary };
+    }
 
     public static EndToEndReplayComparisonExportResponse ToEndToEndExportResponse(
         string fileName,
-        string markdown) =>
-        new()
+        string markdown)
+    {
+        return new EndToEndReplayComparisonExportResponse
         {
-            Format = "markdown",
-            FileName = fileName,
-            Content = markdown
+            Format = "markdown", FileName = fileName, Content = markdown
         };
+    }
 }
