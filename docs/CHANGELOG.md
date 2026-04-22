@@ -4,6 +4,43 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Phase 3 PR A re-scoped: ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)
+
+**A grounding read of the actual code state — not just the optimistic ADR text — found a hard blocker that makes the original "single PR A deletion" framing in [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) mechanically impossible. The work is re-scoped into a sequenced multi-PR plan recorded in new [ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md). No production code changes in this entry — owner sign-off required to start any of PR A0 → PR A4.**
+
+**The blocker.** Side-by-side reads of `ArchLucid.Persistence/Data/Repositories/GoldenManifestRepository.cs` (Coordinator) vs `ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs` (Authority), plus `ArchLucid.Contracts/Manifest/GoldenManifest.cs` vs `ArchLucid.Decisioning/Models/GoldenManifest.cs`, plus the master DDL `ArchLucid.Persistence/Scripts/ArchLucid.sql` (lines 105 + 987), show the two pipelines persist **incompatible domain models** to **incompatible SQL tables** using **different decision engines**:
+
+- **Manifest CLR types diverge.** Coordinator side uses `ArchLucid.Contracts.Manifest.GoldenManifest` (string `RunId`; services + datastores + relationships + governance + metadata). Authority side uses `ArchLucid.Decisioning.Models.GoldenManifest` (Guid `ManifestId` + Guid scope triple; Topology / Security / Compliance / Cost / Constraints / UnresolvedIssues / Decisions / Provenance / Policy section objects).
+- **SQL tables diverge.** Coordinator persists to `dbo.GoldenManifestVersions` (single JSON blob keyed by string `ManifestVersion`). Authority persists to `dbo.GoldenManifests` + 6 phase-1 relational satellite tables (`GoldenManifestAssumptions`, `GoldenManifestWarnings`, `GoldenManifestProvenanceSourceFindings`, `GoldenManifestProvenanceSourceGraphNodes`, `GoldenManifestProvenanceAppliedRules`, `GoldenManifestDecisions` + `…DecisionEvidenceLinks` + `…DecisionNodeLinks`) keyed by Guid `ManifestId` + scope triple.
+- **Decision engines diverge.** Coordinator uses `IDecisionEngineService.MergeResults` + `IDecisionEngineV2.ResolveAsync`. Authority uses a one-shot rule-engine path that does not today produce a `Contracts.Manifest`-shape output.
+- **`RunCommitOrchestratorFacade` is a 12-line thin pass-through** to `ArchitectureRunCommitOrchestrator`, not a Coordinator-vs-Authority bridge. The introduction note in [ADR 0022](adr/0022-coordinator-phase3-deferred.md) § Component breakdown overstated its role.
+
+**The re-scope ([ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md)).** PR A is now five sub-PRs (each independently mergeable, each verifying gates (ii) + (iii) on its own CI run, each reversible by `git revert` until the next one merges except PR A4 which is the irreversible legacy-table drop):
+
+| Sub-PR | What ships | What is blocked on |
+|--------|-----------|-------------------|
+| **PR A0** | Authority engine grows `IAuthorityCommitProjectionBuilder.BuildContractsManifestAsync(...)` — additive, no SQL change | Owner sign-off on shape parity invariants — pending question item **34a** |
+| **PR A1** | `IGoldenManifestRepository` grows a `SaveAsync(Contracts.Manifest.GoldenManifest, ...)` overload; `SqlGoldenManifestRepository` learns to map the Contracts shape into `dbo.GoldenManifests` | Pending question item **34b** confirms overload return type |
+| **PR A2** | `RunCommitOrchestratorFacade` swaps target to Authority engine + Authority write port behind a `legacy:true` feature flag for rollback | Gates (ii) + (iii) green; cohort-parity SHA evidence captured in `artifacts/phase3/pr-a2-cohort-parity.md`; pending question item **34c** for legacy-flag default |
+| **PR A3** | Coordinator interfaces + concretes deleted; `DualPipelineRegistrationDisciplineTests` rewritten to assert the opposite invariant; ADR 0022 flips to `Superseded by ADR 0030`; `DUAL_PIPELINE_NAVIGATOR.md` collapses to single-pipeline | Same gates (ii) + (iii) on PR A3's own CI run |
+| **PR A4** | New SQL migration drops `dbo.GoldenManifestVersions`; backfill exports historical rows to blob storage first | Owner sign-off **at merge time** on backfill destination + no-rollback acknowledgement — pending question item **34d** |
+
+(Phase 3 **PR B — audit-constant retirement** as described in [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Lifecycle is unchanged: it ships **on or after 2026-05-15** and removes `AuditEventTypes.CoordinatorRun*`. The 2026-05-15 calendar deadline now applies to **PR B**, not to a single "PR A" — see ADR 0029 amendment below.)
+
+**Atomic surface area for this entry (docs only — no production code touched):**
+- New: [`docs/adr/0030-coordinator-authority-pipeline-unification.md`](adr/0030-coordinator-authority-pipeline-unification.md) — full sequenced multi-PR plan with the four constraints (two manifest types, two SQL tables, two decision engines, thin façade) made explicit.
+- Amended: [`docs/adr/0021-coordinator-pipeline-strangler-plan.md`](adr/0021-coordinator-pipeline-strangler-plan.md) — `Amended by` field + 2026-04-21 update note pointing at ADR 0030.
+- Amended: [`docs/adr/0022-coordinator-phase3-deferred.md`](adr/0022-coordinator-phase3-deferred.md) — `Amended by` field + revised `IRunCommitOrchestrator` row in § Component breakdown (correctly described as a 12-line pass-through, not a Coordinator-vs-Authority bridge) + revised § Follow-up steps 3 + 4.
+- Amended: [`docs/adr/0029-coordinator-strangler-acceleration-2026-05-15.md`](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) — `Amended by` field + § Lifecycle table strikethrough on the original "PR A" row + reassignment of the 2026-05-15 deadline to PR B.
+- Amended: [`docs/DUAL_PIPELINE_NAVIGATOR.md`](DUAL_PIPELINE_NAVIGATOR.md) § "Why we have not collapsed these" — new "Unification plan" paragraph pointing at ADR 0030; documents the single-pipeline collapse trigger (PR A3 merge).
+- Amended: [`docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`](architecture/COORDINATOR_STRANGLER_INVENTORY.md) — new 2026-04-21 grounding-read finding callout above § Migrate documenting the data-model + SQL-table mismatch table.
+
+**No production code changes.** No SQL migrations. No test changes. The four ADR amendments + two doc updates are the entire change set; the next session is the start of PR A0 once the owner signs off on item **34a** in PENDING_QUESTIONS.
+
+**Sequencing intent.** PR A0 is the smallest first step (additive Authority engine extension; no deletion, no SQL change, no flag flip) and is therefore the right next session whenever the owner answers item **34a**.
+
+---
+
 ## 2026-04-21 — Teams per-trigger opt-in matrix (Part A) + ArchLucid RLS object-name SQL migration (Part B)
 
 **Bundled DDL change set: the two follow-ups queued in the prior 2026-04-21 entry land together so a single review covers both database schema migrations.**

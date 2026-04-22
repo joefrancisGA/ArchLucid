@@ -7,6 +7,7 @@
 - **Supersedes:** [ADR 0028 (Draft) — Coordinator strangler completion (scaffold)](0028-coordinator-strangler-completion.md) (the calendar-date and exit-gate `_TODO (owner)_` placeholders in 0028 are answered by this ADR)
 - **Superseded by:** *(none yet — see § Lifecycle below)*
 - **Amends:** [ADR 0021 — Coordinator pipeline strangler plan](0021-coordinator-pipeline-strangler-plan.md) (cut-over date and Phase 3 30-day exit-gate waiver)
+- **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — the **2026-05-15** Sunset deadline this ADR set for "PR A" now applies to **PR B (audit-constant retirement)** only. The original "PR A: deletion" milestone is replaced by ADR 0030's sequenced **PR A0 → PR A4** plan, because the two pipelines were found to persist incompatible domain models to incompatible SQL tables — single-PR deletion is mechanically impossible. The `SunsetHttpDate` constant on `CoordinatorPipelineDeprecationFilter` stays at `Fri, 15 May 2026 00:00:00 GMT` because that header advertises the **route family** sunset, and the route family (`POST /v1/architecture/*`) does not shrink in PR A0 → PR A4 — only the implementation under it swaps. See ADR 0030 § Operational considerations for the deadline reassignment rationale.
 
 ## Objective
 
@@ -75,10 +76,10 @@ Unchanged. The acceleration removes a calendar-time buffer but does not change a
 
 | Event | Action |
 |-------|--------|
-| Phase 3 PR A (concrete + interface deletion) merges on or before **2026-05-15** | This ADR stays Accepted; deprecation headers stop emitting once the routes are removed; ADR 0022 flips to Superseded inside PR A. |
-| Phase 3 PR B (audit-constant retirement) merges after PR A | `AuditEventTypes.CoordinatorRun*` constants removed; only `AuditEventTypes.Run.*` remains. |
-| ArchLucid ships V1 to a paying customer **before** PR A merges | This ADR is **amended** to restore both gate (i) (30-day soak) and gate (iv) (14 contiguous parity rows); the cut-over date is recomputed accordingly. |
-| ArchLucid ships V1 to a paying customer **after** PR A merges | Both waivers expire automatically; any *future* coordinator-style refactor (not currently planned) must satisfy gates (i)–(iv) in full. |
+| ~~Phase 3 PR A (concrete + interface deletion) merges on or before **2026-05-15**~~ **Re-scoped by [ADR 0030](0030-coordinator-authority-pipeline-unification.md).** PR A is no longer a single deletion; it is now PR A0 → PR A4 per ADR 0030 § Component breakdown. ADR 0022 flips to `Superseded by ADR 0030` inside **PR A3**, not "inside PR A". | n/a — see ADR 0030 § Lifecycle. |
+| Phase 3 PR B (audit-constant retirement) merges **on or after 2026-05-15** | `AuditEventTypes.CoordinatorRun*` constants removed; only `AuditEventTypes.Run.*` remains. **The 2026-05-15 calendar deadline this ADR introduced now applies to PR B**, per the ADR 0030 amendment above. |
+| ArchLucid ships V1 to a paying customer **before any of PR A0 → PR A4 merge** | This ADR is **amended** (alongside ADR 0030) to restore both gate (i) (30-day soak between PR A2 and PR A3) and gate (iv) (14 contiguous parity rows). |
+| ArchLucid ships V1 to a paying customer **after PR A4 merges** | Both waivers expire automatically; any *future* coordinator-style refactor (not currently planned) must satisfy gates (i)–(iv) in full. |
 | Owner reverses the acceleration | This ADR is **superseded** by a new ADR with a fresh date and rationale. |
 
 ## Related
