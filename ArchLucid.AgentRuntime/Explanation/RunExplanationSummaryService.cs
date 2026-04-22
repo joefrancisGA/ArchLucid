@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Explanation;
 
-/// <inheritdoc cref="IRunExplanationSummaryService"/>
+/// <inheritdoc cref="IRunExplanationSummaryService" />
 public sealed class RunExplanationSummaryService(
     IExplanationService explanationService,
     IDeterministicExplanationService deterministicExplanation,
@@ -70,7 +70,7 @@ public sealed class RunExplanationSummaryService(
                     risks,
                     costs,
                     compliance,
-                    rawStored: string.Empty);
+                    string.Empty);
 
                 explanation.Provenance = null;
                 explanation.Confidence = null;
@@ -116,7 +116,7 @@ public sealed class RunExplanationSummaryService(
             UsedDeterministicFallback = usedDeterministicFallback,
             FaithfulnessWarning = faithfulnessWarning,
             FindingTraceConfidences = findingConfidences.Count > 0 ? findingConfidences : null,
-            Citations = citations,
+            Citations = citations
         };
     }
 
@@ -129,10 +129,13 @@ public sealed class RunExplanationSummaryService(
 
         if (usedDeterministicFallback)
 
-            return "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";
+            return
+                "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";
 
 
-        return faithReport.SupportRatio < 0.5 - 1e-9 ? "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph." : null;
+        return faithReport.SupportRatio < 0.5 - 1e-9
+            ? "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph."
+            : null;
     }
 
     private async Task<DecisionProvenanceGraph?> TryLoadProvenanceGraphAsync(
@@ -160,7 +163,8 @@ public sealed class RunExplanationSummaryService(
     }
 
     /// <summary>
-    /// Groups <see cref="ExplanationResult.KeyDrivers"/> lines in <c>Category: Title → Option</c> form by category prefix.
+    ///     Groups <see cref="ExplanationResult.KeyDrivers" /> lines in <c>Category: Title → Option</c> form by category
+    ///     prefix.
     /// </summary>
     internal static List<string> BuildThemeSummaries(IReadOnlyList<string> keyDrivers)
     {
@@ -185,12 +189,12 @@ public sealed class RunExplanationSummaryService(
             else
 
                 otherLines.Add(line.Trim());
-
         }
 
         List<string> themes = [];
 
-        foreach (KeyValuePair<string, List<string>> kv in byCategory.OrderBy(k => k.Key, StringComparer.OrdinalIgnoreCase))
+        foreach (KeyValuePair<string, List<string>> kv in byCategory.OrderBy(k => k.Key,
+                     StringComparer.OrdinalIgnoreCase))
         {
             List<string> titles = kv.Value;
             string preview = string.Join("; ", titles.Take(3));
@@ -227,18 +231,25 @@ public sealed class RunExplanationSummaryService(
         return category.Length > 0;
     }
 
-    internal static string DeriveRiskPosture(GoldenManifest manifest) =>
-        AuthorityManifestRiskPosture.Derive(manifest);
+    internal static string DeriveRiskPosture(GoldenManifest manifest)
+    {
+        return AuthorityManifestRiskPosture.Derive(manifest);
+    }
 
-    internal static string BuildOverallAssessment(ExplanationResult explanation, GoldenManifest manifest, string riskPosture)
+    internal static string BuildOverallAssessment(ExplanationResult explanation, GoldenManifest manifest,
+        string riskPosture)
     {
         int issues = manifest.UnresolvedIssues.Items.Count;
         int gaps = manifest.Compliance.Gaps.Count;
-        string summary = string.IsNullOrWhiteSpace(explanation.Summary) ? explanation.DetailedNarrative : explanation.Summary;
+        string summary = string.IsNullOrWhiteSpace(explanation.Summary)
+            ? explanation.DetailedNarrative
+            : explanation.Summary;
 
         if (issues == 0 && gaps == 0)
-            return $"Overall assessment ({riskPosture} risk posture): no unresolved issues or compliance gaps on the manifest; {summary}";
+            return
+                $"Overall assessment ({riskPosture} risk posture): no unresolved issues or compliance gaps on the manifest; {summary}";
 
-        return $"Overall assessment ({riskPosture} risk posture): {issues} unresolved issue(s), {gaps} compliance gap(s). {summary}";
+        return
+            $"Overall assessment ({riskPosture} risk posture): {issues} unresolved issue(s), {gaps} compliance gap(s). {summary}";
     }
 }

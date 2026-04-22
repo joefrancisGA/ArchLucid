@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Semaphore-based bulkhead for <see cref="RealAgentExecutor"/> — caps parallel OpenAI-backed handlers.
+///     Semaphore-based bulkhead for <see cref="RealAgentExecutor" /> — caps parallel OpenAI-backed handlers.
 /// </summary>
 public sealed class AgentHandlerConcurrencyGate : IAgentHandlerConcurrencyGate
 {
@@ -17,7 +17,6 @@ public sealed class AgentHandlerConcurrencyGate : IAgentHandlerConcurrencyGate
         if (max > 0)
 
             _semaphore = new SemaphoreSlim(max, max);
-
     }
 
     /// <inheritdoc />

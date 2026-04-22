@@ -21,7 +21,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
 {
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
 
-    /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType"/>.</summary>
+    /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType" />.</summary>
     public async Task EvaluateTraceAsync(
         AgentExecutionTrace trace,
         string runId,
@@ -68,15 +68,14 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 trace.ParsedResultJson,
                 trace.AgentType);
 
-            bool pass = EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out string? failureReason);
+            bool pass = EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic,
+                out string? failureReason);
 
             double overall = (structural.StructuralCompletenessRatio + semantic.OverallSemanticScore) / 2.0;
 
             TagList metricTags = new()
             {
-                { "case_id", caseDef.CaseId },
-                { "agent_type", agentLabel },
-                { "outcome", pass ? "pass" : "fail" },
+                { "case_id", caseDef.CaseId }, { "agent_type", agentLabel }, { "outcome", pass ? "pass" : "fail" }
             };
 
             ArchLucidInstrumentation.AgentOutputReferenceCaseEvaluationsTotal.Add(1, metricTags);
@@ -108,7 +107,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 StructuralMatch = structural.StructuralCompletenessRatio,
                 SemanticMatch = semantic.OverallSemanticScore,
                 MissingKeysJson = missingKeysJson,
-                CreatedUtc = DateTime.UtcNow,
+                CreatedUtc = DateTime.UtcNow
             };
 
             await resultRepository.AppendAsync(row, cancellationToken);

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>In-process <see cref="MemoryCache"/> store with bounded entry count.</summary>
+/// <summary>In-process <see cref="MemoryCache" /> store with bounded entry count.</summary>
 public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseStore, IDisposable
 {
     private readonly MemoryCache _cache;
@@ -13,6 +13,12 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
             throw new ArgumentOutOfRangeException(nameof(maxEntries), maxEntries, "Must be at least 1.");
 
         _cache = new MemoryCache(new MemoryCacheOptions { SizeLimit = maxEntries });
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _cache.Dispose();
     }
 
     /// <inheritdoc />
@@ -35,17 +41,10 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
         if (absoluteExpiration <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
 
-        MemoryCacheEntryOptions options = new()
-        {
-            AbsoluteExpirationRelativeToNow = absoluteExpiration,
-            Size = 1,
-        };
+        MemoryCacheEntryOptions options = new() { AbsoluteExpirationRelativeToNow = absoluteExpiration, Size = 1 };
 
         _cache.Set(key, value, options);
 
         return Task.CompletedTask;
     }
-
-    /// <inheritdoc />
-    public void Dispose() => _cache.Dispose();
 }

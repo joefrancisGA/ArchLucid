@@ -6,14 +6,15 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Best-effort durable audit when <see cref="AgentResultSchemaViolationException"/> is thrown from an agent handler.
+///     Best-effort durable audit when <see cref="AgentResultSchemaViolationException" /> is thrown from an agent handler.
 /// </summary>
 internal static class AgentResultSchemaViolationAudit
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly JsonSerializerOptions JsonOptions =
+        new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>
-    /// Schedules <see cref="IAuditService.LogAsync"/> without blocking the caller; swallows audit failures.
+    ///     Schedules <see cref="IAuditService.LogAsync" /> without blocking the caller; swallows audit failures.
     /// </summary>
     public static void ScheduleLog(
         IAuditService auditService,
@@ -47,7 +48,7 @@ internal static class AgentResultSchemaViolationAudit
                     errorCount = ex.SchemaErrors.Count,
                     errors,
                     modelDeploymentName,
-                    modelVersion,
+                    modelVersion
                 },
                 JsonOptions);
 
@@ -60,7 +61,7 @@ internal static class AgentResultSchemaViolationAudit
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
-                DataJson = dataJson,
+                DataJson = dataJson
             };
 
             _ = auditService.LogAsync(auditEvent, CancellationToken.None).ContinueWith(

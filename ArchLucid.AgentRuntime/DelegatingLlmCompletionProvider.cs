@@ -1,7 +1,8 @@
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Exposes <see cref="IAgentCompletionClient"/> as <see cref="ILlmCompletionProvider"/> with configured telemetry labels layered over <see cref="ILlmProvider.Descriptor"/>.
+///     Exposes <see cref="IAgentCompletionClient" /> as <see cref="ILlmCompletionProvider" /> with configured telemetry
+///     labels layered over <see cref="ILlmProvider.Descriptor" />.
 /// </summary>
 public sealed class DelegatingLlmCompletionProvider(
     IAgentCompletionClient inner,
@@ -11,7 +12,10 @@ public sealed class DelegatingLlmCompletionProvider(
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     /// <inheritdoc />
-    public string ProviderId { get; } = string.IsNullOrWhiteSpace(providerId) ? "unknown" : providerId.Trim();
+    public string ProviderId
+    {
+        get;
+    } = string.IsNullOrWhiteSpace(providerId) ? "unknown" : providerId.Trim();
 
     /// <inheritdoc />
     public string ModelDeploymentLabel
@@ -22,11 +26,7 @@ public sealed class DelegatingLlmCompletionProvider(
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor =>
-        _inner.Descriptor with
-        {
-            ProviderKind = ProviderId,
-            ModelId = ModelDeploymentLabel
-        };
+        _inner.Descriptor with { ProviderKind = ProviderId, ModelId = ModelDeploymentLabel };
 
     /// <inheritdoc />
     public Task<string> CompleteJsonAsync(

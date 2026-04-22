@@ -4,11 +4,12 @@ using System.Text;
 namespace ArchLucid.AgentRuntime.Prompts;
 
 /// <summary>
-/// Canonical hashing for prompt templates: normalize newlines so Git/Windows vs Linux does not change the fingerprint, then SHA-256 over UTF-8.
+///     Canonical hashing for prompt templates: normalize newlines so Git/Windows vs Linux does not change the fingerprint,
+///     then SHA-256 over UTF-8.
 /// </summary>
 public static class AgentPromptCanonicalHasher
 {
-    /// <summary>Lowercase hex SHA-256 of <paramref name="text"/> after newline canonicalization.</summary>
+    /// <summary>Lowercase hex SHA-256 of <paramref name="text" /> after newline canonicalization.</summary>
     public static string Sha256HexUtf8Normalized(string text)
     {
         ArgumentNullException.ThrowIfNull(text);

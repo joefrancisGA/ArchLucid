@@ -6,7 +6,8 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// <see cref="AgentType.Cost"/> handler for dev/test: returns deterministic <see cref="AgentResult"/> from <see cref="FakeScenarioFactory"/> without calling an LLM.
+///     <see cref="Contracts.Common.AgentType.Cost" /> handler for dev/test: returns deterministic
+///     <see cref="AgentResult" /> from <see cref="FakeScenarioFactory" /> without calling an LLM.
 /// </summary>
 public sealed class CostAgentHandler : IAgentHandler
 {

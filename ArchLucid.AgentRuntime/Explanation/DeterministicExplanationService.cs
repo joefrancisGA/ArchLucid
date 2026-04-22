@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.AgentRuntime.Explanation;
 
-/// <inheritdoc cref="IDeterministicExplanationService"/>
+/// <inheritdoc cref="IDeterministicExplanationService" />
 public sealed class DeterministicExplanationService(ILogger<DeterministicExplanationService> logger)
     : IDeterministicExplanationService
 {
@@ -62,7 +62,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
             KeyDrivers = keyDrivers,
             RiskImplications = risks,
             CostImplications = costs,
-            ComplianceImplications = compliance,
+            ComplianceImplications = compliance
         };
 
         if (StructuredExplanationParser.TryNormalizeStructuredJson(rawStored, out StructuredExplanation? structured))
@@ -84,15 +84,15 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
                 : heuristicSummary;
             string narrative = !string.IsNullOrWhiteSpace(legacy.DetailedNarrative)
                 ? legacy.DetailedNarrative.Trim()
-                : (!string.IsNullOrWhiteSpace(legacy.Summary) ? legacy.Summary.Trim() : narrativeFallback);
+                : !string.IsNullOrWhiteSpace(legacy.Summary)
+                    ? legacy.Summary.Trim()
+                    : narrativeFallback;
 
             result.Summary = summary;
             result.DetailedNarrative = narrative;
             result.Structured = new StructuredExplanation
             {
-                Reasoning = narrative,
-                SchemaVersion = 1,
-                EvidenceRefs = [],
+                Reasoning = narrative, SchemaVersion = 1, EvidenceRefs = []
             };
 
             return result;
@@ -106,9 +106,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
                 result.DetailedNarrative = narrativeFallback;
                 result.Structured = new StructuredExplanation
                 {
-                    Reasoning = narrativeFallback,
-                    SchemaVersion = 1,
-                    EvidenceRefs = [],
+                    Reasoning = narrativeFallback, SchemaVersion = 1, EvidenceRefs = []
                 };
 
                 return result;
@@ -128,9 +126,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         result.DetailedNarrative = narrativeFallback;
         result.Structured = new StructuredExplanation
         {
-            Reasoning = narrativeFallback,
-            SchemaVersion = 1,
-            EvidenceRefs = [],
+            Reasoning = narrativeFallback, SchemaVersion = 1, EvidenceRefs = []
         };
 
         return result;
@@ -163,32 +159,40 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public string FormatRequirementChanges(ComparisonResult c) =>
-        c.RequirementChanges.Count == 0
+    public string FormatRequirementChanges(ComparisonResult c)
+    {
+        return c.RequirementChanges.Count == 0
             ? "(none)"
             : string.Join("\n", c.RequirementChanges.Select(r => $"- {r.RequirementName}: {r.ChangeType}"));
+    }
 
     /// <inheritdoc />
-    public string FormatSecurityChanges(ComparisonResult c) =>
-        c.SecurityChanges.Count == 0
+    public string FormatSecurityChanges(ComparisonResult c)
+    {
+        return c.SecurityChanges.Count == 0
             ? "(none)"
             : string.Join("\n",
                 c.SecurityChanges.Select(s =>
                     $"- {s.ControlName}: {s.BaseStatus ?? "—"} → {s.TargetStatus ?? "—"}"));
+    }
 
     /// <inheritdoc />
-    public string FormatTopologyChanges(ComparisonResult c) =>
-        c.TopologyChanges.Count == 0
+    public string FormatTopologyChanges(ComparisonResult c)
+    {
+        return c.TopologyChanges.Count == 0
             ? "(none)"
             : string.Join("\n", c.TopologyChanges.Select(t => $"- {t.Resource} ({t.ChangeType})"));
+    }
 
     /// <inheritdoc />
-    public string FormatCostChanges(ComparisonResult c) =>
-        c.CostChanges.Count == 0
+    public string FormatCostChanges(ComparisonResult c)
+    {
+        return c.CostChanges.Count == 0
             ? "(none)"
             : string.Join("\n",
                 c.CostChanges.Select(x =>
                     $"- Max monthly: {x.BaseCost?.ToString("0.00") ?? "—"} → {x.TargetCost?.ToString("0.00") ?? "—"}"));
+    }
 
     /// <inheritdoc />
     public List<string> ExtractRunKeyDrivers(GoldenManifest m, DecisionProvenanceGraph? g)
@@ -204,7 +208,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         if (g is null)
             return list;
 
-        Dictionary<ProvenanceNodeType, int> byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
+        Dictionary<ProvenanceNodeType, int> byType =
+            g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
         list.Add(
             $"Provenance graph: {g.Nodes.Count} node(s), {g.Edges.Count} edge(s); " +
             string.Join(", ", byType.Select(kv => $"{kv.Key}={kv.Value}")));
@@ -215,7 +220,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     /// <inheritdoc />
     public List<string> ExtractRiskImplications(GoldenManifest m)
     {
-        List<string> list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}").ToList();
+        List<string> list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}")
+            .ToList();
         list.AddRange(m.Warnings.Take(10).Select(w => $"Warning: {w}"));
 
         if (list.Count == 0)
@@ -254,8 +260,12 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public string FormatProvenanceSummary(DecisionProvenanceGraph? g) =>
-        g is null ? "No provenance graph supplied." : $"Nodes: {g.Nodes.Count}, Edges: {g.Edges.Count}. RunId on graph: {g.RunId}.";
+    public string FormatProvenanceSummary(DecisionProvenanceGraph? g)
+    {
+        return g is null
+            ? "No provenance graph supplied."
+            : $"Nodes: {g.Nodes.Count}, Edges: {g.Edges.Count}. RunId on graph: {g.RunId}.";
+    }
 
     private T? TryDeserialize<T>(string? json) where T : class
     {
@@ -268,7 +278,8 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         }
         catch (JsonException ex)
         {
-            logger.LogWarning(ex, "Failed to deserialize LLM Explanation response as {Type}; falling back to heuristic.", typeof(T).Name);
+            logger.LogWarning(ex,
+                "Failed to deserialize LLM Explanation response as {Type}; falling back to heuristic.", typeof(T).Name);
 
             return null;
         }
@@ -288,10 +299,12 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         }
     }
 
-    private static string HeuristicRunSummary(GoldenManifest manifest) =>
-        string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
+    private static string HeuristicRunSummary(GoldenManifest manifest)
+    {
+        return string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
             ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
             : manifest.Metadata.Summary.Trim();
+    }
 
     private static string SummarizeFromReasoning(string reasoning, string heuristicSummary)
     {
@@ -390,13 +403,15 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         [UsedImplicitly]
         public string? Summary
         {
-            get; set;
+            get;
+            set;
         }
 
         [UsedImplicitly]
         public string? DetailedNarrative
         {
-            get; set;
+            get;
+            set;
         }
     }
 }

@@ -6,12 +6,14 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-/// Verifies that trace <c>ParsedResultJson</c> is a JSON object and contains expected top-level keys for a serialized <see cref="AgentResult"/>.
+///     Verifies that trace <c>ParsedResultJson</c> is a JSON object and contains expected top-level keys for a serialized
+///     <see cref="AgentResult" />.
 /// </summary>
 public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
 {
     /// <summary>
-    /// Keys produced by <see cref="JsonSerializerDefaults.Web"/> for <see cref="AgentResult"/> (handlers use this for trace JSON).
+    ///     Keys produced by <see cref="JsonSerializerDefaults.Web" /> for <see cref="AgentResult" /> (handlers use this for
+    ///     trace JSON).
     /// </summary>
     private static readonly string[] SharedAgentResultKeys =
     [
@@ -24,7 +26,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         "confidence",
         "findings",
         "proposedChanges",
-        "createdUtc",
+        "createdUtc"
     ];
 
     /// <inheritdoc />
@@ -42,7 +44,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
                 AgentType = agentType,
                 StructuralCompletenessRatio = 0.0,
                 IsJsonParseFailure = false,
-                MissingKeys = expected,
+                MissingKeys = expected
             };
 
 
@@ -65,7 +67,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
                 AgentType = agentType,
                 StructuralCompletenessRatio = ratio,
                 IsJsonParseFailure = false,
-                MissingKeys = missing,
+                MissingKeys = missing
             };
         }
         catch (JsonException)
@@ -87,7 +89,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
             AgentType = agentType,
             StructuralCompletenessRatio = ratio,
             IsJsonParseFailure = parseFailure,
-            MissingKeys = parseFailure ? expected : [],
+            MissingKeys = parseFailure ? expected : []
         };
     }
 
@@ -108,7 +110,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         // Same contract shape for every agent; kept as a switch for future per-type expectations.
         return agentType switch
         {
-            _ => SharedAgentResultKeys,
+            _ => SharedAgentResultKeys
         };
     }
 }

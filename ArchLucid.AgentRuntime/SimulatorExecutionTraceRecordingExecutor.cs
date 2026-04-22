@@ -8,9 +8,9 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Wraps <see cref="DeterministicAgentSimulator"/> and persists one <see cref="AgentExecutionTrace"/> per
-/// synthetic <see cref="AgentResult"/> so Simulator-mode runs expose the same trace surface as
-/// <see cref="RealAgentExecutor"/> (audit API, analysis reports, exports).
+///     Wraps <see cref="DeterministicAgentSimulator" /> and persists one <see cref="AgentExecutionTrace" /> per
+///     synthetic <see cref="AgentResult" /> so Simulator-mode runs expose the same trace surface as
+///     <see cref="RealAgentExecutor" /> (audit API, analysis reports, exports).
 /// </summary>
 public sealed class SimulatorExecutionTraceRecordingExecutor(
     DeterministicAgentSimulator innerSimulator,
@@ -57,7 +57,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 "simulator-deterministic",
                 "1.0.0",
                 AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(simulatorSystem),
-                ReleaseLabel: null);
+                null);
 
             await traceRecorder.RecordAsync(
                 runId,
@@ -67,15 +67,15 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 userPrompt,
                 resultJson,
                 resultJson,
-                parseSucceeded: true,
-                errorMessage: null,
+                true,
+                null,
                 promptRepro,
-                inputTokenCount: null,
-                outputTokenCount: null,
-                modelDeploymentName: AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
-                modelVersion: AgentExecutionTraceModelMetadata.SimulatorModelVersion,
-                isSimulatorExecution: true,
-                cancellationToken: cancellationToken);
+                null,
+                null,
+                AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
+                AgentExecutionTraceModelMetadata.SimulatorModelVersion,
+                true,
+                cancellationToken);
         }
 
         return results;

@@ -3,7 +3,9 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Raised when LLM output fails <see cref="ArchLucid.Decisioning.Validation.ISchemaValidationService.ValidateAgentResultJson"/> and enforcement is enabled.
+///     Raised when LLM output fails
+///     <see cref="ArchLucid.Decisioning.Validation.ISchemaValidationService.ValidateAgentResultJson" /> and enforcement is
+///     enabled.
 /// </summary>
 public sealed class AgentResultSchemaViolationException : InvalidOperationException
 {

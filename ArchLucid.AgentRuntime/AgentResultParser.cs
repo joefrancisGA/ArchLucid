@@ -7,12 +7,14 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// JSON deserializer for <see cref="AgentResult"/> using web defaults and string enums; validates JSON schema (when configured), then ids and agent type.
+///     JSON deserializer for <see cref="AgentResult" /> using web defaults and string enums; validates JSON schema (when
+///     configured), then ids and agent type.
 /// </summary>
 public sealed class AgentResultParser : IAgentResultParser
 {
@@ -20,20 +22,20 @@ public sealed class AgentResultParser : IAgentResultParser
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
-    private readonly ISchemaValidationService _schemaValidationService;
-    private readonly IOptions<AgentResultSchemaValidationOptions> _options;
     private readonly ILogger<AgentResultParser> _logger;
+    private readonly IOptions<AgentResultSchemaValidationOptions> _options;
+
+    private readonly ISchemaValidationService _schemaValidationService;
 
     /// <summary>Uses passthrough schema validation (always valid) and default options — for tests and simple construction.</summary>
     public AgentResultParser()
         : this(
             new PassthroughSchemaValidationService(),
             Options.Create(new AgentResultSchemaValidationOptions()),
-            Microsoft.Extensions.Logging.Abstractions.NullLogger<AgentResultParser>.Instance)
+            NullLogger<AgentResultParser>.Instance)
     {
     }
 
@@ -43,7 +45,8 @@ public sealed class AgentResultParser : IAgentResultParser
         IOptions<AgentResultSchemaValidationOptions> options,
         ILogger<AgentResultParser> logger)
     {
-        _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
+        _schemaValidationService =
+            schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -101,7 +104,6 @@ public sealed class AgentResultParser : IAgentResultParser
                 _logger.LogWarning(
                     "AgentResult JSON failed schema validation but AgentExecution:SchemaValidation:EnforceOnParse is false; continuing. Errors: {Errors}",
                     string.Join("; ", schemaResult.Errors));
-
         }
         else
 

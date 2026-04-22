@@ -11,24 +11,26 @@ using OpenAI.Chat;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured outputs.
+///     Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured
+///     outputs.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 {
+    /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
+    public const int DefaultMaxCompletionTokens = 4096;
+
     private static readonly AsyncLocal<(int Prompt, int Completion)?> LastCompletionTokenUsage = new();
 
     private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
 
-    /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
-    public const int DefaultMaxCompletionTokens = 4096;
-
     private readonly ChatClient _chatClient;
-    private readonly int _maxOutputTokens;
     private readonly string _deploymentName;
+    private readonly int _maxOutputTokens;
 
     /// <summary>
-    /// Creates a client for the given deployment (model) on the Azure OpenAI resource.
+    ///     Creates a client for the given deployment (model) on the Azure OpenAI resource.
     /// </summary>
     /// <param name="endpoint">Azure OpenAI endpoint URI.</param>
     /// <param name="apiKey">API key credential.</param>
@@ -45,7 +47,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ArgumentException.ThrowIfNullOrWhiteSpace(deploymentName);
 
         if (maxCompletionTokens < 1)
-            throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens, "Must be at least 1.");
+            throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens,
+                "Must be at least 1.");
 
 
         Uri endpointUri = new(endpoint);
@@ -65,52 +68,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         get;
     }
 
-    /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync"/> on this async flow, if any.</summary>
-    public static bool TryConsumeLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
-    {
-        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
-        LastCompletionTokenUsage.Value = null;
-
-        if (raw is { } v)
-        {
-            promptTokens = v.Prompt;
-            completionTokens = v.Completion;
-
-            return true;
-        }
-
-        promptTokens = 0;
-        completionTokens = 0;
-
-        return false;
-    }
-
-    /// <summary>Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata"/> (internals visible to AgentRuntime.Tests).</summary>
-    internal static void TestingSetLastModelMetadata(string deploymentName, string? modelId) =>
-        LastModelMetadata.Value = (deploymentName, modelId);
-
-    /// <summary>Consumes deployment name and provider-reported model id from the last successful <see cref="CompleteJsonAsync"/> on this async flow, if any.</summary>
-    public static bool TryConsumeLastModelMetadata(out string deploymentName, out string? modelVersion)
-    {
-        (string DeploymentName, string? ModelId)? raw = LastModelMetadata.Value;
-        LastModelMetadata.Value = null;
-
-        if (raw is { } v)
-        {
-            deploymentName = v.DeploymentName;
-            modelVersion = v.ModelId;
-
-            return true;
-        }
-
-        deploymentName = string.Empty;
-        modelVersion = null;
-
-        return false;
-    }
-
     /// <inheritdoc />
-    /// <remarks>Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and <c>ChatResponseFormat.CreateJsonObjectFormat()</c>.</remarks>
+    /// <remarks>
+    ///     Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and
+    ///     <c>ChatResponseFormat.CreateJsonObjectFormat()</c>.
+    /// </remarks>
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
@@ -194,5 +156,57 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
 
         return text;
+    }
+
+    /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow, if any.</summary>
+    public static bool TryConsumeLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
+    {
+        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
+        LastCompletionTokenUsage.Value = null;
+
+        if (raw is { } v)
+        {
+            promptTokens = v.Prompt;
+            completionTokens = v.Completion;
+
+            return true;
+        }
+
+        promptTokens = 0;
+        completionTokens = 0;
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata" /> (internals visible to
+    ///     AgentRuntime.Tests).
+    /// </summary>
+    internal static void TestingSetLastModelMetadata(string deploymentName, string? modelId)
+    {
+        LastModelMetadata.Value = (deploymentName, modelId);
+    }
+
+    /// <summary>
+    ///     Consumes deployment name and provider-reported model id from the last successful
+    ///     <see cref="CompleteJsonAsync" /> on this async flow, if any.
+    /// </summary>
+    public static bool TryConsumeLastModelMetadata(out string deploymentName, out string? modelVersion)
+    {
+        (string DeploymentName, string? ModelId)? raw = LastModelMetadata.Value;
+        LastModelMetadata.Value = null;
+
+        if (raw is { } v)
+        {
+            deploymentName = v.DeploymentName;
+            modelVersion = v.ModelId;
+
+            return true;
+        }
+
+        deploymentName = string.Empty;
+        modelVersion = null;
+
+        return false;
     }
 }

@@ -17,7 +17,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// <see cref="IAgentExecutionTraceRecorder"/> that inserts rows via <see cref="IAgentExecutionTraceRepository"/>, truncating large prompt/response fields.
+///     <see cref="IAgentExecutionTraceRecorder" /> that inserts rows via <see cref="IAgentExecutionTraceRepository" />,
+///     truncating large prompt/response fields.
 /// </summary>
 public sealed class AgentExecutionTraceRecorder(
     IAgentExecutionTraceRepository repository,
@@ -34,10 +35,21 @@ public sealed class AgentExecutionTraceRecorder(
 {
     private const string BlobContainerName = "agent-traces";
 
-    private static readonly JsonSerializerOptions AuditJsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
+    private const int MaxContentLength = 8192;
 
-    private readonly IAgentExecutionTraceRepository _repository =
-        repository ?? throw new ArgumentNullException(nameof(repository));
+    private const int MinBlobPersistenceTimeoutSeconds = 5;
+
+    private const int MaxBlobPersistenceTimeoutSeconds = 300;
+
+    private static readonly JsonSerializerOptions AuditJsonOptions =
+        new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IArtifactBlobStore _blobStore =
+        blobStore ?? throw new ArgumentNullException(nameof(blobStore));
 
     private readonly ILlmCostEstimator _costEstimator =
         costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
@@ -45,32 +57,23 @@ public sealed class AgentExecutionTraceRecorder(
     private readonly IOptions<LlmCostEstimationOptions> _costOptions =
         costOptions ?? throw new ArgumentNullException(nameof(costOptions));
 
-    private readonly IOptions<AgentExecutionTraceStorageOptions> _traceStorageOptions =
-        traceStorageOptions ?? throw new ArgumentNullException(nameof(traceStorageOptions));
+    private readonly ILogger<AgentExecutionTraceRecorder> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly IArtifactBlobStore _blobStore =
-        blobStore ?? throw new ArgumentNullException(nameof(blobStore));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IPromptRedactor _promptRedactor =
+        promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
 
     private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions =
         redactionOptions ?? throw new ArgumentNullException(nameof(redactionOptions));
 
-    private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+    private readonly IAgentExecutionTraceRepository _repository =
+        repository ?? throw new ArgumentNullException(nameof(repository));
 
-    private readonly ILogger<AgentExecutionTraceRecorder> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
-    private const int MaxContentLength = 8192;
-
-    private const int MinBlobPersistenceTimeoutSeconds = 5;
-
-    private const int MaxBlobPersistenceTimeoutSeconds = 300;
+    private readonly IOptions<AgentExecutionTraceStorageOptions> _traceStorageOptions =
+        traceStorageOptions ?? throw new ArgumentNullException(nameof(traceStorageOptions));
 
     /// <inheritdoc />
     public async Task RecordAsync(
@@ -192,7 +195,8 @@ public sealed class AgentExecutionTraceRecorder(
 
         using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(timeoutSec));
 
-        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        using CancellationTokenSource linked =
+            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
         CancellationToken blobCt = linked.Token;
 
@@ -264,7 +268,8 @@ public sealed class AgentExecutionTraceRecorder(
                 failedOnException,
                 CancellationToken.None);
 
-            await _repository.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey, CancellationToken.None);
+            await _repository.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey,
+                CancellationToken.None);
 
             await _repository.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
 
@@ -389,10 +394,12 @@ public sealed class AgentExecutionTraceRecorder(
         ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
     }
 
-    private static bool ForensicPartStored(string content, string? blobKey, string? inline) =>
-        string.IsNullOrEmpty(content)
-        || !string.IsNullOrEmpty(blobKey)
-        || !string.IsNullOrEmpty(inline);
+    private static bool ForensicPartStored(string content, string? blobKey, string? inline)
+    {
+        return string.IsNullOrEmpty(content)
+               || !string.IsNullOrEmpty(blobKey)
+               || !string.IsNullOrEmpty(inline);
+    }
 
     private async Task VerifyMandatoryForensicCoverageAsync(
         string traceId,
@@ -429,7 +436,6 @@ public sealed class AgentExecutionTraceRecorder(
                 "mandatory_full_text_incomplete",
                 null,
                 cancellationToken);
-
     }
 
     private async Task MarkInlineForensicFailureAsync(
@@ -472,7 +478,7 @@ public sealed class AgentExecutionTraceRecorder(
                     runId,
                     agentType = agentType.ToString(),
                     reason,
-                    exceptionDetail,
+                    exceptionDetail
                 },
                 AuditJsonOptions);
 
@@ -485,7 +491,7 @@ public sealed class AgentExecutionTraceRecorder(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
-                DataJson = dataJson,
+                DataJson = dataJson
             };
 
             await _auditService.LogAsync(auditEvent, cancellationToken);
@@ -545,11 +551,7 @@ public sealed class AgentExecutionTraceRecorder(
 
     private static void RecordPromptInlineFallback(AgentType agentType, string blobType)
     {
-        TagList tags = new()
-        {
-            { "agent_type", agentType.ToString() },
-            { "blob_type", blobType },
-        };
+        TagList tags = new() { { "agent_type", agentType.ToString() }, { "blob_type", blobType } };
 
         ArchLucidInstrumentation.AgentTracePromptInlineFallbacksTotal.Add(1, tags);
     }
@@ -575,7 +577,7 @@ public sealed class AgentExecutionTraceRecorder(
                     runId,
                     agentType = agentType.ToString(),
                     reason,
-                    failedBlobTypes,
+                    failedBlobTypes
                 },
                 AuditJsonOptions);
 
@@ -588,7 +590,7 @@ public sealed class AgentExecutionTraceRecorder(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
-                DataJson = dataJson,
+                DataJson = dataJson
             };
 
             await _auditService.LogAsync(auditEvent, cancellationToken);
@@ -639,7 +641,6 @@ public sealed class AgentExecutionTraceRecorder(
                 if (attempt < maxAttempts)
 
                     await Task.Delay(retryDelayMs, cancellationToken);
-
             }
 
 
@@ -670,7 +671,8 @@ public sealed class AgentExecutionTraceRecorder(
         return failed;
     }
 
-    private static string Truncate(string value, int maxLength) =>
-        value.Length <= maxLength ? value : string.Concat(value.AsSpan(0, maxLength), "...[truncated]");
+    private static string Truncate(string value, int maxLength)
+    {
+        return value.Length <= maxLength ? value : string.Concat(value.AsSpan(0, maxLength), "...[truncated]");
+    }
 }
-

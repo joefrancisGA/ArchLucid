@@ -6,7 +6,7 @@ using ArchLucid.Provenance;
 namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
-/// Signal-only (non-LLM) explanation building: manifest/comparison heuristics and LLM JSON fallbacks.
+///     Signal-only (non-LLM) explanation building: manifest/comparison heuristics and LLM JSON fallbacks.
 /// </summary>
 public interface IDeterministicExplanationService
 {
@@ -16,7 +16,7 @@ public interface IDeterministicExplanationService
         List<string> majorChanges,
         string? llmJson);
 
-    /// <summary>Parses LLM JSON (or prose) into a run <see cref="ExplanationResult"/> with heuristic fallbacks.</summary>
+    /// <summary>Parses LLM JSON (or prose) into a run <see cref="ExplanationResult" /> with heuristic fallbacks.</summary>
     ExplanationResult BuildRunExplanationFromLlmPayload(
         GoldenManifest manifest,
         List<string> keyDrivers,

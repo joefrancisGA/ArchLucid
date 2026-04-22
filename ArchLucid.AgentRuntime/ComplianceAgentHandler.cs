@@ -11,7 +11,8 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// <see cref="AgentType.Compliance"/> handler: evaluates policies and controls from the evidence package via the completion client.
+///     <see cref="Contracts.Common.AgentType.Compliance" /> handler: evaluates policies and controls from the evidence
+///     package via the completion client.
 /// </summary>
 public sealed class ComplianceAgentHandler(
     IAgentCompletionClient completionClient,
@@ -60,9 +61,9 @@ public sealed class ComplianceAgentHandler(
 
             AgentResult parsed = resultParser.ParseAndValidate(
                 rawJson,
-                expectedRunId: runId,
-                expectedTaskId: task.TaskId,
-                expectedAgentType: AgentType.Compliance);
+                runId,
+                task.TaskId,
+                AgentType.Compliance);
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
@@ -77,13 +78,13 @@ public sealed class ComplianceAgentHandler(
                 userPrompt,
                 rawJson,
                 parsedJson,
-                parseSucceeded: true,
-                errorMessage: null,
+                true,
+                null,
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: modelDeploy,
-                modelVersion: modelVer,
+                modelDeploy,
+                modelVer,
                 cancellationToken: cancellationToken);
 
             return parsed;
@@ -112,14 +113,14 @@ public sealed class ComplianceAgentHandler(
                 systemPrompt,
                 userPrompt,
                 rawJson,
-                parsedResultJson: null,
-                parseSucceeded: false,
-                errorMessage: ex.Message,
+                null,
+                false,
+                ex.Message,
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: modelDeploy,
-                modelVersion: modelVer,
+                modelDeploy,
+                modelVer,
                 cancellationToken: cancellationToken);
 
             throw;
@@ -196,7 +197,6 @@ public sealed class ComplianceAgentHandler(
                 if (policy.RequiredControls.Count > 0)
 
                     sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
-
             }
 
             sb.AppendLine();
@@ -211,7 +211,6 @@ public sealed class ComplianceAgentHandler(
                 if (service.RecommendedUseCases.Count > 0)
 
                     sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
-
             }
 
             sb.AppendLine();
@@ -259,10 +258,12 @@ public sealed class ComplianceAgentHandler(
         sb.AppendLine("Important guidance:");
         sb.AppendLine("- Infer mandatory controls conservatively from constraints and required capabilities.");
         sb.AppendLine("- If managed identity is explicitly required, include Managed Identity.");
-        sb.AppendLine("- If private endpoints or private networking are required, include Private Endpoints and/or Private Networking.");
+        sb.AppendLine(
+            "- If private endpoints or private networking are required, include Private Endpoints and/or Private Networking.");
         sb.AppendLine("- If encryption is required, include Encryption At Rest.");
         sb.AppendLine("- If secrets are likely present, include Key Vault.");
-        sb.AppendLine("- Prefer reusable machine-friendly findings such as ManagedIdentityRequired or PrivateNetworkingRequired.");
+        sb.AppendLine(
+            "- Prefer reusable machine-friendly findings such as ManagedIdentityRequired or PrivateNetworkingRequired.");
         sb.AppendLine("- Return JSON only.");
 
         return sb.ToString();

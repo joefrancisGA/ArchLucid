@@ -8,23 +8,23 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 
-/// <summary>Loads <see cref="AgentOutputReferenceCaseDefinition"/> from a JSON file (lazy, thread-safe).</summary>
+/// <summary>Loads <see cref="AgentOutputReferenceCaseDefinition" /> from a JSON file (lazy, thread-safe).</summary>
 public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseCatalog
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         Converters = { new JsonStringEnumConverter() },
         ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
+        AllowTrailingCommas = true
     };
-
-    private readonly IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> _options;
 
     private readonly string _contentRootPath;
 
+    private readonly Lock _loadGate = new();
+
     private readonly ILogger<AgentOutputReferenceCaseCatalog> _logger;
 
-    private readonly Lock _loadGate = new();
+    private readonly IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> _options;
 
     private volatile bool _loadAttempted;
 

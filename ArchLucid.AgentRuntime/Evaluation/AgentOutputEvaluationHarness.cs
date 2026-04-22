@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
-/// <inheritdoc cref="IAgentOutputEvaluationHarness"/>
+/// <inheritdoc cref="IAgentOutputEvaluationHarness" />
 public sealed class AgentOutputEvaluationHarness(
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator) : IAgentOutputEvaluationHarness
@@ -69,7 +69,10 @@ public sealed class AgentOutputEvaluationHarness(
                         names.Add(p.Name);
 
 
-                    failures.AddRange(from key in expected.RequiredJsonKeys where !string.IsNullOrWhiteSpace(key) where !names.Contains(key.Trim()) select $"Required JSON key missing: '{key.Trim()}'.");
+                    failures.AddRange(from key in expected.RequiredJsonKeys
+                        where !string.IsNullOrWhiteSpace(key)
+                        where !names.Contains(key.Trim())
+                        select $"Required JSON key missing: '{key.Trim()}'.");
                 }
             }
             catch (JsonException)
@@ -99,7 +102,6 @@ public sealed class AgentOutputEvaluationHarness(
             else
 
                 failures.Add($"Expected finding category not present: '{cat.Trim()}'.");
-
         }
 
         int requiredCategoryCount = expected.ExpectedFindingCategories.Count(static c => !string.IsNullOrWhiteSpace(c));
@@ -114,7 +116,7 @@ public sealed class AgentOutputEvaluationHarness(
             SemanticScore = semantic.OverallSemanticScore,
             CategoryCoverageRatio = categoryRatio,
             Failures = failures,
-            AgentType = agentType,
+            AgentType = agentType
         };
     }
 }

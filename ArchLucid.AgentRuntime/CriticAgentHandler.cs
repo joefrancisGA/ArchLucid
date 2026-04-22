@@ -11,7 +11,8 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// <see cref="AgentType.Critic"/> handler: cross-checks the implied architecture for gaps and contradictions.
+///     <see cref="Contracts.Common.AgentType.Critic" /> handler: cross-checks the implied architecture for gaps and
+///     contradictions.
 /// </summary>
 public sealed class CriticAgentHandler(
     IAgentCompletionClient completionClient,
@@ -60,9 +61,9 @@ public sealed class CriticAgentHandler(
 
             AgentResult parsed = resultParser.ParseAndValidate(
                 rawJson,
-                expectedRunId: runId,
-                expectedTaskId: task.TaskId,
-                expectedAgentType: AgentType.Critic);
+                runId,
+                task.TaskId,
+                AgentType.Critic);
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
@@ -77,13 +78,13 @@ public sealed class CriticAgentHandler(
                 userPrompt,
                 rawJson,
                 parsedJson,
-                parseSucceeded: true,
-                errorMessage: null,
+                true,
+                null,
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: modelDeploy,
-                modelVersion: modelVer,
+                modelDeploy,
+                modelVer,
                 cancellationToken: cancellationToken);
 
             return parsed;
@@ -112,14 +113,14 @@ public sealed class CriticAgentHandler(
                 systemPrompt,
                 userPrompt,
                 rawJson,
-                parsedResultJson: null,
-                parseSucceeded: false,
-                errorMessage: ex.Message,
+                null,
+                false,
+                ex.Message,
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: modelDeploy,
-                modelVersion: modelVer,
+                modelDeploy,
+                modelVer,
                 cancellationToken: cancellationToken);
 
             throw;
@@ -196,7 +197,6 @@ public sealed class CriticAgentHandler(
                 if (policy.RequiredControls.Count > 0)
 
                     sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
-
             }
 
             sb.AppendLine();
@@ -211,7 +211,6 @@ public sealed class CriticAgentHandler(
                 if (service.RecommendedUseCases.Count > 0)
 
                     sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
-
             }
 
             sb.AppendLine();

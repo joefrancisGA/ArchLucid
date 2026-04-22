@@ -3,7 +3,8 @@ using ArchLucid.Core.Safety;
 namespace ArchLucid.AgentRuntime.Safety;
 
 /// <summary>
-/// Placeholder registered when <see cref="ArchLucid.Core.Configuration.ContentSafetyOptions.Enabled"/> is true but no Azure implementation is present yet.
+///     Placeholder registered when <see cref="ArchLucid.Core.Configuration.ContentSafetyOptions.Enabled" /> is true but no
+///     Azure implementation is present yet.
 /// </summary>
 public sealed class ContentSafetyEnabledButUnconfiguredGuard : IContentSafetyGuard
 {

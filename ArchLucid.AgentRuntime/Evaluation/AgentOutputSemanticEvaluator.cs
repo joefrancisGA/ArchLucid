@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-/// Deterministic JSON inspection scoring claim evidence and finding completeness.
+///     Deterministic JSON inspection scoring claim evidence and finding completeness.
 /// </summary>
 public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 {
@@ -42,7 +42,7 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
                 FindingsQualityRatio = findingsRatio,
                 EmptyClaimCount = emptyClaims,
                 IncompleteFindingCount = incompleteFindings,
-                OverallSemanticScore = overall,
+                OverallSemanticScore = overall
             };
         }
         catch (JsonException)
@@ -53,7 +53,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
     private static (double ratio, int emptyCount) EvaluateClaims(JsonElement root)
     {
-        if (!root.TryGetProperty("claims", out JsonElement claimsElement) || claimsElement.ValueKind != JsonValueKind.Array)
+        if (!root.TryGetProperty("claims", out JsonElement claimsElement) ||
+            claimsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
 
@@ -79,7 +80,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             if (hasEvidenceRefs || hasEvidence)
 
                 withEvidence++;
-
         }
 
         return total == 0 ? (0.0, 0) : ((double)withEvidence / total, total - withEvidence);
@@ -87,7 +87,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
     private static (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
     {
-        if (!root.TryGetProperty("findings", out JsonElement findingsElement) || findingsElement.ValueKind != JsonValueKind.Array)
+        if (!root.TryGetProperty("findings", out JsonElement findingsElement) ||
+            findingsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
 
@@ -117,7 +118,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             if (hasSeverity && hasDescription && hasRecommendation)
 
                 complete++;
-
         }
 
         return total == 0 ? (0.0, 0) : ((double)complete / total, total - complete);
@@ -145,7 +145,7 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             return findingsRatio;
 
 
-        return (claimsRatio * 0.4) + (findingsRatio * 0.6);
+        return claimsRatio * 0.4 + findingsRatio * 0.6;
     }
 
     private static AgentOutputSemanticScore BuildZeroScore(string traceId, AgentType agentType)
@@ -158,7 +158,7 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             FindingsQualityRatio = 0.0,
             EmptyClaimCount = 0,
             IncompleteFindingCount = 0,
-            OverallSemanticScore = 0.0,
+            OverallSemanticScore = 0.0
         };
     }
 }

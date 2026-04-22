@@ -10,15 +10,15 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Safety;
 
 /// <summary>
-/// Azure AI Content Safety text analyzer wired to <see cref="IContentSafetyGuard"/>.
+///     Azure AI Content Safety text analyzer wired to <see cref="IContentSafetyGuard" />.
 /// </summary>
 public sealed class AzureContentSafetyGuard : IContentSafetyGuard
 {
     private static readonly ContentSafetyResult Allowed = new(true, null, null, null);
 
     private readonly ContentSafetyClient _client;
-    private readonly IOptionsMonitor<ContentSafetyOptions> _optionsMonitor;
     private readonly ILogger<AzureContentSafetyGuard> _logger;
+    private readonly IOptionsMonitor<ContentSafetyOptions> _optionsMonitor;
 
     public AzureContentSafetyGuard(
         Uri endpoint,
@@ -56,10 +56,7 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
             return Allowed;
 
 
-        AnalyzeTextOptions request = new(text)
-        {
-            OutputType = AnalyzeTextOutputType.FourSeverityLevels,
-        };
+        AnalyzeTextOptions request = new(text) { OutputType = AnalyzeTextOutputType.FourSeverityLevels };
 
         try
         {
@@ -72,10 +69,13 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
         {
             if (_logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(ex, "Content safety {Kind} analysis failed; FailClosedOnSdkError={FailClosed}.", kind, options.FailClosedOnSdkError);
+                _logger.LogWarning(ex, "Content safety {Kind} analysis failed; FailClosedOnSdkError={FailClosed}.",
+                    kind, options.FailClosedOnSdkError);
 
 
-            return options.FailClosedOnSdkError ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null) : Allowed;
+            return options.FailClosedOnSdkError
+                ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null)
+                : Allowed;
         }
     }
 

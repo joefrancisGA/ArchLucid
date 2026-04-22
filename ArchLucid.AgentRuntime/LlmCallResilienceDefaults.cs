@@ -15,10 +15,13 @@ namespace ArchLucid.AgentRuntime;
 public static class LlmCallResilienceDefaults
 {
     /// <summary>
-    /// Retry transient LLM errors with exponential backoff and jitter before a failure is surfaced to the circuit breaker.
+    ///     Retry transient LLM errors with exponential backoff and jitter before a failure is surfaced to the circuit breaker.
     /// </summary>
     /// <param name="logger">Optional logger for retry warnings.</param>
-    /// <param name="maxRetryAttempts">Retry attempts after the first call; 0 disables retry (<see cref="ResiliencePipeline"/> no-op).</param>
+    /// <param name="maxRetryAttempts">
+    ///     Retry attempts after the first call; 0 disables retry (<see cref="ResiliencePipeline" />
+    ///     no-op).
+    /// </param>
     /// <param name="baseDelay">First backoff delay.</param>
     /// <param name="maxDelay">Cap for any single delay.</param>
     /// <param name="gateName">Optional circuit breaker gate name for metrics.</param>
@@ -72,7 +75,7 @@ public static class LlmCallResilienceDefaults
 
 
                     return ValueTask.CompletedTask;
-                },
+                }
             })
             .Build();
     }
@@ -104,7 +107,6 @@ public static class LlmCallResilienceDefaults
             int code = (int)sc;
 
             return code is 429 or 500 or 502 or 503 or 504;
-
         }
 
         if (ex is not ClientResultException cre)
@@ -113,6 +115,5 @@ public static class LlmCallResilienceDefaults
         int status = cre.Status;
 
         return status is 429 or 500 or 502 or 503 or 504;
-
     }
 }
