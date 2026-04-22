@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid operator shell (Change Set 55R) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid operator shell (Change Set 55R)
 
 **Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.

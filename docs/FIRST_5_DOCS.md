@@ -1,21 +1,23 @@
-> **Scope:** Your first five documents - full detail, tables, and links in the sections below.
+> **Scope:** Five-document onboarding spine — canonical Day-1 reading order; everything else is depth on demand.
 
-# Your first five documents
+# Five-document onboarding spine
 
-Read these in order when you are new to the ArchLucid codebase. They balance **system map**, **contracts**, **security**, and **how we test**.
+Contributor and operator cognitive load is intentionally capped: **five** checked-in documents define the default path. Read anything else (maps, ADRs, runbooks) **only when you have a specific reason** — each non-spine doc carries a top-of-file **Spine doc** pointer.
 
-**Before the table:** skim **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** (C4 + ownership) and **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** (operator route map) — they are the canonical entry surfaces for Prompt 12.
+| # | Spine document | Role | Time |
+|---|------------------|------|------|
+| 1 | **[INSTALL_ORDER.md](INSTALL_ORDER.md)** | What to install (toolchain, Docker, SQL, order of operations) | ~10 min |
+| 2 | **[FIRST_30_MINUTES.md](FIRST_30_MINUTES.md)** | First run (Docker-only path to a committed manifest + finding) | ~30 min |
+| 3 | **[CORE_PILOT.md](CORE_PILOT.md)** | First pilot (Core Pilot motion, review surfaces) | ~20 min |
+| 4 | **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** | What the system is (C4-style poster + ownership) | ~15 min |
+| 5 | **[PENDING_QUESTIONS.md](PENDING_QUESTIONS.md)** | What is open (owner decisions, gates, follow-ups) | ~10 min |
 
-| # | Document | What you will learn | Time |
-|---|----------|---------------------|------|
-| 1 | [START_HERE.md](START_HERE.md) | Contributor decision tree, layers, where to open first | ~10 min |
-| 2 | [SYSTEM_MAP.md](SYSTEM_MAP.md) | End-to-end flows (Mermaid), nodes and edges | ~15 min |
-| 3 | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) | Component responsibilities and boundaries | ~20 min |
-| 4 | [API_CONTRACTS.md](API_CONTRACTS.md) | Versioned HTTP surface, auth, scope, rate limits | ~15 min |
-| 5 | [CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md) | Build, test, PR workflow, local parity with CI | ~10 min |
+**Legacy redirect hub:** [START_HERE.md](START_HERE.md) (persona shortcuts — being migrated to this table).
 
-**After the first five:** use [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) and role paths in [START_HERE.md](START_HERE.md) (developer / SRE / security / pilot).
+**Historical “first five” reading list (superseded 2026-04-22):** [archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md](archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md) — old developer-centric table (SYSTEM_MAP, API_CONTRACTS, etc.).
+
+**Depth after the spine:** [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) · [CODE_MAP.md](CODE_MAP.md) · [PROJECT_MAP.md](PROJECT_MAP.md) · [SYSTEM_MAP.md](SYSTEM_MAP.md) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) · [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — use only when your task requires them.
 
 **Cursor prompt packs:** [CURSOR_PROMPTS_CANONICAL.md](CURSOR_PROMPTS_CANONICAL.md).
 
-**Alternate filename:** [FIRST_FIVE_DOCS.md](FIRST_FIVE_DOCS.md) (alias only — same content pointer).
+**Filename alias:** [FIRST_FIVE_DOCS.md](FIRST_FIVE_DOCS.md) — thin redirect; do not edit for spine content.

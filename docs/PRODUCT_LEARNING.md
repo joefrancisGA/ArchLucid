@@ -1,5 +1,8 @@
 > **Scope:** Product learning (pilot feedback) — operator & product owner guide (58R) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Product learning (pilot feedback) — operator & product owner guide (58R)
 
 **Audience:** Operators and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.

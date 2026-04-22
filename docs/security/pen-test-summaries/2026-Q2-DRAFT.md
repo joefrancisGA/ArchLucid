@@ -1,5 +1,8 @@
 > **Scope:** Penetration test — redacted summary (Q2 2026 draft placeholder) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Penetration test — redacted summary (Q2 2026 draft)
 
 **STATUS:** DRAFT — **do not** treat as a completed engagement. Replace every `<<...>>` token after the assessor (`<<VENDOR_LEGAL_NAME>>`) delivers a staging report and security leadership approves redaction.

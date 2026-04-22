@@ -1,5 +1,8 @@
 > **Scope:** Context ingestion pipeline - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Context ingestion pipeline
 
 `ArchLucid.ContextIngestion` turns heterogeneous inputs (description, inline requirements, pasted documents, policy references, topology/security hints, **structured infrastructure declarations**) into **`CanonicalObject`** instances, **enriches** topology/security metadata, **deduplicates** them, and stores a **`ContextSnapshot`** used by the knowledge graph and downstream authority chain.

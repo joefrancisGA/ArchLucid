@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid Pilot ROI Model - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid Pilot ROI Model
 
 **Audience:** executive sponsors, chief architects, architecture review leads, pilot operators, and sales engineers who need a credible way to judge whether an ArchLucid pilot created business value.

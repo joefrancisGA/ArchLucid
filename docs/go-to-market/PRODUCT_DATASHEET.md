@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Product Datasheet - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Product Datasheet
 
 <!-- Layout: designed for PDF export at US Letter or A4. Keep under 2 pages rendered. -->

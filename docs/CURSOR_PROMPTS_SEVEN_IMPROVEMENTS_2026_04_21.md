@@ -1,5 +1,8 @@
 > **Scope:** Internal execution log for maintainers — what shipped from a prompt batch versus owner-blocked items; not a customer-facing changelog.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Seven improvements — execution log (2026-04-21)
 
 This file records what was implemented from the seven-improvement prompt set versus what remains **owner-blocked**.

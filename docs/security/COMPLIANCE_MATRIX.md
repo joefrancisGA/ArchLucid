@@ -1,5 +1,8 @@
 > **Scope:** Map SOC 2 self-assessment themes to concrete repository evidence.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Compliance evidence matrix (SOC 2 alignment)
 
 This table links **control themes** from [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_SELF_ASSESSMENT_2026.md) to **verifiable artifacts** in-repo.

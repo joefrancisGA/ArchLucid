@@ -1,5 +1,8 @@
 > **Scope:** Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Step-by-Step Implementation Plan: CLI–API Architecture
 
 Repository-specific plan for **ArchLucid**: CLI calling the ArchLucid API. Includes order of work, files to create or modify, and tests to add.

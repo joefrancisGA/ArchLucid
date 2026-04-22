@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Customer onboarding playbook
 
 **Audience:** Customer success, sales engineering, and account management teams onboarding new SaaS customers.

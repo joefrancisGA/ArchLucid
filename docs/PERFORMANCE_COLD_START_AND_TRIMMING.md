@@ -1,5 +1,8 @@
 > **Scope:** Cold start, profiling, and trimming (API) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cold start, profiling, and trimming (API)
 
 **Objective:** Reduce first-request latency and deployment size where safe.

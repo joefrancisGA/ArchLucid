@@ -1,5 +1,8 @@
 > **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid Quality Assessment — 2026-04-21 — Weighted 68.60%
 
 **Audience:** Product leadership, sponsoring exec, engineering leads, GTM owners.

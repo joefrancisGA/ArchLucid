@@ -1,5 +1,8 @@
 > **Scope:** C# formatting (blank lines & layout) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # C# formatting (blank lines & layout)
 
 > **See also:** [`docs/CSHARP_HOUSE_STYLE.md`](CSHARP_HOUSE_STYLE.md) is the human-readable index of every always-on Cursor rule (guard clauses, pattern matching, switch expressions, collection expressions, primary constructors, etc.). This page covers only the **mechanical** side — what `dotnet format` and the small Roslyn fixers under `scripts/` actually do.

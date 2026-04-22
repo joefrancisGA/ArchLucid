@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts for top-6 quality improvements - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts for top-6 quality improvements
 
 Six standalone prompts, one per improvement from the archived assessment [`docs/archive/QUALITY_ASSESSMENT.md`](archive/QUALITY_ASSESSMENT.md) (stub: [`docs/QUALITY_ASSESSMENT.md`](QUALITY_ASSESSMENT.md)). Each is ready to paste into a Cursor Agent session.

@@ -1,5 +1,8 @@
 > **Scope:** API fuzz testing (Schemathesis) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # API fuzz testing (Schemathesis)
 
 This document describes **Schemathesis**-based property testing of the ArchLucid HTTP API against the **OpenAPI** document. It complements contract snapshots ([OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md)), PR CI, and the weekly **ZAP** baseline ([security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md)).

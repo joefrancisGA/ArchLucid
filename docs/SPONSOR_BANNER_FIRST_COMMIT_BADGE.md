@@ -1,5 +1,8 @@
 > **Scope:** Operators and sponsors interpreting the post-commit sponsor banner day badge; not general trial billing or unrelated UI components.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Sponsor banner — “Day N since first commit” badge
 
 ## Objective

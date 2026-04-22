@@ -1,5 +1,8 @@
 > **Scope:** Data Processing Agreement (DPA) — Template (ArchLucid) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Data Processing Agreement (DPA) — Template (ArchLucid)
 
 **Important — not legal advice:** This document is a **working template** for negotiation with customers. It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before execution.

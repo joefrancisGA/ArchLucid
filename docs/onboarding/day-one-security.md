@@ -1,5 +1,8 @@
 > **Scope:** Day one — Security / GRC (week one) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Day one — Security / GRC (week one)
 
 **Goal:** Map **trust boundaries**, **identity**, and **data-plane exposure** for **ArchLucid** in **your** Azure landing zone. **Not** a full pen test or every ADR.

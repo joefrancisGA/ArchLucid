@@ -1,5 +1,8 @@
 > **Scope:** Observability — metrics and tracing (ArchLucid) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Observability — metrics and tracing (ArchLucid)
 
 **Audience:** SRE, platform engineers, and developers wiring Prometheus/Grafana, Application Insights, or OTLP exporters.

@@ -1,5 +1,8 @@
 > **Scope:** Week-one onboarding (role-scoped) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Week-one onboarding (role-scoped)
 
 > **Install order moved.** See [../INSTALL_ORDER.md](../INSTALL_ORDER.md). Continue to **[../START_HERE.md](../START_HERE.md)** for persona routing, then return here for your role’s checklist.

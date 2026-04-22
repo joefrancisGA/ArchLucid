@@ -1,5 +1,8 @@
 > **Scope:** Git server administrators installing server-side secret scanning; not client-side hook alternatives or ArchLucid application runtime security.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Gitleaks — server-side pre-receive hook
 
 **Goal:** Block pushes that introduce secrets into the canonical Git server **before** objects become reachable from default branches.

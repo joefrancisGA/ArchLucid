@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Subprocessors
 
 **Audience:** Customers and prospects who need a **subprocessor list** for security questionnaires and DPAs.

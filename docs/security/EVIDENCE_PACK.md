@@ -1,5 +1,8 @@
 > **Scope:** Day-1 Evidence Pack - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Day-1 Evidence Pack
 
 > **Scope:** Defines a single auditor/admin-gated artefact (`/v1/support/evidence-pack.zip`) that bundles the documents a governance reviewer typically asks for in the first hour of a security or audit conversation. Includes a daily Merkle-root scheme over `dbo.AuditEvents` so the audit chain is tamper-evident even before the immutable-storage policy on the events table itself is invoked.

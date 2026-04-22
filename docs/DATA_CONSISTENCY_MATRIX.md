@@ -1,5 +1,8 @@
 > **Scope:** Data consistency matrix - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Data consistency matrix
 
 **Last reviewed:** 2026-04-17 (trial lifecycle hard purge: `SqlTenantHardPurgeService` deletes tenant-scoped `dbo` rows in bounded batches; `dbo.AuditEvents` retained; see `TenantHardPurgeServiceSqlIntegrationTests`; prior **2026-04-16** — run archival cascades include ArtifactBundles, AgentExecutionTraces, ComparisonRecords **ArchivedUtc** when migration **073** is applied; see `SqlRunRepositoryArchivalCascadeTests`, `SqlRunRepositoryArchivalExtendedCascadeTests`)

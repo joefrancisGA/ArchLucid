@@ -1,5 +1,8 @@
 > **Scope:** DI registration map (Host.Composition) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # DI registration map (Host.Composition)
 
 **Purpose:** One-page map from extension methods and partial `ServiceCollectionExtensions` files to the capabilities they register, including configuration gates and key sections.

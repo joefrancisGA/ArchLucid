@@ -1,5 +1,8 @@
 > **Scope:** SQL Index Inventory - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # SQL Index Inventory
 
 This document lists every nonclustered index added by migrations 059–060 and the query pattern each one covers. The master DDL at `ArchLucid.Persistence/Scripts/ArchLucid.sql` contains the canonical `IF NOT EXISTS` versions; the individual migration files are incremental and applied by DbUp.

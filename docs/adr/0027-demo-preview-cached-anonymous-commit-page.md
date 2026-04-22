@@ -1,5 +1,8 @@
 > **Scope:** ADR — cached anonymous marketing `GET /v1/demo/preview` and `/demo/preview`; not operator auth design or SQL migrations.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0027 — Cached anonymous marketing commit-page preview
 
 ## Status

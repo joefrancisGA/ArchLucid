@@ -1,4 +1,4 @@
-<!-- **Scope:** Repository overview, persona entrypoints, and pointers into `docs/`; canonical operator first-run is `docs/FIRST_30_MINUTES.md`. -->
+<!-- **Scope:** Repository overview, persona entrypoints, and pointers into `docs/`; Day-1 spine is `docs/FIRST_5_DOCS.md` (five documents). -->
 
 # ArchLucid
 
@@ -16,15 +16,15 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 **Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, **Docker-only evaluation:** **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** needs nothing but Docker.
 
-| You are a... | Start here |
+| You are a... | Start here (five-document spine) |
 |---|---|
 | **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
 | **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
-| **Operator running a real pilot** (curl, CLI, release smoke) | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) |
-| **Developer** about to commit code | [docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md) |
-| **SRE / Platform** owner | [docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md) |
-| **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md) |
-| **Executive sponsor / buyer** | [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md) |
+| **Operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
+| **Developer** about to commit code | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
+| **SRE / Platform** owner | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
+| **Security / GRC** reviewer | **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
+| **Executive sponsor / buyer** | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
 A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 

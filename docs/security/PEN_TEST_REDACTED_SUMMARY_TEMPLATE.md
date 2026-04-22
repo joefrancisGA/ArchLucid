@@ -1,5 +1,8 @@
 > **Scope:** Penetration test — redacted summary (customer template) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Penetration test — redacted summary (customer template)
 
 **Purpose:** Publishable **one-to-two page** summary after an internal full report exists. Remove internal hostnames, account emails, and stack traces.

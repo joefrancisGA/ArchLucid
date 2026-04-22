@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts — Azure Logic Apps (Standard) for ArchLucid - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — Azure Logic Apps (Standard) for ArchLucid
 
 **Index entry:** linked from [`CURSOR_PROMPTS_CANONICAL.md`](CURSOR_PROMPTS_CANONICAL.md). **Architecture decision:** [ADR 0019 — Logic Apps Standard edge orchestration](adr/0019-logic-apps-standard-edge-orchestration.md). **Terraform root:** [`infra/terraform-logicapps/`](../infra/terraform-logicapps/README.md). **Operator runbook:** [`LOGIC_APPS_STANDARD.md`](runbooks/LOGIC_APPS_STANDARD.md).

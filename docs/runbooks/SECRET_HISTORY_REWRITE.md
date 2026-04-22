@@ -1,5 +1,8 @@
 > **Scope:** Runbook — Rewriting git history to evict a leaked secret - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Runbook — Rewriting git history to evict a leaked secret
 
 > **Scope:** Documented procedure for evicting a previously-committed secret (API key, signing secret, connection string, OAuth token) from the **history** of `joefrancisGA/ArchLucid`. This is a **destructive, coordinated operation**: all clones must reset, all open PRs must rebase, and any in-flight CI run will fail mid-flight.

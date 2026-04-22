@@ -1,5 +1,8 @@
 > **Scope:** SQL scripts — reference & operations - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # SQL scripts — reference & operations
 
 This document is the **canonical guide** to every SQL artifact in ArchLucid: what each file does, how it is executed, how the pieces relate, and how to change schema safely.

@@ -1,5 +1,8 @@
 > **Scope:** Operator-configured **Microsoft Teams Incoming Webhook** delivery for selected integration events, with webhook material held in **Azure Key Vault** and only a **secret name reference** stored in ArchLucid SQL. Audience: tenant operators wiring a Teams channel + on-call engineers diagnosing fan-out. **Not** a two-way Teams app (no Bot Framework / M365 manifest in v1).
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Microsoft Teams notification connector
 
 ## Architecture

@@ -1,5 +1,8 @@
 > **Scope:** Background job correlation (Activity + Serilog) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Background job correlation (Activity + Serilog)
 
 ## 1. Objective

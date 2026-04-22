@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-15 (post-M1 + M2 + M3) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid Marketability Quality Assessment — 2026-04-15 (post-M1 + M2 + M3)
 
 **Overall Marketability Score: 58 / 100** | Weighted: **42.3%**

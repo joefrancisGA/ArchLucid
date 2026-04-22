@@ -1,5 +1,8 @@
 > **Scope:** Governance workflow UI (/governance) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Governance workflow UI (`/governance`)
 
 The **Governance workflow** page (`archlucid-ui/src/app/governance/page.tsx`) is an operator-facing surface for the **manifest promotion lifecycle**: approval requests, optional human review, recorded promotions, and per-environment activations. It complements the read-only **Governance resolution** page (`/governance-resolution`), which shows merged policy resolution for the current scope.

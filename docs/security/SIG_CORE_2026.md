@@ -1,5 +1,8 @@
 > **Scope:** Shared Assessments **SIG Core**-style control mapping (pre-fill). **Not** a completed SIG submission — use for RFP appendix drafts.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # SIG Core — ArchLucid (2026 pre-fill)
 
 **Source alignment:** Shared Assessments SIG **Core** control families. Obtain the current SIG Core workbook from [Shared Assessments](https://sharedassessments.org/) and copy authoritative control IDs into your vendor profile.

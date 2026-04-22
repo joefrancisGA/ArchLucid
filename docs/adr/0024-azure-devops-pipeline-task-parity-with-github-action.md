@@ -1,5 +1,8 @@
 > **Scope:** ADR — Azure DevOps pipeline YAML parity with GitHub Actions for manifest-delta PR surfaces.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0024 — Azure DevOps pipeline task parity with GitHub Action (manifest delta)
 
 **Status:** Accepted  

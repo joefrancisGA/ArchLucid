@@ -20,6 +20,16 @@ public sealed class RoiBulletinCommandOptions
         get; init;
     }
 
+    public bool Synthetic
+    {
+        get; init;
+    }
+
+    public bool Explain
+    {
+        get; init;
+    }
+
     public static RoiBulletinCommandOptions? Parse(string[] args, out string? error)
     {
         if (args is null) throw new ArgumentNullException(nameof(args));
@@ -27,6 +37,8 @@ public sealed class RoiBulletinCommandOptions
         string? quarter = null;
         int minTenants = DefaultMinTenants;
         string? outPath = null;
+        bool synthetic = false;
+        bool explain = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -34,6 +46,14 @@ public sealed class RoiBulletinCommandOptions
 
             switch (arg)
             {
+                case "--synthetic":
+                    synthetic = true;
+                    break;
+
+                case "--explain":
+                    explain = true;
+                    break;
+
                 case "--quarter":
                     if (!TryReadValue(args, ref i, arg, out string? q, out error)) return null;
                     quarter = q;
@@ -73,6 +93,8 @@ public sealed class RoiBulletinCommandOptions
             Quarter = quarter.Trim(),
             MinTenants = minTenants,
             OutPath = outPath,
+            Synthetic = synthetic,
+            Explain = explain,
         };
     }
 

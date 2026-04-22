@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts — canonical index (weighted improvements) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — canonical index (weighted improvements)
 
 Use this file as a **stable entry point** for paste-ready improvement prompts. Detailed assessment: **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Six Best Improvements*.

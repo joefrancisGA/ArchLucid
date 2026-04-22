@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Ideal Customer Profile (ICP) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Ideal Customer Profile (ICP)
 
 **Audience:** Sales, marketing, and product teams who need to qualify leads quickly and focus on high-probability opportunities.

@@ -1,5 +1,8 @@
 > **Scope:** C4 diagrams (PNG for exec / security) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # C4 diagrams (PNG for exec / security)
 
 **Purpose:** **Static PNGs** for audiences who will not open Mermaid in markdown. **Source files** (`.mmd`) are the canonical definitions; regenerate PNGs when the architecture changes.

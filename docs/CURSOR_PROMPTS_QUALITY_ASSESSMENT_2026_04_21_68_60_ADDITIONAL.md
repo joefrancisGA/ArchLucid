@@ -1,5 +1,8 @@
 > **Scope:** Eight **additional** paste-ready Cursor prompts for improvements called out in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §§1.9–1.18 and §2 — **beyond** the primary eight in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Each prompt is self-contained for a fresh agent session.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — eight follow-on improvements (68.60% assessment)
 
 **How to use.** One prompt per session. Paste the whole fenced block. Honor **Stop and ask** boundaries. Update [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) when a prompt surfaces a new owner-only decision.

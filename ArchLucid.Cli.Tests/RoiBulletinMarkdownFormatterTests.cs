@@ -30,4 +30,24 @@ public sealed class RoiBulletinMarkdownFormatterTests
         md.Should().Contain("Minimum-N gate");
         md.Should().Contain("DRAFT");
     }
+
+    [Fact]
+    public void FormatSynthetic_stamps_rows_and_forbids_changelog()
+    {
+        RoiBulletinPreviewPayload payload = new()
+        {
+            Quarter = "Q1-2026",
+            TenantCount = 5,
+            MeanBaselineHours = 22.4m,
+            MedianBaselineHours = 20m,
+            P90BaselineHours = 46m,
+        };
+
+        string md = RoiBulletinMarkdownFormatter.FormatSynthetic(payload, realPublicationMinTenants: 5);
+
+        md.Should().Contain(RoiBulletinMarkdownFormatter.SyntheticRowStamp);
+        md.Should().Contain("CHANGELOG");
+        md.Should().Contain("ROI bulletin signed");
+        md.Should().Contain("22.4");
+    }
 }

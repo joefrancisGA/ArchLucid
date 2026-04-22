@@ -1,8 +1,23 @@
 > **Scope:** ArchLucid changelog - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid changelog
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
+
+## 2026-04-22 — Five-document onboarding spine (README Day-1 + doc signposts + CI line budget)
+
+**Outcome.** Collapses default contributor/operator onboarding to **five** spine documents (`INSTALL_ORDER`, `FIRST_30_MINUTES`, `CORE_PILOT`, `ARCHITECTURE_ON_ONE_PAGE`, `PENDING_QUESTIONS`) catalogued in [`docs/FIRST_5_DOCS.md`](FIRST_5_DOCS.md). **README** persona table links **only** spine targets (sponsor narrative remains `docs/EXECUTIVE_SPONSOR_BRIEF.md` as plain path in-cell). **Non-spine** active `docs/**/*.md` files (excluding `docs/archive/`) gain a top-of-file `Spine doc` blockquote via `scripts/ci/backfill_doc_spine_signpost.py --apply` (`EXECUTIVE_SPONSOR_BRIEF.md` excluded — owner canonical narrative). **Alias:** [`docs/FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md) stub; historical table archived at [`docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md`](archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md). **CI:** `scripts/ci/check_onboarding_spine_line_budget.py` (**600** lines × five spine files). **`docs/START_HERE.md`** rewritten as spine-first redirect.
+
+---
+
+## 2026-04-22 — Synthetic aggregate ROI bulletin sample (marketing + CLI + CI guards)
+
+**Outcome.** Ships a **public** synthetic aggregate baseline bulletin so buyers can see artefact shape before **N ≥ 5** qualifying tenants exist, without using the real **CHANGELOG** sign-off heading (`## YYYY-MM-DD — ROI bulletin signed: …`). **Docs:** [`docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) (combined Scope + forbidden-publish first line), [`docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md) owner-gate table row. **CLI:** `archlucid roi-bulletin --quarter <Q-YYYY> --synthetic [--explain] [--out file.md]` (no API; constants on `SyntheticAggregateRoiBulletinSample`). **UI:** marketing route `/example-roi-bulletin` renders the checked-in Markdown and links same-origin to **`/api/proxy/v1/admin/roi-bulletin-preview?…&minTenants=5`** (real draft gate). **CI:** `scripts/ci/check_synthetic_roi_bulletin_sample.py`. **Docker:** copies the sample into `go-to-market-samples/` for SSR. **Core:** `SyntheticAggregateRoiBulletinSample`.
+
+---
 
 ## 2026-04-22 — PR A2: Authority run-commit persistence + unified reads; `LegacyRunCommitPath` default `false` (code + docs)
 

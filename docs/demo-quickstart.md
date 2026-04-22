@@ -1,5 +1,8 @@
 > **Scope:** Demo quickstart (Corrected 50R — Contoso Retail Modernization) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Demo quickstart (Corrected 50R — Contoso Retail Modernization)
 
 **Buyer / evaluator (Docker only):** see **[go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md)** — `docker-compose.demo.yml` + `scripts/demo-start.*`.

@@ -1,5 +1,8 @@
 > **Scope:** Terraform / Azure variables (reference sketch) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Terraform / Azure variables (reference sketch)
 
 **Purpose:** Map ArchLucid dependencies to IaC variables so environments stay reproducible. This is a **checklist**, not a full module.

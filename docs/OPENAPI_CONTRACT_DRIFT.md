@@ -1,5 +1,8 @@
 > **Scope:** OpenAPI contract drift (CI and local workflow) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # OpenAPI contract drift (CI and local workflow)
 
 ## 1. Objective

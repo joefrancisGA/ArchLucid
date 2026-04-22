@@ -1,5 +1,8 @@
 > **Scope:** Operator UI — shared components (archlucid-ui) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Operator UI — shared components (`archlucid-ui`)
 
 **Purpose:** Document reusable React components that are not covered in depth by **`archlucid-ui/docs/COMPONENT_REFERENCE.md`** (shadcn primitives) but are important for operator workflows.

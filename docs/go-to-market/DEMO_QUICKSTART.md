@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid demo quickstart (buyer-facing) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid demo quickstart (buyer-facing)
 
 **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally.

@@ -1,5 +1,8 @@
 > **Scope:** Accessibility — operator UI patterns (supplement) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Accessibility — operator UI patterns (supplement)
 
 **Purpose:** Operator-shell patterns that complement the repo-wide accessibility baseline in **[`ACCESSIBILITY.md`](../ACCESSIBILITY.md)** (WCAG 2.1 AA target, axe Playwright gates, eslint-plugin-jsx-a11y).

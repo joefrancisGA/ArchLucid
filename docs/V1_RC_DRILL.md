@@ -1,5 +1,8 @@
 > **Scope:** V1 release-candidate (RC) drill - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # V1 release-candidate (RC) drill
 
 **Audience:** Release owners, SRE, and pilot leads validating a **candidate build** or **fresh environment** before sign-off.

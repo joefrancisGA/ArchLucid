@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid Solution Correctness Quality Assessment — 2026-04-15 - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid Solution Correctness Quality Assessment — 2026-04-15
 
 **Assessor:** Automated deep-dive analysis of repository code, tests, CI/CD, docs, and infrastructure.
