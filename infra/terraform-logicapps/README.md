@@ -26,6 +26,10 @@ Set **`enable_incident_chatops_logic_app = true`** plus **`incident_chatops_stor
 
 Set **`enable_promotion_customer_notify_logic_app = true`** plus **`promotion_customer_notify_storage_account_name`**. Use **`promotion_customer_notify_logic_app_principal_id`** as **`promotion_customer_notify_logic_app_managed_identity_principal_id`** in Service Bus when **`enable_logic_app_promotion_prod_customer_subscription`** is true — [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md).
 
+## Microsoft Teams notifications host (optional)
+
+Set **`enable_teams_notifications_logic_app = true`** plus **`teams_notifications_storage_account_name`**. Use **`teams_notifications_logic_app_principal_id`** when granting Service Bus **`Data Receiver`** and Key Vault secret **Get** to the managed identity. Workflow design notes: [`workflows/teams-notifications/README.md`](workflows/teams-notifications/README.md) — pairs with **`GET/POST/DELETE /v1/integrations/teams/connections`** (Key Vault secret *name* only in SQL).
+
 ## Other documented workflows (Portal / export)
 
 - [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md) — scheduled trial email; pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the API scan is off.
@@ -33,7 +37,7 @@ Set **`enable_promotion_customer_notify_logic_app = true`** plus **`promotion_cu
 - [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md) — prod-only promotion fan-out.
 - [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md) — **`com.archlucid.billing.marketplace.webhook.received.v1`** after API success (sales / CRM / Teams).
 
-**Dedicated Terraform hosts (all optional, off by default):** **`edge`** (`enable_logic_apps`), **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify** — each has its own WS1 plan, file share, and system-assigned identity for Service Bus RBAC. You can still run multiple workflows on **`edge`** only if you prefer fewer billable plans.
+**Dedicated Terraform hosts (all optional, off by default):** **`edge`** (`enable_logic_apps`), **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify**, **Teams notifications** — each has its own WS1 plan, file share, and system-assigned identity for Service Bus RBAC. You can still run multiple workflows on **`edge`** only if you prefer fewer billable plans.
 
 ## When to enable
 
@@ -45,7 +49,7 @@ Set `enable_logic_apps = true` only after:
 
 ## Log Analytics diagnostics (optional)
 
-Set **`enable_logic_app_diagnostic_settings = true`** and **`logic_app_diagnostic_log_analytics_workspace_id`** to the **full resource ID** of a Log Analytics workspace (same subscription or cross-subscription ID strings are accepted by Azure RM). Terraform then creates **`azurerm_monitor_diagnostic_setting`** for **each** Logic App Standard site that is actually deployed (`edge`, governance, Marketplace fulfillment, trial lifecycle, incident ChatOps, promotion customer notify — whichever flags are true). Logs use the **`allLogs`** category group; metrics include **`AllMetrics`**. Workspace retention and export rules are **cost** and **compliance** levers owned by the platform team.
+Set **`enable_logic_app_diagnostic_settings = true`** and **`logic_app_diagnostic_log_analytics_workspace_id`** to the **full resource ID** of a Log Analytics workspace (same subscription or cross-subscription ID strings are accepted by Azure RM). Terraform then creates **`azurerm_monitor_diagnostic_setting`** for **each** Logic App Standard site that is actually deployed (`edge`, governance, Marketplace fulfillment, trial lifecycle, incident ChatOps, promotion customer notify, Teams notifications — whichever flags are true). Logs use the **`allLogs`** category group; metrics include **`AllMetrics`**. Workspace retention and export rules are **cost** and **compliance** levers owned by the platform team.
 
 ## Apply
 

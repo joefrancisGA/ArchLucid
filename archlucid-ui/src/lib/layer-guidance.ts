@@ -33,7 +33,8 @@ export type LayerGuidancePageKey =
   | "alerts"
   | "audit"
   | "value-report"
-  | "security-trust";
+  | "security-trust"
+  | "teams-notifications";
 
 export type LayerGuidanceBlock = {
   /** Short badge, e.g. "Advanced Analysis" */
@@ -97,6 +98,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Use when buyers need CAIQ/SIG pointers, pen-test publication status, and trust-center cross-links.",
     firstPilotNote: "Assessment badge lights when an admin records a SecurityAssessmentPublished audit via API.",
     enterpriseFootnote: "Read-oriented; publication is Admin API + audit trail.",
+  },
+  "teams-notifications": {
+    layerBadge: "Enterprise Controls",
+    headline: "Microsoft Teams channel wiring for integration-event fan-out.",
+    useWhen: "After Service Bus topics are live and operators want run / governance / alert cards in Teams.",
+    firstPilotNote: "Store only a Key Vault secret name here — the webhook URL stays in Key Vault.",
+    enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
   },
   "value-report": {
     layerBadge: "Enterprise Controls",

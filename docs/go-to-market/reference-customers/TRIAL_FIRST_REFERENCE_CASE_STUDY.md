@@ -1,5 +1,23 @@
 > **Scope:** First paying tenant (PLG) — ArchLucid reference case study template - full detail, tables, and links in the sections below.
 
+## Owner substitution checklist — fill before customer review
+
+| Placeholder | Real value needed | Typical source |
+|-------------|-------------------|----------------|
+| `<<CUSTOMER_NAME>>` | Legal customer name for external publication | Order form / MSA / billing entity |
+| `<<TIER>>` | Commercial tier at conversion | Subscription record + [`PRICING_PHILOSOPHY.md` § 5.2](../PRICING_PHILOSOPHY.md#52-locked-price-table-do-not-edit-without-re-rate-gate-decision) |
+| `<<TRIAL_START_DATE>>`, `<<CONVERSION_DATE>>`, `<<LAST_REVIEW_DATE>>` | UTC dates | CRM + Stripe/Marketplace subscription events |
+| `<<INDUSTRY>>`, `<<TEAM_SIZE>>`, `<<CLOUD_POSTURE>>`, `<<ACQUISITION_CHANNEL>>` | Firmographics | Champion interview |
+| `<<CHALLENGE_NARRATIVE>>`, `<<SOLUTION_NARRATIVE>>` | Approved prose | Internal interview notes (NDA) |
+| `<<MINUTES_OR_HOURS>>`, `<<INTEGRATIONS>>` | Time-to-first-commit + wired connectors | Audit export + integration catalog |
+| `<<BEFORE_TTFV>>`, `<<AFTER_TTFV>>`, `<<TTFV_SOURCE>>` | TTFV table | `pilot-run-deltas.json` + sponsor sign-off |
+| `<<BEFORE_HOURS>>`, `<<AFTER_HOURS>>`, `<<HOURS_SOURCE>>` | Review-cycle hours | Tenant baseline (`GET /v1/tenant/trial-status`) + measured deltas |
+| `<<CHAMPION_QUOTE>>`, `<<CHAMPION_NAME>>`, `<<CHAMPION_TITLE>>` | Quote pack | Written approval (email or Docusign) |
+| `<<LOGO_RIGHTS>>`, `<<LOGO_LIMIT>>`, `<<REFERENCE_CALL_LIMIT>>` | Reference program terms | Legal / partnership |
+| `<<REVIEW_DATE_1>>`, `<<REVIEWER_1>>`, `<<ACTION_1>>` | Internal review trail | GTM + customer success notes |
+
+**Evidence pack:** use [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) with measured lines filled from committed `pilot-run-deltas` JSON — start from the **demo tenant** sample under [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) only as a **format scaffold** (every published cell must be replaced with customer-backed values; banner: **demo tenant — replace before publishing**).
+
 # `<<CUSTOMER_NAME>>` — First self-serve paying tenant (PLG reference)
 
 > **STATUS: PLACEHOLDER — PLG path.** This file supports the **ship trial first** motion: when the **first** tenant converts from self-serve trial to a **paid** subscription, populate this case study and move the matching row in [`README.md`](README.md) from **Placeholder** toward **Drafting**, then through **Customer review** to **Published** once the customer approves external use. Until then, every `<<...>>` token stays literal in git.

@@ -217,27 +217,22 @@ public sealed class GovernanceController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-
         if (body.ApprovalRequestIds.Count == 0)
             return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
-
         if (body.ApprovalRequestIds.Count > 50)
             return this.BadRequestProblem("At most 50 approval request ids are allowed per request.", ProblemTypes.ValidationFailed);
-
 
         string decision = (body.Decision).Trim();
 
         if (decision.Length == 0)
             return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
 
-
         bool approve = string.Equals(decision, "approve", StringComparison.OrdinalIgnoreCase);
         bool reject = string.Equals(decision, "reject", StringComparison.OrdinalIgnoreCase);
 
         if (!approve && !reject)
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
-
 
         string reviewedBy = string.IsNullOrWhiteSpace(body.ReviewedBy)
             ? actorContext.GetActor()

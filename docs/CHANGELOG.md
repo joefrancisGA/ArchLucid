@@ -4,6 +4,14 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-22 — PLG reference publication scaffolding (Prompt 1) + Microsoft Teams connector (Prompt 7) from `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`
+
+**Reference customer (PLG):** Owner substitution checklist table at the top of **`docs/go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md`**; committed demo sample **`docs/go-to-market/reference-customers/samples/pilot-run-deltas.demo-tenant.json`**; one-page scaffold pointer **`docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_DEMO_SCAFFOLD.md`**. **Row state convention:** **Drafting → Customer review** is normal assistant/CS prep work; **Customer review → Published** is **owner-only** (same discipline as `README.md` table + `check_reference_customer_status.py` merge-blocking flip when Published).
+
+**Teams:** Migration **`105_TenantTeamsIncomingWebhookConnections`** + master DDL; **`GET/POST/DELETE /v1/integrations/teams/connections`** (`KeyVaultSecretName` only — rejects raw URLs); operator UI **`/integrations/teams`**; Terraform **`enable_teams_notifications_logic_app`** host + **`infra/terraform-logicapps/workflows/teams-notifications/README.md`**; **`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`** + integration catalog row; **`PENDING_QUESTIONS.md`** item **32** (extra event types) and item **23** cross-link.
+
+---
+
 ## 2026-04-21 — Marketplace + Stripe live readiness (Prompt 4 from `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`)
 
 **Pricing / Marketplace docs:** Canonical **Team / Professional / Enterprise** naming in [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md); new **§3.1** in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md). **CI:** `scripts/ci/assert_marketplace_pricing_alignment.py` + `scripts/ci/tests/test_assert_marketplace_pricing_alignment.py` (workflow step in `ci.yml`). **Production startup:** `BillingProductionSafetyRules` in `ArchLucid.Host.Core` — `sk_live_` requires webhook signing secret; Azure Marketplace provider requires non-loopback `LandingPageUrl`; `GaEnabled=true` requires `MarketplaceOfferId` (`Billing:AzureMarketplace:*`). **CLI:** `archlucid marketplace preflight [--repo <dir>]` + tests. **Docs:** expanded [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) staging Stripe TEST flow (Stripe CLI + curl), [`BILLING.md`](BILLING.md) safety bullets, [`CLI_USAGE.md`](CLI_USAGE.md), **`PENDING_QUESTIONS.md`** items **8**, **9**, **22** “Needed from owner” lists.

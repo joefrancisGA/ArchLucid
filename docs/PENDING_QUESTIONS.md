@@ -119,7 +119,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
     - **Needed from owner:** (a) **Single cutover vs staged** — same maintenance window for Marketplace “Go live” + Stripe live keys, or Stripe first / Marketplace first (with rollback owners named per path); (b) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (c) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until (a) is executed (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (d) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day before either flip.
 
-23. **Microsoft Teams connector scope** — notification-only first, or two-way (approve a governance request from Teams)? Two-way requires a registered Teams app manifest in M365 admin. (Improvement 6 / Prompt 6.)
+23. **Microsoft Teams connector scope** — notification-only first, or two-way (approve a governance request from Teams)? Two-way requires a registered Teams app manifest in M365 admin. (Improvement 6 / Prompt 6.) **Trigger expansion:** see item **32** once notification-only is live.
 
 24. **ADR 0021 strangler completion target date** — Prompt 7 lands the regression CI guard and the `migrate / keep / delete` inventory but stops at naming the **completion** date. Owner names the date; ADR 0028 is drafted from that date. (Improvement 7 / Prompt 7.)
 
@@ -139,6 +139,8 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
     - **Needed from owner:** (a) sign-off on the shipped copy in [`docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md`](go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md) (or delegate edits to legal/comms); (b) confirm the **GitHub main link** from the signup form to that note is the correct public surface vs hosting the same text on `archlucid.com`; (c) whether marketing wants **any** additional in-form disclaimer beyond the inline note + tooltip.
 
 31. **Public `/why` comparison delivery** — Should the competitive differentiation ship as **PDF download only** (current `GET /v1/marketing/why-archlucid-pack.pdf` path), **inline page section only**, or **both** with synchronized copy?
+
+32. **Microsoft Teams notification triggers beyond v1 defaults** — Repo ships Logic Apps + API wiring for **`com.archlucid.authority.run.completed`**, **`com.archlucid.governance.approval.submitted`**, and **`com.archlucid.alert.fired`** (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Which **additional** `eventType` values (e.g. `com.archlucid.advisory.scan.completed`, compliance drift escalations) should the first production workflow subscribe to?
 
 33. **Golden-cohort baseline SHA lock timing** — Lock committed-manifest SHA-256 values in `tests/golden-cohort/cohort.json` from a **single approved Simulator run today** (`archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true` for that shell only), **or** wait for product review to approve the cohort scenario list before locking? Either path is valid; the CLI `--write` gate exists so SHAs are not rewritten without an explicit owner ack.
 

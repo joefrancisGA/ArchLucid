@@ -19,7 +19,7 @@ public sealed class FindingEvidenceChainServiceTests
     [Fact]
     public async Task BuildAsync_WhenRunIdNotGuid_ReturnsNull()
     {
-        FindingEvidenceChainService sut = CreateSut(out _, out _, out _);
+        FindingEvidenceChainService sut = CreateSut(out _, out _);
 
         FindingEvidenceChainResponse? chain = await sut.BuildAsync("not-a-run-id", "f1");
 
@@ -29,7 +29,7 @@ public sealed class FindingEvidenceChainServiceTests
     [Fact]
     public async Task BuildAsync_WhenAuthorityDetailMissing_ReturnsNull()
     {
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _, out _);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
@@ -43,7 +43,7 @@ public sealed class FindingEvidenceChainServiceTests
     {
         Guid runGuid = Guid.Parse("22222222-2222-2222-2222-222222222222");
         RunDetailDto dto = MinimalDetail(runGuid, findings: [NewFinding("other-id")]);
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _, out _);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
@@ -64,7 +64,7 @@ public sealed class FindingEvidenceChainServiceTests
         dto.Run.DecisionTraceId = Guid.Parse("77777777-7777-7777-7777-777777777777");
         dto.Run.GoldenManifestId = Guid.Parse("88888888-8888-8888-8888-888888888888");
 
-        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _, out Mock<IAgentExecutionTraceRepository> traces);
+        FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out Mock<IAgentExecutionTraceRepository> traces);
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
@@ -93,9 +93,9 @@ public sealed class FindingEvidenceChainServiceTests
 
     private static FindingEvidenceChainService CreateSut(
         out Mock<IAuthorityQueryService> authority,
-        out Mock<IScopeContextProvider> scope,
         out Mock<IAgentExecutionTraceRepository> traces)
     {
+        Mock<IScopeContextProvider> scope;
         authority = new Mock<IAuthorityQueryService>();
         scope = new Mock<IScopeContextProvider>();
         traces = new Mock<IAgentExecutionTraceRepository>();

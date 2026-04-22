@@ -20,7 +20,7 @@
 
 ## Measured deltas (from `pilot-run-deltas.json`)
 
-> Fill from the CLI export. Property names refer to **camelCase** JSON from `GET /v1/pilots/runs/{runId}/pilot-run-deltas`.
+> Fill from the CLI export. Property names refer to **camelCase** JSON from `GET /v1/pilots/runs/{runId}/pilot-run-deltas`. **Internal format-only sample:** [`samples/pilot-run-deltas.demo-tenant.json`](samples/pilot-run-deltas.demo-tenant.json) (must remain **demo tenant — replace before publishing** until a customer export replaces it).
 
 | Metric | Value | JSON field |
 |--------|------:|------------|

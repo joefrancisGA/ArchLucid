@@ -136,12 +136,10 @@ public sealed class ValueReportController(
             return this.NotFoundProblem("Value report job was not found.", ProblemTypes.ResourceNotFound);
 
         if (r is { Completed: true, DocxBytes: not null })
-        {
             return File(
                 r.DocxBytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 r.FileName ?? "ArchLucid-value-report.docx");
-        }
 
         if (r.ErrorMessage is not null)
             return this.InternalServerErrorProblem(r.ErrorMessage, ProblemTypes.InternalError);

@@ -440,6 +440,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ReadAuthority",
       },
       {
+        href: "/integrations/teams",
+        label: "Teams notifications",
+        title: "Teams notifications — Key Vault reference for incoming webhook fan-out",
+        icon: MessageSquare,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
         href: "/value-report",
         label: "Value report",
         title: "Value report — sponsor DOCX from ROI_MODEL-aligned tenant metrics",

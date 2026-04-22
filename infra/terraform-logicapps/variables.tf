@@ -196,6 +196,36 @@ variable "promotion_customer_notify_logic_app_name" {
   default     = "archlucid-logic-promotion-customer-notify"
 }
 
+variable "enable_teams_notifications_logic_app" {
+  type        = bool
+  description = "When true, deploy a dedicated Logic App (Standard) host for Microsoft Teams adaptive-card fan-out (Service Bus → Incoming Webhook)."
+  default     = false
+}
+
+variable "teams_notifications_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the Teams notifications Logic App file share (required when enable_teams_notifications_logic_app is true)."
+  default     = ""
+}
+
+variable "teams_notifications_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for Teams notifications workflow runtime files."
+  default     = "teams-notifications-workflow-content"
+}
+
+variable "teams_notifications_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the Teams notifications Logic App (WS1)."
+  default     = "asp-archlucid-logic-teams-notifications"
+}
+
+variable "teams_notifications_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for Teams notification workflows."
+  default     = "archlucid-logic-teams-notifications"
+}
+
 variable "enable_logic_app_diagnostic_settings" {
   type        = bool
   description = "When true and logic_app_diagnostic_log_analytics_workspace_id is set, create azurerm_monitor_diagnostic_setting for each deployed Logic App Standard site (platform + workflow logs via category group allLogs)."

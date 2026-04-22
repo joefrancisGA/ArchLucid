@@ -15,5 +15,7 @@ public static class ApiV1Routes
 
     public const string TenantExecDigestPreferences = "v1/tenant/exec-digest-preferences";
 
+    public const string TeamsIncomingWebhookConnections = "v1/integrations/teams/connections";
+
     public const string Evolution = "v1/evolution";
 }

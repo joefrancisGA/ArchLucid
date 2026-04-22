@@ -76,6 +76,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IRoiBulletinAggregateReader, InMemoryRoiBulletinAggregateReader>();
         services.AddSingleton<IReferenceEvidenceRunLookup, InMemoryReferenceEvidenceRunLookup>();
         services.AddSingleton<ITenantNotificationChannelPreferencesRepository, InMemoryTenantNotificationChannelPreferencesRepository>();
+        services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddSingleton<ITenantExecDigestPreferencesRepository, InMemoryTenantExecDigestPreferencesRepository>();
         services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();

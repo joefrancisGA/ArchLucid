@@ -3316,6 +3316,24 @@ BEGIN
 END;
 GO
 
+/* 105: Teams incoming-webhook Key Vault reference per tenant (see Migrations/105_TenantTeamsIncomingWebhookConnections.sql). */
+IF OBJECT_ID(N'dbo.TenantTeamsIncomingWebhookConnections', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantTeamsIncomingWebhookConnections
+    (
+        TenantId              UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantTeamsIncomingWebhookConnections2 PRIMARY KEY,
+        KeyVaultSecretName    NVARCHAR(500)    NOT NULL,
+        Label                 NVARCHAR(200)    NULL,
+        UpdatedUtc            DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantTeamsIncomingWebhookConnections_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_TenantTeamsIncomingWebhookConnections_NoUrl2
+            CHECK (KeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT FK_TenantTeamsIncomingWebhookConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+GO
+
 /* 083: Tenant health scores + product feedback (see Migrations/083_TenantHealthScores_ProductFeedback.sql). */
 IF OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NULL
 BEGIN
