@@ -808,10 +808,23 @@
         "type": "object"
       },
       "AgentTaskStatus": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Created",
+          "InProgress",
+          "Completed",
+          "Rejected",
+          "Failed"
+        ]
       },
       "AgentType": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Topology",
+          "Cost",
+          "Compliance",
+          "Critic"
+        ]
       },
       "AlertActionRequest": {
         "properties": {
@@ -1730,7 +1743,15 @@
         "type": "object"
       },
       "ArchitectureRunStatus": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Created",
+          "TasksGenerated",
+          "WaitingForResults",
+          "ReadyForCommit",
+          "Committed",
+          "Failed"
+        ]
       },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
@@ -2444,7 +2465,10 @@
         "type": "object"
       },
       "CloudProvider": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Azure"
+        ]
       },
       "CommitRunResponse": {
         "properties": {
@@ -3402,7 +3426,15 @@
         "type": "object"
       },
       "DatastoreType": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Unknown",
+          "Sql",
+          "NoSql",
+          "Object",
+          "Cache",
+          "Search"
+        ]
       },
       "DecisionDelta": {
         "properties": {
@@ -8827,7 +8859,15 @@
         "type": "object"
       },
       "RelationshipType": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Calls",
+          "ReadsFrom",
+          "WritesTo",
+          "PublishesTo",
+          "SubscribesTo",
+          "AuthenticatesWith"
+        ]
       },
       "ReplayComparisonMetadataResponse": {
         "properties": {
@@ -10229,7 +10269,21 @@
         "type": "object"
       },
       "RuntimePlatform": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Unknown",
+          "AppService",
+          "Functions",
+          "Aks",
+          "Vm",
+          "ContainerApps",
+          "SqlServer",
+          "AzureAiSearch",
+          "AzureOpenAi",
+          "Redis",
+          "BlobStorage",
+          "KeyVault"
+        ]
       },
       "ScopeContext": {
         "properties": {
@@ -10330,7 +10384,17 @@
         "type": "object"
       },
       "ServiceType": {
-        "type": "integer"
+        "type": "string",
+        "enum": [
+          "Unknown",
+          "Api",
+          "Worker",
+          "Ui",
+          "Integration",
+          "DataService",
+          "SearchService",
+          "AiService"
+        ]
       },
       "SimulatedAlertOutcome": {
         "properties": {

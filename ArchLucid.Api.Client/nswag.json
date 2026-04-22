@@ -28,7 +28,9 @@
       "exposeJsonSerializerSettings": false,
       "clientClassAccessModifier": "public",
       "generateContractsOutput": false,
-      "newLineBehavior": "Auto"
+      "newLineBehavior": "Auto",
+      "generateNullableReferenceTypes": true,
+      "generateOptionalPropertiesAsNullable": true
     }
   }
 }

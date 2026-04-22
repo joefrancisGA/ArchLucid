@@ -11,7 +11,7 @@ Run the scheduled Simmy chaos suite under controlled conditions, capture outcome
 
 ## Pre-flight checklist
 
-- [ ] Confirm target **environment** is **staging** (default) unless item 16+ owner approval exists for production fault injection (`docs/PENDING_QUESTIONS.md`).
+- [ ] Confirm target **environment** is **staging** (default). Production fault injection stays **out of scope** for scheduled automation unless item **34** owner approval exists (`docs/PENDING_QUESTIONS.md`).
 - [ ] Verify circuit breaker dashboards and alert routes are healthy.
 - [ ] Confirm **dry-run** mode when only validating workflow wiring (no `dotnet test` execution).
 - [ ] Notify on-call (calendar + Slack) with **start / end window** and rollback owner.
@@ -51,5 +51,8 @@ Run the scheduled Simmy chaos suite under controlled conditions, capture outcome
 Use **Actions → Simmy chaos (scheduled) → Run workflow** with inputs:
 
 - `scenario_id` — free-text label recorded in the job summary.
-- `environment` — `staging` (default) or `production` (owner-gated).
+- `environment` — **`staging` only** (single choice). Production fault injection remains **owner-gated** ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **34**); the workflow also rejects a non-empty optional `production` dispatch string.
+- `production` — must stay **empty**; any value fails the run immediately (symmetry with historical docs — do not use for real production chaos without owner process).
 - `dry_run` — `true` to skip `dotnet test` (smoke the job only).
+
+**Calendar + closing reports:** [`docs/quality/game-day-log/README.md`](../quality/game-day-log/README.md).

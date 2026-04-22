@@ -2,11 +2,99 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-22 (owner Q&A on items **35a–c** + **35f** — 35a+35b+35c+35f resolved; 35c = global config + `legacy:false` pre-release default; 35f = (i) graph `Properties` metadata for typed services — see *Resolved 2026-04-22 (35c + 35f — ADR 0030)* table below; supersedes the prior `Last updated` entry).
-Prior last line: 2026-04-22 (35a+35b only) — *Resolved 2026-04-22 (ADR 0030 owner sub-decisions — 35a + 35b)*.
+**Last updated:** 2026-04-22 (assessment owner Q&A — 16 decisions — *Resolved 2026-04-22 (assessment owner Q&A — 16 decisions)* table below; covers items **6**, **9**, **10**, **12**, **14**, **15 / 25**, **20**, **22**, **26**, **28**, **34**, **35d**, **35e**, plus four free-text answers on items **8**, **9**).
+Prior: 2026-04-22 (owner Q&A on items **35a–c** + **35f**) — *Resolved 2026-04-22 (35c + 35f — ADR 0030)* + *Resolved 2026-04-22 (ADR 0030 owner sub-decisions — 35a + 35b)*.
 Prior: 2026-04-21 (interactive owner Q&A session + same-day 5-decision follow-up + bundled DDL change set + Phase 3 PR A re-scope finding — see *Resolved 2026-04-21 (owner Q&A — 19 decisions)*, *Resolved 2026-04-21 (follow-up Q&A — 5 decisions)*, *Resolved 2026-04-21 (bundled DDL change set — Teams + RLS)*, and *Resolved 2026-04-21 (Phase 3 PR A re-scoped — ADR 0030)* tables below).
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-04-22 (assessment owner Q&A — 16 decisions)
+
+These decisions came out of a structured owner Q&A session driven by the latest independent quality assessment. They are recorded here as the single source of truth; downstream files (Trust Center, ORDER_FORM_TEMPLATE, ACCESSIBILITY, TEAMS, ADR 0030, the SOC 2 row, etc.) will be updated against this table in the implementation PRs that follow. **No production code touched in this entry** — this is a decision snapshot.
+
+### Marketplace + Stripe commerce un-hold (item 22 / 8 / 9)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **22 — cutover shape** | **Single-window cutover** — same maintenance window for Azure Marketplace "Go live" + Stripe live keys. | Item 22 sub-bullet (a) closed; sub-bullet (b) calendar still owner-only inside the Q2 2026 quarter; (c) staging stays on Stripe TEST; (d) preflight runner named in implementation PR. |
+| **22 — calendar quarter** | **Q2 2026** un-hold target. Specific month/day still owner-only and to be picked closer to the date. | Item 22 sub-bullet (b) narrowed; ADR 0029 / ADR 0030 / strangler PR sequencing now have a hard external deadline (PR A2 + PR A3 must merge well before the first paying customer). |
+| **9a — Stripe statement descriptor** | **`ARCHLUCID PLATFORM`** (18 chars, fits the 22-char Stripe limit). Configured as the **prefix** in Stripe Dashboard → Settings → Public details. | Item 9 sub-bullet (a) closed; runbook entry to be added in the implementation PR. |
+| **9b — chargeback / refund / dunning policy text** | **Assistant scaffolds a draft** for the order-form template + Trust Center, clearly marked **"pending legal sign-off"**. Owner / legal sign before commerce un-hold. | Item 9 sub-bullet (b) drafting authorized; legal sign-off remains owner-only and is the gate to publication. |
+| **9d / 8 — Microsoft Partner Center publisher identity** | **Publisher display name: `ArchLucid`.** **MPN ID** and **Marketplace Offer ID slug** are owner-to-provide-later (not yet established). | Item 8 sub-bullets (a) partial; (b) and (c) explicitly deferred (assistant cannot create Microsoft IDs). Footnote: if a separate legal entity (e.g., `ArchLucid Inc.`) is incorporated later, the Partner Center tax + payout profile takes the legal name; the listing card display name stays `ArchLucid`. |
+| **9d — Stripe webhook secret rotation** | **Owner self / quarterly + on-incident.** Documented in the commerce runbook as the default cadence; on-incident rotation triggered by any failed webhook delivery sequence after deploy or any suspected secret leak. | Item 9 sub-bullet (d) closed for runbook drafting purposes; Key Vault binding still owner-only at commerce un-hold time. |
+
+### Accessibility (items 12 / 26)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **12 — WCAG 2.2 AA publication channel** | **Public `/accessibility` page** on the marketing site (in addition to the Trust Center / `ACCESSIBILITY.md`). | Item 12 main sub-bullet closed; new marketing page work added to the next-improvements queue. |
+| **12 — accessibility mailbox** | **New alias `accessibility@archlucid.com`**, routing to the **same custodian as `security@archlucid.com`**. | Item 12 mailbox sub-bullet closed; alias provisioning is the same operational task as `security@`. |
+| **26 — VPAT publication** | **Self-attestation only** for v1 (formal VPAT deferred). | Item 26 closed for v1; revisit only if an enterprise procurement requires a formal VPAT. |
+| **26 — self-attestation cadence** | **Annually** — `/accessibility` page carries `Last reviewed: <date>` updated once per year. | Calendar reminder belongs in the same place as the quality-assessment cadence reminder. |
+
+### Public price list (item 13)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **13 — public price list** | **Publish on the marketing site simultaneously with Marketplace go-live.** | Item 13 closed; the public price list publication PR sequences with the commerce un-hold PR (single window). |
+
+### Customer-supplied baseline (item 28)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **28 — soft-required baselineReviewCycleHours at signup** | **Deferred** — owner not ready to sign off on the UX change yet. | Item 28 stays open; no implementation work scheduled. |
+
+### Production chaos / Simmy game day (item 34)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **34 — production Simmy / fault-injection** | **Production never** for v1 (and beyond unless explicitly re-opened). The fail-fast guard on `simmy-chaos-scheduled.yml` stays in force; staging-only chaos is the standing posture. | Item 34 closed as **"production never"**. The runbook can drop its "owner approval gate before any future widening" wording and replace it with "production chaos out-of-scope per owner decision 2026-04-22; reopen requires explicit ADR." |
+
+### PGP key (items 10 / 21)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **10 / 21 — PGP key custodian** | **Owner self.** | Items 10 / 21 custodian sub-bullets closed; key generation is on the owner. |
+| **10 / 21 — PGP scaffold timing** | **Scaffold the recipe now.** Assistant adds `docs/security/PGP_KEY_GENERATION_RECIPE.md` (gpg recipe, key parameters Ed25519 / RSA 4096, file-drop location `archlucid-ui/public/.well-known/pgp-key.txt`, fingerprint publication checklist) in the next implementation PR. Owner generates and drops the public key when ready; the existing CI guard turns green automatically. | Items 10 / 21 scaffold sub-bullets closed. |
+
+### Reference customer (item 19)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **19 — first PLG row owner** | **Owner solo.** Owner watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. | Item 19 closed. |
+
+### Pen-test publication (item 20)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **20 — Aeronova pen-test summary publication** | **NDA-gated only** for v1. Public Trust Center carries the existence of the engagement and the high-level posture ("most recent assessment completed YYYY-MM-DD; redacted summary available under NDA"); the redacted summary itself is not on the public site. | Item 20 closed for publication-channel; vendor scheduling still owner-only. |
+
+### SOC 2 ARR threshold (item 6)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **6 — SOC 2 revisit-trigger ARR** | **$1M ARR** band (directional, not contractual). Trust Center wording: *"We will pursue SOC 2 Type 1 readiness once we cross approximately $1M in ARR; until then, we publish a self-attested security and compliance summary."* | Item 6 sub-question closed. |
+
+### Cross-tenant pattern library (item 14)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **14 — implementing ADR ownership** | **Assistant drafts in full** (`adr/0031-cross-tenant-pattern-library.md`); owner reviews and signs. | Item 14 closed for drafting authorization; sign-off remains owner-only. |
+
+### Golden-cohort real-LLM (items 15 / 25)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **15 / 25 — monthly Azure OpenAI token budget for the dedicated golden-cohort deployment** | **Up to $50 / month** ceiling. Sized for **20 rows × 1 nightly run × small prompt**, with effectively zero headroom for re-runs or parameter sweeps. Implementation must add a **kill-switch** when month-to-date spend approaches the cap. | Items 15 / 25 closed at the budget level; deployment provisioning + key injection still owner-only at production-environment time. |
+
+### ADR 0030 sub-decisions (items 35d / 35e)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **35d — `dbo.GoldenManifestVersions` drop policy (PR A4)** | **(i) hard drop** — no historical Coordinator-shape rows preserved. Pre-release acceptable per the same waiver as ADR 0029 gates (i)/(iv); the Q2 2026 commerce calendar puts the legacy table out of reach of any paying customer. | ADR 0030 § PR A4 row updates from "(ii) archive default" to "(i) hard drop" per owner decision 2026-04-22. |
+| **35e — Phase 3 PR B placeholder tracker shape** | **Both** — standalone `docs/architecture/PHASE_3_PR_B_TODO.md` **and** inline checklist on ADR 0029 § Lifecycle. The standalone tracker is the working surface for PR B execution; the ADR 0029 checklist is the authoritative cross-reference for the 2026-05-15 deadline. | ADR 0030 + ADR 0029 + new tracker file land together in the next implementation PR. |
 
 ---
 
@@ -245,7 +333,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 33. **Golden-cohort baseline SHA lock timing** — **Resolved 2026-04-21: lock today** from a single approved Simulator run. Operator runs `archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true`. The nightly workflow flips from "contract test only" to manifest drift report once `tests/golden-cohort/cohort.json` carries non-zero SHAs. Real-LLM cohort run (item 15 / 25) **stays gated on owner budget**.
 
-34. **Production Simmy / fault-injection game day** — The `simmy-chaos-scheduled.yml` workflow exposes a **`production`** `environment` input for documentation symmetry only. **Default remains staging-only execution.** Owner must approve any real production chaos (customer notification, SLO ownership, blast radius, rollback). See [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](runbooks/GAME_DAY_CHAOS_QUARTERLY.md).
+34. **Production Simmy / fault-injection game day** — The `simmy-chaos-scheduled.yml` workflow is **staging-only** for `environment` and rejects a non-empty optional workflow_dispatch **`production`** string (fail-fast guard). **Default remains staging-only execution.** Owner must approve any real production chaos (customer notification, SLO ownership, blast radius, rollback) before any future widening of that gate. See [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](runbooks/GAME_DAY_CHAOS_QUARTERLY.md) and the calendar in [`docs/quality/game-day-log/README.md`](quality/game-day-log/README.md).
 
 35. **Coordinator → Authority pipeline unification — sequenced multi-PR plan ([ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md))** — Phase 3 PR A's grounding read (2026-04-21) found three structural mismatches that block a single-session deletion. The ADR splits the work into PRs **A0 → A4**; the items below are the **per-sub-PR owner decisions** that have to land before the corresponding sub-PR can merge. Each is **owner-only** — the assistant cannot answer them from repository state.
 

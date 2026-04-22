@@ -126,7 +126,7 @@ internal static class CliCommandShared
         string apiBaseUrl,
         string runId,
         string requestId,
-        int status,
+        ArchitectureRunStatus status,
         DateTime createdUtc,
         IReadOnlyList<ArchLucidApiClient.AgentTaskInfo> tasks,
         string? manifestVersion)
@@ -135,11 +135,11 @@ internal static class CliCommandShared
         {
             runId,
             requestId,
-            status,
+            status = (int)status,
             createdUtc = createdUtc.ToString("O"),
             manifestVersion,
             apiBaseUrl,
-            tasks = tasks.Select(t => new { t.TaskId, agentType = (AgentType)t.AgentType, t.Objective }).ToArray(),
+            tasks = tasks.Select(t => new { t.TaskId, agentType = t.AgentType, t.Objective }).ToArray(),
             artifactUris = manifestVersion is not null
                 ? [$"{apiBaseUrl}/v1/architecture/manifest/{manifestVersion}"]
                 : Array.Empty<string>()

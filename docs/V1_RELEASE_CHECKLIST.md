@@ -94,6 +94,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 
 Pick **at least one** drill appropriate to your tier; record date and outcome.
 
+- [ ] **Quarterly staging chaos calendar** — three scheduled game-day rows + closing-report discipline: [`docs/quality/game-day-log/README.md`](quality/game-day-log/README.md) (Simmy workflow cron aligns; production chaos stays item **34** in [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)).
 - [ ] **Process / instance** — restart API (and Worker if deployed); verify **`/health/ready`** and one **request → commit** smoke.
 - [ ] **SQL connectivity** — controlled disconnect/reconnect or failover exercise per [runbooks/DATABASE_FAILOVER.md](runbooks/DATABASE_FAILOVER.md) (or equivalent for your host).
 - [ ] **Rollback plan** — previous API version + DB migration direction documented (forward-only migrations: note restore-from-backup strategy) ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).

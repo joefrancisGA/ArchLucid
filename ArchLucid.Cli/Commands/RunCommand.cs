@@ -92,8 +92,7 @@ internal static class RunCommand
 
         foreach (ArchLucidApiClient.AgentTaskInfo task in resp.Tasks)
         {
-            AgentType agentType = (AgentType)task.AgentType;
-            Console.WriteLine($"  - {agentType}: {task.Objective}");
+            Console.WriteLine($"  - {task.AgentType}: {task.Objective}");
         }
 
         Console.WriteLine();

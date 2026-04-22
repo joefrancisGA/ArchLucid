@@ -257,7 +257,7 @@ internal static class TryCommand
             return null;
 
 
-        return (ArchitectureRunStatus)detail.Run.Status;
+        return detail.Run.Status;
     }
 
     private static ArchitectureRequest BuildSampleRequest()

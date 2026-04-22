@@ -1,9 +1,13 @@
 # Scheduled Simmy chaos coverage (LLM retry + CB composition, SQL, blob). See docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md.
+# Calendar alignment: docs/quality/game-day-log/README.md (14:00 UTC on each game day).
 name: Simmy chaos (scheduled)
 
 on:
   schedule:
-    - cron: "0 5 * * 3"
+    # Quarterly staging game days — 14:00 UTC (see docs/quality/game-day-log/README.md).
+    - cron: "0 14 29 4 *"
+    - cron: "0 14 29 7 *"
+    - cron: "0 14 28 10 *"
   workflow_dispatch:
     inputs:
       scenario_id:
@@ -11,13 +15,17 @@ on:
         required: false
         default: "scheduled"
       environment:
-        description: "Target posture (staging-only default; production requires owner approval)."
+        description: "Staging only. Production chaos is owner-gated (PENDING_QUESTIONS item 34)."
         required: false
         default: "staging"
         type: choice
         options:
           - staging
-          - production
+      production:
+        description: "MUST stay empty. Any non-empty value fails this run immediately (item 34)."
+        required: false
+        default: ""
+        type: string
       dry_run:
         description: "When true, skip dotnet test (workflow wiring smoke only)."
         required: false
@@ -34,13 +42,32 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Production workflow_dispatch gate (PENDING_QUESTIONS item 34)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PRODUCTION_INPUT: ${{ github.event.inputs.production }}
+        run: |
+          if [ -n "${PRODUCTION_INPUT}" ]; then
+            echo "::error::workflow_dispatch input 'production' must remain empty. Staging-only; owner approval required for production chaos."
+            exit 1
+          fi
+
       - name: Game day context
         run: |
           echo "## Simmy chaos game day" >> "$GITHUB_STEP_SUMMARY"
           echo "- **scenario_id:** ${{ github.event.inputs.scenario_id || 'scheduled' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **environment:** ${{ github.event.inputs.environment || 'staging' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **dry_run:** ${{ github.event.inputs.dry_run || 'false' }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Runbook: docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Runbook:** docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Calendar:** docs/quality/game-day-log/README.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Attach this workflow run to the closing report" >> "$GITHUB_STEP_SUMMARY"
+          echo "Paste the run URL into the **Workflow** / evidence section of the matching date:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **2026-04-29:** \`docs/quality/game-day-log/2026-04-29-staging-sql-pool-exhaustion.md\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **2026-07-29:** \`docs/quality/game-day-log/2026-07-29-staging-placeholder.md\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **2026-10-28:** \`docs/quality/game-day-log/2026-10-28-staging-placeholder.md\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**This run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.2.0

@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+#nullable enable
+
 #pragma warning disable 108 // Disable "CS0108 '{derivedDto}.ToJson()' hides inherited member '{dtoBase}.ToJson()'. Use the new keyword if hiding was intended."
 #pragma warning disable 114 // Disable "CS0114 '{derivedDto}.RaisePropertyChanged(String)' hides inherited member 'dtoBase.RaisePropertyChanged(String)'. To make the current member override that implementation, add the override keyword. Otherwise add the new keyword."
 #pragma warning disable 472 // Disable "CS0472 The result of the expression is always 'false' since a value of type 'Int32' is never equal to 'null' of type 'Int32?'
@@ -155,30 +157,30 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string quarter, int? minTenants);
+        System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string? quarter, int? minTenants);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string quarter, int? minTenants, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string? quarter, int? minTenants, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest body);
+        System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -200,12 +202,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest body);
+        System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -245,12 +247,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule body);
+        System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -272,12 +274,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest body);
+        System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -308,12 +310,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription body);
+        System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -344,93 +346,93 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule body);
+        System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest body);
+        System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string status, int? take, int? page, int? pageSize);
+        System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string status, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest body);
+        System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest body);
+        System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string? status, int? take, int? page, int? pageSize);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string? status, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string comparisonType, string leftRunId, string rightRunId, string leftExportRecordId, string rightExportRecordId, string label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string tag, System.Collections.Generic.IEnumerable<string> tags, string sortBy, string sortDir, string cursor, int? skip, int? limit);
+        System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string comparisonType, string leftRunId, string rightRunId, string leftExportRecordId, string rightExportRecordId, string label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string tag, System.Collections.Generic.IEnumerable<string> tags, string sortBy, string sortDir, string cursor, int? skip, int? limit, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string? comparisonType, string? leftRunId, string? rightRunId, string? leftExportRecordId, string? rightExportRecordId, string? label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string? tag, System.Collections.Generic.IEnumerable<string>? tags, string? sortBy, string? sortDir, string? cursor, int? skip, int? limit);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string? comparisonType, string? leftRunId, string? rightRunId, string? leftExportRecordId, string? rightExportRecordId, string? label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string? tag, System.Collections.Generic.IEnumerable<string>? tags, string? sortBy, string? sortDir, string? cursor, int? skip, int? limit, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -443,12 +445,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest body);
+        System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -461,12 +463,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest body);
+        System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -479,39 +481,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string format);
+        System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string? format);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string format, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string? format, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string format, ReplayComparisonRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string format, ReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string format, string replayMode, bool? persistReplay);
+        System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string? format, ReplayComparisonRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string format, string replayMode, bool? persistReplay, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string? format, ReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest body);
+        System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool? persistReplay);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool? persistReplay, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -524,39 +526,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string leftVersion, string rightVersion);
+        System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string? leftVersion, string? rightVersion);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string leftVersion, string rightVersion);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string leftVersion, string rightVersion);
+        System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string? leftVersion, string? rightVersion);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string leftVersion, string rightVersion);
+        System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string? leftVersion, string? rightVersion);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -587,12 +589,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string layout, bool? includeRuntimePlatform, string relationshipLabels, string groupBy);
+        System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string? layout, bool? includeRuntimePlatform, string? relationshipLabels, string? groupBy);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string layout, bool? includeRuntimePlatform, string relationshipLabels, string groupBy, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string? layout, bool? includeRuntimePlatform, string? relationshipLabels, string? groupBy, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -614,12 +616,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -632,93 +634,93 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest body);
+        System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string leftRunId, string rightRunId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string leftRunId, string rightRunId);
+        System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string leftRunId, string rightRunId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string leftRunId, string rightRunId);
+        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string leftRunId, string rightRunId);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string leftRunId, string rightRunId);
+        System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string leftRunId, string rightRunId, PersistComparisonRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string leftRunId, string rightRunId, PersistComparisonRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string leftExportRecordId, string rightExportRecordId);
+        System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string leftExportRecordId, string rightExportRecordId, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string leftExportRecordId, string rightExportRecordId, PersistComparisonRequest body);
+        System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string? leftRunId, string? rightRunId);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string leftExportRecordId, string rightExportRecordId, PersistComparisonRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string? leftRunId, string? rightRunId);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string? leftRunId, string? rightRunId, PersistComparisonRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string? leftRunId, string? rightRunId, PersistComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string? leftExportRecordId, string? rightExportRecordId);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string? leftExportRecordId, string? rightExportRecordId, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string? leftExportRecordId, string? rightExportRecordId, PersistComparisonRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string? leftExportRecordId, string? rightExportRecordId, PersistComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -740,21 +742,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest body);
+        System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest body);
+        System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -776,66 +778,66 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest body);
+        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest body);
+        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>Accepted</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>Accepted</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest body);
+        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest body);
+        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>Accepted</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -866,12 +868,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest body);
+        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -911,21 +913,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest body);
+        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest body);
+        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1019,12 +1021,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest body);
+        System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1055,39 +1057,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string correlationId, string actorUserId, System.Guid? runId, int? take);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string? correlationId, string? actorUserId, System.Guid? runId, int? take);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string correlationId, string actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string? correlationId, string? actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest body);
+        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest body);
+        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest body);
+        System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1127,12 +1129,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse body);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1262,12 +1264,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule body);
+        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1316,12 +1318,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport body);
+        System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1334,12 +1336,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest body);
+        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1352,12 +1354,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription body);
+        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1397,12 +1399,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string max);
+        System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string? max);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string max, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string? max, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1442,12 +1444,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string format);
+        System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string? format);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string format, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string? format, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1496,12 +1498,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest body);
+        System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1514,21 +1516,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest body);
+        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1541,39 +1543,39 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest body);
+        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest body);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest body);
+        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest? body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1595,12 +1597,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest body);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1622,12 +1624,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body);
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1694,12 +1696,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest body);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1721,12 +1723,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string maxPlans);
+        System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string? maxPlans);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string maxPlans, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string? maxPlans, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1739,48 +1741,48 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks);
+        System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string maxThemes, string maxPlans);
+        System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string maxThemes, string maxPlans, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string maxThemes);
+        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string maxThemes, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string? maxThemes);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string? maxThemes, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest body);
+        System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1802,30 +1804,30 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest body);
+        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UnsubscribeAsync(string token);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UnsubscribeAsync(string token, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest body);
+        System.Threading.Tasks.Task UnsubscribeAsync(string? token);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task UnsubscribeAsync(string? token, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest? body);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1865,12 +1867,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest body);
+        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1892,12 +1894,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest body);
+        System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1928,21 +1930,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest body);
+        System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest body);
+        System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -1955,57 +1957,57 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string since);
+        System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string? since);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string since, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string? since, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string since, string maxOpportunities);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string since, string maxOpportunities, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage);
+        System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string? since, string? maxOpportunities);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string? since, string? maxOpportunities, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string since);
+        System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string since, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string since, string maxTriageItems);
+        System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string since, string maxTriageItems, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string? since, string? maxTriageItems);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string? since, string? maxTriageItems, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2054,21 +2056,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest body);
+        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string? q, System.Guid? runId, System.Guid? manifestId, int? topK);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string? q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2081,21 +2083,21 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest body);
+        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest body);
+        System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2108,12 +2110,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest body);
+        System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2126,12 +2128,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest body);
+        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest? body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest? body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -3368,7 +3370,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string quarter, int? minTenants)
+        public virtual System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string? quarter, int? minTenants)
         {
             return RoiBulletinPreviewAsync(quarter, minTenants, System.Threading.CancellationToken.None);
         }
@@ -3376,7 +3378,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string quarter, int? minTenants, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RoiBulletinPreviewResponse> RoiBulletinPreviewAsync(string? quarter, int? minTenants, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3466,7 +3468,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest body)
+        public virtual System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest? body)
         {
             return ArchiveBatchAsync(body, System.Threading.CancellationToken.None);
         }
@@ -3474,7 +3476,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunArchiveBatchResult> ArchiveBatchAsync(AdminArchiveRunsBatchRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3558,7 +3560,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest body)
+        public virtual System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest? body)
         {
             return ArchiveByIdsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -3566,7 +3568,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RunArchiveByIdsResult> ArchiveByIdsAsync(AdminArchiveRunsByIdsRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3817,7 +3819,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest body)
+        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest? body)
         {
             return TenantsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -3825,7 +3827,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> TenantsAsync(TenantProvisionAdminRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -4262,7 +4264,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule body)
+        public virtual System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule? body)
         {
             return SchedulesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -4270,7 +4272,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AdvisoryScanSchedule> SchedulesAsync(AdvisoryScanSchedule? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -4581,7 +4583,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest body)
+        public virtual System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest? body)
         {
             return ActionAsync(recommendationId, body, System.Threading.CancellationToken.None);
         }
@@ -4589,7 +4591,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RecommendationRecordResponse> ActionAsync(System.Guid recommendationId, RecommendationActionRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (recommendationId == null)
                 throw new System.ArgumentNullException("recommendationId");
@@ -4948,7 +4950,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription body)
+        public virtual System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription? body)
         {
             return AlertRoutingSubscriptionsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -4956,7 +4958,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AlertRoutingSubscription> AlertRoutingSubscriptionsAsync(AlertRoutingSubscription? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5331,7 +5333,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule body)
+        public virtual System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule? body)
         {
             return AlertRulesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -5339,7 +5341,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AlertRule> AlertRulesAsync(AlertRule? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5413,7 +5415,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest? body)
         {
             return CompareCandidatesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -5421,7 +5423,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RuleCandidateComparisonResult> CompareCandidatesAsync(RuleCandidateComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5505,7 +5507,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest body)
+        public virtual System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest? body)
         {
             return SimulateAsync(body, System.Threading.CancellationToken.None);
         }
@@ -5513,7 +5515,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<RuleSimulationResult> SimulateAsync(RuleSimulationRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5597,7 +5599,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest body)
+        public virtual System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest? body)
         {
             return RecommendThresholdAsync(body, System.Threading.CancellationToken.None);
         }
@@ -5605,7 +5607,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ThresholdRecommendationResult> RecommendThresholdAsync(ThresholdRecommendationRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5689,7 +5691,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string status, int? take, int? page, int? pageSize)
+        public virtual System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string? status, int? take, int? page, int? pageSize)
         {
             return AlertsAsync(status, take, page, pageSize, System.Threading.CancellationToken.None);
         }
@@ -5697,7 +5699,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string status, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PagedResponseOfAlertRecord> AlertsAsync(string? status, int? take, int? page, int? pageSize, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5805,7 +5807,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest body)
+        public virtual System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest? body)
         {
             return AcknowledgeBatchAsync(body, System.Threading.CancellationToken.None);
         }
@@ -5813,7 +5815,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AlertsAcknowledgeBatchResponse> AcknowledgeBatchAsync(AlertsAcknowledgeBatchRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -5897,7 +5899,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest body)
+        public virtual System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest? body)
         {
             return Action2Async(alertId, body, System.Threading.CancellationToken.None);
         }
@@ -5905,7 +5907,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AlertRecord> Action2Async(System.Guid alertId, AlertActionRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (alertId == null)
                 throw new System.ArgumentNullException("alertId");
@@ -6004,7 +6006,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest body)
+        public virtual System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest? body)
         {
             return RecommendAsync(body, System.Threading.CancellationToken.None);
         }
@@ -6012,7 +6014,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ConsultingDocxProfileRecommendationResponse> RecommendAsync(ConsultingDocxProfileRecommendationRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6116,7 +6118,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest body)
+        public virtual System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest? body)
         {
             return ResolveProfileAsync(body, System.Threading.CancellationToken.None);
         }
@@ -6124,7 +6126,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ConsultingDocxResolveProfileResponse> ResolveProfileAsync(ConsultingDocxResolveProfileRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6228,7 +6230,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string comparisonType, string leftRunId, string rightRunId, string leftExportRecordId, string rightExportRecordId, string label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string tag, System.Collections.Generic.IEnumerable<string> tags, string sortBy, string sortDir, string cursor, int? skip, int? limit)
+        public virtual System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string? comparisonType, string? leftRunId, string? rightRunId, string? leftExportRecordId, string? rightExportRecordId, string? label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string? tag, System.Collections.Generic.IEnumerable<string>? tags, string? sortBy, string? sortDir, string? cursor, int? skip, int? limit)
         {
             return ComparisonsGETAsync(comparisonType, leftRunId, rightRunId, leftExportRecordId, rightExportRecordId, label, createdFromUtc, createdToUtc, tag, tags, sortBy, sortDir, cursor, skip, limit, System.Threading.CancellationToken.None);
         }
@@ -6236,7 +6238,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string comparisonType, string leftRunId, string rightRunId, string leftExportRecordId, string rightExportRecordId, string label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string tag, System.Collections.Generic.IEnumerable<string> tags, string sortBy, string sortDir, string cursor, int? skip, int? limit, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ComparisonHistoryResponse> ComparisonsGETAsync(string? comparisonType, string? leftRunId, string? rightRunId, string? leftExportRecordId, string? rightExportRecordId, string? label, System.DateTimeOffset? createdFromUtc, System.DateTimeOffset? createdToUtc, string? tag, System.Collections.Generic.IEnumerable<string>? tags, string? sortBy, string? sortDir, string? cursor, int? skip, int? limit, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6488,7 +6490,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest? body)
         {
             return BatchAsync(body, System.Threading.CancellationToken.None);
         }
@@ -6496,7 +6498,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> BatchAsync(BatchReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6732,7 +6734,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest body)
+        public virtual System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest? body)
         {
             return ComparisonsPATCHAsync(comparisonRecordId, body, System.Threading.CancellationToken.None);
         }
@@ -6740,7 +6742,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ComparisonRecordResponse> ComparisonsPATCHAsync(string comparisonRecordId, UpdateComparisonRecordRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -6982,7 +6984,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string format)
+        public virtual System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string? format)
         {
             return DriftReportAsync(comparisonRecordId, format, System.Threading.CancellationToken.None);
         }
@@ -6990,7 +6992,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string format, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> DriftReportAsync(string comparisonRecordId, string? format, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -7111,7 +7113,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string format, ReplayComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string? format, ReplayComparisonRequest? body)
         {
             return ReplayPOSTAsync(comparisonRecordId, format, body, System.Threading.CancellationToken.None);
         }
@@ -7119,7 +7121,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string format, ReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> ReplayPOSTAsync(string comparisonRecordId, string? format, ReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -7264,7 +7266,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string format, string replayMode, bool? persistReplay)
+        public virtual System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool? persistReplay)
         {
             return CostEstimateAsync(comparisonRecordId, format, replayMode, persistReplay, System.Threading.CancellationToken.None);
         }
@@ -7272,7 +7274,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string format, string replayMode, bool? persistReplay, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ComparisonReplayCostEstimateResponse> CostEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool? persistReplay, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -7401,7 +7403,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest? body)
         {
             return MetadataAsync(comparisonRecordId, body, System.Threading.CancellationToken.None);
         }
@@ -7409,7 +7411,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayComparisonMetadataResponse> MetadataAsync(string comparisonRecordId, ReplayComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (comparisonRecordId == null)
                 throw new System.ArgumentNullException("comparisonRecordId");
@@ -7641,7 +7643,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string leftVersion, string rightVersion)
+        public virtual System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string? leftVersion, string? rightVersion)
         {
             return CompareAsync(leftVersion, rightVersion, System.Threading.CancellationToken.None);
         }
@@ -7649,7 +7651,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestCompareResponse> CompareAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -7749,7 +7751,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string leftVersion, string rightVersion)
+        public virtual System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string? leftVersion, string? rightVersion)
         {
             return ExportGETAsync(leftVersion, rightVersion, System.Threading.CancellationToken.None);
         }
@@ -7757,7 +7759,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestCompareExportResponse> ExportGETAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -7857,7 +7859,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string leftVersion, string rightVersion)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string? leftVersion, string? rightVersion)
         {
             return FileGETAsync(leftVersion, rightVersion, System.Threading.CancellationToken.None);
         }
@@ -7865,7 +7867,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGETAsync(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -7965,7 +7967,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string leftVersion, string rightVersion)
+        public virtual System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion)
         {
             return SummaryGET2Async(leftVersion, rightVersion, System.Threading.CancellationToken.None);
         }
@@ -7973,7 +7975,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string leftVersion, string rightVersion, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestCompareSummaryResponse> SummaryGET2Async(string? leftVersion, string? rightVersion, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -8381,7 +8383,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string layout, bool? includeRuntimePlatform, string relationshipLabels, string groupBy)
+        public virtual System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string? layout, bool? includeRuntimePlatform, string? relationshipLabels, string? groupBy)
         {
             return V2Async(manifestVersion, layout, includeRuntimePlatform, relationshipLabels, groupBy, System.Threading.CancellationToken.None);
         }
@@ -8389,7 +8391,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string layout, bool? includeRuntimePlatform, string relationshipLabels, string groupBy, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestDiagramResponse> V2Async(string manifestVersion, string? layout, bool? includeRuntimePlatform, string? relationshipLabels, string? groupBy, System.Threading.CancellationToken cancellationToken)
         {
             if (manifestVersion == null)
                 throw new System.ArgumentNullException("manifestVersion");
@@ -8718,7 +8720,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships)
+        public virtual System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships)
         {
             return SummaryGET3Async(manifestVersion, format, includeRelationships, includeRequiredControls, includeTags, includeComponentControls, maxRelationships, System.Threading.CancellationToken.None);
         }
@@ -8726,7 +8728,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ManifestSummaryResponse> SummaryGET3Async(string manifestVersion, string? format, bool? includeRelationships, bool? includeRequiredControls, bool? includeTags, bool? includeComponentControls, int? maxRelationships, System.Threading.CancellationToken cancellationToken)
         {
             if (manifestVersion == null)
                 throw new System.ArgumentNullException("manifestVersion");
@@ -8950,7 +8952,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest body)
+        public virtual System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest? body)
         {
             return RequestAsync(body, System.Threading.CancellationToken.None);
         }
@@ -8958,7 +8960,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CreateArchitectureRunResponse> RequestAsync(ArchitectureRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9082,7 +9084,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string? leftRunId, string? rightRunId)
         {
             return AgentsAsync(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9090,7 +9092,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AgentResultCompareResponse> AgentsAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9210,7 +9212,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId)
         {
             return SummaryGET4Async(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9218,7 +9220,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AgentResultCompareSummaryResponse> SummaryGET4Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9338,7 +9340,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string? leftRunId, string? rightRunId)
         {
             return EndToEndAsync(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9346,7 +9348,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonResponse> EndToEndAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9466,7 +9468,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string? leftRunId, string? rightRunId)
         {
             return ExportGET3Async(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9474,7 +9476,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonExportResponse> ExportGET3Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9594,7 +9596,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string? leftRunId, string? rightRunId)
         {
             return DocxGETAsync(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9602,7 +9604,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxGETAsync(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9722,7 +9724,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string leftRunId, string rightRunId)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string? leftRunId, string? rightRunId)
         {
             return FileGET2Async(leftRunId, rightRunId, System.Threading.CancellationToken.None);
         }
@@ -9730,7 +9732,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string leftRunId, string rightRunId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET2Async(string? leftRunId, string? rightRunId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9850,7 +9852,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string leftRunId, string rightRunId, PersistComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string? leftRunId, string? rightRunId, PersistComparisonRequest? body)
         {
             return SummaryPOSTAsync(leftRunId, rightRunId, body, System.Threading.CancellationToken.None);
         }
@@ -9858,7 +9860,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string leftRunId, string rightRunId, PersistComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EndToEndReplayComparisonSummaryResponse> SummaryPOSTAsync(string? leftRunId, string? rightRunId, PersistComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9982,7 +9984,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string leftExportRecordId, string rightExportRecordId)
+        public virtual System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string? leftExportRecordId, string? rightExportRecordId)
         {
             return Compare2Async(leftExportRecordId, rightExportRecordId, System.Threading.CancellationToken.None);
         }
@@ -9990,7 +9992,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string leftExportRecordId, string rightExportRecordId, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ExportRecordDiffResponse> Compare2Async(string? leftExportRecordId, string? rightExportRecordId, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -10080,7 +10082,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string leftExportRecordId, string rightExportRecordId, PersistComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string? leftExportRecordId, string? rightExportRecordId, PersistComparisonRequest? body)
         {
             return SummaryPOST2Async(leftExportRecordId, rightExportRecordId, body, System.Threading.CancellationToken.None);
         }
@@ -10088,7 +10090,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string leftExportRecordId, string rightExportRecordId, PersistComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ExportRecordDiffSummaryResponse> SummaryPOST2Async(string? leftExportRecordId, string? rightExportRecordId, PersistComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -10387,7 +10389,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest? body)
         {
             return ReplayPOST2Async(exportRecordId, body, System.Threading.CancellationToken.None);
         }
@@ -10395,7 +10397,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> ReplayPOST2Async(string exportRecordId, ReplayExportRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (exportRecordId == null)
                 throw new System.ArgumentNullException("exportRecordId");
@@ -10494,7 +10496,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest body)
+        public virtual System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest? body)
         {
             return Metadata2Async(exportRecordId, body, System.Threading.CancellationToken.None);
         }
@@ -10502,7 +10504,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayExportMetadataResponse> Metadata2Async(string exportRecordId, ReplayExportRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (exportRecordId == null)
                 throw new System.ArgumentNullException("exportRecordId");
@@ -10826,7 +10828,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest body)
+        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest? body)
         {
             return AnalysisReportAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -10834,7 +10836,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisReportResponse> AnalysisReportAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -10953,7 +10955,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest body)
+        public virtual System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest? body)
         {
             return ExportPOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -10961,7 +10963,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ArchitectureAnalysisExportResponse> ExportPOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -11080,7 +11082,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest? body)
         {
             return DocxPOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -11088,7 +11090,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> DocxPOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -11207,7 +11209,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest body)
+        public virtual System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest? body)
         {
             return AsyncAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -11215,7 +11217,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> AsyncAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -11334,7 +11336,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest? body)
         {
             return ConsultingAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -11342,7 +11344,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> ConsultingAsync(string runId, ConsultingDocxExportRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -11461,7 +11463,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest body)
+        public virtual System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest? body)
         {
             return Async2Async(runId, body, System.Threading.CancellationToken.None);
         }
@@ -11469,7 +11471,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AsyncJobResponse> Async2Async(string runId, ConsultingDocxExportRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -11588,7 +11590,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest body)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest? body)
         {
             return FilePOSTAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -11596,7 +11598,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FilePOSTAsync(string runId, ArchitectureAnalysisRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -12075,7 +12077,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest body)
+        public virtual System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest? body)
         {
             return DeterminismCheckAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -12083,7 +12085,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DeterminismCheckResponse> DeterminismCheckAsync(string runId, DeterminismCheckRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -12650,7 +12652,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest body)
+        public virtual System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest? body)
         {
             return ReplayPOST3Async(runId, body, System.Threading.CancellationToken.None);
         }
@@ -12658,7 +12660,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayRunResponse> ReplayPOST3Async(string runId, ReplayRunRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -12777,7 +12779,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest body)
+        public virtual System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest? body)
         {
             return ResultAsync(runId, body, System.Threading.CancellationToken.None);
         }
@@ -12785,7 +12787,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<SubmitAgentResultResponse> ResultAsync(string runId, SubmitAgentResultRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -13655,7 +13657,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200 || status_ == 206)
                         {
-                            return default(FileResponse);
+                            return default(FileResponse)!;
                         }
                         else
                         if (status_ == 401)
@@ -13881,7 +13883,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200 || status_ == 206)
                         {
-                            return default(FileResponse);
+                            return default(FileResponse)!;
                         }
                         else
                         if (status_ == 401)
@@ -13989,7 +13991,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200 || status_ == 206)
                         {
-                            return default(FileResponse);
+                            return default(FileResponse)!;
                         }
                         else
                         if (status_ == 401)
@@ -14043,7 +14045,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest body)
+        public virtual System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest? body)
         {
             return AskAsync(body, System.Threading.CancellationToken.None);
         }
@@ -14051,7 +14053,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AskResponse> AskAsync(AskRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -14419,7 +14421,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string correlationId, string actorUserId, System.Guid? runId, int? take)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string? correlationId, string? actorUserId, System.Guid? runId, int? take)
         {
             return SearchAsync(eventType, fromUtc, toUtc, beforeUtc, correlationId, actorUserId, runId, take, System.Threading.CancellationToken.None);
         }
@@ -14427,7 +14429,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string correlationId, string actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string? eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, System.DateTimeOffset? beforeUtc, string? correlationId, string? actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -14531,7 +14533,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest body)
+        public virtual System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest? body)
         {
             return RegisterAsync(body, System.Threading.CancellationToken.None);
         }
@@ -14539,7 +14541,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Created</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TrialLocalRegisterResponse> RegisterAsync(TrialLocalRegisterRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -14613,7 +14615,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest body)
+        public virtual System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest? body)
         {
             return TokenAsync(body, System.Threading.CancellationToken.None);
         }
@@ -14621,7 +14623,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TrialLocalTokenResponse> TokenAsync(TrialLocalTokenRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -14695,7 +14697,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest body)
+        public virtual System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest? body)
         {
             return VerifyEmailAsync(body, System.Threading.CancellationToken.None);
         }
@@ -14703,7 +14705,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task VerifyEmailAsync(TrialLocalVerifyEmailRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -15217,7 +15219,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse body)
+        public virtual System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse? body)
         {
             return ReplayPOST4Async(body, System.Threading.CancellationToken.None);
         }
@@ -15225,7 +15227,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ReplayResponse> ReplayPOST4Async(ReplayRequestResponse? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -15485,7 +15487,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200 || status_ == 206)
                         {
-                            return default(FileResponse);
+                            return default(FileResponse)!;
                         }
                         else
                         if (status_ == 401)
@@ -16684,7 +16686,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule body)
+        public virtual System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule? body)
         {
             return CompositeAlertRulesAsync(body, System.Threading.CancellationToken.None);
         }
@@ -16692,7 +16694,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<CompositeAlertRule> CompositeAlertRulesAsync(CompositeAlertRule? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -17242,7 +17244,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport body)
+        public virtual System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport? body)
         {
             return ClientErrorAsync(body, System.Threading.CancellationToken.None);
         }
@@ -17250,7 +17252,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ClientErrorAsync(ClientErrorReport? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -17426,7 +17428,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest body)
+        public virtual System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest? body)
         {
             return SponsorBannerFirstCommitBadgeAsync(body, System.Threading.CancellationToken.None);
         }
@@ -17434,7 +17436,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SponsorBannerFirstCommitBadgeAsync(SponsorBannerFirstCommitBadgeRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -17590,7 +17592,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription body)
+        public virtual System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription? body)
         {
             return DigestSubscriptionsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -17598,7 +17600,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<DigestSubscription> DigestSubscriptionsAsync(DigestSubscription? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -18095,7 +18097,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string max)
+        public virtual System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string? max)
         {
             return CandidatesAsync(max, System.Threading.CancellationToken.None);
         }
@@ -18103,7 +18105,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string max, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<EvolutionCandidateChangeSetListResponse> CandidatesAsync(string? max, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -18570,7 +18572,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string format)
+        public virtual System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string? format)
         {
             return ExportGET5Async(candidateId, format, System.Threading.CancellationToken.None);
         }
@@ -18578,7 +18580,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string format, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> ExportGET5Async(System.Guid candidateId, string? format, System.Threading.CancellationToken cancellationToken)
         {
             if (candidateId == null)
                 throw new System.ArgumentNullException("candidateId");
@@ -19164,7 +19166,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest body)
+        public virtual System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest? body)
         {
             return FeedbackAsync(runId, findingId, body, System.Threading.CancellationToken.None);
         }
@@ -19172,7 +19174,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task FeedbackAsync(System.Guid runId, string findingId, FindingFeedbackPostRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (runId == null)
                 throw new System.ArgumentNullException("runId");
@@ -19368,7 +19370,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest? body)
         {
             return CompareEnvironmentsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -19376,7 +19378,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentComparisonResult> CompareEnvironmentsAsync(CreateGovernanceEnvironmentComparisonRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -19470,7 +19472,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body)
+        public virtual System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest? body)
         {
             return PreviewPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -19478,7 +19480,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePreviewResult> PreviewPOSTAsync(CreateGovernancePreviewRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -19690,7 +19692,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest? body)
         {
             return ActivationsAsync(body, System.Threading.CancellationToken.None);
         }
@@ -19698,7 +19700,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceEnvironmentActivation> ActivationsAsync(CreateGovernanceActivationRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -19822,7 +19824,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest? body)
         {
             return ApprovalRequestsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
@@ -19830,7 +19832,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -19960,7 +19962,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest? body)
         {
             return BatchReviewAsync(body, System.Threading.CancellationToken.None);
         }
@@ -19968,7 +19970,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceBatchReviewResponse> BatchReviewAsync(GovernanceApprovalBatchReviewRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -20082,7 +20084,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest? body)
         {
             return ApproveAsync(approvalRequestId, body, System.Threading.CancellationToken.None);
         }
@@ -20090,7 +20092,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApproveAsync(string approvalRequestId, ApproveGovernanceRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (approvalRequestId == null)
                 throw new System.ArgumentNullException("approvalRequestId");
@@ -20465,7 +20467,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest? body)
         {
             return RejectAsync(approvalRequestId, body, System.Threading.CancellationToken.None);
         }
@@ -20473,7 +20475,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> RejectAsync(string approvalRequestId, RejectGovernanceRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (approvalRequestId == null)
                 throw new System.ArgumentNullException("approvalRequestId");
@@ -20856,7 +20858,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body)
+        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest? body)
         {
             return PromotionsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
@@ -20864,7 +20866,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -21708,7 +21710,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest body)
+        public virtual System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest? body)
         {
             return ConnectionsPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -21716,7 +21718,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TeamsIncomingWebhookConnectionResponse> ConnectionsPOSTAsync(TeamsIncomingWebhookConnectionUpsertRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22085,7 +22087,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string maxPlans)
+        public virtual System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string? maxPlans)
         {
             return PlansAsync(maxPlans, System.Threading.CancellationToken.None);
         }
@@ -22093,7 +22095,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string maxPlans, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LearningPlansListResponse> PlansAsync(string? maxPlans, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22281,7 +22283,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks)
+        public virtual System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks)
         {
             return ReportAsync(maxThemes, maxPlans, format, maxReportSignalLinks, maxReportArtifactLinks, maxReportRunLinks, System.Threading.CancellationToken.None);
         }
@@ -22289,7 +22291,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LearningPlanningReportDocument> ReportAsync(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22395,7 +22397,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks)
         {
             return FileGET4Async(maxThemes, maxPlans, format, maxReportSignalLinks, maxReportArtifactLinks, maxReportRunLinks, System.Threading.CancellationToken.None);
         }
@@ -22403,7 +22405,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string maxThemes, string maxPlans, string format, string maxReportSignalLinks, string maxReportArtifactLinks, string maxReportRunLinks, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET4Async(string? maxThemes, string? maxPlans, string? format, string? maxReportSignalLinks, string? maxReportArtifactLinks, string? maxReportRunLinks, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22509,7 +22511,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string maxThemes, string maxPlans)
+        public virtual System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans)
         {
             return SummaryGET7Async(maxThemes, maxPlans, System.Threading.CancellationToken.None);
         }
@@ -22517,7 +22519,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string maxThemes, string maxPlans, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LearningSummaryResponse> SummaryGET7Async(string? maxThemes, string? maxPlans, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22607,7 +22609,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string maxThemes)
+        public virtual System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string? maxThemes)
         {
             return ThemesAsync(maxThemes, System.Threading.CancellationToken.None);
         }
@@ -22615,7 +22617,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string maxThemes, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<LearningThemesListResponse> ThemesAsync(string? maxThemes, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22701,7 +22703,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest body)
+        public virtual System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest? body)
         {
             return QuoteRequestAsync(body, System.Threading.CancellationToken.None);
         }
@@ -22709,7 +22711,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task QuoteRequestAsync(MarketingPricingQuotePostRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -22836,7 +22838,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200 || status_ == 206)
                         {
-                            return default(FileResponse);
+                            return default(FileResponse)!;
                         }
                         else
                         if (status_ == 404)
@@ -22968,7 +22970,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest body)
+        public virtual System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest? body)
         {
             return CustomerChannelPreferencesPUTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -22976,7 +22978,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantNotificationChannelPreferencesResponse> CustomerChannelPreferencesPUTAsync(TenantNotificationChannelPreferencesUpsertRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -23090,7 +23092,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UnsubscribeAsync(string token)
+        public virtual System.Threading.Tasks.Task UnsubscribeAsync(string? token)
         {
             return UnsubscribeAsync(token, System.Threading.CancellationToken.None);
         }
@@ -23098,7 +23100,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UnsubscribeAsync(string token, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UnsubscribeAsync(string? token, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -23178,7 +23180,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest body)
+        public virtual System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest? body)
         {
             return BoardPack_pdfAsync(body, System.Threading.CancellationToken.None);
         }
@@ -23186,7 +23188,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileResult> BoardPack_pdfAsync(BoardPackPdfPostRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -23764,7 +23766,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest body)
+        public virtual System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest? body)
         {
             return ScorecardAsync(body, System.Threading.CancellationToken.None);
         }
@@ -23772,7 +23774,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PilotScorecardResponse> ScorecardAsync(PilotScorecardPostRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -24062,7 +24064,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest body)
+        public virtual System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest? body)
         {
             return PolicyPacksAsync(body, System.Threading.CancellationToken.None);
         }
@@ -24070,7 +24072,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPack> PolicyPacksAsync(CreatePolicyPackRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -24438,7 +24440,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest body)
+        public virtual System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest? body)
         {
             return AssignAsync(policyPackId, body, System.Threading.CancellationToken.None);
         }
@@ -24446,7 +24448,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackAssignment> AssignAsync(System.Guid policyPackId, AssignPolicyPackRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (policyPackId == null)
                 throw new System.ArgumentNullException("policyPackId");
@@ -24545,7 +24547,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest body)
+        public virtual System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest? body)
         {
             return PublishAsync(policyPackId, body, System.Threading.CancellationToken.None);
         }
@@ -24553,7 +24555,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<PolicyPackVersion> PublishAsync(System.Guid policyPackId, PublishPolicyPackVersionRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             if (policyPackId == null)
                 throw new System.ArgumentNullException("policyPackId");
@@ -24755,7 +24757,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string since)
+        public virtual System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string? since)
         {
             return ArtifactOutcomeTrendsAsync(since, System.Threading.CancellationToken.None);
         }
@@ -24763,7 +24765,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string since, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningArtifactOutcomeTrendsResponse> ArtifactOutcomeTrendsAsync(string? since, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -24849,7 +24851,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string since, string maxOpportunities)
+        public virtual System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string? since, string? maxOpportunities)
         {
             return ImprovementOpportunitiesAsync(since, maxOpportunities, System.Threading.CancellationToken.None);
         }
@@ -24857,7 +24859,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string since, string maxOpportunities, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningImprovementOpportunitiesResponse> ImprovementOpportunitiesAsync(string? since, string? maxOpportunities, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -24947,7 +24949,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage)
+        public virtual System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage)
         {
             return Report2Async(since, format, maxReportArtifacts, maxReportImprovements, maxReportTriage, System.Threading.CancellationToken.None);
         }
@@ -24955,7 +24957,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningTriageReportDocument> Report2Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -25057,7 +25059,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage)
+        public virtual System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage)
         {
             return FileGET5Async(since, format, maxReportArtifacts, maxReportImprovements, maxReportTriage, System.Threading.CancellationToken.None);
         }
@@ -25065,7 +25067,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string since, string format, string maxReportArtifacts, string maxReportImprovements, string maxReportTriage, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<FileContentResult> FileGET5Async(string? since, string? format, string? maxReportArtifacts, string? maxReportImprovements, string? maxReportTriage, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -25167,7 +25169,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string since)
+        public virtual System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since)
         {
             return SummaryGET8Async(since, System.Threading.CancellationToken.None);
         }
@@ -25175,7 +25177,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string since, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningDashboardSummaryResponse> SummaryGET8Async(string? since, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -25261,7 +25263,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string since, string maxTriageItems)
+        public virtual System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string? since, string? maxTriageItems)
         {
             return TriageQueueAsync(since, maxTriageItems, System.Threading.CancellationToken.None);
         }
@@ -25269,7 +25271,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string since, string maxTriageItems, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ProductLearningTriageQueueResponse> TriageQueueAsync(string? since, string? maxTriageItems, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -25819,7 +25821,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest body)
+        public virtual System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest? body)
         {
             return Register2Async(body, System.Threading.CancellationToken.None);
         }
@@ -25827,7 +25829,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<TenantProvisioningResult> Register2Async(TenantRegistrationRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -25931,7 +25933,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string? q, System.Guid? runId, System.Guid? manifestId, int? topK)
         {
             return Search2Async(q, runId, manifestId, topK, System.Threading.CancellationToken.None);
         }
@@ -25939,7 +25941,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string? q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -26115,7 +26117,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest body)
+        public virtual System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest? body)
         {
             return CheckoutAsync(body, System.Threading.CancellationToken.None);
         }
@@ -26123,7 +26125,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BillingCheckoutResponseDto> CheckoutAsync(BillingCheckoutPostRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -26197,7 +26199,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest body)
+        public virtual System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest? body)
         {
             return ConvertAsync(body, System.Threading.CancellationToken.None);
         }
@@ -26205,7 +26207,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ConvertAsync(TenantTrialConvertRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -26351,7 +26353,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest body)
+        public virtual System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest? body)
         {
             return ProductFeedbackAsync(body, System.Threading.CancellationToken.None);
         }
@@ -26359,7 +26361,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>No Content</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ProductFeedbackAsync(ProductFeedbackRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -26505,7 +26507,7 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest body)
+        public virtual System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest? body)
         {
             return ExecDigestPreferencesPOSTAsync(body, System.Threading.CancellationToken.None);
         }
@@ -26513,7 +26515,7 @@ namespace ArchLucid.Api.Client.Generated
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<ExecDigestPreferencesResponse> ExecDigestPreferencesPOSTAsync(ExecDigestPreferencesUpsertRequest? body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -27049,7 +27051,7 @@ namespace ArchLucid.Api.Client.Generated
         {
             if (response == null || response.Content == null)
             {
-                return new ObjectResponseResult<T>(default(T), string.Empty);
+                return new ObjectResponseResult<T>(default(T)!, string.Empty);
             }
 
             if (ReadResponseAsString)
@@ -27058,7 +27060,7 @@ namespace ArchLucid.Api.Client.Generated
                 try
                 {
                     var typedBody = System.Text.Json.JsonSerializer.Deserialize<T>(responseText, JsonSerializerSettings);
-                    return new ObjectResponseResult<T>(typedBody, responseText);
+                    return new ObjectResponseResult<T>(typedBody!, responseText);
                 }
                 catch (System.Text.Json.JsonException exception)
                 {
@@ -27073,7 +27075,7 @@ namespace ArchLucid.Api.Client.Generated
                     using (var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                     {
                         var typedBody = await System.Text.Json.JsonSerializer.DeserializeAsync<T>(responseStream, JsonSerializerSettings, cancellationToken).ConfigureAwait(false);
-                        return new ObjectResponseResult<T>(typedBody, string.Empty);
+                        return new ObjectResponseResult<T>(typedBody!, string.Empty);
                     }
                 }
                 catch (System.Text.Json.JsonException exception)
@@ -27084,7 +27086,7 @@ namespace ArchLucid.Api.Client.Generated
             }
         }
 
-        private string ConvertToString(object value, System.Globalization.CultureInfo cultureInfo)
+        private string ConvertToString(object? value, System.Globalization.CultureInfo cultureInfo)
         {
             if (value == null)
             {
@@ -27144,9 +27146,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdBeforeUtc")]
-        public System.DateTimeOffset CreatedBeforeUtc { get; set; }
+        public System.DateTimeOffset? CreatedBeforeUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27162,9 +27164,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("runIds")]
-        public System.Collections.Generic.ICollection<System.Guid> RunIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? RunIds { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27182,24 +27184,24 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("authorityPipelineWorkPending")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long AuthorityPipelineWorkPending { get; set; }
+        public long AuthorityPipelineWorkPending { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("integrationEventOutboxDeadLetter")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long IntegrationEventOutboxDeadLetter { get; set; }
+        public long IntegrationEventOutboxDeadLetter { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("integrationEventOutboxPublishPending")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long IntegrationEventOutboxPublishPending { get; set; }
+        public long IntegrationEventOutboxPublishPending { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retrievalIndexingPending")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long RetrievalIndexingPending { get; set; }
+        public long RetrievalIndexingPending { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27215,36 +27217,36 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionId")]
-        public System.Guid ExecutionId { get; set; }
+        public System.Guid? ExecutionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resultJson")]
-        public string ResultJson { get; set; }
+        public string? ResultJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scheduleId")]
-        public System.Guid ScheduleId { get; set; }
+        public System.Guid? ScheduleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("startedUtc")]
-        public System.DateTimeOffset StartedUtc { get; set; }
+        public System.DateTimeOffset? StartedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27260,39 +27262,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("cronExpression")]
-        public string CronExpression { get; set; }
+        public string? CronExpression { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastRunUtc")]
-        public System.DateTimeOffset? LastRunUtc { get; set; }
+        public System.DateTimeOffset? LastRunUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nextRunUtc")]
-        public System.DateTimeOffset? NextRunUtc { get; set; }
+        public System.DateTimeOffset? NextRunUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runProjectSlug")]
-        public string RunProjectSlug { get; set; }
+        public string? RunProjectSlug { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scheduleId")]
-        public System.Guid ScheduleId { get; set; }
+        public System.Guid? ScheduleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27308,46 +27310,46 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("cloudProvider")]
-        public string CloudProvider { get; set; }
+        public string? CloudProvider { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidencePackageId")]
-        public string EvidencePackageId { get; set; }
+        public string? EvidencePackageId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<EvidenceNote> Notes { get; set; }
+        public System.Collections.Generic.ICollection<EvidenceNote>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("patterns")]
-        public System.Collections.Generic.ICollection<PatternEvidence> Patterns { get; set; }
+        public System.Collections.Generic.ICollection<PatternEvidence>? Patterns { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policies")]
-        public System.Collections.Generic.ICollection<PolicyEvidence> Policies { get; set; }
+        public System.Collections.Generic.ICollection<PolicyEvidence>? Policies { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorManifest")]
-        public PriorManifestEvidence PriorManifest { get; set; }
+        public PriorManifestEvidence? PriorManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("request")]
         [System.ComponentModel.DataAnnotations.Required]
         public RequestEvidence Request { get; set; } = new RequestEvidence();
 
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
-        public string RequestId { get; set; }
+        public string? RequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceCatalog")]
-        public System.Collections.Generic.ICollection<ServiceCatalogEvidence> ServiceCatalog { get; set; }
+        public System.Collections.Generic.ICollection<ServiceCatalogEvidence>? ServiceCatalog { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
-        public string SystemName { get; set; }
+        public string? SystemName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27363,9 +27365,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
-        public AgentEvidencePackage Evidence { get; set; }
+        public AgentEvidencePackage? Evidence { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27381,91 +27383,92 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
-        public bool? BlobUploadFailed { get; set; }
+        public bool? BlobUploadFailed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? EstimatedCostUsd { get; set; }
+        public double? EstimatedCostUsd { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullResponseBlobKey")]
-        public string FullResponseBlobKey { get; set; }
+        public string? FullResponseBlobKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullResponseInline")]
-        public string FullResponseInline { get; set; }
+        public string? FullResponseInline { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullSystemPromptBlobKey")]
-        public string FullSystemPromptBlobKey { get; set; }
+        public string? FullSystemPromptBlobKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullSystemPromptInline")]
-        public string FullSystemPromptInline { get; set; }
+        public string? FullSystemPromptInline { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullUserPromptBlobKey")]
-        public string FullUserPromptBlobKey { get; set; }
+        public string? FullUserPromptBlobKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullUserPromptInline")]
-        public string FullUserPromptInline { get; set; }
+        public string? FullUserPromptInline { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("inlineFallbackFailed")]
-        public bool? InlineFallbackFailed { get; set; }
+        public bool? InlineFallbackFailed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("inputTokenCount")]
-        public int? InputTokenCount { get; set; }
+        public int? InputTokenCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
-        public string ModelDeploymentName { get; set; }
+        public string? ModelDeploymentName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelVersion")]
-        public string ModelVersion { get; set; }
+        public string? ModelVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outputTokenCount")]
-        public int? OutputTokenCount { get; set; }
+        public int? OutputTokenCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("parseSucceeded")]
-        public bool ParseSucceeded { get; set; }
+        public bool? ParseSucceeded { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("parsedResultJson")]
-        public string ParsedResultJson { get; set; }
+        public string? ParsedResultJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptReleaseLabel")]
-        public string PromptReleaseLabel { get; set; }
+        public string? PromptReleaseLabel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateId")]
-        public string PromptTemplateId { get; set; }
+        public string? PromptTemplateId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateVersion")]
-        public string PromptTemplateVersion { get; set; }
+        public string? PromptTemplateVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rawResponse")]
-        public string RawResponse { get; set; }
+        public string? RawResponse { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemPrompt")]
-        public string SystemPrompt { get; set; }
+        public string? SystemPrompt { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemPromptContentSha256")]
-        public string SystemPromptContentSha256 { get; set; }
+        public string? SystemPromptContentSha256 { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("taskId")]
-        public string TaskId { get; set; }
+        public string? TaskId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public string TraceId { get; set; }
+        public string? TraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("userPrompt")]
-        public string UserPrompt { get; set; }
+        public string? UserPrompt { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27481,18 +27484,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("pageNumber")]
-        public int PageNumber { get; set; }
+        public int? PageNumber { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
-        public int PageSize { get; set; }
+        public int? PageSize { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalCount")]
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traces")]
-        public System.Collections.Generic.ICollection<AgentExecutionTrace> Traces { get; set; }
+        public System.Collections.Generic.ICollection<AgentExecutionTrace>? Traces { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27508,28 +27511,29 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
-        public bool? BlobUploadFailed { get; set; }
+        public bool? BlobUploadFailed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isJsonParseFailure")]
-        public bool IsJsonParseFailure { get; set; }
+        public bool? IsJsonParseFailure { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("missingKeys")]
-        public System.Collections.Generic.ICollection<string> MissingKeys { get; set; }
+        public System.Collections.Generic.ICollection<string>? MissingKeys { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("semantic")]
-        public AgentOutputSemanticScore Semantic { get; set; }
+        public AgentOutputSemanticScore? Semantic { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("structuralCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double StructuralCompletenessRatio { get; set; }
+        public double? StructuralCompletenessRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public string TraceId { get; set; }
+        public string? TraceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27546,25 +27550,25 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("averageSemanticScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageSemanticScore { get; set; }
+        public double? AverageSemanticScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("averageStructuralCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageStructuralCompletenessRatio { get; set; }
+        public double? AverageStructuralCompletenessRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluatedAtUtc")]
-        public System.DateTimeOffset EvaluatedAtUtc { get; set; }
+        public System.DateTimeOffset? EvaluatedAtUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scores")]
-        public System.Collections.Generic.ICollection<AgentOutputEvaluationScore> Scores { get; set; }
+        public System.Collections.Generic.ICollection<AgentOutputEvaluationScore>? Scores { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tracesSkippedCount")]
-        public int TracesSkippedCount { get; set; }
+        public int? TracesSkippedCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27580,30 +27584,31 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("claimsQualityRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double ClaimsQualityRatio { get; set; }
+        public double? ClaimsQualityRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("emptyClaimCount")]
-        public int EmptyClaimCount { get; set; }
+        public int? EmptyClaimCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsQualityRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double FindingsQualityRatio { get; set; }
+        public double? FindingsQualityRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("incompleteFindingCount")]
-        public int IncompleteFindingCount { get; set; }
+        public int? IncompleteFindingCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("overallSemanticScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double OverallSemanticScore { get; set; }
+        public double? OverallSemanticScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public string TraceId { get; set; }
+        public string? TraceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27619,7 +27624,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("claims")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -27628,34 +27635,34 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("confidence")]
         [System.ComponentModel.DataAnnotations.Range(0D, 1D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double Confidence { get; set; }
+        public double? Confidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         [System.Text.Json.Serialization.JsonPropertyName("findings")]
-        public System.Collections.Generic.ICollection<ArchitectureFinding> Findings { get; set; }
+        public System.Collections.Generic.ICollection<ArchitectureFinding>? Findings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("proposedChanges")]
-        public ManifestDeltaProposal ProposedChanges { get; set; }
+        public ManifestDeltaProposal? ProposedChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resultId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ResultId { get; set; }
+        public string ResultId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("taskId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string TaskId { get; set; }
+        public string TaskId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27671,9 +27678,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diff")]
-        public AgentResultDiffResult Diff { get; set; }
+        public AgentResultDiffResult? Diff { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27689,15 +27696,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diff")]
-        public AgentResultDiffResult Diff { get; set; }
+        public AgentResultDiffResult? Diff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27713,53 +27720,54 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("addedClaims")]
-        public System.Collections.Generic.ICollection<string> AddedClaims { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedClaims { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedEvidenceRefs")]
-        public System.Collections.Generic.ICollection<string> AddedEvidenceRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedEvidenceRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedFindings")]
-        public System.Collections.Generic.ICollection<string> AddedFindings { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedFindings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedRequiredControls")]
-        public System.Collections.Generic.ICollection<string> AddedRequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedRequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedWarnings")]
-        public System.Collections.Generic.ICollection<string> AddedWarnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedWarnings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftConfidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? LeftConfidence { get; set; }
+        public double? LeftConfidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftExists")]
-        public bool LeftExists { get; set; }
+        public bool? LeftExists { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedClaims")]
-        public System.Collections.Generic.ICollection<string> RemovedClaims { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedClaims { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedEvidenceRefs")]
-        public System.Collections.Generic.ICollection<string> RemovedEvidenceRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedEvidenceRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedFindings")]
-        public System.Collections.Generic.ICollection<string> RemovedFindings { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedFindings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedRequiredControls")]
-        public System.Collections.Generic.ICollection<string> RemovedRequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedRequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedWarnings")]
-        public System.Collections.Generic.ICollection<string> RemovedWarnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedWarnings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightConfidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? RightConfidence { get; set; }
+        public double? RightConfidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightExists")]
-        public bool RightExists { get; set; }
+        public bool? RightExists { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27775,18 +27783,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentDeltas")]
-        public System.Collections.Generic.ICollection<AgentResultDelta> AgentDeltas { get; set; }
+        public System.Collections.Generic.ICollection<AgentResultDelta>? AgentDeltas { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27802,42 +27810,46 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public int AgentType { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("agentTypeKey")]
-        public string AgentTypeKey { get; set; }
+        public string? AgentTypeKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("allowedSources")]
-        public System.Collections.Generic.ICollection<string> AllowedSources { get; set; }
+        public System.Collections.Generic.ICollection<string>? AllowedSources { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("allowedTools")]
-        public System.Collections.Generic.ICollection<string> AllowedTools { get; set; }
+        public System.Collections.Generic.ICollection<string>? AllowedTools { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceBundleRef")]
-        public string EvidenceBundleRef { get; set; }
+        public string? EvidenceBundleRef { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("objective")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Objective { get; set; }
+        public string Objective { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int Status { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentTaskStatus Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("taskId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string TaskId { get; set; }
+        public string TaskId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27849,16 +27861,55 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum AgentTaskStatus
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Created")]
+        Created = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"InProgress")]
+        InProgress = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Completed")]
+        Completed = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Rejected")]
+        Rejected = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Failed")]
+        Failed = 4,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum AgentType
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Topology")]
+        Topology = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Cost")]
+        Cost = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Compliance")]
+        Compliance = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Critic")]
+        Critic = 3,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class AlertActionRequest
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("action")]
-        public string Action { get; set; }
+        public string? Action { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27874,42 +27925,42 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alertDeliveryAttemptId")]
-        public System.Guid AlertDeliveryAttemptId { get; set; }
+        public System.Guid? AlertDeliveryAttemptId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("alertId")]
-        public System.Guid AlertId { get; set; }
+        public System.Guid? AlertId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("attemptedUtc")]
-        public System.DateTimeOffset AttemptedUtc { get; set; }
+        public System.DateTimeOffset? AttemptedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("channelType")]
-        public string ChannelType { get; set; }
+        public string? ChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("destination")]
-        public string Destination { get; set; }
+        public string? Destination { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retryCount")]
-        public int RetryCount { get; set; }
+        public int? RetryCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("routingSubscriptionId")]
-        public System.Guid RoutingSubscriptionId { get; set; }
+        public System.Guid? RoutingSubscriptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -27925,66 +27976,66 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("acknowledgedByUserId")]
-        public string AcknowledgedByUserId { get; set; }
+        public string? AcknowledgedByUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("acknowledgedByUserName")]
-        public string AcknowledgedByUserName { get; set; }
+        public string? AcknowledgedByUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("alertId")]
-        public System.Guid AlertId { get; set; }
+        public System.Guid? AlertId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("deduplicationKey")]
-        public string DeduplicationKey { get; set; }
+        public string? DeduplicationKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastUpdatedUtc")]
-        public System.DateTimeOffset? LastUpdatedUtc { get; set; }
+        public System.DateTimeOffset? LastUpdatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendationId")]
-        public System.Guid? RecommendationId { get; set; }
+        public System.Guid? RecommendationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionComment")]
-        public string ResolutionComment { get; set; }
+        public string? ResolutionComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleId")]
-        public System.Guid RuleId { get; set; }
+        public System.Guid? RuleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("triggerValue")]
-        public string TriggerValue { get; set; }
+        public string? TriggerValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28000,42 +28051,42 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("channelType")]
-        public string ChannelType { get; set; }
+        public string? ChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("destination")]
-        public string Destination { get; set; }
+        public string? Destination { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastDeliveredUtc")]
-        public System.DateTimeOffset? LastDeliveredUtc { get; set; }
+        public System.DateTimeOffset? LastDeliveredUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
-        public string MetadataJson { get; set; }
+        public string? MetadataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("minimumSeverity")]
-        public string MinimumSeverity { get; set; }
+        public string? MinimumSeverity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("routingSubscriptionId")]
-        public System.Guid RoutingSubscriptionId { get; set; }
+        public System.Guid? RoutingSubscriptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28051,43 +28102,43 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
-        public string MetadataJson { get; set; }
+        public string? MetadataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleId")]
-        public System.Guid RuleId { get; set; }
+        public System.Guid? RuleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleType")]
-        public string RuleType { get; set; }
+        public string? RuleType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetChannelType")]
-        public string TargetChannelType { get; set; }
+        public string? TargetChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("thresholdValue")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double ThresholdValue { get; set; }
+        public double? ThresholdValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28103,19 +28154,19 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("conditionId")]
-        public System.Guid ConditionId { get; set; }
+        public System.Guid? ConditionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metricType")]
-        public string MetricType { get; set; }
+        public string? MetricType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("operator")]
-        public string Operator { get; set; }
+        public string? Operator { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("thresholdValue")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double ThresholdValue { get; set; }
+        public double? ThresholdValue { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28131,15 +28182,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alertId")]
-        public System.Guid AlertId { get; set; }
+        public System.Guid? AlertId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("succeeded")]
-        public bool Succeeded { get; set; }
+        public bool? Succeeded { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28155,12 +28206,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alertIds")]
-        public System.Collections.Generic.ICollection<System.Guid> AlertIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? AlertIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28176,9 +28227,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<AlertsAcknowledgeBatchItemResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<AlertsAcknowledgeBatchItemResult>? Results { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28194,12 +28245,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewComment")]
-        public string ReviewComment { get; set; }
+        public string? ReviewComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedBy")]
-        public string ReviewedBy { get; set; }
+        public string? ReviewedBy { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28215,18 +28266,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28242,36 +28293,36 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentResultDiff")]
-        public AgentResultDiffResult AgentResultDiff { get; set; }
+        public AgentResultDiffResult? AgentResultDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinism")]
-        public DeterminismCheckResult Determinism { get; set; }
+        public DeterminismCheckResult? Determinism { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("diagram")]
-        public string Diagram { get; set; }
+        public string? Diagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
-        public AgentEvidencePackage Evidence { get; set; }
+        public AgentEvidencePackage? Evidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionTraces")]
-        public System.Collections.Generic.ICollection<AgentExecutionTrace> ExecutionTraces { get; set; }
+        public System.Collections.Generic.ICollection<AgentExecutionTrace>? ExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestDiff")]
-        public ManifestDiffResult ManifestDiff { get; set; }
+        public ManifestDiffResult? ManifestDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public ArchitectureRun Run { get; set; }
+        public ArchitectureRun? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28287,9 +28338,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("report")]
-        public ArchitectureAnalysisReport Report { get; set; }
+        public ArchitectureAnalysisReport? Report { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28305,48 +28356,48 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("compareManifestVersion")]
-        public string CompareManifestVersion { get; set; }
+        public string? CompareManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareRunId")]
-        public string CompareRunId { get; set; }
+        public string? CompareRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinismIterations")]
-        public int DeterminismIterations { get; set; }
+        public int? DeterminismIterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeAgentResultCompare")]
-        public bool IncludeAgentResultCompare { get; set; }
+        public bool? IncludeAgentResultCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDeterminismCheck")]
-        public bool IncludeDeterminismCheck { get; set; }
+        public bool? IncludeDeterminismCheck { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDiagram")]
-        public bool IncludeDiagram { get; set; }
+        public bool? IncludeDiagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeEvidence")]
-        public bool IncludeEvidence { get; set; }
+        public bool? IncludeEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeExecutionTraces")]
-        public bool IncludeExecutionTraces { get; set; }
+        public bool? IncludeExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifest")]
-        public bool IncludeManifest { get; set; }
+        public bool? IncludeManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifestCompare")]
-        public bool IncludeManifestCompare { get; set; }
+        public bool? IncludeManifestCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeSummary")]
-        public bool IncludeSummary { get; set; }
+        public bool? IncludeSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("preloadedRun")]
-        public ArchitectureRun PreloadedRun { get; set; }
+        public ArchitectureRun? PreloadedRun { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("preloadedRunDetail")]
-        public ArchitectureRunDetail PreloadedRunDetail { get; set; }
+        public ArchitectureRunDetail? PreloadedRunDetail { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28362,42 +28413,42 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedUtc")]
-        public System.DateTimeOffset? ArchivedUtc { get; set; }
+        public System.DateTimeOffset? ArchivedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentMarkdown")]
-        public string ContentMarkdown { get; set; }
+        public string? ContentMarkdown { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("digestId")]
-        public System.Guid DigestId { get; set; }
+        public System.Guid? DigestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
-        public string MetadataJson { get; set; }
+        public string? MetadataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28413,24 +28464,25 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
-        public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? EvidenceRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAgent")]
-        public int SourceAgent { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? SourceAgent { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28447,24 +28499,24 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("fromNodeId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string FromNodeId { get; set; }
+        public string FromNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("toNodeId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ToNodeId { get; set; }
+        public string ToNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Type { get; set; }
+        public string Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28481,24 +28533,24 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referenceId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ReferenceId { get; set; }
+        public string ReferenceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Type { get; set; }
+        public string Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28514,56 +28566,58 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("assumptions")]
-        public System.Collections.Generic.ICollection<string> Assumptions { get; set; }
+        public System.Collections.Generic.ICollection<string>? Assumptions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("cloudProvider")]
-        public int CloudProvider { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public CloudProvider CloudProvider { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("constraints")]
-        public System.Collections.Generic.ICollection<string> Constraints { get; set; }
+        public System.Collections.Generic.ICollection<string>? Constraints { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
         [System.ComponentModel.DataAnnotations.Required]
         [System.ComponentModel.DataAnnotations.StringLength(int.MaxValue, MinimumLength = 10)]
-        public string Description { get; set; }
+        public string Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("documents")]
-        public System.Collections.Generic.ICollection<ContextDocumentRequest> Documents { get; set; }
+        public System.Collections.Generic.ICollection<ContextDocumentRequest>? Documents { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Environment { get; set; }
+        public string Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("infrastructureDeclarations")]
-        public System.Collections.Generic.ICollection<InfrastructureDeclarationRequest> InfrastructureDeclarations { get; set; }
+        public System.Collections.Generic.ICollection<InfrastructureDeclarationRequest>? InfrastructureDeclarations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("inlineRequirements")]
-        public System.Collections.Generic.ICollection<string> InlineRequirements { get; set; }
+        public System.Collections.Generic.ICollection<string>? InlineRequirements { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyReferences")]
-        public System.Collections.Generic.ICollection<string> PolicyReferences { get; set; }
+        public System.Collections.Generic.ICollection<string>? PolicyReferences { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorManifestVersion")]
-        public string PriorManifestVersion { get; set; }
+        public string? PriorManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RequestId { get; set; }
+        public string RequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredCapabilities")]
-        public System.Collections.Generic.ICollection<string> RequiredCapabilities { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredCapabilities { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("securityBaselineHints")]
-        public System.Collections.Generic.ICollection<string> SecurityBaselineHints { get; set; }
+        public System.Collections.Generic.ICollection<string>? SecurityBaselineHints { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string SystemName { get; set; }
+        public string SystemName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topologyHints")]
-        public System.Collections.Generic.ICollection<string> TopologyHints { get; set; }
+        public System.Collections.Generic.ICollection<string>? TopologyHints { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28579,51 +28633,53 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundleId")]
-        public System.Guid? ArtifactBundleId { get; set; }
+        public System.Guid? ArtifactBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public string ContextSnapshotId { get; set; }
+        public string? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
-        public string CurrentManifestVersion { get; set; }
+        public string? CurrentManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
-        public System.Guid? DecisionTraceId { get; set; }
+        public System.Guid? DecisionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public System.Guid? FindingsSnapshotId { get; set; }
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
-        public System.Guid? GoldenManifestId { get; set; }
+        public System.Guid? GoldenManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid? GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("otelTraceId")]
-        public string OtelTraceId { get; set; }
+        public string? OtelTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RequestId { get; set; }
+        public string RequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int Status { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public ArchitectureRunStatus Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("taskIds")]
-        public System.Collections.Generic.ICollection<string> TaskIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? TaskIds { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28639,27 +28695,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraces")]
-        public System.Collections.Generic.ICollection<object> DecisionTraces { get; set; }
+        public System.Collections.Generic.ICollection<object>? DecisionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasBrokenManifestReference")]
-        public bool HasBrokenManifestReference { get; set; }
+        public bool? HasBrokenManifestReference { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isCommitted")]
-        public bool IsCommitted { get; set; }
+        public bool? IsCommitted { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<AgentResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<AgentResult>? Results { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public ArchitectureRun Run { get; set; }
+        public ArchitectureRun? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tasks")]
-        public System.Collections.Generic.ICollection<AgentTask> Tasks { get; set; }
+        public System.Collections.Generic.ICollection<AgentTask>? Tasks { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28675,22 +28731,22 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("edges")]
-        public System.Collections.Generic.ICollection<ArchitectureLinkageEdge> Edges { get; set; }
+        public System.Collections.Generic.ICollection<ArchitectureLinkageEdge>? Edges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodes")]
-        public System.Collections.Generic.ICollection<ArchitectureLinkageNode> Nodes { get; set; }
+        public System.Collections.Generic.ICollection<ArchitectureLinkageNode>? Nodes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timeline")]
-        public System.Collections.Generic.ICollection<ArchitectureTraceTimelineEntry> Timeline { get; set; }
+        public System.Collections.Generic.ICollection<ArchitectureTraceTimelineEntry>? Timeline { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceabilityGaps")]
-        public System.Collections.Generic.ICollection<string> TraceabilityGaps { get; set; }
+        public System.Collections.Generic.ICollection<string>? TraceabilityGaps { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28702,27 +28758,51 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum ArchitectureRunStatus
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Created")]
+        Created = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"TasksGenerated")]
+        TasksGenerated = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"WaitingForResults")]
+        WaitingForResults = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReadyForCommit")]
+        ReadyForCommit = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Committed")]
+        Committed = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Failed")]
+        Failed = 5,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ArchitectureTraceTimelineEntry
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("kind")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Kind { get; set; }
+        public string Kind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Label { get; set; }
+        public string Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referenceId")]
-        public string ReferenceId { get; set; }
+        public string? ReferenceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timestampUtc")]
-        public System.DateTimeOffset TimestampUtc { get; set; }
+        public System.DateTimeOffset? TimestampUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28738,18 +28818,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scopeProjectId")]
-        public System.Guid ScopeProjectId { get; set; }
+        public System.Guid? ScopeProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28765,33 +28845,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifacts")]
-        public System.Collections.Generic.ICollection<SynthesizedArtifact> Artifacts { get; set; }
+        public System.Collections.Generic.ICollection<SynthesizedArtifact>? Artifacts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("bundleId")]
-        public System.Guid BundleId { get; set; }
+        public System.Guid? BundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
-        public System.Guid ManifestId { get; set; }
+        public System.Guid? ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trace")]
-        public SynthesisTrace Trace { get; set; }
+        public SynthesisTrace? Trace { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28807,30 +28887,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactId")]
-        public System.Guid ArtifactId { get; set; }
+        public System.Guid? ArtifactId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactType")]
-        public string ArtifactType { get; set; }
+        public string? ArtifactType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentHash")]
-        public string ContentHash { get; set; }
+        public string? ContentHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
-        public System.Guid? ManifestId { get; set; }
+        public System.Guid? ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28846,47 +28926,47 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("acceptedOrTrustedCount")]
-        public int AcceptedOrTrustedCount { get; set; }
+        public int? AcceptedOrTrustedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactTypeOrHint")]
-        public string ArtifactTypeOrHint { get; set; }
+        public string? ArtifactTypeOrHint { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("averageTrustScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageTrustScore { get; set; }
+        public double? AverageTrustScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("averageUsefulnessScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageUsefulnessScore { get; set; }
+        public double? AverageUsefulnessScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunCount")]
-        public int DistinctRunCount { get; set; }
+        public int? DistinctRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstSeenUtc")]
-        public System.DateTimeOffset FirstSeenUtc { get; set; }
+        public System.DateTimeOffset? FirstSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastSeenUtc")]
-        public System.DateTimeOffset LastSeenUtc { get; set; }
+        public System.DateTimeOffset? LastSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needsFollowUpCount")]
-        public int NeedsFollowUpCount { get; set; }
+        public int? NeedsFollowUpCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rejectionCount")]
-        public int RejectionCount { get; set; }
+        public int? RejectionCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("repeatedThemeIndicator")]
-        public string RepeatedThemeIndicator { get; set; }
+        public string? RepeatedThemeIndicator { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("revisionCount")]
-        public int RevisionCount { get; set; }
+        public int? RevisionCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trendKey")]
-        public string TrendKey { get; set; }
+        public string? TrendKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("windowLabel")]
-        public string WindowLabel { get; set; }
+        public string? WindowLabel { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28902,21 +28982,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baseRunId")]
-        public System.Guid? BaseRunId { get; set; }
+        public System.Guid? BaseRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("question")]
-        public string Question { get; set; }
+        public string? Question { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetRunId")]
-        public System.Guid? TargetRunId { get; set; }
+        public System.Guid? TargetRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("threadId")]
-        public System.Guid? ThreadId { get; set; }
+        public System.Guid? ThreadId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28932,21 +29012,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("answer")]
-        public string Answer { get; set; }
+        public string? Answer { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referencedArtifacts")]
-        public System.Collections.Generic.ICollection<string> ReferencedArtifacts { get; set; }
+        public System.Collections.Generic.ICollection<string>? ReferencedArtifacts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referencedDecisions")]
-        public System.Collections.Generic.ICollection<string> ReferencedDecisions { get; set; }
+        public System.Collections.Generic.ICollection<string>? ReferencedDecisions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referencedFindings")]
-        public System.Collections.Generic.ICollection<string> ReferencedFindings { get; set; }
+        public System.Collections.Generic.ICollection<string>? ReferencedFindings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("threadId")]
-        public System.Guid ThreadId { get; set; }
+        public System.Guid? ThreadId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28962,15 +29042,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
-        public bool IsPinned { get; set; }
+        public bool? IsPinned { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scopeLevel")]
-        public string ScopeLevel { get; set; }
+        public string? ScopeLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("version")]
-        public string Version { get; set; }
+        public string? Version { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -28986,9 +29066,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("enabled")]
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29004,9 +29084,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("jobId")]
-        public string JobId { get; set; }
+        public string? JobId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29022,45 +29102,45 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("actorUserId")]
-        public string ActorUserId { get; set; }
+        public string? ActorUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("actorUserName")]
-        public string ActorUserName { get; set; }
+        public string? ActorUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactId")]
-        public System.Guid? ArtifactId { get; set; }
+        public System.Guid? ArtifactId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("correlationId")]
-        public string CorrelationId { get; set; }
+        public string? CorrelationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("dataJson")]
-        public string DataJson { get; set; }
+        public string? DataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventId")]
-        public System.Guid EventId { get; set; }
+        public System.Guid? EventId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventType")]
-        public string EventType { get; set; }
+        public string? EventType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
-        public System.Guid? ManifestId { get; set; }
+        public System.Guid? ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
-        public System.DateTimeOffset OccurredUtc { get; set; }
+        public System.DateTimeOffset? OccurredUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29076,38 +29156,38 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentType")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("error")]
-        public string Error { get; set; }
+        public string? Error { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("jobId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string JobId { get; set; }
+        public string JobId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("maxRetries")]
-        public int MaxRetries { get; set; } = 0;
+        public int? MaxRetries { get; set; } = 0;
 
         [System.Text.Json.Serialization.JsonPropertyName("retryCount")]
-        public int RetryCount { get; set; } = 0;
+        public int? RetryCount { get; set; } = 0;
 
         [System.Text.Json.Serialization.JsonPropertyName("startedUtc")]
-        public System.DateTimeOffset? StartedUtc { get; set; }
+        public System.DateTimeOffset? StartedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("state")]
-        public int State { get; set; }
+        public int State { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29123,21 +29203,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordIds")]
-        public System.Collections.Generic.ICollection<string> ComparisonRecordIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? ComparisonRecordIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistReplay")]
-        public bool PersistReplay { get; set; }
+        public bool? PersistReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("profile")]
-        public string Profile { get; set; }
+        public string? Profile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayMode")]
-        public string ReplayMode { get; set; }
+        public string? ReplayMode { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29153,24 +29233,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("billingEmail")]
-        public string BillingEmail { get; set; }
+        public string? BillingEmail { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("cancelUrl")]
-        public string CancelUrl { get; set; }
+        public string? CancelUrl { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("returnUrl")]
-        public string ReturnUrl { get; set; }
+        public string? ReturnUrl { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("seats")]
-        public int Seats { get; set; }
+        public int? Seats { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetTier")]
-        public string TargetTier { get; set; }
+        public string? TargetTier { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaces")]
-        public int Workspaces { get; set; }
+        public int? Workspaces { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29187,16 +29267,16 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("checkoutUrl")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string CheckoutUrl { get; set; }
+        public string CheckoutUrl { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("expiresUtc")]
-        public System.DateTimeOffset? ExpiresUtc { get; set; }
+        public System.DateTimeOffset? ExpiresUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("providerSessionId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ProviderSessionId { get; set; }
+        public string ProviderSessionId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29212,18 +29292,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("periodEndUtc")]
-        public System.DateTimeOffset? PeriodEndUtc { get; set; }
+        public System.DateTimeOffset? PeriodEndUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("periodStartUtc")]
-        public System.DateTimeOffset? PeriodStartUtc { get; set; }
+        public System.DateTimeOffset? PeriodStartUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("quarter")]
-        public int Quarter { get; set; }
+        public int? Quarter { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("year")]
-        public int Year { get; set; }
+        public int? Year { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29239,27 +29319,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("application")]
-        public string Application { get; set; }
+        public string? Application { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("assemblyVersion")]
-        public string AssemblyVersion { get; set; }
+        public string? AssemblyVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("commitSha")]
-        public string CommitSha { get; set; }
+        public string? CommitSha { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileVersion")]
-        public string FileVersion { get; set; }
+        public string? FileVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("informationalVersion")]
-        public string InformationalVersion { get; set; }
+        public string? InformationalVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runtimeFramework")]
-        public string RuntimeFramework { get; set; }
+        public string? RuntimeFramework { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29275,12 +29355,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("value")]
-        public string Value { get; set; }
+        public string? Value { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29296,12 +29376,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("claims")]
-        public System.Collections.Generic.ICollection<CallerClaimResponse> Claims { get; set; }
+        public System.Collections.Generic.ICollection<CallerClaimResponse>? Claims { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29317,24 +29397,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("objectId")]
-        public string ObjectId { get; set; }
+        public string? ObjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("objectType")]
-        public string ObjectType { get; set; }
+        public string? ObjectType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("properties")]
-        public System.Collections.Generic.IDictionary<string, string> Properties { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Properties { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceId")]
-        public string SourceId { get; set; }
+        public string? SourceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceType")]
-        public string SourceType { get; set; }
+        public string? SourceType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29375,19 +29455,19 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Id { get; set; }
+        public string Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("kind")]
-        public CitationKind Kind { get; set; }
+        public CitationKind Kind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Label { get; set; }
+        public string Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29403,24 +29483,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("context")]
-        public System.Collections.Generic.IDictionary<string, string> Context { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Context { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pathname")]
-        public string Pathname { get; set; }
+        public string? Pathname { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("stack")]
-        public string Stack { get; set; }
+        public string? Stack { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timestampUtc")]
-        public string TimestampUtc { get; set; }
+        public string? TimestampUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("userAgent")]
-        public string UserAgent { get; set; }
+        public string? UserAgent { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29432,19 +29512,28 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum CloudProvider
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Azure")]
+        Azure = 0,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class CommitRunResponse
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraces")]
-        public System.Collections.Generic.ICollection<object> DecisionTraces { get; set; }
+        public System.Collections.Generic.ICollection<object>? DecisionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29460,18 +29549,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("highLevelSummary")]
-        public string HighLevelSummary { get; set; }
+        public string? HighLevelSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("keyTradeoffs")]
-        public System.Collections.Generic.ICollection<string> KeyTradeoffs { get; set; }
+        public System.Collections.Generic.ICollection<string>? KeyTradeoffs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("majorChanges")]
-        public System.Collections.Generic.ICollection<string> MajorChanges { get; set; }
+        public System.Collections.Generic.ICollection<string>? MajorChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("narrative")]
-        public string Narrative { get; set; }
+        public string? Narrative { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29487,54 +29576,54 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
-        public string ComparisonType { get; set; }
+        public string? ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdFromUtc")]
-        public System.DateTimeOffset? CreatedFromUtc { get; set; }
+        public System.DateTimeOffset? CreatedFromUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdToUtc")]
-        public System.DateTimeOffset? CreatedToUtc { get; set; }
+        public System.DateTimeOffset? CreatedToUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftExportRecordId")]
-        public string LeftExportRecordId { get; set; }
+        public string? LeftExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("limit")]
-        public int? Limit { get; set; }
+        public int? Limit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nextCursor")]
-        public string NextCursor { get; set; }
+        public string? NextCursor { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("records")]
-        public System.Collections.Generic.ICollection<ComparisonRecord> Records { get; set; }
+        public System.Collections.Generic.ICollection<ComparisonRecord>? Records { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightExportRecordId")]
-        public string RightExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("skip")]
-        public int? Skip { get; set; }
+        public int? Skip { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sortBy")]
-        public string SortBy { get; set; }
+        public string? SortBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sortDir")]
-        public string SortDir { get; set; }
+        public string? SortDir { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tag")]
-        public string Tag { get; set; }
+        public string? Tag { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29550,51 +29639,51 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordId")]
-        public string ComparisonRecordId { get; set; }
+        public string? ComparisonRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
-        public string ComparisonType { get; set; }
+        public string? ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftExportRecordId")]
-        public string LeftExportRecordId { get; set; }
+        public string? LeftExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestVersion")]
-        public string LeftManifestVersion { get; set; }
+        public string? LeftManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("payloadJson")]
-        public string PayloadJson { get; set; }
+        public string? PayloadJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightExportRecordId")]
-        public string RightExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestVersion")]
-        public string RightManifestVersion { get; set; }
+        public string? RightManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryMarkdown")]
-        public string SummaryMarkdown { get; set; }
+        public string? SummaryMarkdown { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29610,9 +29699,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("record")]
-        public ComparisonRecord Record { get; set; }
+        public ComparisonRecord? Record { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29628,15 +29717,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approximateRelativeScore")]
-        public int ApproximateRelativeScore { get; set; }
+        public int? ApproximateRelativeScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ComparisonRecordId { get; set; }
+        public string ComparisonRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ComparisonType { get; set; }
+        public string ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("factors")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -29644,20 +29733,20 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Format { get; set; }
+        public string Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistReplay")]
-        public bool PersistReplay { get; set; }
+        public bool? PersistReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relativeCostBand")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RelativeCostBand { get; set; }
+        public string RelativeCostBand { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayMode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ReplayMode { get; set; }
+        public string ReplayMode { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29673,33 +29762,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baseRunId")]
-        public System.Guid BaseRunId { get; set; }
+        public System.Guid? BaseRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("costChanges")]
-        public System.Collections.Generic.ICollection<CostDelta> CostChanges { get; set; }
+        public System.Collections.Generic.ICollection<CostDelta>? CostChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionChanges")]
-        public System.Collections.Generic.ICollection<DecisionDelta> DecisionChanges { get; set; }
+        public System.Collections.Generic.ICollection<DecisionDelta>? DecisionChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requirementChanges")]
-        public System.Collections.Generic.ICollection<RequirementDelta> RequirementChanges { get; set; }
+        public System.Collections.Generic.ICollection<RequirementDelta>? RequirementChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("securityChanges")]
-        public System.Collections.Generic.ICollection<SecurityDelta> SecurityChanges { get; set; }
+        public System.Collections.Generic.ICollection<SecurityDelta>? SecurityChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryHighlights")]
-        public System.Collections.Generic.ICollection<string> SummaryHighlights { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryHighlights { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetRunId")]
-        public System.Guid TargetRunId { get; set; }
+        public System.Guid? TargetRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topologyChanges")]
-        public System.Collections.Generic.ICollection<TopologyDelta> TopologyChanges { get; set; }
+        public System.Collections.Generic.ICollection<TopologyDelta>? TopologyChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalDeltaCount")]
-        public int TotalDeltaCount { get; set; }
+        public int? TotalDeltaCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29715,18 +29804,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordId")]
-        public string ComparisonRecordId { get; set; }
+        public string? ComparisonRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
-        public string ComparisonType { get; set; }
+        public string? ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29742,15 +29831,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("bucketUtc")]
-        public System.DateTimeOffset BucketUtc { get; set; }
+        public System.DateTimeOffset? BucketUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changeCount")]
-        public int ChangeCount { get; set; }
+        public int? ChangeCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changesByType")]
-        public System.Collections.Generic.IDictionary<string, int> ChangesByType { get; set; }
+        public System.Collections.Generic.IDictionary<string, int>? ChangesByType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29766,52 +29855,52 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("compositeRuleId")]
-        public System.Guid CompositeRuleId { get; set; }
+        public System.Guid? CompositeRuleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("conditions")]
-        public System.Collections.Generic.ICollection<AlertRuleCondition> Conditions { get; set; }
+        public System.Collections.Generic.ICollection<AlertRuleCondition>? Conditions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("cooldownMinutes")]
-        public int CooldownMinutes { get; set; }
+        public int? CooldownMinutes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("dedupeScope")]
-        public string DedupeScope { get; set; }
+        public string? DedupeScope { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("operator")]
-        public string Operator { get; set; }
+        public string? Operator { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reopenDeltaThreshold")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double ReopenDeltaThreshold { get; set; }
+        public double? ReopenDeltaThreshold { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suppressionWindowMinutes")]
-        public int SuppressionWindowMinutes { get; set; }
+        public int? SuppressionWindowMinutes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetChannelType")]
-        public string TargetChannelType { get; set; }
+        public string? TargetChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29827,63 +29916,63 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("audience")]
-        public string Audience { get; set; }
+        public string? Audience { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareManifestVersion")]
-        public string CompareManifestVersion { get; set; }
+        public string? CompareManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareRunId")]
-        public string CompareRunId { get; set; }
+        public string? CompareRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinismIterations")]
-        public int DeterminismIterations { get; set; }
+        public int? DeterminismIterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executiveFriendly")]
-        public bool ExecutiveFriendly { get; set; }
+        public bool? ExecutiveFriendly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("externalDelivery")]
-        public bool ExternalDelivery { get; set; }
+        public bool? ExternalDelivery { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeAgentResultCompare")]
-        public bool IncludeAgentResultCompare { get; set; }
+        public bool? IncludeAgentResultCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDeterminismCheck")]
-        public bool IncludeDeterminismCheck { get; set; }
+        public bool? IncludeDeterminismCheck { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDiagram")]
-        public bool IncludeDiagram { get; set; }
+        public bool? IncludeDiagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeEvidence")]
-        public bool IncludeEvidence { get; set; }
+        public bool? IncludeEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeExecutionTraces")]
-        public bool IncludeExecutionTraces { get; set; }
+        public bool? IncludeExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifest")]
-        public bool IncludeManifest { get; set; }
+        public bool? IncludeManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifestCompare")]
-        public bool IncludeManifestCompare { get; set; }
+        public bool? IncludeManifestCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeSummary")]
-        public bool IncludeSummary { get; set; }
+        public bool? IncludeSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDetailedEvidence")]
-        public bool NeedDetailedEvidence { get; set; }
+        public bool? NeedDetailedEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDeterminismOrCompareAppendices")]
-        public bool NeedDeterminismOrCompareAppendices { get; set; }
+        public bool? NeedDeterminismOrCompareAppendices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needExecutionTraces")]
-        public bool NeedExecutionTraces { get; set; }
+        public bool? NeedExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regulatedEnvironment")]
-        public bool RegulatedEnvironment { get; set; }
+        public bool? RegulatedEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfile")]
-        public string TemplateProfile { get; set; }
+        public string? TemplateProfile { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29899,18 +29988,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alternativeProfiles")]
-        public System.Collections.Generic.ICollection<string> AlternativeProfiles { get; set; }
+        public System.Collections.Generic.ICollection<string>? AlternativeProfiles { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reason")]
-        public string Reason { get; set; }
+        public string? Reason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedProfileDisplayName")]
-        public string RecommendedProfileDisplayName { get; set; }
+        public string? RecommendedProfileDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedProfileName")]
-        public string RecommendedProfileName { get; set; }
+        public string? RecommendedProfileName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29926,27 +30015,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("audience")]
-        public string Audience { get; set; }
+        public string? Audience { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executiveFriendly")]
-        public bool ExecutiveFriendly { get; set; }
+        public bool? ExecutiveFriendly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("externalDelivery")]
-        public bool ExternalDelivery { get; set; }
+        public bool? ExternalDelivery { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDetailedEvidence")]
-        public bool NeedDetailedEvidence { get; set; }
+        public bool? NeedDetailedEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDeterminismOrCompareAppendices")]
-        public bool NeedDeterminismOrCompareAppendices { get; set; }
+        public bool? NeedDeterminismOrCompareAppendices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needExecutionTraces")]
-        public bool NeedExecutionTraces { get; set; }
+        public bool? NeedExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regulatedEnvironment")]
-        public bool RegulatedEnvironment { get; set; }
+        public bool? RegulatedEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29962,9 +30051,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendation")]
-        public ConsultingDocxProfileRecommendation Recommendation { get; set; }
+        public ConsultingDocxProfileRecommendation? Recommendation { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -29980,12 +30069,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("profile")]
-        public string Profile { get; set; }
+        public string? Profile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateName")]
-        public string TemplateName { get; set; }
+        public string? TemplateName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30001,24 +30090,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("requestedProfile")]
-        public string RequestedProfile { get; set; }
+        public string? RequestedProfile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestedTemplateName")]
-        public string RequestedTemplateName { get; set; }
+        public string? RequestedTemplateName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionReason")]
-        public string ResolutionReason { get; set; }
+        public string? ResolutionReason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolvedProfile")]
-        public string ResolvedProfile { get; set; }
+        public string? ResolvedProfile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolvedProfileDisplayName")]
-        public string ResolvedProfileDisplayName { get; set; }
+        public string? ResolvedProfileDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wasAutoSelected")]
-        public bool WasAutoSelected { get; set; }
+        public bool? WasAutoSelected { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30034,15 +30123,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentType")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30058,33 +30147,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("canonicalObjects")]
-        public System.Collections.Generic.ICollection<CanonicalObject> CanonicalObjects { get; set; }
+        public System.Collections.Generic.ICollection<CanonicalObject>? CanonicalObjects { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("deltaSummary")]
-        public string DeltaSummary { get; set; }
+        public string? DeltaSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errors")]
-        public System.Collections.Generic.ICollection<string> Errors { get; set; }
+        public System.Collections.Generic.ICollection<string>? Errors { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public string ProjectId { get; set; }
+        public string? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("snapshotId")]
-        public System.Guid SnapshotId { get; set; }
+        public System.Guid? SnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceHashes")]
-        public System.Collections.Generic.IDictionary<string, string> SourceHashes { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? SourceHashes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30100,24 +30189,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("messageId")]
-        public System.Guid MessageId { get; set; }
+        public System.Guid? MessageId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
-        public string MetadataJson { get; set; }
+        public string? MetadataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("role")]
-        public string Role { get; set; }
+        public string? Role { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("threadId")]
-        public System.Guid ThreadId { get; set; }
+        public System.Guid? ThreadId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30133,39 +30222,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedUtc")]
-        public System.DateTimeOffset? ArchivedUtc { get; set; }
+        public System.DateTimeOffset? ArchivedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baseRunId")]
-        public System.Guid? BaseRunId { get; set; }
+        public System.Guid? BaseRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastUpdatedUtc")]
-        public System.DateTimeOffset LastUpdatedUtc { get; set; }
+        public System.DateTimeOffset? LastUpdatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetRunId")]
-        public System.Guid? TargetRunId { get; set; }
+        public System.Guid? TargetRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("threadId")]
-        public System.Guid ThreadId { get; set; }
+        public System.Guid? ThreadId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30182,13 +30271,13 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("baseCost")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? BaseCost { get; set; }
+        public double? BaseCost { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetCost")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? TargetCost { get; set; }
+        public double? TargetCost { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30204,15 +30293,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceBundle")]
-        public EvidenceBundle EvidenceBundle { get; set; }
+        public EvidenceBundle? EvidenceBundle { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public ArchitectureRun Run { get; set; }
+        public ArchitectureRun? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tasks")]
-        public System.Collections.Generic.ICollection<AgentTask> Tasks { get; set; }
+        public System.Collections.Generic.ICollection<AgentTask>? Tasks { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30228,15 +30317,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30252,21 +30341,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestComment")]
-        public string RequestComment { get; set; }
+        public string? RequestComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30282,12 +30371,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30303,15 +30392,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30327,27 +30416,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestId")]
-        public string ApprovalRequestId { get; set; }
+        public string? ApprovalRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promotedBy")]
-        public string PromotedBy { get; set; }
+        public string? PromotedBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30363,18 +30452,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("initialContentJson")]
-        public string InitialContentJson { get; set; }
+        public string? InitialContentJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("packType")]
-        public string PackType { get; set; }
+        public string? PackType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30392,24 +30481,24 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordsLeftRunIdOrphans")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long ComparisonRecordsLeftRunIdOrphans { get; set; }
+        public long ComparisonRecordsLeftRunIdOrphans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordsRightRunIdOrphans")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long ComparisonRecordsRightRunIdOrphans { get; set; }
+        public long ComparisonRecordsRightRunIdOrphans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotsRunIdOrphans")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long FindingsSnapshotsRunIdOrphans { get; set; }
+        public long FindingsSnapshotsRunIdOrphans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestsRunIdOrphans")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long GoldenManifestsRunIdOrphans { get; set; }
+        public long GoldenManifestsRunIdOrphans { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30421,22 +30510,46 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum DatastoreType
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Unknown")]
+        Unknown = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Sql")]
+        Sql = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"NoSql")]
+        NoSql = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Object")]
+        Object = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Cache")]
+        Cache = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Search")]
+        Search = 5,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class DecisionDelta
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baseValue")]
-        public string BaseValue { get; set; }
+        public string? BaseValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changeType")]
-        public string ChangeType { get; set; }
+        public string? ChangeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionKey")]
-        public string DecisionKey { get; set; }
+        public string? DecisionKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetValue")]
-        public string TargetValue { get; set; }
+        public string? TargetValue { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30453,36 +30566,36 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("confidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double Confidence { get; set; }
+        public double? Confidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionId")]
-        public string DecisionId { get; set; }
+        public string? DecisionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("opposingEvaluationIds")]
-        public System.Collections.Generic.ICollection<string> OpposingEvaluationIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? OpposingEvaluationIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("options")]
-        public System.Collections.Generic.ICollection<DecisionOption> Options { get; set; }
+        public System.Collections.Generic.ICollection<DecisionOption>? Options { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("selectedOptionId")]
-        public string SelectedOptionId { get; set; }
+        public string? SelectedOptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("supportingEvaluationIds")]
-        public System.Collections.Generic.ICollection<string> SupportingEvaluationIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? SupportingEvaluationIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topic")]
-        public string Topic { get; set; }
+        public string? Topic { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30498,9 +30611,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisions")]
-        public System.Collections.Generic.ICollection<DecisionNode> Decisions { get; set; }
+        public System.Collections.Generic.ICollection<DecisionNode>? Decisions { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30517,30 +30630,30 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("baseConfidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double BaseConfidence { get; set; }
+        public double? BaseConfidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
-        public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? EvidenceRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("finalScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double FinalScore { get; set; }
+        public double? FinalScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("oppositionScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double OppositionScore { get; set; }
+        public double? OppositionScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("optionId")]
-        public string OptionId { get; set; }
+        public string? OptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("supportScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double SupportScore { get; set; }
+        public double? SupportScore { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30556,18 +30669,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("edges")]
-        public System.Collections.Generic.ICollection<ProvenanceEdge> Edges { get; set; }
+        public System.Collections.Generic.ICollection<ProvenanceEdge>? Edges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodes")]
-        public System.Collections.Generic.ICollection<ProvenanceNode> Nodes { get; set; }
+        public System.Collections.Generic.ICollection<ProvenanceNode>? Nodes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30583,27 +30696,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphJson")]
-        public string GraphJson { get; set; }
+        public string? GraphJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30618,7 +30731,7 @@ namespace ArchLucid.Api.Client.Generated
     public partial class DecisionTrace
     {
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30634,21 +30747,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("details")]
-        public object Details { get; set; }
+        public object? Details { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("kind")]
-        public string Kind { get; set; }
+        public string? Kind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public string TraceId { get; set; }
+        public string? TraceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30672,13 +30785,13 @@ namespace ArchLucid.Api.Client.Generated
         public DemoPreviewAuthorityChain AuthorityChain { get; set; } = new DemoPreviewAuthorityChain();
 
         [System.Text.Json.Serialization.JsonPropertyName("demoStatusMessage")]
-        public string DemoStatusMessage { get; set; }
+        public string? DemoStatusMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isDemoData")]
-        public bool IsDemoData { get; set; }
+        public bool? IsDemoData { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -30696,7 +30809,7 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.Required]
         public RunExplanationSummary RunExplanation { get; set; } = new RunExplanationSummary();
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30712,16 +30825,16 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("demoStatusMessage")]
-        public string DemoStatusMessage { get; set; }
+        public string? DemoStatusMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isDemoData")]
-        public bool IsDemoData { get; set; }
+        public bool? IsDemoData { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("provenanceGraph")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -30732,9 +30845,9 @@ namespace ArchLucid.Api.Client.Generated
         public RunExplanationSummary RunExplanation { get; set; } = new RunExplanationSummary();
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30751,29 +30864,29 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ArtifactId { get; set; }
+        public string ArtifactId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ArtifactType { get; set; }
+        public string ArtifactType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentHash")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ContentHash { get; set; }
+        public string ContentHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Format { get; set; }
+        public string Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Name { get; set; }
+        public string Name { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30789,24 +30902,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundleId")]
-        public string ArtifactBundleId { get; set; }
+        public string? ArtifactBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public string ContextSnapshotId { get; set; }
+        public string? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
-        public string DecisionTraceId { get; set; }
+        public string? DecisionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public string FindingsSnapshotId { get; set; }
+        public string? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
-        public string GoldenManifestId { get; set; }
+        public string? GoldenManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public string GraphSnapshotId { get; set; }
+        public string? GraphSnapshotId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30823,52 +30936,52 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
-        public int DecisionCount { get; set; }
+        public int? DecisionCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasUnresolvedIssues")]
-        public bool HasUnresolvedIssues { get; set; }
+        public bool? HasUnresolvedIssues { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasWarnings")]
-        public bool HasWarnings { get; set; }
+        public bool? HasWarnings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestHash")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ManifestHash { get; set; }
+        public string ManifestHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ManifestId { get; set; }
+        public string ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("operatorSummary")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string OperatorSummary { get; set; }
+        public string OperatorSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleSetId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RuleSetId { get; set; }
+        public string RuleSetId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleSetVersion")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RuleSetVersion { get; set; }
+        public string RuleSetVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Status { get; set; }
+        public string Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
-        public int UnresolvedIssueCount { get; set; }
+        public int? UnresolvedIssueCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warningCount")]
-        public int WarningCount { get; set; }
+        public int? WarningCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30885,20 +30998,20 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ProjectId { get; set; }
+        public string ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30915,24 +31028,24 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("actorUserName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ActorUserName { get; set; }
+        public string ActorUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("correlationId")]
-        public string CorrelationId { get; set; }
+        public string? CorrelationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EventId { get; set; }
+        public string EventId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EventType { get; set; }
+        public string EventType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset OccurredUtc { get; set; }
+        public System.DateTimeOffset OccurredUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30948,18 +31061,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("commitReplays")]
-        public bool CommitReplays { get; set; }
+        public bool? CommitReplays { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionMode")]
-        public string ExecutionMode { get; set; }
+        public string? ExecutionMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("iterations")]
-        public int Iterations { get; set; }
+        public int? Iterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30975,9 +31088,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("result")]
-        public DeterminismCheckResult Result { get; set; }
+        public DeterminismCheckResult? Result { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -30993,27 +31106,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReplayRunId")]
-        public string BaselineReplayRunId { get; set; }
+        public string? BaselineReplayRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionMode")]
-        public string ExecutionMode { get; set; }
+        public string? ExecutionMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isDeterministic")]
-        public bool IsDeterministic { get; set; }
+        public bool? IsDeterministic { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("iterationResults")]
-        public System.Collections.Generic.ICollection<DeterminismIterationResult> IterationResults { get; set; }
+        public System.Collections.Generic.ICollection<DeterminismIterationResult>? IterationResults { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("iterations")]
-        public int Iterations { get; set; }
+        public int? Iterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceRunId")]
-        public string SourceRunId { get; set; }
+        public string? SourceRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31029,24 +31142,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentDriftWarnings")]
-        public System.Collections.Generic.ICollection<string> AgentDriftWarnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? AgentDriftWarnings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("iterationNumber")]
-        public int IterationNumber { get; set; }
+        public int? IterationNumber { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestDriftWarnings")]
-        public System.Collections.Generic.ICollection<string> ManifestDriftWarnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? ManifestDriftWarnings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("matchesBaselineAgentResults")]
-        public bool MatchesBaselineAgentResults { get; set; }
+        public bool? MatchesBaselineAgentResults { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("matchesBaselineManifest")]
-        public bool MatchesBaselineManifest { get; set; }
+        public bool? MatchesBaselineManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayRunId")]
-        public string ReplayRunId { get; set; }
+        public string? ReplayRunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31062,15 +31175,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diagram")]
-        public string Diagram { get; set; }
+        public string? Diagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31086,24 +31199,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("afterValue")]
-        public string AfterValue { get; set; }
+        public string? AfterValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("beforeValue")]
-        public string BeforeValue { get; set; }
+        public string? BeforeValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("diffKind")]
-        public string DiffKind { get; set; }
+        public string? DiffKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("key")]
-        public string Key { get; set; }
+        public string? Key { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("section")]
-        public string Section { get; set; }
+        public string? Section { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31119,39 +31232,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("attemptId")]
-        public System.Guid AttemptId { get; set; }
+        public System.Guid? AttemptId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("attemptedUtc")]
-        public System.DateTimeOffset AttemptedUtc { get; set; }
+        public System.DateTimeOffset? AttemptedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("channelType")]
-        public string ChannelType { get; set; }
+        public string? ChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("destination")]
-        public string Destination { get; set; }
+        public string? Destination { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("digestId")]
-        public System.Guid DigestId { get; set; }
+        public System.Guid? DigestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("subscriptionId")]
-        public System.Guid SubscriptionId { get; set; }
+        public System.Guid? SubscriptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31167,39 +31280,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("channelType")]
-        public string ChannelType { get; set; }
+        public string? ChannelType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("destination")]
-        public string Destination { get; set; }
+        public string? Destination { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastDeliveredUtc")]
-        public System.DateTimeOffset? LastDeliveredUtc { get; set; }
+        public System.DateTimeOffset? LastDeliveredUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataJson")]
-        public string MetadataJson { get; set; }
+        public string? MetadataJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("subscriptionId")]
-        public System.Guid SubscriptionId { get; set; }
+        public System.Guid? SubscriptionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31215,15 +31328,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("driftDetected")]
-        public bool DriftDetected { get; set; }
+        public bool? DriftDetected { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<DriftItemResponse> Items { get; set; }
+        public System.Collections.Generic.ICollection<DriftItemResponse>? Items { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31239,21 +31352,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("path")]
-        public string Path { get; set; }
+        public string? Path { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regeneratedValue")]
-        public string RegeneratedValue { get; set; }
+        public string? RegeneratedValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("storedValue")]
-        public string StoredValue { get; set; }
+        public string? StoredValue { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31269,27 +31382,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("conflicts")]
-        public System.Collections.Generic.ICollection<GovernanceConflictRecord> Conflicts { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceConflictRecord>? Conflicts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisions")]
-        public System.Collections.Generic.ICollection<GovernanceResolutionDecision> Decisions { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceResolutionDecision>? Decisions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("effectiveContent")]
-        public PolicyPackContentDocument EffectiveContent { get; set; }
+        public PolicyPackContentDocument? EffectiveContent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31305,18 +31418,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("packs")]
-        public System.Collections.Generic.ICollection<ResolvedPolicyPack> Packs { get; set; }
+        public System.Collections.Generic.ICollection<ResolvedPolicyPack>? Packs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31332,15 +31445,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31356,30 +31469,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentResultDiff")]
-        public AgentResultDiffResult AgentResultDiff { get; set; }
+        public AgentResultDiffResult? AgentResultDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("exportDiffs")]
-        public System.Collections.Generic.ICollection<ExportRecordDiffResult> ExportDiffs { get; set; }
+        public System.Collections.Generic.ICollection<ExportRecordDiffResult>? ExportDiffs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("interpretationNotes")]
-        public System.Collections.Generic.ICollection<string> InterpretationNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? InterpretationNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestDiff")]
-        public ManifestDiffResult ManifestDiff { get; set; }
+        public ManifestDiffResult? ManifestDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runDiff")]
-        public RunMetadataDiffResult RunDiff { get; set; }
+        public RunMetadataDiffResult? RunDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31395,9 +31508,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("report")]
-        public EndToEndReplayComparisonReport Report { get; set; }
+        public EndToEndReplayComparisonReport? Report { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31413,12 +31526,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31434,12 +31547,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("isWeak")]
-        public bool IsWeak { get; set; }
+        public bool? IsWeak { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tag")]
-        public StringSegment Tag { get; set; }
+        public StringSegment? Tag { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31456,28 +31569,28 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? ConfidenceScore { get; set; }
+        public double? ConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinismScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? DeterminismScore { get; set; }
+        public double? DeterminismScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("improvementDelta")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? ImprovementDelta { get; set; }
+        public double? ImprovementDelta { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regressionRiskScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? RegressionRiskScore { get; set; }
+        public double? RegressionRiskScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regressionSignals")]
-        public System.Collections.Generic.ICollection<string> RegressionSignals { get; set; }
+        public System.Collections.Generic.ICollection<string>? RegressionSignals { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? SimulationScore { get; set; }
+        public double? SimulationScore { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31493,24 +31606,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceBundleId")]
-        public string EvidenceBundleId { get; set; }
+        public string? EvidenceBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyRefs")]
-        public System.Collections.Generic.ICollection<string> PolicyRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? PolicyRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorManifestRefs")]
-        public System.Collections.Generic.ICollection<string> PriorManifestRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? PriorManifestRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestDescription")]
-        public string RequestDescription { get; set; }
+        public string? RequestDescription { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceCatalogRefs")]
-        public System.Collections.Generic.ICollection<string> ServiceCatalogRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? ServiceCatalogRefs { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31526,12 +31639,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("noteType")]
-        public string NoteType { get; set; }
+        public string? NoteType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31547,9 +31660,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidates")]
-        public System.Collections.Generic.ICollection<EvolutionCandidateChangeSetResponse> Candidates { get; set; }
+        public System.Collections.Generic.ICollection<EvolutionCandidateChangeSetResponse>? Candidates { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31565,34 +31678,34 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateChangeSetId")]
-        public System.Guid CandidateChangeSetId { get; set; }
+        public System.Guid? CandidateChangeSetId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdByUserId")]
-        public string CreatedByUserId { get; set; }
+        public string? CreatedByUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("derivationRuleVersion")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string DerivationRuleVersion { get; set; }
+        public string DerivationRuleVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourcePlanId")]
-        public System.Guid SourcePlanId { get; set; }
+        public System.Guid? SourcePlanId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Status { get; set; }
+        public string Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Summary { get; set; }
+        public string Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Title { get; set; }
+        public string Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31613,12 +31726,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("planSnapshotJson")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string PlanSnapshotJson { get; set; }
+        public string PlanSnapshotJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRuns")]
-        public System.Collections.Generic.ICollection<EvolutionSimulationRunResponse> SimulationRuns { get; set; }
+        public System.Collections.Generic.ICollection<EvolutionSimulationRunResponse>? SimulationRuns { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31639,12 +31752,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("planSnapshotJson")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string PlanSnapshotJson { get; set; }
+        public string PlanSnapshotJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRuns")]
-        public System.Collections.Generic.ICollection<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns { get; set; }
+        public System.Collections.Generic.ICollection<EvolutionSimulationRunWithEvaluationResponse>? SimulationRuns { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31660,9 +31773,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRuns")]
-        public System.Collections.Generic.ICollection<EvolutionSimulationRunResponse> SimulationRuns { get; set; }
+        public System.Collections.Generic.ICollection<EvolutionSimulationRunResponse>? SimulationRuns { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31682,9 +31795,9 @@ namespace ArchLucid.Api.Client.Generated
         public EvolutionCandidateChangeSetResponse Candidate { get; set; } = new EvolutionCandidateChangeSetResponse();
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRuns")]
-        public System.Collections.Generic.ICollection<EvolutionSimulationRunWithEvaluationResponse> SimulationRuns { get; set; }
+        public System.Collections.Generic.ICollection<EvolutionSimulationRunWithEvaluationResponse>? SimulationRuns { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31701,29 +31814,29 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineArchitectureRunId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string BaselineArchitectureRunId { get; set; }
+        public string BaselineArchitectureRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationMode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EvaluationMode { get; set; }
+        public string EvaluationMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isShadowOnly")]
-        public bool IsShadowOnly { get; set; }
+        public bool? IsShadowOnly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outcomeJson")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string OutcomeJson { get; set; }
+        public string OutcomeJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRunId")]
-        public System.Guid SimulationRunId { get; set; }
+        public System.Guid? SimulationRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warningsJson")]
-        public string WarningsJson { get; set; }
+        public string? WarningsJson { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31740,38 +31853,38 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineArchitectureRunId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string BaselineArchitectureRunId { get; set; }
+        public string BaselineArchitectureRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationExplanationSummary")]
-        public string EvaluationExplanationSummary { get; set; }
+        public string? EvaluationExplanationSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationMode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EvaluationMode { get; set; }
+        public string EvaluationMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationScore")]
-        public EvaluationScoreResponse EvaluationScore { get; set; }
+        public EvaluationScoreResponse? EvaluationScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isShadowOnly")]
-        public bool IsShadowOnly { get; set; }
+        public bool? IsShadowOnly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outcomeJson")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string OutcomeJson { get; set; }
+        public string OutcomeJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outcomeSchemaVersion")]
-        public string OutcomeSchemaVersion { get; set; }
+        public string? OutcomeSchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationRunId")]
-        public System.Guid SimulationRunId { get; set; }
+        public System.Guid? SimulationRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warningsJson")]
-        public string WarningsJson { get; set; }
+        public string? WarningsJson { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31787,33 +31900,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("dayOfWeek")]
-        public int DayOfWeek { get; set; }
+        public int? DayOfWeek { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("emailEnabled")]
-        public bool EmailEnabled { get; set; }
+        public bool? EmailEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hourOfDay")]
-        public int HourOfDay { get; set; }
+        public int? HourOfDay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ianaTimeZoneId")]
-        public string IanaTimeZoneId { get; set; }
+        public string? IanaTimeZoneId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isConfigured")]
-        public bool IsConfigured { get; set; }
+        public bool? IsConfigured { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recipientEmails")]
-        public System.Collections.Generic.ICollection<string> RecipientEmails { get; set; }
+        public System.Collections.Generic.ICollection<string>? RecipientEmails { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("updatedUtc")]
-        public System.DateTimeOffset UpdatedUtc { get; set; }
+        public System.DateTimeOffset? UpdatedUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31829,21 +31942,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("dayOfWeek")]
-        public int? DayOfWeek { get; set; }
+        public int? DayOfWeek { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("emailEnabled")]
-        public bool EmailEnabled { get; set; }
+        public bool? EmailEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hourOfDay")]
-        public int? HourOfDay { get; set; }
+        public int? HourOfDay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ianaTimeZoneId")]
-        public string IanaTimeZoneId { get; set; }
+        public string? IanaTimeZoneId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recipientEmails")]
-        public System.Collections.Generic.ICollection<string> RecipientEmails { get; set; }
+        public System.Collections.Generic.ICollection<string>? RecipientEmails { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31859,12 +31972,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<AgentResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<AgentResult>? Results { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31880,24 +31993,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alternativePathsConsidered")]
-        public System.Collections.Generic.ICollection<string> AlternativePathsConsidered { get; set; }
+        public System.Collections.Generic.ICollection<string>? AlternativePathsConsidered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionsTaken")]
-        public System.Collections.Generic.ICollection<string> DecisionsTaken { get; set; }
+        public System.Collections.Generic.ICollection<string>? DecisionsTaken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphNodeIdsExamined")]
-        public System.Collections.Generic.ICollection<string> GraphNodeIdsExamined { get; set; }
+        public System.Collections.Generic.ICollection<string>? GraphNodeIdsExamined { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rulesApplied")]
-        public System.Collections.Generic.ICollection<string> RulesApplied { get; set; }
+        public System.Collections.Generic.ICollection<string>? RulesApplied { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAgentExecutionTraceId")]
-        public string SourceAgentExecutionTraceId { get; set; }
+        public string? SourceAgentExecutionTraceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31914,22 +32027,22 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string AgentType { get; set; }
+        public string AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ModelId { get; set; }
+        public string ModelId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptContentHash")]
-        public string PromptContentHash { get; set; }
+        public string? PromptContentHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateId")]
-        public string PromptTemplateId { get; set; }
+        public string? PromptTemplateId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateVersion")]
-        public string PromptTemplateVersion { get; set; }
+        public string? PromptTemplateVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31945,40 +32058,40 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceImplications")]
-        public System.Collections.Generic.ICollection<string> ComplianceImplications { get; set; }
+        public System.Collections.Generic.ICollection<string>? ComplianceImplications { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? Confidence { get; set; }
+        public double? Confidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("costImplications")]
-        public System.Collections.Generic.ICollection<string> CostImplications { get; set; }
+        public System.Collections.Generic.ICollection<string>? CostImplications { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("detailedNarrative")]
-        public string DetailedNarrative { get; set; }
+        public string? DetailedNarrative { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingTraceConfidences")]
-        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto> FindingTraceConfidences { get; set; }
+        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto>? FindingTraceConfidences { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("keyDrivers")]
-        public System.Collections.Generic.ICollection<string> KeyDrivers { get; set; }
+        public System.Collections.Generic.ICollection<string>? KeyDrivers { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("provenance")]
-        public ExplanationProvenance Provenance { get; set; }
+        public ExplanationProvenance? Provenance { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rawText")]
-        public string RawText { get; set; }
+        public string? RawText { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("riskImplications")]
-        public System.Collections.Generic.ICollection<string> RiskImplications { get; set; }
+        public System.Collections.Generic.ICollection<string>? RiskImplications { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("structured")]
-        public StructuredExplanation Structured { get; set; }
+        public StructuredExplanation? Structured { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -31994,9 +32107,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diff")]
-        public ExportRecordDiffResult Diff { get; set; }
+        public ExportRecordDiffResult? Diff { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32012,27 +32125,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changedTopLevelFields")]
-        public System.Collections.Generic.ICollection<string> ChangedTopLevelFields { get; set; }
+        public System.Collections.Generic.ICollection<string>? ChangedTopLevelFields { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftExportRecordId")]
-        public string LeftExportRecordId { get; set; }
+        public string? LeftExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestDiff")]
-        public ExportRecordRequestDiff RequestDiff { get; set; }
+        public ExportRecordRequestDiff? RequestDiff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightExportRecordId")]
-        public string RightExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32048,12 +32161,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32069,18 +32182,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changedFlags")]
-        public System.Collections.Generic.ICollection<string> ChangedFlags { get; set; }
+        public System.Collections.Generic.ICollection<string>? ChangedFlags { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changedValues")]
-        public System.Collections.Generic.ICollection<string> ChangedValues { get; set; }
+        public System.Collections.Generic.ICollection<string>? ChangedValues { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRequest")]
-        public PersistedAnalysisExportRequest LeftRequest { get; set; }
+        public PersistedAnalysisExportRequest? LeftRequest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRequest")]
-        public PersistedAnalysisExportRequest RightRequest { get; set; }
+        public PersistedAnalysisExportRequest? RightRequest { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32096,24 +32209,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contentType")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("enableRangeProcessing")]
-        public bool EnableRangeProcessing { get; set; }
+        public bool? EnableRangeProcessing { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("entityTag")]
-        public EntityTagHeaderValue EntityTag { get; set; }
+        public EntityTagHeaderValue? EntityTag { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileContents")]
-        public byte[] FileContents { get; set; }
+        public byte[]? FileContents { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileDownloadName")]
-        public string FileDownloadName { get; set; }
+        public string? FileDownloadName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastModified")]
-        public System.DateTimeOffset? LastModified { get; set; }
+        public System.DateTimeOffset? LastModified { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32129,21 +32242,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contentType")]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("enableRangeProcessing")]
-        public bool EnableRangeProcessing { get; set; }
+        public bool? EnableRangeProcessing { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("entityTag")]
-        public EntityTagHeaderValue EntityTag { get; set; }
+        public EntityTagHeaderValue? EntityTag { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileDownloadName")]
-        public string FileDownloadName { get; set; }
+        public string? FileDownloadName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastModified")]
-        public System.DateTimeOffset? LastModified { get; set; }
+        public System.DateTimeOffset? LastModified { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32159,48 +32272,48 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
-        public string EngineType { get; set; }
+        public string? EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingSchemaVersion")]
-        public int FindingSchemaVersion { get; set; }
+        public int? FindingSchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingType")]
-        public string FindingType { get; set; }
+        public string? FindingType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("payload")]
-        public object Payload { get; set; }
+        public object? Payload { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("payloadType")]
-        public string PayloadType { get; set; }
+        public string? PayloadType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("properties")]
-        public System.Collections.Generic.IDictionary<string, string> Properties { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Properties { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedActions")]
-        public System.Collections.Generic.ICollection<string> RecommendedActions { get; set; }
+        public System.Collections.Generic.ICollection<string>? RecommendedActions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relatedNodeIds")]
-        public System.Collections.Generic.ICollection<string> RelatedNodeIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? RelatedNodeIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public int Severity { get; set; }
+        public int? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trace")]
-        public ExplainabilityTrace Trace { get; set; }
+        public ExplainabilityTrace? Trace { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32217,28 +32330,28 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Category { get; set; }
+        public string Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("durationMs")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long DurationMs { get; set; }
+        public long? DurationMs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EngineType { get; set; }
+        public string EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("exceptionType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ExceptionType { get; set; }
+        public string ExceptionType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
-        public System.DateTimeOffset OccurredUtc { get; set; }
+        public System.DateTimeOffset? OccurredUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32254,36 +32367,36 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentExecutionTraceIds")]
-        public System.Collections.Generic.ICollection<string> AgentExecutionTraceIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? AgentExecutionTraceIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public System.Guid? ContextSnapshotId { get; set; }
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
-        public System.Guid? DecisionTraceId { get; set; }
+        public System.Guid? DecisionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public System.Guid? FindingsSnapshotId { get; set; }
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
-        public System.Guid? GoldenManifestId { get; set; }
+        public System.Guid? GoldenManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid? GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relatedGraphNodeIds")]
-        public System.Collections.Generic.ICollection<string> RelatedGraphNodeIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? RelatedGraphNodeIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32304,7 +32417,7 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("conclusion")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Conclusion { get; set; }
+        public string Conclusion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -32312,9 +32425,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RuleId { get; set; }
+        public string RuleId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32330,43 +32443,43 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alternativePathsConsidered")]
-        public System.Collections.Generic.ICollection<string> AlternativePathsConsidered { get; set; }
+        public System.Collections.Generic.ICollection<string>? AlternativePathsConsidered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionsTaken")]
-        public System.Collections.Generic.ICollection<string> DecisionsTaken { get; set; }
+        public System.Collections.Generic.ICollection<string>? DecisionsTaken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
-        public string EngineType { get; set; }
+        public string? EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
-        public FindingExplainabilityEvidence Evidence { get; set; }
+        public FindingExplainabilityEvidence? Evidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphNodeIdsExamined")]
-        public System.Collections.Generic.ICollection<string> GraphNodeIdsExamined { get; set; }
+        public System.Collections.Generic.ICollection<string>? GraphNodeIdsExamined { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("narrativeText")]
-        public string NarrativeText { get; set; }
+        public string? NarrativeText { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rulesApplied")]
-        public System.Collections.Generic.ICollection<string> RulesApplied { get; set; }
+        public System.Collections.Generic.ICollection<string>? RulesApplied { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double TraceCompletenessRatio { get; set; }
+        public double? TraceCompletenessRatio { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32383,9 +32496,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("score")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int Score { get; set; }
+        public int? Score { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32401,30 +32514,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("agentType")]
-        public string AgentType { get; set; }
+        public string? AgentType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
-        public string ModelDeploymentName { get; set; }
+        public string? ModelDeploymentName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("modelVersion")]
-        public string ModelVersion { get; set; }
+        public string? ModelVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rawResponseRedacted")]
-        public string RawResponseRedacted { get; set; }
+        public string? RawResponseRedacted { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("redactionCountsByCategory")]
-        public System.Collections.Generic.IDictionary<string, int> RedactionCountsByCategory { get; set; }
+        public System.Collections.Generic.IDictionary<string, int>? RedactionCountsByCategory { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemPromptRedacted")]
-        public string SystemPromptRedacted { get; set; }
+        public string? SystemPromptRedacted { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public string TraceId { get; set; }
+        public string? TraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("userPromptRedacted")]
-        public string UserPromptRedacted { get; set; }
+        public string? UserPromptRedacted { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32440,33 +32553,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
-        public string EngineType { get; set; }
+        public string? EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedActions")]
-        public System.Collections.Generic.ICollection<string> RecommendedActions { get; set; }
+        public System.Collections.Generic.ICollection<string>? RecommendedActions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relatedNodeIds")]
-        public System.Collections.Generic.ICollection<string> RelatedNodeIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? RelatedNodeIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceCompleteness")]
-        public FindingTraceCompletenessScore TraceCompleteness { get; set; }
+        public FindingTraceCompletenessScore? TraceCompleteness { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32483,33 +32596,33 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("completenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double CompletenessRatio { get; set; }
+        public double? CompletenessRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
-        public string EngineType { get; set; }
+        public string? EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasAlternativePaths")]
-        public bool HasAlternativePaths { get; set; }
+        public bool? HasAlternativePaths { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasDecisionsTaken")]
-        public bool HasDecisionsTaken { get; set; }
+        public bool? HasDecisionsTaken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasGraphNodeIds")]
-        public bool HasGraphNodeIds { get; set; }
+        public bool? HasGraphNodeIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasNotes")]
-        public bool HasNotes { get; set; }
+        public bool? HasNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasRulesApplied")]
-        public bool HasRulesApplied { get; set; }
+        public bool? HasRulesApplied { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("populatedFieldCount")]
-        public int PopulatedFieldCount { get; set; }
+        public int? PopulatedFieldCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32525,24 +32638,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefCount")]
-        public int EvidenceRefCount { get; set; }
+        public int? EvidenceRefCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string FindingId { get; set; }
+        public string FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleId")]
-        public string RuleId { get; set; }
+        public string? RuleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double TraceCompletenessRatio { get; set; }
+        public double? TraceCompletenessRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceConfidenceLabel")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string TraceConfidenceLabel { get; set; }
+        public string TraceConfidenceLabel { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32558,30 +32671,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public System.Guid ContextSnapshotId { get; set; }
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineFailures")]
-        public System.Collections.Generic.ICollection<FindingEngineFailure> EngineFailures { get; set; }
+        public System.Collections.Generic.ICollection<FindingEngineFailure>? EngineFailures { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findings")]
-        public System.Collections.Generic.ICollection<Finding> Findings { get; set; }
+        public System.Collections.Generic.ICollection<Finding>? Findings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public System.Guid FindingsSnapshotId { get; set; }
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32614,7 +32727,7 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RunId { get; set; }
+        public string RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("services")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -32622,9 +32735,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string SystemName { get; set; }
+        public string SystemName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32640,18 +32753,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestIds")]
-        public System.Collections.Generic.ICollection<string> ApprovalRequestIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? ApprovalRequestIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decision")]
-        public string Decision { get; set; }
+        public string? Decision { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewComment")]
-        public string ReviewComment { get; set; }
+        public string? ReviewComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedBy")]
-        public string ReviewedBy { get; set; }
+        public string? ReviewedBy { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32667,48 +32780,48 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestId")]
-        public string ApprovalRequestId { get; set; }
+        public string? ApprovalRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestComment")]
-        public string RequestComment { get; set; }
+        public string? RequestComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestedBy")]
-        public string RequestedBy { get; set; }
+        public string? RequestedBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestedUtc")]
-        public System.DateTimeOffset RequestedUtc { get; set; }
+        public System.DateTimeOffset? RequestedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewComment")]
-        public string ReviewComment { get; set; }
+        public string? ReviewComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedBy")]
-        public string ReviewedBy { get; set; }
+        public string? ReviewedBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedUtc")]
-        public System.DateTimeOffset? ReviewedUtc { get; set; }
+        public System.DateTimeOffset? ReviewedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("slaBreachNotifiedUtc")]
-        public System.DateTimeOffset? SlaBreachNotifiedUtc { get; set; }
+        public System.DateTimeOffset? SlaBreachNotifiedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("slaDeadlineUtc")]
-        public System.DateTimeOffset? SlaDeadlineUtc { get; set; }
+        public System.DateTimeOffset? SlaDeadlineUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32724,18 +32837,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestId")]
-        public string ApprovalRequestId { get; set; }
+        public string? ApprovalRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorCode")]
-        public string ErrorCode { get; set; }
+        public string? ErrorCode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("succeeded")]
-        public bool Succeeded { get; set; }
+        public bool? Succeeded { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32751,9 +32864,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<GovernanceBatchReviewItemResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceBatchReviewItemResult>? Results { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32769,21 +32882,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidates")]
-        public System.Collections.Generic.ICollection<GovernanceResolutionCandidate> Candidates { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceResolutionCandidate>? Candidates { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("conflictType")]
-        public string ConflictType { get; set; }
+        public string? ConflictType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("itemKey")]
-        public string ItemKey { get; set; }
+        public string? ItemKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("itemType")]
-        public string ItemType { get; set; }
+        public string? ItemType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32799,18 +32912,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("pendingApprovals")]
-        public System.Collections.Generic.ICollection<GovernanceApprovalRequest> PendingApprovals { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceApprovalRequest>? PendingApprovals { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pendingCount")]
-        public int PendingCount { get; set; }
+        public int? PendingCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recentChanges")]
-        public System.Collections.Generic.ICollection<PolicyPackChangeLogEntry> RecentChanges { get; set; }
+        public System.Collections.Generic.ICollection<PolicyPackChangeLogEntry>? RecentChanges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recentDecisions")]
-        public System.Collections.Generic.ICollection<GovernanceApprovalRequest> RecentDecisions { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceApprovalRequest>? RecentDecisions { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32826,18 +32939,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changeType")]
-        public string ChangeType { get; set; }
+        public string? ChangeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentValue")]
-        public string CurrentValue { get; set; }
+        public string? CurrentValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("key")]
-        public string Key { get; set; }
+        public string? Key { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("previewValue")]
-        public string PreviewValue { get; set; }
+        public string? PreviewValue { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32853,24 +32966,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("activatedUtc")]
-        public System.DateTimeOffset ActivatedUtc { get; set; }
+        public System.DateTimeOffset? ActivatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("activationId")]
-        public string ActivationId { get; set; }
+        public string? ActivationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isActive")]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32886,18 +32999,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("differences")]
-        public System.Collections.Generic.ICollection<GovernanceDiffItem> Differences { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceDiffItem>? Differences { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32913,25 +33026,25 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
-        public string EngineType { get; set; }
+        public string? EngineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
-        public string FindingId { get; set; }
+        public string? FindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAgentExecutionTraceId")]
-        public string SourceAgentExecutionTraceId { get; set; }
+        public string? SourceAgentExecutionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double TraceCompletenessRatio { get; set; }
+        public double? TraceCompletenessRatio { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32947,18 +33060,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceGapCount")]
-        public int ComplianceGapCount { get; set; }
+        public int? ComplianceGapCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
-        public int DecisionCount { get; set; }
+        public int? DecisionCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
-        public int UnresolvedIssueCount { get; set; }
+        public int? UnresolvedIssueCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -32974,24 +33087,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequest")]
-        public GovernanceApprovalRequest ApprovalRequest { get; set; }
+        public GovernanceApprovalRequest? ApprovalRequest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GovernanceLineageManifestSummary Manifest { get; set; }
+        public GovernanceLineageManifestSummary? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promotions")]
-        public System.Collections.Generic.ICollection<GovernancePromotionRecord> Promotions { get; set; }
+        public System.Collections.Generic.ICollection<GovernancePromotionRecord>? Promotions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("riskPosture")]
-        public string RiskPosture { get; set; }
+        public string? RiskPosture { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public GovernanceLineageRunSummary Run { get; set; }
+        public GovernanceLineageRunSummary? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topFindings")]
-        public System.Collections.Generic.ICollection<GovernanceLineageFindingSummary> TopFindings { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceLineageFindingSummary>? TopFindings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33007,21 +33120,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
-        public string CurrentManifestVersion { get; set; }
+        public string? CurrentManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33037,27 +33150,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
-        public string CurrentManifestVersion { get; set; }
+        public string? CurrentManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentRunId")]
-        public string CurrentRunId { get; set; }
+        public string? CurrentRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("differences")]
-        public System.Collections.Generic.ICollection<GovernanceDiffItem> Differences { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceDiffItem>? Differences { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("environment")]
-        public string Environment { get; set; }
+        public string? Environment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("previewManifestVersion")]
-        public string PreviewManifestVersion { get; set; }
+        public string? PreviewManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("previewRunId")]
-        public string PreviewRunId { get; set; }
+        public string? PreviewRunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33073,33 +33186,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestId")]
-        public string ApprovalRequestId { get; set; }
+        public string? ApprovalRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promotedBy")]
-        public string PromotedBy { get; set; }
+        public string? PromotedBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promotedUtc")]
-        public System.DateTimeOffset PromotedUtc { get; set; }
+        public System.DateTimeOffset? PromotedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("promotionRecordId")]
-        public string PromotionRecordId { get; set; }
+        public string? PromotionRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceEnvironment")]
-        public string SourceEnvironment { get; set; }
+        public string? SourceEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetEnvironment")]
-        public string TargetEnvironment { get; set; }
+        public string? TargetEnvironment { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33115,18 +33228,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("approvalRequestId")]
-        public string ApprovalRequestId { get; set; }
+        public string? ApprovalRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("bullets")]
-        public System.Collections.Generic.ICollection<string> Bullets { get; set; }
+        public System.Collections.Generic.ICollection<string>? Bullets { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33142,33 +33255,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("assignedUtc")]
-        public System.DateTimeOffset AssignedUtc { get; set; }
+        public System.DateTimeOffset? AssignedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("assignmentId")]
-        public System.Guid AssignmentId { get; set; }
+        public System.Guid? AssignmentId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackName")]
-        public string PolicyPackName { get; set; }
+        public string? PolicyPackName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("precedenceRank")]
-        public int PrecedenceRank { get; set; }
+        public int? PrecedenceRank { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scopeLevel")]
-        public string ScopeLevel { get; set; }
+        public string? ScopeLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("valueJson")]
-        public string ValueJson { get; set; }
+        public string? ValueJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("version")]
-        public string Version { get; set; }
+        public string? Version { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wasSelected")]
-        public bool WasSelected { get; set; }
+        public bool? WasSelected { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33184,30 +33297,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidates")]
-        public System.Collections.Generic.ICollection<GovernanceResolutionCandidate> Candidates { get; set; }
+        public System.Collections.Generic.ICollection<GovernanceResolutionCandidate>? Candidates { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("itemKey")]
-        public string ItemKey { get; set; }
+        public string? ItemKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("itemType")]
-        public string ItemType { get; set; }
+        public string? ItemType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionReason")]
-        public string ResolutionReason { get; set; }
+        public string? ResolutionReason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("winningPolicyPackId")]
-        public System.Guid WinningPolicyPackId { get; set; }
+        public System.Guid? WinningPolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("winningPolicyPackName")]
-        public string WinningPolicyPackName { get; set; }
+        public string? WinningPolicyPackName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("winningScopeLevel")]
-        public string WinningScopeLevel { get; set; }
+        public string? WinningScopeLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("winningVersion")]
-        public string WinningVersion { get; set; }
+        public string? WinningVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33223,28 +33336,28 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("edgeId")]
-        public string EdgeId { get; set; }
+        public string? EdgeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("edgeType")]
-        public string EdgeType { get; set; }
+        public string? EdgeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fromNodeId")]
-        public string FromNodeId { get; set; }
+        public string? FromNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("properties")]
-        public System.Collections.Generic.IDictionary<string, string> Properties { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Properties { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("toNodeId")]
-        public string ToNodeId { get; set; }
+        public string? ToNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("weight")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double Weight { get; set; }
+        public double? Weight { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33260,15 +33373,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("source")]
-        public string Source { get; set; }
+        public string? Source { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("target")]
-        public string Target { get; set; }
+        public string? Target { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33284,27 +33397,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodeId")]
-        public string NodeId { get; set; }
+        public string? NodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodeType")]
-        public string NodeType { get; set; }
+        public string? NodeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("properties")]
-        public System.Collections.Generic.IDictionary<string, string> Properties { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Properties { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceId")]
-        public string SourceId { get; set; }
+        public string? SourceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceType")]
-        public string SourceType { get; set; }
+        public string? SourceType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33320,18 +33433,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public string Id { get; set; }
+        public string? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33347,24 +33460,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("edges")]
-        public System.Collections.Generic.ICollection<GraphEdgeVm> Edges { get; set; }
+        public System.Collections.Generic.ICollection<GraphEdgeVm>? Edges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasMore")]
-        public bool HasMore { get; set; }
+        public bool? HasMore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodes")]
-        public System.Collections.Generic.ICollection<GraphNodeVm> Nodes { get; set; }
+        public System.Collections.Generic.ICollection<GraphNodeVm>? Nodes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("page")]
-        public int Page { get; set; }
+        public int? Page { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
-        public int PageSize { get; set; }
+        public int? PageSize { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalNodes")]
-        public int TotalNodes { get; set; }
+        public int? TotalNodes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33380,30 +33493,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public System.Guid ContextSnapshotId { get; set; }
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("edges")]
-        public System.Collections.Generic.ICollection<GraphEdge> Edges { get; set; }
+        public System.Collections.Generic.ICollection<GraphEdge>? Edges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodes")]
-        public System.Collections.Generic.ICollection<GraphNode> Nodes { get; set; }
+        public System.Collections.Generic.ICollection<GraphNode>? Nodes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33419,21 +33532,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("edgeCount")]
-        public int EdgeCount { get; set; }
+        public int? EdgeCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("edges")]
-        public System.Collections.Generic.ICollection<GraphEdgeVm> Edges { get; set; }
+        public System.Collections.Generic.ICollection<GraphEdgeVm>? Edges { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEmpty")]
-        public bool IsEmpty { get; set; }
+        public bool? IsEmpty { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodeCount")]
-        public int NodeCount { get; set; }
+        public int? NodeCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("nodes")]
-        public System.Collections.Generic.ICollection<GraphNodeVm> Nodes { get; set; }
+        public System.Collections.Generic.ICollection<GraphNodeVm>? Nodes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33449,15 +33562,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("holderInstanceId")]
-        public string HolderInstanceId { get; set; }
+        public string? HolderInstanceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leaseExpiresUtc")]
-        public System.DateTimeOffset LeaseExpiresUtc { get; set; }
+        public System.DateTimeOffset? LeaseExpiresUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leaseName")]
-        public string LeaseName { get; set; }
+        public string? LeaseName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33473,52 +33586,52 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("affectedArtifactTypeOrWorkflowArea")]
-        public string AffectedArtifactTypeOrWorkflowArea { get; set; }
+        public string? AffectedArtifactTypeOrWorkflowArea { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("averageTrustScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageTrustScore { get; set; }
+        public double? AverageTrustScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunCount")]
-        public int DistinctRunCount { get; set; }
+        public int? DistinctRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceSignalCount")]
-        public int EvidenceSignalCount { get; set; }
+        public int? EvidenceSignalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstSeenUtc")]
-        public System.DateTimeOffset FirstSeenUtc { get; set; }
+        public System.DateTimeOffset? FirstSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastSeenUtc")]
-        public System.DateTimeOffset LastSeenUtc { get; set; }
+        public System.DateTimeOffset? LastSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("opportunityId")]
-        public System.Guid OpportunityId { get; set; }
+        public System.Guid? OpportunityId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("patternKey")]
-        public string PatternKey { get; set; }
+        public string? PatternKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityRank")]
-        public int PriorityRank { get; set; }
+        public int? PriorityRank { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("repeatedThemeSnippet")]
-        public string RepeatedThemeSnippet { get; set; }
+        public string? RepeatedThemeSnippet { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAggregateKey")]
-        public string SourceAggregateKey { get; set; }
+        public string? SourceAggregateKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedOwnerRole")]
-        public string SuggestedOwnerRole { get; set; }
+        public string? SuggestedOwnerRole { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33534,21 +33647,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendations")]
-        public System.Collections.Generic.ICollection<ImprovementRecommendationResponse> Recommendations { get; set; }
+        public System.Collections.Generic.ICollection<ImprovementRecommendationResponse>? Recommendations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryNotes")]
-        public System.Collections.Generic.ICollection<string> SummaryNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryNotes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33564,30 +33677,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("expectedImpact")]
-        public string ExpectedImpact { get; set; }
+        public string? ExpectedImpact { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityScore")]
-        public int PriorityScore { get; set; }
+        public int? PriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendationId")]
-        public System.Guid RecommendationId { get; set; }
+        public System.Guid? RecommendationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedAction")]
-        public string SuggestedAction { get; set; }
+        public string? SuggestedAction { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("urgency")]
-        public string Urgency { get; set; }
+        public string? Urgency { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33603,15 +33716,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33627,25 +33740,25 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("deadLetteredUtc")]
-        public System.DateTimeOffset DeadLetteredUtc { get; set; }
+        public System.DateTimeOffset? DeadLetteredUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventType")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string EventType { get; set; }
+        public string EventType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastErrorMessage")]
-        public string LastErrorMessage { get; set; }
+        public string? LastErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outboxId")]
-        public System.Guid OutboxId { get; set; }
+        public System.Guid? OutboxId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("retryCount")]
-        public int RetryCount { get; set; }
+        public int? RetryCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33661,42 +33774,42 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("actionSteps")]
-        public System.Collections.Generic.ICollection<LearningPlanStepResponse> ActionSteps { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanStepResponse>? ActionSteps { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdByUserId")]
-        public string CreatedByUserId { get; set; }
+        public string? CreatedByUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceCounts")]
-        public LearningPlanEvidenceCountsResponse EvidenceCounts { get; set; }
+        public LearningPlanEvidenceCountsResponse? EvidenceCounts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("planId")]
-        public System.Guid PlanId { get; set; }
+        public System.Guid? PlanId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityExplanation")]
-        public string PriorityExplanation { get; set; }
+        public string? PriorityExplanation { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityScore")]
-        public int PriorityScore { get; set; }
+        public int? PriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("theme")]
-        public LearningThemeResponse Theme { get; set; }
+        public LearningThemeResponse? Theme { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeId")]
-        public System.Guid ThemeId { get; set; }
+        public System.Guid? ThemeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33712,15 +33825,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedArchitectureRunCount")]
-        public int LinkedArchitectureRunCount { get; set; }
+        public int? LinkedArchitectureRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedArtifactCount")]
-        public int LinkedArtifactCount { get; set; }
+        public int? LinkedArtifactCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedSignalCount")]
-        public int LinkedSignalCount { get; set; }
+        public int? LinkedSignalCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33736,33 +33849,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("planId")]
-        public System.Guid PlanId { get; set; }
+        public System.Guid? PlanId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityExplanation")]
-        public string PriorityExplanation { get; set; }
+        public string? PriorityExplanation { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityScore")]
-        public int PriorityScore { get; set; }
+        public int? PriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeEvidenceSignalCount")]
-        public int? ThemeEvidenceSignalCount { get; set; }
+        public int? ThemeEvidenceSignalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeId")]
-        public System.Guid ThemeId { get; set; }
+        public System.Guid? ThemeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33778,18 +33891,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("acceptanceCriteria")]
-        public string AcceptanceCriteria { get; set; }
+        public string? AcceptanceCriteria { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("actionType")]
-        public string ActionType { get; set; }
+        public string? ActionType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ordinal")]
-        public int Ordinal { get; set; }
+        public int? Ordinal { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33805,18 +33918,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("authorityArtifactSortOrder")]
-        public int? AuthorityArtifactSortOrder { get; set; }
+        public int? AuthorityArtifactSortOrder { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("authorityBundleId")]
-        public System.Guid? AuthorityBundleId { get; set; }
+        public System.Guid? AuthorityBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkId")]
-        public System.Guid LinkId { get; set; }
+        public System.Guid? LinkId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pilotArtifactHint")]
-        public string PilotArtifactHint { get; set; }
+        public string? PilotArtifactHint { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33832,18 +33945,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("plans")]
-        public System.Collections.Generic.ICollection<LearningPlanningReportPlanEntry> Plans { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanningReportPlanEntry>? Plans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public LearningPlanningReportSummaryBlock Summary { get; set; }
+        public LearningPlanningReportSummaryBlock? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themes")]
-        public System.Collections.Generic.ICollection<LearningPlanningReportThemeEntry> Themes { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanningReportThemeEntry>? Themes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33859,39 +33972,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("actionStepCount")]
-        public int ActionStepCount { get; set; }
+        public int? ActionStepCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
-        public LearningPlanningReportPlanEvidenceBlock Evidence { get; set; }
+        public LearningPlanningReportPlanEvidenceBlock? Evidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("planId")]
-        public System.Guid PlanId { get; set; }
+        public System.Guid? PlanId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityExplanation")]
-        public string PriorityExplanation { get; set; }
+        public string? PriorityExplanation { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityScore")]
-        public int PriorityScore { get; set; }
+        public int? PriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeId")]
-        public System.Guid ThemeId { get; set; }
+        public System.Guid? ThemeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeTitle")]
-        public string ThemeTitle { get; set; }
+        public string? ThemeTitle { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33907,24 +34020,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("architectureRunIds")]
-        public System.Collections.Generic.ICollection<string> ArchitectureRunIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? ArchitectureRunIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifacts")]
-        public System.Collections.Generic.ICollection<LearningPlanningReportArtifactRef> Artifacts { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanningReportArtifactRef>? Artifacts { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedArchitectureRunCount")]
-        public int LinkedArchitectureRunCount { get; set; }
+        public int? LinkedArchitectureRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedArtifactCount")]
-        public int LinkedArtifactCount { get; set; }
+        public int? LinkedArtifactCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("linkedSignalCount")]
-        public int LinkedSignalCount { get; set; }
+        public int? LinkedSignalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("signals")]
-        public System.Collections.Generic.ICollection<LearningPlanningReportSignalRef> Signals { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanningReportSignalRef>? Signals { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33940,12 +34053,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("signalId")]
-        public System.Guid SignalId { get; set; }
+        public System.Guid? SignalId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("triageStatusSnapshot")]
-        public string TriageStatusSnapshot { get; set; }
+        public string? TriageStatusSnapshot { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33961,21 +34074,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("maxPlanPriorityScore")]
-        public int? MaxPlanPriorityScore { get; set; }
+        public int? MaxPlanPriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("planCount")]
-        public int PlanCount { get; set; }
+        public int? PlanCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeCount")]
-        public int ThemeCount { get; set; }
+        public int? ThemeCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalLinkedSignalsAcrossPlans")]
-        public int TotalLinkedSignalsAcrossPlans { get; set; }
+        public int? TotalLinkedSignalsAcrossPlans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalThemeEvidenceSignals")]
-        public int TotalThemeEvidenceSignals { get; set; }
+        public int? TotalThemeEvidenceSignals { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -33991,30 +34104,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunCount")]
-        public int DistinctRunCount { get; set; }
+        public int? DistinctRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceSignalCount")]
-        public int EvidenceSignalCount { get; set; }
+        public int? EvidenceSignalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severityBand")]
-        public string SeverityBand { get; set; }
+        public string? SeverityBand { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeId")]
-        public System.Guid ThemeId { get; set; }
+        public System.Guid? ThemeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeKey")]
-        public string ThemeKey { get; set; }
+        public string? ThemeKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34030,12 +34143,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("plans")]
-        public System.Collections.Generic.ICollection<LearningPlanListItemResponse> Plans { get; set; }
+        public System.Collections.Generic.ICollection<LearningPlanListItemResponse>? Plans { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34051,24 +34164,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("maxPlanPriorityScore")]
-        public int? MaxPlanPriorityScore { get; set; }
+        public int? MaxPlanPriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("planCount")]
-        public int PlanCount { get; set; }
+        public int? PlanCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeCount")]
-        public int ThemeCount { get; set; }
+        public int? ThemeCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalLinkedSignalsAcrossPlans")]
-        public int TotalLinkedSignalsAcrossPlans { get; set; }
+        public int? TotalLinkedSignalsAcrossPlans { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalThemeEvidenceSignals")]
-        public int TotalThemeEvidenceSignals { get; set; }
+        public int? TotalThemeEvidenceSignals { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34084,52 +34197,52 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("affectedArtifactTypeOrWorkflowArea")]
-        public string AffectedArtifactTypeOrWorkflowArea { get; set; }
+        public string? AffectedArtifactTypeOrWorkflowArea { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("averageTrustScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? AverageTrustScore { get; set; }
+        public double? AverageTrustScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdByUserId")]
-        public string CreatedByUserId { get; set; }
+        public string? CreatedByUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("derivationRuleVersion")]
-        public string DerivationRuleVersion { get; set; }
+        public string? DerivationRuleVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunCount")]
-        public int DistinctRunCount { get; set; }
+        public int? DistinctRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceSignalCount")]
-        public int EvidenceSignalCount { get; set; }
+        public int? EvidenceSignalCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("patternKey")]
-        public string PatternKey { get; set; }
+        public string? PatternKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severityBand")]
-        public string SeverityBand { get; set; }
+        public string? SeverityBand { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAggregateKey")]
-        public string SourceAggregateKey { get; set; }
+        public string? SourceAggregateKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeId")]
-        public System.Guid ThemeId { get; set; }
+        public System.Guid? ThemeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeKey")]
-        public string ThemeKey { get; set; }
+        public string? ThemeKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34145,12 +34258,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themes")]
-        public System.Collections.Generic.ICollection<LearningThemeResponse> Themes { get; set; }
+        public System.Collections.Generic.ICollection<LearningThemeResponse>? Themes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34166,18 +34279,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diagram")]
-        public string Diagram { get; set; }
+        public string? Diagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34193,21 +34306,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestVersion")]
-        public string LeftManifestVersion { get; set; }
+        public string? LeftManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestVersion")]
-        public string RightManifestVersion { get; set; }
+        public string? RightManifestVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34223,15 +34336,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diff")]
-        public ManifestDiffResult Diff { get; set; }
+        public ManifestDiffResult? Diff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifest")]
-        public GoldenManifest LeftManifest { get; set; }
+        public GoldenManifest? LeftManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifest")]
-        public GoldenManifest RightManifest { get; set; }
+        public GoldenManifest? RightManifest { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34247,21 +34360,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("diff")]
-        public ManifestDiffResult Diff { get; set; }
+        public ManifestDiffResult? Diff { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestVersion")]
-        public string LeftManifestVersion { get; set; }
+        public string? LeftManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestVersion")]
-        public string RightManifestVersion { get; set; }
+        public string? RightManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34277,33 +34390,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("addedCount")]
-        public int AddedCount { get; set; }
+        public int? AddedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changedCount")]
-        public int ChangedCount { get; set; }
+        public int? ChangedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("diffCount")]
-        public int DiffCount { get; set; }
+        public int? DiffCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("diffs")]
-        public System.Collections.Generic.ICollection<DiffItemResponse> Diffs { get; set; }
+        public System.Collections.Generic.ICollection<DiffItemResponse>? Diffs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestHash")]
-        public string LeftManifestHash { get; set; }
+        public string? LeftManifestHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestId")]
-        public System.Guid LeftManifestId { get; set; }
+        public System.Guid? LeftManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedCount")]
-        public int RemovedCount { get; set; }
+        public int? RemovedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestHash")]
-        public string RightManifestHash { get; set; }
+        public string? RightManifestHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestId")]
-        public System.Guid RightManifestId { get; set; }
+        public System.Guid? RightManifestId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34320,28 +34433,32 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("datastoreId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string DatastoreId { get; set; }
+        public string DatastoreId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("datastoreName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string DatastoreName { get; set; }
+        public string DatastoreName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("datastoreType")]
-        public int DatastoreType { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public DatastoreType DatastoreType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("encryptionAtRestRequired")]
-        public bool EncryptionAtRestRequired { get; set; }
+        public bool? EncryptionAtRestRequired { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("privateEndpointRequired")]
-        public bool PrivateEndpointRequired { get; set; }
+        public bool? PrivateEndpointRequired { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("purpose")]
-        public string Purpose { get; set; }
+        public string? Purpose { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runtimePlatform")]
-        public int RuntimePlatform { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public RuntimePlatform RuntimePlatform { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34357,27 +34474,28 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("addedDatastores")]
-        public System.Collections.Generic.ICollection<ManifestDatastore> AddedDatastores { get; set; }
+        public System.Collections.Generic.ICollection<ManifestDatastore>? AddedDatastores { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedRelationships")]
-        public System.Collections.Generic.ICollection<ManifestRelationship> AddedRelationships { get; set; }
+        public System.Collections.Generic.ICollection<ManifestRelationship>? AddedRelationships { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedServices")]
-        public System.Collections.Generic.ICollection<ManifestService> AddedServices { get; set; }
+        public System.Collections.Generic.ICollection<ManifestService>? AddedServices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("proposalId")]
-        public string ProposalId { get; set; }
+        public string? ProposalId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredControls")]
-        public System.Collections.Generic.ICollection<string> RequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceAgent")]
-        public int SourceAgent { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public AgentType? SourceAgent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34393,15 +34511,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("diagramType")]
-        public string DiagramType { get; set; }
+        public string? DiagramType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34417,39 +34535,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("addedDatastores")]
-        public System.Collections.Generic.ICollection<string> AddedDatastores { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedDatastores { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedRelationships")]
-        public System.Collections.Generic.ICollection<RelationshipDiffItem> AddedRelationships { get; set; }
+        public System.Collections.Generic.ICollection<RelationshipDiffItem>? AddedRelationships { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedRequiredControls")]
-        public System.Collections.Generic.ICollection<string> AddedRequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedRequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("addedServices")]
-        public System.Collections.Generic.ICollection<string> AddedServices { get; set; }
+        public System.Collections.Generic.ICollection<string>? AddedServices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftManifestVersion")]
-        public string LeftManifestVersion { get; set; }
+        public string? LeftManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedDatastores")]
-        public System.Collections.Generic.ICollection<string> RemovedDatastores { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedDatastores { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedRelationships")]
-        public System.Collections.Generic.ICollection<RelationshipDiffItem> RemovedRelationships { get; set; }
+        public System.Collections.Generic.ICollection<RelationshipDiffItem>? RemovedRelationships { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedRequiredControls")]
-        public System.Collections.Generic.ICollection<string> RemovedRequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedRequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("removedServices")]
-        public System.Collections.Generic.ICollection<string> RemovedServices { get; set; }
+        public System.Collections.Generic.ICollection<string>? RemovedServices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightManifestVersion")]
-        public string RightManifestVersion { get; set; }
+        public string? RightManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34465,15 +34583,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34489,21 +34607,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceTags")]
-        public System.Collections.Generic.ICollection<string> ComplianceTags { get; set; }
+        public System.Collections.Generic.ICollection<string>? ComplianceTags { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("costClassification")]
-        public string CostClassification { get; set; }
+        public string? CostClassification { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyConstraints")]
-        public System.Collections.Generic.ICollection<string> PolicyConstraints { get; set; }
+        public System.Collections.Generic.ICollection<string>? PolicyConstraints { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredControls")]
-        public System.Collections.Generic.ICollection<string> RequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("riskClassification")]
-        public string RiskClassification { get; set; }
+        public string? RiskClassification { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34519,21 +34637,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changeDescription")]
-        public string ChangeDescription { get; set; }
+        public string? ChangeDescription { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceIds")]
-        public System.Collections.Generic.ICollection<string> DecisionTraceIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? DecisionTraceIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("parentManifestVersion")]
-        public string ParentManifestVersion { get; set; }
+        public string? ParentManifestVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34549,24 +34667,26 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relationshipId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RelationshipId { get; set; }
+        public string RelationshipId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relationshipType")]
-        public int RelationshipType { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public RelationshipType RelationshipType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string SourceId { get; set; }
+        public string SourceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string TargetId { get; set; }
+        public string TargetId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34582,29 +34702,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("purpose")]
-        public string Purpose { get; set; }
+        public string? Purpose { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredControls")]
-        public System.Collections.Generic.ICollection<string> RequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runtimePlatform")]
-        public int RuntimePlatform { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public RuntimePlatform RuntimePlatform { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ServiceId { get; set; }
+        public string ServiceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string ServiceName { get; set; }
+        public string ServiceName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceType")]
-        public int ServiceType { get; set; }
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
+        public ServiceType ServiceType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34620,18 +34744,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34647,21 +34771,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("companyName")]
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tierInterest")]
-        public string TierInterest { get; set; }
+        public string? TierInterest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("websiteUrl")]
-        public string WebsiteUrl { get; set; }
+        public string? WebsiteUrl { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workEmail")]
-        public string WorkEmail { get; set; }
+        public string? WorkEmail { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34678,28 +34802,28 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("coverageScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double CoverageScore { get; set; }
+        public double? CoverageScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("densityPenalty")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double DensityPenalty { get; set; }
+        public double? DensityPenalty { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("finalScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double FinalScore { get; set; }
+        public double? FinalScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("noisePenalty")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double NoisePenalty { get; set; }
+        public double? NoisePenalty { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suppressionPenalty")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double SuppressionPenalty { get; set; }
+        public double? SuppressionPenalty { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34716,20 +34840,20 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("firstRunCommittedPerSessionRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double FirstRunCommittedPerSessionRatio { get; set; }
+        public double? FirstRunCommittedPerSessionRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstRunCommittedTotal")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long FirstRunCommittedTotal { get; set; }
+        public long? FirstRunCommittedTotal { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstSessionCompletedTotal")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long FirstSessionCompletedTotal { get; set; }
+        public long? FirstSessionCompletedTotal { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("windowNote")]
-        public string WindowNote { get; set; }
+        public string? WindowNote { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34749,12 +34873,12 @@ namespace ArchLucid.Api.Client.Generated
         public System.Collections.Generic.ICollection<string> ComparisonRecordIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         [System.Text.Json.Serialization.JsonPropertyName("dryRun")]
-        public bool DryRun { get; set; }
+        public bool DryRun { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rowCount")]
-        public int RowCount { get; set; }
+        public int RowCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34770,16 +34894,16 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("dryRun")]
-        public bool DryRun { get; set; }
+        public bool DryRun { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotIds")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> FindingsSnapshotIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         [System.Text.Json.Serialization.JsonPropertyName("rowCount")]
-        public int RowCount { get; set; }
+        public int RowCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34795,16 +34919,16 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("dryRun")]
-        public bool DryRun { get; set; }
+        public bool DryRun { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestIds")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> ManifestIds { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         [System.Text.Json.Serialization.JsonPropertyName("rowCount")]
-        public int RowCount { get; set; }
+        public int RowCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34820,21 +34944,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("hasMore")]
-        public bool HasMore { get; set; }
+        public bool? HasMore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<AlertRecord> Items { get; set; }
+        public System.Collections.Generic.ICollection<AlertRecord>? Items { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("page")]
-        public int Page { get; set; }
+        public int? Page { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
-        public int PageSize { get; set; }
+        public int? PageSize { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalCount")]
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34850,21 +34974,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("hasMore")]
-        public bool HasMore { get; set; }
+        public bool? HasMore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<ConversationThread> Items { get; set; }
+        public System.Collections.Generic.ICollection<ConversationThread>? Items { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("page")]
-        public int Page { get; set; }
+        public int? Page { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
-        public int PageSize { get; set; }
+        public int? PageSize { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalCount")]
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34880,21 +35004,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("hasMore")]
-        public bool HasMore { get; set; }
+        public bool? HasMore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<RunSummaryResponse> Items { get; set; }
+        public System.Collections.Generic.ICollection<RunSummaryResponse>? Items { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("page")]
-        public int Page { get; set; }
+        public int? Page { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pageSize")]
-        public int PageSize { get; set; }
+        public int? PageSize { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalCount")]
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34910,21 +35034,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("applicableCapabilities")]
-        public System.Collections.Generic.ICollection<string> ApplicableCapabilities { get; set; }
+        public System.Collections.Generic.ICollection<string>? ApplicableCapabilities { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("patternId")]
-        public string PatternId { get; set; }
+        public string? PatternId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedServices")]
-        public System.Collections.Generic.ICollection<string> SuggestedServices { get; set; }
+        public System.Collections.Generic.ICollection<string>? SuggestedServices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34940,9 +35064,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("persist")]
-        public bool Persist { get; set; }
+        public bool? Persist { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -34958,63 +35082,63 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("audience")]
-        public string Audience { get; set; }
+        public string? Audience { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareManifestVersion")]
-        public string CompareManifestVersion { get; set; }
+        public string? CompareManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareRunId")]
-        public string CompareRunId { get; set; }
+        public string? CompareRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinismIterations")]
-        public int DeterminismIterations { get; set; }
+        public int? DeterminismIterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executiveFriendly")]
-        public bool ExecutiveFriendly { get; set; }
+        public bool? ExecutiveFriendly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("externalDelivery")]
-        public bool ExternalDelivery { get; set; }
+        public bool? ExternalDelivery { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeAgentResultCompare")]
-        public bool IncludeAgentResultCompare { get; set; }
+        public bool? IncludeAgentResultCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDeterminismCheck")]
-        public bool IncludeDeterminismCheck { get; set; }
+        public bool? IncludeDeterminismCheck { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeDiagram")]
-        public bool IncludeDiagram { get; set; }
+        public bool? IncludeDiagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeEvidence")]
-        public bool IncludeEvidence { get; set; }
+        public bool? IncludeEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeExecutionTraces")]
-        public bool IncludeExecutionTraces { get; set; }
+        public bool? IncludeExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifest")]
-        public bool IncludeManifest { get; set; }
+        public bool? IncludeManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeManifestCompare")]
-        public bool IncludeManifestCompare { get; set; }
+        public bool? IncludeManifestCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includeSummary")]
-        public bool IncludeSummary { get; set; }
+        public bool? IncludeSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDetailedEvidence")]
-        public bool NeedDetailedEvidence { get; set; }
+        public bool? NeedDetailedEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needDeterminismOrCompareAppendices")]
-        public bool NeedDeterminismOrCompareAppendices { get; set; }
+        public bool? NeedDeterminismOrCompareAppendices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("needExecutionTraces")]
-        public bool NeedExecutionTraces { get; set; }
+        public bool? NeedExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("regulatedEnvironment")]
-        public bool RegulatedEnvironment { get; set; }
+        public bool? RegulatedEnvironment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfile")]
-        public string TemplateProfile { get; set; }
+        public string? TemplateProfile { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35030,12 +35154,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("count")]
-        public int Count { get; set; }
+        public int? Count { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35051,40 +35175,40 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("auditRowCount")]
-        public int AuditRowCount { get; set; }
+        public int? AuditRowCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("auditRowCountTruncated")]
-        public bool AuditRowCountTruncated { get; set; }
+        public bool? AuditRowCountTruncated { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsBySeverity")]
-        public System.Collections.Generic.ICollection<PilotRunDeltaSeverityCountResponse> FindingsBySeverity { get; set; }
+        public System.Collections.Generic.ICollection<PilotRunDeltaSeverityCountResponse>? FindingsBySeverity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isDemoTenant")]
-        public bool IsDemoTenant { get; set; }
+        public bool? IsDemoTenant { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("llmCallCount")]
-        public int LlmCallCount { get; set; }
+        public int? LlmCallCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestCommittedUtc")]
-        public System.DateTimeOffset? ManifestCommittedUtc { get; set; }
+        public System.DateTimeOffset? ManifestCommittedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runCreatedUtc")]
-        public System.DateTimeOffset RunCreatedUtc { get; set; }
+        public System.DateTimeOffset? RunCreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timeToCommittedManifestTotalSeconds")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? TimeToCommittedManifestTotalSeconds { get; set; }
+        public double? TimeToCommittedManifestTotalSeconds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topFindingEvidenceChain")]
-        public FindingEvidenceChainResponse TopFindingEvidenceChain { get; set; }
+        public FindingEvidenceChainResponse? TopFindingEvidenceChain { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topFindingId")]
-        public string TopFindingId { get; set; }
+        public string? TopFindingId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topFindingSeverity")]
-        public string TopFindingSeverity { get; set; }
+        public string? TopFindingSeverity { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35100,12 +35224,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("periodEnd")]
-        public System.DateTimeOffset? PeriodEnd { get; set; }
+        public System.DateTimeOffset? PeriodEnd { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("periodStart")]
-        public System.DateTimeOffset? PeriodStart { get; set; }
+        public System.DateTimeOffset? PeriodStart { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35121,21 +35245,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("periodEnd")]
-        public System.DateTimeOffset PeriodEnd { get; set; }
+        public System.DateTimeOffset? PeriodEnd { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("periodStart")]
-        public System.DateTimeOffset PeriodStart { get; set; }
+        public System.DateTimeOffset? PeriodStart { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runsInPeriod")]
-        public int RunsInPeriod { get; set; }
+        public int? RunsInPeriod { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runsWithCommittedManifest")]
-        public int RunsWithCommittedManifest { get; set; }
+        public int? RunsWithCommittedManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35151,21 +35275,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("policyId")]
-        public string PolicyId { get; set; }
+        public string? PolicyId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredControls")]
-        public System.Collections.Generic.ICollection<string> RequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35181,39 +35305,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("activatedUtc")]
-        public System.DateTimeOffset? ActivatedUtc { get; set; }
+        public System.DateTimeOffset? ActivatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentVersion")]
-        public string CurrentVersion { get; set; }
+        public string? CurrentVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("packType")]
-        public string PackType { get; set; }
+        public string? PackType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35229,45 +35353,45 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedUtc")]
-        public System.DateTimeOffset? ArchivedUtc { get; set; }
+        public System.DateTimeOffset? ArchivedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("assignedUtc")]
-        public System.DateTimeOffset AssignedUtc { get; set; }
+        public System.DateTimeOffset? AssignedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("assignmentId")]
-        public System.Guid AssignmentId { get; set; }
+        public System.Guid? AssignmentId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("blockCommitMinimumSeverity")]
-        public int? BlockCommitMinimumSeverity { get; set; }
+        public int? BlockCommitMinimumSeverity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("blockCommitOnCritical")]
-        public bool BlockCommitOnCritical { get; set; }
+        public bool? BlockCommitOnCritical { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isEnabled")]
-        public bool IsEnabled { get; set; }
+        public bool? IsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isPinned")]
-        public bool IsPinned { get; set; }
+        public bool? IsPinned { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackVersion")]
-        public string PolicyPackVersion { get; set; }
+        public string? PolicyPackVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scopeLevel")]
-        public string ScopeLevel { get; set; }
+        public string? ScopeLevel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35283,39 +35407,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changeLogId")]
-        public System.Guid ChangeLogId { get; set; }
+        public System.Guid? ChangeLogId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changeType")]
-        public string ChangeType { get; set; }
+        public string? ChangeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changedBy")]
-        public string ChangedBy { get; set; }
+        public string? ChangedBy { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("changedUtc")]
-        public System.DateTimeOffset ChangedUtc { get; set; }
+        public System.DateTimeOffset? ChangedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("newValue")]
-        public string NewValue { get; set; }
+        public string? NewValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("previousValue")]
-        public string PreviousValue { get; set; }
+        public string? PreviousValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryText")]
-        public string SummaryText { get; set; }
+        public string? SummaryText { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35331,24 +35455,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("advisoryDefaults")]
-        public System.Collections.Generic.IDictionary<string, string> AdvisoryDefaults { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? AdvisoryDefaults { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("alertRuleIds")]
-        public System.Collections.Generic.ICollection<System.Guid> AlertRuleIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? AlertRuleIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceRuleIds")]
-        public System.Collections.Generic.ICollection<System.Guid> ComplianceRuleIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? ComplianceRuleIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceRuleKeys")]
-        public System.Collections.Generic.ICollection<string> ComplianceRuleKeys { get; set; }
+        public System.Collections.Generic.ICollection<string>? ComplianceRuleKeys { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compositeAlertRuleIds")]
-        public System.Collections.Generic.ICollection<System.Guid> CompositeAlertRuleIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? CompositeAlertRuleIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35364,24 +35488,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contentJson")]
-        public string ContentJson { get; set; }
+        public string? ContentJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isPublished")]
-        public bool IsPublished { get; set; }
+        public bool? IsPublished { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackVersionId")]
-        public System.Guid PolicyPackVersionId { get; set; }
+        public System.Guid? PolicyPackVersionId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("version")]
-        public string Version { get; set; }
+        public string? Version { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35397,21 +35521,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("existingDatastores")]
-        public System.Collections.Generic.ICollection<string> ExistingDatastores { get; set; }
+        public System.Collections.Generic.ICollection<string>? ExistingDatastores { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("existingRequiredControls")]
-        public System.Collections.Generic.ICollection<string> ExistingRequiredControls { get; set; }
+        public System.Collections.Generic.ICollection<string>? ExistingRequiredControls { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("existingServices")]
-        public System.Collections.Generic.ICollection<string> ExistingServices { get; set; }
+        public System.Collections.Generic.ICollection<string>? ExistingServices { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35427,21 +35551,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("detail")]
-        public string Detail { get; set; }
+        public string? Detail { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("instance")]
-        public string Instance { get; set; }
+        public string? Instance { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public int? Status { get; set; }
+        public int? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public string Type { get; set; }
+        public string? Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35457,20 +35581,20 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingRef")]
-        public string FindingRef { get; set; }
+        public string? FindingRef { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("score")]
         [System.ComponentModel.DataAnnotations.Range(-1D, 1D)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public int Score { get; set; }
+        public int? Score { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35486,12 +35610,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trends")]
-        public System.Collections.Generic.ICollection<ArtifactOutcomeTrend> Trends { get; set; }
+        public System.Collections.Generic.ICollection<ArtifactOutcomeTrend>? Trends { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35507,39 +35631,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactTrendCount")]
-        public int ArtifactTrendCount { get; set; }
+        public int? ArtifactTrendCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunsTouched")]
-        public int DistinctRunsTouched { get; set; }
+        public int? DistinctRunsTouched { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("improvementOpportunityCount")]
-        public int ImprovementOpportunityCount { get; set; }
+        public int? ImprovementOpportunityCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryNotes")]
-        public System.Collections.Generic.ICollection<string> SummaryNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topAggregateCount")]
-        public int TopAggregateCount { get; set; }
+        public int? TopAggregateCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalSignalsInScope")]
-        public int TotalSignalsInScope { get; set; }
+        public int? TotalSignalsInScope { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("triageQueueItemCount")]
-        public int TriageQueueItemCount { get; set; }
+        public int? TriageQueueItemCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35555,12 +35679,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("opportunities")]
-        public System.Collections.Generic.ICollection<ImprovementOpportunity> Opportunities { get; set; }
+        public System.Collections.Generic.ICollection<ImprovementOpportunity>? Opportunities { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35576,12 +35700,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("items")]
-        public System.Collections.Generic.ICollection<TriageQueueItem> Items { get; set; }
+        public System.Collections.Generic.ICollection<TriageQueueItem>? Items { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35597,27 +35721,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactLabel")]
-        public string ArtifactLabel { get; set; }
+        public string? ArtifactLabel { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("followUp")]
-        public int FollowUp { get; set; }
+        public int? FollowUp { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rejected")]
-        public int Rejected { get; set; }
+        public int? Rejected { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("revised")]
-        public int Revised { get; set; }
+        public int? Revised { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runs")]
-        public int Runs { get; set; }
+        public int? Runs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeHint")]
-        public string ThemeHint { get; set; }
+        public string? ThemeHint { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trusted")]
-        public int Trusted { get; set; }
+        public int? Trusted { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35633,39 +35757,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactOutcomes")]
-        public System.Collections.Generic.ICollection<ProductLearningTriageReportArtifactRow> ArtifactOutcomes { get; set; }
+        public System.Collections.Generic.ICollection<ProductLearningTriageReportArtifactRow>? ArtifactOutcomes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("distinctRunsReviewed")]
-        public int DistinctRunsReviewed { get; set; }
+        public int? DistinctRunsReviewed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sinceUtc")]
-        public System.DateTimeOffset? SinceUtc { get; set; }
+        public System.DateTimeOffset? SinceUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topImprovements")]
-        public System.Collections.Generic.ICollection<ProductLearningTriageReportImprovementLine> TopImprovements { get; set; }
+        public System.Collections.Generic.ICollection<ProductLearningTriageReportImprovementLine>? TopImprovements { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("topProblemAreas")]
-        public System.Collections.Generic.ICollection<string> TopProblemAreas { get; set; }
+        public System.Collections.Generic.ICollection<string>? TopProblemAreas { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalSignalsInScope")]
-        public int TotalSignalsInScope { get; set; }
+        public int? TotalSignalsInScope { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("triageQueuePreview")]
-        public System.Collections.Generic.ICollection<ProductLearningTriageReportTriageLine> TriageQueuePreview { get; set; }
+        public System.Collections.Generic.ICollection<ProductLearningTriageReportTriageLine>? TriageQueuePreview { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35681,18 +35805,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("area")]
-        public string Area { get; set; }
+        public string? Area { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35708,21 +35832,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("detailSummary")]
-        public string DetailSummary { get; set; }
+        public string? DetailSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rank")]
-        public int Rank { get; set; }
+        public int? Rank { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedNextStep")]
-        public string SuggestedNextStep { get; set; }
+        public string? SuggestedNextStep { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35738,18 +35862,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("fromNodeId")]
-        public System.Guid FromNodeId { get; set; }
+        public System.Guid? FromNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("toNodeId")]
-        public System.Guid ToNodeId { get; set; }
+        public System.Guid? ToNodeId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public int Type { get; set; }
+        public int? Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35765,21 +35889,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("referenceId")]
-        public string ReferenceId { get; set; }
+        public string? ReferenceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public int Type { get; set; }
+        public int? Type { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35795,12 +35919,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contentJson")]
-        public string ContentJson { get; set; }
+        public string? ContentJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("version")]
-        public string Version { get; set; }
+        public string? Version { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35816,15 +35940,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("action")]
-        public string Action { get; set; }
+        public string? Action { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comment")]
-        public string Comment { get; set; }
+        public string? Comment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35840,39 +35964,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("categoryStats")]
-        public System.Collections.Generic.ICollection<RecommendationOutcomeStats> CategoryStats { get; set; }
+        public System.Collections.Generic.ICollection<RecommendationOutcomeStats>? CategoryStats { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("categoryWeights")]
-        public System.Collections.Generic.IDictionary<string, double> CategoryWeights { get; set; }
+        public System.Collections.Generic.IDictionary<string, double>? CategoryWeights { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("signalTypeStats")]
-        public System.Collections.Generic.ICollection<RecommendationOutcomeStats> SignalTypeStats { get; set; }
+        public System.Collections.Generic.ICollection<RecommendationOutcomeStats>? SignalTypeStats { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("signalTypeWeights")]
-        public System.Collections.Generic.IDictionary<string, double> SignalTypeWeights { get; set; }
+        public System.Collections.Generic.IDictionary<string, double>? SignalTypeWeights { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("urgencyStats")]
-        public System.Collections.Generic.ICollection<RecommendationOutcomeStats> UrgencyStats { get; set; }
+        public System.Collections.Generic.ICollection<RecommendationOutcomeStats>? UrgencyStats { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("urgencyWeights")]
-        public System.Collections.Generic.IDictionary<string, double> UrgencyWeights { get; set; }
+        public System.Collections.Generic.IDictionary<string, double>? UrgencyWeights { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35889,39 +36013,39 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("acceptanceRate")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double AcceptanceRate { get; set; }
+        public double? AcceptanceRate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("acceptedCount")]
-        public int AcceptedCount { get; set; }
+        public int? AcceptedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("deferredCount")]
-        public int DeferredCount { get; set; }
+        public int? DeferredCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("deferredRate")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double DeferredRate { get; set; }
+        public double? DeferredRate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("implementationRate")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double ImplementationRate { get; set; }
+        public double? ImplementationRate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("implementedCount")]
-        public int ImplementedCount { get; set; }
+        public int? ImplementedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("key")]
-        public string Key { get; set; }
+        public string? Key { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("proposedCount")]
-        public int ProposedCount { get; set; }
+        public int? ProposedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rejectedCount")]
-        public int RejectedCount { get; set; }
+        public int? RejectedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rejectionRate")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double RejectionRate { get; set; }
+        public double? RejectionRate { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -35937,66 +36061,66 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("expectedImpact")]
-        public string ExpectedImpact { get; set; }
+        public string? ExpectedImpact { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastUpdatedUtc")]
-        public System.DateTimeOffset LastUpdatedUtc { get; set; }
+        public System.DateTimeOffset? LastUpdatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityScore")]
-        public int PriorityScore { get; set; }
+        public int? PriorityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rationale")]
-        public string Rationale { get; set; }
+        public string? Rationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendationId")]
-        public System.Guid RecommendationId { get; set; }
+        public System.Guid? RecommendationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionRationale")]
-        public string ResolutionRationale { get; set; }
+        public string? ResolutionRationale { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewComment")]
-        public string ReviewComment { get; set; }
+        public string? ReviewComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedByUserId")]
-        public string ReviewedByUserId { get; set; }
+        public string? ReviewedByUserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedByUserName")]
-        public string ReviewedByUserName { get; set; }
+        public string? ReviewedByUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedAction")]
-        public string SuggestedAction { get; set; }
+        public string? SuggestedAction { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("urgency")]
-        public string Urgency { get; set; }
+        public string? Urgency { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36012,12 +36136,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewComment")]
-        public string ReviewComment { get; set; }
+        public string? ReviewComment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedBy")]
-        public string ReviewedBy { get; set; }
+        public string? ReviewedBy { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36033,18 +36157,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relationshipType")]
-        public string RelationshipType { get; set; }
+        public string? RelationshipType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceId")]
-        public string SourceId { get; set; }
+        public string? SourceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetId")]
-        public string TargetId { get; set; }
+        public string? TargetId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36056,55 +36180,79 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum RelationshipType
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Calls")]
+        Calls = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ReadsFrom")]
+        ReadsFrom = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"WritesTo")]
+        WritesTo = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"PublishesTo")]
+        PublishesTo = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SubscribesTo")]
+        SubscribesTo = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AuthenticatesWith")]
+        AuthenticatesWith = 5,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ReplayComparisonMetadataResponse
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordId")]
-        public string ComparisonRecordId { get; set; }
+        public string? ComparisonRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
-        public string ComparisonType { get; set; }
+        public string? ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset? CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("driftAnalysis")]
-        public DriftAnalysisResponse DriftAnalysis { get; set; }
+        public DriftAnalysisResponse? DriftAnalysis { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("formatProfile")]
-        public string FormatProfile { get; set; }
+        public string? FormatProfile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftExportRecordId")]
-        public string LeftExportRecordId { get; set; }
+        public string? LeftExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public string LeftRunId { get; set; }
+        public string? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistedReplayRecordId")]
-        public string PersistedReplayRecordId { get; set; }
+        public string? PersistedReplayRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayMode")]
-        public string ReplayMode { get; set; }
+        public string? ReplayMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightExportRecordId")]
-        public string RightExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public string RightRunId { get; set; }
+        public string? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("verificationMessage")]
-        public string VerificationMessage { get; set; }
+        public string? VerificationMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("verificationPassed")]
-        public bool VerificationPassed { get; set; }
+        public bool? VerificationPassed { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36120,18 +36268,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistReplay")]
-        public bool PersistReplay { get; set; }
+        public bool? PersistReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("profile")]
-        public string Profile { get; set; }
+        public string? Profile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayMode")]
-        public string ReplayMode { get; set; }
+        public string? ReplayMode { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36147,43 +36295,43 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonRecordId")]
-        public string ComparisonRecordId { get; set; }
+        public string? ComparisonRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("comparisonType")]
-        public string ComparisonType { get; set; }
+        public string? ComparisonType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("durationMs")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long DurationMs { get; set; }
+        public long? DurationMs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
-        public string ErrorMessage { get; set; }
+        public string? ErrorMessage { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadataOnly")]
-        public bool MetadataOnly { get; set; }
+        public bool? MetadataOnly { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistReplay")]
-        public bool PersistReplay { get; set; }
+        public bool? PersistReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("persistedReplayRecordId")]
-        public string PersistedReplayRecordId { get; set; }
+        public string? PersistedReplayRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayMode")]
-        public string ReplayMode { get; set; }
+        public string? ReplayMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("success")]
-        public bool Success { get; set; }
+        public bool? Success { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timestampUtc")]
-        public System.DateTimeOffset TimestampUtc { get; set; }
+        public System.DateTimeOffset? TimestampUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("verificationPassed")]
-        public bool? VerificationPassed { get; set; }
+        public bool? VerificationPassed { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36199,9 +36347,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("recentReplays")]
-        public System.Collections.Generic.ICollection<ReplayDiagnosticsEntryDto> RecentReplays { get; set; }
+        public System.Collections.Generic.ICollection<ReplayDiagnosticsEntryDto>? RecentReplays { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36217,33 +36365,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("exportRecordId")]
-        public string ExportRecordId { get; set; }
+        public string? ExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("exportType")]
-        public string ExportType { get; set; }
+        public string? ExportType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionReason")]
-        public string ResolutionReason { get; set; }
+        public string? ResolutionReason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfile")]
-        public string TemplateProfile { get; set; }
+        public string? TemplateProfile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfileDisplayName")]
-        public string TemplateProfileDisplayName { get; set; }
+        public string? TemplateProfileDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wasAutoSelected")]
-        public bool WasAutoSelected { get; set; }
+        public bool? WasAutoSelected { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36259,9 +36407,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("recordReplayExport")]
-        public bool RecordReplayExport { get; set; }
+        public bool? RecordReplayExport { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36277,12 +36425,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("mode")]
-        public string Mode { get; set; }
+        public string? Mode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36298,33 +36446,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("hasRebuildOutput")]
-        public bool HasRebuildOutput { get; set; }
+        public bool? HasRebuildOutput { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("mode")]
-        public string Mode { get; set; }
+        public string? Mode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rebuiltArtifactBundleId")]
-        public System.Guid? RebuiltArtifactBundleId { get; set; }
+        public System.Guid? RebuiltArtifactBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rebuiltManifestHash")]
-        public string RebuiltManifestHash { get; set; }
+        public string? RebuiltManifestHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rebuiltManifestId")]
-        public System.Guid? RebuiltManifestId { get; set; }
+        public System.Guid? RebuiltManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayedUtc")]
-        public System.DateTimeOffset ReplayedUtc { get; set; }
+        public System.DateTimeOffset? ReplayedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("validation")]
-        public ReplayValidationResponse Validation { get; set; }
+        public ReplayValidationResponse? Validation { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("validationNoteCount")]
-        public int ValidationNoteCount { get; set; }
+        public int? ValidationNoteCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36340,15 +36488,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("commitReplay")]
-        public bool CommitReplay { get; set; }
+        public bool? CommitReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionMode")]
-        public string ExecutionMode { get; set; }
+        public string? ExecutionMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersionOverride")]
-        public string ManifestVersionOverride { get; set; }
+        public string? ManifestVersionOverride { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36364,27 +36512,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraces")]
-        public System.Collections.Generic.ICollection<object> DecisionTraces { get; set; }
+        public System.Collections.Generic.ICollection<object>? DecisionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("executionMode")]
-        public string ExecutionMode { get; set; }
+        public string? ExecutionMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("originalRunId")]
-        public string OriginalRunId { get; set; }
+        public string? OriginalRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("replayRunId")]
-        public string ReplayRunId { get; set; }
+        public string? ReplayRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<AgentResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<AgentResult>? Results { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("warnings")]
-        public System.Collections.Generic.ICollection<string> Warnings { get; set; }
+        public System.Collections.Generic.ICollection<string>? Warnings { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36400,36 +36548,36 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundlePresentAfterReplay")]
-        public bool ArtifactBundlePresentAfterReplay { get; set; }
+        public bool? ArtifactBundlePresentAfterReplay { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactsPresent")]
-        public bool ArtifactsPresent { get; set; }
+        public bool? ArtifactsPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextPresent")]
-        public bool ContextPresent { get; set; }
+        public bool? ContextPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsPresent")]
-        public bool FindingsPresent { get; set; }
+        public bool? FindingsPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphPresent")]
-        public bool GraphPresent { get; set; }
+        public bool? GraphPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasValidationNotes")]
-        public bool HasValidationNotes { get; set; }
+        public bool? HasValidationNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestHashMatches")]
-        public bool ManifestHashMatches { get; set; }
+        public bool? ManifestHashMatches { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestPresent")]
-        public bool ManifestPresent { get; set; }
+        public bool? ManifestPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tracePresent")]
-        public bool TracePresent { get; set; }
+        public bool? TracePresent { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36445,18 +36593,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("assumptions")]
-        public System.Collections.Generic.ICollection<string> Assumptions { get; set; }
+        public System.Collections.Generic.ICollection<string>? Assumptions { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("constraints")]
-        public System.Collections.Generic.ICollection<string> Constraints { get; set; }
+        public System.Collections.Generic.ICollection<string>? Constraints { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requiredCapabilities")]
-        public System.Collections.Generic.ICollection<string> RequiredCapabilities { get; set; }
+        public System.Collections.Generic.ICollection<string>? RequiredCapabilities { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36472,12 +36620,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changeType")]
-        public string ChangeType { get; set; }
+        public string? ChangeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requirementName")]
-        public string RequirementName { get; set; }
+        public string? RequirementName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36493,21 +36641,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("contentJson")]
-        public string ContentJson { get; set; }
+        public string? ContentJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("packType")]
-        public string PackType { get; set; }
+        public string? PackType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("policyPackId")]
-        public System.Guid PolicyPackId { get; set; }
+        public System.Guid? PolicyPackId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("version")]
-        public string Version { get; set; }
+        public string? Version { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36523,28 +36671,28 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("chunkId")]
-        public string ChunkId { get; set; }
+        public string? ChunkId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("documentId")]
-        public string DocumentId { get; set; }
+        public string? DocumentId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("score")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double Score { get; set; }
+        public double? Score { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceId")]
-        public string SourceId { get; set; }
+        public string? SourceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceType")]
-        public string SourceType { get; set; }
+        public string? SourceType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("text")]
-        public string Text { get; set; }
+        public string? Text { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36561,23 +36709,23 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("meanBaselineHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? MeanBaselineHours { get; set; }
+        public double? MeanBaselineHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("medianBaselineHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? MedianBaselineHours { get; set; }
+        public double? MedianBaselineHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("p90BaselineHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? P90BaselineHours { get; set; }
+        public double? P90BaselineHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("quarter")]
-        public string Quarter { get; set; }
+        public string? Quarter { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantCount")]
-        public int TenantCount { get; set; }
+        public int? TenantCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36593,27 +36741,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateACompositeRule")]
-        public CompositeAlertRule CandidateACompositeRule { get; set; }
+        public CompositeAlertRule? CandidateACompositeRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateASimpleRule")]
-        public AlertRule CandidateASimpleRule { get; set; }
+        public AlertRule? CandidateASimpleRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateBCompositeRule")]
-        public CompositeAlertRule CandidateBCompositeRule { get; set; }
+        public CompositeAlertRule? CandidateBCompositeRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateBSimpleRule")]
-        public AlertRule CandidateBSimpleRule { get; set; }
+        public AlertRule? CandidateBSimpleRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recentRunCount")]
-        public int RecentRunCount { get; set; }
+        public int? RecentRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleKind")]
-        public string RuleKind { get; set; }
+        public string? RuleKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runProjectSlug")]
-        public string RunProjectSlug { get; set; }
+        public string? RunProjectSlug { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36629,15 +36777,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateA")]
-        public RuleSimulationResult CandidateA { get; set; }
+        public RuleSimulationResult? CandidateA { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateB")]
-        public RuleSimulationResult CandidateB { get; set; }
+        public RuleSimulationResult? CandidateB { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryNotes")]
-        public System.Collections.Generic.ICollection<string> SummaryNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryNotes { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36653,30 +36801,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compositeRule")]
-        public CompositeAlertRule CompositeRule { get; set; }
+        public CompositeAlertRule? CompositeRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recentRunCount")]
-        public int RecentRunCount { get; set; }
+        public int? RecentRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleKind")]
-        public string RuleKind { get; set; }
+        public string? RuleKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runProjectSlug")]
-        public string RunProjectSlug { get; set; }
+        public string? RunProjectSlug { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simpleRule")]
-        public AlertRule SimpleRule { get; set; }
+        public AlertRule? SimpleRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("useHistoricalWindow")]
-        public bool UseHistoricalWindow { get; set; }
+        public bool? UseHistoricalWindow { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36692,30 +36840,30 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluatedRunCount")]
-        public int EvaluatedRunCount { get; set; }
+        public int? EvaluatedRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("matchedCount")]
-        public int MatchedCount { get; set; }
+        public int? MatchedCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outcomes")]
-        public System.Collections.Generic.ICollection<SimulatedAlertOutcome> Outcomes { get; set; }
+        public System.Collections.Generic.ICollection<SimulatedAlertOutcome>? Outcomes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleKind")]
-        public string RuleKind { get; set; }
+        public string? RuleKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulatedUtc")]
-        public System.DateTimeOffset SimulatedUtc { get; set; }
+        public System.DateTimeOffset? SimulatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryNotes")]
-        public System.Collections.Generic.ICollection<string> SummaryNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wouldCreateCount")]
-        public int WouldCreateCount { get; set; }
+        public int? WouldCreateCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wouldSuppressCount")]
-        public int WouldSuppressCount { get; set; }
+        public int? WouldSuppressCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36731,12 +36879,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedRuns")]
-        public System.Collections.Generic.ICollection<ArchivedRunScopeRow> ArchivedRuns { get; set; }
+        public System.Collections.Generic.ICollection<ArchivedRunScopeRow>? ArchivedRuns { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("updatedCount")]
-        public int UpdatedCount { get; set; }
+        public int? UpdatedCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36753,13 +36901,13 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("reason")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Reason { get; set; }
+        public string Reason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid RunId { get; set; }
+        public System.Guid RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36775,15 +36923,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedRuns")]
-        public System.Collections.Generic.ICollection<ArchivedRunScopeRow> ArchivedRuns { get; set; }
+        public System.Collections.Generic.ICollection<ArchivedRunScopeRow>? ArchivedRuns { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("failed")]
-        public System.Collections.Generic.ICollection<RunArchiveByIdFailure> Failed { get; set; }
+        public System.Collections.Generic.ICollection<RunArchiveByIdFailure>? Failed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("succeededRunIds")]
-        public System.Collections.Generic.ICollection<System.Guid> SucceededRunIds { get; set; }
+        public System.Collections.Generic.ICollection<System.Guid>? SucceededRunIds { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36799,24 +36947,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("hasManifestComparison")]
-        public bool HasManifestComparison { get; set; }
+        public bool? HasManifestComparison { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("leftRunId")]
-        public System.Guid LeftRunId { get; set; }
+        public System.Guid? LeftRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestComparison")]
-        public ManifestComparisonResponse ManifestComparison { get; set; }
+        public ManifestComparisonResponse? ManifestComparison { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rightRunId")]
-        public System.Guid RightRunId { get; set; }
+        public System.Guid? RightRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runLevelDiffCount")]
-        public int RunLevelDiffCount { get; set; }
+        public int? RunLevelDiffCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runLevelDiffs")]
-        public System.Collections.Generic.ICollection<DiffItemResponse> RunLevelDiffs { get; set; }
+        public System.Collections.Generic.ICollection<DiffItemResponse>? RunLevelDiffs { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36832,27 +36980,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundle")]
-        public ArtifactBundle ArtifactBundle { get; set; }
+        public ArtifactBundle? ArtifactBundle { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshot")]
-        public ContextSnapshot ContextSnapshot { get; set; }
+        public ContextSnapshot? ContextSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTrace")]
-        public DecisionTrace DecisionTrace { get; set; }
+        public DecisionTrace? DecisionTrace { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshot")]
-        public FindingsSnapshot FindingsSnapshot { get; set; }
+        public FindingsSnapshot? FindingsSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifest")]
-        public GoldenManifest GoldenManifest { get; set; }
+        public GoldenManifest? GoldenManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshot")]
-        public GraphSnapshot GraphSnapshot { get; set; }
+        public GraphSnapshot? GraphSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public RunRecord Run { get; set; }
+        public RunRecord? Run { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36868,21 +37016,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraces")]
-        public System.Collections.Generic.ICollection<object> DecisionTraces { get; set; }
+        public System.Collections.Generic.ICollection<object>? DecisionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifest")]
-        public GoldenManifest Manifest { get; set; }
+        public GoldenManifest? Manifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("results")]
-        public System.Collections.Generic.ICollection<AgentResult> Results { get; set; }
+        public System.Collections.Generic.ICollection<AgentResult>? Results { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("run")]
-        public ArchitectureRun Run { get; set; }
+        public ArchitectureRun? Run { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tasks")]
-        public System.Collections.Generic.ICollection<AgentTask> Tasks { get; set; }
+        public System.Collections.Generic.ICollection<AgentTask>? Tasks { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36898,13 +37046,13 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("citations")]
-        public System.Collections.Generic.ICollection<CitationReference> Citations { get; set; }
+        public System.Collections.Generic.ICollection<CitationReference>? Citations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceGapCount")]
-        public int ComplianceGapCount { get; set; }
+        public int? ComplianceGapCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionCount")]
-        public int DecisionCount { get; set; }
+        public int? DecisionCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("explanation")]
         [System.ComponentModel.DataAnnotations.Required]
@@ -36912,36 +37060,36 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("faithfulnessSupportRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
-        public double? FaithfulnessSupportRatio { get; set; }
+        public double? FaithfulnessSupportRatio { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("faithfulnessWarning")]
-        public string FaithfulnessWarning { get; set; }
+        public string? FaithfulnessWarning { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingCount")]
-        public int FindingCount { get; set; }
+        public int? FindingCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingTraceConfidences")]
-        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto> FindingTraceConfidences { get; set; }
+        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto>? FindingTraceConfidences { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("overallAssessment")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string OverallAssessment { get; set; }
+        public string OverallAssessment { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("riskPosture")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string RiskPosture { get; set; }
+        public string RiskPosture { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("themeSummaries")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<string> ThemeSummaries { get; set; } = new System.Collections.ObjectModel.Collection<string>();
 
         [System.Text.Json.Serialization.JsonPropertyName("unresolvedIssueCount")]
-        public int UnresolvedIssueCount { get; set; }
+        public int? UnresolvedIssueCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("usedDeterministicFallback")]
-        public bool UsedDeterministicFallback { get; set; }
+        public bool? UsedDeterministicFallback { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36957,9 +37105,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("exports")]
-        public System.Collections.Generic.ICollection<RunExportRecord> Exports { get; set; }
+        public System.Collections.Generic.ICollection<RunExportRecord>? Exports { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -36975,78 +37123,78 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("analysisRequestJson")]
-        public string AnalysisRequestJson { get; set; }
+        public string? AnalysisRequestJson { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareManifestVersion")]
-        public string CompareManifestVersion { get; set; }
+        public string? CompareManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compareRunId")]
-        public string CompareRunId { get; set; }
+        public string? CompareRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("determinismIterations")]
-        public int? DeterminismIterations { get; set; }
+        public int? DeterminismIterations { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("exportRecordId")]
-        public string ExportRecordId { get; set; }
+        public string? ExportRecordId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("exportType")]
-        public string ExportType { get; set; }
+        public string? ExportType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
+        public string? FileName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedAgentResultCompare")]
-        public bool? IncludedAgentResultCompare { get; set; }
+        public bool? IncludedAgentResultCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedDeterminismCheck")]
-        public bool? IncludedDeterminismCheck { get; set; }
+        public bool? IncludedDeterminismCheck { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedDiagram")]
-        public bool? IncludedDiagram { get; set; }
+        public bool? IncludedDiagram { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedEvidence")]
-        public bool? IncludedEvidence { get; set; }
+        public bool? IncludedEvidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedExecutionTraces")]
-        public bool? IncludedExecutionTraces { get; set; }
+        public bool? IncludedExecutionTraces { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedManifest")]
-        public bool? IncludedManifest { get; set; }
+        public bool? IncludedManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedManifestCompare")]
-        public bool? IncludedManifestCompare { get; set; }
+        public bool? IncludedManifestCompare { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("includedSummary")]
-        public bool? IncludedSummary { get; set; }
+        public bool? IncludedSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersion")]
-        public string ManifestVersion { get; set; }
+        public string? ManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resolutionReason")]
-        public string ResolutionReason { get; set; }
+        public string? ResolutionReason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfile")]
-        public string TemplateProfile { get; set; }
+        public string? TemplateProfile { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("templateProfileDisplayName")]
-        public string TemplateProfileDisplayName { get; set; }
+        public string? TemplateProfileDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wasAutoSelected")]
-        public bool WasAutoSelected { get; set; }
+        public bool? WasAutoSelected { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37062,9 +37210,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("record")]
-        public RunExportRecord Record { get; set; }
+        public RunExportRecord? Record { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37080,27 +37228,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
-        public string CurrentManifestVersion { get; set; }
+        public string? CurrentManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestId")]
-        public string RequestId { get; set; }
+        public string? RequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public string RunId { get; set; }
+        public string? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("systemName")]
-        public string SystemName { get; set; }
+        public string? SystemName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37116,21 +37264,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changedFields")]
-        public System.Collections.Generic.ICollection<string> ChangedFields { get; set; }
+        public System.Collections.Generic.ICollection<string>? ChangedFields { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completionStateDiffers")]
-        public bool CompletionStateDiffers { get; set; }
+        public bool? CompletionStateDiffers { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestVersionsDiffer")]
-        public bool ManifestVersionsDiffer { get; set; }
+        public bool? ManifestVersionsDiffer { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("requestIdsDiffer")]
-        public bool RequestIdsDiffer { get; set; }
+        public bool? RequestIdsDiffer { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("statusDiffers")]
-        public bool StatusDiffers { get; set; }
+        public bool? StatusDiffers { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37146,21 +37294,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("actorUserName")]
-        public string ActorUserName { get; set; }
+        public string? ActorUserName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("correlationId")]
-        public string CorrelationId { get; set; }
+        public string? CorrelationId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventId")]
-        public System.Guid EventId { get; set; }
+        public System.Guid? EventId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("eventType")]
-        public string EventType { get; set; }
+        public string? EventType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
-        public System.DateTimeOffset OccurredUtc { get; set; }
+        public System.DateTimeOffset? OccurredUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37176,27 +37324,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceEntries")]
-        public System.Collections.Generic.ICollection<DecisionTraceEntry> DecisionTraceEntries { get; set; }
+        public System.Collections.Generic.ICollection<DecisionTraceEntry>? DecisionTraceEntries { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("explanationAvailable")]
-        public bool ExplanationAvailable { get; set; }
+        public bool? ExplanationAvailable { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findings")]
-        public System.Collections.Generic.ICollection<FindingRationale> Findings { get; set; }
+        public System.Collections.Generic.ICollection<FindingRationale>? Findings { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("pipelineType")]
-        public string PipelineType { get; set; }
+        public string? PipelineType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("provenanceAvailable")]
-        public bool ProvenanceAvailable { get; set; }
+        public bool? ProvenanceAvailable { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37212,66 +37360,66 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("architectureRequestId")]
-        public string ArchitectureRequestId { get; set; }
+        public string? ArchitectureRequestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedUtc")]
-        public System.DateTimeOffset? ArchivedUtc { get; set; }
+        public System.DateTimeOffset? ArchivedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundleId")]
-        public System.Guid? ArtifactBundleId { get; set; }
+        public System.Guid? ArtifactBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("completedUtc")]
-        public System.DateTimeOffset? CompletedUtc { get; set; }
+        public System.DateTimeOffset? CompletedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public System.Guid? ContextSnapshotId { get; set; }
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("currentManifestVersion")]
-        public string CurrentManifestVersion { get; set; }
+        public string? CurrentManifestVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
-        public System.Guid? DecisionTraceId { get; set; }
+        public System.Guid? DecisionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public System.Guid? FindingsSnapshotId { get; set; }
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
-        public System.Guid? GoldenManifestId { get; set; }
+        public System.Guid? GoldenManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid? GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("legacyRunStatus")]
-        public string LegacyRunStatus { get; set; }
+        public string? LegacyRunStatus { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("otelTraceId")]
-        public string OtelTraceId { get; set; }
+        public string? OtelTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public string ProjectId { get; set; }
+        public string? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rowVersion")]
-        public byte[] RowVersion { get; set; }
+        public byte[]? RowVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scopeProjectId")]
-        public System.Guid ScopeProjectId { get; set; }
+        public System.Guid? ScopeProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37287,54 +37435,54 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactBundleId")]
-        public System.Guid? ArtifactBundleId { get; set; }
+        public System.Guid? ArtifactBundleId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotId")]
-        public System.Guid? ContextSnapshotId { get; set; }
+        public System.Guid? ContextSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionTraceId")]
-        public System.Guid? DecisionTraceId { get; set; }
+        public System.Guid? DecisionTraceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
-        public System.Guid? FindingsSnapshotId { get; set; }
+        public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("goldenManifestId")]
-        public System.Guid? GoldenManifestId { get; set; }
+        public System.Guid? GoldenManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
-        public System.Guid? GraphSnapshotId { get; set; }
+        public System.Guid? GraphSnapshotId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasArtifactBundle")]
-        public bool HasArtifactBundle { get; set; }
+        public bool? HasArtifactBundle { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasContextSnapshot")]
-        public bool HasContextSnapshot { get; set; }
+        public bool? HasContextSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasDecisionTrace")]
-        public bool HasDecisionTrace { get; set; }
+        public bool? HasDecisionTrace { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasFindingsSnapshot")]
-        public bool HasFindingsSnapshot { get; set; }
+        public bool? HasFindingsSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasGoldenManifest")]
-        public bool HasGoldenManifest { get; set; }
+        public bool? HasGoldenManifest { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasGraphSnapshot")]
-        public bool HasGraphSnapshot { get; set; }
+        public bool? HasGraphSnapshot { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public string ProjectId { get; set; }
+        public string? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37346,19 +37494,61 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum RuntimePlatform
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Unknown")]
+        Unknown = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AppService")]
+        AppService = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Functions")]
+        Functions = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Aks")]
+        Aks = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Vm")]
+        Vm = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"ContainerApps")]
+        ContainerApps = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SqlServer")]
+        SqlServer = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AzureAiSearch")]
+        AzureAiSearch = 7,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AzureOpenAi")]
+        AzureOpenAi = 8,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Redis")]
+        Redis = 9,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"BlobStorage")]
+        BlobStorage = 10,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"KeyVault")]
+        KeyVault = 11,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class ScopeContext
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37374,18 +37564,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("assessmentCode")]
-        public string AssessmentCode { get; set; }
+        public string? AssessmentCode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("assessorDisplayName")]
-        public string AssessorDisplayName { get; set; }
+        public string? AssessorDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("publishedOn")]
-        public string PublishedOn { get; set; }
+        public string? PublishedOn { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryReference")]
-        public string SummaryReference { get; set; }
+        public string? SummaryReference { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37401,15 +37591,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baseStatus")]
-        public string BaseStatus { get; set; }
+        public string? BaseStatus { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("controlName")]
-        public string ControlName { get; set; }
+        public string? ControlName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetStatus")]
-        public string TargetStatus { get; set; }
+        public string? TargetStatus { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37425,9 +37615,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("resultCount")]
-        public int ResultCount { get; set; }
+        public int? ResultCount { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37443,24 +37633,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedUseCases")]
-        public System.Collections.Generic.ICollection<string> RecommendedUseCases { get; set; }
+        public System.Collections.Generic.ICollection<string>? RecommendedUseCases { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceId")]
-        public string ServiceId { get; set; }
+        public string? ServiceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("serviceName")]
-        public string ServiceName { get; set; }
+        public string? ServiceName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
-        public string Summary { get; set; }
+        public string? Summary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37472,46 +37662,76 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum ServiceType
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Unknown")]
+        Unknown = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Api")]
+        Api = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Worker")]
+        Worker = 2,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Ui")]
+        Ui = 3,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Integration")]
+        Integration = 4,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"DataService")]
+        DataService = 5,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"SearchService")]
+        SearchService = 6,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"AiService")]
+        AiService = 7,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class SimulatedAlertOutcome
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("comparedToRunId")]
-        public System.Guid? ComparedToRunId { get; set; }
+        public System.Guid? ComparedToRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("deduplicationKey")]
-        public string DeduplicationKey { get; set; }
+        public string? DeduplicationKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluationMode")]
-        public string EvaluationMode { get; set; }
+        public string? EvaluationMode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleMatched")]
-        public bool RuleMatched { get; set; }
+        public bool? RuleMatched { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid? RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suppressionReason")]
-        public string SuppressionReason { get; set; }
+        public string? SuppressionReason { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wouldBeSuppressed")]
-        public bool WouldBeSuppressed { get; set; }
+        public bool? WouldBeSuppressed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wouldCreateAlert")]
-        public bool WouldCreateAlert { get; set; }
+        public bool? WouldCreateAlert { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37527,9 +37747,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("daysSinceFirstCommitBucket")]
-        public string DaysSinceFirstCommitBucket { get; set; }
+        public string? DaysSinceFirstCommitBucket { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37545,21 +37765,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("buffer")]
-        public string Buffer { get; set; }
+        public string? Buffer { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("hasValue")]
-        public bool HasValue { get; set; }
+        public bool? HasValue { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("length")]
-        public int Length { get; set; }
+        public int? Length { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("offset")]
-        public int Offset { get; set; }
+        public int? Offset { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("value")]
-        public string Value { get; set; }
+        public string? Value { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37575,26 +37795,26 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("alternativesConsidered")]
-        public System.Collections.Generic.ICollection<string> AlternativesConsidered { get; set; }
+        public System.Collections.Generic.ICollection<string>? AlternativesConsidered { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("caveats")]
-        public System.Collections.Generic.ICollection<string> Caveats { get; set; }
+        public System.Collections.Generic.ICollection<string>? Caveats { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("confidence")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? Confidence { get; set; }
+        public double? Confidence { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
-        public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; }
+        public System.Collections.Generic.ICollection<string>? EvidenceRefs { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reasoning")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Reasoning { get; set; }
+        public string Reasoning { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37610,9 +37830,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("result")]
-        public AgentResult Result { get; set; }
+        public AgentResult? Result { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37628,9 +37848,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("resultId")]
-        public string ResultId { get; set; }
+        public string? ResultId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37646,27 +37866,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatorsUsed")]
-        public System.Collections.Generic.ICollection<string> GeneratorsUsed { get; set; }
+        public System.Collections.Generic.ICollection<string>? GeneratorsUsed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
-        public System.Guid ManifestId { get; set; }
+        public System.Guid? ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("notes")]
-        public System.Collections.Generic.ICollection<string> Notes { get; set; }
+        public System.Collections.Generic.ICollection<string>? Notes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("sourceDecisionIds")]
-        public System.Collections.Generic.ICollection<string> SourceDecisionIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? SourceDecisionIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("traceId")]
-        public System.Guid TraceId { get; set; }
+        public System.Guid? TraceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37682,39 +37902,39 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactId")]
-        public System.Guid ArtifactId { get; set; }
+        public System.Guid? ArtifactId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("artifactType")]
-        public string ArtifactType { get; set; }
+        public string? ArtifactType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contentHash")]
-        public string ContentHash { get; set; }
+        public string? ContentHash { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("contributingDecisionIds")]
-        public System.Collections.Generic.ICollection<string> ContributingDecisionIds { get; set; }
+        public System.Collections.Generic.ICollection<string>? ContributingDecisionIds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("format")]
-        public string Format { get; set; }
+        public string? Format { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("manifestId")]
-        public System.Guid ManifestId { get; set; }
+        public System.Guid? ManifestId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("metadata")]
-        public System.Collections.Generic.IDictionary<string, string> Metadata { get; set; }
+        public System.Collections.Generic.IDictionary<string, string>? Metadata { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
-        public System.Guid RunId { get; set; }
+        public System.Guid? RunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37730,22 +37950,22 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("isConfigured")]
-        public bool IsConfigured { get; set; }
+        public bool? IsConfigured { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("keyVaultSecretName")]
-        public string KeyVaultSecretName { get; set; }
+        public string? KeyVaultSecretName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.Guid TenantId { get; set; }
+        public System.Guid TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("updatedUtc")]
-        public System.DateTimeOffset UpdatedUtc { get; set; }
+        public System.DateTimeOffset? UpdatedUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37762,12 +37982,12 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("keyVaultSecretName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string KeyVaultSecretName { get; set; }
+        public string KeyVaultSecretName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37784,35 +38004,35 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("breadthScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? BreadthScore { get; set; }
+        public double? BreadthScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("compositeScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? CompositeScore { get; set; }
+        public double? CompositeScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engagementScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? EngagementScore { get; set; }
+        public double? EngagementScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("governanceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? GovernanceScore { get; set; }
+        public double? GovernanceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isCalculated")]
-        public bool IsCalculated { get; set; }
+        public bool? IsCalculated { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("qualityScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? QualityScore { get; set; }
+        public double? QualityScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("supportScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? SupportScore { get; set; }
+        public double? SupportScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("updatedUtc")]
-        public System.DateTimeOffset? UpdatedUtc { get; set; }
+        public System.DateTimeOffset? UpdatedUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37828,27 +38048,27 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("emailCustomerNotificationsEnabled")]
-        public bool EmailCustomerNotificationsEnabled { get; set; }
+        public bool? EmailCustomerNotificationsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("isConfigured")]
-        public bool IsConfigured { get; set; }
+        public bool? IsConfigured { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outboundWebhookCustomerNotificationsEnabled")]
-        public bool OutboundWebhookCustomerNotificationsEnabled { get; set; }
+        public bool? OutboundWebhookCustomerNotificationsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
-        public int SchemaVersion { get; set; }
+        public int? SchemaVersion { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("teamsCustomerNotificationsEnabled")]
-        public bool TeamsCustomerNotificationsEnabled { get; set; }
+        public bool? TeamsCustomerNotificationsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("updatedUtc")]
-        public System.DateTimeOffset UpdatedUtc { get; set; }
+        public System.DateTimeOffset? UpdatedUtc { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37864,15 +38084,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("emailCustomerNotificationsEnabled")]
-        public bool EmailCustomerNotificationsEnabled { get; set; }
+        public bool? EmailCustomerNotificationsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("outboundWebhookCustomerNotificationsEnabled")]
-        public bool OutboundWebhookCustomerNotificationsEnabled { get; set; }
+        public bool? OutboundWebhookCustomerNotificationsEnabled { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("teamsCustomerNotificationsEnabled")]
-        public bool TeamsCustomerNotificationsEnabled { get; set; }
+        public bool? TeamsCustomerNotificationsEnabled { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37888,15 +38108,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("adminEmail")]
-        public string AdminEmail { get; set; }
+        public string? AdminEmail { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tier")]
-        public int Tier { get; set; }
+        public int? Tier { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37912,18 +38132,18 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("defaultProjectId")]
-        public System.Guid DefaultProjectId { get; set; }
+        public System.Guid? DefaultProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("defaultWorkspaceId")]
-        public System.Guid DefaultWorkspaceId { get; set; }
+        public System.Guid? DefaultWorkspaceId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("wasAlreadyProvisioned")]
-        public bool WasAlreadyProvisioned { get; set; }
+        public bool? WasAlreadyProvisioned { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -37939,70 +38159,70 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleCapturedUtc")]
-        public System.DateTimeOffset? BaselineReviewCycleCapturedUtc { get; set; }
+        public System.DateTimeOffset? BaselineReviewCycleCapturedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? BaselineReviewCycleHours { get; set; }
+        public double? BaselineReviewCycleHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleSource")]
-        public string BaselineReviewCycleSource { get; set; }
+        public string? BaselineReviewCycleSource { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
-        public System.DateTimeOffset CreatedUtc { get; set; }
+        public System.DateTimeOffset? CreatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("entraTenantId")]
-        public System.Guid? EntraTenantId { get; set; }
+        public System.Guid? EntraTenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("id")]
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("slug")]
-        public string Slug { get; set; }
+        public string? Slug { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suspendedUtc")]
-        public System.DateTimeOffset? SuspendedUtc { get; set; }
+        public System.DateTimeOffset? SuspendedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tier")]
-        public int Tier { get; set; }
+        public int? Tier { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialArchitecturePreseedEnqueuedUtc")]
-        public System.DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc { get; set; }
+        public System.DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialExpiresUtc")]
-        public System.DateTimeOffset? TrialExpiresUtc { get; set; }
+        public System.DateTimeOffset? TrialExpiresUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialFirstManifestCommittedUtc")]
-        public System.DateTimeOffset? TrialFirstManifestCommittedUtc { get; set; }
+        public System.DateTimeOffset? TrialFirstManifestCommittedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialRunsLimit")]
-        public int? TrialRunsLimit { get; set; }
+        public int? TrialRunsLimit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialRunsUsed")]
-        public int TrialRunsUsed { get; set; }
+        public int? TrialRunsUsed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSampleRunId")]
-        public System.Guid? TrialSampleRunId { get; set; }
+        public System.Guid? TrialSampleRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSeatsLimit")]
-        public int? TrialSeatsLimit { get; set; }
+        public int? TrialSeatsLimit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSeatsUsed")]
-        public int TrialSeatsUsed { get; set; }
+        public int? TrialSeatsUsed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialStartUtc")]
-        public System.DateTimeOffset? TrialStartUtc { get; set; }
+        public System.DateTimeOffset? TrialStartUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialStatus")]
-        public string TrialStatus { get; set; }
+        public string? TrialStatus { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialWelcomeRunId")]
-        public System.Guid? TrialWelcomeRunId { get; set; }
+        public System.Guid? TrialWelcomeRunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38019,26 +38239,26 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("adminDisplayName")]
         [System.ComponentModel.DataAnnotations.StringLength(200)]
-        public string AdminDisplayName { get; set; }
+        public string? AdminDisplayName { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("adminEmail")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(320)]
-        public string AdminEmail { get; set; }
+        public string AdminEmail { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? BaselineReviewCycleHours { get; set; }
+        public double? BaselineReviewCycleHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleSource")]
-        public string BaselineReviewCycleSource { get; set; }
+        public string? BaselineReviewCycleSource { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("organizationName")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.StringLength(200)]
-        public string OrganizationName { get; set; }
+        public string OrganizationName { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38054,9 +38274,9 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("targetTier")]
-        public string TargetTier { get; set; }
+        public string? TargetTier { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38072,49 +38292,49 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleCapturedUtc")]
-        public System.DateTimeOffset? BaselineReviewCycleCapturedUtc { get; set; }
+        public System.DateTimeOffset? BaselineReviewCycleCapturedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleHours")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double? BaselineReviewCycleHours { get; set; }
+        public double? BaselineReviewCycleHours { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baselineReviewCycleSource")]
-        public string BaselineReviewCycleSource { get; set; }
+        public string? BaselineReviewCycleSource { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("daysRemaining")]
-        public int? DaysRemaining { get; set; }
+        public int? DaysRemaining { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstCommitUtc")]
-        public System.DateTimeOffset? FirstCommitUtc { get; set; }
+        public System.DateTimeOffset? FirstCommitUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("status")]
-        public string Status { get; set; }
+        public string? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialExpiresUtc")]
-        public System.DateTimeOffset? TrialExpiresUtc { get; set; }
+        public System.DateTimeOffset? TrialExpiresUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialRunsLimit")]
-        public int? TrialRunsLimit { get; set; }
+        public int? TrialRunsLimit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialRunsUsed")]
-        public int TrialRunsUsed { get; set; }
+        public int? TrialRunsUsed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSampleRunId")]
-        public System.Guid? TrialSampleRunId { get; set; }
+        public System.Guid? TrialSampleRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSeatsLimit")]
-        public int? TrialSeatsLimit { get; set; }
+        public int? TrialSeatsLimit { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialSeatsUsed")]
-        public int TrialSeatsUsed { get; set; }
+        public int? TrialSeatsUsed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialStartUtc")]
-        public System.DateTimeOffset? TrialStartUtc { get; set; }
+        public System.DateTimeOffset? TrialStartUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("trialWelcomeRunId")]
-        public System.Guid? TrialWelcomeRunId { get; set; }
+        public System.Guid? TrialWelcomeRunId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38130,22 +38350,22 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("kind")]
-        public int Kind { get; set; }
+        public int? Kind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("periodEndUtc")]
-        public System.DateTimeOffset PeriodEndUtc { get; set; }
+        public System.DateTimeOffset? PeriodEndUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("periodStartUtc")]
-        public System.DateTimeOffset PeriodStartUtc { get; set; }
+        public System.DateTimeOffset? PeriodStartUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("totalQuantity")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long TotalQuantity { get; set; }
+        public long? TotalQuantity { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38161,13 +38381,13 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("thresholdValue")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
-        public double ThresholdValue { get; set; }
+        public double? ThresholdValue { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38183,15 +38403,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidate")]
-        public ThresholdCandidate Candidate { get; set; }
+        public ThresholdCandidate? Candidate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("scoreBreakdown")]
-        public NoiseScoreBreakdown ScoreBreakdown { get; set; }
+        public NoiseScoreBreakdown? ScoreBreakdown { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("simulationResult")]
-        public RuleSimulationResult SimulationResult { get; set; }
+        public RuleSimulationResult? SimulationResult { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38207,33 +38427,33 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("baseCompositeRule")]
-        public CompositeAlertRule BaseCompositeRule { get; set; }
+        public CompositeAlertRule? BaseCompositeRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("baseSimpleRule")]
-        public AlertRule BaseSimpleRule { get; set; }
+        public AlertRule? BaseSimpleRule { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("candidateThresholds")]
-        public System.Collections.Generic.ICollection<double> CandidateThresholds { get; set; }
+        public System.Collections.Generic.ICollection<double>? CandidateThresholds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recentRunCount")]
-        public int RecentRunCount { get; set; }
+        public int? RecentRunCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleKind")]
-        public string RuleKind { get; set; }
+        public string? RuleKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runProjectSlug")]
-        public string RunProjectSlug { get; set; }
+        public string? RunProjectSlug { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetCreatedAlertCountMax")]
-        public int TargetCreatedAlertCountMax { get; set; }
+        public int? TargetCreatedAlertCountMax { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("targetCreatedAlertCountMin")]
-        public int TargetCreatedAlertCountMin { get; set; }
+        public int? TargetCreatedAlertCountMin { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tunedMetricType")]
-        public string TunedMetricType { get; set; }
+        public string? TunedMetricType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38249,24 +38469,24 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("candidates")]
-        public System.Collections.Generic.ICollection<ThresholdCandidateEvaluation> Candidates { get; set; }
+        public System.Collections.Generic.ICollection<ThresholdCandidateEvaluation>? Candidates { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evaluatedUtc")]
-        public System.DateTimeOffset EvaluatedUtc { get; set; }
+        public System.DateTimeOffset? EvaluatedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("recommendedCandidate")]
-        public ThresholdCandidateEvaluation RecommendedCandidate { get; set; }
+        public ThresholdCandidateEvaluation? RecommendedCandidate { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("ruleKind")]
-        public string RuleKind { get; set; }
+        public string? RuleKind { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("summaryNotes")]
-        public System.Collections.Generic.ICollection<string> SummaryNotes { get; set; }
+        public System.Collections.Generic.ICollection<string>? SummaryNotes { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tunedMetricType")]
-        public string TunedMetricType { get; set; }
+        public string? TunedMetricType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38282,12 +38502,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("changeType")]
-        public string ChangeType { get; set; }
+        public string? ChangeType { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("resource")]
-        public string Resource { get; set; }
+        public string? Resource { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38303,42 +38523,42 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("affectedArtifactTypeOrWorkflowArea")]
-        public string AffectedArtifactTypeOrWorkflowArea { get; set; }
+        public string? AffectedArtifactTypeOrWorkflowArea { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("detailSummary")]
-        public string DetailSummary { get; set; }
+        public string? DetailSummary { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("firstSeenUtc")]
-        public System.DateTimeOffset FirstSeenUtc { get; set; }
+        public System.DateTimeOffset? FirstSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("lastSeenUtc")]
-        public System.DateTimeOffset LastSeenUtc { get; set; }
+        public System.DateTimeOffset? LastSeenUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("priorityRank")]
-        public int PriorityRank { get; set; }
+        public int? PriorityRank { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("queueItemId")]
-        public System.Guid QueueItemId { get; set; }
+        public System.Guid? QueueItemId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relatedOpportunityId")]
-        public System.Guid? RelatedOpportunityId { get; set; }
+        public System.Guid? RelatedOpportunityId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("relatedSignalId")]
-        public System.Guid? RelatedSignalId { get; set; }
+        public System.Guid? RelatedSignalId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("severity")]
-        public string Severity { get; set; }
+        public string? Severity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("suggestedNextAction")]
-        public string SuggestedNextAction { get; set; }
+        public string? SuggestedNextAction { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string? Title { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("triageStatus")]
-        public string TriageStatus { get; set; }
+        public string? TriageStatus { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38354,12 +38574,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("password")]
-        public string Password { get; set; }
+        public string? Password { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38375,12 +38595,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("userId")]
-        public System.Guid UserId { get; set; }
+        public System.Guid? UserId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("verificationToken")]
-        public string VerificationToken { get; set; }
+        public string? VerificationToken { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38396,21 +38616,21 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("password")]
-        public string Password { get; set; }
+        public string? Password { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("projectId")]
-        public System.Guid? ProjectId { get; set; }
+        public System.Guid? ProjectId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
-        public System.Guid? TenantId { get; set; }
+        public System.Guid? TenantId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("workspaceId")]
-        public System.Guid? WorkspaceId { get; set; }
+        public System.Guid? WorkspaceId { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38426,15 +38646,15 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("accessToken")]
-        public string AccessToken { get; set; }
+        public string? AccessToken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("expiresInSeconds")]
-        public int ExpiresInSeconds { get; set; }
+        public int? ExpiresInSeconds { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tokenType")]
-        public string TokenType { get; set; }
+        public string? TokenType { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38450,12 +38670,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("token")]
-        public string Token { get; set; }
+        public string? Token { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38471,12 +38691,12 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("label")]
-        public string Label { get; set; }
+        public string? Label { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tags")]
-        public System.Collections.Generic.ICollection<string> Tags { get; set; }
+        public System.Collections.Generic.ICollection<string>? Tags { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38492,25 +38712,25 @@ namespace ArchLucid.Api.Client.Generated
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("auditRowCount")]
-        public int AuditRowCount { get; set; }
+        public int? AuditRowCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("auditRowCountTruncated")]
-        public bool AuditRowCountTruncated { get; set; }
+        public bool? AuditRowCountTruncated { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("demoRunId")]
-        public string DemoRunId { get; set; }
+        public string? DemoRunId { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingsProducedBySeverity")]
-        public System.Collections.Generic.IDictionary<string, long> FindingsProducedBySeverity { get; set; }
+        public System.Collections.Generic.IDictionary<string, long>? FindingsProducedBySeverity { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("generatedUtc")]
-        public System.DateTimeOffset GeneratedUtc { get; set; }
+        public System.DateTimeOffset? GeneratedUtc { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("runsCreatedTotal")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long RunsCreatedTotal { get; set; }
+        public long? RunsCreatedTotal { get; set; } = default!;
 
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
         public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
@@ -38524,8 +38744,8 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class FileResponse : System.IDisposable
     {
-        private System.IDisposable _client;
-        private System.IDisposable _response;
+        private System.IDisposable? _client;
+        private System.IDisposable? _response;
 
         public int StatusCode { get; private set; }
 
@@ -38538,7 +38758,7 @@ namespace ArchLucid.Api.Client.Generated
             get { return StatusCode == 206; }
         }
 
-        public FileResponse(int statusCode, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.IO.Stream stream, System.IDisposable client, System.IDisposable response)
+        public FileResponse(int statusCode, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.IO.Stream stream, System.IDisposable? client, System.IDisposable? response)
         {
             StatusCode = statusCode;
             Headers = headers;
@@ -38563,11 +38783,11 @@ namespace ArchLucid.Api.Client.Generated
     {
         public int StatusCode { get; private set; }
 
-        public string Response { get; private set; }
+        public string? Response { get; private set; }
 
         public System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> Headers { get; private set; }
 
-        public ArchLucidApiException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception innerException)
+        public ArchLucidApiException(string message, int statusCode, string? response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Exception? innerException)
             : base(message + "\n\nStatus: " + statusCode + "\nResponse: \n" + ((response == null) ? "(null)" : response.Substring(0, response.Length >= 512 ? 512 : response.Length)), innerException)
         {
             StatusCode = statusCode;
@@ -38586,7 +38806,7 @@ namespace ArchLucid.Api.Client.Generated
     {
         public TResult Result { get; private set; }
 
-        public ArchLucidApiException(string message, int statusCode, string response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception innerException)
+        public ArchLucidApiException(string message, int statusCode, string? response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, TResult result, System.Exception? innerException)
             : base(message, statusCode, response, headers, innerException)
         {
             Result = result;

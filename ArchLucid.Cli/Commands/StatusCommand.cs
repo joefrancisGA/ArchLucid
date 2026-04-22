@@ -49,7 +49,7 @@ internal static class StatusCommand
 
         foreach (ArchLucidApiClient.AgentTaskInfo task in run.Tasks)
         {
-            AgentType agentType = (AgentType)task.AgentType;
+            AgentType agentType = task.AgentType;
             AgentTaskStatus taskStatus = (AgentTaskStatus)task.Status;
             Console.WriteLine($"  {agentType}: {taskStatus} - {task.Objective}");
         }

@@ -80,6 +80,27 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_doc_links.py
 
+      - name: Golden cohort baseline locked — no placeholder SHAs
+        env:
+          ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
+        run: python scripts/ci/assert_golden_cohort_baseline_locked.py
+
+      - name: Golden cohort baseline locked guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_assert_golden_cohort_baseline_locked
+
+      - name: "Advisory — game-day closing report vs calendar (strict after second logged run)"
+        continue-on-error: true
+        # Today: warn-only. After two completed quarterly close-outs, remove continue-on-error
+        # so a missed past calendar date fails merge (see docs/quality/game-day-log/README.md).
+        run: python scripts/ci/assert_game_day_log_recent.py
+
+      - name: Game-day log guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_assert_game_day_log_recent
+
       - name: Synthetic aggregate ROI bulletin sample guards
         run: python scripts/ci/check_synthetic_roi_bulletin_sample.py
 

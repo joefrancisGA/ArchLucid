@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
@@ -30,6 +32,27 @@ public sealed class ArchLucidApiClient
         WriteIndented = false,
     };
 
+    /// <summary>
+    /// Bridges ArchLucid.Contracts models to NSwag <c>Gen.*</c> DTOs when the OpenAPI snapshot uses string enums
+    /// (aligned with the API JSON enum wire format).
+    /// </summary>
+    private static readonly JsonSerializerOptions GenDtoJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
+    };
+
+    /// <summary>
+    /// API + NSwag wire JSON uses string enums for several DTOs; ArchLucid.Contracts CLI projection types use the same names.
+    /// </summary>
+    private static readonly JsonSerializerOptions ContractEnumAwareJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() },
+    };
+
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
@@ -42,7 +65,7 @@ public sealed class ArchLucidApiClient
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
         _http = CreateHttpClient(normalized, useRetry: true, httpResilience);
-        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/" };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
     }
 
     /// <summary>
@@ -54,12 +77,18 @@ public sealed class ArchLucidApiClient
         ArgumentNullException.ThrowIfNull(httpClient);
         _http = httpClient;
         string baseUrl = httpClient.BaseAddress?.ToString().Trim().TrimEnd('/') ?? "http://localhost";
-        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/" };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
     }
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry, CliResilienceOptions? httpResilience = null)
     {
-        HttpMessageHandler inner = new HttpClientHandler();
+        HttpMessageHandler inner = new HttpClientHandler
+        {
+            // API may respond with Content-Encoding: gzip/br (see AddArchLucidResponseCompression). Without this,
+            // NSwag's stream deserializer fails with JsonException on compressed bodies (lock-baseline, doctor, etc.).
+            AutomaticDecompression = DecompressionMethods.All,
+        };
+
         if (useRetry)
 
             inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
@@ -883,21 +912,21 @@ public sealed class ArchLucidApiClient
     {
         string json = JsonSerializer.Serialize(value, value.GetType(), _jsonOptions);
 
-        return JsonSerializer.Deserialize<TOut>(json, _jsonOptions);
+        return JsonSerializer.Deserialize<TOut>(json, ContractEnumAwareJson);
     }
 
     private Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
     {
-        string json = JsonSerializer.Serialize(request, _jsonOptions);
+        string json = JsonSerializer.Serialize(request, GenDtoJson);
 
-        return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, _jsonOptions);
+        return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, GenDtoJson);
     }
 
     private Gen.AgentResult? MapToGenerated(AgentResult result)
     {
-        string json = JsonSerializer.Serialize(result, _jsonOptions);
+        string json = JsonSerializer.Serialize(result, GenDtoJson);
 
-        return JsonSerializer.Deserialize<Gen.AgentResult>(json, _jsonOptions);
+        return JsonSerializer.Deserialize<Gen.AgentResult>(json, GenDtoJson);
     }
 
     /// <summary>
@@ -1000,10 +1029,7 @@ public sealed class ArchLucidApiClient
     {
         public string RunId { get; set; } = "";
         public string RequestId { get; set; } = "";
-        public int Status
-        {
-            get; set;
-        }
+        public ArchitectureRunStatus Status { get; set; }
         public DateTime CreatedUtc
         {
             get; set;
@@ -1028,15 +1054,9 @@ public sealed class ArchLucidApiClient
     {
         public string TaskId { get; set; } = "";
         public string RunId { get; set; } = "";
-        public int AgentType
-        {
-            get; set;
-        }
+        public AgentType AgentType { get; set; }
         public string Objective { get; set; } = "";
-        public int Status
-        {
-            get; set;
-        }
+        public AgentTaskStatus Status { get; set; }
     }
 
     public sealed class GetRunResult
