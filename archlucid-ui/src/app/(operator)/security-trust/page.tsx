@@ -1,117 +1,81 @@
-"use client";
-
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
 
 const DOCS_REPO_BASE =
   process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_REPO_BASE ??
   "https://github.com/joefrancisGA/ArchLucid/blob/main";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import type { AuditEvent } from "@/lib/api";
-import { searchAuditEvents } from "@/lib/api";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-
-/** Matches <see cref="ArchLucid.Core.Audit.AuditEventTypes.SecurityAssessmentPublished" /> (server catalog). */
-const SECURITY_ASSESSMENT_PUBLISHED = "SecurityAssessmentPublished";
-
-type PublicationPayload = {
-  assessmentCode?: string;
-  summaryReference?: string;
-  assessorDisplayName?: string;
-  publishedOn?: string;
-};
-
-function parsePayload(dataJson: string): PublicationPayload {
-  try {
-    return JSON.parse(dataJson) as PublicationPayload;
-  } catch {
-    return {};
-  }
-}
 
 /**
- * Trust and security home: procurement-oriented strip plus link to the latest published assessment audit signal.
+ * Trust and security home: procurement-oriented strip plus NDA-gated pen-test posture (no public summary badge).
  */
 export default function SecurityTrustPage() {
-  const [latest, setLatest] = useState<AuditEvent | null>(null);
-  const [loadError, setLoadError] = useState<ApiLoadFailureState | null>(null);
-
-  const refresh = useCallback(async () => {
-    setLoadError(null);
-
-    try {
-      const rows = await searchAuditEvents({
-        eventType: SECURITY_ASSESSMENT_PUBLISHED,
-        take: 1,
-      });
-
-      setLatest(rows[0] ?? null);
-    } catch (err) {
-      setLoadError(toApiLoadFailure(err));
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  const payload = latest ? parsePayload(latest.dataJson) : {};
-  const summaryHref =
-    payload.summaryReference && payload.summaryReference.startsWith("http")
-      ? payload.summaryReference
-      : `${DOCS_REPO_BASE}/docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`;
-
   return (
     <div className="space-y-6">
       <LayerHeader pageKey="security-trust" />
 
       <section
-        aria-label="Published security assessment"
-        className="rounded-lg border border-emerald-200 bg-emerald-50/80 px-4 py-3 dark:border-emerald-900 dark:bg-emerald-950/40"
+        aria-label="NDA-gated third-party security assessments"
+        className="rounded-lg border border-sky-200 bg-sky-50/80 px-4 py-3 dark:border-sky-900 dark:bg-sky-950/40"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="m-0 text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-              Third-party assessment publication
-            </p>
-            <p className="m-0 mt-1 text-sm text-emerald-900/90 dark:text-emerald-100/90">
-              When security publishes a redacted summary, a durable audit event drives this badge and deep link.
-            </p>
-          </div>
-          {latest ? (
-            <Link
-              href={summaryHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center rounded-full bg-emerald-700 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
-            >
-              Latest: {payload.assessmentCode ?? "published"} — open summary
-            </Link>
-          ) : (
-            <span className="inline-flex items-center rounded-full bg-neutral-200 px-3 py-1 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
-              No publication audit yet
-            </span>
-          )}
-        </div>
-        {latest ? (
-          <p className="mt-2 mb-0 text-xs text-emerald-900/80 dark:text-emerald-200/80">
-            Recorded {new Date(latest.occurredUtc).toLocaleString()}
-            {payload.publishedOn ? ` — publication date: ${payload.publishedOn}` : ""} — assessor:{" "}
-            {payload.assessorDisplayName ?? "see summary"}.
-          </p>
-        ) : null}
+        <p className="m-0 text-sm font-semibold text-sky-950 dark:text-sky-100">Third-party pen-test summaries</p>
+        <p className="m-0 mt-2 text-sm text-sky-950/90 dark:text-sky-100/90">
+          Pen-test redacted summaries are available <strong>under NDA only</strong>. The public{" "}
+          <Link
+            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
+            href={`${DOCS_REPO_BASE}/docs/go-to-market/TRUST_CENTER.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Trust Center
+          </Link>{" "}
+          records engagement existence and high-level posture. To request the most recent redacted summary, email{" "}
+          <a
+            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
+            href="mailto:security@archlucid.com"
+          >
+            security@archlucid.com
+          </a>
+          . (Owner decision 2026-04-22 — see{" "}
+          <Link
+            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
+            href={`${DOCS_REPO_BASE}/docs/PENDING_QUESTIONS.md`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            PENDING_QUESTIONS.md
+          </Link>{" "}
+          item 20.)
+        </p>
       </section>
 
-      {loadError ? (
-        <OperatorApiProblem
-          problem={loadError.problem}
-          fallbackMessage={loadError.message}
-          correlationId={loadError.correlationId}
-        />
-      ) : null}
+      <section aria-label="Security trust badges legend" className="space-y-2">
+        <h2 className="text-lg font-semibold">Badges legend</h2>
+        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          Operator-facing labels for security posture — none imply a <strong>public</strong> pen-test publication.
+        </p>
+        <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+          <table className="w-full min-w-[28rem] border-collapse text-left text-sm">
+            <thead className="bg-neutral-100 dark:bg-neutral-900/60">
+              <tr>
+                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Label</th>
+                <th className="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-800">Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border-b border-neutral-100 px-3 py-2 font-medium dark:border-neutral-800/80">
+                  NDA-gated security assessment
+                </td>
+                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-300 dark:border-neutral-800/80">
+                  Redacted third-party assessment material is shared under NDA; the marketing site and this page do not
+                  host the redacted report body.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Repository trust center</h2>

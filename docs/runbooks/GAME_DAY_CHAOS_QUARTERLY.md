@@ -5,13 +5,17 @@
 
 # Quarterly game day — Simmy chaos coverage
 
+## Production stance (2026-04-22)
+
+Production fault injection is **out of scope for v1 and beyond** per owner decision 2026-04-22 (see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34 — **“production never”**). Reopening this stance requires an **explicit ADR**, not an owner approval gate inside this runbook.
+
 ## Objective
 
 Run the scheduled Simmy chaos suite under controlled conditions, capture outcomes, and file follow-ups before reliability debt accumulates.
 
 ## Pre-flight checklist
 
-- [ ] Confirm target **environment** is **staging** (default). Production fault injection stays **out of scope** for scheduled automation unless item **34** owner approval exists (`docs/PENDING_QUESTIONS.md`).
+- [ ] Confirm target **environment** is **staging** (default). Production fault injection is **out of scope for v1 and beyond** per owner decision 2026-04-22 (see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34 — **“production never”**). Reopening this stance requires an **explicit ADR**, not an owner approval gate inside this runbook.
 - [ ] Verify circuit breaker dashboards and alert routes are healthy.
 - [ ] Confirm **dry-run** mode when only validating workflow wiring (no `dotnet test` execution).
 - [ ] Notify on-call (calendar + Slack) with **start / end window** and rollback owner.
@@ -19,7 +23,7 @@ Run the scheduled Simmy chaos suite under controlled conditions, capture outcome
 ## Blast radius limits
 
 - **Staging:** full Simmy filter (`Simmy|Chaos`) on `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests`.
-- **Production:** _Not default._ Requires explicit product + customer comms + SLO owner sign-off (see PENDING_QUESTIONS).
+- **Production:** _Not in scope for v1+_ — item **34** (2026-04-22). Reopen only via ADR; do not treat as a sign-off checklist item in this runbook.
 
 ## Abort criteria
 
@@ -39,7 +43,7 @@ Run the scheduled Simmy chaos suite under controlled conditions, capture outcome
 |------|------------------|
 | **Driver** | Executes workflow_dispatch, collects artifacts |
 | **Observer** | Confirms blast radius; calls abort if limits exceeded |
-| **Owner** | Approves production chaos (if ever in scope) |
+| **Owner** | Confirms production chaos remains **out of scope** unless an ADR reopens it (baseline: item **34**) |
 
 ## Artifact policy
 
@@ -51,8 +55,8 @@ Run the scheduled Simmy chaos suite under controlled conditions, capture outcome
 Use **Actions → Simmy chaos (scheduled) → Run workflow** with inputs:
 
 - `scenario_id` — free-text label recorded in the job summary.
-- `environment` — **`staging` only** (single choice). Production fault injection remains **owner-gated** ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **34**); the workflow also rejects a non-empty optional `production` dispatch string.
-- `production` — must stay **empty**; any value fails the run immediately (symmetry with historical docs — do not use for real production chaos without owner process).
+- `environment` — **`staging` only** (single choice). Production fault injection is **out of scope for v1+** ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **34**); the workflow rejects a non-empty optional `production` dispatch string.
+- `production` — must stay **empty**; any value fails the run immediately (fail-fast guard — do not use for production chaos; reopening requires an ADR).
 - `dry_run` — `true` to skip `dotnet test` (smoke the job only).
 
 **Calendar + closing reports:** [`docs/quality/game-day-log/README.md`](../quality/game-day-log/README.md).
