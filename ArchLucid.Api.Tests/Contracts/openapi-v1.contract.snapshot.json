@@ -2252,6 +2252,33 @@
         ],
         "type": "object"
       },
+      "BoardPackPdfPostRequest": {
+        "properties": {
+          "periodEndUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "periodStartUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "quarter": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "year": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "BuildInfoResponse": {
         "properties": {
           "application": {
@@ -7388,6 +7415,29 @@
         },
         "type": "object"
       },
+      "MarketingPricingQuotePostRequest": {
+        "properties": {
+          "companyName": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "tierInterest": {
+            "type": "string"
+          },
+          "websiteUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "workEmail": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "NoiseScoreBreakdown": {
         "properties": {
           "coverageScore": {
@@ -7435,6 +7485,38 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "OperatorTaskSuccessRatesResponse": {
+        "properties": {
+          "firstRunCommittedPerSessionRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "firstRunCommittedTotal": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "firstSessionCompletedTotal": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "windowNote": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -21176,6 +21258,75 @@
         ]
       }
     },
+    "/v1/architecture/run/{runId}/traceability-bundle.zip": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/run/{runId}/traces": {
       "get": {
         "parameters": [
@@ -24336,6 +24487,45 @@
         },
         "tags": [
           "ClientErrorTelemetry"
+        ]
+      }
+    },
+    "/v1/diagnostics/operator-task-success-rates": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorTaskSuccessRatesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "OperatorTaskSuccessDiagnostics"
         ]
       }
     },
@@ -29078,6 +29268,78 @@
         ]
       }
     },
+    "/v1/marketing/pricing/quote-request": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuotePostRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuotePostRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/MarketingPricingQuotePostRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "MarketingPricingQuoteRequest"
+        ]
+      }
+    },
     "/v1/marketing/why-archlucid-pack.pdf": {
       "get": {
         "responses": {
@@ -29357,6 +29619,105 @@
         },
         "tags": [
           "ExecDigestUnsubscribe"
+        ]
+      }
+    },
+    "/v1/pilots/board-pack.pdf": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BoardPackPdfPostRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BoardPackPdfPostRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BoardPackPdfPostRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "PilotsBoardPack"
         ]
       }
     },
@@ -32150,10 +32511,19 @@
       "name": "Manifests"
     },
     {
+      "name": "MarketingPricingQuoteRequest"
+    },
+    {
       "name": "MeteringAdmin"
     },
     {
+      "name": "OperatorTaskSuccessDiagnostics"
+    },
+    {
       "name": "Pilots"
+    },
+    {
+      "name": "PilotsBoardPack"
     },
     {
       "name": "PolicyPacks"

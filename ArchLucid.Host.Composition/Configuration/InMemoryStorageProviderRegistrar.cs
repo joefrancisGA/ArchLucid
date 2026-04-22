@@ -33,6 +33,7 @@ using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Feedback;
@@ -136,6 +137,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
+        services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();

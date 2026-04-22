@@ -16,6 +16,7 @@ using ArchLucid.Application.Value;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
+using ArchLucid.Application.Traceability;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
@@ -130,6 +131,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunCommitOrchestrator, RunCommitOrchestratorFacade>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<ITraceabilityBundleBuilder, TraceabilityBundleBuilder>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
@@ -139,6 +141,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<WhyArchLucidPackPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
         services.AddScoped<SponsorOnePagerPdfBuilder>();
+        services.AddScoped<BoardPackPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();

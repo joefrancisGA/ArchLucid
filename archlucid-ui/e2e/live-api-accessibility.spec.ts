@@ -10,6 +10,8 @@ const PAGES = [
   { name: "Home", path: "/" },
   { name: "Welcome marketing", path: "/welcome" },
   { name: "Why ArchLucid marketing", path: "/why" },
+  { name: "Compliance journey marketing", path: "/compliance-journey" },
+  { name: "Pricing marketing", path: "/pricing" },
   { name: "Trial signup", path: "/signup" },
   { name: "Trial onboarding start", path: "/onboarding/start" },
   { name: "Getting started", path: "/getting-started" },

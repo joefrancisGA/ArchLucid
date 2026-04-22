@@ -23,5 +23,6 @@ public sealed class SqlFirstSessionLifecycleHook(ITenantOnboardingStateRepositor
 
 
         ArchLucidInstrumentation.RecordFirstSessionCompleted();
+        ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_run_committed");
     }
 }

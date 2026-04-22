@@ -4364,3 +4364,25 @@ BEGIN
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs BEFORE DELETE;
 END;
 GO
+
+/* 106: Marketing pricing quote requests (see Migrations/106_MarketingPricingQuoteRequests.sql). */
+IF OBJECT_ID(N'dbo.MarketingPricingQuoteRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.MarketingPricingQuoteRequests
+    (
+        Id            UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_MarketingPricingQuoteRequests2 PRIMARY KEY CLUSTERED
+            CONSTRAINT DF_MarketingPricingQuoteRequests_Id2 DEFAULT NEWSEQUENTIALID(),
+        CreatedUtc    DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_MarketingPricingQuoteRequests_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        WorkEmail     NVARCHAR(320)    NOT NULL,
+        CompanyName   NVARCHAR(200)    NOT NULL,
+        TierInterest  NVARCHAR(120)    NOT NULL,
+        Message       NVARCHAR(2000)   NOT NULL,
+        ClientIpHash  VARBINARY(32)    NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_MarketingPricingQuoteRequests_CreatedUtc2
+        ON dbo.MarketingPricingQuoteRequests (CreatedUtc DESC);
+END;
+GO

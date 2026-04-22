@@ -47,6 +47,8 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ## Trust documents
 
+**Procurement pack (ZIP):** run **`scripts/build_procurement_pack.sh`** (Linux/macOS CI) or **`scripts/build_procurement_pack.ps1`** (Windows) from the repo root to emit **`dist/procurement-pack.zip`** plus **`dist/procurement-pack/manifest.json`** (per-file SHA-256). Copy-only packaging from canonical docs paths — no legal text forks.
+
 | Document | Description |
 |----------|-------------|
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Buyer-readable summary of tenant isolation (identity, app layer, SQL RLS). |
@@ -66,6 +68,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup schedule, disaster recovery, data lifecycle, RTO/RPO estimates. |
 | [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) | Status page plan and operational transparency roadmap. |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations (API, CLI, webhooks, CI/CD, SIEM). |
+| Public compliance journey (marketing UI: route **`/compliance-journey`**) | Plain-language map to in-repo CAIQ/SIG/DPA/subprocessor evidence — **not** a certification claim (see compliance table below). |
 | [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit log export for SIEM ingestion (Splunk, Sentinel, generic). |
 | [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Structured onboarding checklist (6-week pilot alignment). |
 

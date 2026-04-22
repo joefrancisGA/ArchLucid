@@ -1,4 +1,6 @@
 > **Scope:** Eight paste-ready Cursor prompts for the largest-impact improvements in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
+>
+> **Follow-on prompts (same assessment, §1.9–1.18):** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md) — eight more paste-ready blocks (Prompts **A–H**).
 
 # Cursor prompts — top-8 improvements after the 68.60% assessment (2026-04-21)
 
@@ -544,3 +546,4 @@ enriched.
 - **Track resolution in `PENDING_QUESTIONS.md`.** Each prompt enriches the relevant items so the next session sees the open shape.
 - **Order matters only loosely.** Prompts 1, 2, and 6 unblock owner-only work; the rest are independent.
 - **Re-run-safe.** Each prompt's exit criteria are idempotent; running the same prompt twice in different sessions should converge on the same end state.
+- **More prompts:** eight assessment-aligned follow-ons (strangler CI, board-pack PDF, task telemetry, pricing quote, compliance journey page, procurement ZIP, traceability ZIP, game day) live in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md).

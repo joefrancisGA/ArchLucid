@@ -99,6 +99,14 @@ jobs:
           cd scripts/ci
           python -m unittest test_check_doc_size_budget
 
+      - name: Coordinator reference ceiling (ADR 0021 strangler drift)
+        run: |
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_coordinator_reference_ceiling.py"
+          python scripts/ci/assert_coordinator_reference_ceiling.py
+
+      - name: Procurement pack ZIP (deterministic docs bundle)
+        run: bash scripts/build_procurement_pack.sh
+
       - name: Mermaid syntax (mermaid-cli when available)
         run: python scripts/ci/check_mermaid_syntax.py docs/ARCHITECTURE_ON_ONE_PAGE.md
 

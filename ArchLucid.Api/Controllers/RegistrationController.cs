@@ -162,6 +162,8 @@ public sealed class RegistrationController(
             else
                 ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
 
+            ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_session_completed");
+
             return StatusCode(StatusCodes.Status201Created, result);
         }
         catch (ArgumentException ex)

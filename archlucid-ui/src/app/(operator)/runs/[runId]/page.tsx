@@ -33,6 +33,7 @@ import {
   getRunDetail,
   getRunExplanationSummary,
   getRunExportDownloadUrl,
+  getTraceabilityBundleDownloadUrl,
   getRunPipelineTimeline,
   getRunSummary,
   listArtifacts,
@@ -459,7 +460,8 @@ export default async function RunDetailPage({
             <GenerateSponsorValueReportButton />
           </div>
         ) : null}
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+          <a href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>Download traceability bundle (ZIP)</a>
           <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
             Compare two runs (base = this run)
           </Link>

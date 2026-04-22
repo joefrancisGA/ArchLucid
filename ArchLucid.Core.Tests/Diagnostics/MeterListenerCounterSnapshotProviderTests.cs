@@ -22,6 +22,7 @@ public sealed class MeterListenerCounterSnapshotProviderTests
 
         snapshot.RunsCreatedTotal.Should().Be(0);
         snapshot.FindingsProducedBySeverity.Should().BeEmpty();
+        snapshot.OperatorTaskSuccessByTask.Should().BeEmpty();
     }
 
     [Fact]
@@ -93,5 +94,22 @@ public sealed class MeterListenerCounterSnapshotProviderTests
         InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
 
         snapshot.FindingsProducedBySeverity.Should().ContainKey("unknown").WhoseValue.Should().BeGreaterThanOrEqualTo(7);
+    }
+
+    [Fact]
+    public void Snapshot_groups_operator_task_success_by_task_tag()
+    {
+        _ = ArchLucidInstrumentation.OperatorTaskSuccessTotal;
+
+        using MeterListenerCounterSnapshotProvider sut = new();
+
+        ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_run_committed");
+        ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_session_completed");
+        ArchLucidInstrumentation.RecordOperatorTaskSuccess("first_run_committed");
+
+        InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
+
+        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_run_committed").WhoseValue.Should().BeGreaterThanOrEqualTo(2);
+        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_session_completed").WhoseValue.Should().BeGreaterThanOrEqualTo(1);
     }
 }

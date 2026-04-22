@@ -165,6 +165,8 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 `POST /v1/architecture/run/{runId}/commit` returns **200 OK** with the golden manifest when the run is **already committed** and the stored manifest can be loaded (**idempotent retry** safe for clients).
 
+`GET /v1/architecture/run/{runId}/traceability-bundle.zip` returns a **size-capped** ZIP (`run-summary.json`, `audit-events.json`, `decision-traces.json`, `README.txt`) for audit hand-off; **413 Payload Too Large** when the cap is exceeded.
+
 It returns **409 Conflict** with problem type **`#conflict`** when the run is in **Failed** status, not ready to commit (e.g. missing agent results / wrong phase), or other state rules block commit — but **not** solely because a prior commit already succeeded.
 
 When **`ArchLucid:Governance:PreCommitGateEnabled`** is **true** and an enabled policy pack assignment has **`BlockCommitOnCritical`**, the same route may return **409** with problem type **`#governance-pre-commit-blocked`** (RFC 9457 **`extensions.blockingFindingIds`**, optional **`extensions.policyPackId`**) if the run’s findings snapshot contains **Critical** severity findings. See **`docs/PRE_COMMIT_GOVERNANCE_GATE.md`**.
