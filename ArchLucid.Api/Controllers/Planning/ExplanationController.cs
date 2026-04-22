@@ -124,7 +124,6 @@ public sealed class ExplanationController(
                 $"Run '{runId}' has no findings snapshot in the current scope.",
                 ProblemTypes.RunNotFound);
 
-
         Finding? match = list.FirstOrDefault(f =>
             string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
@@ -132,7 +131,6 @@ public sealed class ExplanationController(
             return this.NotFoundProblem(
                 $"Finding '{findingId}' was not found on run '{runId}'.",
                 ProblemTypes.ResourceNotFound);
-
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
         ExplainabilityTrace t = match.Trace;

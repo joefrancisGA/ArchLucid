@@ -55,6 +55,10 @@ import type {
   ExecDigestPreferencesResponse,
   ExecDigestPreferencesUpsertRequest,
 } from "@/types/exec-digest-preferences";
+import type {
+  TeamsIncomingWebhookConnectionResponse,
+  TeamsIncomingWebhookConnectionUpsertRequest,
+} from "@/types/teams-incoming-webhook-connection";
 import type { AlertRecord, AlertRule } from "@/types/alerts";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
@@ -239,6 +243,23 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   }
 
   return JSON.parse(text) as T;
+}
+
+/** DELETEs a path; returns void on 2xx. Throws on HTTP errors. */
+export async function apiDelete(path: string): Promise<void> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: h,
+    cache: "no-store",
+  });
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw buildApiRequestErrorFromParts(response, text);
+  }
 }
 
 /** Same proxy/scope/API-key behavior as other UI API calls; for graph modules, etc. */
@@ -838,6 +859,23 @@ export async function saveExecDigestPreferences(
   body: ExecDigestPreferencesUpsertRequest,
 ): Promise<ExecDigestPreferencesResponse> {
   return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
+}
+
+/** Loads Teams incoming-webhook Key Vault reference for the current tenant (secret value never returned). */
+export async function getTeamsIncomingWebhookConnection(): Promise<TeamsIncomingWebhookConnectionResponse> {
+  return apiGet<TeamsIncomingWebhookConnectionResponse>(`/${ApiV1Routes.teamsIncomingWebhookConnections}`);
+}
+
+/** Upserts Teams incoming-webhook Key Vault secret name reference (Execute+). */
+export async function upsertTeamsIncomingWebhookConnection(
+  body: TeamsIncomingWebhookConnectionUpsertRequest,
+): Promise<TeamsIncomingWebhookConnectionResponse> {
+  return apiPostJson<TeamsIncomingWebhookConnectionResponse>(`/${ApiV1Routes.teamsIncomingWebhookConnections}`, body);
+}
+
+/** Removes Teams Key Vault reference (Execute+). */
+export async function deleteTeamsIncomingWebhookConnection(): Promise<void> {
+  return apiDelete(`/${ApiV1Routes.teamsIncomingWebhookConnections}`);
 }
 
 /** Creates a new digest delivery subscription. */

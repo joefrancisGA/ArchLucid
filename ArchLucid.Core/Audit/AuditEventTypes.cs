@@ -208,6 +208,12 @@ public static class AuditEventTypes
     /// <summary>Tenant-level customer notification channel toggles updated (<c>PUT /v1/notifications/customer-channel-preferences</c>).</summary>
     public const string TenantNotificationChannelPreferencesUpdated = "TenantNotificationChannelPreferencesUpdated";
 
+    /// <summary>Tenant Microsoft Teams incoming-webhook Key Vault reference upserted (<c>POST /v1/integrations/teams/connections</c>).</summary>
+    public const string TenantTeamsIncomingWebhookConnectionUpserted = "TenantTeamsIncomingWebhookConnectionUpserted";
+
+    /// <summary>Tenant Microsoft Teams incoming-webhook Key Vault reference removed (<c>DELETE /v1/integrations/teams/connections</c>).</summary>
+    public const string TenantTeamsIncomingWebhookConnectionRemoved = "TenantTeamsIncomingWebhookConnectionRemoved";
+
     /// <summary>Tenant weekly executive digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
     public const string ExecDigestPreferencesUpdated = "ExecDigestPreferencesUpdated";
 

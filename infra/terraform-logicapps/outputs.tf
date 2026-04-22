@@ -87,3 +87,18 @@ output "promotion_customer_notify_logic_storage_account_id" {
   description = "Backing storage account ID for the promotion customer-notify Logic App when deployed."
   value       = try(azurerm_storage_account.logic_promotion_customer_notify[0].id, null)
 }
+
+output "teams_notifications_logic_app_id" {
+  description = "Resource ID of the Teams notifications Logic App (Standard) when deployed."
+  value       = try(azurerm_logic_app_standard.teams_notifications[0].id, null)
+}
+
+output "teams_notifications_logic_app_principal_id" {
+  description = "System-assigned managed identity principal ID for the Teams notifications Logic App (use as teams_notifications_logic_app_managed_identity_principal_id in terraform-servicebus)."
+  value       = try(azurerm_logic_app_standard.teams_notifications[0].identity[0].principal_id, null)
+}
+
+output "teams_notifications_logic_storage_account_id" {
+  description = "Backing storage account ID for the Teams notifications Logic App when deployed."
+  value       = try(azurerm_storage_account.logic_teams_notifications[0].id, null)
+}

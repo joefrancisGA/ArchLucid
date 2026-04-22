@@ -6,7 +6,8 @@ locals {
     var.enable_marketplace_fulfillment_logic_app && local.logic_app_diagnostics_enabled ? { marketplace_fulfillment = azurerm_logic_app_standard.marketplace_fulfillment[0].id } : {},
     var.enable_trial_lifecycle_logic_app && local.logic_app_diagnostics_enabled ? { trial_lifecycle = azurerm_logic_app_standard.trial_lifecycle[0].id } : {},
     var.enable_incident_chatops_logic_app && local.logic_app_diagnostics_enabled ? { incident_chatops = azurerm_logic_app_standard.incident_chatops[0].id } : {},
-    var.enable_promotion_customer_notify_logic_app && local.logic_app_diagnostics_enabled ? { promotion_customer_notify = azurerm_logic_app_standard.promotion_customer_notify[0].id } : {}
+    var.enable_promotion_customer_notify_logic_app && local.logic_app_diagnostics_enabled ? { promotion_customer_notify = azurerm_logic_app_standard.promotion_customer_notify[0].id } : {},
+    var.enable_teams_notifications_logic_app && local.logic_app_diagnostics_enabled ? { teams_notifications = azurerm_logic_app_standard.teams_notifications[0].id } : {}
   )
 }
 

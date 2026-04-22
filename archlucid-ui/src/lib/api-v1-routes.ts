@@ -14,6 +14,7 @@ export const ApiV1Routes = {
   alertRoutingSubscriptions: "v1/alert-routing-subscriptions",
   digestSubscriptions: "v1/digest-subscriptions",
   tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
+  teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
   /** Pilot / product feedback rollups (58R). */
   productLearning: "v1/product-learning",
   /** 59R improvement themes and plans (read-only planning bridge). */

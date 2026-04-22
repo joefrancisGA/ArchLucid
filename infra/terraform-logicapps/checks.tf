@@ -70,6 +70,18 @@ check "promotion_customer_notify_logic_apps_inputs" {
   }
 }
 
+check "teams_notifications_logic_apps_inputs" {
+  assert {
+    condition = !var.enable_teams_notifications_logic_app || (
+      trimspace(var.resource_group_name) != "" &&
+      trimspace(var.location) != "" &&
+      trimspace(var.teams_notifications_storage_account_name) != ""
+    )
+
+    error_message = "When enable_teams_notifications_logic_app is true, resource_group_name, location, and teams_notifications_storage_account_name must be non-empty."
+  }
+}
+
 check "logic_app_diagnostic_settings_inputs" {
   assert {
     condition = !var.enable_logic_app_diagnostic_settings || trimspace(var.logic_app_diagnostic_log_analytics_workspace_id) != ""
