@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
@@ -10,8 +12,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
-/// and forwards to the inner client (typically <see cref="AzureOpenAiCompletionClient"/>).
+///     Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
+///     and forwards to the inner client (typically <see cref="AzureOpenAiCompletionClient" />).
 /// </summary>
 public sealed class LlmCompletionAccountingClient(
     IAgentCompletionClient inner,
@@ -27,18 +29,33 @@ public sealed class LlmCompletionAccountingClient(
     : IAgentCompletionClient
 {
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-    private readonly LlmTokenQuotaWindowTracker _quotaTracker = quotaTracker ?? throw new ArgumentNullException(nameof(quotaTracker));
-    private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions = quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
-    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
-    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
+
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions =
+        labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
+
+    private readonly ILogger<LlmCompletionAccountingClient> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IPromptRedactor _promptRedactor =
+        promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+
+    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions =
+        quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
+
+    private readonly LlmTokenQuotaWindowTracker _quotaTracker =
+        quotaTracker ?? throw new ArgumentNullException(nameof(quotaTracker));
+
     private readonly IOptionsMonitor<LlmPromptRedactionOptions> _redactionOptions =
         redactionOptions ?? throw new ArgumentNullException(nameof(redactionOptions));
 
-    private readonly IPromptRedactor _promptRedactor = promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
-    private readonly ILogger<LlmCompletionAccountingClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions =
+        telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
+
+    private readonly IUsageMeteringService _usageMetering =
+        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;
@@ -84,7 +101,8 @@ public sealed class LlmCompletionAccountingClient(
         }
         finally
         {
-            if (AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok, out int completionTok))
+            if (AzureOpenAiCompletionClient.TryConsumeLastCompletionTokenUsage(out int promptTok,
+                    out int completionTok))
             {
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
 
@@ -116,7 +134,7 @@ public sealed class LlmCompletionAccountingClient(
             return;
 
         DateTimeOffset recordedUtc = DateTimeOffset.UtcNow;
-        string? correlationId = System.Diagnostics.Activity.Current?.Id;
+        string? correlationId = Activity.Current?.Id;
 
         try
         {
@@ -132,7 +150,7 @@ public sealed class LlmCompletionAccountingClient(
                             Kind = UsageMeterKind.LlmPromptTokens,
                             Quantity = promptTok,
                             RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId,
+                            CorrelationId = correlationId
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
@@ -150,22 +168,19 @@ public sealed class LlmCompletionAccountingClient(
                             Kind = UsageMeterKind.LlmCompletionTokens,
                             Quantity = completionTok,
                             RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId,
+                            CorrelationId = correlationId
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
-
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-
             if (_logger.IsEnabled(LogLevel.Warning))
 
                 _logger.LogWarning(
                     ex,
                     "Usage metering failed for tenant {TenantId} (LLM tokens).",
                     scope.TenantId);
-
         }
     }
 }

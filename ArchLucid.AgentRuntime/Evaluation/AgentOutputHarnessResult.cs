@@ -2,39 +2,48 @@ using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
-/// <summary>Outcome of <see cref="IAgentOutputEvaluationHarness.Evaluate"/>.</summary>
+/// <summary>Outcome of <see cref="IAgentOutputEvaluationHarness.Evaluate" />.</summary>
 public sealed class AgentOutputHarnessResult
 {
-    /// <summary>True when <see cref="Failures"/> is empty and JSON structural parse succeeded where required.</summary>
+    /// <summary>True when <see cref="Failures" /> is empty and JSON structural parse succeeded where required.</summary>
     public bool Passed
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>Structural score from <see cref="IAgentOutputEvaluator"/>.</summary>
+    /// <summary>Structural score from <see cref="IAgentOutputEvaluator" />.</summary>
     public double StructuralCompletenessRatio
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>Semantic score from <see cref="IAgentOutputSemanticEvaluator"/>.</summary>
+    /// <summary>Semantic score from <see cref="IAgentOutputSemanticEvaluator" />.</summary>
     public double SemanticScore
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>Share of <see cref="AgentOutputExpectation.ExpectedFindingCategories"/> matched by at least one finding.</summary>
+    /// <summary>Share of <see cref="AgentOutputExpectation.ExpectedFindingCategories" /> matched by at least one finding.</summary>
     public double CategoryCoverageRatio
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>Human-readable reasons when <see cref="Passed"/> is false.</summary>
-    public IReadOnlyList<string> Failures { get; init; } = [];
+    /// <summary>Human-readable reasons when <see cref="Passed" /> is false.</summary>
+    public IReadOnlyList<string> Failures
+    {
+        get;
+        init;
+    } = [];
 
     /// <summary>Agent type under test.</summary>
     public AgentType AgentType
     {
-        get; init;
+        get;
+        init;
     }
 }

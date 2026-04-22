@@ -9,8 +9,10 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Non-network <see cref="IAgentCompletionClient"/> that returns deterministic <see cref="AgentResult"/> JSON (via <see cref="FakeScenarioFactory"/>)
-/// so Real-mode pipelines exercise the same code path as Azure OpenAI without outbound LLM calls. Telemetry labels should be set to <c>echo</c>.
+///     Non-network <see cref="IAgentCompletionClient" /> that returns deterministic <see cref="AgentResult" /> JSON (via
+///     <see cref="FakeScenarioFactory" />)
+///     so Real-mode pipelines exercise the same code path as Azure OpenAI without outbound LLM calls. Telemetry labels
+///     should be set to <c>echo</c>.
 /// </summary>
 public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 {
@@ -19,8 +21,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
     /// <inheritdoc />
@@ -43,7 +44,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
         {
             AgentType.Compliance => FakeScenarioFactory.CreateComplianceResult(runId, taskId, request),
             AgentType.Critic => FakeScenarioFactory.CreateCriticResult(runId, taskId, request),
-            _ => FakeScenarioFactory.CreateTopologyResult(runId, taskId, request),
+            _ => FakeScenarioFactory.CreateTopologyResult(runId, taskId, request)
         };
 
         string json = JsonSerializer.Serialize(result, JsonOptions);
@@ -64,9 +65,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
     {
         return new ArchitectureRequest
         {
-            SystemName = "Echo",
-            Description = "Echo completion client (no LLM).",
-            Environment = "prod",
+            SystemName = "Echo", Description = "Echo completion client (no LLM).", Environment = "prod"
         };
     }
 
@@ -86,7 +85,6 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
             else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
 
                 taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
-
         }
 
         return (runId, taskId);

@@ -1,8 +1,9 @@
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Non-secret connection surface for an <see cref="ILlmProvider"/> implementation: vendor kind, model/deployment id, API base URL, and auth scheme.
-/// Enables multi-vendor registration (Anthropic, Bedrock, Ollama, etc.) without changing agent handlers.
+///     Non-secret connection surface for an <see cref="ILlmProvider" /> implementation: vendor kind, model/deployment id,
+///     API base URL, and auth scheme.
+///     Enables multi-vendor registration (Anthropic, Bedrock, Ollama, etc.) without changing agent handlers.
 /// </summary>
 public sealed record LlmProviderDescriptor(
     string ProviderKind,
@@ -23,7 +24,10 @@ public sealed record LlmProviderDescriptor(
             LlmProviderAuthScheme.ApiKey);
     }
 
-    /// <summary>Placeholder for Anthropic Messages API–style providers (implementations supply real <paramref name="apiBase"/>).</summary>
+    /// <summary>
+    ///     Placeholder for Anthropic Messages API–style providers (implementations supply real
+    ///     <paramref name="apiBase" />).
+    /// </summary>
     public static LlmProviderDescriptor ForAnthropic(Uri apiBase, string modelId)
     {
         ArgumentNullException.ThrowIfNull(apiBase);
@@ -50,7 +54,8 @@ public sealed record LlmProviderDescriptor(
     }
 
     /// <summary>Local or OpenAI-compatible HTTP servers (Ollama, vLLM, etc.).</summary>
-    public static LlmProviderDescriptor ForOpenAiCompatible(Uri apiBase, string modelId, LlmProviderAuthScheme authScheme)
+    public static LlmProviderDescriptor ForOpenAiCompatible(Uri apiBase, string modelId,
+        LlmProviderAuthScheme authScheme)
     {
         ArgumentNullException.ThrowIfNull(apiBase);
         ArgumentException.ThrowIfNullOrWhiteSpace(modelId);

@@ -1,7 +1,8 @@
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// How outbound LLM HTTP calls are authenticated. Does not carry secrets — only describes the scheme for operators and future routing.
+///     How outbound LLM HTTP calls are authenticated. Does not carry secrets — only describes the scheme for operators and
+///     future routing.
 /// </summary>
 public enum LlmProviderAuthScheme
 {
@@ -18,5 +19,5 @@ public enum LlmProviderAuthScheme
     Bearer = 3,
 
     /// <summary>AWS Signature Version 4 (e.g. Amazon Bedrock).</summary>
-    AwsSigV4 = 4,
+    AwsSigV4 = 4
 }

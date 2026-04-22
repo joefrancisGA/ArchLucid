@@ -6,15 +6,16 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Prompts;
 
 /// <summary>
-/// Loads built-in templates once, precomputes content hashes, and layers optional <see cref="AgentPromptCatalogOptions.Versions"/> release labels.
+///     Loads built-in templates once, precomputes content hashes, and layers optional
+///     <see cref="AgentPromptCatalogOptions.Versions" /> release labels.
 /// </summary>
 public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCatalogOptions> optionsMonitor)
     : IAgentSystemPromptCatalog
 {
+    private static readonly IReadOnlyDictionary<AgentType, PromptTemplateCore> Templates = BuildTemplates();
+
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-
-    private static readonly IReadOnlyDictionary<AgentType, PromptTemplateCore> Templates = BuildTemplates();
 
     /// <inheritdoc />
     public ResolvedSystemPrompt Resolve(AgentType agentType)
@@ -34,14 +35,9 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
             release = configured.Trim();
 
 
-        return new ResolvedSystemPrompt(core.Text, core.TemplateId, core.TemplateVersion, core.ContentSha256Hex, release);
+        return new ResolvedSystemPrompt(core.Text, core.TemplateId, core.TemplateVersion, core.ContentSha256Hex,
+            release);
     }
-
-    private sealed record PromptTemplateCore(
-        string Text,
-        string TemplateId,
-        string TemplateVersion,
-        string ContentSha256Hex);
 
     private static IReadOnlyDictionary<AgentType, PromptTemplateCore> BuildTemplates()
     {
@@ -58,7 +54,7 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
             [AgentType.Critic] = CreateCore(
                 CriticSystemPromptTemplate.TemplateId,
                 CriticSystemPromptTemplate.Version,
-                CriticSystemPromptTemplate.GetText),
+                CriticSystemPromptTemplate.GetText)
         };
 
         return map;
@@ -71,4 +67,10 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
 
         return new PromptTemplateCore(text, templateId, templateVersion, hash);
     }
+
+    private sealed record PromptTemplateCore(
+        string Text,
+        string TemplateId,
+        string TemplateVersion,
+        string ContentSha256Hex);
 }

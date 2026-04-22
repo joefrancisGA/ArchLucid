@@ -16,24 +16,27 @@ using Polly;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Production <see cref="IAgentExecutor"/>: resolves <see cref="IAgentHandler"/> by <see cref="AgentTypeKeys.ResolveDispatchKey"/>,
-/// runs independent tasks concurrently, and returns <see cref="AgentResult"/> rows in stable dispatch-key order.
+///     Production <see cref="IAgentExecutor" />: resolves <see cref="IAgentHandler" /> by
+///     <see cref="AgentTypeKeys.ResolveDispatchKey" />,
+///     runs independent tasks concurrently, and returns <see cref="AgentResult" /> rows in stable dispatch-key order.
 /// </summary>
 /// <remarks>
-/// Handlers share the same <see cref="AgentEvidencePackage"/> and do not consume each other&apos;s outputs in prompts;
-/// <see cref="AmbientScopeContext"/> is pushed for the batch so scoped services (e.g. LLM accounting) resolve tenant scope on thread-pool continuations.
-/// On any failure, linked cancellation is signaled so in-flight completions can abort promptly.
+///     Handlers share the same <see cref="AgentEvidencePackage" /> and do not consume each other&apos;s outputs in
+///     prompts;
+///     <see cref="AmbientScopeContext" /> is pushed for the batch so scoped services (e.g. LLM accounting) resolve tenant
+///     scope on thread-pool continuations.
+///     On any failure, linked cancellation is signaled so in-flight completions can abort promptly.
 /// </remarks>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
+    private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
     private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
+    private readonly ResiliencePipeline<AgentResult> _handlerTimeoutPipeline;
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
     private readonly IScopeContextProvider _scopeContextProvider;
-    private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
-    private readonly ResiliencePipeline<AgentResult> _handlerTimeoutPipeline;
 
-    /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey"/> (duplicates throw).</summary>
+    /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey" /> (duplicates throw).</summary>
     public RealAgentExecutor(
         IEnumerable<IAgentHandler> handlers,
         ILogger<RealAgentExecutor> logger,

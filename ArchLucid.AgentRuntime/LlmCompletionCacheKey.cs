@@ -6,12 +6,12 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Builds a stable cache key for LLM JSON completion requests.
+///     Builds a stable cache key for LLM JSON completion requests.
 /// </summary>
 public static class LlmCompletionCacheKey
 {
     /// <summary>
-    /// SHA-256 hex digest over deployment name, prompts, and optional scope partition.
+    ///     SHA-256 hex digest over deployment name, prompts, and optional scope partition.
     /// </summary>
     public static string Compute(
         bool partitionByScope,

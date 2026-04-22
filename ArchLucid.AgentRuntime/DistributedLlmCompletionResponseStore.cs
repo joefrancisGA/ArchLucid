@@ -4,8 +4,9 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>Redis (or any <see cref="IDistributedCache"/>) store for cross-replica LLM response reuse.</summary>
-public sealed class DistributedLlmCompletionResponseStore(IDistributedCache distributedCache) : ILlmCompletionResponseStore
+/// <summary>Redis (or any <see cref="IDistributedCache" />) store for cross-replica LLM response reuse.</summary>
+public sealed class DistributedLlmCompletionResponseStore(IDistributedCache distributedCache)
+    : ILlmCompletionResponseStore
 {
     private readonly IDistributedCache _distributedCache =
         distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
@@ -42,10 +43,7 @@ public sealed class DistributedLlmCompletionResponseStore(IDistributedCache dist
             throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
 
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(value);
-        DistributedCacheEntryOptions options = new()
-        {
-            AbsoluteExpirationRelativeToNow = absoluteExpiration,
-        };
+        DistributedCacheEntryOptions options = new() { AbsoluteExpirationRelativeToNow = absoluteExpiration };
 
         return _distributedCache.SetAsync(key, payload, options, cancellationToken);
     }

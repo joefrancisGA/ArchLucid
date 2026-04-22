@@ -7,7 +7,8 @@ using Polly;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Decorator for <see cref="IAgentCompletionClient"/> that applies a <see cref="CircuitBreakerGate"/> around Azure OpenAI calls.
+///     Decorator for <see cref="IAgentCompletionClient" /> that applies a <see cref="CircuitBreakerGate" /> around Azure
+///     OpenAI calls.
 /// </summary>
 public sealed class CircuitBreakingAgentCompletionClient(
     IAgentCompletionClient inner,
@@ -15,10 +16,12 @@ public sealed class CircuitBreakingAgentCompletionClient(
     ResiliencePipeline llmRetryPipeline,
     ILogger<CircuitBreakingAgentCompletionClient> logger) : IAgentCompletionClient, IDisposable
 {
-    private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
     private readonly CircuitBreakerGate _gate = gate ?? throw new ArgumentNullException(nameof(gate));
+    private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+
     private readonly ResiliencePipeline _llmRetryPipeline =
         llmRetryPipeline ?? throw new ArgumentNullException(nameof(llmRetryPipeline));
+
     private readonly ILogger<CircuitBreakingAgentCompletionClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -64,6 +67,5 @@ public sealed class CircuitBreakingAgentCompletionClient(
         if (_inner is IDisposable disposableInner)
 
             disposableInner.Dispose();
-
     }
 }

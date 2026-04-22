@@ -10,6 +10,8 @@ public sealed record ResolvedSystemPrompt(
     string ContentSha256Hex,
     string? ReleaseLabel)
 {
-    public AgentPromptReproMetadata ToReproMetadata() =>
-        new(TemplateId, TemplateVersion, ContentSha256Hex, ReleaseLabel);
+    public AgentPromptReproMetadata ToReproMetadata()
+    {
+        return new AgentPromptReproMetadata(TemplateId, TemplateVersion, ContentSha256Hex, ReleaseLabel);
+    }
 }

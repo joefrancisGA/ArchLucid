@@ -4,7 +4,10 @@ using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.AgentRuntime.Explanation;
 
-/// <summary>Builds citation chips for aggregate explanations from the same <see cref="RunDetailDto"/> used for faithfulness checks.</summary>
+/// <summary>
+///     Builds citation chips for aggregate explanations from the same <see cref="RunDetailDto" /> used for
+///     faithfulness checks.
+/// </summary>
 public static class RunExplanationCitationBuilder
 {
     private const int MaxFindingCitations = 40;
@@ -23,7 +26,7 @@ public static class RunExplanationCitationBuilder
             new(CitationKind.Manifest, m.ManifestId.ToString("D"), "Golden manifest", runId),
             new(CitationKind.DecisionTrace, m.DecisionTraceId.ToString("D"), "Decision trace", runId),
             new(CitationKind.ContextSnapshot, m.ContextSnapshotId.ToString("D"), "Context snapshot", runId),
-            new(CitationKind.GraphSnapshot, m.GraphSnapshotId.ToString("D"), "Graph snapshot", runId),
+            new(CitationKind.GraphSnapshot, m.GraphSnapshotId.ToString("D"), "Graph snapshot", runId)
         ];
 
         if (detail.FindingsSnapshot is { Findings.Count: > 0 } snap)
@@ -39,7 +42,8 @@ public static class RunExplanationCitationBuilder
         }
 
         if (detail.ArtifactBundle is { } b)
-            list.Add(new CitationReference(CitationKind.EvidenceBundle, b.BundleId.ToString("D"), "Artifact bundle", runId));
+            list.Add(new CitationReference(CitationKind.EvidenceBundle, b.BundleId.ToString("D"), "Artifact bundle",
+                runId));
 
         return list;
     }

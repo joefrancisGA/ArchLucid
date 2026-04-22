@@ -9,8 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
-/// Decorates <see cref="IRunExplanationSummaryService"/> with hot-path read caching so repeat run-detail views
-/// do not repeat LLM work. Cache keys include the run row <c>ROWVERSION</c> (<see cref="ArchLucid.Persistence.Models.RunRecord.RowVersion"/>) so updates invalidate entries.
+///     Decorates <see cref="IRunExplanationSummaryService" /> with hot-path read caching so repeat run-detail views
+///     do not repeat LLM work. Cache keys include the run row <c>ROWVERSION</c> (
+///     <see cref="ArchLucid.Persistence.Models.RunRecord.RowVersion" />) so updates invalidate entries.
 /// </summary>
 public sealed class CachingRunExplanationSummaryService(
     IRunExplanationSummaryService inner,
@@ -18,14 +19,14 @@ public sealed class CachingRunExplanationSummaryService(
     IAuthorityQueryService authorityQuery,
     ILogger<CachingRunExplanationSummaryService> logger) : IRunExplanationSummaryService
 {
-    private readonly IRunExplanationSummaryService _inner =
-        inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly IAuthorityQueryService _authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     private readonly IHotPathReadCache _cache =
         cache ?? throw new ArgumentNullException(nameof(cache));
 
-    private readonly IAuthorityQueryService _authorityQuery =
-        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+    private readonly IRunExplanationSummaryService _inner =
+        inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly ILogger<CachingRunExplanationSummaryService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));

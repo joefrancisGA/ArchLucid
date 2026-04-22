@@ -13,9 +13,9 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
-/// Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.
+///     Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.
 /// </summary>
-/// <inheritdoc cref="IExplanationService"/>
+/// <inheritdoc cref="IExplanationService" />
 public sealed class ExplanationService(
     IAgentCompletionClient completionClient,
     IDeterministicExplanationService deterministic,
@@ -233,13 +233,13 @@ public sealed class ExplanationService(
         string modelId = string.IsNullOrWhiteSpace(d.ModelId) ? "unknown" : d.ModelId.Trim();
 
         return new ExplanationProvenance(
-            AgentType: agentType,
-            ModelId: modelId,
-            PromptTemplateId: string.IsNullOrWhiteSpace(o.PromptTemplateId) ? null : o.PromptTemplateId.Trim(),
-            PromptTemplateVersion: string.IsNullOrWhiteSpace(o.PromptTemplateVersion)
+            agentType,
+            modelId,
+            string.IsNullOrWhiteSpace(o.PromptTemplateId) ? null : o.PromptTemplateId.Trim(),
+            string.IsNullOrWhiteSpace(o.PromptTemplateVersion)
                 ? null
                 : o.PromptTemplateVersion.Trim(),
-            PromptContentHash: string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
+            string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
     }
 
     private async Task<string?> TryCompleteJsonAsync(string userPrompt, CancellationToken ct)

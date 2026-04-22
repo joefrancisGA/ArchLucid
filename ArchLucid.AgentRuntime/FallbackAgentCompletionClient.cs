@@ -5,23 +5,23 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Decorator that delegates to <paramref name="primary"/> and falls back to <paramref name="secondary"/>
-/// when the primary throws an <see cref="HttpRequestException"/> or <see cref="ClientResultException"/> with
-/// status 429 or 5xx (matches Azure OpenAI SDK surface).
+///     Decorator that delegates to <paramref name="primary" /> and falls back to <paramref name="secondary" />
+///     when the primary throws an <see cref="HttpRequestException" /> or <see cref="ClientResultException" /> with
+///     status 429 or 5xx (matches Azure OpenAI SDK surface).
 /// </summary>
 public sealed class FallbackAgentCompletionClient(
     IAgentCompletionClient primary,
     IAgentCompletionClient secondary,
     ILogger<FallbackAgentCompletionClient> logger) : IAgentCompletionClient, IDisposable
 {
+    private readonly ILogger<FallbackAgentCompletionClient> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly IAgentCompletionClient _primary =
         primary ?? throw new ArgumentNullException(nameof(primary));
 
     private readonly IAgentCompletionClient _secondary =
         secondary ?? throw new ArgumentNullException(nameof(secondary));
-
-    private readonly ILogger<FallbackAgentCompletionClient> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _primary.Descriptor;
@@ -61,25 +61,6 @@ public sealed class FallbackAgentCompletionClient(
         }
     }
 
-    /// <summary>True when <paramref name="ex"/> carries status 429 or a 5xx server error.</summary>
-    private static bool IsFallbackTrigger(HttpRequestException ex)
-    {
-        if (ex.StatusCode is not { } statusCode)
-            return false;
-
-
-        int code = (int)statusCode;
-
-        return code == 429 || code is >= 500 and < 600;
-    }
-
-    /// <summary>Azure OpenAI SDK path: <see cref="ClientResultException"/> carries the HTTP status.</summary>
-    private static bool IsClientResultFallbackTrigger(ClientResultException ex) =>
-        IsFallbackEligibleStatus(ex.Status);
-
-    private static bool IsFallbackEligibleStatus(int statusCode) =>
-        statusCode == 429 || statusCode is >= 500 and < 600;
-
     /// <inheritdoc />
     public void Dispose()
     {
@@ -91,6 +72,28 @@ public sealed class FallbackAgentCompletionClient(
         if (_secondary is IDisposable secondaryDisposable)
 
             secondaryDisposable.Dispose();
+    }
 
+    /// <summary>True when <paramref name="ex" /> carries status 429 or a 5xx server error.</summary>
+    private static bool IsFallbackTrigger(HttpRequestException ex)
+    {
+        if (ex.StatusCode is not { } statusCode)
+            return false;
+
+
+        int code = (int)statusCode;
+
+        return code == 429 || code is >= 500 and < 600;
+    }
+
+    /// <summary>Azure OpenAI SDK path: <see cref="ClientResultException" /> carries the HTTP status.</summary>
+    private static bool IsClientResultFallbackTrigger(ClientResultException ex)
+    {
+        return IsFallbackEligibleStatus(ex.Status);
+    }
+
+    private static bool IsFallbackEligibleStatus(int statusCode)
+    {
+        return statusCode == 429 || statusCode is >= 500 and < 600;
     }
 }

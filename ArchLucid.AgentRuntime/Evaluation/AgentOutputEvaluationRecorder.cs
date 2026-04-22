@@ -11,7 +11,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-/// Loads traces for a run, scores parsed JSON shape and semantic quality, and emits OTEL metrics (intended for post-run or batch jobs).
+///     Loads traces for a run, scores parsed JSON shape and semantic quality, and emits OTEL metrics (intended for
+///     post-run or batch jobs).
 /// </summary>
 public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
@@ -21,16 +22,19 @@ public sealed class AgentOutputEvaluationRecorder(
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
+    private const double LowStructuralScoreThreshold = 0.5;
+
+    /// <summary>
+    ///     Log when semantic score is critically low (product/docs threshold; quality gate uses
+    ///     <see cref="AgentOutputQualityGateOptions" />).
+    /// </summary>
+    private const double LowSemanticScoreThreshold = 0.3;
+
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
 
-    private const double LowStructuralScoreThreshold = 0.5;
-
-    /// <summary>Log when semantic score is critically low (product/docs threshold; quality gate uses <see cref="AgentOutputQualityGateOptions"/>).</summary>
-    private const double LowSemanticScoreThreshold = 0.3;
-
     /// <summary>
-    /// Evaluates all traces with successful parses and records histogram/counter metrics.
+    ///     Evaluates all traces with successful parses and records histogram/counter metrics.
     /// </summary>
     public async Task EvaluateAndRecordMetricsAsync(string runId, CancellationToken cancellationToken)
     {
@@ -47,7 +51,8 @@ public sealed class AgentOutputEvaluationRecorder(
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
-            AgentOutputEvaluationScore score = evaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            AgentOutputEvaluationScore score =
+                evaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
             if (score.IsJsonParseFailure)
             {
@@ -55,7 +60,8 @@ public sealed class AgentOutputEvaluationRecorder(
                 continue;
             }
 
-            ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio.Record(score.StructuralCompletenessRatio, tags);
+            ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio.Record(score.StructuralCompletenessRatio,
+                tags);
 
             if (score.StructuralCompletenessRatio < LowStructuralScoreThreshold)
 
@@ -68,15 +74,15 @@ public sealed class AgentOutputEvaluationRecorder(
                     score.MissingKeys.Count);
 
 
-            AgentOutputSemanticScore semanticScore = semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+            AgentOutputSemanticScore semanticScore =
+                semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
             ArchLucidInstrumentation.AgentOutputSemanticScore.Record(semanticScore.OverallSemanticScore, tags);
 
             AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(score, semanticScore);
             TagList gateTags = new()
             {
-                { "agent_type", agentLabel },
-                { "outcome", gateOutcome.ToString().ToLowerInvariant() },
+                { "agent_type", agentLabel }, { "outcome", gateOutcome.ToString().ToLowerInvariant() }
             };
 
             ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);

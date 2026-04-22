@@ -5,26 +5,27 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Decorator that caches assistant JSON bodies for identical prompt pairs (and optional scope partition).
+///     Decorator that caches assistant JSON bodies for identical prompt pairs (and optional scope partition).
 /// </summary>
 /// <remarks>
-/// Sits <em>inside</em> <see cref="CircuitBreakingAgentCompletionClient"/> so cache hits avoid Azure and do not affect the breaker.
-/// Backing store is <see cref="ILlmCompletionResponseStore"/> (memory or distributed Redis).
+///     Sits <em>inside</em> <see cref="CircuitBreakingAgentCompletionClient" /> so cache hits avoid Azure and do not
+///     affect the breaker.
+///     Backing store is <see cref="ILlmCompletionResponseStore" /> (memory or distributed Redis).
 /// </remarks>
 public sealed class CachingAgentCompletionClient : IAgentCompletionClient
 {
     private const string CacheKeyPrefix = "llm:completion:v1:";
+    private readonly string _deploymentName;
+    private readonly bool _enabled;
 
     private readonly IAgentCompletionClient _inner;
+    private readonly ILogger<CachingAgentCompletionClient> _logger;
+    private readonly bool _partitionByScope;
+    private readonly IScopeContextProvider _scopeProvider;
     private readonly ILlmCompletionResponseStore _store;
     private readonly TimeSpan _ttl;
-    private readonly bool _enabled;
-    private readonly bool _partitionByScope;
-    private readonly string _deploymentName;
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly ILogger<CachingAgentCompletionClient> _logger;
 
-    /// <summary>Creates a caching wrapper around <paramref name="inner"/>.</summary>
+    /// <summary>Creates a caching wrapper around <paramref name="inner" />.</summary>
     public CachingAgentCompletionClient(
         IAgentCompletionClient inner,
         ILlmCompletionResponseStore store,

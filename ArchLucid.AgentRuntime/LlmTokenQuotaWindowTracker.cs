@@ -6,12 +6,12 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>Thread-safe sliding-window token totals per tenant for <see cref="LlmTokenQuotaOptions"/>.</summary>
+/// <summary>Thread-safe sliding-window token totals per tenant for <see cref="LlmTokenQuotaOptions" />.</summary>
 public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOptions> optionsMonitor)
 {
     private readonly ConcurrentDictionary<Guid, TenantWindow> _windows = new();
 
-    /// <summary>Throws <see cref="LlmTokenQuotaExceededException"/> if the next call could exceed configured limits.</summary>
+    /// <summary>Throws <see cref="LlmTokenQuotaExceededException" /> if the next call could exceed configured limits.</summary>
     public void EnsureWithinQuotaBeforeCall(Guid tenantId)
     {
         LlmTokenQuotaOptions opts = optionsMonitor.CurrentValue;
@@ -47,7 +47,6 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
 
                 throw new LlmTokenQuotaExceededException(
                     $"LLM completion token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxCompletionTokensPerTenantPerWindow}).");
-
         }
     }
 
@@ -84,20 +83,28 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
             if (window.Events[i].Utc < cutoff)
 
                 window.Events.RemoveAt(i);
-
-
     }
 
-    private static long SumPromptLocked(TenantWindow window) =>
-        window.Events.Sum(e => (long)e.PromptTokens);
+    private static long SumPromptLocked(TenantWindow window)
+    {
+        return window.Events.Sum(e => (long)e.PromptTokens);
+    }
 
-    private static long SumCompletionLocked(TenantWindow window) =>
-        window.Events.Sum(e => (long)e.CompletionTokens);
+    private static long SumCompletionLocked(TenantWindow window)
+    {
+        return window.Events.Sum(e => (long)e.CompletionTokens);
+    }
 
     private sealed class TenantWindow
     {
-        public object Sync { get; } = new();
+        public object Sync
+        {
+            get;
+        } = new();
 
-        public List<(DateTime Utc, int PromptTokens, int CompletionTokens)> Events { get; } = [];
+        public List<(DateTime Utc, int PromptTokens, int CompletionTokens)> Events
+        {
+            get;
+        } = [];
     }
 }

@@ -4,7 +4,7 @@ using ArchLucid.AgentRuntime.Prompts;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>Maps resolved prompt metadata onto the current <see cref="Activity"/> (agent handler span).</summary>
+/// <summary>Maps resolved prompt metadata onto the current <see cref="Activity" /> (agent handler span).</summary>
 public static class AgentPromptActivityTags
 {
     /// <summary>Sets low-cardinality tags for dashboards; release label is omitted when not configured.</summary>
@@ -24,6 +24,5 @@ public static class AgentPromptActivityTags
         if (!string.IsNullOrWhiteSpace(resolved.ReleaseLabel))
 
             activity.SetTag("archlucid.agent.prompt_release_label", resolved.ReleaseLabel);
-
     }
 }

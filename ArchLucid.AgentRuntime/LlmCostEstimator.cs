@@ -2,7 +2,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <inheritdoc cref="ILlmCostEstimator"/>
+/// <inheritdoc cref="ILlmCostEstimator" />
 public sealed class LlmCostEstimator(IOptions<LlmCostEstimationOptions> options) : ILlmCostEstimator
 {
     private readonly IOptions<LlmCostEstimationOptions> _options =

@@ -1,7 +1,8 @@
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Deterministic <see cref="IAgentCompletionClient"/> for tests and local dev; delegates to a supplied prompt resolver.
+///     Deterministic <see cref="IAgentCompletionClient" /> for tests and local dev; delegates to a supplied prompt
+///     resolver.
 /// </summary>
 public sealed class FakeAgentCompletionClient(
     Func<string, string, string> resolver,

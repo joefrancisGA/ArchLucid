@@ -8,12 +8,17 @@ public sealed class AgentExecutionReferenceEvaluationOptions
     /// <summary>When false, reference-case scoring and SQL append are skipped.</summary>
     public bool Enabled
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>Path to a JSON array of <see cref="AgentOutputReferenceCaseDefinition"/>; relative paths resolve from host content root.</summary>
+    /// <summary>
+    ///     Path to a JSON array of <see cref="AgentOutputReferenceCaseDefinition" />; relative paths resolve from host
+    ///     content root.
+    /// </summary>
     public string? ReferenceCasesPath
     {
-        get; set;
+        get;
+        set;
     }
 }
