@@ -32,9 +32,15 @@ export const verticalBriefWizardPresets: WizardPreset[] = [
   },
   {
     id: "vertical-public-sector",
-    label: "Public sector (EU)",
+    label: "Public sector \u2014 EU (GDPR)",
     description: "GDPR-first citizen gateway — residency, DSR, DPIA, no US failover for EU data.",
     values: publicSectorVerticalValues(),
+  },
+  {
+    id: "vertical-public-sector-us",
+    label: "Public sector \u2014 US (FedRAMP / StateRAMP)",
+    description: "Azure Government workload — FedRAMP Moderate / StateRAMP baseline, NIST SP 800-53 Rev. 5.",
+    values: publicSectorUsVerticalValues(),
   },
 ];
 
@@ -134,5 +140,51 @@ function publicSectorVerticalValues(): Partial<WizardFormValues> {
     policyReferences: ["GDPR-Art32", "GDPR-Art5-Minimization"],
     topologyHints: ["Zero-trust ingress", "Sovereign portability for exit scenarios"],
     securityBaselineHints: ["Logging avoids excessive profiling", "DPIA identifiers on sensitive flows"],
+  };
+}
+
+function publicSectorUsVerticalValues(): Partial<WizardFormValues> {
+  return {
+    systemName: "CascadeBenefitsEligibilityService",
+    environment: "production",
+    description:
+      "Cascade State benefits eligibility service on Azure Government (US Gov Virginia + US Gov Texas): FedRAMP Moderate / StateRAMP baseline (NIST SP 800-53 Rev. 5); no commercial-cloud failover; ~$14k/mo predictable spend.",
+    constraints: [
+      "Data residency Azure Government regions only (US Gov Virginia + US Gov Texas)",
+      "No commercial-cloud failover that moves citizen data",
+      "Private endpoints required for SQL and Blob; no public data-plane egress",
+    ],
+    requiredCapabilities: [
+      "FIPS 140-3 validated cryptography on all data-plane TLS",
+      "Customer-managed keys (CMK) for any storage holding PII",
+      "Continuous monitoring (ConMon) telemetry feed to agency SOC",
+      "Authority to operate (ATO) boundary documented in the manifest",
+    ],
+    assumptions: [
+      "Identity from Entra ID Government (CAC / PIV-aware) for agency staff",
+      "Workload handles eligibility PII only; criminal-justice information is out of scope (CJIS overlay deferred to a future pack)",
+    ],
+    inlineRequirements: [
+      "Audit retention 3 years minimum (FedRAMP Moderate AU-11)",
+      "Incident response notification within 1 hour of confirmed impact",
+      "Vulnerability scans monthly; high-severity remediation within 30 days",
+    ],
+    policyReferences: [
+      "FedRAMP-Moderate-Rev5",
+      "NIST-SP-800-53-Rev5-AC-2",
+      "NIST-SP-800-53-Rev5-AU-2",
+      "NIST-SP-800-53-Rev5-SC-7",
+      "NIST-SP-800-53-Rev5-SC-8",
+    ],
+    topologyHints: [
+      "Zero-trust ingress through Azure Front Door (Gov)",
+      "Boundary protection per SC-7 \u2014 no shared egress with non-government workloads",
+      "Sovereign workload isolation \u2014 no Azure commercial regions in failover plan",
+    ],
+    securityBaselineHints: [
+      "PII identifiers tokenized before SIEM ingest",
+      "Privileged actions emit dedicated audit events",
+      "Configuration drift detection wired into release pipeline",
+    ],
   };
 }

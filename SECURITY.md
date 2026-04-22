@@ -6,7 +6,7 @@ ArchLucid takes security seriously. This document describes how to report vulner
 
 **Please do not open public GitHub issues for security vulnerabilities.** Public disclosure can put users at risk before a fix is available.
 
-Instead, email **security@archlucid.dev** with:
+Instead, email **security@archlucid.com** with:
 
 - A clear description of the issue and its impact
 - Steps to reproduce (or proof-of-concept), if possible
@@ -48,6 +48,6 @@ Security patches are applied to the **latest release branch / current default br
 
 ## PGP / encrypted email
 
-**PGP key material:** the canonical public key path is **`/.well-known/pgp-key.txt`** on the marketing site (source file [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt)). **Publication is pending** until the security custodian generates the key pair and commits that file — see [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) (items **3**, **10**, **21** and the custodian email-domain note under item **21**).
+**PGP key material:** the canonical public key path is **`/.well-known/pgp-key.txt`** on the marketing site (source file [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt)). **Publication is pending** until the security custodian generates the key pair (UID **`security@archlucid.com`** — canonical mailbox confirmed 2026-04-21) and commits that file — see [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **3**, **10**, **21**.
 
 **Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.com/.well-known/security.txt` when the marketing site is live.

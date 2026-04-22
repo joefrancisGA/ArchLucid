@@ -122,6 +122,13 @@ jobs:
       - name: Marketplace pricing tier alignment vs PRICING_PHILOSOPHY
         run: python scripts/ci/assert_marketplace_pricing_alignment.py
 
+      - name: "/why comparison rows in sync (TS inline section vs C# PDF builder)"
+        # PENDING_QUESTIONS.md item 31, resolved 2026-04-21 (ship both PDF and inline section,
+        # with a CI sync check). Fails if archlucid-ui/src/marketing/why-archlucid-comparison.ts
+        # and ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs diverge on any of the
+        # six comparison-row fields.
+        run: python scripts/ci/check_why_archlucid_comparison_sync.py
+
       - name: "Advisory — PGP public key vs Trust Center (set merge-blocking when pgp-key.txt exists)"
         continue-on-error: true
         # When archlucid-ui/public/.well-known/pgp-key.txt is committed, flip continue-on-error to false on this step.

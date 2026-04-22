@@ -2,13 +2,55 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-21 (items 5–16 from independent assessment; **2026-04-21** ServiceNow/Confluence + **customer-shipped containers** scope in Resolved)
+**Last updated:** 2026-04-21 (interactive owner Q&A session + same-day 5-decision follow-up — see *Resolved 2026-04-21 (owner Q&A — 19 decisions)* and *Resolved 2026-04-21 (follow-up Q&A — 5 decisions)* tables below; supersedes the prior `Last updated` entry)
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
 
 ---
 
-## Resolved (2026-04-21 — owner decisions)
+## Resolved 2026-04-21 (owner Q&A — 19 decisions)
+
+These decisions came out of a structured 19-question owner Q&A session on 2026-04-21. Each answer also rewrites the corresponding "Still open" item below (or marks it Resolved). Where an answer creates a new mechanical work item, that item is captured in [`docs/CHANGELOG.md`](CHANGELOG.md) under the same date.
+
+| Decision | Answer | Affects |
+|----------|--------|---------|
+| **PGP / security mailbox** | Canonical: **`security@archlucid.com`** (`.dev` retired). | `SECURITY.md`, `docs/go-to-market/TRUST_CENTER.md`, `docs/go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`, `archlucid-ui/public/.well-known/security.txt`. Resolves the custodian sub-bullets on items 2 / 10 / 20 / 21. |
+| **Marketplace + Stripe live cutover** | **Held** — neither flips on a date yet; production-safety guards still ship. | Item 22 stays open as **"Held"** (owner has not chosen a calendar). |
+| **Microsoft Teams connector scope** | **Notification-only** for v1; two-way is a V1.1 candidate (no M365 app manifest registration in v1). | Resolves item 23. |
+| **Microsoft Teams trigger set** | Add **all three** of `compliance.drift.escalated`, `advisory.scan.completed`, `seat.reservation.released` to the v1 default workflow. | Resolves item 32. |
+| **Golden-cohort baseline SHA lock** | **Lock today** from a single approved Simulator run (`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true`). | Resolves item 33. Item 15 / 25 (real-LLM budget) **stays open** — this answer is Simulator-only. |
+| **Reference discount %** | **15%** standardized — stop negotiating per deal. | Resolves item 7. `PRICING_PHILOSOPHY.md` § 5.4 "suggested" → "standard". |
+| **Public-sector vertical framing** | **Both** EU/GDPR (existing) and US (FedRAMP / StateRAMP). Wizard ships a picker label. | Resolves item 17. New work: `templates/briefs/public-sector-us/` + `templates/policy-packs/public-sector-us/`. |
+| **Vertical starter tiering** | All five verticals **stay in Core Pilot / trial** for v1; no paid-tier gating. | Resolves item 18. Documented in `templates/README.md`. |
+| **ROI bulletin minimum N + signatory** | **N = 5** for the first issue; **owner-solo** sign-off. | Resolves item 27. |
+| **`/why` competitive comparison delivery** | **Both** PDF download and inline page section, with a CI check that fails if comparison rows in `why-archlucid-comparison.ts` and the PDF builder diverge. | Resolves item 31. |
+| **SOC 2 timing** | **Stays deferred.** Revisit trigger: owner-defined ARR threshold (assistant cannot set the dollar figure — captured under item 6). | Updates item 6 with a stable revisit-trigger sentence on the Trust Center. |
+| **ADR 0021 Phase 3 cut-over** | **Accelerate to 2026-05-15** — product not yet released, so finish the strangler this sprint. **[ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) drafted in this change set** (the prior Draft [ADR 0028 — completion scaffold](adr/0028-coordinator-strangler-completion.md) is marked Superseded by 0029). | Resolves item 24. Dropped the `2026-07-20` deprecation-header constant to `2026-05-15` atomically (see ADR 0029 § Component breakdown). |
+| **Coordinator parity-probe write path** | **Auto-commit to `main`** is acceptable — grant `contents: write` to `coordinator-parity-daily.yml`. | Resolves item 16 sub-bullet (parity probe write path). |
+| **`IMPROVEMENTS_COMPLETE.md` at repo root** | **Archive** to `docs/archive/` with a superseded note. **Done in this change set** (`git mv` to [`docs/archive/IMPROVEMENTS_COMPLETE_2026_04_21.md`](archive/IMPROVEMENTS_COMPLETE_2026_04_21.md); superseded banner prepended; canonical replacements named in the banner). | Resolves the QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60 §1.23 anchor (and item 34 in that assessment's open questions). |
+| **ArchLucid rename — RLS object-name SQL migration** | **Approved.** Land in a dedicated next session (so the DDL change set is reviewable on its own). | Reaffirms `ArchLucid-Rename.mdc` rule's explicit RLS-rename note; not landed in this change set. |
+| **Quality-assessment cadence** | **Weekly** going forward; next pass scheduled **2026-04-28**. | Captured in the *Related* table below. |
+| **Phase 3 ADR 0022 lifecycle** | ~~After **14 contiguous green daily rows** in the parity table, ADR 0022 flips to **Superseded** by a Phase-3 deletion ADR.~~ **Superseded by the same-day follow-up** — gate (iv) was waived for pre-release, so ADR 0022 flips to Superseded **inside PR A** itself (no waiting for 14 rows that cannot accumulate pre-release). See follow-up table row "Phase 3 gate (iv) — pre-release waiver". | Updates item 16 (ADR 0022 lifecycle sub-bullet). |
+| **Phase 3 legacy-wire sunset date alignment** | The same **2026-05-15** date applies to deprecation header `Sunset:` values + parity-probe doc + ADR 0029 + any client SDK release notes. | Updates item 16 (legacy `CoordinatorRun*` sunset sub-bullet). |
+| **Improvements 4 (Marketplace + Stripe) production-safety guards** | Continue shipping the guards (CI alignment, `BillingProductionSafetyRules`, preflight CLI) — no live keys touched. | No item resolved; item 22 explicitly notes the guards-but-no-keys posture. |
+
+---
+
+## Resolved 2026-04-21 (follow-up Q&A — 5 decisions)
+
+These decisions came out of a same-day five-question follow-up after the 19-decision batch landed. They tighten the operational details so the Phase 3 cut-over and the GTM artifacts produced in the 19-decision batch are mechanically executable.
+
+| Decision | Answer | Affects |
+|----------|--------|---------|
+| **Phase 3 gate (iv) — pre-release waiver** | **Waive gate (iv) for the pre-release window** (alongside the already-waived gate (i)). Pre-release there is no customer traffic, so the daily parity probe cannot accumulate the 14 zero-write rows the gate measures; the runbook stays live. **Both** waivers expire automatically when V1 ships to a paying customer. | [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Operational considerations + Lifecycle table; [ADR 0022](adr/0022-coordinator-phase3-deferred.md) Assumptions / Constraints / gate-evidence row / Architecture-overview diagram / Component-breakdown row / Follow-up; [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) § Phase 3 gate status. |
+| **Phase 3 PR A authorship** | **Assistant drafts PR A end-to-end** in this repo (deletes coordinator concretes/interfaces, sweeps DI, shrinks `DualPipelineRegistrationDisciplineTests` allow-list, regenerates OpenAPI snapshot, opens PR for owner review). To be done in a **separate dedicated session** — large surgical change set, deserves its own clean turn. | New "Still open" sub-item under item **16** ("Phase 3 PR A authorship — queued for dedicated session"). |
+| **Public-sector US — CJIS scope** | **FedRAMP Moderate / NIST SP 800-53 Rev. 5 only** in v1. Drop the CJIS Security Policy reference from the policy-pack metadata, brief, wizard preset, and rule descriptions. CJIS overlay is captured as a future pack rather than v1 work. | `templates/policy-packs/public-sector-us/policy-pack.json`, mirrored UI copy at `archlucid-ui/public/vertical-templates/public-sector-us/policy-pack.json`, `templates/policy-packs/public-sector-us/compliance-rules.json`, `templates/briefs/public-sector-us/brief.md`, `archlucid-ui/src/lib/vertical-wizard-presets.ts`, `templates/README.md` § Owner decisions. |
+| **ROI bulletin sign-off audit format** | **Dedicated tagged section** in `docs/CHANGELOG.md` of the form `## YYYY-MM-DD — ROI bulletin signed: Q?-YYYY` — greppable with one `rg` command. The section *is* the signature; no separate signature artifact, no co-signer. | `docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md` § Owner-approval gate (column rename) + new § Sign-off audit format (heading shape + `rg` recipe + "no bulletin without a section" rule). |
+| **Microsoft Teams — per-trigger opt-in** | **Per-trigger opt-in matrix** per connection (defaults to all-on so existing rows keep current behaviour). Costs an extra column on `dbo.TenantTeamsIncomingWebhookConnections` (`EnabledTriggersJson NVARCHAR(MAX) NOT NULL`) and a UI checkbox matrix on `/integrations/teams`; Logic Apps workflow filters server-side before fan-out. To be done in a **separate session** alongside the RLS object-name SQL migration so both DDL change sets are reviewable together. | New "Still open" sub-item under item **23** ("Per-trigger Teams opt-in matrix — queued for dedicated session"). |
+
+---
+
+## Resolved (2026-04-21 — owner decisions, prior session)
 
 | Topic | Decision |
 |-------|----------|
@@ -34,9 +76,9 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 2. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
 
-    - **Custodian:** confirm the **canonical security contact mailbox** for procurement and assessor hand-offs — **`security@archlucid.dev`** vs **`security@archlucid.com`** (some docs use `.dev` only; align `SECURITY.md`, Trust Center, and the PGP UID before publication).
+    - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`** is canonical. Trust Center, `SECURITY.md`, `INCIDENT_COMMUNICATIONS_POLICY.md`, and `security.txt` all aligned in this change set; the eventual PGP UID must use the same address.
 
-3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key; see items **10** / **21** for the CI guard and mailbox alignment.
+3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key. **Mailbox alignment (Resolved 2026-04-21): the UID is `security@archlucid.com`.** Items 10 / 21 still own the actual key generation.
 
 4. **Next Microsoft-aligned workflow integration** — GitHub manifest-delta and Azure DevOps pipeline tasks are shipped ([`GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md), [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)). **ServiceNow and Confluence are explicitly out of scope for now** (see Resolved table). Next anchor is a **product** call among remaining Microsoft surfaces (e.g. Teams / Logic Apps fan-out per ADR 0019), not Atlassian/ITSM.
 
@@ -61,9 +103,9 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 5. **External pen-test scope and budget** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window. Picks up where item 2 above leaves off.
 
-6. **SOC 2 Type I assessor + audit period start date** — readiness gap report scaffolds in Prompt 4 only land if an assessor is named.
+6. **SOC 2 Type I assessor + audit period start date** — **Stays deferred (Resolved 2026-04-21).** Interim posture: self-assessment + Trust Center honesty. **Revisit trigger:** owner-defined ARR threshold — assistant cannot set the dollar figure; the Trust Center compliance-and-certifications row was rewritten in this change set to make the trigger explicit. Sub-question still open: **what ARR figure?**
 
-7. **Reference-customer publication ownership and discount-for-reference percent** — Prompt 1 will pre-build the publication runbook + evidence-pack template + CLI tool but stops at "who graduates the first row in `reference-customers/README.md`?" Suggest 15% per [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 if you don't want to negotiate per deal.
+7. **Reference-customer publication ownership and discount-for-reference percent** — **Discount Resolved 2026-04-21:** **15% standardized.** `PRICING_PHILOSOPHY.md` § 5.4 was promoted from "suggested" to "standard" in this change set. **Still open (item 19):** ownership of graduating the first PLG row from `Customer review` to `Published`.
 
 8. **Marketplace publication go-live decision** — sign off on Azure Marketplace SaaS plan SKUs (aligned to PRICING_PHILOSOPHY tiers), legal entity, lead-form webhook URL. Prompt 3 pre-builds the alignment guard and the publication checklist diff; cannot create a real listing.
 
@@ -73,9 +115,9 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
     - **Needed from owner:** (a) **Statement descriptor** / customer-facing legal name as it should appear on card statements; (b) **Chargeback, refund, and dunning** policy text for [`ORDER_FORM_TEMPLATE.md`](go-to-market/ORDER_FORM_TEMPLATE.md) and Trust Center; (c) **`sk_live_` + `whsec_` live signing secret** injected only via Key Vault / deployment secret store (never committed) and webhook endpoint URL `https://<prod-api-host>/v1/billing/webhooks/stripe` registered in Stripe **live** Dashboard; (d) who **owns** rotation and incident response if webhook delivery fails after deploy.
 
-10. **PGP key for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
+10. **PGP key for `security@archlucid.com`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
 
-    - **Custodian:** confirm **`security@archlucid.dev`** vs **`security@archlucid.com`** as the UID / mailbox tied to the published key (must match Trust Center + `SECURITY.md`).
+    - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`** is canonical. Generation + custodian-naming still owner-only.
 
 11. **Workflow-integration sequencing (rescoped)** — **Prompt 5 (ServiceNow + Confluence) is deferred** — see Resolved table. When picking the next integration, sequence **Microsoft-native** options (Teams notifications, Logic Apps standard workflows, deeper ADO/GitHub) rather than Confluence/ServiceNow unless strategy changes.
 
@@ -92,14 +134,18 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
     - **Shipped (simulator, no new Azure spend):** `archlucid golden-cohort lock-baseline [--cohort <path>] [--write]` captures committed-manifest SHA-256 fingerprints against a **Simulator** API host; `.github/workflows/golden-cohort-nightly.yml` can run drift assertions when repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is set to `true` (cohort JSON must contain non-placeholder SHAs first — see item 33).
     - **Still gated on this item:** optional **real-LLM** cohort execution remains behind `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` plus injected Azure OpenAI secrets on a protected GitHub Environment (the assistant does not provision deployments or spend).
 
-16. **ADR 0021 Phase 3 — owner policy (Prompt 2 landed code + stopped at gate)** — Phase 2 catalog (`AuditEventTypes.Run.*` + dual-write), `IRunCommitOrchestrator` façade, and parity probe tooling shipped **2026-04-21**; Phase 3 **deletion** PRs remain blocked until ADR 0021 exit gates **(i)–(iv)**. Owner must decide:
-    - **Legacy `CoordinatorRun*` sunset:** Confirm the fixed calendar date **2026-07-20** (already published in API deprecation headers) is still the authoritative cut-over for **removing** legacy wire values after dashboards/exports migrate, or pick a different date with platform sign-off.
-    - **Parity probe write path:** Nightly **`.github/workflows/coordinator-parity-daily.yml`** can `git push` marker upserts into `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` on `main` when `contents: write` is permitted. Confirm **auto-commit to docs on default branch** is acceptable, or require a **bot PR** / **manual paste** instead (branch protection may block pushes — confirm token policy).
-    - **ADR 0022 lifecycle:** After **14 contiguous** green daily rows in the automated table, should **ADR 0022** flip to **Superseded** immediately, or stay until an actual Phase 3 **deletion** ADR ships?
+16. **ADR 0021 Phase 3 — owner policy (Prompt 2 landed code + stopped at gate)** — Phase 2 catalog (`AuditEventTypes.Run.*` + dual-write), `IRunCommitOrchestrator` façade, and parity probe tooling shipped **2026-04-21**; Phase 3 **deletion** PRs remain blocked until ADR 0021 exit gates **(i)–(iv)**.
+    - **Legacy `CoordinatorRun*` sunset (Resolved 2026-04-21):** **2026-05-15.** Product not yet released, so the strangler is being accelerated; the prior `Sunset: 2026-07-20` deprecation-header value drops to `Sunset: 2026-05-15` atomically across deprecation headers, parity-probe doc, [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md), and any client SDK release notes (see this change set). The earlier Draft [ADR 0028 — completion scaffold](adr/0028-coordinator-strangler-completion.md) is marked Superseded by 0029.
+    - **Parity probe write path (Resolved 2026-04-21):** **Auto-commit to `main`** is acceptable. `coordinator-parity-daily.yml` was granted `contents: write` in this change set; if branch protection blocks the push, the workflow logs a marker and the operator pastes manually.
+    - **ADR 0022 lifecycle (Resolved 2026-04-21, updated same-day follow-up):** Flip to **Superseded** by a Phase 3 **deletion** ADR **inside PR A itself** — gate (iv) was waived for pre-release per [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md), so there are no 14-rows to wait for; PR A merging is the trigger.
+    - **Phase 3 PR A authorship (Resolved 2026-04-21 follow-up):** **Assistant drafts PR A end-to-end** in this repo (concretes + interfaces deletion, DI sweep, `DualPipelineRegistrationDisciplineTests` allow-list shrink, OpenAPI snapshot regen). **Queued for a dedicated session** — large surgical change set, deserves its own clean turn (will not be bundled with smaller items). Sequencing intent: ship the per-trigger Teams matrix + RLS object-name SQL migration session **first**, then PR A.
+    - **Phase 3 gate (iv) — pre-release waiver (Resolved 2026-04-21 follow-up):** Waived alongside gate (i) for the pre-release window. Both gates restore automatically when V1 ships to a paying customer. See [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Operational considerations for the rationale.
 
-17. **Vertical starter — public-sector regulatory framing (Prompt 11)** — Repo templates ship a **EU / GDPR**-anchored public-sector brief and policy pack (`templates/briefs/public-sector/`, `templates/policy-packs/public-sector/`). Confirm whether a **US (FedRAMP / StateRAMP)** variant should be added, replace the EU default, or ship **both** with clear picker labels.
+17. **Vertical starter — public-sector regulatory framing (Prompt 11)** — **Resolved 2026-04-21: ship BOTH** EU/GDPR (existing `templates/briefs/public-sector/`, `templates/policy-packs/public-sector/`) **and** US (FedRAMP / StateRAMP — new `templates/briefs/public-sector-us/`, `templates/policy-packs/public-sector-us/`). Wizard exposes a clear picker label.
 
-18. **Vertical starter templates — tiering (Prompt 11)** — Five industry verticals are included in **Core Pilot** content (`templates/README.md`, wizard + policy-pack import UI). Confirm whether any vertical should be **paid-tier only** or remain **shipping with trial** until packaging changes.
+    - **CJIS overlay scope (Resolved 2026-04-21 follow-up):** **FedRAMP Moderate / NIST SP 800-53 Rev. 5 only** in v1. The CJIS Security Policy reference was dropped from policy-pack metadata, brief, wizard preset, and rule descriptions in this change set. Authoring the full CJIS Security Policy v5.9.5 control mappings (~30 controls) is a future pack rather than a v1 overlay.
+
+18. **Vertical starter templates — tiering (Prompt 11)** — **Resolved 2026-04-21: all five verticals stay in Core Pilot / trial** for v1. No paid-tier gating on industry templates. Documented in `templates/README.md`. Re-open if packaging strategy changes.
 
 ---
 
@@ -111,19 +157,21 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 20. **Pen-test execution window for the awarded Aeronova SoW** — schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. (Improvement 2 / Prompt 2.)
 
-    - **Custodian:** confirm **`security@archlucid.dev`** vs **`security@archlucid.com`** for assessor comms and the eventual PGP UID so `SECURITY.md` / Trust Center / key material stay consistent.
+    - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`**. All public surfaces aligned in this change set; assessor comms must use the same address.
 
-21. **PGP key custodian for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
+21. **PGP key custodian for `security@archlucid.com`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
 
-    - **Custodian:** confirm the **canonical email address** on the key (`security@archlucid.dev` vs `security@archlucid.com`) and update Trust Center + `SECURITY.md` together so buyers see one address.
+    - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`** is the canonical UID. Generation + custodian-naming still owner-only.
 
-22. **Marketplace + Stripe live go-live calendar** — Partner Center seller verification, tax profile, payout account, **and** Stripe live API key + webhook secret. Decide whether Marketplace and Stripe live flip on the same day or staged. (Improvement 3 / Prompt 3, supersedes nothing — re-emphasises items 8 and 9.)
+22. **Marketplace + Stripe live go-live calendar — HELD (2026-04-21).** Owner has not chosen a calendar; production-safety guards (CI alignment, `BillingProductionSafetyRules`, `archlucid marketplace preflight`) continue to ship and stay green, but **no live keys are flipped**. When the owner picks a date, all four sub-items below become live decisions on that day; until then this item is intentionally parked, not abandoned.
 
-    - **Needed from owner:** (a) **Single cutover vs staged** — same maintenance window for Marketplace “Go live” + Stripe live keys, or Stripe first / Marketplace first (with rollback owners named per path); (b) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (c) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until (a) is executed (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (d) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day before either flip.
+    - **Needed from owner (when un-held):** (a) **Single cutover vs staged** — same maintenance window for Marketplace “Go live” + Stripe live keys, or Stripe first / Marketplace first (with rollback owners named per path); (b) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (c) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until (a) is executed (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (d) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day before either flip.
 
-23. **Microsoft Teams connector scope** — notification-only first, or two-way (approve a governance request from Teams)? Two-way requires a registered Teams app manifest in M365 admin. (Improvement 6 / Prompt 6.) **Trigger expansion:** see item **32** once notification-only is live.
+23. **Microsoft Teams connector scope** — **Resolved 2026-04-21: notification-only for v1.** Two-way (approve governance from Teams) is a V1.1 candidate; no Teams app manifest registration in v1. `MICROSOFT_TEAMS_NOTIFICATIONS.md` and the Logic Apps workflow keep their notification-only posture.
 
-24. **ADR 0021 strangler completion target date** — Prompt 7 lands the regression CI guard and the `migrate / keep / delete` inventory but stops at naming the **completion** date. Owner names the date; ADR 0028 is drafted from that date. (Improvement 7 / Prompt 7.)
+    - **Per-trigger opt-in (Resolved 2026-04-21 follow-up):** **Per-trigger opt-in matrix** per connection (defaults to all-on so existing rows keep current behaviour). Costs an extra `EnabledTriggersJson NVARCHAR(MAX) NOT NULL` column on `dbo.TenantTeamsIncomingWebhookConnections` and a UI checkbox matrix on `/integrations/teams`; Logic Apps workflow filters server-side before fan-out so tenants can't be spammed with disabled triggers. **Queued for a dedicated session** — needs a SQL migration + master DDL update + UI work + tests for coverage; will be bundled with the deferred RLS object-name SQL migration since both are SQL-shaped.
+
+24. **ADR 0021 strangler completion target date** — **Resolved 2026-04-21: 2026-05-15** (latest-by). Product not yet released, so the strangler is accelerated. **[ADR 0029 — Coordinator strangler acceleration to 2026-05-15](adr/0029-coordinator-strangler-acceleration-2026-05-15.md)** is the operative decision record (it Supersedes the earlier Draft [ADR 0028 — completion scaffold](adr/0028-coordinator-strangler-completion.md), whose `_TODO (owner)_` placeholders this Q&A answered). Deprecation `Sunset:` headers are dropped from `2026-07-20` to `2026-05-15` atomically across `ArchLucid.Api/Filters/CoordinatorPipelineDeprecationFilter.cs`, ADR 0021 § Status note, ADR 0022 § Constraints / Components / Follow-up, and `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` § Phase 3 gate status. **Updated 2026-04-21 follow-up:** post-PR-A 30-day soak gate **(i)** **and** parity-rows gate **(iv)** are **both waived for the pre-release window only** (rationale in ADR 0029 § Operational considerations: no published clients to protect with a soak; no customer traffic to measure with the parity probe). Gates **(ii)** and **(iii)** remain in force; both are produced inside PR A's own CI run. **Net effect:** PR A is unblocked the moment gates (ii) and (iii) clear on the deletion branch; 2026-05-15 is a latest-by deadline, not a wait-for-evidence one.
 
 25. **Golden-cohort dedicated Azure OpenAI deployment + monthly token budget** — needed to flip the nightly real-LLM golden-cohort run from optional to mandatory. (Improvement 8 / Prompt 8 — same shape as item 15 but specific to the cohort.)
 
@@ -132,21 +180,27 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 26. **VPAT publication decision** — produce a formal VPAT for accessibility published on the Trust Center, or stay with the WCAG 2.1 AA self-attestation in `ACCESSIBILITY.md`? (Adjacent to item 12 — accessibility publication channel.)
 
-27. **Aggregate ROI bulletin publication cadence** — Improvement 5's "publish a sanitized aggregate ROI bulletin quarterly" needs an owner approval before the first bulletin can ship: which percentile bands (p50 / p90), what minimum tenant N before publication, who signs off on each issue.
-
-    - **Needed from owner:** (a) confirm **minimum N = 5** is acceptable vs a higher bar for the first external issue; (b) name the **signatory role** (e.g. CRO vs GC vs joint) and the **repository of record** for approvals (ticket link vs Docusign); (c) whether **p90** stays in v1 bulletins or is deferred to v1.1; (d) the **first publication window** (calendar quarter) once engineering drafts exist from `archlucid roi-bulletin`.
+27. **Aggregate ROI bulletin publication cadence** — **Resolved 2026-04-21:** (a) **N = 5** for the first issue; (b) **owner-solo** sign-off; (c) **p50 + p90** both stay in v1 bulletins; (d) first publication window opens **once at least one PLG tenant is `Published`** (item 19). `AGGREGATE_ROI_BULLETIN_TEMPLATE.md` updated in this change set.
 
 28. **Customer-supplied baseline soft-required at signup** — flip `baselineReviewCycleHours` from optional to soft-required (skippable but defaulted to model). Owner approves the UX change and the privacy-notice update.
 
     - **Needed from owner:** (a) sign-off on the shipped copy in [`docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md`](go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md) (or delegate edits to legal/comms); (b) confirm the **GitHub main link** from the signup form to that note is the correct public surface vs hosting the same text on `archlucid.com`; (c) whether marketing wants **any** additional in-form disclaimer beyond the inline note + tooltip.
 
-31. **Public `/why` comparison delivery** — Should the competitive differentiation ship as **PDF download only** (current `GET /v1/marketing/why-archlucid-pack.pdf` path), **inline page section only**, or **both** with synchronized copy?
+31. **Public `/why` comparison delivery** — **Resolved 2026-04-21: BOTH** PDF download (`GET /v1/marketing/why-archlucid-pack.pdf`) **and** inline page section, with a CI sync check that fails if comparison rows in `archlucid-ui/src/marketing/why-archlucid-comparison.ts` and the PDF builder diverge. Implementation tracked in this change set.
 
-32. **Microsoft Teams notification triggers beyond v1 defaults** — Repo ships Logic Apps + API wiring for **`com.archlucid.authority.run.completed`**, **`com.archlucid.governance.approval.submitted`**, and **`com.archlucid.alert.fired`** (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Which **additional** `eventType` values (e.g. `com.archlucid.advisory.scan.completed`, compliance drift escalations) should the first production workflow subscribe to?
+32. **Microsoft Teams notification triggers beyond v1 defaults** — **Resolved 2026-04-21: add ALL THREE** of `com.archlucid.compliance.drift.escalated`, `com.archlucid.advisory.scan.completed`, and `com.archlucid.seat.reservation.released` to the first production workflow alongside the existing `run.completed`, `governance.approval.submitted`, and `alert.fired`. Implementation tracked in this change set.
 
-33. **Golden-cohort baseline SHA lock timing** — Lock committed-manifest SHA-256 values in `tests/golden-cohort/cohort.json` from a **single approved Simulator run today** (`archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true` for that shell only), **or** wait for product review to approve the cohort scenario list before locking? Either path is valid; the CLI `--write` gate exists so SHAs are not rewritten without an explicit owner ack.
+33. **Golden-cohort baseline SHA lock timing** — **Resolved 2026-04-21: lock today** from a single approved Simulator run. Operator runs `archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true`. The nightly workflow flips from "contract test only" to manifest drift report once `tests/golden-cohort/cohort.json` carries non-zero SHAs. Real-LLM cohort run (item 15 / 25) **stays gated on owner budget**.
 
 34. **Production Simmy / fault-injection game day** — The `simmy-chaos-scheduled.yml` workflow exposes a **`production`** `environment` input for documentation symmetry only. **Default remains staging-only execution.** Owner must approve any real production chaos (customer notification, SLO ownership, blast radius, rollback). See [`docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md`](runbooks/GAME_DAY_CHAOS_QUARTERLY.md).
+
+---
+
+## Quality-assessment cadence (Resolved 2026-04-21)
+
+- **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
+- **Next pass:** **2026-04-28.**
+- **Trigger to break cadence:** any of the three "score-moving" owner events (first PLG row `Published`, Marketplace listing live, Aeronova pen test summary published) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact.
 
 ---
 
@@ -154,7 +208,9 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 | Doc | Use |
 |-----|-----|
-| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) | **Latest** weighted independent assessment (67.61%) |
+| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | **Latest** weighted independent assessment (68.60%) |
+| [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md) | Eight paste-ready Cursor prompts for the 68.60% assessment |
+| [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) | Prior 2026-04-21 assessment (67.61%) |
 | [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md) | Eight paste-ready Cursor prompts for the 67.61% assessment |
 | [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) | Earlier 2026-04-21 assessment (64.14%) |
 | [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md) | Six paste-ready Cursor prompts; #3 and #4 stop at owner gates |

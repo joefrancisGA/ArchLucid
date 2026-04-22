@@ -1,5 +1,14 @@
 # Nightly append of coordinator/authority audit count row into docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md (ADR 0021 gate iv helper).
-# Requires a default branch write token when appending; use workflow_dispatch to test without push.
+#
+# Owner-approved write path (2026-04-21 Q&A — docs/PENDING_QUESTIONS.md item 16, sub-bullet
+# "parity-probe write path"): direct auto-commit to `main` is acceptable for this workflow because
+# (a) the upserted row is a single deterministic Markdown-table line with no schema/code change;
+# (b) `[skip ci]` in the commit message prevents recursive CI cost; (c) the concurrency group
+# below serializes nightly runs so two probes never race; (d) the only file path mutated is
+# `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` — no broader write surface is granted.
+# `permissions: contents: write` is intentionally scoped only to this workflow file.
+#
+# Use `workflow_dispatch` for ad-hoc dry runs (the diff guard below makes the push idempotent).
 name: "Runbooks: coordinator parity probe (daily)"
 
 on:

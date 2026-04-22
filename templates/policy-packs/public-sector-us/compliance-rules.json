@@ -1,0 +1,87 @@
+{
+  "rulePackId": "psus-vertical-v1",
+  "name": "US FedRAMP Moderate / StateRAMP public-sector digital service",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "psus-ctrl-001",
+      "controlId": "PSUS-001",
+      "controlName": "FedRAMP Moderate \u2014 audit events (AU-2 / AU-12)",
+      "appliesToCategory": "logging",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Centralized tamper-evident audit pipeline meeting NIST SP 800-53 Rev. 5 AU-2 / AU-12 with 3-year retention."
+    },
+    {
+      "ruleId": "psus-ctrl-002",
+      "controlId": "PSUS-002",
+      "controlName": "FedRAMP Moderate \u2014 transmission confidentiality (SC-8 / SC-13)",
+      "appliesToCategory": "encryption",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "FIPS 140-3 validated cryptography on all data-plane TLS; CMK for storage holding PII; key rotation cadence explicit."
+    },
+    {
+      "ruleId": "psus-ctrl-003",
+      "controlId": "PSUS-003",
+      "controlName": "FedRAMP Moderate \u2014 access enforcement (AC-2 / AC-3)",
+      "appliesToCategory": "access",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Account management with periodic recertification; least privilege; CAC / PIV-aware MFA for privileged actions; break-glass documented."
+    },
+    {
+      "ruleId": "psus-ctrl-004",
+      "controlId": "PSUS-004",
+      "controlName": "FedRAMP Moderate \u2014 supply chain (SR-3 / SA-12)",
+      "appliesToCategory": "thirdparty",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Subprocessor inventory with FedRAMP authorization status documented; vendor risk reviews before production connectivity."
+    },
+    {
+      "ruleId": "psus-ctrl-005",
+      "controlId": "PSUS-005",
+      "controlName": "FedRAMP Moderate \u2014 boundary protection (SC-7)",
+      "appliesToCategory": "segmentation",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Network segmentation with deny-by-default east-west traffic; private endpoints for SQL / Blob; no public data-plane egress; ATO boundary documented in manifest."
+    },
+    {
+      "ruleId": "psus-ctrl-006",
+      "controlId": "PSUS-006",
+      "controlName": "FedRAMP Moderate \u2014 contingency planning (CP-2 / CP-9)",
+      "appliesToCategory": "dr",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Backup, restore, and RTO/RPO tested quarterly; failover targets must remain in Azure Government regions only \u2014 no commercial-cloud failover for citizen data."
+    },
+    {
+      "ruleId": "psus-ctrl-007",
+      "controlId": "PSUS-007",
+      "controlName": "FedRAMP Moderate \u2014 configuration management (CM-2 / CM-3)",
+      "appliesToCategory": "changes",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Change windows with documented approval; automated drift detection for production configs; configuration baselines (CM-2) versioned alongside the manifest."
+    },
+    {
+      "ruleId": "psus-ctrl-008",
+      "controlId": "PSUS-008",
+      "controlName": "FedRAMP Moderate \u2014 system monitoring (SI-4) + ConMon",
+      "appliesToCategory": "monitoring",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Continuous monitoring (ConMon) telemetry feed to agency SOC; alerting on privileged actions and data-exfiltration patterns; vulnerability scans monthly with 30-day high-severity remediation SLA."
+    }
+  ]
+}

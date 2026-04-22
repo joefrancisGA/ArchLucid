@@ -4,7 +4,17 @@
 
 ## Owner-approval gate (mandatory)
 
-**No version of this bulletin may be published externally** (web, email to prospects, press, or partner decks) without **explicit owner sign-off** recorded per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **27** (cadence, percentile bands, minimum N, signatory). Engineering may generate **drafts** from production using `archlucid roi-bulletin` (see [`docs/CLI_USAGE.md`](../CLI_USAGE.md)); publication remains **owner-only**.
+**No version of this bulletin may be published externally** (web, email to prospects, press, or partner decks) without **explicit owner sign-off** recorded per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **27**. Engineering may generate **drafts** from production using `archlucid roi-bulletin` (see [`docs/CLI_USAGE.md`](../CLI_USAGE.md)); publication remains **owner-only**.
+
+**Resolved 2026-04-21 (item 27):**
+
+| Decision | Value |
+|----------|-------|
+| **Minimum N for first issue** | **5** qualifying tenants |
+| **Signatory** | **Owner-solo** sign-off (no CRO / GC co-sign required) |
+| **Percentile bands** | **Mean + p50 + p90** all stay in v1 bulletins |
+| **First publication window** | Opens **once at least one PLG tenant reaches `Status: Published`** in [`reference-customers/README.md`](reference-customers/README.md) (item 19) — the first published reference is the trigger to ship the first bulletin |
+| **Repository of record for sign-off** | **Dedicated tagged section** in [`docs/CHANGELOG.md`](../CHANGELOG.md) — see § "Sign-off audit format (2026-04-21 owner Q&A follow-up)" below for the exact heading shape and `grep` recipe an auditor can run. |
 
 ## Minimum-N privacy guard
 
@@ -44,12 +54,37 @@
 - These numbers describe **self-reported pre-ArchLucid review-cycle length** for tenants who **chose** to supply a baseline at signup — **not** ArchLucid runtime performance.
 - “Before vs measured” product charts for any **single** tenant remain **in tenant-scoped operator surfaces** (value report / first-value report).
 
-## Sign-off
+## Sign-off (owner-solo per 2026-04-21 decision)
 
-| Role | Name | Date | Signature / link |
-|------|------|------|------------------|
-| Owner | | | |
+| Role | Name | Date | CHANGELOG.md section anchor |
+|------|------|------|-----------------------------|
+| Owner | | | `#YYYY-MM-DD--roi-bulletin-signed-Q?-YYYY` (per § "Sign-off audit format" in the template) |
 ```
+
+## Sign-off audit format (2026-04-21 owner Q&A follow-up)
+
+To make owner-solo sign-off mechanically auditable, **every** published bulletin appends a dedicated section to [`docs/CHANGELOG.md`](../CHANGELOG.md) with a fixed heading shape:
+
+```markdown
+## YYYY-MM-DD — ROI bulletin signed: Q?-YYYY
+
+**Bulletin:** Q?-YYYY (link to the rendered bulletin artifact)
+**Qualifying tenants (N):** <integer ≥ 5>
+**Statistics published:** Mean / p50 / p90 baseline review-cycle hours
+**Owner sign-off:** <owner name> on <ISO date>
+**Sign-off mechanism:** This `## …` section, committed by the owner directly on `main`, is the sign-off — no separate signature artifact, no co-signer.
+```
+
+**Audit recipe (one command):**
+
+```bash
+# List every signed bulletin, newest-first, with its date and quarter
+rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGELOG.md
+```
+
+**Why a dedicated section (vs. a free-form sentence in another entry).** The fixed heading is greppable and survives `docs/CHANGELOG.md` reorganization. Auditors and Trust Center reviewers can produce the full historical sign-off log with a single `rg` invocation; no screenshots, no separate audit artifact, no risk of a sign-off being silently buried inside an unrelated entry. This is also why the Sign-off table column above is `CHANGELOG.md section anchor` rather than `Signature / link` — the section *is* the signature.
+
+**No bulletin without a section.** A published bulletin without the matching `## YYYY-MM-DD — ROI bulletin signed: Q?-YYYY` section in `docs/CHANGELOG.md` is **out of policy** — the next quality assessment will flag it. There is no rollback path other than retracting the publication and recording the retraction in the same format.
 
 ## Automation
 

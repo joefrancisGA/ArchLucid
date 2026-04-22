@@ -4,7 +4,7 @@
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-04-21 (reference-discount standardized to **15%** — see § 4.1)
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
@@ -99,6 +99,21 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 **Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion, making it zero net cost to the buyer who converts.
 
 **Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual.
+
+### 4.1 Reference-customer discount (standardized 2026-04-21)
+
+When a customer agrees to be a **published reference** (logo + case study + at least one annual reference call), they receive a **standing 15% discount off the applicable tier list price** for the duration of the reference agreement. This is a **standard offer**, not a per-deal negotiation:
+
+| Field | Value |
+|-------|-------|
+| **Discount magnitude** | **15%** off applicable list (Team / Professional seat + workspace fee) |
+| **Eligibility** | Customer must approve published case study **and** logo on the marketing site **and** stand up at least one annual reference call |
+| **Duration** | For the contract term in which the reference is published, plus one renewal at the same discount; renegotiated thereafter |
+| **Owner** | Product marketing |
+| **Trigger** | Row in [`reference-customers/README.md`](reference-customers/README.md) reaches `Status: Published`; `scripts/ci/check_reference_customer_status.py` strict step auto-flips |
+| **Stack interaction** | Independent of the Trust / Reference / Self-serve discount stack in § 5.1; this is an *outbound* discount applied at quote time, not a list-price modifier |
+
+**Why standardized.** Negotiating per deal slows decision velocity and creates inconsistency between accounts. A standard 15% offer is the industry norm for B2B reference programs.
 
 ---
 
@@ -204,7 +219,7 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 | Discount line | Magnitude | Owner | Target close date | Evidence link | Re-rate trigger |
 |---------------|-----------|-------|-------------------|---------------|-----------------|
 | Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); SOC 2 attestation available under NDA | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or executive summary) approved for prospect distribution |
-| Reference discount (named, published reference customer) | −15% | TBD (product marketing) | TBD (gated on first design partner closing) | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough) |
+| Reference discount (named, published reference customer) | −15% | **Product marketing** (standardized 2026-04-21) | Standing offer — clears the moment first row reaches `Status: Published` | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough). **Outbound offer to subsequent customers is the standardized 15% per § 4.1** — no per-deal negotiation required. |
 
 > **TODO (reference discount copy removal):** Do **not** delete the −15% line from §5.1 / §5.2 until product leadership runs the §5.3 **re-rate review**. The **engineering** signal that the gate is ready is the **same** merge to `main` where the first README row hits `Published` (strict CI step auto-flips — no YAML surgery).
 | Self-serve discount (trial / billing loop in production) | −10% | TBD (platform PM) | Cleared in-repo as of 2026-04-17; awaits product-leadership pricing review | Merge-blocking `ui-e2e-live` runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) — see § 5.3 Gate #3 | Product leadership signs off on the engineering signal; no further evidence required |
