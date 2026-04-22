@@ -125,7 +125,7 @@ public sealed class TraceabilityBundleBuilderTests
                 It.IsAny<Guid>(),
                 It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AuditEvent>());
+            .ReturnsAsync([]);
 
         TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
         ScopeContext scope = new()

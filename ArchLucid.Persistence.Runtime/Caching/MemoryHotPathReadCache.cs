@@ -29,16 +29,13 @@ public sealed class MemoryHotPathReadCache(
         if (_memoryCache.TryGetValue(key, out object? boxed) && boxed is T typed)
             return Task.FromResult<T?>(typed);
 
-        if (legacyCacheKey is not null
-            && _memoryCache.TryGetValue(legacyCacheKey, out object? legacyBoxed)
-            && legacyBoxed is T legacyTyped)
-        {
-            PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped, absoluteExpirationSecondsOverride);
+        if (legacyCacheKey is null
+            || !_memoryCache.TryGetValue(legacyCacheKey, out object? legacyBoxed)
+            || legacyBoxed is not T legacyTyped)
+            return MaterializeAsync(key, factory, ct, absoluteExpirationSecondsOverride);
+        PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped, absoluteExpirationSecondsOverride);
 
-            return Task.FromResult<T?>(legacyTyped);
-        }
-
-        return MaterializeAsync(key, factory, ct, absoluteExpirationSecondsOverride);
+        return Task.FromResult<T?>(legacyTyped);
     }
 
     private void PromoteLegacyToPrimary<T>(
@@ -73,11 +70,9 @@ public sealed class MemoryHotPathReadCache(
 
         TimeSpan ttl = ResolveTtl(absoluteExpirationSecondsOverride);
 
-        using (ICacheEntry entry = _memoryCache.CreateEntry(key))
-        {
-            entry.AbsoluteExpirationRelativeToNow = ttl;
-            entry.Value = created;
-        }
+        using ICacheEntry entry = _memoryCache.CreateEntry(key);
+        entry.AbsoluteExpirationRelativeToNow = ttl;
+        entry.Value = created;
 
         return created;
     }

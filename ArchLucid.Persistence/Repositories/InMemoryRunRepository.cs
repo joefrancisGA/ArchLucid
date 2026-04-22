@@ -204,17 +204,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         if (runIds.Count == 0)
             return Task.FromResult(new RunArchiveByIdsResult());
 
-
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
-        foreach (Guid id in runIds)
-
-            if (seen.Add(id))
-
-                distinctOrdered.Add(id);
-
-
+        distinctOrdered.AddRange(runIds.Where(id => seen.Add(id)));
 
         DateTime stamp = DateTime.UtcNow;
         List<ArchivedRunScopeRow> archived = [];

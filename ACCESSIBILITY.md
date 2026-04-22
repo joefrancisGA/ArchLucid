@@ -1,5 +1,7 @@
 # Accessibility
 
+Last reviewed: 2026-04-22
+
 ## Target compliance level
 
 **WCAG 2.1 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines 2.1](https://www.w3.org/TR/WCAG21/) at Level AA.
@@ -44,6 +46,12 @@ None at this time. Document any intentional deviations here with:
 - The affected page(s)
 - The justification
 - The planned resolution date (if temporary)
+
+## Review cadence
+
+**Annually.** The next review window is **2027-04-22**. The public attestation surface is the marketing route **`/accessibility`** (source: `archlucid-ui/src/app/(marketing)/accessibility/page.tsx`; live site when published: **https://archlucid.com/accessibility**).
+
+Place the **annual accessibility policy review** on the **same owner calendar** as the independent **quality-assessment** cadence reminder (dated assessment series under `docs/` and prompts such as [`docs/QUALITY_IMPROVEMENT_PROMPTS.md`](docs/QUALITY_IMPROVEMENT_PROMPTS.md)).
 
 ## Expanding coverage
 

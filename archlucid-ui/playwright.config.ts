@@ -13,8 +13,11 @@ const liveWebServerCommand = skipNextBuild
 
 export default defineConfig({
   testDir: "e2e",
-  /** All `live-api-*.spec.ts` files share one worker and real SQL; keep naming when adding specs. */
-  testMatch: ["live-api-*.spec.ts"],
+  /**
+   * `live-api-*.spec.ts` — journeys against real SQL + API.
+   * `marketing-accessibility-public.spec.ts` — static marketing route (no API); still uses the live webServer bundle.
+   */
+  testMatch: ["live-api-*.spec.ts", "marketing-accessibility-public.spec.ts"],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

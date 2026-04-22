@@ -64,8 +64,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             verifier.Object,
             httpFactory.Object,
             changePlanHandler,
-            changeQtyHandler,
-            NullLogger<AzureMarketplaceBillingProvider>.Instance);
+            changeQtyHandler);
 
         Guid tenantId = Guid.NewGuid();
         string body =
@@ -135,8 +134,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             verifier.Object,
             httpFactory.Object,
             changePlanHandler,
-            changeQtyHandler,
-            NullLogger<AzureMarketplaceBillingProvider>.Instance);
+            changeQtyHandler);
 
         Guid tenantId = Guid.NewGuid();
         string body =

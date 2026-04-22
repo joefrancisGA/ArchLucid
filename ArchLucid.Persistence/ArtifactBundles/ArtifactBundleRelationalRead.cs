@@ -62,7 +62,7 @@ internal static class ArtifactBundleRelationalRead
             ct);
 
         List<SynthesizedArtifact> artifacts = artifactCount > 0
-            ? await LoadArtifactsRelationalAsync(connection, bundleId, blobStore, ct)
+            ? await LoadArtifactsRelationalAsync(connection, bundleId, ct)
             : ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(row.ArtifactsJson);
 
         SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
@@ -126,7 +126,6 @@ internal static class ArtifactBundleRelationalRead
     private static async Task<List<SynthesizedArtifact>> LoadArtifactsRelationalAsync(
         SqlConnection connection,
         Guid bundleId,
-        IArtifactBlobStore blobStore,
         CancellationToken ct)
     {
         const string artifactsSql = """
