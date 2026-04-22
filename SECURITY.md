@@ -14,6 +14,8 @@ Instead, email **security@archlucid.com** with:
 
 We will send an **initial acknowledgment within 48 hours** and aim to provide a **substantive update or resolution within 10 business days** for valid reports in scope. Complex issues may require more time; we will keep you informed.
 
+**Accessibility barriers (non-security):** for WCAG / usability barriers in the product or public marketing pages, email **accessibility@archlucid.com**. This alias routes to the **same operational custodian** as **security@archlucid.com** (decision **2026-04-22** — see [`docs/security/ACCESSIBILITY_MAILBOX.md`](docs/security/ACCESSIBILITY_MAILBOX.md)); triage distinguishes accessibility follow-up from coordinated security disclosure.
+
 ## Scope
 
 **In scope**

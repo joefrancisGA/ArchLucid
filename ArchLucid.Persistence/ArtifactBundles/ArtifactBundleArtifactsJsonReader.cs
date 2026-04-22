@@ -8,9 +8,6 @@ internal static class ArtifactBundleArtifactsJsonReader
 {
     internal static List<SynthesizedArtifact> DeserializeArtifacts(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        return JsonEntitySerializer.Deserialize<List<SynthesizedArtifact>>(json);
+        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<SynthesizedArtifact>>(json);
     }
 }

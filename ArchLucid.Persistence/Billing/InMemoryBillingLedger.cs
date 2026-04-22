@@ -12,12 +12,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<bool> TenantHasActiveSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-
-            return Task.FromResult(string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
-
-
-        return Task.FromResult(false);
+        return Task.FromResult(_subscriptions.TryGetValue(tenantId, out BillingSubRow? row) && string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
     }
 
     public Task UpsertPendingCheckoutAsync(
@@ -66,11 +61,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<string?> GetWebhookEventResultStatusAsync(string dedupeKey, CancellationToken cancellationToken)
     {
-        if (_webhookStatuses.TryGetValue(dedupeKey, out string? status))
-            return Task.FromResult<string?>(status);
-
-
-        return Task.FromResult<string?>(null);
+        return _webhookStatuses.TryGetValue(dedupeKey, out string? status) ? Task.FromResult<string?>(status) : Task.FromResult<string?>(null);
     }
 
     public Task ActivateSubscriptionAsync(

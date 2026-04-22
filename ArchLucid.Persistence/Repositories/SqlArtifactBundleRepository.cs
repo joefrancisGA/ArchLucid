@@ -143,7 +143,7 @@ public sealed class SqlArtifactBundleRepository(
         {
             SynthesizedArtifact a = bundle.Artifacts[i];
 
-            string content = a.Content ?? string.Empty;
+            string content = a.Content;
             string? contentBlobUri = null;
 
             if (persistContext is { } ctx

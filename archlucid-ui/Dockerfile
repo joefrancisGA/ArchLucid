@@ -30,6 +30,9 @@ COPY archlucid-ui/ .
 # Synthetic aggregate ROI bulletin sample (read at SSR; canonical file lives under docs/ at repo root).
 COPY docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md ./go-to-market-samples/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md
 
+# Public accessibility self-attestation reads root ACCESSIBILITY.md at build time (mirrors monorepo `../ACCESSIBILITY.md`).
+COPY ACCESSIBILITY.md ./go-to-market-samples/ACCESSIBILITY.md
+
 # The pricing generator and its single-source document must be present at
 # build time.  They live outside the archlucid-ui/ subtree, so we copy them
 # to a dedicated directory (/pricing-source/) and invoke the generator with

@@ -346,7 +346,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)
     {
-        if (snapshot.Findings is null || snapshot.Findings.Count == 0)
+        if (snapshot.Findings.Count == 0)
             return;
 
         foreach (IGrouping<FindingSeverity, Finding> group in snapshot.Findings.GroupBy(static f => f.Severity))

@@ -8,7 +8,6 @@ using ArchLucid.Core.Configuration;
 using Azure.Core;
 using Azure.Identity;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Billing.AzureMarketplace;
@@ -20,8 +19,7 @@ public sealed class AzureMarketplaceBillingProvider(
     IMarketplaceWebhookTokenVerifier tokenVerifier,
     IHttpClientFactory httpClientFactory,
     IMarketplaceChangePlanWebhookMutationHandler changePlanWebhookMutationHandler,
-    IMarketplaceChangeQuantityWebhookMutationHandler changeQuantityWebhookMutationHandler,
-    ILogger<AzureMarketplaceBillingProvider> logger) : IBillingProvider
+    IMarketplaceChangeQuantityWebhookMutationHandler changeQuantityWebhookMutationHandler) : IBillingProvider
 {
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
@@ -42,9 +40,6 @@ public sealed class AzureMarketplaceBillingProvider(
 
     private readonly IMarketplaceChangeQuantityWebhookMutationHandler _changeQuantityWebhookMutationHandler =
         changeQuantityWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changeQuantityWebhookMutationHandler));
-
-    private readonly ILogger<AzureMarketplaceBillingProvider> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public string ProviderName => BillingProviderNames.AzureMarketplace;
 
@@ -247,21 +242,20 @@ public sealed class AzureMarketplaceBillingProvider(
                 : MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
         }
 
-        if (string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(normalized, "Purchase", StringComparison.OrdinalIgnoreCase))
-        {
-            await ActivateIfRequestedAsync(
-                tenantId,
-                workspaceId,
-                projectId,
-                subscriptionId,
-                rawBody,
-                cancellationToken);
-
+        if (!string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(normalized, "Purchase", StringComparison.OrdinalIgnoreCase))
             return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
-        }
+
+        await ActivateIfRequestedAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            subscriptionId,
+            rawBody,
+            cancellationToken);
 
         return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
+
     }
 
     private async Task ActivateIfRequestedAsync(
@@ -338,19 +332,13 @@ public sealed class AzureMarketplaceBillingProvider(
 
             if (Guid.TryParse(fromClaim, out Guid tenantFromClaim))
                 return tenantFromClaim;
-
         }
 
-        if (root.TryGetProperty("purchaser", out JsonElement purchaser) &&
-            purchaser.TryGetProperty("tenantId", out JsonElement tenantEl))
-        {
-            string? s = tenantEl.GetString();
+        if (!root.TryGetProperty("purchaser", out JsonElement purchaser) ||
+            !purchaser.TryGetProperty("tenantId", out JsonElement tenantEl))
+            return Guid.Empty;
+        string? s = tenantEl.GetString();
 
-            if (Guid.TryParse(s, out Guid g))
-                return g;
-
-        }
-
-        return Guid.Empty;
+        return Guid.TryParse(s, out Guid g) ? g : Guid.Empty;
     }
 }

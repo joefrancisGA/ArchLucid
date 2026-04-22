@@ -8,9 +8,6 @@ internal static class ArtifactBundleTraceJsonReader
 {
     internal static SynthesisTrace DeserializeTraceBase(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return new SynthesisTrace();
-
-        return JsonEntitySerializer.Deserialize<SynthesisTrace>(json);
+        return string.IsNullOrWhiteSpace(json) ? new SynthesisTrace() : JsonEntitySerializer.Deserialize<SynthesisTrace>(json);
     }
 }

@@ -16,9 +16,6 @@ public static class AuthorityPipelineWorkPayloadJson
 
     public static AuthorityPipelineWorkPayload? Deserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
-
-        return JsonSerializer.Deserialize<AuthorityPipelineWorkPayload>(json, Options);
+        return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<AuthorityPipelineWorkPayload>(json, Options);
     }
 }
