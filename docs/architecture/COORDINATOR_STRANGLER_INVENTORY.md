@@ -8,6 +8,17 @@
 
 **Constraints.** No runtime routing change from this document alone; owner-only dates and ADR 0022 state flips stay in `docs/PENDING_QUESTIONS.md` item 16.
 
+> **2026-04-21 grounding-read finding ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)).** The two pipelines persist **incompatible domain models** to **incompatible SQL tables** using **different decision engines**. Specifically:
+>
+> | Surface | Coordinator | Authority |
+> |---------|-------------|-----------|
+> | Manifest CLR type | `ArchLucid.Contracts.Manifest.GoldenManifest` (string `RunId`; services + datastores + relationships + governance + metadata) | `ArchLucid.Decisioning.Models.GoldenManifest` (Guid `ManifestId` + Guid scope triple; Topology / Security / Compliance / Cost / Constraints / UnresolvedIssues / Decisions / Provenance / Policy section objects) |
+> | SQL table(s) | `dbo.GoldenManifestVersions` (single JSON blob keyed by string `ManifestVersion`; line 105 of `ArchLucid.sql`) | `dbo.GoldenManifests` + 6 phase-1 relational satellite tables (line 987 of `ArchLucid.sql`); keyed by Guid `ManifestId` + scope triple |
+> | Decision engine | `IDecisionEngineService.MergeResults` + `IDecisionEngineV2.ResolveAsync` | One-shot rule-engine path |
+> | Persistence port | `ICoordinatorGoldenManifestRepository` (`CreateAsync` / `GetByVersionAsync`) | `IGoldenManifestRepository` (`SaveAsync` / `GetByIdAsync`) |
+>
+> A single-PR PR A deletion (as originally framed in [ADR 0021](../adr/0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) and accelerated by [ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md)) is therefore **mechanically impossible**. The work is re-scoped into the **PR A0 → PR A4** sequence in [ADR 0030 § Component breakdown](../adr/0030-coordinator-authority-pipeline-unification.md). The Delete (blocked) section below stays in force until **PR A3** ships per ADR 0030 § Lifecycle.
+
 ---
 
 ## Migrate (target: authority façade or unified reader)

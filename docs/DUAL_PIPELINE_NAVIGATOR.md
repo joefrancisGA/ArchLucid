@@ -45,6 +45,8 @@ The right way to challenge this boundary is to write a superseding ADR that exte
 
 **Strangler inventory + CI ceiling (2026-04-21 follow-on).** See [`architecture/COORDINATOR_STRANGLER_INVENTORY.md`](architecture/COORDINATOR_STRANGLER_INVENTORY.md) for migrate / keep / delete rows, [`scripts/ci/assert_coordinator_reference_ceiling.py`](../scripts/ci/assert_coordinator_reference_ceiling.py) for non-test reference-count regression (paired with—not a duplicate of—the type allow list in `DualPipelineRegistrationDisciplineTests`), and draft [`adr/0028-coordinator-strangler-completion.md`](adr/0028-coordinator-strangler-completion.md) for exit gates.
 
+**Unification plan (2026-04-21 amendment — [ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md)).** The original "single PR A deletion" framing in [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) is replaced by the sequenced **PR A0 → PR A4** plan in ADR 0030. Reason: the two pipelines persist incompatible domain models (`Contracts.Manifest.GoldenManifest` vs `Decisioning.Models.GoldenManifest`) into incompatible SQL tables (`dbo.GoldenManifestVersions` vs `dbo.GoldenManifests` + 6 satellite tables) using different decision engines. This page **collapses to a single-pipeline page when PR A3 merges** (per ADR 0030 § Lifecycle); until then it stays as the dual-pipeline map.
+
 ---
 
 ## Architecture overview

@@ -6,6 +6,7 @@
 - **Date:** 2026-04-20
 - **Supersedes:** *(none yet — see § Decision)*
 - **Superseded by:** *(none)*
+- **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — re-scopes § Phase 3 mechanism (a) from "single PR A deletion" into PR A0 → PR A4.
 
 > **Status note.** This ADR is **Accepted** as of **2026-04-20** (architecture review: product + platform leads — evidence: Phase 0 shipped, `IUnifiedGoldenManifestReader` landed in `ArchLucid.Decisioning.Interfaces` with `ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`, and `ManifestsController` now reads manifests through the unified reader). Phase 1 internal migration continues; Phase 2/3 gates in this document still apply before deleting coordinator contracts.
 >
@@ -15,6 +16,8 @@
 > allow-list type-references the coordinator manifest repository. The allow-list contains four entries: the unified reader (`ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`)
 > and the three documented write-path orchestrators that Phase 3 will retire (`ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`). When Phase 3
 > ships, the allow-list shrinks to the single reader entry by deletion. Parity evidence is captured per the cadence in [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).
+>
+> **2026-04-21 update — Phase 3 mechanism (a) re-scoped (see [ADR 0030](0030-coordinator-authority-pipeline-unification.md)).** A grounding read of the actual code (`SqlGoldenManifestRepository` vs `GoldenManifestRepository`, `Decisioning.Models.GoldenManifest` vs `Contracts.Manifest.GoldenManifest`, master DDL `dbo.GoldenManifests` vs `dbo.GoldenManifestVersions`) showed the two pipelines persist incompatible domain models to incompatible SQL tables and use different decision engines. The single-PR-A "deletion" framing in this ADR's § Phase 3 mechanism (a) is therefore replaced by the sequenced **PR A0 → PR A4** plan in ADR 0030. ADR 0030 is `Amends` against this ADR; this ADR stays `Accepted`. The Phase 3 exit gates **(ii)** and **(iii)** still apply, but per-sub-PR rather than to a single PR A; gates **(i)** and **(iv)** stay waived for the pre-release window per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md).
 >
 > **2026-04-21 update — Phase 2 deprecation signal kicked off.** The mutating coordinator routes on `RunsController`
 > (`POST /v1/architecture/request`, `…/run/{id}/execute`, `…/replay`, `…/determinism-check`, `…/commit`, `…/result`, `…/seed-fake-results`)

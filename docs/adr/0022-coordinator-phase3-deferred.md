@@ -5,7 +5,8 @@
 - **Status:** Proposed — **do not merge deletion PRs until gates pass**
 - **Date:** 2026-04-21
 - **Supersedes:** *(none — this ADR does not retire ADR 0010 / 0021 until Phase 3 actually ships)*
-- **Superseded by:** *(none)*
+- **Superseded by:** *(none yet — flips to `Superseded by [ADR 0030](0030-coordinator-authority-pipeline-unification.md) inside PR A3` per ADR 0030 § Lifecycle, not by the original "single PR A merges" event)*
+- **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — the gate-evidence framing in this ADR's § Operational considerations now applies **per-sub-PR** (PR A0 → PR A4), not to a single PR A. The "PR A may merge once gates (ii) and (iii) clear" wording in the `IRunCommitOrchestrator` row of § Component breakdown carries over to each sub-PR independently.
 
 ## Objective
 
@@ -46,7 +47,7 @@ flowchart LR
 | `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` | **Retained** — no deletion |
 | Coordinator concretes (`InMemoryCoordinator*`, split implementations on `GoldenManifestRepository` / `DecisionTraceRepository` if any) | **Retained** |
 | `AuditEventTypes.CoordinatorRun*` constants | **Retained** (Sunset **2026-05-15** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) — accelerated from the originally published `2026-07-20`); dual-written with **`AuditEventTypes.Run.*`** (Phase 2 catalog shipped **2026-04-21**) |
-| `IRunCommitOrchestrator` façade | **Introduced** (**2026-04-21**) — `RunCommitOrchestratorFacade` delegates to `ArchitectureRunCommitOrchestrator`; Phase 3 deletion PRs are **unblocked** for the pre-release window with gates (i) and (iv) waived per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md). PR A may merge once gates **(ii)** and **(iii)** clear inside its own CI run. |
+| `IRunCommitOrchestrator` façade | **Introduced** (**2026-04-21**) as a 12-line thin pass-through to `ArchitectureRunCommitOrchestrator` (no Coordinator-vs-Authority bridging today — the two pipelines have incompatible domain models and SQL tables). Per [ADR 0030 amendment](0030-coordinator-authority-pipeline-unification.md), the original "PR A unblocked" framing is replaced by sub-PRs **A0 → A4**; the façade is the *target* of PR A2's swap, not a today-existing bridge. Each sub-PR carries its own gates (ii) + (iii) clearance; gates (i) and (iv) stay waived for the pre-release window per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md). |
 
 ## Data flow
 
@@ -91,5 +92,5 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 
 1. ~~Fill parity runbook with **14 contiguous** daily windows and **Coordinator writes = 0** (gate **iv**).~~ **Waived for pre-release** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md). Restored automatically the moment ArchLucid ships V1 to a paying customer.
 2. Phase 2 **`Run.*` audit catalog** shipped 2026-04-21 — dual-write live; Sunset log-warning cadence per ADR 0021 § Phase 2 still tracked there.
-3. Verify gates **(ii)** and **(iii)** are green on the **PR A branch** (not on `main` — they are produced inside PR A's own CI run).
-4. Execute **PR A** / **PR B** sequencing per ADR 0021 — accelerated by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md): concretes + interfaces in a **single PR A** on or before **2026-05-15** (post-PR-A 30-day soak gate **(i)** waived for pre-release); audit constants in **PR B** after the **2026-05-15** Sunset.
+3. Verify gates **(ii)** and **(iii)** are green on **each sub-PR branch (A0 → A4)** per [ADR 0030 § Lifecycle](0030-coordinator-authority-pipeline-unification.md) (not on `main` — they are produced inside each sub-PR's own CI run). The original "single PR A" framing in this list is replaced; see ADR 0030 § Component breakdown for the per-sub-PR scope.
+4. Execute **PR A0 → PR A4** sequencing per [ADR 0030](0030-coordinator-authority-pipeline-unification.md). The 2026-05-15 Sunset deadline from [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) now applies to **PR B (audit constants)** rather than PR A, because PR A is no longer single-session — see ADR 0030 § Operational considerations.
