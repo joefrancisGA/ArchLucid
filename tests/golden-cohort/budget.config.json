@@ -1,0 +1,6 @@
+{
+  "monthlyTokenBudgetUsd": 50,
+  "killSwitchThresholdPercent": 90,
+  "deploymentName": "archlucid-golden-cohort",
+  "region": "eastus"
+}

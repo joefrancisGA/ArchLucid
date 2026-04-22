@@ -1,5 +1,6 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
+# Optional real-LLM gate runs only when ARCHLUCID_GOLDEN_COHORT_REAL_LLM is "true" AND scripts/golden_cohort_budget_probe.py exits 0 (MTD < 90% of $50 cap).
 #
 # Baseline SHAs in tests/golden-cohort/cohort.json were captured from an approved Simulator run (item 33, 2026-04-21).
 # CI (doc-markdown-links job) also runs scripts/ci/assert_golden_cohort_baseline_locked.py with the locked flag so a
@@ -93,10 +94,62 @@ jobs:
 
   cohort-real-llm-gate:
     needs: cohort-contract
-    if: false
+    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Reserved — real LLM golden cohort (items 15 / 25)
+      - uses: actions/checkout@v4
+
+      - name: Set up Python (golden cohort budget probe)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requests (budget probe)
+        run: python -m pip install --upgrade pip && pip install requests
+
+      - name: Azure login (Cost Management / management plane)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - id: budget
+        name: Golden cohort budget probe ($50/mo cap, 90% kill)
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
         run: |
-          echo "When budget-approved, enable ARCHLUCID_GOLDEN_COHORT_REAL_LLM on a protected GitHub Environment with Azure OpenAI secrets, then replace this placeholder job."
+          set -euo pipefail
+          set -o pipefail
+          python scripts/golden_cohort_budget_probe.py 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
+          code=$?
+          set +o pipefail
+          mtd_line=$(grep '^EXPORT_MTD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
+          mtd_val="${mtd_line#EXPORT_MTD_USD=}"
+          {
+            echo "exit_code=${code}"
+            echo "mtd_usd=${mtd_val}"
+          } >> "${GITHUB_OUTPUT}"
+          if [ "${code}" -eq 1 ] || [ "${code}" -eq 2 ]; then
+            {
+              echo "## Golden cohort real LLM"
+              echo "Real-LLM cohort skipped - budget kill switch triggered (MTD spend = \$${mtd_val:-unknown} / \$50)."
+            } >> "${GITHUB_STEP_SUMMARY}"
+          elif [ "${code}" -ne 0 ]; then
+            {
+              echo "## Golden cohort real LLM"
+              echo "Real-LLM cohort skipped - budget probe failed (exit ${code}). See docs/runbooks/GOLDEN_COHORT_BUDGET.md."
+            } >> "${GITHUB_STEP_SUMMARY}"
+          fi
+          exit 0
+
+      - name: Reserved — real LLM golden cohort (runs only when budget probe passes)
+        if: ${{ steps.budget.outputs.exit_code == '0' }}
+        run: |
+          echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is true and MTD spend is under the kill threshold."
+          echo "Owner replaces this step with the nightly real-LLM cohort + Azure OpenAI invocation."
           exit 0

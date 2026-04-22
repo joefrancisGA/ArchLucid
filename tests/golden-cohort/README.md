@@ -1,6 +1,6 @@
 # Golden cohort (N=20)
 
-This directory holds the **fixed cohort definition** used for nightly drift detection against the **simulator** agent path (and optionally a dedicated Azure OpenAI deployment when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` — budget approval required; see `docs/PENDING_QUESTIONS.md` item 15).
+This directory holds the **fixed cohort definition** used for nightly drift detection against the **simulator** agent path (and optionally a dedicated Azure OpenAI deployment when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true` — budget approval required; see `docs/PENDING_QUESTIONS.md` item 15). **`budget.config.json`** pins the **$50/month** cap and **90%** kill switch for the real-LLM path; see [`docs/runbooks/GOLDEN_COHORT_BUDGET.md`](../runbooks/GOLDEN_COHORT_BUDGET.md) and [`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py).
 
 ## Selection rationale
 
