@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts — SaaS-only improvements 2–6 - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — SaaS-only improvements 2–6
 
 Executable prompts for the remaining five SaaS-only marketability improvements identified in `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md`. **Improvement 1 (Trust Center spine)** is complete.

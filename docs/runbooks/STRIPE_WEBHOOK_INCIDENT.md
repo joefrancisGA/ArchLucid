@@ -1,5 +1,8 @@
 > **Scope:** Runbook — Stripe webhook incident - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Runbook — Stripe webhook incident
 
 > **Scope:** Triage and recovery for failures of the Stripe webhook endpoint (planned: `POST /v1/billing/webhooks/stripe`). Sibling to `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`.

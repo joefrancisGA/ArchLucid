@@ -1,5 +1,8 @@
 > **Scope:** Runbook: debugging replay & drift issues - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 ## Runbook: debugging replay & drift issues
 
 Audience: internal engineers who need to understand or debug comparison replay / drift verification.

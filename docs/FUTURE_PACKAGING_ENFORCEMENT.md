@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid Future Packaging Enforcement Map - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid Future Packaging Enforcement Map
 
 **Audience:** product, sales, architecture, and go-to-market stakeholders who need a practical view of how ArchLucid’s current layer model could evolve into stronger commercial packaging over time.

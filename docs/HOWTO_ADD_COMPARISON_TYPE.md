@@ -1,5 +1,8 @@
 > **Scope:** How to add a new comparison type - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # How to add a new comparison type
 
 This guide walks you through adding a new comparison type end-to-end: contracts, persistence, replay, and tests.

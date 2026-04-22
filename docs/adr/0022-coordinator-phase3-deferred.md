@@ -1,5 +1,8 @@
 > **Scope:** ADR 0022 — Phase 3 coordinator retirement blocked pending exit gates (ADR 0021).
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0022: Coordinator interface family retirement — **blocked** (exit gates not met)
 
 - **Status:** Proposed — **do not merge deletion PRs until gates pass**

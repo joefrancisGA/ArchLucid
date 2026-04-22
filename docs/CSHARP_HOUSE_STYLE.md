@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid C# House Style - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid C# House Style
 
 > **Source of truth:** the `.mdc` rule files under `.cursor/rules/`. This document is a **human-readable index** that consolidates them so a new contributor (or AI agent) can read one page and understand the project's day-to-day C# style. When this doc and a rule file disagree, **the rule file wins** — open a PR to fix this doc.

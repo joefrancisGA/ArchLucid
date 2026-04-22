@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Customer reference narrative template - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Customer reference narrative template
 
 **Audience:** Marketing, sales, and customer success teams creating case studies.

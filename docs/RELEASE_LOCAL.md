@@ -1,5 +1,8 @@
 > **Scope:** Local release candidate packaging (Change Set 56R) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Local release candidate packaging (Change Set 56R)
 
 Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md).

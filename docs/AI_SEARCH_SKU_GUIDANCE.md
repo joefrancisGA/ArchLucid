@@ -1,5 +1,8 @@
 > **Scope:** Azure AI Search — SKU notes for ArchLucid retrieval - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Azure AI Search — SKU notes for ArchLucid retrieval
 
 **Objective:** Pick a search tier that matches environment (dev vs prod), network boundaries, and cost.

@@ -1,5 +1,8 @@
 > **Scope:** Deployment and rollback (umbrella) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Deployment and rollback (umbrella)
 
 This document ties together how **ArchLucid** (product; repository and assemblies still use `ArchLucid.*` until rename Phase 5–6) is released, how database changes roll forward, and where to find deeper procedures. It is aimed at operators and release managers, not at local `docker compose`-only workflows (see **`docs/BUILD.md`** and **`docs/CONTAINERIZATION.md`**).

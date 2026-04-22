@@ -1,5 +1,8 @@
 > **Scope:** Canonical operator action map — UI routes, APIs, CLI, and authority hints in one place.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Operator atlas
 
 **Audience:** Operators, reviewers, and engineers who need a **single map** from product intent → **shell route** → **HTTP surface** → **CLI** without opening ten onboarding files.

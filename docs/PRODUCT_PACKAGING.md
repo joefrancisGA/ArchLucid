@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Product Packaging Reference - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Product Packaging Reference
 
 **Audience:** buyers, pilot operators, sales engineers, and product team members who need a single, authoritative description of what is in each product layer.

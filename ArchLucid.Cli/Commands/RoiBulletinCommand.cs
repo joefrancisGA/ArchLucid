@@ -3,11 +3,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Core.GoToMarket;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Draft aggregate ROI bulletin via <c>GET /v1/admin/roi-bulletin-preview</c> (AdminAuthority + API key).
-/// Refuses when the tenant sample is below <c>--min-tenants</c> (HTTP 400 → <see cref="CliExitCode.UsageError"/>).
+/// Draft aggregate ROI bulletin via <c>GET /v1/admin/roi-bulletin-preview</c> (AdminAuthority + API key), or
+/// <c>--synthetic</c> local sample (no API) that mirrors demo-seed narrative constants.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "HTTP + file I/O; covered by RoiBulletinCommandTests with a mock HttpMessageHandler.")]
 internal static class RoiBulletinCommand
@@ -25,9 +27,39 @@ internal static class RoiBulletinCommand
         {
             Console.Error.WriteLine(parseError);
             Console.Error.WriteLine(
-                "Usage: archlucid roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>]");
+                "Usage: archlucid roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]");
 
             return CliExitCode.UsageError;
+        }
+
+        if (opts.Synthetic)
+        {
+            if (!RoiBulletinQuarterParser.TryParse(opts.Quarter, out RoiBulletinQuarterWindow window, out string? qErr))
+            {
+                await Console.Error.WriteLineAsync(qErr ?? "Invalid quarter.");
+                return CliExitCode.UsageError;
+            }
+
+            RoiBulletinAggregateReadResult sample = SyntheticAggregateRoiBulletinSample.ForQuarter(window.Label);
+            RoiBulletinPreviewPayload syntheticPayload = RoiBulletinPreviewPayload.FromAggregate(sample);
+            string syntheticMarkdown = RoiBulletinMarkdownFormatter.FormatSynthetic(syntheticPayload, opts.MinTenants);
+
+            if (string.IsNullOrWhiteSpace(opts.OutPath))
+            {
+                Console.WriteLine(syntheticMarkdown);
+            }
+            else
+            {
+                await File.WriteAllTextAsync(opts.OutPath, syntheticMarkdown, Encoding.UTF8, cancellationToken);
+                Console.WriteLine($"Wrote synthetic bulletin to {opts.OutPath}");
+            }
+
+            if (opts.Explain)
+            {
+                await WriteSyntheticExplainAsync();
+            }
+
+            return CliExitCode.Success;
         }
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
@@ -90,6 +122,11 @@ internal static class RoiBulletinCommand
 
         string markdown = RoiBulletinMarkdownFormatter.FormatDraft(payload, opts.MinTenants);
 
+        if (opts.Explain)
+        {
+            await Console.Error.WriteLineAsync("--explain applies only with --synthetic for this command.");
+        }
+
         if (string.IsNullOrWhiteSpace(opts.OutPath))
         {
             Console.WriteLine(markdown);
@@ -100,6 +137,17 @@ internal static class RoiBulletinCommand
         Console.WriteLine($"Wrote draft bulletin to {opts.OutPath}");
 
         return CliExitCode.Success;
+    }
+
+    private static async Task WriteSyntheticExplainAsync()
+    {
+        await Console.Error.WriteLineAsync();
+        await Console.Error.WriteLineAsync(
+            "--explain: Synthetic numbers come from ArchLucid.Core.GoToMarket.SyntheticAggregateRoiBulletinSample " +
+            "(fixed illustrative baseline-hour aggregates). Sponsor-facing per-run deltas (findings histogram, " +
+            "audit row counts, LLM calls) are produced by ArchLucid.Application.Pilots.PilotRunDeltaComputer from " +
+            "persisted run detail; aggregate baseline bulletins normally use IRoiBulletinAggregateReader + SQL.");
+        await Console.Error.WriteLineAsync();
     }
 
     private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "…";

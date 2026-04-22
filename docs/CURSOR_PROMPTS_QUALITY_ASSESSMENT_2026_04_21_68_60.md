@@ -1,4 +1,7 @@
 > **Scope:** Eight paste-ready Cursor prompts for the largest-impact improvements in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
+
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
 >
 > **Follow-on prompts (same assessment, §1.9–1.18):** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md) — eight more paste-ready blocks (Prompts **A–H**).
 

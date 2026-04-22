@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts — Weighted quality assessment Improvement 3 - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — Weighted quality assessment Improvement 3
 
 Improvement 3 in **`docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`** targets **cognitive load** and **evolvability**: one product solution file, no orphan rename debris, aligned legacy-config sunset messaging, and **no competing quality-assessment documents** in `docs/` root.

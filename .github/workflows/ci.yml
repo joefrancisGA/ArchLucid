@@ -80,6 +80,9 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_doc_links.py
 
+      - name: Synthetic aggregate ROI bulletin sample guards
+        run: python scripts/ci/check_synthetic_roi_bulletin_sample.py
+
       - name: Doc scope header
         # Merge-blocking: every active ``docs/**/*.md`` (except ``docs/archive/``) must open with
         # ``> **Scope:**`` on the first non-empty line. README.md uses ``<!-- **Scope:** ... -->``.
@@ -93,6 +96,9 @@ jobs:
 
       - name: Architecture poster line budget (Prompt 12)
         run: python scripts/ci/check_doc_size_budget.py --max-lines 500 docs/ARCHITECTURE_ON_ONE_PAGE.md
+
+      - name: Five-document onboarding spine line budget (600 lines each)
+        run: python scripts/ci/check_onboarding_spine_line_budget.py --max-lines 600
 
       - name: Doc size budget guard unit tests
         run: |

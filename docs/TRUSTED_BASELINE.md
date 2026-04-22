@@ -1,5 +1,8 @@
 > **Scope:** Trusted baseline (49R pass 2 — Corrected 50R, Corrected 51R discipline) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Trusted baseline (49R pass 2 — Corrected 50R, Corrected 51R discipline)
 
 This document defines what the repo treats as **intentionally complete and demo-worthy** for the v1 foundation. It exists so bootstrap, demo seed, and docs stay honest when later-phase code is present but not baseline-complete.

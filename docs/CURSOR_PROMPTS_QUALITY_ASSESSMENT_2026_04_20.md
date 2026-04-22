@@ -1,5 +1,8 @@
 > **Scope:** Cursor prompts — Quality Assessment 2026-04-20 (Top two improvements) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — Quality Assessment 2026-04-20 (Top two improvements)
 
 These are paste-ready Agent prompts for the **two highest-leverage** improvements identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3.

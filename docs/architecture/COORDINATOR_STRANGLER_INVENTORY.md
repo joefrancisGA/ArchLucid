@@ -1,5 +1,8 @@
 > **Scope:** Living inventory for ADR 0021 coordinator strangler — symbols and route families tagged migrate / keep / delete with ownership and risk notes. Complements `DualPipelineRegistrationDisciplineTests` (type-level allow list) and `scripts/ci/assert_coordinator_reference_ceiling.py` (reference-count ceiling).
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Coordinator strangler inventory
 
 **Objective.** Make Phase 3 retirement work visible and reviewable without guessing which symbols still anchor the coordinator pipeline.

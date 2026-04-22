@@ -1,5 +1,8 @@
 > **Scope:** Runbook — Verifying a Day-1 Evidence Pack - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Runbook — Verifying a Day-1 Evidence Pack
 
 > **Scope:** How an external auditor (or an internal reviewer) verifies a downloaded `evidence-pack.zip` produced by `GET /v1/support/evidence-pack.zip`. Companion to `docs/security/EVIDENCE_PACK.md`.

@@ -1,5 +1,8 @@
 > **Scope:** ADR 0002: Dual persistence (ArchitectureRuns vs dbo.Runs) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0002: Dual persistence (ArchitectureRuns vs dbo.Runs)
 
 - **Status:** Superseded — see **ADR 0012** (completed 2026-04-12): legacy **`dbo.ArchitectureRuns`** and **`IArchitectureRunRepository`** removed; **`dbo.Runs`** is the sole run header table.

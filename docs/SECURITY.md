@@ -1,5 +1,8 @@
 > **Scope:** Security overview (ArchLucid) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Security overview (ArchLucid)
 
 This document points to security-relevant behavior and gates. It is not a full threat model; see ADRs and runbooks for depth.

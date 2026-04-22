@@ -1,5 +1,8 @@
 > **Scope:** Operator quickstart — ArchLucid (commands only) (56R) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Operator quickstart — ArchLucid (commands only) (56R)
 
 **Canonical action map (UI + API + CLI):** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).

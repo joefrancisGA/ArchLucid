@@ -1,5 +1,8 @@
 > **Scope:** Architecture on a page (ArchLucid) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Architecture on a page (ArchLucid)
 
 **Prefer for C4 + ownership:** **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** (Prompt 12 canonical poster). This page keeps the **structured architecture-output** narrative (objective → operational considerations) and the **legacy flowchart** block.

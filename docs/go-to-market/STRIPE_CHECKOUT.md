@@ -1,5 +1,8 @@
 > **Scope:** Stripe Checkout for Team tier — engineering hand-off.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Stripe Checkout — Team tier (hosted)
 
 ## Goal

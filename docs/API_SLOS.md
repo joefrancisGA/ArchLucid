@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid API — service level objectives (SLOs) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid API — service level objectives (SLOs)
 
 This document defines **customer-visible** HTTP objectives for the ArchLucid API and how they are **measured**. It complements `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md` (Prometheus burn-rate math from OpenTelemetry) with an **external synthetic** view.

@@ -1,5 +1,8 @@
 > **Scope:** Runbook — Azure Container Apps Jobs (ArchLucid.Jobs.Cli) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Runbook — Azure Container Apps Jobs (`ArchLucid.Jobs.Cli`)
 
 **Last reviewed:** 2026-04-19  

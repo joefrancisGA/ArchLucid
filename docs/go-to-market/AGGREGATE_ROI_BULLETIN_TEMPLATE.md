@@ -1,5 +1,8 @@
 > **Scope:** Quarterly **aggregate** ROI bulletin template for GTM and leadership — sanitized statistics only; not a vehicle for per-customer disclosure.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Aggregate ROI bulletin — template (internal draft)
 
 ## Owner-approval gate (mandatory)
@@ -15,6 +18,7 @@
 | **Percentile bands** | **Mean + p50 + p90** all stay in v1 bulletins |
 | **First publication window** | Opens **once at least one PLG tenant reaches `Status: Published`** in [`reference-customers/README.md`](reference-customers/README.md) (item 19) — the first published reference is the trigger to ship the first bulletin |
 | **Repository of record for sign-off** | **Dedicated tagged section** in [`docs/CHANGELOG.md`](../CHANGELOG.md) — see § "Sign-off audit format (2026-04-21 owner Q&A follow-up)" below for the exact heading shape and `grep` recipe an auditor can run. |
+| **Synthetic shape sample (not sign-off)** | Public Markdown + marketing page: [`SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md`](SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md) and `/example-roi-bulletin` — **never** append to CHANGELOG; no signed heading; illustrates artefact shape before N≥5. |
 
 ## Minimum-N privacy guard
 
@@ -90,6 +94,7 @@ rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGE
 
 - **API:** `GET /v1/admin/roi-bulletin-preview?quarter=Q1-YYYY&minTenants=5` (AdminAuthority).
 - **CLI:** `archlucid roi-bulletin --quarter Q1-YYYY [--min-tenants 5] [--out draft.md]` — uses `ARCHLUCID_API_KEY` with admin scope.
+- **CLI (synthetic, no API):** `archlucid roi-bulletin --quarter Q1-YYYY --synthetic [--explain] [--out sample.md]` — fixed illustrative numbers for buyer education only; never eligible for CHANGELOG sign-off.
 
 ## Related
 

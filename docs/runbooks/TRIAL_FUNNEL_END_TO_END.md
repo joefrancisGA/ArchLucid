@@ -1,5 +1,8 @@
 > **Scope:** Self-serve trial funnel — end-to-end map (signup → tenant → sample run → first commit → sponsor banner) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Trial funnel — end-to-end (signup → first commit → sponsor banner)
 
 **Audience:** engineers, product, and onboarding owners who need a single map of what happens between a prospect typing their email on `/signup` and the operator dashboard showing the **Day N since first commit** badge with a **before vs measured** review-cycle delta.

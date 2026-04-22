@@ -1,5 +1,8 @@
 > **Scope:** Typed findings in ArchLucid.Decisioning - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 ## Typed findings in ArchLucid.Decisioning
 
 ArchLucid.Decisioning uses a **Finding envelope** with **category-specific typed payloads**. This preserves a stable persisted shape while allowing engines and the decision engine to evolve with strongly typed data.

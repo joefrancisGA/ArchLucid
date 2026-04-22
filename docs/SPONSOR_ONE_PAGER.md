@@ -1,5 +1,8 @@
 > **Scope:** Sponsor one-pager PDF — API, CLI, tier gate, and how it relates to pilot ROI docs.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Sponsor one-pager PDF
 
 ## Objective

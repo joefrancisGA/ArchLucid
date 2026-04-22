@@ -1,5 +1,8 @@
 > **Scope:** One-page “second run” inputs after `archlucid try` — no extra operator docs required.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Second run with your own data (`SECOND_RUN`)
 
 **Audience:** Pilot operators who already ran **`archlucid try`** (or the operator UI demo) and want a **real** `POST /v1/architecture/request` from their own vocabulary in under five minutes.

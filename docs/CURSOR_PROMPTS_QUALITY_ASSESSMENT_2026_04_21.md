@@ -1,5 +1,8 @@
 > **Scope:** Paste-ready Cursor prompts for the **six best improvements** identified in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 8.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Cursor prompts — six best improvements (2026-04-21)
 
 Each prompt is **self-contained**: open a fresh Cursor agent thread, paste the full block, run. The prompts assume the agent will follow the workspace rules (no subagents, do-the-work-yourself, terse C# style, IaC-first, single SQL DDL per database, Markdown generosity).

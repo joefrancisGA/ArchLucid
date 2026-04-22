@@ -1,5 +1,8 @@
 > **Scope:** Operational runbook for moving a real customer reference from internal drafting to a **Published** row in [`README.md`](README.md), including computed-ROI evidence extraction and the CI discount re-rate gate.
 
+> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Reference customer — publication runbook
 
 **Audience:** Product marketing, customer success, sales engineering, and the owner who signs legal agreements.

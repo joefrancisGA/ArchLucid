@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid V1 — scope contract - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid V1 — scope contract
 
 **Audience:** product, engineering, pilots, and operators who need a single, decisive boundary for what "V1" means in **this repository**.

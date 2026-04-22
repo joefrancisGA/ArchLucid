@@ -1,5 +1,8 @@
 > **Scope:** Copy-paste Cursor Agent prompts for the six 2026-04-20 independent quality improvements (paths, acceptance criteria, verification); not the scored quality assessment itself (see companion link below).
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 > **Companion file to:** [QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_69_33.md](archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_69_33.md)
 
 # Cursor Prompts — Top 6 Improvements (2026-04-20, Independent)

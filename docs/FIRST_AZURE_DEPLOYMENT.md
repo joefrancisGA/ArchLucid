@@ -1,5 +1,8 @@
 > **Scope:** First Azure deployment (ArchLucid) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # First Azure deployment (ArchLucid)
 
 **Audience:** Platform engineers provisioning ArchLucid in Azure for the **first time** (no prior Terraform state or ArchLucid resources in the subscription).

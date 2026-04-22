@@ -1,5 +1,8 @@
 > **Scope:** Boundary tests — what's pinned today, what's still missing - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Boundary tests — what's pinned today, what's still missing
 
 > **Scope:** Inventory of mechanical layer-boundary tests in `ArchLucid.Architecture.Tests` and the next ring of assertions to add. This document exists because Improvement #3 in `docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md` originally proposed creating the test project — that project already exists. The remaining work is the next ring, not the floor.

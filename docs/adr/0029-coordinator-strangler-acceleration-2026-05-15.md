@@ -1,5 +1,8 @@
 > **Scope:** ADR 0029 — Coordinator strangler acceleration to 2026-05-15 (Phase 3 cut-over) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0029: Coordinator strangler acceleration — Phase 3 cut-over to **2026-05-15**
 
 - **Status:** Accepted

@@ -1,5 +1,8 @@
 > **Scope:** V1 requirements ↔ tests / scripts traceability - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # V1 requirements ↔ tests / scripts traceability
 
 **Audience:** Engineers and operators who need a **lightweight** map from **[`V1_SCOPE.md`](V1_SCOPE.md)** to **evidence in this repo** (docs, automated tests, scripts).

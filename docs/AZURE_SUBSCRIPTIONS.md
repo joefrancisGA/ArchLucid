@@ -1,5 +1,8 @@
 > **Scope:** Canonical mapping of ArchLucid Azure subscriptions, the regions and tenants they target, and where each ID is consumed (CD pipeline, Terraform, runbooks).
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Azure subscriptions (ArchLucid)
 
 **Last updated:** 2026-04-21

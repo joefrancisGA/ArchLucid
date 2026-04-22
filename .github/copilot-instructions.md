@@ -10,7 +10,7 @@
 
 Read these in order if you need product context before reviewing:
 
-1. `docs/FIRST_5_DOCS.md` — curated reading order
+1. `docs/FIRST_5_DOCS.md` — five-document onboarding spine (install → first run → pilot → poster → pending questions)
 2. `docs/SYSTEM_MAP.md` — Mermaid system flows
 3. `docs/ARCHITECTURE_COMPONENTS.md`
 4. `docs/API_CONTRACTS.md`

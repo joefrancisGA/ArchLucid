@@ -1,5 +1,8 @@
 > **Scope:** Quality assessment (redirect) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Quality assessment (redirect)
 
 > **Scope:** This file path is preserved so existing bookmarks and external links keep resolving. The active assessment moves on a regular cadence — always look here for the canonical pointer.

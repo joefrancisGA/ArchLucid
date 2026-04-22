@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — MCP and agent-ecosystem backlog (ranked, version-aligned). One opinionated, version-aligned plan for how (and when) ArchLucid adopts Model Context Protocol (MCP), Responses-API-shaped agent abstractions, and tool approval classes, without compromising V1 determinism, RLS isolation, or the governance moat.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — MCP and agent-ecosystem backlog
 
 **Audience:** product, architecture, security, and engineering leads who need one durable answer to *"should we adopt &lt;agent framework du jour&gt;?"* and to the broader question of how ArchLucid relates to the MCP / Responses-API era.

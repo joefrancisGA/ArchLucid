@@ -1,5 +1,8 @@
 > **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Azure Marketplace — SaaS offer (fulfillment v2) checklist
 
 ## Objective

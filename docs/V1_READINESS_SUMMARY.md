@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid V1 — readiness summary - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid V1 — readiness summary
 
 **Audience:** release owners, pilot leads, and executives who need a **short, honest** picture of where the repo stands for a **V1 / pilot** cut—not a marketing sheet.

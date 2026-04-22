@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid documentation index - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 ## ArchLucid documentation index
 
 ### Orientation
@@ -16,8 +19,8 @@
   - `docs/V1_DEFERRED.md`
 - **Start here (redirect hub)** — points to canonical Day-1 docs per persona  
   - `docs/START_HERE.md`
-- **First five documents (architecture + API starter path)** — ordered table with time estimates  
-  - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias)
+- **Five-document onboarding spine (Day-1 install → run → pilot → poster → open questions)** — ordered table with time estimates  
+  - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias → same spine); archived pre-spine table: `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md`
 - **Developer Day-1 (week one)** — toolchain, local API + SQL, Core tests, small PR  
   - `docs/onboarding/day-one-developer.md`
 - **SRE / Platform Day-1** — health, deploy order, Terraform validate, migrations posture  

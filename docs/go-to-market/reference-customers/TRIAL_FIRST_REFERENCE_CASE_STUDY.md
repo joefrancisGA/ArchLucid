@@ -1,5 +1,8 @@
 > **Scope:** First paying tenant (PLG) — ArchLucid reference case study template - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 ## Owner substitution checklist — fill before customer review
 
 | Placeholder | Real value needed | Typical source |

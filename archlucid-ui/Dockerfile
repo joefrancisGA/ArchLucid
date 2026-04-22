@@ -27,6 +27,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the UI source tree (everything in archlucid-ui/ becomes /app/).
 COPY archlucid-ui/ .
 
+# Synthetic aggregate ROI bulletin sample (read at SSR; canonical file lives under docs/ at repo root).
+COPY docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md ./go-to-market-samples/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md
+
 # The pricing generator and its single-source document must be present at
 # build time.  They live outside the archlucid-ui/ subtree, so we copy them
 # to a dedicated directory (/pricing-source/) and invoke the generator with
@@ -74,6 +77,7 @@ COPY --from=build --chown=archlucid:archlucid /app/.next/standalone ./
 # Static assets and public folder must be copied separately.
 COPY --from=build --chown=archlucid:archlucid /app/.next/static ./.next/static
 COPY --from=build --chown=archlucid:archlucid /app/public ./public
+COPY --from=build --chown=archlucid:archlucid /app/go-to-market-samples ./go-to-market-samples
 
 USER archlucid
 

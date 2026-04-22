@@ -58,4 +58,17 @@ public sealed class RoiBulletinCommandOptionsTests
         opts.Should().BeNull();
         error.Should().Contain("--bogus");
     }
+
+    [Fact]
+    public void Parse_accepts_synthetic_and_explain()
+    {
+        RoiBulletinCommandOptions? opts = RoiBulletinCommandOptions.Parse(
+            ["--quarter", "Q1-2026", "--synthetic", "--explain", "--out", "x.md"],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.Synthetic.Should().BeTrue();
+        opts.Explain.Should().BeTrue();
+        opts.OutPath.Should().Be("x.md");
+    }
 }

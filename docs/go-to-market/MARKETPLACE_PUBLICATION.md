@@ -1,5 +1,8 @@
 > **Scope:** Operators and GTM owners publishing the transactable Azure Marketplace SaaS offer; not webhook protocol deep-dive (see linked billing docs).
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Azure Marketplace — publication checklist (operator)
 
 ## Objective

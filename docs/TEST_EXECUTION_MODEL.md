@@ -1,5 +1,8 @@
 > **Scope:** Test execution model (54R — release readiness) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Test execution model (54R — release readiness)
 
 This document is the **canonical reference** for how the ArchLucid product codebase (`ArchLucid.*` assemblies) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.

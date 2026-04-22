@@ -1,5 +1,8 @@
 > **Scope:** Self-serve trial — end-to-end live acceptance - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Self-serve trial — end-to-end live acceptance
 
 **Audience:** engineers running the merge-blocking Playwright suite locally, cleaning up after manual runs, or replaying billing harness calls.

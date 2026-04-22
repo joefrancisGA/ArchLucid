@@ -1,5 +1,8 @@
 > **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-Q2 update:** pen-test SoW awarded; CAIQ/SIG pre-filled; Type I scoping funded as a **readiness** milestone (not yet an opinion).
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # SOC 2 — Owner self-assessment (2026)
 
 > **IMPORTANT:** This document is an **internal / buyer-transparency self-assessment**. It is **not** a SOC 2 Type I or Type II **audit opinion** and must not be represented as third-party attestation.

@@ -1,5 +1,8 @@
 > **Scope:** ADR 0030 — Coordinator → Authority pipeline unification, sequenced over multiple PRs. Replaces the optimistic single-PR-A framing in [ADR 0021](0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) once the dual-data-model and dual-SQL-table reality is acknowledged.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ADR 0030: Coordinator → Authority pipeline unification — sequenced multi-PR plan
 
 - **Status:** Accepted

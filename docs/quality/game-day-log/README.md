@@ -1,5 +1,8 @@
 > **Scope:** Optional human-written summaries for quarterly Simmy game days when repo commits are allowed; primary evidence remains GitHub Actions artifacts.
 
+> **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Game day log directory
 
 When the quarterly chaos workflow (`simmy-chaos-scheduled.yml`) is run with **`dry_run=false`**, capture:

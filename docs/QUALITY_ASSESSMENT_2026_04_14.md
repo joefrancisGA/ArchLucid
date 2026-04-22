@@ -1,5 +1,8 @@
 > **Scope:** Quality assessment — 2026-04-14 (archived) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Quality assessment — 2026-04-14 (archived)
 
 This file path is kept so bookmarks and external links keep working.

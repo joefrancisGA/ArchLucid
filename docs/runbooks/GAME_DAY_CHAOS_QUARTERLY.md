@@ -1,5 +1,8 @@
 > **Scope:** Quarterly game day for Simmy-backed chaos tests — pre-flight, blast radius, abort criteria, metrics, RACI stub. Complements `.github/workflows/simmy-chaos-scheduled.yml`.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Quarterly game day — Simmy chaos coverage
 
 ## Objective

@@ -1,5 +1,8 @@
 > **Scope:** API controller area map - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # API controller area map
 
 **Search / links:** some docs use **[API_CONTROLLER_MAP.md](API_CONTROLLER_MAP.md)** — that file is an **alias** to this page.

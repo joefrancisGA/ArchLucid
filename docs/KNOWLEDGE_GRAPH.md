@@ -1,5 +1,8 @@
 > **Scope:** Knowledge graph (typed architecture graph) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # Knowledge graph (typed architecture graph)
 
 `ArchLucid.KnowledgeGraph` turns each persisted **`ContextSnapshot`** into a **`GraphSnapshot`**: typed **nodes**, typed **edges**, and optional **warnings**. Downstream **`ArchLucid.Decisioning`** finding engines and **`DefaultGoldenManifestBuilder`** consume this graph.

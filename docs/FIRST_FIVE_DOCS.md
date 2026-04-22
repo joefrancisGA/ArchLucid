@@ -1,7 +1,9 @@
-> **Scope:** Your first five documents (filename alias) - full detail, tables, and links in the sections below.
+> **Scope:** Filename alias for the five-document onboarding spine — redirect only.
 
-# Your first five documents (filename alias)
+# FIRST_FIVE_DOCS (redirect)
 
-Some links and checklists use **`FIRST_FIVE_DOCS.md`**. The maintained onboarding page lives at **[FIRST_5_DOCS.md](FIRST_5_DOCS.md)** (numbered table, time estimates, and pointers to **ARCHITECTURE_INDEX**, **START_HERE**, and **CURSOR_PROMPTS_CANONICAL**). **Canonical maps:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md), [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md).
+This filename is a **stable alias** for bookmarks and older links.
 
-Keep substantive edits in **FIRST_5_DOCS.md** only; this file stays a stable alternate path.
+**Use:** **[FIRST_5_DOCS.md](FIRST_5_DOCS.md)** — the five-document spine (install → first run → first pilot → architecture poster → pending questions).
+
+**Frozen copy** of the pre-spine “first five” table: [archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md](archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md).

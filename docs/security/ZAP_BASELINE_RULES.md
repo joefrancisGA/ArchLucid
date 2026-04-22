@@ -1,5 +1,8 @@
 > **Scope:** OWASP ZAP baseline rules (baseline-pr.tsv) - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # OWASP ZAP baseline rules (`baseline-pr.tsv`)
 
 ArchLucid wires **OWASP ZAP** baseline scanning into **GitHub Actions** using `zap-baseline.py` and a small **rule override file** in the repository. The CI job builds **`ArchLucid.Api/Dockerfile`**, waits for **`/health/live`**, then runs the scanner against the API on an isolated Docker network.

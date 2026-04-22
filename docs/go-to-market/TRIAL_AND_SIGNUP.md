@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Trial and signup experience design - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Trial and signup experience design
 
 **Audience:** Product and engineering teams planning the self-serve trial path.

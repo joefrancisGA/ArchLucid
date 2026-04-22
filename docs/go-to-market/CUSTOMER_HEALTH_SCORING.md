@@ -1,5 +1,8 @@
 > **Scope:** ArchLucid — Customer health scoring framework - full detail, tables, and links in the sections below.
 
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # ArchLucid — Customer health scoring framework
 
 **Audience:** Customer success team and product leadership.
