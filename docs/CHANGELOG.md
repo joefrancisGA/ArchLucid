@@ -4,6 +4,58 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-22 — ADR 0030 self-amendment: 35a + 35b owner sub-decisions resolved, PR A0.5 row added, 34→35 numbering corrected (docs only)
+
+**Outcome.** A walk-through of [ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md) sub-bullets **35a** (PR A0 — Authority engine projection shape) and **35b** (PR A1 — `IGoldenManifestRepository` overload return shape) produced six owner sub-decisions. The recommended answer set was accepted in full on 35a; on 35b the owner expanded the original `Task` vs `Task<Guid>` framing to a third option (`Task<Decisioning.Models.GoldenManifest>`) and chose it. **PR A0 and PR A1 drafting are now unblocked.** A new sub-PR (**PR A0.5 — Authority typed services + datastores**) was introduced as a consequence of decision 35a.2 = `empty-with-guard`. A new pending sub-bullet (**35f** — typed-services source for PR A0.5) was opened. **No production code touched** — docs and ADR amendment only.
+
+**Numbering correction.** The original 2026-04-21 draft of ADR 0030 (and the corresponding CHANGELOG entry below) cross-referenced the per-sub-PR owner decisions as "pending question item **34a–d**". The actual numbering in [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) is **item 35a–e** (item 34 is "Production Simmy / fault-injection game day"). The 2026-04-22 ADR self-amendment corrects every internal reference from 34→35 throughout ADR 0030; the historical 2026-04-21 CHANGELOG entry below is **not** rewritten (it remains an audit record of the original framing) but is implicitly superseded by this entry on the numbering point.
+
+**Owner sub-decisions (recorded in three places — `PENDING_QUESTIONS.md` § Resolved 2026-04-22, ADR 0030 § Owner sub-decisions, and the PR A0 / PR A1 rows of ADR 0030 § Component breakdown):**
+
+| Item | Question | Owner answer |
+|------|----------|--------------|
+| **35a (top-level)** | Projection lives in the Authority engine (opt-in flag) or in a new mapper class consumed by the facade? | **(ii) new mapper class** — `AuthorityCommitProjectionBuilder` |
+| **35a.1** | `SystemName` source on the projected manifest | **`sibling-row`** — read from existing `Run` / `ArchitectureRequest` row via `IRunRepository` |
+| **35a.2** | Typed `Services` + `Datastores` — populate from rule-engine resource strings, or leave empty? | **`empty-with-guard`** — empty in PR A0; populated in new **PR A0.5** when Authority grows typed services |
+| **35a.3** | `Relationships` — populate from graph snapshot in PR A0, or leave empty? | **`empty-with-guard`** — empty in PR A0; populated in a future Relationships-graph PR (scope deferred until PR A2 planning) |
+| **35a.4** | Adopt the JSON allow-list + CI guard mechanism for "intentionally empty" projection fields? | **`yes`** — new file `docs/architecture/AUTHORITY_PROJECTION_KNOWN_EMPTY.json` + new CI script + workflow step (ships with PR A0; self-eroding as PR A0.5 + the future Relationships PR merge) |
+| **35b** | Write-overload return type on `IGoldenManifestRepository.SaveAsync(Contracts.Manifest.GoldenManifest, ...)` | **`Task<Decisioning.Models.GoldenManifest>`** — return the produced Authority-shape manifest so the caller keeps idempotency-key reasoning |
+
+**ADR 0030 amendments (in the same edit):**
+
+- Front matter gains a `Self-amended 2026-04-22` line summarizing the six changes below.
+- § Component breakdown gains a **PR A0.5 — Authority typed services + datastores** row between PR A0 and PR A1 (consequence of 35a.2).
+- § Component breakdown's **PR A0** and **PR A1** rows are rewritten to record the resolved decisions inline (so the next contributor reading the row sees both the design and the owner sign-off).
+- § Operational considerations gains a new **Known-empty allow-list mechanism** subsection that defines the JSON schema, the CI script's two assertions (builder vs allow-list, allow-list vs ADR), and the self-erosion lifecycle (consequence of 35a.4).
+- § Owner sub-decisions section is added (canonical answer block for 35a + 35b).
+- § Lifecycle gains a **PR A0.5 merges** row.
+- § Related gains a row pointing at `docs/architecture/AUTHORITY_PROJECTION_KNOWN_EMPTY.json` (created when PR A0 merges).
+- Every internal cross-reference to "item 34" / "34a–d" is corrected to "item 35" / "35a–e".
+
+**`PENDING_QUESTIONS.md` amendments (in the same edit):**
+
+- New top-level table **Resolved 2026-04-22 (ADR 0030 owner sub-decisions — 35a + 35b)** captures the six decisions above and links to ADR 0030 § Owner sub-decisions.
+- Existing item **35** sub-bullets **a** + **b** are rewritten as **(Resolved 2026-04-22 — see table above)** with the chosen options inlined.
+- Existing item **35** sub-bullet **c** is expanded into two coupled sub-questions (c.1 flag scope per-tenant vs global, c.2 default by environment) to make the still-open shape explicit.
+- New item **35** sub-bullet **f** opened: PR A0.5 typed-services source for `ManifestService.ServiceType` / `RuntimePlatform`. Three options listed (extend rule-engine metadata, separate classifier service, operator design-time tagging). PR A0 + PR A1 are **not** blocked on 35f; PR A0.5 is.
+- `Last updated` line bumped to 2026-04-22 with a brief delta summary; prior 2026-04-21 entry preserved as `Prior:`.
+
+**What ships next session, given these decisions:**
+
+- **PR A0** can now be drafted end-to-end: `IAuthorityCommitProjectionBuilder` interface + `AuthorityCommitProjectionBuilder` concrete (with `IRunRepository` dependency for `SystemName`); `docs/architecture/AUTHORITY_PROJECTION_KNOWN_EMPTY.json` with three initial rows; `scripts/ci/assert_authority_projection_known_empty.py` + mirrored test; `.github/workflows/ci.yml` workflow step; new unit tests under `ArchLucid.Decisioning.Tests` covering shape parity + the allow-list invariants. Recommended as a **dedicated session** — large surgical change set.
+- **PR A1** can also be drafted in a dedicated session (the overload signature is now pinned).
+- **PR A0.5** is **still blocked on item 35f** (typed-services source).
+- **PR A2** is **still blocked on item 35c** (legacy-flag scope + default).
+- **PR A4** is **still blocked on item 35d** (backfill destination).
+
+**Atomic surface area for this entry (docs only — no production code touched):**
+
+- [`docs/adr/0030-coordinator-authority-pipeline-unification.md`](adr/0030-coordinator-authority-pipeline-unification.md) — self-amended (six changes listed above).
+- [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) — Resolved 2026-04-22 table added; item 35 sub-bullets a, b, c, f rewritten / opened.
+- [`docs/CHANGELOG.md`](CHANGELOG.md) — this entry.
+
+---
+
 ## 2026-04-21 — Phase 3 PR A re-scoped: ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)
 
 **A grounding read of the actual code state — not just the optimistic ADR text — found a hard blocker that makes the original "single PR A deletion" framing in [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) § Phase 3 mechanism (a) mechanically impossible. The work is re-scoped into a sequenced multi-PR plan recorded in new [ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md). No production code changes in this entry — owner sign-off required to start any of PR A0 → PR A4.**
