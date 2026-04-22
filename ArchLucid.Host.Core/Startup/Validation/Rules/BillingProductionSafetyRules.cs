@@ -101,12 +101,6 @@ internal static class BillingProductionSafetyRules
         if (host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (host is "127.0.0.1" or "::1")
-            return true;
-
-        if (host.StartsWith("127.", StringComparison.Ordinal))
-            return true;
-
-        return false;
+        return host is "127.0.0.1" or "::1" || host.StartsWith("127.", StringComparison.Ordinal);
     }
 }

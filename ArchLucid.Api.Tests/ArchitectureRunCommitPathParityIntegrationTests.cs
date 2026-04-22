@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 /// (<see cref="PilotRunDeltasResponse"/> — counts, severity histogram, demo flag). Volatile clock fields, wall-clock
 /// seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded because tie-order or
 /// read-path shape can pick a different top finding between paths while ROI buckets stay aligned — see
-/// <c>artifacts/phase3/pr-a2-cohort-parity.md</c>.
+/// <c>docs/artifacts/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
