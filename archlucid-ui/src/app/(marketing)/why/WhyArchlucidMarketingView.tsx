@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import {
   WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-  type WhyArchlucidComparisonRow,
+  type WhyArchLucidComparisonRow,
 } from "@/marketing/why-archlucid-comparison";
 
 export type WhyArchlucidMarketingViewProps = {
-  rows: readonly WhyArchlucidComparisonRow[];
+  rows: readonly WhyArchLucidComparisonRow[];
   /**
    * When false, skips the /demo/preview iframe (jest-axe cannot scan iframes in jsdom).
    * Production page passes true (default).

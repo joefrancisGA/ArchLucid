@@ -132,7 +132,9 @@ public sealed class TeamsIncomingWebhookConnectionsController(
 
         if (saved is null)
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                "Teams incoming webhook connection could not be persisted for this tenant.",
+                ProblemTypes.ResourceNotFound);
         }
 
         await _auditService.LogAsync(
