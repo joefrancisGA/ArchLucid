@@ -5,6 +5,7 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
@@ -77,6 +78,20 @@ public partial class Program
         WebApplication app = builder.Build();
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
+
+        LegacyRunCommitPathOptions? legacyRunCommitPath = app.Configuration
+            .GetSection(LegacyRunCommitPathOptions.SectionPath)
+            .Get<LegacyRunCommitPathOptions>();
+
+        if (legacyRunCommitPath?.LegacyRunCommitPath is true && !app.Environment.IsDevelopment())
+        {
+            if (app.Logger.IsEnabled(LogLevel.Warning))
+
+                app.Logger.LogWarning(
+                    "Coordinator:LegacyRunCommitPath is true outside Development: the legacy run-commit orchestration still type-wires " +
+                    "ICoordinatorGoldenManifestRepository, but dbo.GoldenManifestVersions was removed (ADR 0030 PR A4 / migration 111). " +
+                    "SQL commits on the legacy path will fail; set Coordinator:LegacyRunCommitPath=false.");
+        }
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,
