@@ -41,7 +41,8 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                IsPublicShowcase
             )
             OUTPUT inserted.RowVersionStamp
             VALUES
@@ -49,7 +50,8 @@ public sealed class SqlRunRepository(
                 @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                 @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                 @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
-                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId
+                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
+                @IsPublicShowcase
             );
             """;
 
@@ -92,6 +94,7 @@ public sealed class SqlRunRepository(
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                IsPublicShowcase,
                 RowVersionStamp AS RowVersion
             FROM dbo.Runs
             WHERE RunId = @RunId
@@ -129,7 +132,8 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                IsPublicShowcase
             FROM dbo.Runs WITH (NOLOCK)
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -184,7 +188,8 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                IsPublicShowcase
             FROM dbo.Runs WITH (NOLOCK)
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -233,7 +238,8 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                IsPublicShowcase
             FROM dbo.Runs WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -284,7 +290,8 @@ public sealed class SqlRunRepository(
                 ArchitectureRequestId = @ArchitectureRequestId,
                 LegacyRunStatus = @LegacyRunStatus,
                 CompletedUtc = @CompletedUtc,
-                CurrentManifestVersion = @CurrentManifestVersion
+                CurrentManifestVersion = @CurrentManifestVersion,
+                IsPublicShowcase = @IsPublicShowcase
             OUTPUT inserted.RowVersionStamp
             WHERE RunId = @RunId
               AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
@@ -330,6 +337,7 @@ public sealed class SqlRunRepository(
                     run.LegacyRunStatus,
                     run.CompletedUtc,
                     run.CurrentManifestVersion,
+                    run.IsPublicShowcase,
                     RowVersion = run.RowVersion
                 },
                 transaction: transaction,

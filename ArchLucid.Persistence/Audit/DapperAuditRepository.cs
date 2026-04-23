@@ -62,7 +62,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
-            ORDER BY OccurredUtc DESC;
+            ORDER BY OccurredUtc DESC, EventId DESC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -150,11 +150,26 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         if (filter.BeforeUtc.HasValue)
         {
-            sql.Append(" AND OccurredUtc < @BeforeUtc");
-            parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
+            if (filter.BeforeEventId.HasValue)
+            {
+                sql.Append(
+                    """
+                     AND (
+                        OccurredUtc < @BeforeUtc
+                        OR (OccurredUtc = @BeforeUtc AND EventId < @BeforeEventId)
+                    )
+                    """);
+                parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
+                parameters.Add("BeforeEventId", filter.BeforeEventId.Value);
+            }
+            else
+            {
+                sql.Append(" AND OccurredUtc < @BeforeUtc");
+                parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
+            }
         }
 
-        sql.Append(" ORDER BY OccurredUtc DESC;");
+        sql.Append(" ORDER BY OccurredUtc DESC, EventId DESC;");
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(

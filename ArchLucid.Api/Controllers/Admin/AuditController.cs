@@ -57,7 +57,11 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     }
 
     /// <summary>Filtered audit query within the current tenant/workspace/project scope.</summary>
-    /// <param name="beforeUtc">Keyset cursor: only events with <c>OccurredUtc</c> strictly before this instant (ISO-8601).</param>
+    /// <param name="beforeUtc">Keyset cursor: only events at or before this instant per ordering (ISO-8601).</param>
+    /// <param name="beforeEventId">
+    ///     Optional tie-break when multiple events share the same <paramref name="beforeUtc" /> — pass the previous page’s
+    ///     last <c>EventId</c> with the same <paramref name="beforeUtc" /> for stable pagination.
+    /// </param>
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchAudit(
@@ -65,6 +69,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         [FromQuery] DateTime? fromUtc,
         [FromQuery] DateTime? toUtc,
         [FromQuery] DateTime? beforeUtc,
+        [FromQuery] Guid? beforeEventId,
         [FromQuery] string? correlationId,
         [FromQuery] string? actorUserId,
         [FromQuery] Guid? runId,
@@ -80,6 +85,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
             FromUtc = fromUtc,
             ToUtc = toUtc,
             BeforeUtc = beforeUtc,
+            BeforeEventId = beforeEventId,
             CorrelationId = correlationId,
             ActorUserId = actorUserId,
             RunId = runId,

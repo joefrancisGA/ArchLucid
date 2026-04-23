@@ -33,6 +33,7 @@ import type {
   RunSummary,
 } from "@/types/authority";
 import type { PagedResponse } from "@/types/pagination";
+import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import type {
   AskResponse,
   ConversationMessage,
@@ -55,6 +56,7 @@ import type {
   ExecDigestPreferencesResponse,
   ExecDigestPreferencesUpsertRequest,
 } from "@/types/exec-digest-preferences";
+import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import type {
   TeamsIncomingWebhookConnectionResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,
@@ -547,6 +549,18 @@ export async function getWhyArchLucidSnapshot(): Promise<WhyArchLucidSnapshot> {
   return apiGet<WhyArchLucidSnapshot>("/v1/pilots/why-archlucid-snapshot");
 }
 
+/** Bundle for `/why-archlucid`: process counters + optional monthly cost band + disclaimers. */
+export type TenantMeasuredRoiPayload = {
+  snapshot: WhyArchLucidSnapshot;
+  monthlyCostEstimate: TenantCostEstimateResponse | null;
+  disclaimer: string;
+};
+
+/** GETs `/v1/tenant/measured-roi` (operator proof page — combines snapshot + cost context). */
+export async function getTenantMeasuredRoi(): Promise<TenantMeasuredRoiPayload> {
+  return apiGet<TenantMeasuredRoiPayload>(`/${ApiV1Routes.tenantMeasuredRoi}`);
+}
+
 /**
  * GETs the side-by-side provenance + explanation payload used by the operator-shell
  * `/demo/explain` proof route. Returns `null` when the API responds 404 — that covers both
@@ -852,6 +866,11 @@ export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
 /** Loads weekly executive digest email preferences for the current tenant. */
 export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
   return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
+}
+
+/** Rough monthly spend band for Standard+ tenants (402 when below Standard). */
+export async function getTenantCostEstimate(): Promise<TenantCostEstimateResponse> {
+  return apiGet<TenantCostEstimateResponse>(`/${ApiV1Routes.tenantCostEstimate}`);
 }
 
 /** Saves weekly executive digest email preferences (Execute+). */

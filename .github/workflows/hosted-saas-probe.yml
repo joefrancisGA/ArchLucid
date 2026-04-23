@@ -1,0 +1,30 @@
+# Scheduled HTTP probes against the public hosted staging stack (no secrets in URLs).
+# Configure repository variable ARCHLUCID_STAGING_BASE_URL (default documented in docs/REFERENCE_SAAS_STACK_ORDER.md).
+name: hosted-saas-probe
+
+on:
+  schedule:
+    - cron: "15 */4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe staging health endpoints
+        env:
+          BASE_URL: ${{ vars.ARCHLUCID_STAGING_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BASE_URL:-}" ]; then
+            echo "ARCHLUCID_STAGING_BASE_URL is not set — skipping probe (set repo variable to e.g. https://staging.archlucid.com)."
+            exit 0
+          fi
+          base="${BASE_URL%/}"
+          echo "Probing ${base}/health/live"
+          curl -fsS --max-time 30 "${base}/health/live" >/dev/null
+          echo "Probing ${base}/health/ready"
+          curl -fsS --max-time 45 "${base}/health/ready" >/dev/null

@@ -1,9 +1,11 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.Replay;
 
 using Asp.Versioning;
@@ -27,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority/replay")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AuthorityReplayController(
     IAuthorityReplayService replayService,
     IAuditService auditService) : ControllerBase

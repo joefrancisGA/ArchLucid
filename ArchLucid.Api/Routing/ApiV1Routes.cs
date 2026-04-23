@@ -18,6 +18,10 @@ public static class ApiV1Routes
 
     public const string TenantExecDigestPreferences = "v1/tenant/exec-digest-preferences";
 
+    public const string TenantCostEstimate = "v1/tenant/cost-estimate";
+
+    public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
+
     public const string TeamsIncomingWebhookConnections = "v1/integrations/teams/connections";
 
     public const string TeamsNotificationTriggerCatalog = "v1/integrations/teams/triggers";

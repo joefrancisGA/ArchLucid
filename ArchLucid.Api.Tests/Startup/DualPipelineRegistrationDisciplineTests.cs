@@ -128,12 +128,12 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     }
 
     [Fact]
-    public void IArchitectureRunCommitOrchestrator_resolves_to_RunCommitPathSelector()
+    public void IArchitectureRunCommitOrchestrator_resolves_to_AuthorityDrivenArchitectureRunCommitOrchestrator()
     {
         using IServiceScope scope = factory.Services.CreateScope();
         IArchitectureRunCommitOrchestrator commit = scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
 
-        commit.Should().BeOfType<RunCommitPathSelector>();
+        commit.Should().BeOfType<AuthorityDrivenArchitectureRunCommitOrchestrator>();
     }
 
     [Fact]

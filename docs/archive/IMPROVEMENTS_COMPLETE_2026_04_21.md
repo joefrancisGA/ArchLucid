@@ -2,7 +2,7 @@
 >
 > **Canonical replacements:**
 > - Component-level history: see the dated `docs/CHANGELOG.md` entries.
-> - Outstanding improvements: see the most recent `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_*.md` and matching `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21*.md`.
+> - Outstanding improvements: see the most recent `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` and matching `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60*.md` (older 2026-04-21 variants live under `docs/archive/quality/2026-04-21-assessments/`).
 > - Open product/operations decisions: see `docs/PENDING_QUESTIONS.md`.
 
 ---

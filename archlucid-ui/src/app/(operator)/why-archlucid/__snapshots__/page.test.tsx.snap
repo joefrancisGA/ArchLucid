@@ -180,6 +180,60 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     </div>
   </section>
   <section
+    aria-labelledby="why-archlucid-measured-context-heading"
+    class="space-y-3 rounded border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
+    data-testid="why-archlucid-measured-context"
+  >
+    <h2
+      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      id="why-archlucid-measured-context-heading"
+    >
+      Measured context (cost + disclaimers)
+    </h2>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      Same process counters as above, bundled with the tenant's configured monthly spend band (when available). This is planning guidance — not an invoice.
+    </p>
+    <dl
+      class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2"
+    >
+      <div>
+        <dt
+          class="text-neutral-500"
+        >
+          Tier
+        </dt>
+        <dd
+          class="font-medium text-neutral-900 dark:text-neutral-100"
+        >
+          Standard
+        </dd>
+      </div>
+      <div>
+        <dt
+          class="text-neutral-500"
+        >
+          Monthly band (
+          USD
+          )
+        </dt>
+        <dd
+          class="font-medium tabular-nums text-neutral-900 dark:text-neutral-100"
+        >
+          10
+           — 
+          50
+        </dd>
+      </div>
+    </dl>
+    <p
+      class="text-xs text-neutral-600 dark:text-neutral-400"
+    >
+      Process counters are cumulative since this API replica started.
+    </p>
+  </section>
+  <section
     aria-labelledby="why-archlucid-report-heading"
     class="space-y-3"
     data-testid="why-archlucid-first-value-report"
@@ -390,7 +444,7 @@ Demo body.
   >
     Sources: 
     <code>
-      GET /v1/pilots/why-archlucid-snapshot
+      GET /v1/tenant/measured-roi
     </code>
     ,
      

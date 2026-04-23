@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Advisory.Workflow;
@@ -37,6 +39,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/advisory")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AdvisoryController(
     IAuthorityQueryService authorityQueryService,
     IComparisonService comparisonService,
