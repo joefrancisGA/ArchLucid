@@ -1,8 +1,10 @@
-> **Scope:** First-time **operator** evaluating ArchLucid on a laptop. Goal: from `git clone` to "I committed a manifest and saw a finding" in ~30 minutes, using only Docker (no .NET SDK, no Node, no cloud keys).
+> **Scope:** First-time **ArchLucid contributor / internal engineer** running the full stack on a laptop. Goal: from `git clone` to "I committed a manifest and saw a finding" in ~30 minutes, using only Docker (no .NET SDK, no Node, no cloud keys).
 
-# First 30 minutes — ArchLucid (operator)
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run Docker, SQL, .NET, Node, or any local CLI.** They sign up at **`archlucid.com`** and use the in-product operator UI. This document is the **contributor / internal-engineer** first-run path — it is **not** the customer first-run path. If you arrived here as a buyer or evaluator, start at **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** then **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)**, and request a guided trial. See **[`START_HERE.md`](START_HERE.md)** "Audience split" and **[`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)** §0.1.
 
-This is the **single canonical first-run path**. If a different document tells you to install .NET or Node *before* you have something working, prefer this one — those tools are useful later, not first.
+# First 30 minutes — ArchLucid (contributor / internal engineer)
+
+This is the **single canonical first-run path for ArchLucid contributors and internal engineers**. If a different document tells you to install .NET or Node *before* you have something working, prefer this one — those tools are useful later, not first.
 
 You will:
 

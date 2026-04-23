@@ -11,6 +11,8 @@
 
 **DEFERRED markers.** A prompt is marked `[DEFERRED]` in the heading when the assistant cannot complete **at least part** of it without owner input that has not yet been received. None of the eight below are fully `DEFERRED` — every prompt has substantive work the assistant can land today.
 
+> **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform.** They only ever interact with the public website (`archlucid.com`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. When any prompt below produces customer-facing copy (signup flow, marketing routes, pricing, trust center, sponsor brief, value report, reference case study, evidence pack, ROI bulletin, board pack, operator UI text), it **must not** assume the customer runs Docker, opens a terminal, runs `archlucid try`, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling — fine to reference in **engineer-facing** docs, never on a buyer surface. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one. See `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` §0.1 for the full SaaS-framing addendum.
+
 ---
 
 ## Prompt 1 — Reference customer publication scaffolding (PLG row)

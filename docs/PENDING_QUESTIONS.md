@@ -351,6 +351,16 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 ---
 
+## Surfaced by 2026-04-23 SaaS-framing reconciliation
+
+These came out of the 2026-04-23 owner clarification — *"the user will never have to install Docker or SQL because this is a SaaS product"* — applied against the latest assessment ([`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.1) and the canonical entry doc ([`START_HERE.md`](START_HERE.md) "Audience split").
+
+36. **Buyer-facing first-30-minutes doc — copy approval.** Today the contributor `FIRST_30_MINUTES.md` is Docker-only and explicitly **not** the customer first-run path. The corresponding **buyer-facing** first-30-minutes walkthrough — "from `archlucid.com` landing page → signed in → first sample run → first finding, with **no local install of any kind**" — is a planned doc, not an existing one. The wiring is part of Improvement 2 (live trial funnel); the **customer-facing copy** (brand voice, marketing tone, screenshot selection) is owner-controlled. **Needed from owner:** (a) approve drafting and naming convention (`docs/BUYER_FIRST_30_MINUTES.md` or hosted only on `archlucid.com/get-started`?); (b) decide the cloud sample preset shown to a brand-new tenant before they choose an industry; (c) confirm whether a guided-demo CTA is offered on the same page when the trial funnel is paused. Do not draft customer copy without (a).
+
+37. **In-product support-bundle download.** The §0.1 framing of `Customer Self-Sufficiency` (formerly contributor CLI tools) requires that the existing `archlucid support-bundle` command be exposed as an authenticated **download in the operator UI** so a tenant admin can produce it without a terminal. **Needed from owner:** confirm the UI placement (`/admin/support` page next to API-key rotation), the role required (`Admin` only or `Admin` + `Support`), and the redaction policy if the bundle is later attached to a support ticket.
+
+---
+
 ## Quality-assessment cadence (Resolved 2026-04-21)
 
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
