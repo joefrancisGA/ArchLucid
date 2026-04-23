@@ -1,10 +1,20 @@
 namespace ArchLucid.Cli;
 
 /// <summary>
-/// Concise stderr hints after CLI API failures (aligned with docs/TROUBLESHOOTING.md).
+///     Concise stderr hints after CLI API failures (aligned with docs/TROUBLESHOOTING.md).
 /// </summary>
 internal static class CliOperatorHints
 {
+    private const int Status400 = 400;
+    private const int Status401 = 401;
+    private const int Status403 = 403;
+    private const int Status404 = 404;
+    private const int Status409 = 409;
+    private const int Status422 = 422;
+    private const int Status429 = 429;
+    private const int Status503 = 503;
+    private const int Status500 = 500;
+
     /// <summary>After a failed HTTP API call from the CLI (status from response, or null on transport errors).</summary>
     public static void WriteAfterApiFailure(int? httpStatusCode, string? errorMessage, TextWriter? stderr = null)
     {
@@ -33,7 +43,6 @@ internal static class CliOperatorHints
         if (!string.IsNullOrEmpty(line))
 
             stderr.WriteLine(line);
-
     }
 
     public static void WriteAfterHealthUnreachable(string baseUrl, TextWriter? stderr = null)
@@ -57,13 +66,16 @@ internal static class CliOperatorHints
             $"Next: Create the file at {relativeBriefPath} (minimum 10 characters) or update inputs.brief in archlucid.json.");
     }
 
-    private static string? LineForHttpStatus(int? code) =>
-        code switch
+    private static string? LineForHttpStatus(int? code)
+    {
+        return code switch
         {
             null => null,
-            Status401 => "Next: Configure authentication (ArchLucidAuth / JWT) or ARCHLUCID_API_KEY when the API requires it.",
+            Status401 =>
+                "Next: Configure authentication (ArchLucidAuth / JWT) or ARCHLUCID_API_KEY when the API requires it.",
             Status403 => "Next: Use an identity with Reader, Operator, or Admin as mapped by your deployment.",
-            Status404 => "Next: Verify IDs and scope headers (x-tenant-id, x-workspace-id, x-project-id) match the resource.",
+            Status404 =>
+                "Next: Verify IDs and scope headers (x-tenant-id, x-workspace-id, x-project-id) match the resource.",
             Status409 => "Next: Read the API detail; you may need a fresh run or to resolve idempotency/state.",
             Status422 or Status400 => "Next: Fix the request body using the API problem detail.",
             Status429 => "Next: Wait and retry, or relax RateLimiting in non-production.",
@@ -72,14 +84,5 @@ internal static class CliOperatorHints
                 "Next: Retry once; if it persists, use X-Correlation-ID (or correlationId in problem JSON) with server logs (RunId when present).",
             _ => null
         };
-
-    private const int Status400 = 400;
-    private const int Status401 = 401;
-    private const int Status403 = 403;
-    private const int Status404 = 404;
-    private const int Status409 = 409;
-    private const int Status422 = 422;
-    private const int Status429 = 429;
-    private const int Status503 = 503;
-    private const int Status500 = 500;
+    }
 }

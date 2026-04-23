@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Starts the Docker demo stack (compose + demo overlay, full-stack profile) for evaluator pilots.
+///     Starts the Docker demo stack (compose + demo overlay, full-stack profile) for evaluator pilots.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Invokes docker compose and polls a live API; environment-dependent.")]
 internal static class PilotUpCommand
@@ -63,10 +63,7 @@ internal static class PilotUpCommand
         DateTime deadline = DateTime.UtcNow + ReadyDeadline;
         bool ready = false;
 
-        using HttpClient probe = new()
-        {
-            Timeout = TimeSpan.FromSeconds(8)
-        };
+        using HttpClient probe = new() { Timeout = TimeSpan.FromSeconds(8) };
 
         while (DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
         {
@@ -96,7 +93,8 @@ internal static class PilotUpCommand
         if (!ready)
         {
             Console.WriteLine($"Timed out after {ReadyDeadline.TotalSeconds:n0}s waiting for {ReadyUrl}.");
-            Console.WriteLine("Check logs: docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack logs api");
+            Console.WriteLine(
+                "Check logs: docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack logs api");
 
             return CliExitCode.OperationFailed;
         }
@@ -123,13 +121,13 @@ internal static class PilotUpCommand
 
             if (File.Exists(composePath))
                 return dir;
-
         }
 
         return null;
     }
 
-    private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, string workingDirectory)
+    private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments,
+        string workingDirectory)
     {
         ProcessStartInfo psi = new()
         {

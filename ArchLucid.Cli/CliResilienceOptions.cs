@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace ArchLucid.Cli;
 
-/// <summary>HTTP retry policy for <see cref="CliRetryDelegatingHandler"/> (CLI outbound API calls).</summary>
+/// <summary>HTTP retry policy for <see cref="CliRetryDelegatingHandler" /> (CLI outbound API calls).</summary>
 public sealed class CliResilienceOptions
 {
     public const int DefaultMaxRetryAttempts = 3;
@@ -11,11 +11,19 @@ public sealed class CliResilienceOptions
 
     /// <summary>Polly retry attempts after the first try (0 disables retries).</summary>
     [JsonPropertyName("maxRetryAttempts")]
-    public int MaxRetryAttempts { get; set; } = DefaultMaxRetryAttempts;
+    public int MaxRetryAttempts
+    {
+        get;
+        set;
+    } = DefaultMaxRetryAttempts;
 
     /// <summary>Initial delay before exponential backoff with jitter.</summary>
     [JsonPropertyName("initialDelaySeconds")]
-    public int InitialDelaySeconds { get; set; } = DefaultInitialDelaySeconds;
+    public int InitialDelaySeconds
+    {
+        get;
+        set;
+    } = DefaultInitialDelaySeconds;
 
     /// <summary>Clamps values to safe ranges.</summary>
     public void Normalize()

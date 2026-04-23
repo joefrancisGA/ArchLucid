@@ -4,7 +4,8 @@ using System.Text.Json;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>Entry point for <c>archlucid marketplace preflight</c> — repo-local checks only (no live keys).</summary>
-[ExcludeFromCodeCoverage(Justification = "Console I/O entry; behaviour covered by MarketplacePreflightRunnerTests + command tests.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Console I/O entry; behaviour covered by MarketplacePreflightRunnerTests + command tests.")]
 internal static class MarketplacePreflightCommand
 {
     private static readonly JsonSerializerOptions JsonCamel =
@@ -62,7 +63,7 @@ internal static class MarketplacePreflightCommand
             {
                 repositoryRoot = root,
                 allPassed,
-                steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, detail = s.Detail }).ToList(),
+                steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, detail = s.Detail }).ToList()
             };
 
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));

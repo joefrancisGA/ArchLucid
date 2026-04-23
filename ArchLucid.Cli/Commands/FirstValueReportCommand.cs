@@ -1,9 +1,10 @@
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Downloads the sponsor Markdown report from <c>GET /v1/pilots/runs/{runId}/first-value-report</c>.
+///     Downloads the sponsor Markdown report from <c>GET /v1/pilots/runs/{runId}/first-value-report</c>.
 /// </summary>
 internal static class FirstValueReportCommand
 {
@@ -40,7 +41,7 @@ internal static class FirstValueReportCommand
         using HttpResponseMessage response =
             await http.GetAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report", cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             Console.WriteLine($"Run '{runId}' was not found (or is out of scope).");
 

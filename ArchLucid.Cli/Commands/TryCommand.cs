@@ -9,16 +9,16 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// One-shot adoption-friction reducer: <c>archlucid try</c>. Brings up the pilot Docker stack, ensures the
-/// demo seed exists, submits a sample architecture request, polls until commit, downloads the first-value
-/// Markdown report, and opens the operator UI run-detail page. Composes existing commands — see
-/// <see cref="PilotUpCommand"/>, <see cref="ArchLucidApiClient"/>, and <see cref="FirstValueReportCommand"/>.
+///     One-shot adoption-friction reducer: <c>archlucid try</c>. Brings up the pilot Docker stack, ensures the
+///     demo seed exists, submits a sample architecture request, polls until commit, downloads the first-value
+///     Markdown report, and opens the operator UI run-detail page. Composes existing commands — see
+///     <see cref="PilotUpCommand" />, <see cref="ArchLucidApiClient" />, and <see cref="FirstValueReportCommand" />.
 /// </summary>
 internal static class TryCommand
 {
     /// <summary>
-    /// Sample brief used when the user has not authored an <c>inputs/brief.md</c> in the current directory.
-    /// Intentionally generic so the simulator agents always succeed.
+    ///     Sample brief used when the user has not authored an <c>inputs/brief.md</c> in the current directory.
+    ///     Intentionally generic so the simulator agents always succeed.
     /// </summary>
     internal const string SampleBrief =
         "Modernize a small retail web application running on Azure. The system needs scalable web tiers, " +
@@ -28,8 +28,8 @@ internal static class TryCommand
     internal const string SampleSystemName = "ArchLucidTryDemo";
 
     /// <summary>
-    /// Production entry point invoked from <see cref="Program"/>. Wires real implementations into the
-    /// testable <see cref="RunCoreAsync"/> seam.
+    ///     Production entry point invoked from <see cref="Program" />. Wires real implementations into the
+    ///     testable <see cref="RunCoreAsync" /> seam.
     /// </summary>
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
@@ -56,15 +56,15 @@ internal static class TryCommand
                 FirstValueReportSaveAsync(apiBaseUrl, runId, savePath, ct),
             OpenFile = OpenLocalArtifact,
             OpenUrl = OpenInBrowser,
-            CreateApiClient = baseUrl => new ArchLucidApiClient(baseUrl),
+            CreateApiClient = baseUrl => new ArchLucidApiClient(baseUrl)
         };
 
         return await RunCoreAsync(options, hooks, Console.Out, cancellationToken);
     }
 
     /// <summary>
-    /// Testable orchestrator: takes an injectable <see cref="TryCommandHooks"/> bundle so unit tests can
-    /// drive the flow without invoking Docker, the network, or the OS shell.
+    ///     Testable orchestrator: takes an injectable <see cref="TryCommandHooks" /> bundle so unit tests can
+    ///     drive the flow without invoking Docker, the network, or the OS shell.
     /// </summary>
     internal static async Task<int> RunCoreAsync(
         TryCommandOptions options,
@@ -89,7 +89,8 @@ internal static class TryCommand
 
         if (pilotExit != CliExitCode.Success)
         {
-            await output.WriteLineAsync($"Pilot stack failed to start (exit {pilotExit}). See output above for details.");
+            await output.WriteLineAsync(
+                $"Pilot stack failed to start (exit {pilotExit}). See output above for details.");
 
             return pilotExit;
         }
@@ -120,11 +121,13 @@ internal static class TryCommand
         bool executed = await hooks.ExecuteRun(options.ApiBaseUrl, runId, cancellationToken);
 
         if (!executed)
-            await output.WriteLineAsync("  (Note: explicit POST /execute did not succeed; will rely on simulator background loop.)");
+            await output.WriteLineAsync(
+                "  (Note: explicit POST /execute did not succeed; will rely on simulator background loop.)");
 
 
         await output.WriteLineAsync();
-        await output.WriteLineAsync($"Step 4/5: Polling until run is ReadyForCommit (deadline {options.CommitDeadline.TotalSeconds:n0}s)...");
+        await output.WriteLineAsync(
+            $"Step 4/5: Polling until run is ReadyForCommit (deadline {options.CommitDeadline.TotalSeconds:n0}s)...");
         ArchitectureRunStatus reached = await PollForCommittableStatusAsync(
             ct => GetStatusAsync(hooks.GetRun, client, runId, ct),
             options.CommitDeadline,
@@ -136,11 +139,13 @@ internal static class TryCommand
             await output.WriteLineAsync(
                 $"  Simulator did not progress to ReadyForCommit within {options.CommitDeadline.TotalSeconds:n0}s (current status: {reached}). Falling back to seed-fake-results (development-only).");
 
-            ArchLucidApiClient.SeedFakeResultsResult? seed = await hooks.SeedFakeResults(client, runId, cancellationToken);
+            ArchLucidApiClient.SeedFakeResultsResult? seed =
+                await hooks.SeedFakeResults(client, runId, cancellationToken);
 
             if (seed is null || !seed.Success)
             {
-                await output.WriteLineAsync($"Error: Seed-fake-results fallback failed. {seed?.Error ?? "Unknown error."}");
+                await output.WriteLineAsync(
+                    $"Error: Seed-fake-results fallback failed. {seed?.Error ?? "Unknown error."}");
 
                 return CliExitCode.OperationFailed;
             }
@@ -164,7 +169,8 @@ internal static class TryCommand
         await output.WriteLineAsync("Step 5/5: Downloading the first-value report and opening artifacts...");
 
         string reportPath = Path.Combine(Directory.GetCurrentDirectory(), $"first-value-{runId}.md");
-        bool reportSaved = await hooks.DownloadFirstValueReport(options.ApiBaseUrl, runId, reportPath, cancellationToken);
+        bool reportSaved =
+            await hooks.DownloadFirstValueReport(options.ApiBaseUrl, runId, reportPath, cancellationToken);
 
         if (!reportSaved)
         {
@@ -177,7 +183,6 @@ internal static class TryCommand
 
             if (options.OpenArtifacts)
                 hooks.OpenFile(reportPath);
-
         }
 
         string runUrl = $"{options.UiBaseUrl.TrimEnd('/')}/runs/{Uri.EscapeDataString(runId)}";
@@ -188,20 +193,21 @@ internal static class TryCommand
 
 
         await output.WriteLineAsync();
-        await output.WriteLineAsync("Done. You have a committed manifest, a sponsor-grade Markdown report, and an open run.");
+        await output.WriteLineAsync(
+            "Done. You have a committed manifest, a sponsor-grade Markdown report, and an open run.");
 
         return CliExitCode.Success;
     }
 
     /// <summary>
-    /// Polls the supplied status probe at <paramref name="pollInterval"/> until the status is
-    /// <see cref="ArchitectureRunStatus.ReadyForCommit"/> (or higher), the <paramref name="deadline"/>
-    /// elapses, or the cancellation token fires. Returns the final observed status, or
-    /// <see cref="ArchitectureRunStatus.Created"/> when no probe ever succeeded.
+    ///     Polls the supplied status probe at <paramref name="pollInterval" /> until the status is
+    ///     <see cref="ArchitectureRunStatus.ReadyForCommit" /> (or higher), the <paramref name="deadline" />
+    ///     elapses, or the cancellation token fires. Returns the final observed status, or
+    ///     <see cref="ArchitectureRunStatus.Created" /> when no probe ever succeeded.
     /// </summary>
     /// <remarks>
-    /// Pulled out as an internal static so unit tests can verify the timeout path with a deterministic
-    /// probe (no live API). The probe is allowed to return null when the run is not yet visible.
+    ///     Pulled out as an internal static so unit tests can verify the timeout path with a deterministic
+    ///     probe (no live API). The probe is allowed to return null when the run is not yet visible.
     /// </remarks>
     internal static async Task<ArchitectureRunStatus> PollForCommittableStatusAsync(
         Func<CancellationToken, Task<ArchitectureRunStatus?>> probe,
@@ -229,7 +235,6 @@ internal static class TryCommand
 
                 if (last >= ArchitectureRunStatus.ReadyForCommit)
                     return last;
-
             }
 
             try
@@ -272,13 +277,13 @@ internal static class TryCommand
             Constraints = ["single-region", "low-cost"],
             RequiredCapabilities = ["web", "sql", "monitoring"],
             Assumptions = ["No existing infrastructure to reuse"],
-            PriorManifestVersion = null,
+            PriorManifestVersion = null
         };
     }
 
     /// <summary>
-    /// Best-effort POST to <c>/v1/demo/seed</c>. Tolerates 204 (success), 400 (Demo:Enabled false),
-    /// 403 (insufficient authority outside Development), 404 (non-Development host), and connection failures.
+    ///     Best-effort POST to <c>/v1/demo/seed</c>. Tolerates 204 (success), 400 (Demo:Enabled false),
+    ///     403 (insufficient authority outside Development), 404 (non-Development host), and connection failures.
     /// </summary>
     private static async Task<DemoSeedOutcome> DemoSeedAsync(string apiBaseUrl, CancellationToken cancellationToken)
     {
@@ -307,20 +312,22 @@ internal static class TryCommand
                     "  Demo seed forbidden (insufficient authority). Continuing — startup auto-seed may have already run."),
                 HttpStatusCode.NotFound => new DemoSeedOutcome(false,
                     "  Demo seed unavailable (host is not Development). Continuing."),
-                _ => new DemoSeedOutcome(false, $"  Demo seed returned HTTP {(int)response.StatusCode}. Continuing."),
+                _ => new DemoSeedOutcome(false, $"  Demo seed returned HTTP {(int)response.StatusCode}. Continuing.")
             };
         }
         catch (Exception ex)
         {
-            return new DemoSeedOutcome(false, $"  Demo seed call failed: {ex.GetType().Name}: {ex.Message}. Continuing.");
+            return new DemoSeedOutcome(false,
+                $"  Demo seed call failed: {ex.GetType().Name}: {ex.Message}. Continuing.");
         }
     }
 
     /// <summary>
-    /// Best-effort POST <c>/v1/architecture/run/{runId}/execute</c> to dispatch agents. Returns true on
-    /// 2xx; false on any failure (the caller falls back to polling for the simulator background loop).
+    ///     Best-effort POST <c>/v1/architecture/run/{runId}/execute</c> to dispatch agents. Returns true on
+    ///     2xx; false on any failure (the caller falls back to polling for the simulator background loop).
     /// </summary>
-    private static async Task<bool> ExecuteRunAsync(string apiBaseUrl, string runId, CancellationToken cancellationToken)
+    private static async Task<bool> ExecuteRunAsync(string apiBaseUrl, string runId,
+        CancellationToken cancellationToken)
     {
         try
         {

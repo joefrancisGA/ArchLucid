@@ -1,4 +1,3 @@
-namespace ArchLucid.Cli.Plugins
-{
-    internal class DocumentGenerator;
-}
+namespace ArchLucid.Cli.Plugins;
+
+internal class DocumentGenerator;

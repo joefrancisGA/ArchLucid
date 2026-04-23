@@ -1,15 +1,14 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Text;
 
+using ArchLucid.Cli.SecondRun;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Cli.SecondRun;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// <c>archlucid second-run</c> — adoption path from demo to a real committed run using a one-page TOML/JSON file.
+///     <c>archlucid second-run</c> — adoption path from demo to a real committed run using a one-page TOML/JSON file.
 /// </summary>
 internal static class SecondRunCommand
 {
@@ -40,7 +39,8 @@ internal static class SecondRunCommand
             ? options.ApiBaseUrl.TrimEnd('/')
             : ArchLucidApiClient.ResolveBaseUrl(config);
 
-        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl, config, cancellationToken);
+        ApiConnectionOutcome connection =
+            await CliCommandShared.TryConnectToApiAsync(baseUrl, config, cancellationToken);
 
         if (connection is not ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
@@ -72,7 +72,8 @@ internal static class SecondRunCommand
         ArchLucidApiClient.ExecuteRunResult? exec = await client.ExecuteRunAsync(runId, cancellationToken);
 
         if (exec is null || !exec.Success)
-            await Console.Out.WriteLineAsync($"  Execute warning: {exec?.Error ?? "unknown"} — continuing with status poll.");
+            await Console.Out.WriteLineAsync(
+                $"  Execute warning: {exec?.Error ?? "unknown"} — continuing with status poll.");
 
         await Console.Out.WriteLineAsync();
         await Console.Out.WriteLineAsync(
@@ -96,7 +97,8 @@ internal static class SecondRunCommand
         {
             await Console.Out.WriteLineAsync(
                 $"  Run did not reach ReadyForCommit (observed {reached}). Trying seed-fake-results (Development hosts only)...");
-            ArchLucidApiClient.SeedFakeResultsResult? seed = await client.SeedFakeResultsAsync(runId, cancellationToken);
+            ArchLucidApiClient.SeedFakeResultsResult?
+                seed = await client.SeedFakeResultsAsync(runId, cancellationToken);
 
             if (seed is null || !seed.Success)
             {
@@ -167,13 +169,15 @@ internal static class SecondRunCommand
         return CliExitCode.Success;
     }
 
-    private static int MapParseFailureToExit(SecondRunParseFailureCode code) =>
-        code switch
+    private static int MapParseFailureToExit(SecondRunParseFailureCode code)
+    {
+        return code switch
         {
             SecondRunParseFailureCode.PayloadTooLarge => CliExitCode.UsageError,
             SecondRunParseFailureCode.BadRequest => CliExitCode.UsageError,
-            _ => CliExitCode.UsageError,
+            _ => CliExitCode.UsageError
         };
+    }
 
     private static async Task<bool> DownloadFirstValueReportAsync(
         string apiBaseUrl,

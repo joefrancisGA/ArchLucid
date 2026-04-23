@@ -1,9 +1,10 @@
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Downloads the sponsor one-pager PDF from <c>POST /v1/pilots/runs/{runId}/sponsor-one-pager</c> (Standard tier).
+///     Downloads the sponsor one-pager PDF from <c>POST /v1/pilots/runs/{runId}/sponsor-one-pager</c> (Standard tier).
 /// </summary>
 internal static class SponsorOnePagerCommand
 {
@@ -39,17 +40,17 @@ internal static class SponsorOnePagerCommand
 
         using HttpResponseMessage response = await http.PostAsync(
             $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/sponsor-one-pager",
-            content: null,
+            null,
             cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             Console.WriteLine($"Run '{runId}' was not found (or is out of scope).");
 
             return CliExitCode.UsageError;
         }
 
-        if (response.StatusCode == System.Net.HttpStatusCode.PaymentRequired)
+        if (response.StatusCode == HttpStatusCode.PaymentRequired)
         {
             Console.WriteLine("Tenant tier is below Standard (402 Payment Required).");
 

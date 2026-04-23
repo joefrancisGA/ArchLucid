@@ -3,20 +3,23 @@ using System.Text;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Static checks mirroring the **automated** portions of
-/// <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> + linked billing docs. Owner-only Partner Center
-/// steps (seller verification, tax profile, payout) are not machine-verifiable here — see that checklist.
+///     Static checks mirroring the **automated** portions of
+///     <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> + linked billing docs. Owner-only Partner Center
+///     steps (seller verification, tax profile, payout) are not machine-verifiable here — see that checklist.
 /// </summary>
 public static class MarketplacePreflightRunner
 {
-    /// <summary>Copied from <c>PRICING_PHILOSOPHY.md</c> §3 tier overview — keep in sync with <c>assert_marketplace_pricing_alignment.py</c>.</summary>
+    /// <summary>
+    ///     Copied from <c>PRICING_PHILOSOPHY.md</c> §3 tier overview — keep in sync with
+    ///     <c>assert_marketplace_pricing_alignment.py</c>.
+    /// </summary>
     public const string CanonicalPackagingRow = "| **Team** | **Professional** | **Enterprise** |";
 
     /// <summary>Copied from <c>MARKETPLACE_PUBLICATION.md</c> publication step 1.</summary>
     public const string MarketplacePlanTierTriple = "`Team` / `Professional` / `Enterprise`";
 
     /// <summary>
-    /// Runs all automated checks under <paramref name="repositoryRoot"/> (absolute path to repo root).
+    ///     Runs all automated checks under <paramref name="repositoryRoot" /> (absolute path to repo root).
     /// </summary>
     public static IReadOnlyList<MarketplacePreflightStepResult> Evaluate(string repositoryRoot)
     {

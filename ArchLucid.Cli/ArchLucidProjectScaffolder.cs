@@ -31,17 +31,14 @@ README.md
 */
 
 
-
 namespace ArchLucid.Cli;
-
-
 
 public static class ArchLucidProjectScaffolder
 {
     /// <summary>Primary CLI manifest file name in each scaffolded project.</summary>
     public const string CliManifestFileName = "archlucid.json";
 
-    /// <summary>Shared options for <see cref="CliManifestFileName"/> read/write (CA1869: single cached instance).</summary>
+    /// <summary>Shared options for <see cref="CliManifestFileName" /> read/write (CA1869: single cached instance).</summary>
     private static readonly JsonSerializerOptions SJsonManifest = new()
     {
         WriteIndented = true,
@@ -50,32 +47,12 @@ public static class ArchLucidProjectScaffolder
         AllowTrailingCommas = true
     };
 
-    public sealed class ScaffoldOptions
-    {
-        public string ProjectName { get; set; } = "";
-        public string? BaseDirectory { get; set; } = null;
-        public bool OverwriteExistingFiles { get; set; } = false;
-        public bool IncludeTerraformStubs { get; set; } = true;
-
-        /// <summary>
-        /// When true, attempt to register the project in SQL Server (PROJECTS table).
-        /// Default false so scaffolding works without a database connection.
-        /// </summary>
-        public bool RegisterProject { get; set; } = false;
-
-        /// <summary>
-        /// SQL Server connection string used when <see cref="RegisterProject"/> is true.
-        /// Must be set explicitly; there is no hardcoded default to avoid accidental production writes.
-        /// Example: "Server=localhost;Database=ArchLucid;Trusted_Connection=True;"
-        /// </summary>
-        public string? ConnectionString { get; set; } = null;
-    }
-
     public static string CreateProject(ScaffoldOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
         if (string.IsNullOrWhiteSpace(options.ProjectName))
-            throw new ArgumentException("ProjectName is required. It cannot be null, empty, or whitespace.", nameof(options));
+            throw new ArgumentException("ProjectName is required. It cannot be null, empty, or whitespace.",
+                nameof(options));
 
         Console.WriteLine("Creating Project " + options.ProjectName);
 
@@ -94,18 +71,24 @@ public static class ArchLucidProjectScaffolder
         CreateDirectory(Path.Combine(projectRoot, "docs"));
 
         // Write files
-        WriteFile(Path.Combine(projectRoot, CliManifestFileName), BuildArchLucidJson(options.ProjectName), options.OverwriteExistingFiles);
-        WriteFile(Path.Combine(projectRoot, "inputs", "brief.md"), BuildBriefMd(options.ProjectName), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, CliManifestFileName), BuildArchLucidJson(options.ProjectName),
+            options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "inputs", "brief.md"), BuildBriefMd(options.ProjectName),
+            options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "outputs", ".gitkeep"), "", options.OverwriteExistingFiles);
-        WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"), BuildPluginLockJson(), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"), BuildPluginLockJson(),
+            options.OverwriteExistingFiles);
 
         if (options.IncludeTerraformStubs)
         {
-            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "main.tf"), BuildTerraformMainTf(), options.OverwriteExistingFiles);
-            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "variables.tf"), BuildTerraformVariablesTf(), options.OverwriteExistingFiles);
+            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "main.tf"), BuildTerraformMainTf(),
+                options.OverwriteExistingFiles);
+            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "variables.tf"), BuildTerraformVariablesTf(),
+                options.OverwriteExistingFiles);
         }
 
-        WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName),
+            options.OverwriteExistingFiles);
 
         if (options.RegisterProject)
         {
@@ -127,9 +110,12 @@ public static class ArchLucidProjectScaffolder
                 Console.WriteLine("Connection successful.");
                 using SqlCommand command = new(sqlQuery, connection);
                 command.Parameters.Add("@ProjectName", SqlDbType.NVarChar, 0).Value = options.ProjectName;
-                command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value = options.BaseDirectory ?? (object)DBNull.Value;
-                command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value = options.OverwriteExistingFiles;
-                command.Parameters.Add("@IncludeTerraformStubs", SqlDbType.Bit, 0).Value = options.IncludeTerraformStubs;
+                command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value =
+                    options.BaseDirectory ?? (object)DBNull.Value;
+                command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value =
+                    options.OverwriteExistingFiles;
+                command.Parameters.Add("@IncludeTerraformStubs", SqlDbType.Bit, 0).Value =
+                    options.IncludeTerraformStubs;
                 command.ExecuteNonQuery();
             }
             catch (SqlException ex)
@@ -158,145 +144,7 @@ public static class ArchLucidProjectScaffolder
         string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
-        File.WriteAllText(path, contents, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-    }
-
-    public sealed class ArchLucidCliConfig
-    {
-        [JsonPropertyName("schemaVersion")]
-        public string SchemaVersion { get; set; } = "1.0";
-
-        [JsonPropertyName("projectName")]
-        public string ProjectName { get; set; } = "";
-
-        [JsonPropertyName("apiUrl")]
-        public string? ApiUrl
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("inputs")]
-        public InputsSection Inputs { get; set; } = new();
-
-        [JsonPropertyName("outputs")]
-        public OutputsSection Outputs { get; set; } = new();
-
-        /// <summary>Optional — when omitted, CLI skips plugin lock validation (no plugin directory required).</summary>
-        [JsonPropertyName("plugins")]
-        public PluginsSection? Plugins
-        {
-            get; set;
-        }
-
-        /// <summary>Optional — when omitted, Terraform path checks are skipped (treated as disabled).</summary>
-        [JsonPropertyName("infra")]
-        public InfraSection? Infra
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("architecture")]
-        public ArchitectureSection? Architecture
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("httpResilience")]
-        public CliHttpResilienceConfig? HttpResilience
-        {
-            get; set;
-        }
-    }
-
-    /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archlucid.json</c>).</summary>
-    public sealed class CliHttpResilienceConfig
-    {
-        [JsonPropertyName("maxRetryAttempts")]
-        public int? MaxRetryAttempts
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("initialDelaySeconds")]
-        public int? InitialDelaySeconds
-        {
-            get; set;
-        }
-    }
-
-    public sealed class ArchitectureSection
-    {
-        [JsonPropertyName("environment")]
-        public string? Environment
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("cloudProvider")]
-        public string? CloudProvider
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("constraints")]
-        public List<string>? Constraints
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("requiredCapabilities")]
-        public List<string>? RequiredCapabilities
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("assumptions")]
-        public List<string>? Assumptions
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("priorManifestVersion")]
-        public string? PriorManifestVersion
-        {
-            get; set;
-        }
-    }
-
-    public sealed class InputsSection
-    {
-        [JsonPropertyName("brief")]
-        public string Brief { get; set; } = "inputs/brief.md";
-    }
-
-    public sealed class OutputsSection
-    {
-        [JsonPropertyName("localCacheDir")]
-        public string LocalCacheDir { get; set; } = "outputs";
-    }
-
-    public sealed class PluginsSection
-    {
-        [JsonPropertyName("lockFile")]
-        public string LockFile { get; set; } = "plugins/plugin-lock.json";
-    }
-
-    public sealed class InfraSection
-    {
-        [JsonPropertyName("terraform")]
-        public TerraformSection Terraform { get; set; } = new();
-    }
-
-    public sealed class TerraformSection
-    {
-        [JsonPropertyName("enabled")]
-        public bool Enabled
-        {
-            get; set;
-        }
-
-        [JsonPropertyName("path")]
-        public string Path { get; set; } = "infra/terraform";
+        File.WriteAllText(path, contents, new UTF8Encoding(false));
     }
 
     private static string BuildArchLucidJson(string projectName)
@@ -305,14 +153,8 @@ public static class ArchLucidProjectScaffolder
         {
             ProjectName = projectName,
             ApiUrl = "http://localhost:5128",
-            Infra = new InfraSection
-            {
-                Terraform = new TerraformSection
-                {
-                    Enabled = false,
-                    Path = "infra/terraform"
-                }
-            },
+            Infra =
+                new InfraSection { Terraform = new TerraformSection { Enabled = false, Path = "infra/terraform" } },
             Architecture = new ArchitectureSection
             {
                 Environment = "prod",
@@ -327,8 +169,12 @@ public static class ArchLucidProjectScaffolder
 
     public static ArchLucidCliConfig LoadConfig(string? projectRoot)
     {
-        string lucidPath = projectRoot is not null ? Path.Combine(projectRoot, CliManifestFileName) : CliManifestFileName;
-        string legacyPath = projectRoot is not null ? Path.Combine(projectRoot, "archi" + "forge.json") : "archi" + "forge.json";
+        string lucidPath = projectRoot is not null
+            ? Path.Combine(projectRoot, CliManifestFileName)
+            : CliManifestFileName;
+        string legacyPath = projectRoot is not null
+            ? Path.Combine(projectRoot, "archi" + "forge.json")
+            : "archi" + "forge.json";
 
         string manifestPath;
         if (File.Exists(lucidPath))
@@ -362,6 +208,7 @@ public static class ArchLucidProjectScaffolder
         {
             throw new InvalidDataException($"Invalid JSON in {manifestPath}: {ex.Message}", ex);
         }
+
         if (config is null)
             throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
         if (projectRoot is not null)
@@ -393,7 +240,8 @@ public static class ArchLucidProjectScaffolder
             string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
             if (!File.Exists(lockPath))
-                throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
+                throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.",
+                    lockPath);
         }
 
         InfraSection infra = config.Infra ?? new InfraSection();
@@ -403,7 +251,8 @@ public static class ArchLucidProjectScaffolder
             return;
 
         if (string.IsNullOrWhiteSpace(tf.Path))
-            throw new InvalidDataException(CliManifestFileName + ": infra.terraform.path is required when infra.terraform.enabled is true.");
+            throw new InvalidDataException(CliManifestFileName +
+                                           ": infra.terraform.path is required when infra.terraform.enabled is true.");
 
         EnsureRelativePathOrThrow(tf.Path, "infra.terraform.path");
         string tfDir = Path.Combine(projectRoot, tf.Path);
@@ -417,10 +266,12 @@ public static class ArchLucidProjectScaffolder
         if (string.IsNullOrWhiteSpace(path))
             throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
         if (Path.IsPathRooted(path))
-            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
+            throw new InvalidDataException(
+                $"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
         string normalized = path.Replace('\\', '/');
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
-            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must not contain '..' segments ('{path}').");
+            throw new InvalidDataException(
+                $"{CliManifestFileName}: {fieldName} must not contain '..' segments ('{path}').");
     }
 
     private static string BuildBriefMd(string projectName)
@@ -517,5 +368,241 @@ Describe the outcome you want (business + technical). Keep it short and runnable
              3. Run `archlucid run` (or your host workflow) against the brief
 
              """;
+    }
+
+    public sealed class ScaffoldOptions
+    {
+        public string ProjectName
+        {
+            get;
+            set;
+        } = "";
+
+        public string? BaseDirectory
+        {
+            get;
+            set;
+        } = null;
+
+        public bool OverwriteExistingFiles
+        {
+            get;
+            set;
+        } = false;
+
+        public bool IncludeTerraformStubs
+        {
+            get;
+            set;
+        } = true;
+
+        /// <summary>
+        ///     When true, attempt to register the project in SQL Server (PROJECTS table).
+        ///     Default false so scaffolding works without a database connection.
+        /// </summary>
+        public bool RegisterProject
+        {
+            get;
+            set;
+        } = false;
+
+        /// <summary>
+        ///     SQL Server connection string used when <see cref="RegisterProject" /> is true.
+        ///     Must be set explicitly; there is no hardcoded default to avoid accidental production writes.
+        ///     Example: "Server=localhost;Database=ArchLucid;Trusted_Connection=True;"
+        /// </summary>
+        public string? ConnectionString
+        {
+            get;
+            set;
+        } = null;
+    }
+
+    public sealed class ArchLucidCliConfig
+    {
+        [JsonPropertyName("schemaVersion")]
+        public string SchemaVersion
+        {
+            get;
+            set;
+        } = "1.0";
+
+        [JsonPropertyName("projectName")]
+        public string ProjectName
+        {
+            get;
+            set;
+        } = "";
+
+        [JsonPropertyName("apiUrl")]
+        public string? ApiUrl
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("inputs")]
+        public InputsSection Inputs
+        {
+            get;
+            set;
+        } = new();
+
+        [JsonPropertyName("outputs")]
+        public OutputsSection Outputs
+        {
+            get;
+            set;
+        } = new();
+
+        /// <summary>Optional — when omitted, CLI skips plugin lock validation (no plugin directory required).</summary>
+        [JsonPropertyName("plugins")]
+        public PluginsSection? Plugins
+        {
+            get;
+            set;
+        }
+
+        /// <summary>Optional — when omitted, Terraform path checks are skipped (treated as disabled).</summary>
+        [JsonPropertyName("infra")]
+        public InfraSection? Infra
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("architecture")]
+        public ArchitectureSection? Architecture
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("httpResilience")]
+        public CliHttpResilienceConfig? HttpResilience
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archlucid.json</c>).</summary>
+    public sealed class CliHttpResilienceConfig
+    {
+        [JsonPropertyName("maxRetryAttempts")]
+        public int? MaxRetryAttempts
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("initialDelaySeconds")]
+        public int? InitialDelaySeconds
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class ArchitectureSection
+    {
+        [JsonPropertyName("environment")]
+        public string? Environment
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("cloudProvider")]
+        public string? CloudProvider
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("constraints")]
+        public List<string>? Constraints
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("requiredCapabilities")]
+        public List<string>? RequiredCapabilities
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("assumptions")]
+        public List<string>? Assumptions
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("priorManifestVersion")]
+        public string? PriorManifestVersion
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class InputsSection
+    {
+        [JsonPropertyName("brief")]
+        public string Brief
+        {
+            get;
+            set;
+        } = "inputs/brief.md";
+    }
+
+    public sealed class OutputsSection
+    {
+        [JsonPropertyName("localCacheDir")]
+        public string LocalCacheDir
+        {
+            get;
+            set;
+        } = "outputs";
+    }
+
+    public sealed class PluginsSection
+    {
+        [JsonPropertyName("lockFile")]
+        public string LockFile
+        {
+            get;
+            set;
+        } = "plugins/plugin-lock.json";
+    }
+
+    public sealed class InfraSection
+    {
+        [JsonPropertyName("terraform")]
+        public TerraformSection Terraform
+        {
+            get;
+            set;
+        } = new();
+    }
+
+    public sealed class TerraformSection
+    {
+        [JsonPropertyName("enabled")]
+        public bool Enabled
+        {
+            get;
+            set;
+        }
+
+        [JsonPropertyName("path")]
+        public string Path
+        {
+            get;
+            set;
+        } = "infra/terraform";
     }
 }

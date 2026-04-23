@@ -3,12 +3,13 @@ using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI health checks reachability via ArchLucidApiClient (excluded from coverage); smoke-tested via Program integration tests.")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI health checks reachability via ArchLucidApiClient (excluded from coverage); smoke-tested via Program integration tests.")]
 internal static class HealthCommand
 {
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     public static async Task<int> RunAsync()
@@ -23,12 +24,7 @@ internal static class HealthCommand
 
         if (CliExecutionContext.JsonOutput)
         {
-            object payload = new
-            {
-                ok = true,
-                exitCode = CliExitCode.Success,
-                baseUrl
-            };
+            object payload = new { ok = true, exitCode = CliExitCode.Success, baseUrl };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }
         else

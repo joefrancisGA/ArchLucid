@@ -4,7 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace ArchLucid.Cli.Commands;
 
-/// <summary><c>archlucid procurement-pack</c> — builds the buyer procurement ZIP via <c>scripts/build_procurement_pack.py</c>.</summary>
+/// <summary>
+///     <c>archlucid procurement-pack</c> — builds the buyer procurement ZIP via
+///     <c>scripts/build_procurement_pack.py</c>.
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "Process orchestration; validated by ProcurementPackCommandTests + CI.")]
 internal static class ProcurementPackCommand
 {
@@ -74,7 +77,7 @@ internal static class ProcurementPackCommand
             WorkingDirectory = repoRoot,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
+            UseShellExecute = false
         };
 
         psi.ArgumentList.Add(scriptPath);

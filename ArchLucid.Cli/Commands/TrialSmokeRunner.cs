@@ -7,9 +7,9 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Executes the <c>archlucid trial smoke</c> happy path against an HTTP API. Pure HTTP — no docker, no SQL,
-/// no NSwag client coupling — so it can run against staging in Stripe TEST mode and be unit-tested with a
-/// <see cref="HttpMessageHandler"/> mock.
+///     Executes the <c>archlucid trial smoke</c> happy path against an HTTP API. Pure HTTP — no docker, no SQL,
+///     no NSwag client coupling — so it can run against staging in Stripe TEST mode and be unit-tested with a
+///     <see cref="HttpMessageHandler" /> mock.
 /// </summary>
 public sealed class TrialSmokeRunner(HttpClient http)
 {
@@ -17,7 +17,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
@@ -28,7 +28,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
         List<TrialSmokeStepResult> steps = [];
 
-        (TrialSmokeStepResult registerStep, TrialSmokeRegisterResponse? registerResponse) = await RegisterAsync(options, ct);
+        (TrialSmokeStepResult registerStep, TrialSmokeRegisterResponse? registerResponse) =
+            await RegisterAsync(options, ct);
         steps.Add(registerStep);
 
         if (!registerStep.Passed || registerResponse is null)
@@ -39,12 +40,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
         steps.Add(statusStep);
 
         if (!statusStep.Passed || statusResponse is null)
-            return new TrialSmokeReport
-            {
-                Steps = steps,
-                AllPassed = false,
-                TenantId = registerResponse.TenantId,
-            };
+            return new TrialSmokeReport { Steps = steps, AllPassed = false, TenantId = registerResponse.TenantId };
 
         if (options.SkipPilotRunDeltas || string.IsNullOrWhiteSpace(statusResponse.TrialWelcomeRunId))
             return new TrialSmokeReport
@@ -52,10 +48,11 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 Steps = steps,
                 AllPassed = steps.All(s => s.Passed),
                 TenantId = registerResponse.TenantId,
-                TrialWelcomeRunId = statusResponse.TrialWelcomeRunId,
+                TrialWelcomeRunId = statusResponse.TrialWelcomeRunId
             };
 
-        TrialSmokeStepResult deltasStep = await PilotRunDeltasAsync(registerResponse, statusResponse.TrialWelcomeRunId!, ct);
+        TrialSmokeStepResult deltasStep =
+            await PilotRunDeltasAsync(registerResponse, statusResponse.TrialWelcomeRunId!, ct);
         steps.Add(deltasStep);
 
         return new TrialSmokeReport
@@ -63,7 +60,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             Steps = steps,
             AllPassed = steps.All(s => s.Passed),
             TenantId = registerResponse.TenantId,
-            TrialWelcomeRunId = statusResponse.TrialWelcomeRunId,
+            TrialWelcomeRunId = statusResponse.TrialWelcomeRunId
         };
     }
 
@@ -80,7 +77,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             AdminEmail = options.AdminEmail,
             AdminDisplayName = options.AdminDisplayName,
             BaselineReviewCycleHours = options.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = options.BaselineReviewCycleSource,
+            BaselineReviewCycleSource = options.BaselineReviewCycleSource
         };
 
         try
@@ -91,42 +88,45 @@ public sealed class TrialSmokeRunner(HttpClient http)
             {
                 string body = await res.Content.ReadAsStringAsync(ct);
 
-                return (new TrialSmokeStepResult
-                {
-                    Name = Name,
-                    Passed = false,
-                    Detail = $"POST /v1/register returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                    FailureHint = Hint,
-                }, null);
+                return (
+                    new TrialSmokeStepResult
+                    {
+                        Name = Name,
+                        Passed = false,
+                        Detail = $"POST /v1/register returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
+                        FailureHint = Hint
+                    }, null);
             }
 
-            TrialSmokeRegisterResponse? body200 = await res.Content.ReadFromJsonAsync<TrialSmokeRegisterResponse>(JsonCamel, ct);
+            TrialSmokeRegisterResponse? body200 =
+                await res.Content.ReadFromJsonAsync<TrialSmokeRegisterResponse>(JsonCamel, ct);
 
             if (body200 is null || string.IsNullOrWhiteSpace(body200.TenantId))
-                return (new TrialSmokeStepResult
-                {
-                    Name = Name,
-                    Passed = false,
-                    Detail = "POST /v1/register returned 201 but the response body did not contain a tenantId.",
-                    FailureHint = Hint,
-                }, null);
+                return (
+                    new TrialSmokeStepResult
+                    {
+                        Name = Name,
+                        Passed = false,
+                        Detail = "POST /v1/register returned 201 but the response body did not contain a tenantId.",
+                        FailureHint = Hint
+                    }, null);
 
-            return (new TrialSmokeStepResult
-            {
-                Name = Name,
-                Passed = true,
-                Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId}).",
-            }, body200);
+            return (
+                new TrialSmokeStepResult
+                {
+                    Name = Name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
+                }, body200);
         }
         catch (Exception ex)
         {
-            return (new TrialSmokeStepResult
-            {
-                Name = Name,
-                Passed = false,
-                Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
-                FailureHint = Hint,
-            }, null);
+            return (
+                new TrialSmokeStepResult
+                {
+                    Name = Name,
+                    Passed = false,
+                    Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
+                    FailureHint = Hint
+                }, null);
         }
     }
 
@@ -148,42 +148,49 @@ public sealed class TrialSmokeRunner(HttpClient http)
             {
                 string body = await res.Content.ReadAsStringAsync(ct);
 
-                return (new TrialSmokeStepResult
-                {
-                    Name = Name,
-                    Passed = false,
-                    Detail = $"GET /v1/tenant/trial-status returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                    FailureHint = Hint,
-                }, null);
+                return (
+                    new TrialSmokeStepResult
+                    {
+                        Name = Name,
+                        Passed = false,
+                        Detail =
+                            $"GET /v1/tenant/trial-status returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
+                        FailureHint = Hint
+                    }, null);
             }
 
-            TrialSmokeTrialStatusResponse? body200 = await res.Content.ReadFromJsonAsync<TrialSmokeTrialStatusResponse>(JsonCamel, ct);
+            TrialSmokeTrialStatusResponse? body200 =
+                await res.Content.ReadFromJsonAsync<TrialSmokeTrialStatusResponse>(JsonCamel, ct);
 
             if (body200 is null)
-                return (new TrialSmokeStepResult
+                return (
+                    new TrialSmokeStepResult
+                    {
+                        Name = Name,
+                        Passed = false,
+                        Detail = "GET /v1/tenant/trial-status returned 200 with an empty/invalid JSON body.",
+                        FailureHint = Hint
+                    }, null);
+
+            return (
+                new TrialSmokeStepResult
                 {
                     Name = Name,
-                    Passed = false,
-                    Detail = "GET /v1/tenant/trial-status returned 200 with an empty/invalid JSON body.",
-                    FailureHint = Hint,
-                }, null);
-
-            return (new TrialSmokeStepResult
-            {
-                Name = Name,
-                Passed = true,
-                Detail = $"GET /v1/tenant/trial-status → 200 (status={body200.Status}, welcomeRunId={body200.TrialWelcomeRunId ?? "<none>"}).",
-            }, body200);
+                    Passed = true,
+                    Detail =
+                        $"GET /v1/tenant/trial-status → 200 (status={body200.Status}, welcomeRunId={body200.TrialWelcomeRunId ?? "<none>"})."
+                }, body200);
         }
         catch (Exception ex)
         {
-            return (new TrialSmokeStepResult
-            {
-                Name = Name,
-                Passed = false,
-                Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}",
-                FailureHint = Hint,
-            }, null);
+            return (
+                new TrialSmokeStepResult
+                {
+                    Name = Name,
+                    Passed = false,
+                    Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}",
+                    FailureHint = Hint
+                }, null);
         }
     }
 
@@ -193,7 +200,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
         CancellationToken ct)
     {
         const string Name = "pilot-run-deltas";
-        const string Hint = "Look for Run.CommitCompleted (and CoordinatorRunCommitCompleted dual-write) in dbo.AuditEvents.";
+        const string Hint =
+            "Look for Run.CommitCompleted (and CoordinatorRunCommitCompleted dual-write) in dbo.AuditEvents.";
 
         try
         {
@@ -212,11 +220,12 @@ public sealed class TrialSmokeRunner(HttpClient http)
                     Name = Name,
                     Passed = false,
                     Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                    FailureHint = Hint,
+                    FailureHint = Hint
                 };
             }
 
-            TrialSmokePilotRunDeltasShape? body200 = await res.Content.ReadFromJsonAsync<TrialSmokePilotRunDeltasShape>(JsonCamel, ct);
+            TrialSmokePilotRunDeltasShape? body200 =
+                await res.Content.ReadFromJsonAsync<TrialSmokePilotRunDeltasShape>(JsonCamel, ct);
             string seconds = body200?.TimeToCommittedManifestTotalSeconds is { } s
                 ? s.ToString("0.##", CultureInfo.InvariantCulture)
                 : "<null>";
@@ -225,7 +234,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             {
                 Name = Name,
                 Passed = true,
-                Detail = $"GET {path} → 200 (timeToCommittedManifestTotalSeconds={seconds}).",
+                Detail = $"GET {path} → 200 (timeToCommittedManifestTotalSeconds={seconds})."
             };
         }
         catch (Exception ex)
@@ -235,7 +244,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 Name = Name,
                 Passed = false,
                 Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}",
-                FailureHint = Hint,
+                FailureHint = Hint
             };
         }
     }
@@ -252,5 +261,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
             req.Headers.TryAddWithoutValidation("X-Project-Id", register.DefaultProjectId);
     }
 
-    private static string Truncate(string s, int max) => string.IsNullOrEmpty(s) || s.Length <= max ? s : s[..max] + "…";
+    private static string Truncate(string s, int max)
+    {
+        return string.IsNullOrEmpty(s) || s.Length <= max ? s : s[..max] + "…";
+    }
 }

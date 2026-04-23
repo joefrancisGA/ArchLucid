@@ -1,17 +1,15 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Downloads reference-evidence artifacts for a committed run (tenant scope) or a tenant-wide ZIP (admin).
+///     Downloads reference-evidence artifacts for a committed run (tenant scope) or a tenant-wide ZIP (admin).
 /// </summary>
 internal static class ReferenceEvidenceCommand
 {
-    private static readonly JsonSerializerOptions JsonReadOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+    private static readonly JsonSerializerOptions JsonReadOptions = new() { PropertyNameCaseInsensitive = true };
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
@@ -46,9 +44,11 @@ internal static class ReferenceEvidenceCommand
         }
 
         if (parsed.TenantId is { } tenantId)
-            return await DownloadTenantZipAsync(http, tenantId, parsed.OutputDirectory, parsed.IncludeDemo, cancellationToken);
+            return await DownloadTenantZipAsync(http, tenantId, parsed.OutputDirectory, parsed.IncludeDemo,
+                cancellationToken);
 
-        return await DownloadRunBundleAsync(http, parsed.RunId!, parsed.OutputDirectory, parsed.IncludeDemo, cancellationToken);
+        return await DownloadRunBundleAsync(http, parsed.RunId!, parsed.OutputDirectory, parsed.IncludeDemo,
+            cancellationToken);
     }
 
     private static async Task<int> DownloadTenantZipAsync(
@@ -64,7 +64,7 @@ internal static class ReferenceEvidenceCommand
             $"v1/admin/tenants/{tenantId:D}/reference-evidence{query}",
             cancellationToken);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (response.StatusCode == HttpStatusCode.NotFound)
         {
             Console.WriteLine(
                 "No committed run found for that tenant (or none after excluding demo runs). Use --include-demo to allow demo seed.");
@@ -72,8 +72,8 @@ internal static class ReferenceEvidenceCommand
             return CliExitCode.UsageError;
         }
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
-            || response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (response.StatusCode == HttpStatusCode.Forbidden
+            || response.StatusCode == HttpStatusCode.Unauthorized)
         {
             Console.WriteLine("Admin API key with AdminAuthority is required for --tenant exports.");
 
@@ -89,7 +89,8 @@ internal static class ReferenceEvidenceCommand
         }
 
         byte[] zip = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-        string dir = outputDirectory ?? Path.Combine(Directory.GetCurrentDirectory(), "reference-evidence", $"tenant-{tenantId:D}");
+        string dir = outputDirectory ??
+                     Path.Combine(Directory.GetCurrentDirectory(), "reference-evidence", $"tenant-{tenantId:D}");
         Directory.CreateDirectory(dir);
         string zipPath = Path.Combine(dir, $"reference-evidence-{tenantId:D}.zip");
         await File.WriteAllBytesAsync(zipPath, zip, cancellationToken);
@@ -111,7 +112,7 @@ internal static class ReferenceEvidenceCommand
         using HttpResponseMessage deltasResponse =
             await http.GetAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/pilot-run-deltas", cancellationToken);
 
-        if (deltasResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+        if (deltasResponse.StatusCode == HttpStatusCode.NotFound)
         {
             Console.WriteLine($"Run '{runId}' was not found (or is out of scope).");
 
@@ -158,7 +159,8 @@ internal static class ReferenceEvidenceCommand
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));
 
         using HttpResponseMessage firstPdf =
-            await http.PostAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report.pdf", null, cancellationToken);
+            await http.PostAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report.pdf", null,
+                cancellationToken);
 
         if (firstPdf.IsSuccessStatusCode)
         {
@@ -167,7 +169,8 @@ internal static class ReferenceEvidenceCommand
         }
 
         using HttpResponseMessage sponsorPdf =
-            await http.PostAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/sponsor-one-pager", null, cancellationToken);
+            await http.PostAsync($"v1/pilots/runs/{Uri.EscapeDataString(runId)}/sponsor-one-pager", null,
+                cancellationToken);
 
         if (sponsorPdf.IsSuccessStatusCode)
         {
@@ -184,7 +187,8 @@ internal static class ReferenceEvidenceCommand
     {
         public bool IsDemoTenant
         {
-            get; set;
+            get;
+            set;
         }
     }
 
@@ -192,25 +196,29 @@ internal static class ReferenceEvidenceCommand
     {
         public string? RunId
         {
-            get; private init;
+            get;
+            private init;
         }
 
         public Guid? TenantId
         {
-            get; private init;
+            get;
+            private init;
         }
 
         public string? OutputDirectory
         {
-            get; private init;
+            get;
+            private init;
         }
 
         public bool IncludeDemo
         {
-            get; private init;
+            get;
+            private init;
         }
 
-        public bool IsValid => (RunId is not null) ^ (TenantId is not null);
+        public bool IsValid => RunId is not null ^ TenantId is not null;
 
         public static ReferenceEvidenceArgs Parse(string[] args)
         {
@@ -231,7 +239,7 @@ internal static class ReferenceEvidenceCommand
                 }
 
                 if (string.Equals(a, "--tenant", StringComparison.Ordinal) && i + 1 < args.Length
-                    && Guid.TryParse(args[++i], out Guid tid))
+                                                                           && Guid.TryParse(args[++i], out Guid tid))
                 {
                     tenant = tid;
 
@@ -248,17 +256,12 @@ internal static class ReferenceEvidenceCommand
                 if (string.Equals(a, "--include-demo", StringComparison.Ordinal))
                 {
                     includeDemo = true;
-
-                    continue;
                 }
             }
 
             return new ReferenceEvidenceArgs
             {
-                RunId = run,
-                TenantId = tenant,
-                OutputDirectory = output,
-                IncludeDemo = includeDemo,
+                RunId = run, TenantId = tenant, OutputDirectory = output, IncludeDemo = includeDemo
             };
         }
     }

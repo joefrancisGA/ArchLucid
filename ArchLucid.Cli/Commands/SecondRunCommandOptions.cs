@@ -1,6 +1,6 @@
 namespace ArchLucid.Cli.Commands;
 
-/// <summary>Parsed arguments for <see cref="SecondRunCommand"/>.</summary>
+/// <summary>Parsed arguments for <see cref="SecondRunCommand" />.</summary>
 internal sealed class SecondRunCommandOptions
 {
     public const string DefaultApiBaseUrl = TryCommandOptions.DefaultApiBaseUrl;
@@ -9,20 +9,48 @@ internal sealed class SecondRunCommandOptions
 
     public static readonly TimeSpan DefaultCommitDeadline = TryCommandOptions.DefaultCommitDeadline;
 
-    public required string InputPath { get; init; }
+    public required string InputPath
+    {
+        get;
+        init;
+    }
 
-    /// <summary>When true, <see cref="ApiBaseUrl"/> came from <c>--api-base-url</c> and must override <c>archlucid.json</c>.</summary>
-    public bool ApiBaseUrlFromArgument { get; init; }
+    /// <summary>When true, <see cref="ApiBaseUrl" /> came from <c>--api-base-url</c> and must override <c>archlucid.json</c>.</summary>
+    public bool ApiBaseUrlFromArgument
+    {
+        get;
+        init;
+    }
 
-    public string ApiBaseUrl { get; init; } = DefaultApiBaseUrl;
+    public string ApiBaseUrl
+    {
+        get;
+        init;
+    } = DefaultApiBaseUrl;
 
-    public string UiBaseUrl { get; init; } = DefaultUiBaseUrl;
+    public string UiBaseUrl
+    {
+        get;
+        init;
+    } = DefaultUiBaseUrl;
 
-    public bool OpenArtifacts { get; init; } = true;
+    public bool OpenArtifacts
+    {
+        get;
+        init;
+    } = true;
 
-    public TimeSpan CommitDeadline { get; init; } = DefaultCommitDeadline;
+    public TimeSpan CommitDeadline
+    {
+        get;
+        init;
+    } = DefaultCommitDeadline;
 
-    public TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(2);
+    public TimeSpan PollInterval
+    {
+        get;
+        init;
+    } = TimeSpan.FromSeconds(2);
 
     /// <summary>Parses arguments after the <c>second-run</c> token. First positional is the input file path.</summary>
     public static SecondRunCommandOptions? Parse(string[] args, out string? error)
@@ -31,7 +59,8 @@ internal sealed class SecondRunCommandOptions
 
         if (args.Length == 0)
         {
-            error = "Usage: archlucid second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <seconds>]";
+            error =
+                "Usage: archlucid second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <seconds>]";
 
             return null;
         }
@@ -100,7 +129,7 @@ internal sealed class SecondRunCommandOptions
             ApiBaseUrl = apiBaseUrl,
             UiBaseUrl = uiBaseUrl,
             OpenArtifacts = openArtifacts,
-            CommitDeadline = commitDeadline,
+            CommitDeadline = commitDeadline
         };
     }
 

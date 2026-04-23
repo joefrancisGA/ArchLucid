@@ -1,8 +1,8 @@
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Locates the ArchLucid git repository root from a starting directory by probing for
-/// <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> (stable marker for CLI commands that read repo docs).
+///     Locates the ArchLucid git repository root from a starting directory by probing for
+///     <c>docs/go-to-market/MARKETPLACE_PUBLICATION.md</c> (stable marker for CLI commands that read repo docs).
 /// </summary>
 internal static class CliRepositoryRootResolver
 {

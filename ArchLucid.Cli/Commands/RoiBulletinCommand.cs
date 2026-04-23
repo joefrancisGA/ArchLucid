@@ -8,16 +8,14 @@ using ArchLucid.Core.GoToMarket;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Draft aggregate ROI bulletin via <c>GET /v1/admin/roi-bulletin-preview</c> (AdminAuthority + API key), or
-/// <c>--synthetic</c> local sample (no API) that mirrors demo-seed narrative constants.
+///     Draft aggregate ROI bulletin via <c>GET /v1/admin/roi-bulletin-preview</c> (AdminAuthority + API key), or
+///     <c>--synthetic</c> local sample (no API) that mirrors demo-seed narrative constants.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "HTTP + file I/O; covered by RoiBulletinCommandTests with a mock HttpMessageHandler.")]
+[ExcludeFromCodeCoverage(Justification =
+    "HTTP + file I/O; covered by RoiBulletinCommandTests with a mock HttpMessageHandler.")]
 internal static class RoiBulletinCommand
 {
-    private static readonly JsonSerializerOptions JsonRead = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+    private static readonly JsonSerializerOptions JsonRead = new() { PropertyNameCaseInsensitive = true };
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
@@ -111,7 +109,8 @@ internal static class RoiBulletinCommand
             return CliExitCode.OperationFailed;
         }
 
-        RoiBulletinPreviewPayload? payload = JsonSerializer.Deserialize<RoiBulletinPreviewPayload>(responseBody, JsonRead);
+        RoiBulletinPreviewPayload? payload =
+            JsonSerializer.Deserialize<RoiBulletinPreviewPayload>(responseBody, JsonRead);
 
         if (payload is null)
         {
@@ -150,5 +149,8 @@ internal static class RoiBulletinCommand
         await Console.Error.WriteLineAsync();
     }
 
-    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "…";
+    private static string Truncate(string s, int max)
+    {
+        return s.Length <= max ? s : s[..max] + "…";
+    }
 }

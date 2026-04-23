@@ -8,6 +8,7 @@ namespace ArchLucid.Cli;
 public static class ManifestValidator
 {
     private static readonly JsonSerializerOptions SJsonWriteIndented = new() { WriteIndented = true };
+
     public static void ValidateOrThrow(string schemaPath, string manifestPath)
     {
         if (!File.Exists(schemaPath))
@@ -22,10 +23,7 @@ public static class ManifestValidator
 
         using JsonDocument manifestDoc = JsonDocument.Parse(manifestJson);
 
-        EvaluationOptions options = new()
-        {
-            OutputFormat = OutputFormat.Hierarchical
-        };
+        EvaluationOptions options = new() { OutputFormat = OutputFormat.Hierarchical };
 
         EvaluationResults result = schema.Evaluate(manifestDoc.RootElement, options);
 
@@ -44,7 +42,8 @@ public static class ManifestValidator
         JsonSchema schema = JsonSchema.FromFile(schemaPath);
         using JsonDocument doc = JsonDocument.Parse(manifestJson);
 
-        EvaluationResults result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.Hierarchical });
+        EvaluationResults result = schema.Evaluate(doc.RootElement,
+            new EvaluationOptions { OutputFormat = OutputFormat.Hierarchical });
 
         if (result.IsValid)
             return true;

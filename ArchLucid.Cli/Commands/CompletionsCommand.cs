@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Emits shell completion scripts for bash, zsh, or PowerShell (static word lists — no runtime API calls).
+///     Emits shell completion scripts for bash, zsh, or PowerShell (static word lists — no runtime API calls).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Console output; exercised via CompletionsCommandTests.")]
 public static class CompletionsCommand
@@ -36,11 +36,11 @@ public static class CompletionsCommand
         "doctor",
         "check",
         "support-bundle",
-        "completions",
+        "completions"
     ];
 
     /// <summary>
-    /// Usage: <c>completions bash|zsh|powershell</c>.
+    ///     Usage: <c>completions bash|zsh|powershell</c>.
     /// </summary>
     public static Task<int> RunAsync(string[] args)
     {
@@ -83,17 +83,9 @@ public static class CompletionsCommand
             Environment.NewLine,
             new[]
             {
-                "_archlucid_completion() {",
-                "  local cur",
-                "  COMPREPLY=()",
-                "  cur=\"${COMP_WORDS[COMP_CWORD]}\"",
-                "  if [ \"$COMP_CWORD\" -eq 1 ]; then",
-                $"    COMPREPLY=( $(compgen -W \"{words}\" -- \"$cur\") )",
-                "  fi",
-                "  return 0",
-                "}",
-                "complete -F _archlucid_completion archlucid",
-                string.Empty,
+                "_archlucid_completion() {", "  local cur", "  COMPREPLY=()", "  cur=\"${COMP_WORDS[COMP_CWORD]}\"",
+                "  if [ \"$COMP_CWORD\" -eq 1 ]; then", $"    COMPREPLY=( $(compgen -W \"{words}\" -- \"$cur\") )",
+                "  fi", "  return 0", "}", "complete -F _archlucid_completion archlucid", string.Empty
             });
     }
 
@@ -105,10 +97,7 @@ public static class CompletionsCommand
 
         IEnumerable<string> body = new[]
         {
-            "#compdef archlucid",
-            "_archlucid() {",
-            "  local -a commands",
-            "  commands = (",
+            "#compdef archlucid", "_archlucid() {", "  local -a commands", "  commands = ("
         }.Concat(commandLines).Concat([
             "  )",
             "  _describe 'command' commands",
@@ -129,13 +118,10 @@ public static class CompletionsCommand
             new[]
             {
                 "Register-ArgumentCompleter -Native -CommandName archlucid -ScriptBlock {",
-                "  param($wordToComplete, $commandAst, $cursorPosition)",
-                $"  $commands = @({words})",
+                "  param($wordToComplete, $commandAst, $cursorPosition)", $"  $commands = @({words})",
                 "  $commands | Where-Object { $_ -like \"$wordToComplete*\" } | ForEach-Object {",
-                "    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)",
-                "  }",
-                "}",
-                string.Empty,
+                "    [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)", "  }",
+                "}", string.Empty
             });
     }
 }

@@ -8,7 +8,8 @@ namespace ArchLucid.Cli.Commands;
 internal static class SecondRunDiagnostics
 {
     /// <summary>Writes correlation id (when known) and canonical audit event names to search in host logs.</summary>
-    internal static async Task WriteAsync(TextWriter writer, string step, int? httpStatus, string? correlationId, string? apiDetail)
+    internal static async Task WriteAsync(TextWriter writer, string step, int? httpStatus, string? correlationId,
+        string? apiDetail)
     {
         ArgumentNullException.ThrowIfNull(writer);
 

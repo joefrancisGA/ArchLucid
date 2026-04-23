@@ -7,27 +7,32 @@ public sealed class RoiBulletinCommandOptions
 
     public string Quarter
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     public int MinTenants
     {
-        get; init;
+        get;
+        init;
     } = DefaultMinTenants;
 
     public string? OutPath
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool Synthetic
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool Explain
     {
-        get; init;
+        get;
+        init;
     }
 
     public static RoiBulletinCommandOptions? Parse(string[] args, out string? error)
@@ -66,6 +71,7 @@ public sealed class RoiBulletinCommandOptions
                         error = "Invalid value for --min-tenants. Expected a positive integer.";
                         return null;
                     }
+
                     minTenants = parsed;
                     break;
 
@@ -94,7 +100,7 @@ public sealed class RoiBulletinCommandOptions
             MinTenants = minTenants,
             OutPath = outPath,
             Synthetic = synthetic,
-            Explain = explain,
+            Explain = explain
         };
     }
 

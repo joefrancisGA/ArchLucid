@@ -2,7 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI seed subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI seed subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class SeedCommand
 {
     public static async Task<int> RunAsync(string runId)

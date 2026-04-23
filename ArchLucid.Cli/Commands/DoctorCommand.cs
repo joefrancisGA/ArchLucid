@@ -1,19 +1,23 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Operator-facing readiness diagnostics: CLI build identity, local project layout,
-/// API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c> (requires API key or JWT with read authority).
+///     Operator-facing readiness diagnostics: CLI build identity, local project layout,
+///     API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c>
+///     (requires API key or JWT with read authority).
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "CLI doctor orchestrates HTTP probes via ArchLucidApiClient (excluded from coverage); exercised manually against a running API.")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI doctor orchestrates HTTP probes via ArchLucidApiClient (excluded from coverage); exercised manually against a running API.")]
 internal static class DoctorCommand
 {
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
 
-    public static async Task<int> RunAsync(ArchLucidProjectScaffolder.ArchLucidCliConfig? config, CancellationToken ct = default)
+    public static async Task<int> RunAsync(ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
+        CancellationToken ct = default)
     {
         Console.WriteLine("ArchLucid doctor — local checks and API readiness");
         Console.WriteLine();
@@ -45,7 +49,7 @@ internal static class DoctorCommand
         (int aggregateCode, string aggregateBody) = await client.GetHealthProbeAsync("/health", ct);
         Console.WriteLine();
         Console.WriteLine($"Detailed health (/health) HTTP {aggregateCode}");
-        Console.WriteLine(TruncateForDisplay(aggregateBody, maxChars: 4000));
+        Console.WriteLine(TruncateForDisplay(aggregateBody, 4000));
 
         if (!readyOk)
         {
@@ -89,12 +93,12 @@ internal static class DoctorCommand
         string assemblyVersion = name.Version?.ToString() ?? "unknown";
 
         string informational = cliAssembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? assemblyVersion;
+                                   .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                               ?? assemblyVersion;
 
         Console.WriteLine($"CLI version:    {informational}");
         Console.WriteLine($"Assembly:       {assemblyVersion}");
-        Console.WriteLine($"Runtime:        {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");
+        Console.WriteLine($"Runtime:        {RuntimeInformation.FrameworkDescription}");
         Console.WriteLine();
     }
 
@@ -171,7 +175,10 @@ internal static class DoctorCommand
             "These rows are **not** fetched from the API host process; they inspect local environment variables " +
             "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/FIRST_30_MINUTES.md`.");
 
-        static string Cell(string value) => string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
+        static string Cell(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
+        }
 
         string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY") ?? string.Empty;
         string sql =
@@ -182,10 +189,14 @@ internal static class DoctorCommand
         Console.WriteLine();
         Console.WriteLine("| Check | Status | How to fix |");
         Console.WriteLine("| --- | --- | --- |");
-        Console.WriteLine($"| `ARCHLUCID_API_KEY` for `/health` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
-        Console.WriteLine($"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/FIRST_30_MINUTES.md`). |");
-        Console.WriteLine("| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
-        Console.WriteLine("| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
+        Console.WriteLine(
+            $"| `ARCHLUCID_API_KEY` for `/health` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
+        Console.WriteLine(
+            $"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/FIRST_30_MINUTES.md`). |");
+        Console.WriteLine(
+            "| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
+        Console.WriteLine(
+            "| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
         Console.WriteLine();
     }
 
@@ -199,7 +210,7 @@ internal static class DoctorCommand
 
         Console.WriteLine();
         Console.WriteLine($"{label} — HTTP {code}");
-        Console.WriteLine(TruncateForDisplay(body, maxChars: 4000));
+        Console.WriteLine(TruncateForDisplay(body, 4000));
 
         return code is >= 200 and < 300;
     }

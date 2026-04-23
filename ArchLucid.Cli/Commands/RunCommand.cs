@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI run subcommand orchestrates HTTP and filesystem via ArchLucidApiClient (excluded from coverage); exercised via manual CLI.")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI run subcommand orchestrates HTTP and filesystem via ArchLucidApiClient (excluded from coverage); exercised via manual CLI.")]
 internal static class RunCommand
 {
     public static async Task<int> RunAsync(bool quick)
@@ -39,7 +39,8 @@ internal static class RunCommand
         if (briefContent.Length < 10)
         {
             Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
-            await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archlucid.json) with a longer description.");
+            await Console.Error.WriteLineAsync(
+                "Next: Edit inputs/brief.md (or the path in archlucid.json) with a longer description.");
 
             return CliExitCode.OperationFailed;
         }
@@ -81,7 +82,7 @@ internal static class RunCommand
             resp.Run.Status,
             resp.Run.CreatedUtc,
             resp.Tasks,
-            manifestVersion: null);
+            null);
 
         Console.WriteLine();
         Console.WriteLine($"Run created: {resp.Run.RunId}");
@@ -107,7 +108,8 @@ internal static class RunCommand
                 Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
                 Console.WriteLine("Note: Seed is only available when the API runs in Development.");
                 CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
-                Console.WriteLine($"Continue with: archlucid seed {resp.Run.RunId} then archlucid commit {resp.Run.RunId}");
+                Console.WriteLine(
+                    $"Continue with: archlucid seed {resp.Run.RunId} then archlucid commit {resp.Run.RunId}");
 
                 return CliExitCode.Success;
             }
@@ -140,7 +142,8 @@ internal static class RunCommand
             return CliExitCode.Success;
         }
 
-        Console.WriteLine($"Next: Submit agent results, then commit. Use 'archlucid status {resp.Run.RunId}' to check progress.");
+        Console.WriteLine(
+            $"Next: Submit agent results, then commit. Use 'archlucid status {resp.Run.RunId}' to check progress.");
 
         return CliExitCode.Success;
     }
