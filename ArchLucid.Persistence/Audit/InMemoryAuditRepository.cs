@@ -49,6 +49,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId)
                 .OrderByDescending(x => x.OccurredUtc)
+                .ThenByDescending(x => x.EventId)
                 .Take(n)
                 .ToList();
 
@@ -108,8 +109,27 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 query = query.Where(x => x.RunId == filter.RunId.Value);
 
 
+            if (filter.BeforeUtc.HasValue)
+            {
+                DateTime beforeUtc = filter.BeforeUtc.Value;
+
+                if (filter.BeforeEventId.HasValue)
+                {
+                    Guid beforeEid = filter.BeforeEventId.Value;
+                    query = query.Where(
+                        x =>
+                            x.OccurredUtc < beforeUtc
+                            || (x.OccurredUtc == beforeUtc && x.EventId.CompareTo(beforeEid) < 0));
+                }
+                else
+                {
+                    query = query.Where(x => x.OccurredUtc < beforeUtc);
+                }
+            }
+
             snapshot = query
                 .OrderByDescending(x => x.OccurredUtc)
+                .ThenByDescending(x => x.EventId)
                 .Take(take)
                 .ToList();
         }
@@ -142,6 +162,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                         && x.OccurredUtc >= fromUtc
                         && x.OccurredUtc < toUtc)
                 .OrderBy(x => x.OccurredUtc)
+                .ThenBy(x => x.EventId)
                 .Take(take)
                 .ToList();
 

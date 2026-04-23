@@ -31,6 +31,7 @@ using ArchLucid.Core.Diagrams;
 using ArchLucid.Host.Composition.ValueReports;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
+using ArchLucid.Host.Core.Marketing;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -122,15 +123,13 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
-        services.Configure<LegacyRunCommitPathOptions>(configuration.GetSection(LegacyRunCommitPathOptions.SectionName));
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
-        services.AddScoped<ArchitectureRunCommitOrchestrator>();
         services.AddScoped<AuthorityDrivenArchitectureRunCommitOrchestrator>();
-        services.AddScoped<IArchitectureRunCommitOrchestrator, RunCommitPathSelector>();
+        services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<IRunCommitOrchestrator, RunCommitOrchestratorFacade>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
@@ -148,9 +147,11 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<BoardPackPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
+        services.AddScoped<ITenantMeasuredRoiService, TenantMeasuredRoiService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();
         services.AddScoped<IDemoCommitPagePreviewClient, DemoCommitPagePreviewClient>();
+        services.AddScoped<IPublicShowcaseCommitPageClient, PublicShowcaseCommitPageClient>();
         services.Configure<ValueReportComputationOptions>(
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();

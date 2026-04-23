@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/api", () => ({
-  getWhyArchLucidSnapshot: vi.fn(),
+  getTenantMeasuredRoi: vi.fn(),
   getFirstValueReportMarkdown: vi.fn(),
   getRunExplanationSummary: vi.fn(),
 }));
@@ -13,15 +13,11 @@ vi.mock("@/components/OperatorApiProblem", () => ({
   ),
 }));
 
-import {
-  getFirstValueReportMarkdown,
-  getRunExplanationSummary,
-  getWhyArchLucidSnapshot,
-} from "@/lib/api";
+import { getFirstValueReportMarkdown, getRunExplanationSummary, getTenantMeasuredRoi } from "@/lib/api";
 
 import WhyArchLucidPage from "./page";
 
-const snapshotMock = vi.mocked(getWhyArchLucidSnapshot);
+const measuredRoiMock = vi.mocked(getTenantMeasuredRoi);
 const reportMock = vi.mocked(getFirstValueReportMarkdown);
 const explanationMock = vi.mocked(getRunExplanationSummary);
 
@@ -32,6 +28,19 @@ const fixedSnapshot = {
   findingsProducedBySeverity: { Critical: 1, High: 2, Medium: 3 },
   auditRowCount: 12,
   auditRowCountTruncated: false,
+};
+
+const fixedMeasuredRoi = {
+  snapshot: fixedSnapshot,
+  monthlyCostEstimate: {
+    currency: "USD",
+    tier: "Standard",
+    estimatedMonthlyUsdLow: 10,
+    estimatedMonthlyUsdHigh: 50,
+    factors: ["tier"],
+    methodologyNote: "method",
+  },
+  disclaimer: "Process counters are cumulative since this API replica started.",
 };
 
 const fixedReport = `# ArchLucid — first value report (pilot)\n\nDemo body.`;
@@ -64,7 +73,7 @@ const fixedExplanation = {
 
 describe("WhyArchLucidPage (proof page snapshot)", () => {
   it("matches the rendered layout snapshot for the demo tenant", async () => {
-    snapshotMock.mockResolvedValue(fixedSnapshot);
+    measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
@@ -82,7 +91,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
   });
 
   it("shows API-problem callouts when downstream calls fail", async () => {
-    snapshotMock.mockRejectedValue(new Error("snapshot failed"));
+    measuredRoiMock.mockRejectedValue(new Error("snapshot failed"));
     reportMock.mockRejectedValue(new Error("report failed"));
     explanationMock.mockRejectedValue(new Error("explain failed"));
 

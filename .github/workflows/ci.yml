@@ -187,6 +187,14 @@ jobs:
         # six comparison-row fields.
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
 
+      - name: Mutating controller actions — audit LogAsync guard
+        run: python scripts/ci/assert_controller_mutations_have_audit.py
+
+      - name: Controller audit guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_assert_controller_mutations_have_audit -q
+
       - name: "PGP public key — validate armored key when present; warn when pending"
         continue-on-error: true
         # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 — then fix or set merge-blocking.
@@ -199,6 +207,7 @@ jobs:
           cd scripts/ci
           python -m unittest test_assert_pgp_key_present
           python -m unittest test_golden_cohort_budget_probe
+          python -m unittest test_golden_cohort_usage_ledger
 
       - name: Guard — no legacy ArchiForge.* workspace directories
         run: python scripts/ci/check_no_legacy_archiforge_dirs.py

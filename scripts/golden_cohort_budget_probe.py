@@ -30,6 +30,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from shutil import which
 from typing import Any
@@ -204,6 +205,48 @@ def _compute_exit_code(mtd_usd: float, monthly_budget_usd: float, kill_switch_pe
     return 0
 
 
+def _github_run_url() -> str:
+    explicit = os.environ.get("GITHUB_RUN_URL", "").strip()
+    if explicit:
+        return explicit
+
+    server = os.environ.get("GITHUB_SERVER_URL", "").rstrip("/")
+    repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
+    run = os.environ.get("GITHUB_RUN_ID", "").strip()
+    if server and repo and run:
+        return f"{server}/{repo}/actions/runs/{run}"
+
+    return ""
+
+
+def _append_usage_ledger(path: Path, entry: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data: dict[str, Any]
+    if path.is_file():
+        with path.open(encoding="utf-8") as handle:
+            data = json.load(handle)
+    else:
+        data = {
+            "schemaVersion": 1,
+            "description": (
+                "Append-only ledger of golden-cohort Azure OpenAI month-to-date probe snapshots "
+                "(written by scripts/golden_cohort_budget_probe.py --usage-ledger)."
+            ),
+            "entries": [],
+        }
+
+    entries = data.get("entries")
+    if not isinstance(entries, list):
+        entries = []
+        data["entries"] = entries
+
+    entries.append(entry)
+
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2)
+        handle.write("\n")
+
+
 def _emit_exports(mtd: float, budget: float, kill_pct: float, exit_code: int) -> None:
     threshold = budget * (kill_pct / 100.0)
     remaining = max(budget - mtd, 0.0)
@@ -225,6 +268,12 @@ def main() -> int:
         default=_repo_root() / "tests" / "golden-cohort" / "budget.config.json",
         help="Path to budget.config.json",
     )
+    parser.add_argument(
+        "--usage-ledger",
+        type=Path,
+        default=None,
+        help="Optional path to tests/golden-cohort/usage-mtd.json — appends this probe run as a ledger entry.",
+    )
     args = parser.parse_args()
 
     cfg = _load_config(args.config)
@@ -236,6 +285,20 @@ def main() -> int:
         mtd = float(simulate)
         code = _compute_exit_code(mtd, monthly_budget, kill_pct)
         _emit_exports(mtd, monthly_budget, kill_pct, code)
+        if args.usage_ledger is not None:
+            _append_usage_ledger(
+                args.usage_ledger,
+                {
+                    "recordedUtc": datetime.now(timezone.utc).isoformat(),
+                    "mtdUsd": mtd,
+                    "monthlyBudgetUsd": monthly_budget,
+                    "exitCode": code,
+                    "source": "simulate",
+                    "githubRunId": os.environ.get("GITHUB_RUN_ID", ""),
+                    "githubRunUrl": _github_run_url(),
+                },
+            )
+
         return code
 
     resource_id = os.environ.get("ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID", "").strip()
@@ -256,6 +319,21 @@ def main() -> int:
     mtd = _query_mtd_actual_cost_usd(subscription_id, resource_id, token)
     code = _compute_exit_code(mtd, monthly_budget, kill_pct)
     _emit_exports(mtd, monthly_budget, kill_pct, code)
+    if args.usage_ledger is not None:
+        _append_usage_ledger(
+            args.usage_ledger,
+            {
+                "recordedUtc": datetime.now(timezone.utc).isoformat(),
+                "mtdUsd": mtd,
+                "monthlyBudgetUsd": monthly_budget,
+                "exitCode": code,
+                "source": "azure-cost-management",
+                "resourceIdSuffix": resource_id.split("/")[-1] if resource_id else "",
+                "githubRunId": os.environ.get("GITHUB_RUN_ID", ""),
+                "githubRunUrl": _github_run_url(),
+            },
+        )
+
     return code
 
 

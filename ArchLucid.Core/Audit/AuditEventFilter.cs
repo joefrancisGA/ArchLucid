@@ -24,6 +24,16 @@ public sealed class AuditEventFilter
         get; set;
     }
 
+    /// <summary>
+    ///     Keyset tie-break when multiple events share the same <see cref="BeforeUtc" /> instant: return only rows with
+    ///     <c>EventId</c> strictly less than this value (same sort order as SQL: <c>OccurredUtc DESC, EventId DESC</c>).
+    ///     Omit unless <see cref="BeforeUtc" /> is set.
+    /// </summary>
+    public Guid? BeforeEventId
+    {
+        get; set;
+    }
+
     public string? CorrelationId
     {
         get; set;

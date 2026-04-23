@@ -20,8 +20,6 @@ public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program
                 new Dictionary<string, string?>
                 {
                     ["ArchLucid:StorageProvider"] = "InMemory",
-                    // Most OpenAPI/registration tests are not set up for authority-snapshot commit; keep legacy path until fixtures supply all snapshot ids.
-                    ["Coordinator:LegacyRunCommitPath"] = "true",
                     ["ConnectionStrings:ArchLucid"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",

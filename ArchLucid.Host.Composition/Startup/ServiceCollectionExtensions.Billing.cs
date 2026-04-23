@@ -12,6 +12,8 @@ public static partial class ServiceCollectionExtensions
     internal static void RegisterBilling(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<BillingOptions>(configuration.GetSection(BillingOptions.SectionName));
+        services.Configure<BillingUnitRatesOptions>(configuration.GetSection(BillingUnitRatesOptions.SectionPath));
+        services.AddScoped<ITenantCostEstimateService, TenantCostEstimateService>();
         services.AddHttpClient(nameof(AzureMarketplaceBillingProvider));
         services.AddScoped<BillingWebhookTrialActivator>();
         services.AddScoped<StripeBillingProvider>();

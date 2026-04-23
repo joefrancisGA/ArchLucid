@@ -18,8 +18,6 @@ public sealed class DemoCommitPagePreviewClient(
     TimeProvider timeProvider,
     ILogger<DemoCommitPagePreviewClient> logger) : IDemoCommitPagePreviewClient
 {
-    private const int PipelineTimelinePreviewCap = 10;
-
     private readonly IDemoSeedRunResolver _demoSeedRunResolver =
         demoSeedRunResolver ?? throw new ArgumentNullException(nameof(demoSeedRunResolver));
 
@@ -68,103 +66,19 @@ public sealed class DemoCommitPagePreviewClient(
         RunDetailDto? detail = await runDetailTask;
         ManifestSummaryDto? manifestDto = await manifestTask;
         RunExplanationSummary? explanation = await explainTask;
-
-        if (detail is null || manifestDto is null || explanation is null)
-        {
-            _logger.LogWarning(
-                "Demo commit preview: missing detail/manifest/explanation for run {RunId} (detail null? {DetailNull}, manifest null? {ManifestNull}, explain null? {ExplainNull}).",
-                runId,
-                detail is null,
-                manifestDto is null,
-                explanation is null);
-
-            return null;
-        }
-
         IReadOnlyList<ArtifactDescriptor> descriptors = await artifactsTask;
         IReadOnlyList<RunPipelineTimelineItemDto>? timeline = await timelineTask;
 
-        return new DemoCommitPagePreviewResponse
-        {
-            GeneratedUtc = _timeProvider.GetUtcNow(),
-            IsDemoData = true,
-            DemoStatusMessage = "demo tenant — replace before publishing",
-            Run = MapRun(detail.Run),
-            AuthorityChain = MapAuthorityChain(detail.Run),
-            Manifest = MapManifest(manifestDto),
-            Artifacts = MapArtifacts(descriptors),
-            PipelineTimeline = MapTimeline(timeline),
-            RunExplanation = explanation,
-        };
-    }
-
-    private static DemoPreviewRun MapRun(RunRecord r) => new()
-    {
-        RunId = r.RunId.ToString("N"),
-        ProjectId = r.ProjectId,
-        Description = r.Description,
-        CreatedUtc = r.CreatedUtc,
-    };
-
-    private static DemoPreviewAuthorityChain MapAuthorityChain(RunRecord r) => new()
-    {
-        ContextSnapshotId = FormatId(r.ContextSnapshotId),
-        GraphSnapshotId = FormatId(r.GraphSnapshotId),
-        FindingsSnapshotId = FormatId(r.FindingsSnapshotId),
-        GoldenManifestId = FormatId(r.GoldenManifestId),
-        DecisionTraceId = FormatId(r.DecisionTraceId),
-        ArtifactBundleId = FormatId(r.ArtifactBundleId),
-    };
-
-    private static string? FormatId(Guid? id) =>
-        id is { } g && g != Guid.Empty ? g.ToString("N") : null;
-
-    private static DemoPreviewManifestSummary MapManifest(ManifestSummaryDto m) => new()
-    {
-        ManifestId = m.ManifestId.ToString("N"),
-        RunId = m.RunId.ToString("N"),
-        CreatedUtc = m.CreatedUtc,
-        ManifestHash = m.ManifestHash,
-        RuleSetId = m.RuleSetId,
-        RuleSetVersion = m.RuleSetVersion,
-        DecisionCount = m.DecisionCount,
-        WarningCount = m.WarningCount,
-        UnresolvedIssueCount = m.UnresolvedIssueCount,
-        Status = m.Status,
-        HasWarnings = m.WarningCount > 0,
-        HasUnresolvedIssues = m.UnresolvedIssueCount > 0,
-        OperatorSummary =
-            $"{m.DecisionCount} decisions, {m.WarningCount} warnings, {m.UnresolvedIssueCount} unresolved issues, status {m.Status}",
-    };
-
-    private static IReadOnlyList<DemoPreviewArtifact> MapArtifacts(IReadOnlyList<ArtifactDescriptor> descriptors) =>
-        descriptors
-            .Select(a => new DemoPreviewArtifact
-            {
-                ArtifactId = a.ArtifactId.ToString("N"),
-                ArtifactType = a.ArtifactType,
-                Name = a.Name,
-                Format = a.Format,
-                CreatedUtc = a.CreatedUtc,
-                ContentHash = a.ContentHash,
-            })
-            .ToList();
-
-    private static IReadOnlyList<DemoPreviewTimelineItem> MapTimeline(IReadOnlyList<RunPipelineTimelineItemDto>? items)
-    {
-        if (items is null || items.Count == 0)
-            return [];
-
-        return items
-            .Take(PipelineTimelinePreviewCap)
-            .Select(e => new DemoPreviewTimelineItem
-            {
-                EventId = e.EventId.ToString("N"),
-                OccurredUtc = e.OccurredUtc,
-                EventType = e.EventType,
-                ActorUserName = e.ActorUserName,
-                CorrelationId = e.CorrelationId,
-            })
-            .ToList();
+        return DemoCommitPagePreviewMapper.TryBuild(
+            _timeProvider.GetUtcNow(),
+            isDemoData: true,
+            demoStatusMessage: "demo tenant — replace before publishing",
+            detail,
+            manifestDto,
+            descriptors,
+            timeline,
+            explanation,
+            _logger,
+            runId);
     }
 }

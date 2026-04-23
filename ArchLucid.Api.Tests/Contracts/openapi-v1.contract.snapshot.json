@@ -808,23 +808,10 @@
         "type": "object"
       },
       "AgentTaskStatus": {
-        "type": "string",
-        "enum": [
-          "Created",
-          "InProgress",
-          "Completed",
-          "Rejected",
-          "Failed"
-        ]
+        "type": "integer"
       },
       "AgentType": {
-        "type": "string",
-        "enum": [
-          "Topology",
-          "Cost",
-          "Compliance",
-          "Critic"
-        ]
+        "type": "integer"
       },
       "AlertActionRequest": {
         "properties": {
@@ -1743,15 +1730,7 @@
         "type": "object"
       },
       "ArchitectureRunStatus": {
-        "type": "string",
-        "enum": [
-          "Created",
-          "TasksGenerated",
-          "WaitingForResults",
-          "ReadyForCommit",
-          "Committed",
-          "Failed"
-        ]
+        "type": "integer"
       },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
@@ -2465,10 +2444,7 @@
         "type": "object"
       },
       "CloudProvider": {
-        "type": "string",
-        "enum": [
-          "Azure"
-        ]
+        "type": "integer"
       },
       "CommitRunResponse": {
         "properties": {
@@ -3426,15 +3402,7 @@
         "type": "object"
       },
       "DatastoreType": {
-        "type": "string",
-        "enum": [
-          "Unknown",
-          "Sql",
-          "NoSql",
-          "Object",
-          "Cache",
-          "Search"
-        ]
+        "type": "integer"
       },
       "DecisionDelta": {
         "properties": {
@@ -8859,15 +8827,7 @@
         "type": "object"
       },
       "RelationshipType": {
-        "type": "string",
-        "enum": [
-          "Calls",
-          "ReadsFrom",
-          "WritesTo",
-          "PublishesTo",
-          "SubscribesTo",
-          "AuthenticatesWith"
-        ]
+        "type": "integer"
       },
       "ReplayComparisonMetadataResponse": {
         "properties": {
@@ -10145,6 +10105,9 @@
               "string"
             ]
           },
+          "isPublicShowcase": {
+            "type": "boolean"
+          },
           "legacyRunStatus": {
             "type": [
               "null",
@@ -10269,21 +10232,7 @@
         "type": "object"
       },
       "RuntimePlatform": {
-        "type": "string",
-        "enum": [
-          "Unknown",
-          "AppService",
-          "Functions",
-          "Aks",
-          "Vm",
-          "ContainerApps",
-          "SqlServer",
-          "AzureAiSearch",
-          "AzureOpenAi",
-          "Redis",
-          "BlobStorage",
-          "KeyVault"
-        ]
+        "type": "integer"
       },
       "ScopeContext": {
         "properties": {
@@ -10384,17 +10333,7 @@
         "type": "object"
       },
       "ServiceType": {
-        "type": "string",
-        "enum": [
-          "Unknown",
-          "Api",
-          "Worker",
-          "Ui",
-          "Integration",
-          "DataService",
-          "SearchService",
-          "AiService"
-        ]
+        "type": "integer"
       },
       "SimulatedAlertOutcome": {
         "properties": {
@@ -10640,6 +10579,12 @@
       },
       "TeamsIncomingWebhookConnectionResponse": {
         "properties": {
+          "enabledTriggers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "isConfigured": {
             "type": "boolean"
           },
@@ -10671,6 +10616,15 @@
       },
       "TeamsIncomingWebhookConnectionUpsertRequest": {
         "properties": {
+          "enabledTriggers": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "keyVaultSecretName": {
             "type": "string"
           },
@@ -10684,6 +10638,42 @@
         "required": [
           "keyVaultSecretName"
         ],
+        "type": "object"
+      },
+      "TenantCostEstimateResponse": {
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "estimatedMonthlyUsdHigh": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "estimatedMonthlyUsdLow": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "factors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "methodologyNote": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "TenantHealthScoreResponse": {
@@ -10751,6 +10741,27 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantMeasuredRoiResponse": {
+        "properties": {
+          "disclaimer": {
+            "type": "string"
+          },
+          "monthlyCostEstimate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TenantCostEstimateResponse"
+              }
+            ]
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/WhyArchLucidSnapshotResponse"
           }
         },
         "type": "object"
@@ -22423,6 +22434,14 @@
           },
           {
             "in": "query",
+            "name": "beforeEventId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "correlationId",
             "schema": {
               "type": "string"
@@ -28628,6 +28647,84 @@
         ]
       }
     },
+    "/v1/integrations/teams/triggers": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "TeamsIncomingWebhookConnections"
+        ]
+      }
+    },
     "/v1/jobs/{jobId}": {
       "get": {
         "parameters": [
@@ -29332,6 +29429,31 @@
         ]
       }
     },
+    "/v1/marketing/enterprise-comparison.pdf": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "EnterpriseComparisonMarketing"
+        ]
+      }
+    },
     "/v1/marketing/pricing/quote-request": {
       "post": {
         "requestBody": {
@@ -29401,6 +29523,45 @@
         },
         "tags": [
           "MarketingPricingQuoteRequest"
+        ]
+      }
+    },
+    "/v1/marketing/showcase/{runKey}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runKey",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoCommitPagePreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "MarketingShowcase"
         ]
       }
     },
@@ -29782,6 +29943,45 @@
         },
         "tags": [
           "PilotsBoardPack"
+        ]
+      }
+    },
+    "/v1/pilots/outcome-summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotScorecardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
         ]
       }
     },
@@ -31442,6 +31642,41 @@
         ]
       }
     },
+    "/v1/public/demo/sample-run": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoCommitPagePreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "304": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Not Modified"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "DemoCommitPagePreview"
+        ]
+      }
+    },
     "/v1/recommendation-learning/latest": {
       "get": {
         "responses": {
@@ -31895,6 +32130,55 @@
         ]
       }
     },
+    "/v1/tenant/cost-estimate": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantCostEstimateResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantCostEstimate"
+        ]
+      }
+    },
     "/v1/tenant/customer-success/health-score": {
       "get": {
         "responses": {
@@ -32109,6 +32393,35 @@
         },
         "tags": [
           "TenantExecDigestPreferences"
+        ]
+      }
+    },
+    "/v1/tenant/measured-roi": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantMeasuredRoiResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantMeasuredRoiResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantMeasuredRoiResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantMeasuredRoi"
         ]
       }
     },
@@ -32539,6 +32852,9 @@
       "name": "DocxExport"
     },
     {
+      "name": "EnterpriseComparisonMarketing"
+    },
+    {
       "name": "Evolution"
     },
     {
@@ -32576,6 +32892,9 @@
     },
     {
       "name": "MarketingPricingQuoteRequest"
+    },
+    {
+      "name": "MarketingShowcase"
     },
     {
       "name": "MeteringAdmin"
@@ -32638,10 +32957,16 @@
       "name": "TeamsIncomingWebhookConnections"
     },
     {
+      "name": "TenantCostEstimate"
+    },
+    {
       "name": "TenantCustomerSuccess"
     },
     {
       "name": "TenantExecDigestPreferences"
+    },
+    {
+      "name": "TenantMeasuredRoi"
     },
     {
       "name": "TenantTrial"

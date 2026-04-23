@@ -24,6 +24,7 @@ import {
   Sparkles,
   Stars,
   Tags,
+  Wallet,
   Wrench,
 } from "lucide-react";
 
@@ -326,6 +327,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         label: "Exec digest",
         title: "Exec digest — weekly sponsor email schedule",
         icon: Mail,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/settings/tenant-cost",
+        label: "Tenant cost",
+        title: "Tenant cost — estimated monthly spend band (Standard+)",
+        icon: Wallet,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },

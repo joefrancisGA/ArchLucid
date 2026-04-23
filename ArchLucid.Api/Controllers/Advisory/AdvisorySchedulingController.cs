@@ -1,8 +1,10 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -31,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/advisory-scheduling")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AdvisorySchedulingController(
     IScopeContextProvider scopeProvider,
     IAdvisoryScanScheduleRepository scheduleRepository,

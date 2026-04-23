@@ -426,10 +426,16 @@ BEGIN
         CompletedUtc DATETIME2 NULL,
         CurrentManifestVersion NVARCHAR(128) NULL,
         OtelTraceId NVARCHAR(64) NULL,
+        IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase_Greenfield DEFAULT (0),
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
 END;
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'IsPublicShowcase') IS NULL
+    ALTER TABLE dbo.Runs ADD IsPublicShowcase BIT NOT NULL CONSTRAINT DF_Runs_IsPublicShowcase DEFAULT (0);
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
@@ -1596,6 +1602,19 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AuditEvents_RunId_OccurredUtc
         ON dbo.AuditEvents (RunId, OccurredUtc DESC)
         WHERE RunId IS NOT NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_AuditEvents_OccurredUtc_EventId'
+          AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_OccurredUtc_EventId
+        ON dbo.AuditEvents (OccurredUtc DESC, EventId DESC)
+        INCLUDE (TenantId, WorkspaceId, ProjectId, EventType, ActorUserId, RunId);
 END;
 GO
 

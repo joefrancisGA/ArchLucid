@@ -8,7 +8,7 @@ namespace ArchLucid.Application;
 /// Facade over create, execute, and commit orchestrators for the three-phase architecture run workflow.
 /// </summary>
 /// <remarks>
-/// Implementation types: <see cref="ArchitectureRunCreateOrchestrator"/>, <see cref="ArchitectureRunExecuteOrchestrator"/>, <see cref="ArchitectureRunCommitOrchestrator"/> (scoped DI).
+/// Implementation types: <see cref="ArchitectureRunCreateOrchestrator"/>, <see cref="ArchitectureRunExecuteOrchestrator"/>, <see cref="AuthorityDrivenArchitectureRunCommitOrchestrator"/> (scoped DI for commit).
 /// </remarks>
 public sealed class ArchitectureRunService(
     IArchitectureRunCreateOrchestrator createOrchestrator,

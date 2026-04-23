@@ -257,7 +257,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (!string.IsNullOrEmpty(run.CurrentManifestVersion))
                 throw new InvalidOperationException(
                     "This run was committed on the legacy coordinator path. " +
-                    "Re-commit idempotency and reads require Coordinator:LegacyRunCommitPath=true, or a consistent authority run record.");
+                    "Re-commit idempotency and reads require a consistent authority run record (GoldenManifestId / DecisionTraceId populated).");
 
             throw new ConflictException(
                 $"Run '{runId}' is already Committed but the run record has no committed manifest version or authority identifiers.");

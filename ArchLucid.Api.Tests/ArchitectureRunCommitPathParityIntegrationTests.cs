@@ -12,11 +12,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// PR A2 gate evidence: same simulator create → execute → commit payload under legacy vs authority commit paths
-/// must yield identical traceability bundle entry names and equivalent stable fields on <c>GET …/pilot-run-deltas</c>
-/// (<see cref="PilotRunDeltasResponse"/> — counts, severity histogram, demo flag). Volatile clock fields, wall-clock
-/// seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded because tie-order or
-/// read-path shape can pick a different top finding between paths while ROI buckets stay aligned — see
+/// ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create → execute → commit
+/// yields committed demo shape and stable <c>GET …/pilot-run-deltas</c> fields. Volatile clock fields,
+/// wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded — see
 /// <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -37,39 +35,17 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
     }
 
     [Fact]
-    public async Task RunCommit_path_legacy_true_cohort_matches_authority_default_cohort()
+    public async Task Authority_commit_path_cohort_produces_committed_demo_shape()
     {
-        CohortArtifacts legacy = await CaptureCohortAsync(legacyRunCommitPath: true);
-        CohortArtifacts authorityDefault = await CaptureCohortAsync(legacyRunCommitPath: false);
-
-        legacy.TraceabilityZipEntryNames.Should().Equal(
-            authorityDefault.TraceabilityZipEntryNames,
-            "traceability bundle ZIP must expose the same logical file set");
-
-        AssertPilotRunDeltasStableFieldParity(legacy.PilotRunDeltasJson, authorityDefault.PilotRunDeltasJson);
+        CohortArtifacts cohort = await CaptureCohortAsync();
+        cohort.TraceabilityZipEntryNames.Should().NotBeEmpty();
+        cohort.FirstValueReportMarkdown.Should().NotBeNullOrWhiteSpace();
+        cohort.CommitManifestDecisionTraceIdCount.Should().BePositive();
     }
 
-    [Fact]
-    public async Task RunCommit_path_legacy_true_cohort_produces_committed_demo_shape()
+    private static async Task<CohortArtifacts> CaptureCohortAsync()
     {
-        CohortArtifacts legacy = await CaptureCohortAsync(legacyRunCommitPath: true);
-        legacy.TraceabilityZipEntryNames.Should().NotBeEmpty();
-        legacy.FirstValueReportMarkdown.Should().NotBeNullOrWhiteSpace();
-        legacy.CommitManifestDecisionTraceIdCount.Should().BePositive();
-    }
-
-    [Fact]
-    public async Task RunCommit_path_authority_default_cohort_produces_committed_demo_shape()
-    {
-        CohortArtifacts authorityDefault = await CaptureCohortAsync(legacyRunCommitPath: false);
-        authorityDefault.TraceabilityZipEntryNames.Should().NotBeEmpty();
-        authorityDefault.FirstValueReportMarkdown.Should().NotBeNullOrWhiteSpace();
-        authorityDefault.CommitManifestDecisionTraceIdCount.Should().BePositive();
-    }
-
-    private static async Task<CohortArtifacts> CaptureCohortAsync(bool legacyRunCommitPath)
-    {
-        await using RunCommitPathParityArchLucidApiFactory factory = new(legacyRunCommitPath);
+        await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
@@ -88,7 +64,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         executeResponse.EnsureSuccessStatusCode();
 
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, $"commit should succeed (legacy={legacyRunCommitPath})");
+        commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 
         CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
@@ -120,26 +96,6 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
             .Select(static e => e.FullName)
             .Order(StringComparer.Ordinal)
             .ToList();
-    }
-
-    private static void AssertPilotRunDeltasStableFieldParity(string legacyJson, string authorityJson)
-    {
-        PilotRunDeltasResponse? legacyDelta = JsonSerializer.Deserialize<PilotRunDeltasResponse>(legacyJson, JsonOptions);
-        PilotRunDeltasResponse? authorityDelta =
-            JsonSerializer.Deserialize<PilotRunDeltasResponse>(authorityJson, JsonOptions);
-
-        legacyDelta.Should().NotBeNull();
-        authorityDelta.Should().NotBeNull();
-
-        legacyDelta!.FindingsBySeverity.Should().BeEquivalentTo(
-            authorityDelta!.FindingsBySeverity,
-            static options => options.WithStrictOrdering());
-
-        legacyDelta.AuditRowCount.Should().Be(authorityDelta.AuditRowCount);
-        legacyDelta.AuditRowCountTruncated.Should().Be(authorityDelta.AuditRowCountTruncated);
-        legacyDelta.LlmCallCount.Should().Be(authorityDelta.LlmCallCount);
-        legacyDelta.IsDemoTenant.Should().Be(authorityDelta.IsDemoTenant);
-        legacyDelta.TopFindingSeverity.Should().Be(authorityDelta.TopFindingSeverity);
     }
 
     private sealed record CohortArtifacts(

@@ -2,6 +2,8 @@
 
 # ArchLucid
 
+[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package and helps teams produce committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
 **Try it:** run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root when you have the .NET 10 SDK and Docker, or run **`.\scripts\demo-start.ps1`** on Windows for the Docker-only demo stack.

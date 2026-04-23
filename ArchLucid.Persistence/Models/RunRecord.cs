@@ -83,6 +83,12 @@ public sealed class RunRecord
         get; set;
     }
 
+    /// <summary>When <see langword="true"/>, anonymous marketing may read a bounded showcase payload for this run.</summary>
+    public bool IsPublicShowcase
+    {
+        get; set;
+    }
+
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc
     {

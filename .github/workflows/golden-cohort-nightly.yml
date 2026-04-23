@@ -125,7 +125,7 @@ jobs:
         run: |
           set -euo pipefail
           set -o pipefail
-          python scripts/golden_cohort_budget_probe.py 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
+          python scripts/golden_cohort_budget_probe.py --usage-ledger tests/golden-cohort/usage-mtd.json 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
           code=$?
           set +o pipefail
           mtd_line=$(grep '^EXPORT_MTD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
@@ -147,9 +147,24 @@ jobs:
           fi
           exit 0
 
-      - name: Reserved — real LLM golden cohort (runs only when budget probe passes)
+      - name: Setup .NET (golden cohort real LLM gate)
         if: ${{ steps.budget.outputs.exit_code == '0' }}
-        run: |
-          echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is true and MTD spend is under the kill threshold."
-          echo "Owner replaces this step with the nightly real-LLM cohort + Azure OpenAI invocation."
-          exit 0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run golden cohort real-LLM gate tests (no live OpenAI invoke in CI)
+        if: ${{ steps.budget.outputs.exit_code == '0' }}
+        env:
+          ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
+        run: >
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          --configuration Release
+          --filter "FullyQualifiedName~GoldenCohortRealLlmGateTests"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: golden-cohort-usage-mtd-ledger
+          path: tests/golden-cohort/usage-mtd.json
+          if-no-files-found: warn

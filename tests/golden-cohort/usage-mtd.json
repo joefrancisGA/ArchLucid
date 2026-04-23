@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "Append-only ledger of golden-cohort Azure OpenAI month-to-date probe snapshots (CI populates via scripts/golden_cohort_budget_probe.py --usage-ledger).",
+  "entries": []
+}

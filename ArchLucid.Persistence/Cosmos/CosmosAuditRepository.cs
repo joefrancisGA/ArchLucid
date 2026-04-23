@@ -55,7 +55,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
                 """
                 SELECT * FROM c
                 WHERE c.workspaceId = @wid AND c.projectId = @pid
-                ORDER BY c.occurredUtc DESC
+                ORDER BY c.occurredUtc DESC, c.id DESC
                 """)
             .WithParameter("@wid", wid)
             .WithParameter("@pid", pid);
@@ -145,7 +145,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
                 SELECT * FROM c
                 WHERE c.workspaceId = @wid AND c.projectId = @pid
                   AND c.occurredUtc >= @fromUtc AND c.occurredUtc < @toUtc
-                ORDER BY c.occurredUtc ASC
+                ORDER BY c.occurredUtc ASC, c.id ASC
                 """)
             .WithParameter("@wid", wid)
             .WithParameter("@pid", pid)
@@ -226,11 +226,27 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
 
         if (filter.BeforeUtc.HasValue)
         {
-            sql.Append(" AND c.occurredUtc < @beforeUtc");
-            parameters.Add(new KeyValuePair<string, object?>("@beforeUtc", FormatUtcIso(filter.BeforeUtc.Value)));
+            if (filter.BeforeEventId.HasValue)
+            {
+                sql.Append(
+                    """
+                     AND (
+                        c.occurredUtc < @beforeUtc
+                        OR (c.occurredUtc = @beforeUtc AND c.id < @beforeEventId)
+                    )
+                    """);
+                parameters.Add(new KeyValuePair<string, object?>("@beforeUtc", FormatUtcIso(filter.BeforeUtc.Value)));
+                parameters.Add(
+                    new KeyValuePair<string, object?>("@beforeEventId", filter.BeforeEventId.Value.ToString("D")));
+            }
+            else
+            {
+                sql.Append(" AND c.occurredUtc < @beforeUtc");
+                parameters.Add(new KeyValuePair<string, object?>("@beforeUtc", FormatUtcIso(filter.BeforeUtc.Value)));
+            }
         }
 
-        sql.Append(" ORDER BY c.occurredUtc DESC");
+        sql.Append(" ORDER BY c.occurredUtc DESC, c.id DESC");
 
         QueryDefinition query = new(sql.ToString());
 

@@ -1,6 +1,8 @@
+> **ARCHIVED 2026-04-22 — Superseded by** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). Historical six-prompt pack preserved for traceability.
+
 > **Scope:** Paste-ready Cursor prompts for the **six best improvements** identified in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 8.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # Cursor prompts — six best improvements (2026-04-21)

@@ -128,7 +128,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_RunCommitPathSelector()
+    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_AuthorityDrivenArchitectureRunCommitOrchestrator()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
@@ -143,7 +143,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IArchitectureRunCommitOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
 
-        orchestrator.Should().BeOfType<RunCommitPathSelector>();
+        orchestrator.Should().BeOfType<AuthorityDrivenArchitectureRunCommitOrchestrator>();
     }
 
     [Fact]

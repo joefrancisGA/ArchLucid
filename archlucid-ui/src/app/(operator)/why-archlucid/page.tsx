@@ -6,9 +6,10 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   getFirstValueReportMarkdown,
   getRunExplanationSummary,
-  getWhyArchLucidSnapshot,
+  getTenantMeasuredRoi,
   type WhyArchLucidSnapshot,
 } from "@/lib/api";
+import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
@@ -22,6 +23,8 @@ type SectionError = {
 type WhyArchLucidPageState = {
   snapshot: WhyArchLucidSnapshot | null;
   snapshotError: SectionError | null;
+  monthlyCostEstimate: TenantCostEstimateResponse | null;
+  measuredDisclaimer: string | null;
   reportMarkdown: string | null;
   reportMissing: boolean;
   reportError: SectionError | null;
@@ -33,6 +36,8 @@ type WhyArchLucidPageState = {
 const initialState: WhyArchLucidPageState = {
   snapshot: null,
   snapshotError: null,
+  monthlyCostEstimate: null,
+  measuredDisclaimer: null,
   reportMarkdown: null,
   reportMissing: false,
   reportError: null,
@@ -55,8 +60,8 @@ function toSectionError(e: unknown, fallback: string): SectionError {
 
 /**
  * Read-only "Why ArchLucid" proof page (Core Pilot tier, no `requiredAuthority`).
- * Wires the seeded Contoso Retail demo run to three live read endpoints:
- *   - `GET /v1/pilots/why-archlucid-snapshot`           — process counters + canonical demo run id
+ * Wires the seeded Contoso Retail demo run to live read endpoints:
+ *   - `GET /v1/tenant/measured-roi`                     — process counters + optional monthly cost band
  *   - `GET /v1/pilots/runs/{runId}/first-value-report`  — sponsor first-value Markdown
  *   - `GET /v1/explain/runs/{runId}/aggregate`          — executive aggregate explanation + citations
  */
@@ -69,11 +74,16 @@ export default function WhyArchLucidPage() {
     async function loadAll(): Promise<void> {
       let snapshot: WhyArchLucidSnapshot | null = null;
       let snapshotError: SectionError | null = null;
+      let monthlyCostEstimate: TenantCostEstimateResponse | null = null;
+      let measuredDisclaimer: string | null = null;
 
       try {
-        snapshot = await getWhyArchLucidSnapshot();
+        const bundle = await getTenantMeasuredRoi();
+        snapshot = bundle.snapshot;
+        monthlyCostEstimate = bundle.monthlyCostEstimate;
+        measuredDisclaimer = bundle.disclaimer;
       } catch (e: unknown) {
-        snapshotError = toSectionError(e, "Could not load the why-ArchLucid telemetry snapshot.");
+        snapshotError = toSectionError(e, "Could not load measured ROI / telemetry bundle.");
       }
 
       const runId = snapshot?.demoRunId?.trim() ?? "";
@@ -109,6 +119,8 @@ export default function WhyArchLucidPage() {
       setState({
         snapshot,
         snapshotError,
+        monthlyCostEstimate,
+        measuredDisclaimer,
         reportMarkdown,
         reportMissing,
         reportError,
@@ -141,11 +153,12 @@ export default function WhyArchLucidPage() {
       </header>
 
       <SnapshotSection state={state} />
+      <MeasuredContextSection state={state} />
       <FirstValueReportSection state={state} />
       <RunExplanationSection state={state} />
 
       <footer className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-        Sources: <code>GET /v1/pilots/why-archlucid-snapshot</code>,{" "}
+        Sources: <code>GET /v1/tenant/measured-roi</code>,{" "}
         <code>GET /v1/pilots/runs/{state.snapshot?.demoRunId ?? "{runId}"}/first-value-report</code>,{" "}
         <code>GET /v1/explain/runs/{state.snapshot?.demoRunId ?? "{runId}"}/aggregate</code>. See repo{" "}
         <code>docs/SPONSOR_ONE_PAGER.md</code> and <code>docs/go-to-market/POSITIONING.md</code> for narrative context.
@@ -249,6 +262,48 @@ function Counter({
         <code>{hint}</code>
       </p>
     </div>
+  );
+}
+
+function MeasuredContextSection({ state }: { readonly state: WhyArchLucidPageState }) {
+  if (state.snapshotError) return null;
+
+  if (!state.measuredDisclaimer && !state.monthlyCostEstimate) return null;
+
+  return (
+    <section
+      aria-labelledby="why-archlucid-measured-context-heading"
+      data-testid="why-archlucid-measured-context"
+      className="space-y-3 rounded border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
+    >
+      <h2
+        id="why-archlucid-measured-context-heading"
+        className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      >
+        Measured context (cost + disclaimers)
+      </h2>
+      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        Same process counters as above, bundled with the tenant&apos;s configured monthly spend band (when available).
+        This is planning guidance — not an invoice.
+      </p>
+      {state.monthlyCostEstimate ? (
+        <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+          <div>
+            <dt className="text-neutral-500">Tier</dt>
+            <dd className="font-medium text-neutral-900 dark:text-neutral-100">{state.monthlyCostEstimate.tier}</dd>
+          </div>
+          <div>
+            <dt className="text-neutral-500">Monthly band ({state.monthlyCostEstimate.currency})</dt>
+            <dd className="font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
+              {state.monthlyCostEstimate.estimatedMonthlyUsdLow} — {state.monthlyCostEstimate.estimatedMonthlyUsdHigh}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
+      {state.measuredDisclaimer ? (
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">{state.measuredDisclaimer}</p>
+      ) : null}
+    </section>
   );
 }
 
