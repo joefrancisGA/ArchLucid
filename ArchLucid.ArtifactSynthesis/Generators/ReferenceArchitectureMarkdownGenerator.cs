@@ -10,7 +10,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown;
+    public string ArtifactType => Models.ArtifactType.ReferenceArchitectureMarkdown;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -97,7 +97,8 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Cost");
-        sb.AppendLine($"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+        sb.AppendLine(
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
         foreach (string risk in manifest.Cost.CostRisks)
 
             sb.AppendLine($"- Risk: {risk}");
@@ -133,7 +134,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown,
+            ArtifactType = Models.ArtifactType.ReferenceArchitectureMarkdown,
             Name = "reference-architecture.md",
             Format = "markdown",
             Content = content,

@@ -9,7 +9,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport;
+    public string ArtifactType => Models.ArtifactType.UnresolvedIssuesReport;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -20,10 +20,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
         {
             Items = manifest.UnresolvedIssues.Items.Select(x => new UnresolvedIssueArtifactItem
             {
-                IssueType = x.IssueType,
-                Title = x.Title,
-                Description = x.Description,
-                Severity = x.Severity
+                IssueType = x.IssueType, Title = x.Title, Description = x.Description, Severity = x.Severity
             }).ToList()
         };
 
@@ -35,7 +32,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport,
+            ArtifactType = Models.ArtifactType.UnresolvedIssuesReport,
             Name = "unresolved-issues.json",
             Format = "json",
             Content = content,

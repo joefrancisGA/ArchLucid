@@ -17,13 +17,16 @@ using DocumentFormat.OpenXml.Wordprocessing;
 namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
-/// <see cref="IDocxExportService"/> implementation using embedded template, <see cref="IImprovementAdvisorService"/> for advisory sections,
-/// <see cref="IDiagramImageRenderer"/> for optional Mermaid→PNG rasterization, and OpenXML builders.
+///     <see cref="IDocxExportService" /> implementation using embedded template, <see cref="IImprovementAdvisorService" />
+///     for advisory sections,
+///     <see cref="IDiagramImageRenderer" /> for optional Mermaid→PNG rasterization, and OpenXML builders.
 /// </summary>
 public sealed class DocxExportService(
     IImprovementAdvisorService improvementAdvisorService,
     IDiagramImageRenderer diagramImageRenderer) : IDocxExportService
 {
+    private const int MaxEmbeddedMermaidChars = 48_000;
+
     /// <inheritdoc />
     public async Task<DocxExportResult> ExportAsync(
         DocxExportRequest request,
@@ -36,18 +39,19 @@ public sealed class DocxExportService(
         ArgumentNullException.ThrowIfNull(artifacts);
         FindingsSnapshot findings = request.FindingsSnapshot ?? CreateFallbackFindings(manifest);
         ImprovementPlan improvementPlan = request.ManifestComparison is not null
-            ? await improvementAdvisorService
-                .GeneratePlanAsync(manifest, findings, request.ManifestComparison, ct)
-
-            : await improvementAdvisorService
-                .GeneratePlanAsync(manifest, findings, ct)
-                ;
+                ? await improvementAdvisorService
+                    .GeneratePlanAsync(manifest, findings, request.ManifestComparison, ct)
+                : await improvementAdvisorService
+                    .GeneratePlanAsync(manifest, findings, ct)
+            ;
 
         using MemoryStream stream = TemplateLoader.OpenWritableTemplate();
 
         using (WordprocessingDocument doc = WordprocessingDocument.Open(stream, true))
         {
-            MainDocumentPart main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid template: missing main document part.");
+            MainDocumentPart main = doc.MainDocumentPart ??
+                                    throw new InvalidOperationException(
+                                        "Invalid template: missing main document part.");
             Body body = main.Document.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
 
             SectionProperties? sectPr = body.Elements<SectionProperties>().LastOrDefault();
@@ -73,14 +77,14 @@ public sealed class DocxExportService(
 
         return new DocxExportResult
         {
-            FileName = $"archlucid-architecture-package-{manifest.ManifestId:N}.docx",
-            Content = stream.ToArray()
+            FileName = $"archlucid-architecture-package-{manifest.ManifestId:N}.docx", Content = stream.ToArray()
         };
     }
 
     /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
-    private static FindingsSnapshot CreateFallbackFindings(GoldenManifest manifest) =>
-        new()
+    private static FindingsSnapshot CreateFallbackFindings(GoldenManifest manifest)
+    {
+        return new FindingsSnapshot
         {
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
             FindingsSnapshotId = manifest.FindingsSnapshotId,
@@ -90,6 +94,7 @@ public sealed class DocxExportService(
             CreatedUtc = manifest.CreatedUtc,
             Findings = []
         };
+    }
 
     private async Task BuildDocumentAsync(
         WordprocessingDocument doc,
@@ -169,7 +174,8 @@ public sealed class DocxExportService(
 
         else
         {
-            List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security.Controls
+            List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security
+                .Controls
                 .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
@@ -191,9 +197,10 @@ public sealed class DocxExportService(
 
             else
             {
-                List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows = manifest.Compliance.Controls
-                    .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory, c.Status))
-                    .ToList();
+                List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows =
+                    manifest.Compliance.Controls
+                        .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory, c.Status))
+                        .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
                     ("Control ID", "Control", "Category", "Status"),
@@ -303,10 +310,8 @@ public sealed class DocxExportService(
                 ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
                 ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
             ],
-            headerRow: true);
+            true);
     }
-
-    private const int MaxEmbeddedMermaidChars = 48_000;
 
     private async Task AppendArchitectureDiagramSectionAsync(
         WordprocessingDocument doc,
@@ -366,7 +371,7 @@ public sealed class DocxExportService(
             0x0D,
             0x0A,
             0x1A,
-            0x0A,
+            0x0A
         ];
 
         foreach (SynthesizedArtifact a in artifacts)
@@ -473,7 +478,6 @@ public sealed class DocxExportService(
                     $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
 
 
-
         WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
         if (c.RequirementChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
@@ -493,7 +497,6 @@ public sealed class DocxExportService(
                 WordDocumentBuilder.AddBodyText(
                     body,
                     $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
-
 
 
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
@@ -517,7 +520,6 @@ public sealed class DocxExportService(
                     $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
 
 
-
         WordDocumentBuilder.AddSpacer(body);
     }
 
@@ -533,7 +535,8 @@ public sealed class DocxExportService(
         WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(body, e.CostImplications.Count > 0 ? e.CostImplications : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(body, e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
+        WordDocumentBuilder.AddBulletList(body,
+            e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(body, e.DetailedNarrative);
         WordDocumentBuilder.AddSpacer(body, 2);
@@ -553,7 +556,13 @@ public sealed class DocxExportService(
         WordDocumentBuilder.AddSpacer(body, 2);
     }
 
-    private static string FormatOptional(string? v) => string.IsNullOrEmpty(v) ? "—" : v;
+    private static string FormatOptional(string? v)
+    {
+        return string.IsNullOrEmpty(v) ? "—" : v;
+    }
 
-    private static string FormatCost(decimal? v) => v.HasValue ? v.Value.ToString("0.00") : "—";
+    private static string FormatCost(decimal? v)
+    {
+        return v.HasValue ? v.Value.ToString("0.00") : "—";
+    }
 }

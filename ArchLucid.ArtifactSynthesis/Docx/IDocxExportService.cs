@@ -5,16 +5,18 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
-/// Builds a Word OpenXML package from a golden manifest, synthesized artifacts, and optional comparison/explanation payloads.
+///     Builds a Word OpenXML package from a golden manifest, synthesized artifacts, and optional comparison/explanation
+///     payloads.
 /// </summary>
 /// <remarks>
-/// Default implementation: <see cref="DocxExportService"/> (uses <see cref="ArchLucid.Core.Diagrams.IDiagramImageRenderer"/> for optional Mermaid rasterization).
-/// Used by <c>ArchLucid.Api.Controllers.DocxExportController</c>.
+///     Default implementation: <see cref="DocxExportService" /> (uses
+///     <see cref="ArchLucid.Core.Diagrams.IDiagramImageRenderer" /> for optional Mermaid rasterization).
+///     Used by <c>ArchLucid.Api.Controllers.DocxExportController</c>.
 /// </remarks>
 public interface IDocxExportService
 {
     /// <summary>
-    /// Generates an improvement plan (with or without comparison), fills the DOCX template, and returns file bytes.
+    ///     Generates an improvement plan (with or without comparison), fills the DOCX template, and returns file bytes.
     /// </summary>
     /// <param name="request">Titles, flags, optional comparison/explanation/findings.</param>
     /// <param name="manifest">Primary manifest body.</param>

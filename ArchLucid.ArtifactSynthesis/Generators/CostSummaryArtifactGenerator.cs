@@ -9,7 +9,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class CostSummaryArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.CostSummary;
+    public string ArtifactType => Models.ArtifactType.CostSummary;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -31,7 +31,7 @@ public class CostSummaryArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.CostSummary,
+            ArtifactType = Models.ArtifactType.CostSummary,
             Name = "cost-summary.json",
             Format = "json",
             Content = content,

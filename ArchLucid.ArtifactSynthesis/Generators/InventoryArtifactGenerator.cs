@@ -10,7 +10,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class InventoryArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.Inventory;
+    public string ArtifactType => Models.ArtifactType.Inventory;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -67,10 +67,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
 
             inventory.Items.Add(new InventoryItem
             {
-                Category = "Issue",
-                Name = issue.Title,
-                Status = issue.Severity,
-                Notes = issue.Description
+                Category = "Issue", Name = issue.Title, Status = issue.Severity, Notes = issue.Description
             });
 
 
@@ -82,7 +79,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.Inventory,
+            ArtifactType = Models.ArtifactType.Inventory,
             Name = "inventory.json",
             Format = "json",
             Content = content,

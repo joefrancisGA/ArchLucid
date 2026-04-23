@@ -18,7 +18,11 @@ public static class TemplateLoader
 
     private static byte[]? TryLoadFromDisk()
     {
-        return (from dir in GetSearchDirectories() select Path.Combine(dir, "Docx", "Templates", FileName) into path where File.Exists(path) select File.ReadAllBytes(path)).FirstOrDefault();
+        return (from dir in GetSearchDirectories()
+            select Path.Combine(dir, "Docx", "Templates", FileName)
+            into path
+            where File.Exists(path)
+            select File.ReadAllBytes(path)).FirstOrDefault();
     }
 
     private static IEnumerable<string> GetSearchDirectories()

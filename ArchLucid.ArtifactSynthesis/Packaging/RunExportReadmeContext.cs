@@ -6,18 +6,21 @@ public sealed record RunExportReadmeContext
     /// <summary>Manifest display name from metadata when present.</summary>
     public string? ManifestDisplayName
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Golden manifest content hash (same as <c>manifest.json</c> payload).</summary>
     public string? ManifestHash
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Rule set id and version, e.g. <c>ruleset 1.0</c>.</summary>
     public string? RuleSetLabel
     {
-        get; init;
+        get;
+        init;
     }
 }
