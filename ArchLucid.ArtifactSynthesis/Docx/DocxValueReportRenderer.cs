@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
-/// Lightweight OpenXML document for sponsor value metrics (not the architecture-package <see cref="DocxExportService"/> pipeline).
+///     Lightweight OpenXML document for sponsor value metrics (not the architecture-package
+///     <see cref="DocxExportService" /> pipeline).
 /// </summary>
 public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> logger) : IValueReportRenderer
 {
@@ -28,34 +29,35 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
 
         using MemoryStream stream = new();
 
-        using (WordprocessingDocument doc = WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
+        using (WordprocessingDocument doc =
+               WordprocessingDocument.Create(stream, WordprocessingDocumentType.Document, true))
         {
             MainDocumentPart main = doc.AddMainDocumentPart();
             main.Document = new Document();
             Body body = main.Document.AppendChild(new Body());
 
-            body.AppendChild(Paragraph("ArchLucid — tenant value report", bold: true, fontSizeHalfPoints: 32));
-            body.AppendChild(Paragraph("Stakeholder summary (automated)", bold: false, fontSizeHalfPoints: 24));
+            body.AppendChild(Paragraph("ArchLucid — tenant value report", true, fontSizeHalfPoints: 32));
+            body.AppendChild(Paragraph("Stakeholder summary (automated)", false, fontSizeHalfPoints: 24));
             body.AppendChild(Paragraph($"Tenant: {snapshot.TenantId:D}"));
             body.AppendChild(Paragraph($"Workspace: {snapshot.WorkspaceId:D} · Project: {snapshot.ProjectId:D}"));
             body.AppendChild(
                 Paragraph(
                     $"Reporting window (UTC): {snapshot.PeriodFromUtc:O} → {snapshot.PeriodToUtc:O}"));
 
-            body.AppendChild(Paragraph("Observed activity", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph("Observed activity", true, fontSizeHalfPoints: 28));
             body.AppendChild(Paragraph($"Runs completed (terminal): {snapshot.RunsCompletedCount}"));
             body.AppendChild(Paragraph($"Manifests committed: {snapshot.ManifestsCommittedCount}"));
             body.AppendChild(Paragraph($"Governance-class audit events: {snapshot.GovernanceEventsHandledCount}"));
             body.AppendChild(Paragraph($"Drift / alert-class audit events: {snapshot.DriftAlertEventsCaughtCount}"));
 
-            body.AppendChild(Paragraph("Per-finding feedback (thumbs)", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph("Per-finding feedback (thumbs)", true, fontSizeHalfPoints: 28));
             body.AppendChild(
                 Paragraph(
                     $"Net score (thumbs up minus thumbs down) in window: {snapshot.FindingFeedbackNetScore}"));
             body.AppendChild(
                 Paragraph($"Votes recorded in window: {snapshot.FindingFeedbackVoteCount}"));
 
-            body.AppendChild(Paragraph("Runs by legacy status (created in window)", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph("Runs by legacy status (created in window)", true, fontSizeHalfPoints: 28));
 
             if (snapshot.RunStatusRows.Count == 0)
                 body.AppendChild(Paragraph("(No runs created in this window.)"));
@@ -65,7 +67,7 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
                     body.AppendChild(Paragraph($"{row.LegacyRunStatusLabel}: {row.Count}"));
             }
 
-            body.AppendChild(Paragraph("Estimated hours saved (ROI_MODEL inputs)", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph("Estimated hours saved (ROI_MODEL inputs)", true, fontSizeHalfPoints: 28));
             body.AppendChild(
                 Paragraph(
                     $"From committed manifests: {snapshot.EstimatedArchitectHoursSavedFromManifests:0.##} architect-hours"));
@@ -75,16 +77,19 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             body.AppendChild(
                 Paragraph(
                     $"From drift/alert events: {snapshot.EstimatedArchitectHoursSavedFromDriftEvents:0.##} architect-hours"));
-            body.AppendChild(Paragraph($"Total (composite): {snapshot.EstimatedTotalArchitectHoursSaved:0.##} architect-hours"));
+            body.AppendChild(
+                Paragraph($"Total (composite): {snapshot.EstimatedTotalArchitectHoursSaved:0.##} architect-hours"));
 
-            foreach (ValueReportReviewCycleParagraph p in ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot))
-                body.AppendChild(Paragraph(p.Text, bold: p.Bold, italic: p.Italic, fontSizeHalfPoints: p.FontSizeHalfPoints));
+            foreach (ValueReportReviewCycleParagraph p in
+                     ValueReportReviewCycleSectionFormatter.GetParagraphs(snapshot))
+                body.AppendChild(Paragraph(p.Text, p.Bold, p.Italic, p.FontSizeHalfPoints));
 
-            body.AppendChild(Paragraph("LLM cost (estimated)", bold: true, fontSizeHalfPoints: 28));
-            body.AppendChild(Paragraph($"Window USD (completed runs × model rate): {snapshot.EstimatedLlmCostForWindowUsd:0.##}"));
+            body.AppendChild(Paragraph("LLM cost (estimated)", true, fontSizeHalfPoints: 28));
+            body.AppendChild(
+                Paragraph($"Window USD (completed runs × model rate): {snapshot.EstimatedLlmCostForWindowUsd:0.##}"));
             body.AppendChild(Paragraph(snapshot.EstimatedLlmCostMethodologyNote));
 
-            body.AppendChild(Paragraph("ROI vs ROI_MODEL.md baseline (annualized)", bold: true, fontSizeHalfPoints: 28));
+            body.AppendChild(Paragraph("ROI vs ROI_MODEL.md baseline (annualized)", true, fontSizeHalfPoints: 28));
             body.AppendChild(
                 Paragraph(
                     $"Annualized hours value (USD): {snapshot.AnnualizedHoursValueUsd:0.##}"));

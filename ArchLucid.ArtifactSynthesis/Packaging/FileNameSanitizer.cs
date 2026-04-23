@@ -1,9 +1,9 @@
 namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 /// <summary>
-/// Produces file names safe for archives and for common client OSes.
-/// <see cref="Path.GetInvalidFileNameChars"/> is OS-specific (e.g. <c>|</c> and <c>?</c> are valid on Linux but
-/// invalid on Windows), so we union platform invalid chars with a Windows-style denylist for exports.
+///     Produces file names safe for archives and for common client OSes.
+///     <see cref="Path.GetInvalidFileNameChars" /> is OS-specific (e.g. <c>|</c> and <c>?</c> are valid on Linux but
+///     invalid on Windows), so we union platform invalid chars with a Windows-style denylist for exports.
 /// </summary>
 public static class FileNameSanitizer
 {

@@ -2,5 +2,9 @@ namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class UnresolvedIssuesArtifactModel
 {
-    public List<UnresolvedIssueArtifactItem> Items { get; set; } = [];
+    public List<UnresolvedIssueArtifactItem> Items
+    {
+        get;
+        set;
+    } = [];
 }

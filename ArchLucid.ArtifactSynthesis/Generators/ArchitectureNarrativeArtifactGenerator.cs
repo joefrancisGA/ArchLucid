@@ -10,7 +10,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ArchitectureNarrative;
+    public string ArtifactType => Models.ArtifactType.ArchitectureNarrative;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -40,8 +40,8 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
 
                 sb.AppendLine($"- Uncovered: {item.RequirementName}");
-
         }
+
         sb.AppendLine();
 
         sb.AppendLine("## Topology Posture");
@@ -75,7 +75,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
                 sb.AppendLine($"- {control.ControlName}: {control.Status}");
 
 
-
         foreach (string gap in manifest.Security.Gaps)
 
             sb.AppendLine($"- Security Gap: {gap}");
@@ -94,7 +93,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
                 sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
 
 
-
         foreach (string gap in manifest.Compliance.Gaps)
 
             sb.AppendLine($"- Compliance Gap: {gap}");
@@ -102,7 +100,8 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Cost Posture");
-        sb.AppendLine($"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+        sb.AppendLine(
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
         foreach (string risk in manifest.Cost.CostRisks)
 
             sb.AppendLine($"- Cost Risk: {risk}");
@@ -152,7 +151,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ArchitectureNarrative,
+            ArtifactType = Models.ArtifactType.ArchitectureNarrative,
             Name = "architecture-narrative.md",
             Format = "markdown",
             Content = content,

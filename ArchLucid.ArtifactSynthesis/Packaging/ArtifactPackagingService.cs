@@ -7,13 +7,13 @@ using ArchLucid.ArtifactSynthesis.Models;
 namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 /// <summary>
-/// Packages <see cref="SynthesizedArtifact"/> instances into single-file exports, manifest-scoped ZIP bundles,
-/// or full run-export ZIP packages containing the manifest JSON and an optional decision trace.
+///     Packages <see cref="SynthesizedArtifact" /> instances into single-file exports, manifest-scoped ZIP bundles,
+///     or full run-export ZIP packages containing the manifest JSON and an optional decision trace.
 /// </summary>
 /// <remarks>
-/// Entry names are sanitized with <see cref="FileNameSanitizer"/> and made unique within each archive.
-/// Reserved names (<c>bundle-index.json</c>, <c>package-metadata.json</c>, etc.) are prefixed with
-/// <c>artifact-</c> to avoid collisions.
+///     Entry names are sanitized with <see cref="FileNameSanitizer" /> and made unique within each archive.
+///     Reserved names (<c>bundle-index.json</c>, <c>package-metadata.json</c>, etc.) are prefixed with
+///     <c>artifact-</c> to avoid collisions.
 /// </remarks>
 public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeResolver) : IArtifactPackagingService
 {
@@ -23,18 +23,14 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
     private static readonly HashSet<string> BundleReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
 #pragma warning restore IDE0028 // Simplify collection initialization
     {
-        "bundle-index.json",
-        "package-metadata.json"
+        "bundle-index.json", "package-metadata.json"
     };
 
 #pragma warning disable IDE0028 // Simplify collection initialization
     private static readonly HashSet<string> RunExportReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
 #pragma warning restore IDE0028 // Simplify collection initialization
     {
-        "manifest.json",
-        "decision-trace.json",
-        "README.txt",
-        "package-metadata.json"
+        "manifest.json", "decision-trace.json", "README.txt", "package-metadata.json"
     };
 
     public ArtifactFileExport BuildSingleFileExport(SynthesizedArtifact artifact)
@@ -57,13 +53,14 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
         using MemoryStream memoryStream = new();
 
-        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, true))
         {
             HashSet<string> usedEntryNames = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
-                string safe = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), BundleReservedEntryNames);
+                string safe =
+                    AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), BundleReservedEntryNames);
                 string entryName = AllocateUniqueEntryName(safe, usedEntryNames);
                 WriteTextEntry(archive, entryName, artifact.Content);
             }
@@ -71,18 +68,12 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteBundleIndex(archive, artifacts);
             WritePackageMetadata(
                 archive,
-                new
-                {
-                    CreatedUtc = DateTime.UtcNow,
-                    ManifestId = manifestId,
-                    ArtifactCount = artifacts.Count
-                });
+                new { CreatedUtc = DateTime.UtcNow, ManifestId = manifestId, ArtifactCount = artifacts.Count });
         }
 
         return new ArtifactPackage
         {
-            PackageFileName = $"artifact-bundle-{manifestId:N}.zip",
-            Content = memoryStream.ToArray()
+            PackageFileName = $"artifact-bundle-{manifestId:N}.zip", Content = memoryStream.ToArray()
         };
     }
 
@@ -99,13 +90,14 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
         using MemoryStream memoryStream = new();
 
-        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, true))
         {
             HashSet<string> usedEntryNames = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
-                string safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), RunExportReservedEntryNames);
+                string safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name),
+                    RunExportReservedEntryNames);
                 string relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
                 WriteTextEntry(archive, relative, artifact.Content);
             }
@@ -139,7 +131,6 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
 
                     readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");
-
             }
 
             readme.AppendLine($"Artifact file count: {artifacts.Count}");
@@ -151,7 +142,8 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             readme.AppendLine("  package-metadata.json  — export metadata (UTC timestamp, ids, counts)");
             readme.AppendLine("  README.txt             — this file");
             readme.AppendLine();
-            readme.AppendLine("Regenerate Word packages or consulting reports from the API or operator shell when needed.");
+            readme.AppendLine(
+                "Regenerate Word packages or consulting reports from the API or operator shell when needed.");
             WriteTextEntry(archive, "README.txt", readme.ToString());
 
             WritePackageMetadata(
@@ -167,8 +159,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
         return new ArtifactPackage
         {
-            PackageFileName = $"archlucid-run-export-{runId:N}.zip",
-            Content = memoryStream.ToArray()
+            PackageFileName = $"archlucid-run-export-{runId:N}.zip", Content = memoryStream.ToArray()
         };
     }
 

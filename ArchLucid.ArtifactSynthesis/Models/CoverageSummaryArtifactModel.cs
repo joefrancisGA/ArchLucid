@@ -4,23 +4,37 @@ public class CoverageSummaryArtifactModel
 {
     public int CoveredRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int UncoveredRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int SecurityGapCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int ComplianceGapCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int UnresolvedIssueCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> TopologyGaps { get; set; } = [];
+
+    public List<string> TopologyGaps
+    {
+        get;
+        set;
+    } = [];
 }

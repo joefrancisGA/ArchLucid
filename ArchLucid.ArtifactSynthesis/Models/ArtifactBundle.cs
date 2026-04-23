@@ -4,32 +4,55 @@ public class ArtifactBundle
 {
     public Guid TenantId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid WorkspaceId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid ProjectId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid BundleId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid ManifestId
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
-    public List<SynthesizedArtifact> Artifacts { get; set; } = [];
-    public SynthesisTrace Trace { get; set; } = new();
+
+    public List<SynthesizedArtifact> Artifacts
+    {
+        get;
+        set;
+    } = [];
+
+    public SynthesisTrace Trace
+    {
+        get;
+        set;
+    } = new();
 }

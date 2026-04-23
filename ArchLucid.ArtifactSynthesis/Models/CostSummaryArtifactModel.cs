@@ -4,8 +4,19 @@ public class CostSummaryArtifactModel
 {
     public decimal? MaxMonthlyCost
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> Risks { get; set; } = [];
-    public List<string> Notes { get; set; } = [];
+
+    public List<string> Risks
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> Notes
+    {
+        get;
+        set;
+    } = [];
 }

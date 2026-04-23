@@ -7,12 +7,12 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.ArtifactSynthesis.Services;
 
 /// <summary>
-/// Synthesizes an <see cref="ArtifactBundle"/> from a committed <see cref="GoldenManifest"/> by invoking
-/// all registered <see cref="IArtifactGenerator"/> implementations and validating the resulting bundle.
+///     Synthesizes an <see cref="ArtifactBundle" /> from a committed <see cref="GoldenManifest" /> by invoking
+///     all registered <see cref="IArtifactGenerator" /> implementations and validating the resulting bundle.
 /// </summary>
 /// <remarks>
-/// Generators are invoked in ascending <see cref="IArtifactGenerator.ArtifactType"/> order to produce
-/// deterministic bundle output. The bundle trace records which generators ran and any diagnostic notes.
+///     Generators are invoked in ascending <see cref="IArtifactGenerator.ArtifactType" /> order to produce
+///     deterministic bundle output. The bundle trace records which generators ran and any diagnostic notes.
 /// </remarks>
 public class ArtifactSynthesisService(
     IEnumerable<IArtifactGenerator> generators,
@@ -21,6 +21,7 @@ public class ArtifactSynthesisService(
     : IArtifactSynthesisService
 {
     private const string NoArtifactsNote = "No artifacts were generated.";
+
     public async Task<ArtifactBundle> SynthesizeAsync(
         GoldenManifest manifest,
         CancellationToken ct)
@@ -57,7 +58,8 @@ public class ArtifactSynthesisService(
 
         List<string> decisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList();
 
-        foreach (IArtifactGenerator generator in generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
+        foreach (IArtifactGenerator generator in generators.OrderBy(x => x.ArtifactType,
+                     StringComparer.OrdinalIgnoreCase))
         {
             SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, ct);
             foreach (string id in decisionIds)
@@ -77,7 +79,6 @@ public class ArtifactSynthesisService(
                     manifest.RunId,
                     manifest.ManifestId,
                     bundle.Trace.TraceId);
-
         }
 
         validator.Validate(bundle);

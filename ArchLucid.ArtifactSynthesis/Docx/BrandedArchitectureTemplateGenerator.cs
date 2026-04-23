@@ -5,15 +5,16 @@ using DocumentFormat.OpenXml.Wordprocessing;
 namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
-/// Builds an in-memory branded .docx when <c>architecture-template.docx</c> is not on disk.
-/// Drop a customized file under <c>Docx/Templates/</c> (copied to output) to override.
+///     Builds an in-memory branded .docx when <c>architecture-template.docx</c> is not on disk.
+///     Drop a customized file under <c>Docx/Templates/</c> (copied to output) to override.
 /// </summary>
 public static class BrandedArchitectureTemplateGenerator
 {
     public static byte[] CreateTemplateBytes()
     {
         using MemoryStream ms = new();
-        using (WordprocessingDocument doc = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+        using (WordprocessingDocument
+               doc = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
         {
             MainDocumentPart main = doc.AddMainDocumentPart();
             main.Document = new Document(new Body());
@@ -83,15 +84,9 @@ public static class BrandedArchitectureTemplateGenerator
                 new StyleName { Val = "ArchLucid Body" },
                 new BasedOn { Val = "Normal" },
                 new StyleParagraphProperties(
-                    new SpacingBetweenLines
-                    {
-                        After = "160",
-                        Line = "276",
-                        LineRule = LineSpacingRuleValues.Auto
-                    }))
+                    new SpacingBetweenLines { After = "160", Line = "276", LineRule = LineSpacingRuleValues.Auto }))
             {
-                Type = StyleValues.Paragraph,
-                StyleId = DocxStyleIds.BodyText
+                Type = StyleValues.Paragraph, StyleId = DocxStyleIds.BodyText
             },
             new Style(
                 new StyleName { Val = "ArchLucid Table Header" },
@@ -99,8 +94,7 @@ public static class BrandedArchitectureTemplateGenerator
                 new StyleRunProperties(new Bold()),
                 new StyleParagraphProperties(new Justification { Val = JustificationValues.Center }))
             {
-                Type = StyleValues.Paragraph,
-                StyleId = DocxStyleIds.TableHeader
+                Type = StyleValues.Paragraph, StyleId = DocxStyleIds.TableHeader
             });
     }
 }

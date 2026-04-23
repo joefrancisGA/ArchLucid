@@ -10,60 +10,32 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class DiagramAstGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.DiagramAst;
+    public string ArtifactType => Models.ArtifactType.DiagramAst;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
         CancellationToken ct)
     {
         _ = ct;
-        DiagramAst ast = new()
-        {
-            Title = manifest.Metadata.Name
-        };
+        DiagramAst ast = new() { Title = manifest.Metadata.Name };
 
-        ast.Nodes.Add(new DiagramNode
-        {
-            NodeId = "manifest",
-            Label = "Golden Manifest",
-            NodeType = "Manifest"
-        });
+        ast.Nodes.Add(new DiagramNode { NodeId = "manifest", Label = "Golden Manifest", NodeType = "Manifest" });
 
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
             string nodeId = $"decision-{decision.DecisionId}";
-            ast.Nodes.Add(new DiagramNode
-            {
-                NodeId = nodeId,
-                Label = decision.Title,
-                NodeType = decision.Category
-            });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
 
-            ast.Edges.Add(new DiagramEdge
-            {
-                FromNodeId = "manifest",
-                ToNodeId = nodeId,
-                Label = "contains"
-            });
+            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "contains" });
         }
 
         for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
         {
             ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
             string nodeId = $"issue-{i}";
-            ast.Nodes.Add(new DiagramNode
-            {
-                NodeId = nodeId,
-                Label = issue.Title,
-                NodeType = "Issue"
-            });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issue.Title, NodeType = "Issue" });
 
-            ast.Edges.Add(new DiagramEdge
-            {
-                FromNodeId = "manifest",
-                ToNodeId = nodeId,
-                Label = "flags"
-            });
+            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "flags" });
         }
 
         string content = JsonSerializer.Serialize(ast, SynthesisJsonOptions.WriteIndented);
@@ -74,7 +46,7 @@ public class DiagramAstGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.DiagramAst,
+            ArtifactType = Models.ArtifactType.DiagramAst,
             Name = "diagram-ast.json",
             Format = "json",
             Content = content,

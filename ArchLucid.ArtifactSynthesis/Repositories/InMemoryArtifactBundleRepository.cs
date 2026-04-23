@@ -9,8 +9,8 @@ namespace ArchLucid.ArtifactSynthesis.Repositories;
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {
     private const int MaxEntries = 500;
-    private readonly List<ArtifactBundle> _store = [];
     private readonly Lock _lock = new();
+    private readonly List<ArtifactBundle> _store = [];
 
     public Task SaveAsync(
         ArtifactBundle bundle,
@@ -27,6 +27,7 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
+
         return Task.CompletedTask;
     }
 

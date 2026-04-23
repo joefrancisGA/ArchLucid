@@ -5,69 +5,104 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.ArtifactSynthesis.Docx.Models;
 
 /// <summary>
-/// Parameters controlling DOCX section inclusion and optional AI comparison/run narratives for an architecture package export.
+///     Parameters controlling DOCX section inclusion and optional AI comparison/run narratives for an architecture package
+///     export.
 /// </summary>
 public class DocxExportRequest
 {
     /// <summary>Primary run id (metadata lines).</summary>
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Manifest id (metadata lines).</summary>
     public Guid ManifestId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Cover / title page heading.</summary>
-    public string DocumentTitle { get; set; } = "ArchLucid Architecture Package";
+    public string DocumentTitle
+    {
+        get;
+        set;
+    } = "ArchLucid Architecture Package";
 
     /// <summary>Subtitle under the title.</summary>
-    public string Subtitle { get; set; } = "Generated Architecture Document";
+    public string Subtitle
+    {
+        get;
+        set;
+    } = "Generated Architecture Document";
 
-    /// <summary>When <see langword="true"/>, emits synthesized artifact appendix content.</summary>
-    public bool IncludeArtifactsAppendix { get; set; } = true;
+    /// <summary>When <see langword="true" />, emits synthesized artifact appendix content.</summary>
+    public bool IncludeArtifactsAppendix
+    {
+        get;
+        set;
+    } = true;
 
-    /// <summary>When <see langword="true"/>, emits compliance section blocks.</summary>
-    public bool IncludeComplianceSection { get; set; } = true;
+    /// <summary>When <see langword="true" />, emits compliance section blocks.</summary>
+    public bool IncludeComplianceSection
+    {
+        get;
+        set;
+    } = true;
 
-    /// <summary>When <see langword="true"/>, emits requirements coverage section.</summary>
-    public bool IncludeCoverageSection { get; set; } = true;
+    /// <summary>When <see langword="true" />, emits requirements coverage section.</summary>
+    public bool IncludeCoverageSection
+    {
+        get;
+        set;
+    } = true;
 
-    /// <summary>When <see langword="true"/>, emits unresolved issues section.</summary>
-    public bool IncludeIssuesSection { get; set; } = true;
+    /// <summary>When <see langword="true" />, emits unresolved issues section.</summary>
+    public bool IncludeIssuesSection
+    {
+        get;
+        set;
+    } = true;
 
     /// <summary>
-    /// When <see langword="true"/>, emits an architecture diagram section: PNG from a base64 artifact when present,
-    /// else rasterized Mermaid when the host registers a working diagram image renderer,
-    /// else Mermaid source text, else a short manifest topology summary.
+    ///     When <see langword="true" />, emits an architecture diagram section: PNG from a base64 artifact when present,
+    ///     else rasterized Mermaid when the host registers a working diagram image renderer,
+    ///     else Mermaid source text, else a short manifest topology summary.
     /// </summary>
-    public bool IncludeArchitectureDiagram { get; set; } = true;
+    public bool IncludeArchitectureDiagram
+    {
+        get;
+        set;
+    } = true;
 
     /// <summary>When set, appends an architecture comparison section (base = this export run).</summary>
     public ComparisonResult? ManifestComparison
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>AI narrative when a manifest comparison is included.</summary>
     public ComparisonExplanationResult? ComparisonExplanation
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Optional AI narrative for the primary run (executive / stakeholder wording).</summary>
     public ExplanationResult? RunExplanation
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When null, DOCX export synthesizes an empty findings snapshot for advisory only.</summary>
     public FindingsSnapshot? FindingsSnapshot
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Builds the request used by <c>GET api/docx/runs/.../architecture-package</c>.</summary>
@@ -87,8 +122,9 @@ public class DocxExportRequest
         ComparisonResult? manifestComparison,
         ComparisonExplanationResult? comparisonExplanation,
         ExplanationResult? runExplanation,
-        FindingsSnapshot? findingsSnapshot) =>
-        new()
+        FindingsSnapshot? findingsSnapshot)
+    {
+        return new DocxExportRequest
         {
             RunId = runId,
             ManifestId = manifestId,
@@ -97,6 +133,7 @@ public class DocxExportRequest
             ManifestComparison = manifestComparison,
             ComparisonExplanation = comparisonExplanation,
             RunExplanation = runExplanation,
-            FindingsSnapshot = findingsSnapshot,
+            FindingsSnapshot = findingsSnapshot
         };
+    }
 }

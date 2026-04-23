@@ -7,14 +7,18 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
 
 public static class WordDocumentBuilder
 {
-    private static string Sanitize(string? text) =>
-        text?.Replace("\r\n", " ", StringComparison.Ordinal)
-            .Replace('\n', ' ')
-            .Replace('\r', ' ')
-        ?? string.Empty;
+    private static string Sanitize(string? text)
+    {
+        return text?.Replace("\r\n", " ", StringComparison.Ordinal)
+                   .Replace('\n', ' ')
+                   .Replace('\r', ' ')
+               ?? string.Empty;
+    }
 
-    public static void AddParagraph(Body body, string text) =>
+    public static void AddParagraph(Body body, string text)
+    {
         body.AppendChild(new Paragraph(new Run(new Text(Sanitize(text)))));
+    }
 
     public static void AddStyledParagraph(Body body, string text, string styleId)
     {
@@ -24,11 +28,15 @@ public static class WordDocumentBuilder
         body.AppendChild(p);
     }
 
-    public static void AddHeading(Body body, string text, string styleId = DocxStyleIds.Heading1) =>
+    public static void AddHeading(Body body, string text, string styleId = DocxStyleIds.Heading1)
+    {
         AddStyledParagraph(body, text, styleId);
+    }
 
-    public static void AddBodyText(Body body, string text) =>
+    public static void AddBodyText(Body body, string text)
+    {
         AddStyledParagraph(body, text, DocxStyleIds.BodyText);
+    }
 
     /// <summary>Splits on blank lines into styled body paragraphs.</summary>
     public static void AddMultilineBodyText(Body body, string text)
@@ -61,12 +69,7 @@ public static class WordDocumentBuilder
         {
             Run run = new(
                 new RunProperties(
-                    new RunFonts
-                    {
-                        Ascii = "Consolas",
-                        HighAnsi = "Consolas",
-                        ComplexScript = "Consolas",
-                    }),
+                    new RunFonts { Ascii = "Consolas", HighAnsi = "Consolas", ComplexScript = "Consolas" }),
                 new Text(rawLine) { Space = SpaceProcessingModeValues.Preserve });
             body.AppendChild(
                 new Paragraph(
@@ -215,18 +218,15 @@ public static class WordDocumentBuilder
         return table;
     }
 
-    private static TableCell CreateHeaderCell(string text) =>
-        new(
+    private static TableCell CreateHeaderCell(string text)
+    {
+        return new TableCell(
             new TableCellProperties(
-                new Shading
-                {
-                    Val = ShadingPatternValues.Clear,
-                    Color = "auto",
-                    Fill = "D9D9D9"
-                }),
+                new Shading { Val = ShadingPatternValues.Clear, Color = "auto", Fill = "D9D9D9" }),
             new Paragraph(
                 new ParagraphProperties(new ParagraphStyleId { Val = DocxStyleIds.TableHeader }),
                 new Run(
                     new RunProperties(new Bold()),
                     new Text(Sanitize(text)))));
+    }
 }

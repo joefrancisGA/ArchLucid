@@ -9,7 +9,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class CoverageSummaryArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.CoverageSummary;
+    public string ArtifactType => Models.ArtifactType.CoverageSummary;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -34,7 +34,7 @@ public class CoverageSummaryArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.CoverageSummary,
+            ArtifactType = Models.ArtifactType.CoverageSummary,
             Name = "coverage-summary.json",
             Format = "json",
             Content = content,

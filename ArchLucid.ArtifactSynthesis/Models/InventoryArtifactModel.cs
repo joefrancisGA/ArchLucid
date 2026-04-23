@@ -2,5 +2,9 @@ namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class InventoryArtifactModel
 {
-    public List<InventoryItem> Items { get; set; } = [];
+    public List<InventoryItem> Items
+    {
+        get;
+        set;
+    } = [];
 }

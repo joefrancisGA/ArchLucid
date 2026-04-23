@@ -67,33 +67,20 @@ public static class ImageHelper
         string relationshipId,
         string imageName,
         long widthEmu,
-        long heightEmu) =>
-        new(
+        long heightEmu)
+    {
+        return new WpDrawing(
             new Inline(
                 new Extent { Cx = widthEmu, Cy = heightEmu },
-                new EffectExtent
-                {
-                    LeftEdge = 0L,
-                    TopEdge = 0L,
-                    RightEdge = 0L,
-                    BottomEdge = 0L
-                },
-                new DocProperties
-                {
-                    Id = 1U,
-                    Name = imageName
-                },
+                new EffectExtent { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                new DocProperties { Id = 1U, Name = imageName },
                 new WpNonVisualGraphicFrameDrawingProperties(
                     new GraphicFrameLocks { NoChangeAspect = true }),
                 new Graphic(
                     new GraphicData(
                         new DrPicture(
                             new NonVisualPictureProperties(
-                                new NonVisualDrawingProperties
-                                {
-                                    Id = 0U,
-                                    Name = imageName
-                                },
+                                new NonVisualDrawingProperties { Id = 0U, Name = imageName },
                                 new NonVisualPictureDrawingProperties()),
                             new BlipFill(
                                 new Blip { Embed = relationshipId },
@@ -102,18 +89,10 @@ public static class ImageHelper
                                 new Transform2D(
                                     new Offset { X = 0L, Y = 0L },
                                     new Extents { Cx = widthEmu, Cy = heightEmu }),
-                                new PresetGeometry(new AdjustValueList())
-                                {
-                                    Preset = ShapeTypeValues.Rectangle
-                                }))
-                    )
-                    {
-                        Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture"
-                    }))
+                                new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle }))
+                    ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }))
             {
-                DistanceFromTop = 0U,
-                DistanceFromBottom = 0U,
-                DistanceFromLeft = 0U,
-                DistanceFromRight = 0U
+                DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U
             });
+    }
 }

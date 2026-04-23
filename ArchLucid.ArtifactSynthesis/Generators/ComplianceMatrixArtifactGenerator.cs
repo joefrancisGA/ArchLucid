@@ -10,7 +10,7 @@ namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix;
+    public string ArtifactType => Models.ArtifactType.ComplianceMatrix;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -43,7 +43,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix,
+            ArtifactType = Models.ArtifactType.ComplianceMatrix,
             Name = "compliance-matrix.json",
             Format = "json",
             Content = content,
