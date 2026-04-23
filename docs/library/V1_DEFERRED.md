@@ -66,17 +66,32 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ## 6. ITSM connectors — V1.1 candidates (Resolved 2026-04-23)
 
-These items are **explicitly promoted to V1.1** rather than left as open-ended "Planned" rows. They were originally listed in [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md) as `[Planned]`; the 2026-04-23 owner decision in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Jira connector scope)** moves them into a named release window so external messaging stops reading as "someday".
+These items are **explicitly promoted to V1.1** rather than left as open-ended "Planned" rows. They were originally listed in [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md) as `[Planned]`; the 2026-04-23 owner decisions in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Jira connector scope)** and **Resolved 2026-04-23 (ServiceNow + Slack connector scope)** move them into a named release window so external messaging stops reading as "someday".
 
 | Connector | V1 posture | V1.1 commitment |
 |-----------|------------|------------------|
 | **Atlassian Jira** — first-party connector (issue create from findings + bi-directional status sync, OAuth 2.0 / API token auth, Atlassian-app marketplace listing) | **Out of V1.** Customers integrate via **CloudEvents webhooks** or **REST API** if Jira workflow is required during V1. | **In scope for V1.1.** Specific surface to be sized inside the V1.1 planning ADR; minimum viable shape is one-way: finding → Jira issue with correlation back-link. Two-way status sync is part of the same V1.1 commitment but may ship as a fast-follow within the V1.1 release window. |
+| **ServiceNow** — first-party connector (incident create from findings, optional `cmdb_ci` mapping, OAuth 2.0 / basic-auth, ServiceNow Store listing) | **Out of V1.** Customers integrate via **CloudEvents webhooks** or **REST API** if ServiceNow workflow is required during V1. | **In scope for V1.1.** Minimum viable shape is one-way: finding → ServiceNow `incident` with correlation back-link. **Open V1.1-planning question (do not assume in V1.1 ADR):** whether the same release also ships `cmdb_ci` mapping, or whether `cmdb_ci` ships as a V1.1 fast-follow. Two-way status sync (ServiceNow → ArchLucid) is **not** committed for V1.1 unless an explicit owner decision adds it. |
 
 **Rules:**
 
 - The V1.1 commitment is a **release-window** promise, not a date. Pinning a calendar date requires an owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
-- New ITSM connectors **must not** widen this row without their own owner decision — Azure DevOps Work Items stays in `[Planned]` until separately promoted.
-- The connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema for Jira.
+- New ITSM connectors **must not** widen this table without their own owner decision — **Azure DevOps Work Items** stays in `[Planned]` until separately promoted.
+- Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per ITSM target.
+
+---
+
+## 6a. Chat-ops connectors — V2 candidates (Resolved 2026-04-23)
+
+| Connector | V1 / V1.1 posture | V2 commitment |
+|-----------|--------------------|----------------|
+| **Slack** — first-party connector (outbound notification sink with Adaptive Card-equivalent message blocks; aspirational in-Slack action affordances such as acknowledge / approve; Slack-app marketplace listing) | **Out of V1 and V1.1.** **Microsoft Teams** is the supported first-party chat-ops surface for both windows (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Customers needing Slack during V1 / V1.1 integrate via **CloudEvents webhooks** or **REST API** and bridge to Slack themselves. | **In scope for V2.** Minimum viable shape is parity with the V1 Microsoft Teams connector: outbound notification sink driven by the same `EnabledTriggersJson` per-tenant opt-in matrix, secret material in **Azure Key Vault** with only a secret-name reference in SQL, and the same canonical event-type catalog (no parallel notification model). In-Slack action affordances are **stretch** for V2, not committed. |
+
+**Rules:**
+
+- V2 is a **release-window** promise, not a date — no calendar date is implied here.
+- A new chat-ops surface **must not** be added to this table without its own owner decision (e.g. Discord, Mattermost stay at `[Planned]`).
+- Slack must consume the same Authority-shaped event payloads the existing webhooks and the Microsoft Teams connector ship; no parallel notification schema per chat surface.
 
 ---
 
