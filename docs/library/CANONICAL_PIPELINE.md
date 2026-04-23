@@ -1,3 +1,5 @@
+> **Scope:** Canonical operator pipeline — request through commit; links to deeper architecture docs below.
+
 # Canonical run pipeline (operator view)
 
 **Objective:** Give operators and sponsors a single mental model for how work flows from request to committed manifest and artifacts, without implementation seam vocabulary.

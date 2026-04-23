@@ -1,3 +1,5 @@
+> **Scope:** Enterprise procurement comparison — one-page buyer-facing summary; cites approved positioning only.
+
 # ArchLucid — enterprise comparison (one page)
 
 **Audience:** procurement, IT architecture, and security reviewers comparing ArchLucid to legacy EA / GRC platforms.

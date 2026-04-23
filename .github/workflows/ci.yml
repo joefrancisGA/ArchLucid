@@ -51,6 +51,19 @@ jobs:
         with:
           config-path: .gitleaks.toml
 
+  docs-root-size:
+    name: "Docs: root markdown count guard (≤30)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Assert docs root .md count
+        run: python scripts/ci/assert_docs_root_size.py
+
   integrations-node-ado-pipeline-tasks:
     name: "Integrations: Azure Pipelines YAML scripts (node --test)"
     needs: gitleaks
@@ -72,7 +85,9 @@ jobs:
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"
-    needs: gitleaks
+    needs:
+      - gitleaks
+      - docs-root-size
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -88,7 +103,7 @@ jobs:
         working-directory: archlucid-ui
 
       - name: Check relative markdown links
-        run: python scripts/ci/check_doc_links.py
+        run: python scripts/ci/check_md_links.py
 
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
