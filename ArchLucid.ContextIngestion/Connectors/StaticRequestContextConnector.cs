@@ -11,10 +11,7 @@ public class StaticRequestContextConnector : IContextConnector
         ContextIngestionRequest request,
         CancellationToken ct)
     {
-        return Task.FromResult(new RawContextPayload
-        {
-            Description = request.Description
-        });
+        return Task.FromResult(new RawContextPayload { Description = request.Description });
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
@@ -31,10 +28,7 @@ public class StaticRequestContextConnector : IContextConnector
                 Name = "Primary Request",
                 SourceType = "StaticRequest",
                 SourceId = "description",
-                Properties = new Dictionary<string, string>
-                {
-                    ["text"] = payload.Description!
-                }
+                Properties = new Dictionary<string, string> { ["text"] = payload.Description! }
             });
 
 
@@ -52,4 +46,3 @@ public class StaticRequestContextConnector : IContextConnector
         });
     }
 }
-

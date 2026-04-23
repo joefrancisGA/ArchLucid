@@ -33,11 +33,7 @@ public class SecurityBaselineHintsConnector : IContextConnector
                 Name = hint,
                 SourceType = "SecurityBaselineHint",
                 SourceId = "security-hint",
-                Properties = new Dictionary<string, string>
-                {
-                    ["text"] = hint,
-                    ["status"] = "declared"
-                }
+                Properties = new Dictionary<string, string> { ["text"] = hint, ["status"] = "declared" }
             });
 
 
@@ -53,7 +49,9 @@ public class SecurityBaselineHintsConnector : IContextConnector
         _ = ct;
         return Task.FromResult(new ContextDelta
         {
-            Summary = previous is null ? "Initial security baseline hint ingestion" : "Updated security baseline hint ingestion"
+            Summary = previous is null
+                ? "Initial security baseline hint ingestion"
+                : "Updated security baseline hint ingestion"
         });
     }
 }

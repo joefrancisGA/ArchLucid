@@ -7,18 +7,20 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
-/// Parses <c>terraform show -json</c> state output (Terraform JSON state representation) into
-/// <see cref="CanonicalObject"/> rows aligned with other infrastructure declaration parsers.
+///     Parses <c>terraform show -json</c> state output (Terraform JSON state representation) into
+///     <see cref="CanonicalObject" /> rows aligned with other infrastructure declaration parsers.
 /// </summary>
 /// <remarks>
-/// Clients paste the JSON into <see cref="InfrastructureDeclarationReference.Content"/> with
-/// <see cref="InfrastructureDeclarationReference.Format"/> <c>terraform-show-json</c>.
+///     Clients paste the JSON into <see cref="InfrastructureDeclarationReference.Content" /> with
+///     <see cref="InfrastructureDeclarationReference.Format" /> <c>terraform-show-json</c>.
 /// </remarks>
 public sealed class TerraformShowJsonInfrastructureDeclarationParser(
     ILogger<TerraformShowJsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
-    public bool CanParse(string format) =>
-        string.Equals(format, "terraform-show-json", StringComparison.OrdinalIgnoreCase);
+    public bool CanParse(string format)
+    {
+        return string.Equals(format, "terraform-show-json", StringComparison.OrdinalIgnoreCase);
+    }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
         InfrastructureDeclarationReference declaration,
@@ -72,7 +74,8 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 TryAddResource(res, declaration, results);
         }
 
-        if (!module.TryGetProperty("child_modules", out JsonElement children) || children.ValueKind != JsonValueKind.Array)
+        if (!module.TryGetProperty("child_modules", out JsonElement children) ||
+            children.ValueKind != JsonValueKind.Array)
             return;
 
         foreach (JsonElement child in children.EnumerateArray())
@@ -100,10 +103,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
         string objectType = ResolveObjectTypeFromTerraformType(tfType);
 
-        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["terraformType"] = tfType
-        };
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["terraformType"] = tfType };
 
         if (res.TryGetProperty("provider_name", out JsonElement prov) && prov.ValueKind == JsonValueKind.String)
         {
@@ -185,7 +185,8 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
         return tail.ToString().ToLowerInvariant() switch
         {
-            "azurerm_key_vault" or "azurerm_firewall" or "azurerm_network_security_group" or "azurerm_key_vault_access_policy" =>
+            "azurerm_key_vault" or "azurerm_firewall" or "azurerm_network_security_group"
+                or "azurerm_key_vault_access_policy" =>
                 "SecurityBaseline",
             "azurerm_policy_assignment" or "azurerm_policy_definition" => "PolicyControl",
             _ => "TopologyResource"

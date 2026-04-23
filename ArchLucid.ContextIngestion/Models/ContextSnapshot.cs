@@ -4,26 +4,56 @@ public class ContextSnapshot
 {
     public Guid SnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Logical project/system key (used for latest snapshot queries).</summary>
-    public string ProjectId { get; set; } = "";
+    public string ProjectId
+    {
+        get;
+        set;
+    } = "";
+
     public DateTime CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
-    public List<CanonicalObject> CanonicalObjects { get; set; } = [];
+
+    public List<CanonicalObject> CanonicalObjects
+    {
+        get;
+        set;
+    } = [];
+
     public string? DeltaSummary
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> Warnings { get; set; } = [];
-    public List<string> Errors { get; set; } = [];
-    public Dictionary<string, string> SourceHashes { get; set; } = new();
-}
 
+    public List<string> Warnings
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> Errors
+    {
+        get;
+        set;
+    } = [];
+
+    public Dictionary<string, string> SourceHashes
+    {
+        get;
+        set;
+    } = new();
+}

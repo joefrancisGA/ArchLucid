@@ -5,10 +5,11 @@ using ArchLucid.ContextIngestion.Models;
 namespace ArchLucid.ContextIngestion.Connectors;
 
 /// <summary>
-/// Normalizes inline <see cref="ContextDocumentReference"/> items using the first
-/// <see cref="IContextDocumentParser"/> in
-/// <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>
-/// order where <see cref="IContextDocumentParser.CanParse"/> returns true.
+///     Normalizes inline <see cref="ContextDocumentReference" /> items using the first
+///     <see cref="IContextDocumentParser" /> in
+///     <see
+///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers" />
+///     order where <see cref="IContextDocumentParser.CanParse" /> returns true.
 /// </summary>
 public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : IContextConnector
 {
@@ -19,10 +20,7 @@ public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : 
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            Documents = request.Documents.ToList()
-        });
+        return Task.FromResult(new RawContextPayload { Documents = request.Documents.ToList() });
     }
 
     public async Task<NormalizedContextBatch> NormalizeAsync(

@@ -11,8 +11,10 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         @"resource\s+""(?<type>[^""]+)""\s+""(?<name>[^""]+)""",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    public bool CanParse(string format) =>
-        string.Equals(format, "simple-terraform", StringComparison.OrdinalIgnoreCase);
+    public bool CanParse(string format)
+    {
+        return string.Equals(format, "simple-terraform", StringComparison.OrdinalIgnoreCase);
+    }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
         InfrastructureDeclarationReference declaration,

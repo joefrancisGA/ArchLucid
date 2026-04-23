@@ -8,9 +8,9 @@ namespace ArchLucid.ContextIngestion.Repositories;
 public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 {
     private const int MaxSnapshots = 500;
+    private readonly Lock _lock = new();
 
     private readonly Dictionary<Guid, ContextSnapshot> _store = [];
-    private readonly Lock _lock = new();
 
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {

@@ -7,12 +7,12 @@ using ArchLucid.ContextIngestion.Summaries;
 namespace ArchLucid.ContextIngestion.Services;
 
 /// <summary>
-/// Orchestrates the context ingestion pipeline: collects raw objects from
-/// <see cref="IContextConnector"/> instances in the order supplied by DI (the host must register
-/// <c>IEnumerable&lt;IContextConnector&gt;</c> via
-/// <see cref="ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>), concatenates
-/// per-connector delta segments into <see cref="ContextSnapshot.DeltaSummary"/>, then canonicalizes and
-/// deduplicates before persisting the <see cref="ContextSnapshot"/>.
+///     Orchestrates the context ingestion pipeline: collects raw objects from
+///     <see cref="IContextConnector" /> instances in the order supplied by DI (the host must register
+///     <c>IEnumerable&lt;IContextConnector&gt;</c> via
+///     <see cref="ContextConnectorPipeline.CreateOrderedContextConnectorPipeline" />), concatenates
+///     per-connector delta segments into <see cref="ContextSnapshot.DeltaSummary" />, then canonicalizes and
+///     deduplicates before persisting the <see cref="ContextSnapshot" />.
 /// </summary>
 public class ContextIngestionService(
     IEnumerable<IContextConnector> connectors,
@@ -61,7 +61,7 @@ public class ContextIngestionService(
                 delta.Summary,
                 normalized,
                 previous,
-                isFirstConnector: connectorIndex == 0);
+                connectorIndex == 0);
             deltaSummaries.Add(segment);
             connectorIndex++;
         }

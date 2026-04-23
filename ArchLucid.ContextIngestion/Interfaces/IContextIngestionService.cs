@@ -1,6 +1,6 @@
-namespace ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
 
-using Models;
+namespace ArchLucid.ContextIngestion.Interfaces;
 
 public interface IContextIngestionService
 {
@@ -8,4 +8,3 @@ public interface IContextIngestionService
         ContextIngestionRequest request,
         CancellationToken ct);
 }
-
