@@ -1,67 +1,109 @@
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
-/// One persisted pilot or product-team observation about output quality or repeat friction.
+///     One persisted pilot or product-team observation about output quality or repeat friction.
 /// </summary>
 public sealed record ProductLearningPilotSignalRecord
 {
     public Guid SignalId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? ArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid? AuthorityRunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? ManifestVersion
     {
-        get; init;
+        get;
+        init;
     }
-    public string SubjectType { get; init; } = string.Empty;
-    public string Disposition { get; init; } = string.Empty;
+
+    public string SubjectType
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Disposition
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string? PatternKey
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? ArtifactHint
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? CommentShort
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? DetailJson
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? RecordedByUserId
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? RecordedByDisplayName
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime RecordedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public string TriageStatus { get; init; } = ProductLearningTriageStatusValues.Open;
+
+    public string TriageStatus
+    {
+        get;
+        init;
+    } = ProductLearningTriageStatusValues.Open;
 }

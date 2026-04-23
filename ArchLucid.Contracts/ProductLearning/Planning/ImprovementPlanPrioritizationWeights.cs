@@ -4,14 +4,30 @@ namespace ArchLucid.Contracts.ProductLearning.Planning;
 public sealed class ImprovementPlanPrioritizationWeights
 {
     /// <summary>Weight for how often the issue appears (signal volume).</summary>
-    public double Frequency { get; init; } = 0.40;
+    public double Frequency
+    {
+        get;
+        init;
+    } = 0.40;
 
     /// <summary>Weight for negative / revision outcome mass.</summary>
-    public double Severity { get; init; } = 0.30;
+    public double Severity
+    {
+        get;
+        init;
+    } = 0.30;
 
     /// <summary>Weight for low trust (inverted trust score).</summary>
-    public double TrustImpact { get; init; } = 0.20;
+    public double TrustImpact
+    {
+        get;
+        init;
+    } = 0.20;
 
     /// <summary>Weight for number of distinct artifact facets touched.</summary>
-    public double Breadth { get; init; } = 0.10;
+    public double Breadth
+    {
+        get;
+        init;
+    } = 0.10;
 }

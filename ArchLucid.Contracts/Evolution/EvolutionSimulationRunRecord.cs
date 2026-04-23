@@ -5,29 +5,49 @@ public sealed class EvolutionSimulationRunRecord
 {
     public Guid SimulationRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid CandidateChangeSetId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string BaselineArchitectureRunId { get; init; } = string.Empty;
+    public string BaselineArchitectureRunId
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string EvaluationMode { get; init; } = EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis;
+    public string EvaluationMode
+    {
+        get;
+        init;
+    } = EvolutionEvaluationModeValues.ReadOnlyArchitectureAnalysis;
 
-    public string OutcomeJson { get; init; } = string.Empty;
+    public string OutcomeJson
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public string? WarningsJson
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTime CompletedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
-    public bool IsShadowOnly { get; init; } = true;
+    public bool IsShadowOnly
+    {
+        get;
+        init;
+    } = true;
 }

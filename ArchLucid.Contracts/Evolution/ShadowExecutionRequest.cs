@@ -5,16 +5,19 @@ public sealed class ShadowExecutionRequest
 {
     public required string BaselineArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required CandidateChangeSet CandidateChangeSet
     {
-        get; init;
+        get;
+        init;
     }
 
     public ShadowExecutionPipelineOptions? Pipeline
     {
-        get; init;
+        get;
+        init;
     }
 }

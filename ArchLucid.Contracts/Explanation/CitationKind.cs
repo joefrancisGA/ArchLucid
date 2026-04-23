@@ -22,5 +22,5 @@ public enum CitationKind
     GraphSnapshot = 4,
 
     /// <summary>Context ingestion snapshot id carried on the manifest.</summary>
-    ContextSnapshot = 5,
+    ContextSnapshot = 5
 }

@@ -7,11 +7,12 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
-/// Deterministic SHA-256 fingerprint for a <see cref="GoldenManifest"/> serialized with <see cref="ContractJson.Default"/>.
+///     Deterministic SHA-256 fingerprint for a <see cref="GoldenManifest" /> serialized with
+///     <see cref="ContractJson.Default" />.
 /// </summary>
 public static class GoldenManifestFingerprint
 {
-    /// <summary>Uppercase hex SHA-256 over canonical contract JSON for <paramref name="manifest"/>.</summary>
+    /// <summary>Uppercase hex SHA-256 over canonical contract JSON for <paramref name="manifest" />.</summary>
     public static string ComputeSha256Hex(GoldenManifest manifest)
     {
         if (manifest is null)
@@ -22,7 +23,7 @@ public static class GoldenManifestFingerprint
         return Convert.ToHexString(SHA256.HashData(utf8));
     }
 
-    /// <summary>Parses JSON then computes <see cref="ComputeSha256Hex"/> (stable round-trip).</summary>
+    /// <summary>Parses JSON then computes <see cref="ComputeSha256Hex" /> (stable round-trip).</summary>
     public static string ComputeSha256HexFromManifestJson(string manifestJson)
     {
         if (string.IsNullOrWhiteSpace(manifestJson))

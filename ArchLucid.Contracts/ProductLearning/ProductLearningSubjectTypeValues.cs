@@ -1,8 +1,8 @@
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
-/// Open vocabulary stored in <c>ProductLearningPilotSignals.SubjectType</c> (no CHECK — evolve without migrations).
-/// Prefer stable, lowercase-with-dots or PascalCase tokens agreed by product.
+///     Open vocabulary stored in <c>ProductLearningPilotSignals.SubjectType</c> (no CHECK — evolve without migrations).
+///     Prefer stable, lowercase-with-dots or PascalCase tokens agreed by product.
 /// </summary>
 public static class ProductLearningSubjectTypeValues
 {

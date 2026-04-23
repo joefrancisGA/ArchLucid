@@ -5,46 +5,73 @@ public sealed class EvolutionCandidateChangeSetRecord
 {
     public Guid CandidateChangeSetId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid SourcePlanId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Status { get; init; } = EvolutionCandidateChangeSetStatusValues.Draft;
+    public string Status
+    {
+        get;
+        init;
+    } = EvolutionCandidateChangeSetStatusValues.Draft;
 
-    public string Title { get; init; } = string.Empty;
+    public string Title
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Summary { get; init; } = string.Empty;
+    public string Summary
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string PlanSnapshotJson { get; init; } = string.Empty;
+    public string PlanSnapshotJson
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string DerivationRuleVersion { get; init; } = "60R-v1";
+    public string DerivationRuleVersion
+    {
+        get;
+        init;
+    } = "60R-v1";
 
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CreatedByUserId
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -6,14 +6,26 @@ public sealed class ProductLearningImprovementPlanActionStep
     /// <summary>1-based order; duplicates are rejected at persistence.</summary>
     public int Ordinal
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Stable category for reporting (e.g. Investigate, ClarifyPolicy, UX).</summary>
-    public string ActionType { get; init; } = string.Empty;
-    public string Description { get; init; } = string.Empty;
+    public string ActionType
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Description
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string? AcceptanceCriteria
     {
-        get; init;
+        get;
+        init;
     }
 }

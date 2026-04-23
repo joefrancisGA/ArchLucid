@@ -1,12 +1,12 @@
 namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
-/// Well-known values for <see cref="AgentEvaluation.EvaluationType"/>.
+///     Well-known values for <see cref="AgentEvaluation.EvaluationType" />.
 /// </summary>
 /// <remarks>
-/// These constants match the values documented on <see cref="AgentEvaluation.EvaluationType"/>.
-/// Use them wherever evaluations are produced or consumed to avoid typos and to make
-/// pattern-matching exhaustive.
+///     These constants match the values documented on <see cref="AgentEvaluation.EvaluationType" />.
+///     Use them wherever evaluations are produced or consumed to avoid typos and to make
+///     pattern-matching exhaustive.
 /// </remarks>
 public static class EvaluationTypes
 {

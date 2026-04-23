@@ -6,45 +6,63 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
-/// Canonical aggregate for a single architecture run: the authoritative source for
-/// export, compare, governance, and explanation features. Assembled by
-/// <c>IRunDetailQueryService</c> — do not rebuild this by hand in controllers.
+///     Canonical aggregate for a single architecture run: the authoritative source for
+///     export, compare, governance, and explanation features. Assembled by
+///     <c>IRunDetailQueryService</c> — do not rebuild this by hand in controllers.
 /// </summary>
 public sealed class ArchitectureRunDetail
 {
     /// <summary>Core run record including status, timestamps, and version references.</summary>
-    public ArchitectureRun Run { get; set; } = new();
+    public ArchitectureRun Run
+    {
+        get;
+        set;
+    } = new();
 
     /// <summary>Agent tasks created for this run.</summary>
-    public List<AgentTask> Tasks { get; set; } = [];
+    public List<AgentTask> Tasks
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>Agent results produced during execution.</summary>
-    public List<AgentResult> Results { get; set; } = [];
+    public List<AgentResult> Results
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>
-    /// Golden manifest produced during commit, or <see langword="null"/> when the run
-    /// has not yet been committed or the manifest could not be loaded.
+    ///     Golden manifest produced during commit, or <see langword="null" /> when the run
+    ///     has not yet been committed or the manifest could not be loaded.
     /// </summary>
     public GoldenManifest? Manifest
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Decision traces recorded during commit; empty before commit.</summary>
-    public List<DecisionTrace> DecisionTraces { get; set; } = [];
+    public List<DecisionTrace> DecisionTraces
+    {
+        get;
+        set;
+    } = [];
 
-    /// <summary>Convenience accessor: <see langword="true"/> when the run has a committed manifest.</summary>
+    /// <summary>Convenience accessor: <see langword="true" /> when the run has a committed manifest.</summary>
     public bool IsCommitted => Manifest is not null;
 
     /// <summary>
-    /// <see langword="true"/> when the run's <c>CurrentManifestVersion</c> is set but the
-    /// corresponding <see cref="GoldenManifest"/> row could not be loaded from storage.
-    /// Indicates a broken storage reference (e.g. the manifest was deleted or there is
-    /// replication lag). Callers should treat this as a 409 Conflict / inconsistent state
-    /// rather than a normal "not yet committed" case.
+    ///     <see langword="true" /> when the run's <c>CurrentManifestVersion</c> is set but the
+    ///     corresponding <see cref="GoldenManifest" /> row could not be loaded from storage.
+    ///     Indicates a broken storage reference (e.g. the manifest was deleted or there is
+    ///     replication lag). Callers should treat this as a 409 Conflict / inconsistent state
+    ///     rather than a normal "not yet committed" case.
     /// </summary>
     public bool HasBrokenManifestReference
     {
-        get; set;
+        get;
+        set;
     }
 }

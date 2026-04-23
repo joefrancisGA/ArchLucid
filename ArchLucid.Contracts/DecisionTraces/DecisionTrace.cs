@@ -3,8 +3,10 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
-/// Base type for coordinator vs authority traces. JSON uses <c>kind</c> plus either <c>runEvent</c> or <c>ruleAudit</c>
-/// (<see cref="DecisionTraceJsonConverter"/>); CLR types are <see cref="RunEventTrace"/> or <see cref="RuleAuditTrace"/>.
+///     Base type for coordinator vs authority traces. JSON uses <c>kind</c> plus either <c>runEvent</c> or
+///     <c>ruleAudit</c>
+///     (<see cref="DecisionTraceJsonConverter" />); CLR types are <see cref="RunEventTrace" /> or
+///     <see cref="RuleAuditTrace" />.
 /// </summary>
 [JsonConverter(typeof(DecisionTraceJsonConverter))]
 public abstract class DecisionTrace

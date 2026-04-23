@@ -4,11 +4,23 @@ namespace ArchLucid.Contracts.ProductLearning;
 public sealed class ProductLearningReportExportResponse
 {
     /// <summary>Always <c>markdown</c> for this response shape.</summary>
-    public string Format { get; init; } = "markdown";
+    public string Format
+    {
+        get;
+        init;
+    } = "markdown";
 
     /// <summary>Suggested download filename.</summary>
-    public string FileName { get; init; } = string.Empty;
+    public string FileName
+    {
+        get;
+        init;
+    } = string.Empty;
 
     /// <summary>Full markdown document.</summary>
-    public string Content { get; init; } = string.Empty;
+    public string Content
+    {
+        get;
+        init;
+    } = string.Empty;
 }

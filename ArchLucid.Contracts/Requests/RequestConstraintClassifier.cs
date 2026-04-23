@@ -1,9 +1,9 @@
 namespace ArchLucid.Contracts.Requests;
 
 /// <summary>
-/// Centralises free-text constraint and capability matching rules so that
-/// <c>CoordinatorService</c> and <c>DefaultEvidenceBuilder</c> (and any future
-/// callers) apply identical heuristics.
+///     Centralises free-text constraint and capability matching rules so that
+///     <c>CoordinatorService</c> and <c>DefaultEvidenceBuilder</c> (and any future
+///     callers) apply identical heuristics.
 /// </summary>
 public static class RequestConstraintClassifier
 {
@@ -18,34 +18,46 @@ public static class RequestConstraintClassifier
     private const string CapabilityAi = "ai";
     private const string CapabilitySql = "sql";
 
-    public static bool HasManagedIdentityConstraint(ArchitectureRequest request) =>
-        request.Constraints.Any(c =>
+    public static bool HasManagedIdentityConstraint(ArchitectureRequest request)
+    {
+        return request.Constraints.Any(c =>
             c.Contains(ConstraintManagedIdentity, StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>
-    /// Returns <see langword="true"/> when any constraint mentions private endpoints,
-    /// private networking, or the generic word "private" (superset of the narrower checks).
+    ///     Returns <see langword="true" /> when any constraint mentions private endpoints,
+    ///     private networking, or the generic word "private" (superset of the narrower checks).
     /// </summary>
-    public static bool HasPrivateNetworkingConstraint(ArchitectureRequest request) =>
-        request.Constraints.Any(c =>
+    public static bool HasPrivateNetworkingConstraint(ArchitectureRequest request)
+    {
+        return request.Constraints.Any(c =>
             c.Contains(ConstraintPrivateEndpoint, StringComparison.OrdinalIgnoreCase) ||
             c.Contains(ConstraintPrivateNetworking, StringComparison.OrdinalIgnoreCase) ||
             c.Contains(ConstraintPrivate, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public static bool HasEncryptionConstraint(ArchitectureRequest request) =>
-        request.Constraints.Any(c =>
+    public static bool HasEncryptionConstraint(ArchitectureRequest request)
+    {
+        return request.Constraints.Any(c =>
             c.Contains(ConstraintEncryption, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public static bool RequiresSearchCapability(ArchitectureRequest request) =>
-        request.RequiredCapabilities.Any(c =>
+    public static bool RequiresSearchCapability(ArchitectureRequest request)
+    {
+        return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilitySearch, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public static bool RequiresAiCapability(ArchitectureRequest request) =>
-        request.RequiredCapabilities.Any(c =>
+    public static bool RequiresAiCapability(ArchitectureRequest request)
+    {
+        return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilityOpenAi, StringComparison.OrdinalIgnoreCase) ||
             c.Contains(CapabilityAi, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public static bool RequiresSqlCapability(ArchitectureRequest request) =>
-        request.RequiredCapabilities.Any(c =>
+    public static bool RequiresSqlCapability(ArchitectureRequest request)
+    {
+        return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilitySql, StringComparison.OrdinalIgnoreCase));
+    }
 }

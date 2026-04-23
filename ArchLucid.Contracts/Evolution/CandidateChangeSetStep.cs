@@ -5,15 +5,25 @@ public sealed class CandidateChangeSetStep
 {
     public int Ordinal
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string ActionType { get; init; } = string.Empty;
+    public string ActionType
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Description { get; init; } = string.Empty;
+    public string Description
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public string? AcceptanceCriteria
     {
-        get; init;
+        get;
+        init;
     }
 }

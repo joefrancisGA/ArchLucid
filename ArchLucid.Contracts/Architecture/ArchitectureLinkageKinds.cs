@@ -1,8 +1,8 @@
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
-/// Well-known <see cref="ArchitectureLinkageNode.Type"/> and <see cref="ArchitectureLinkageEdge.Type"/> values for
-/// <see cref="ArchitectureRunProvenanceGraph"/> JSON payloads.
+///     Well-known <see cref="ArchitectureLinkageNode.Type" /> and <see cref="ArchitectureLinkageEdge.Type" /> values for
+///     <see cref="ArchitectureRunProvenanceGraph" /> JSON payloads.
 /// </summary>
 public static class ArchitectureLinkageKinds
 {

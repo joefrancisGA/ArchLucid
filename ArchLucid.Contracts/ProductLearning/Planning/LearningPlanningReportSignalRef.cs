@@ -5,11 +5,13 @@ public sealed class LearningPlanningReportSignalRef
 {
     public Guid SignalId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? TriageStatusSnapshot
     {
-        get; init;
+        get;
+        init;
     }
 }

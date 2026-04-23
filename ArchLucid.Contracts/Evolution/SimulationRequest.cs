@@ -5,16 +5,19 @@ public sealed class SimulationRequest
 {
     public required CandidateChangeSet CandidateChangeSet
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string BaselineArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public SimulationEngineOptions? Options
     {
-        get; init;
+        get;
+        init;
     }
 }

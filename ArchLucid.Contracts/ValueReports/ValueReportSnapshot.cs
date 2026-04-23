@@ -1,7 +1,7 @@
 namespace ArchLucid.Contracts.ValueReports;
 
 /// <summary>
-/// Tenant-scoped value metrics and ROI projection for sponsor-facing DOCX (see <c>ValueReportBuilder</c>).
+///     Tenant-scoped value metrics and ROI projection for sponsor-facing DOCX (see <c>ValueReportBuilder</c>).
 /// </summary>
 public sealed record ValueReportSnapshot(
     Guid TenantId,

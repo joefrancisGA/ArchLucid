@@ -5,49 +5,81 @@ public sealed class ProductLearningImprovementPlanRecord
 {
     public Guid PlanId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
-    public string Title { get; init; } = string.Empty;
-    public string Summary { get; init; } = string.Empty;
+
+    public string Title
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Summary
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public IReadOnlyList<ProductLearningImprovementPlanActionStep> ActionSteps
     {
-        get; init;
+        get;
+        init;
     } =
         [];
 
     /// <summary>Snapshot priority rank (higher = more urgent); formula lives in 59R services, not the DB.</summary>
     public int PriorityScore
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? PriorityExplanation
     {
-        get; init;
+        get;
+        init;
     }
-    public string Status { get; init; } = ProductLearningImprovementPlanStatusValues.Proposed;
+
+    public string Status
+    {
+        get;
+        init;
+    } = ProductLearningImprovementPlanStatusValues.Proposed;
+
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? CreatedByUserId
     {
-        get; init;
+        get;
+        init;
     }
 }
