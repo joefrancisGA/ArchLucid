@@ -58,7 +58,7 @@ export function PilotOutcomeCard() {
     );
   }
 
-  if (summary is null) {
+  if (summary === null) {
     return (
       <section aria-labelledby="pilot-outcome-heading" className="mt-6 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
         <h2 id="pilot-outcome-heading" className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
