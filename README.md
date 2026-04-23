@@ -1,16 +1,26 @@
-<!-- **Scope:** Repository overview, persona entrypoints, and pointers into `docs/`; Day-1 spine is `docs/FIRST_5_DOCS.md` (five documents). -->
+<!-- **Scope:** Repository overview; canonical buyer path `docs/START_HERE.md`; deeper engineering index `docs/ARCHITECTURE_INDEX.md` + `docs/library/`. -->
 
 # ArchLucid
 
 [![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
 
-ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package and helps teams produce committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
+ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package, helping teams ship committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
-**Try it:** run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root when you have the .NET 10 SDK and Docker, or run **`.\scripts\demo-start.ps1`** on Windows for the Docker-only demo stack.
+**Try in 60 seconds** (repo root; requires .NET 10 SDK + Docker):
 
-**Walkthrough** (includes screenshot placeholders): [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)
+```bash
+dotnet run --project ArchLucid.Cli -- try
+```
 
-- **Sponsor / buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)
+Windows Docker-only helper: `.\scripts\demo-start.ps1`
+
+| Doc | Open this when… |
+|-----|-----------------|
+| **[`docs/START_HERE.md`](docs/START_HERE.md)** | You need the **single canonical first-30-minutes** buyer / operator path |
+| **[`docs/EXECUTIVE_SPONSOR_BRIEF.md`](docs/EXECUTIVE_SPONSOR_BRIEF.md)** | You are a **sponsor, procurement partner, or outward buyer** |
+| **[`docs/ARCHITECTURE_ON_ONE_PAGE.md`](docs/ARCHITECTURE_ON_ONE_PAGE.md)** | You want the **architecture poster** (C4-style system map) |
+
+**Deeper dive index:** [`docs/ARCHITECTURE_INDEX.md`](docs/ARCHITECTURE_INDEX.md) · bulk reference markdown now lives under [`docs/library/`](docs/library/).
 
 <details>
 <summary><strong>Deeper docs</strong> — full README (install, personas, layers, API, CLI, tests, architecture)</summary>

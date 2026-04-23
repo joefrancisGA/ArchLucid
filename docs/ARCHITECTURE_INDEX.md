@@ -5,6 +5,8 @@
 
 ## ArchLucid documentation index
 
+**Layout note (2026-04-23):** Most engineering pages that historically lived as `docs/<FILE>.md` now live under **`docs/library/<FILE>.md`**. Unless a path is explicitly one of the small `docs/` root spine files (`START_HERE`, `INSTALL_ORDER`, `FIRST_30_MINUTES`, `CORE_PILOT`, `ARCHITECTURE_ON_ONE_PAGE`, `PENDING_QUESTIONS`, …), read backtick paths below as **`docs/library/...`** — full listing in [`DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md).
+
 ### Orientation
 
 - **Architecture poster (canonical C4 + ownership + happy path)** — read this before the long-form architecture set  
@@ -17,10 +19,8 @@
   - `docs/V1_RELEASE_CHECKLIST.md`
 - **V1 deferred / exploratory (doc inventory for intentional scope)** — audit gaps, 59R deferrals, Phase 7 rename, infra polish, `NEXT_REFACTORINGS` boundary  
   - `docs/V1_DEFERRED.md`
-- **Start here (redirect hub)** — points to canonical Day-1 docs per persona  
-  - `docs/START_HERE.md`
-- **Five-document onboarding spine (Day-1 install → run → pilot → poster → open questions)** — ordered table with time estimates  
-  - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias → same spine); archived pre-spine table: `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md`
+- **Start here (canonical buyer + evaluator spine)** — Day-0 journey, five-document table, and where depth moved after the 2026-04-23 doc-root cap  
+  - `docs/START_HERE.md` (**canonical**); thin redirects: `docs/FIRST_5_DOCS.md`, `docs/FIRST_FIVE_DOCS.md`, `docs/FIRST_RUN_WIZARD.md`, `docs/FIRST_RUN_WALKTHROUGH.md` (full bodies under `docs/library/`); archived pre-spine table: `docs/archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md`
 - **Developer Day-1 (week one)** — toolchain, local API + SQL, Core tests, small PR  
   - `docs/onboarding/day-one-developer.md`
 - **SRE / Platform Day-1** — health, deploy order, Terraform validate, migrations posture  

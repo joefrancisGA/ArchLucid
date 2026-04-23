@@ -7,11 +7,11 @@ alwaysApply: false
 
 ## Read first
 
-- **First five docs (curated reading order)**: `docs/FIRST_5_DOCS.md`
-- **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` → section **What to open first (contributor decision tree)** (Mermaid flowchart + table by change type).
-- **System flows (Mermaid)**: `docs/SYSTEM_MAP.md`
-- **Component detail**: `docs/ARCHITECTURE_COMPONENTS.md`
-- **API contracts**: `docs/API_CONTRACTS.md`
+- **Canonical buyer / operator spine**: `docs/START_HERE.md` (five-document table + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
+- **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` — use the persona table + links into the five-document spine.
+- **System flows (Mermaid)**: `docs/library/SYSTEM_MAP.md`
+- **Component detail**: `docs/library/ARCHITECTURE_COMPONENTS.md`
+- **API contracts**: `docs/library/API_CONTRACTS.md`
 
 ## Entry points
 
