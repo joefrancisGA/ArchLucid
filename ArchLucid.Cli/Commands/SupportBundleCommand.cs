@@ -1,18 +1,20 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 using ArchLucid.Cli.Support;
 
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// CLI entry for <c>archlucid support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
+///     CLI entry for <c>archlucid support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Thin CLI wrapper over SupportBundleCollector and IO; collector logic is unit-tested.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Thin CLI wrapper over SupportBundleCollector and IO; collector logic is unit-tested.")]
 internal static class SupportBundleCommand
 {
     /// <summary>
-    /// Parses <paramref name="args"/> after the command name. Supported: <c>--output &lt;dir&gt;</c>, <c>--zip</c>.
-    /// Default output: <c>support-bundle-&lt;yyyyMMdd-HHmmss&gt;Z</c> under the current directory.
+    ///     Parses <paramref name="args" /> after the command name. Supported: <c>--output &lt;dir&gt;</c>, <c>--zip</c>.
+    ///     Default output: <c>support-bundle-&lt;yyyyMMdd-HHmmss&gt;Z</c> under the current directory.
     /// </summary>
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
@@ -71,7 +73,8 @@ internal static class SupportBundleCommand
             return CliExitCode.ConfigurationError;
         }
 
-        string folderName = "support-bundle-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture) + "Z";
+        string folderName = "support-bundle-" +
+                            DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) + "Z";
         string bundleDir = string.IsNullOrWhiteSpace(outputOverride)
             ? Path.Combine(cwd, folderName)
             : Path.GetFullPath(outputOverride);
@@ -80,7 +83,8 @@ internal static class SupportBundleCommand
 
         ArchLucidApiClient client = new(baseUrl);
 
-        SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
+        SupportBundlePayload payload =
+            await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
 
         string written = SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, bundleDir);
 
@@ -104,7 +108,8 @@ internal static class SupportBundleCommand
     private static void PrintUsage()
     {
         Console.WriteLine("Usage: archlucid support-bundle [--output <dir>] [--zip]");
-        Console.WriteLine("  Writes README.txt (read first), manifest.json (triageReadOrder), build.json, health.json,");
+        Console.WriteLine(
+            "  Writes README.txt (read first), manifest.json (triageReadOrder), build.json, health.json,");
         Console.WriteLine("  api-contract.json (bounded GET /openapi/v1.json), config-summary.json, environment.json,");
         Console.WriteLine("  workspace.json, references.json, logs.json under a new UTC-stamped folder (or --output).");
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");
@@ -125,7 +130,8 @@ internal static class SupportBundleCommand
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("[ArchLucid CLI] " + ArchLucidProjectScaffolder.CliManifestFileName + " present but invalid: " + ex.Message);
+            Console.Error.WriteLine("[ArchLucid CLI] " + ArchLucidProjectScaffolder.CliManifestFileName +
+                                    " present but invalid: " + ex.Message);
 
             return null;
         }

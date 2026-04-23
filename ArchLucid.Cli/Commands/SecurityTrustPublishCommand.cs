@@ -8,19 +8,22 @@ using ArchLucid.Contracts.Trust;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Calls <c>POST /v1/admin/security-trust/publications</c> (AdminAuthority + API key) and prints the operator badge URL.
+///     Calls <c>POST /v1/admin/security-trust/publications</c> (AdminAuthority + API key) and prints the operator badge
+///     URL.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "HTTP; exercised via SecurityTrustPublishCommandTests with a stub HttpClient.")]
+[ExcludeFromCodeCoverage(Justification =
+    "HTTP; exercised via SecurityTrustPublishCommandTests with a stub HttpClient.")]
 internal static class SecurityTrustPublishCommand
 {
     private static readonly JsonSerializerOptions JsonWrite = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        SecurityTrustPublishCommandOptions? opts = SecurityTrustPublishCommandOptions.Parse(args, out string? parseError);
+        SecurityTrustPublishCommandOptions? opts =
+            SecurityTrustPublishCommandOptions.Parse(args, out string? parseError);
 
         if (opts is null)
         {
@@ -62,7 +65,7 @@ internal static class SecurityTrustPublishCommand
             AssessmentCode = opts.AssessmentCode,
             SummaryReference = opts.SummaryUrl,
             AssessorDisplayName = opts.AssessorDisplayName,
-            PublishedOn = opts.PublishedOn,
+            PublishedOn = opts.PublishedOn
         };
 
         using HttpResponseMessage response =
@@ -70,7 +73,8 @@ internal static class SecurityTrustPublishCommand
 
         if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
         {
-            await Console.Error.WriteLineAsync("Admin API key with AdminAuthority is required for security-trust publish.");
+            await Console.Error.WriteLineAsync(
+                "Admin API key with AdminAuthority is required for security-trust publish.");
 
             return CliExitCode.OperationFailed;
         }

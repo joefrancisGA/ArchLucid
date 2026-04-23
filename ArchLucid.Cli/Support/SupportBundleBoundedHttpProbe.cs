@@ -6,26 +6,37 @@ namespace ArchLucid.Cli.Support;
 public sealed class SupportBundleBoundedHttpProbe
 {
     [JsonPropertyName("path")]
-    public string Path { get; init; } = string.Empty;
+    public string Path
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [JsonPropertyName("httpStatus")]
     public int HttpStatus
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("bodyPreview")]
-    public string BodyPreview { get; init; } = string.Empty;
+    public string BodyPreview
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [JsonPropertyName("bodyTruncated")]
     public bool BodyTruncated
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("maxBytesCaptured")]
     public int MaxBytesCaptured
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -1,7 +1,8 @@
 namespace ArchLucid.Cli;
 
 /// <summary>
-/// Process exit codes for <c>archlucid</c>. Use with <c>--json</c> (leading global flag) for machine-readable stderr payloads.
+///     Process exit codes for <c>archlucid</c>. Use with <c>--json</c> (leading global flag) for machine-readable stderr
+///     payloads.
 /// </summary>
 public static class CliExitCode
 {

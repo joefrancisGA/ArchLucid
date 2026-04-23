@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
-/// Removes credentials and other sensitive material from strings included in support bundles.
+///     Removes credentials and other sensitive material from strings included in support bundles.
 /// </summary>
 public static class SupportBundleRedactor
 {
@@ -26,7 +26,7 @@ public static class SupportBundleRedactor
     ];
 
     /// <summary>
-    /// Returns a display-safe API base URL: strips userinfo (e.g. <c>https://user:pass@host</c> → <c>https://host</c>).
+    ///     Returns a display-safe API base URL: strips userinfo (e.g. <c>https://user:pass@host</c> → <c>https://host</c>).
     /// </summary>
     public static string RedactHttpUrl(string? url)
     {
@@ -38,17 +38,13 @@ public static class SupportBundleRedactor
             return "(invalid url)";
 
 
-        UriBuilder builder = new(uri)
-        {
-            UserName = string.Empty,
-            Password = string.Empty
-        };
+        UriBuilder builder = new(uri) { UserName = string.Empty, Password = string.Empty };
 
         return builder.Uri.GetLeftPart(UriPartial.Path).TrimEnd('/');
     }
 
     /// <summary>
-    /// True when an environment variable name suggests a secret value (never emit the value in bundles).
+    ///     True when an environment variable name suggests a secret value (never emit the value in bundles).
     /// </summary>
     public static bool IsSensitiveEnvironmentVariableName(string name)
     {
@@ -69,12 +65,12 @@ public static class SupportBundleRedactor
                 return true;
 
 
-
         return false;
     }
 
     /// <summary>
-    /// Builds a map of non-sensitive environment keys to safe values, and sensitive keys to the literal <c>"(set)"</c> or <c>"(not set)"</c> only.
+    ///     Builds a map of non-sensitive environment keys to safe values, and sensitive keys to the literal <c>"(set)"</c> or
+    ///     <c>"(not set)"</c> only.
     /// </summary>
     public static IReadOnlyDictionary<string, string> SnapshotEnvironmentForBundle()
     {
@@ -112,7 +108,6 @@ public static class SupportBundleRedactor
                 else
 
                     result[key] = raw;
-
             }
         }
 
@@ -120,7 +115,7 @@ public static class SupportBundleRedactor
     }
 
     /// <summary>
-    /// Applies pattern redaction suitable for JSON/text written into a support bundle (never trusted public).
+    ///     Applies pattern redaction suitable for JSON/text written into a support bundle (never trusted public).
     /// </summary>
     public static string RedactSensitivePatterns(string? text)
     {

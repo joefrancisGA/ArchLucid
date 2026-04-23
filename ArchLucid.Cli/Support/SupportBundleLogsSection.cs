@@ -7,7 +7,8 @@ public sealed class SupportBundleLogsSection
     [JsonPropertyName("note")]
     public string Note
     {
-        get; init;
+        get;
+        init;
     } =
         "The CLI bundle does not read API host log files. On the API host, search logs for the structured line "
         + "'Pilot/support configuration snapshot' and use GET /version and GET /health/ready. "
@@ -16,6 +17,7 @@ public sealed class SupportBundleLogsSection
     [JsonPropertyName("localLogExcerpt")]
     public string? LocalLogExcerpt
     {
-        get; init;
+        get;
+        init;
     }
 }

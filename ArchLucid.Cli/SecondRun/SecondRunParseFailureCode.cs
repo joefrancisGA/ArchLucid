@@ -10,5 +10,5 @@ public enum SecondRunParseFailureCode
     BadRequest = 400,
 
     /// <summary>Input file exceeds the configured byte budget.</summary>
-    PayloadTooLarge = 413,
+    PayloadTooLarge = 413
 }

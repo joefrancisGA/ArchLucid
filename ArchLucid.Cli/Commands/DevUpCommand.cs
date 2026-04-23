@@ -3,7 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]
 internal static class DevUpCommand
 {
     public static Task<int> RunAsync()
@@ -23,7 +24,8 @@ internal static class DevUpCommand
 
         try
         {
-            (int exitCode, string output, string error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
+            (int exitCode, string output, string error) =
+                RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
 
             if (exitCode != 0)
 
@@ -79,13 +81,13 @@ internal static class DevUpCommand
 
             if (File.Exists(composePath))
                 return dir;
-
         }
 
         return null;
     }
 
-    private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, string workingDirectory)
+    private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments,
+        string workingDirectory)
     {
         ProcessStartInfo psi = new()
         {

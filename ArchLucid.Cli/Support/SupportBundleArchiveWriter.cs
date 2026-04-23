@@ -4,7 +4,7 @@ using System.Text;
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
-/// Writes <see cref="SupportBundlePayload"/> to a deterministic directory layout and optionally zips it.
+///     Writes <see cref="SupportBundlePayload" /> to a deterministic directory layout and optionally zips it.
 /// </summary>
 public static class SupportBundleArchiveWriter
 {
@@ -20,7 +20,7 @@ public static class SupportBundleArchiveWriter
     public const string LogsFileName = "logs.json";
 
     /// <summary>
-    /// Writes JSON files into <paramref name="outputDirectory"/> (created if missing). Returns the directory path.
+    ///     Writes JSON files into <paramref name="outputDirectory" /> (created if missing). Returns the directory path.
     /// </summary>
     public static string WriteDirectory(SupportBundlePayload payload, string outputDirectory)
     {
@@ -29,7 +29,8 @@ public static class SupportBundleArchiveWriter
 
         Directory.CreateDirectory(outputDirectory);
 
-        WriteFile(Path.Combine(outputDirectory, ManifestFileName), SupportBundleCollector.SerializeIndented(payload.Manifest));
+        WriteFile(Path.Combine(outputDirectory, ManifestFileName),
+            SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
             payload.Manifest.CreatedUtc,
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
@@ -37,19 +38,29 @@ public static class SupportBundleArchiveWriter
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
             payload.Manifest.CliWorkingDirectory);
         WriteFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
-        WriteFile(Path.Combine(outputDirectory, BuildFileName), SupportBundleCollector.SerializeIndented(payload.Build));
-        WriteFile(Path.Combine(outputDirectory, HealthFileName), SupportBundleCollector.SerializeIndented(payload.Health));
-        WriteFile(Path.Combine(outputDirectory, ApiContractFileName), SupportBundleCollector.SerializeIndented(payload.ApiContract));
-        WriteFile(Path.Combine(outputDirectory, ConfigFileName), SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
-        WriteFile(Path.Combine(outputDirectory, EnvironmentFileName), SupportBundleCollector.SerializeIndented(payload.Environment));
-        WriteFile(Path.Combine(outputDirectory, WorkspaceFileName), SupportBundleCollector.SerializeIndented(payload.Workspace));
-        WriteFile(Path.Combine(outputDirectory, ReferencesFileName), SupportBundleCollector.SerializeIndented(payload.References));
+        WriteFile(Path.Combine(outputDirectory, BuildFileName),
+            SupportBundleCollector.SerializeIndented(payload.Build));
+        WriteFile(Path.Combine(outputDirectory, HealthFileName),
+            SupportBundleCollector.SerializeIndented(payload.Health));
+        WriteFile(Path.Combine(outputDirectory, ApiContractFileName),
+            SupportBundleCollector.SerializeIndented(payload.ApiContract));
+        WriteFile(Path.Combine(outputDirectory, ConfigFileName),
+            SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
+        WriteFile(Path.Combine(outputDirectory, EnvironmentFileName),
+            SupportBundleCollector.SerializeIndented(payload.Environment));
+        WriteFile(Path.Combine(outputDirectory, WorkspaceFileName),
+            SupportBundleCollector.SerializeIndented(payload.Workspace));
+        WriteFile(Path.Combine(outputDirectory, ReferencesFileName),
+            SupportBundleCollector.SerializeIndented(payload.References));
         WriteFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
 
         return outputDirectory;
     }
 
-    /// <summary>Applies <see cref="SupportBundleRedactor.RedactSensitivePatterns"/> to every JSON section after serialization.</summary>
+    /// <summary>
+    ///     Applies <see cref="SupportBundleRedactor.RedactSensitivePatterns" /> to every JSON section after
+    ///     serialization.
+    /// </summary>
     public static string WriteDirectoryWithRedaction(SupportBundlePayload payload, string outputDirectory)
     {
         ArgumentNullException.ThrowIfNull(payload);
@@ -57,7 +68,8 @@ public static class SupportBundleArchiveWriter
 
         Directory.CreateDirectory(outputDirectory);
 
-        WriteRedactedFile(Path.Combine(outputDirectory, ManifestFileName), SupportBundleCollector.SerializeIndented(payload.Manifest));
+        WriteRedactedFile(Path.Combine(outputDirectory, ManifestFileName),
+            SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
             payload.Manifest.CreatedUtc,
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
@@ -65,20 +77,29 @@ public static class SupportBundleArchiveWriter
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
             payload.Manifest.CliWorkingDirectory);
         WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
-        WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName), SupportBundleCollector.SerializeIndented(payload.Build));
-        WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName), SupportBundleCollector.SerializeIndented(payload.Health));
-        WriteRedactedFile(Path.Combine(outputDirectory, ApiContractFileName), SupportBundleCollector.SerializeIndented(payload.ApiContract));
-        WriteRedactedFile(Path.Combine(outputDirectory, ConfigFileName), SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
-        WriteRedactedFile(Path.Combine(outputDirectory, EnvironmentFileName), SupportBundleCollector.SerializeIndented(payload.Environment));
-        WriteRedactedFile(Path.Combine(outputDirectory, WorkspaceFileName), SupportBundleCollector.SerializeIndented(payload.Workspace));
-        WriteRedactedFile(Path.Combine(outputDirectory, ReferencesFileName), SupportBundleCollector.SerializeIndented(payload.References));
-        WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
+        WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName),
+            SupportBundleCollector.SerializeIndented(payload.Build));
+        WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName),
+            SupportBundleCollector.SerializeIndented(payload.Health));
+        WriteRedactedFile(Path.Combine(outputDirectory, ApiContractFileName),
+            SupportBundleCollector.SerializeIndented(payload.ApiContract));
+        WriteRedactedFile(Path.Combine(outputDirectory, ConfigFileName),
+            SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
+        WriteRedactedFile(Path.Combine(outputDirectory, EnvironmentFileName),
+            SupportBundleCollector.SerializeIndented(payload.Environment));
+        WriteRedactedFile(Path.Combine(outputDirectory, WorkspaceFileName),
+            SupportBundleCollector.SerializeIndented(payload.Workspace));
+        WriteRedactedFile(Path.Combine(outputDirectory, ReferencesFileName),
+            SupportBundleCollector.SerializeIndented(payload.References));
+        WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName),
+            SupportBundleCollector.SerializeIndented(payload.Logs));
 
         return outputDirectory;
     }
 
     /// <summary>
-    /// Creates <paramref name="zipPath"/> containing the contents of <paramref name="bundleDirectory"/> (flat file list at zip root).
+    ///     Creates <paramref name="zipPath" /> containing the contents of <paramref name="bundleDirectory" /> (flat file list
+    ///     at zip root).
     /// </summary>
     public static void WriteZip(string bundleDirectory, string zipPath)
     {
@@ -117,7 +138,7 @@ public static class SupportBundleArchiveWriter
 
     private static void WriteFile(string path, string utf8Json)
     {
-        File.WriteAllText(path, utf8Json, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        File.WriteAllText(path, utf8Json, new UTF8Encoding(false));
     }
 
     private static void WriteRedactedFile(string path, string content)

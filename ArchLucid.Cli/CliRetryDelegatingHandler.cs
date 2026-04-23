@@ -32,17 +32,17 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
                     UseJitter = true,
                     ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
                         .Handle<HttpRequestException>()
-                        .HandleResult(
-                            static r =>
-                                (int)r.StatusCode >= 500
-                                || r.StatusCode == HttpStatusCode.RequestTimeout
-                                || r.StatusCode == (HttpStatusCode)429),
+                        .HandleResult(static r =>
+                            (int)r.StatusCode >= 500
+                            || r.StatusCode == HttpStatusCode.RequestTimeout
+                            || r.StatusCode == (HttpStatusCode)429)
                 })
             .Build();
     }
 
     /// <inheritdoc />
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
         if (_pipeline is null)
             return await base.SendAsync(request, cancellationToken);

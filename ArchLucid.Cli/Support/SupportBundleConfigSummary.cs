@@ -7,57 +7,70 @@ public sealed class SupportBundleConfigSummary
     [JsonPropertyName("hasArchlucidJson")]
     public bool HasArchlucidJson
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("projectName")]
     public string? ProjectName
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("schemaVersion")]
     public string? SchemaVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("apiBaseUrlRedacted")]
-    public string ApiBaseUrlRedacted { get; init; } = string.Empty;
+    public string ApiBaseUrlRedacted
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [JsonPropertyName("inputsBriefPath")]
     public string? InputsBriefPath
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("outputsLocalCacheDir")]
     public string? OutputsLocalCacheDir
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("pluginsLockFile")]
     public string? PluginsLockFile
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("terraformEnabled")]
     public bool? TerraformEnabled
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("terraformPath")]
     public string? TerraformPath
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("architecture")]
     public ArchLucidProjectScaffolder.ArchitectureSection? Architecture
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -3,7 +3,8 @@ using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI comparisons subcommands orchestrate HTTP via ArchLucidApiClient (excluded from coverage); exercised via manual CLI and API integration.")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI comparisons subcommands orchestrate HTTP via ArchLucidApiClient (excluded from coverage); exercised via manual CLI and API integration.")]
 internal static class ComparisonsCommand
 {
     public static async Task<int> RunAsync(string[] args)
@@ -197,13 +198,8 @@ internal static class ComparisonsCommand
     {
         List<string[]> rows = records.Select(r => new[]
             {
-                r.CreatedUtc.ToString("O"),
-                r.ComparisonRecordId,
-                r.ComparisonType,
-                r.LeftRunId ?? "",
-                r.RightRunId ?? "",
-                r.Label ?? "",
-                r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
+                r.CreatedUtc.ToString("O"), r.ComparisonRecordId, r.ComparisonType, r.LeftRunId ?? "",
+                r.RightRunId ?? "", r.Label ?? "", r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
             })
             .ToList();
 
@@ -229,7 +225,6 @@ internal static class ComparisonsCommand
             if (i == 0)
 
                 Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
-
         }
     }
 
@@ -316,7 +311,8 @@ internal static class ComparisonsCommand
             }
 
 
-        bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
+        bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath,
+            force);
 
         return ok ? CliExitCode.Success : CliExitCode.OperationFailed;
     }
@@ -473,7 +469,6 @@ internal static class ComparisonsCommand
             if (args[i] == "--table")
 
                 asTable = true;
-
         }
 
         ArchLucidApiClient.ReplayDiagnostics? diagnostics = await client.GetReplayDiagnosticsAsync(limit);
@@ -513,16 +508,9 @@ internal static class ComparisonsCommand
     {
         List<string[]> rows = entries.Select(e => new[]
             {
-                e.TimestampUtc.ToString("O"),
-                e.ComparisonRecordId,
-                e.ComparisonType,
-                e.Format,
-                e.ReplayMode,
-                e.Success ? "true" : "false",
-                e.DurationMs.ToString(),
-                e.MetadataOnly ? "true" : "false",
-                e.PersistedReplayRecordId ?? "",
-                e.ErrorMessage ?? ""
+                e.TimestampUtc.ToString("O"), e.ComparisonRecordId, e.ComparisonType, e.Format, e.ReplayMode,
+                e.Success ? "true" : "false", e.DurationMs.ToString(), e.MetadataOnly ? "true" : "false",
+                e.PersistedReplayRecordId ?? "", e.ErrorMessage ?? ""
             })
             .ToList();
 
@@ -557,7 +545,6 @@ internal static class ComparisonsCommand
             if (i == 0)
 
                 Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
-
         }
     }
 }

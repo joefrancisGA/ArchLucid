@@ -5,17 +5,41 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>CLI arguments for <c>archlucid security-trust publish</c>.</summary>
 internal sealed class SecurityTrustPublishCommandOptions
 {
-    public required string Kind { get; init; }
+    public required string Kind
+    {
+        get;
+        init;
+    }
 
-    public required string PublishedOn { get; init; }
+    public required string PublishedOn
+    {
+        get;
+        init;
+    }
 
-    public required string SummaryUrl { get; init; }
+    public required string SummaryUrl
+    {
+        get;
+        init;
+    }
 
-    public string AssessorDisplayName { get; init; } = "Aeronova Red Team LLC";
+    public string AssessorDisplayName
+    {
+        get;
+        init;
+    } = "Aeronova Red Team LLC";
 
-    public string AssessmentCode { get; init; } = "2026-Q2";
+    public string AssessmentCode
+    {
+        get;
+        init;
+    } = "2026-Q2";
 
-    public string UiBaseUrl { get; init; } = TryCommandOptions.DefaultUiBaseUrl;
+    public string UiBaseUrl
+    {
+        get;
+        init;
+    } = TryCommandOptions.DefaultUiBaseUrl;
 
     public static SecurityTrustPublishCommandOptions? Parse(string[] args, out string? error)
     {
@@ -157,7 +181,7 @@ internal sealed class SecurityTrustPublishCommandOptions
             SummaryUrl = summaryUrl,
             AssessorDisplayName = assessor,
             AssessmentCode = assessmentCode,
-            UiBaseUrl = uiBaseUrl,
+            UiBaseUrl = uiBaseUrl
         };
     }
 }

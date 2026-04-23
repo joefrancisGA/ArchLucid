@@ -5,7 +5,8 @@ using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI submit subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI submit subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class SubmitCommand
 {
     public static async Task<int> RunAsync(string runId, string resultFilePath)
@@ -30,7 +31,8 @@ internal static class SubmitCommand
         try
         {
             string json = await File.ReadAllTextAsync(resultFilePath);
-            result = JsonSerializer.Deserialize<AgentResult>(json, CliCommandShared.JsonDeserializeAgentResult) ?? new AgentResult();
+            result = JsonSerializer.Deserialize<AgentResult>(json, CliCommandShared.JsonDeserializeAgentResult) ??
+                     new AgentResult();
         }
         catch (Exception ex)
         {

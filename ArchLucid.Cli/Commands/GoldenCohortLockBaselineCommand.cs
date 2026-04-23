@@ -8,7 +8,10 @@ using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Cli.Commands;
 
-/// <summary><c>archlucid golden-cohort lock-baseline</c> — simulator-only manifest SHA capture for <c>tests/golden-cohort/cohort.json</c>.</summary>
+/// <summary>
+///     <c>archlucid golden-cohort lock-baseline</c> — simulator-only manifest SHA capture for
+///     <c>tests/golden-cohort/cohort.json</c>.
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "Console + HTTP orchestration; guards covered by unit tests.")]
 internal static class GoldenCohortLockBaselineCommand
 {
@@ -16,7 +19,7 @@ internal static class GoldenCohortLockBaselineCommand
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static async Task<int> RunAsync(string[] args)
@@ -116,7 +119,8 @@ internal static class GoldenCohortLockBaselineCommand
 
             if (string.IsNullOrWhiteSpace(item.Id))
             {
-                await Console.Error.WriteLineAsync($"Cohort item at index {index.ToString(CultureInfo.InvariantCulture)} has an empty id.");
+                await Console.Error.WriteLineAsync(
+                    $"Cohort item at index {index.ToString(CultureInfo.InvariantCulture)} has an empty id.");
 
                 return CliExitCode.OperationFailed;
             }
@@ -142,11 +146,13 @@ internal static class GoldenCohortLockBaselineCommand
                 return CliExitCode.OperationFailed;
             }
 
-            ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint = await client.TryCommitAndFingerprintGoldenManifestAsync(runId);
+            ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint =
+                await client.TryCommitAndFingerprintGoldenManifestAsync(runId);
 
             if (fingerprint is null || !fingerprint.Success || string.IsNullOrWhiteSpace(fingerprint.Sha256HexUpper))
             {
-                await Console.Error.WriteLineAsync($"[{item.Id}] commit/fingerprint failed: {fingerprint?.Error ?? "unknown"}");
+                await Console.Error.WriteLineAsync(
+                    $"[{item.Id}] commit/fingerprint failed: {fingerprint?.Error ?? "unknown"}");
 
                 return CliExitCode.OperationFailed;
             }
@@ -172,12 +178,7 @@ internal static class GoldenCohortLockBaselineCommand
 
         if (CliExecutionContext.JsonOutput)
         {
-            object payload = new
-            {
-                cohortPath = resolvedCohort,
-                wrote = write,
-                items = jsonRows,
-            };
+            object payload = new { cohortPath = resolvedCohort, wrote = write, items = jsonRows };
 
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }
@@ -195,7 +196,7 @@ internal static class GoldenCohortLockBaselineCommand
         string v = raw.Trim();
 
         return string.Equals(v, "1", StringComparison.Ordinal)
-            || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(v, "yes", StringComparison.OrdinalIgnoreCase);
+               || string.Equals(v, "true", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(v, "yes", StringComparison.OrdinalIgnoreCase);
     }
 }

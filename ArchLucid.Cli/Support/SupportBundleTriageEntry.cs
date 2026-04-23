@@ -6,8 +6,16 @@ namespace ArchLucid.Cli.Support;
 public sealed class SupportBundleTriageEntry
 {
     [JsonPropertyName("file")]
-    public string File { get; init; } = string.Empty;
+    public string File
+    {
+        get;
+        init;
+    } = string.Empty;
 
     [JsonPropertyName("why")]
-    public string Why { get; init; } = string.Empty;
+    public string Why
+    {
+        get;
+        init;
+    } = string.Empty;
 }

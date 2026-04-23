@@ -10,7 +10,10 @@ using Tomlyn.Model;
 
 namespace ArchLucid.Cli.SecondRun;
 
-/// <summary>Parses the tiny <c>SECOND_RUN.toml</c> / <c>SECOND_RUN.json</c> schema into <see cref="ArchitectureRequest"/>.</summary>
+/// <summary>
+///     Parses the tiny <c>SECOND_RUN.toml</c> / <c>SECOND_RUN.json</c> schema into <see cref="ArchitectureRequest" />
+///     .
+/// </summary>
 public static class SecondRunInputParser
 {
     /// <summary>Hard cap for the on-disk second-run file (UTF-8 bytes) — keeps CLI + accidental paste payloads bounded.</summary>
@@ -21,7 +24,7 @@ public static class SecondRunInputParser
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
+        AllowTrailingCommas = true
     };
 
     /// <summary>Parses UTF-8 text; infers JSON when trimmed content starts with <c>{</c>, otherwise TOML.</summary>
@@ -44,7 +47,7 @@ public static class SecondRunInputParser
         return ParseToml(text, sourceLabel);
     }
 
-    /// <summary>Reads a file and delegates to <see cref="ParseFromUtf8"/>.</summary>
+    /// <summary>Reads a file and delegates to <see cref="ParseFromUtf8" />.</summary>
     public static SecondRunParseOutcome ParseFromFile(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -74,7 +77,8 @@ public static class SecondRunInputParser
         }
 
         if (dto is null)
-            return SecondRunParseOutcome.Fail(SecondRunParseFailureCode.BadRequest, $"Empty JSON document in {sourceLabel}.");
+            return SecondRunParseOutcome.Fail(SecondRunParseFailureCode.BadRequest,
+                $"Empty JSON document in {sourceLabel}.");
 
 
         return ValidateAndMap(dto, sourceLabel);
@@ -115,7 +119,7 @@ public static class SecondRunInputParser
             CompliancePosture = ReadStringList(table, "compliance_posture"),
             Constraints = ReadStringList(table, "constraints"),
             Assumptions = ReadStringList(table, "assumptions"),
-            InlineRequirements = ReadStringList(table, "inline_requirements"),
+            InlineRequirements = ReadStringList(table, "inline_requirements")
         };
 
         return dto;
@@ -133,7 +137,7 @@ public static class SecondRunInputParser
             int i => i.ToString(CultureInfo.InvariantCulture),
             long l => l.ToString(CultureInfo.InvariantCulture),
             bool b => b ? "true" : "false",
-            _ => Convert.ToString(value, CultureInfo.InvariantCulture),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture)
         };
     }
 
@@ -158,7 +162,7 @@ public static class SecondRunInputParser
                     string str => str,
                     int i => i.ToString(CultureInfo.InvariantCulture),
                     long l => l.ToString(CultureInfo.InvariantCulture),
-                    _ => Convert.ToString(item, CultureInfo.InvariantCulture),
+                    _ => Convert.ToString(item, CultureInfo.InvariantCulture)
                 };
 
                 if (!string.IsNullOrWhiteSpace(s))
@@ -246,17 +250,19 @@ public static class SecondRunInputParser
             RequiredCapabilities = components,
             Assumptions = NormalizeList(dto.Assumptions),
             InlineRequirements = mergedInline,
-            SecurityBaselineHints = compliance,
+            SecurityBaselineHints = compliance
         };
 
         return SecondRunParseOutcome.Ok(request);
     }
 
-    private static List<string> NormalizeList(List<string>? source) =>
-        source is null
+    private static List<string> NormalizeList(List<string>? source)
+    {
+        return source is null
             ? []
             : source
                 .Select(static s => s.Trim())
                 .Where(static s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
+    }
 }

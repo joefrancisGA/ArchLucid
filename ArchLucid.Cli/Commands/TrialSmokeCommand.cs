@@ -4,14 +4,18 @@ using System.Text.Json;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Entry point for <c>archlucid trial smoke</c>. Wires up an <see cref="HttpClient"/> against the
-/// resolved API base URL and delegates to <see cref="TrialSmokeRunner"/>. Pure-HTTP loop — no docker,
-/// no SQL on the developer machine — so it is safe to run against staging in Stripe TEST mode.
+///     Entry point for <c>archlucid trial smoke</c>. Wires up an <see cref="HttpClient" /> against the
+///     resolved API base URL and delegates to <see cref="TrialSmokeRunner" />. Pure-HTTP loop — no docker,
+///     no SQL on the developer machine — so it is safe to run against staging in Stripe TEST mode.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "HTTP entry point; behaviour is covered by TrialSmokeRunnerTests + TrialSmokeCommandOptionsTests.")]
+[ExcludeFromCodeCoverage(Justification =
+    "HTTP entry point; behaviour is covered by TrialSmokeRunnerTests + TrialSmokeCommandOptionsTests.")]
 internal static class TrialSmokeCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly JsonSerializerOptions JsonCamel = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static async Task<int> RunAsync(string[] args)
     {

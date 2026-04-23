@@ -1,11 +1,13 @@
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
-/// Gathers explicit, reviewable sections for <see cref="SupportBundleArchiveWriter"/>.
+///     Gathers explicit, reviewable sections for <see cref="SupportBundleArchiveWriter" />.
 /// </summary>
 public static class SupportBundleCollector
 {
@@ -15,7 +17,7 @@ public static class SupportBundleCollector
     private static readonly JsonSerializerOptions JsonWrite = new() { WriteIndented = true };
 
     /// <summary>
-    /// Collects all sections. Uses <paramref name="client"/> for API probes; never logs or stores API keys.
+    ///     Collects all sections. Uses <paramref name="client" /> for API probes; never logs or stores API keys.
     /// </summary>
     public static async Task<SupportBundlePayload> CollectAsync(
         ArchLucidApiClient client,
@@ -25,7 +27,7 @@ public static class SupportBundleCollector
     {
         ArgumentNullException.ThrowIfNull(client);
 
-        string createdUtc = DateTime.UtcNow.ToString("O", System.Globalization.CultureInfo.InvariantCulture);
+        string createdUtc = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
         string archLucidJsonPath = Path.Combine(workingDirectory, "archlucid.json");
 
         SupportBundleManifest manifest = new()
@@ -34,23 +36,21 @@ public static class SupportBundleCollector
             CliWorkingDirectory = workingDirectory,
             ArchLucidJsonPath = archLucidJsonPath,
             ArchLucidJsonPresent = File.Exists(archLucidJsonPath),
-            TriageReadOrder = SupportBundleTriageCatalog.Entries,
+            TriageReadOrder = SupportBundleTriageCatalog.Entries
         };
 
         (string? versionJson, string? versionErr) = await TryGetVersionAsync(client, cancellationToken);
 
         SupportBundleBuildSection build = new()
         {
-            Cli = ReadCliBuildInfo(),
-            ApiVersionJson = versionJson,
-            ApiVersionError = versionErr,
+            Cli = ReadCliBuildInfo(), ApiVersionJson = versionJson, ApiVersionError = versionErr
         };
 
         SupportBundleHealthSection health = new()
         {
             Live = await ProbeAsync(client, "/health/live", cancellationToken),
             Ready = await ProbeAsync(client, "/health/ready", cancellationToken),
-            Combined = await ProbeAsync(client, "/health", cancellationToken),
+            Combined = await ProbeAsync(client, "/health", cancellationToken)
         };
 
         SupportBundleApiContractSection apiContract = await CollectApiContractSectionAsync(client, cancellationToken);
@@ -94,8 +94,8 @@ public static class SupportBundleCollector
                 HttpStatus = status,
                 BodyPreview = preview,
                 BodyTruncated = truncated,
-                MaxBytesCaptured = maxCaptureBytes,
-            },
+                MaxBytesCaptured = maxCaptureBytes
+            }
         };
     }
 
@@ -112,7 +112,7 @@ public static class SupportBundleCollector
         {
             InformationalVersion = informational,
             AssemblyVersion = assemblyVersion,
-            RuntimeFramework = RuntimeInformation.FrameworkDescription,
+            RuntimeFramework = RuntimeInformation.FrameworkDescription
         };
     }
 
@@ -150,14 +150,7 @@ public static class SupportBundleCollector
             body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchLucid support-bundle]";
 
 
-
-        return new SupportBundleHealthProbe
-        {
-            Path = path,
-            HttpStatus = code,
-            Body = body,
-            BodyTruncated = truncated,
-        };
+        return new SupportBundleHealthProbe { Path = path, HttpStatus = code, Body = body, BodyTruncated = truncated };
     }
 
     private static SupportBundleConfigSummary BuildConfigSummary(
@@ -167,11 +160,7 @@ public static class SupportBundleCollector
         {
             string fallbackUrl = SupportBundleRedactor.RedactHttpUrl(ArchLucidApiClient.ResolveBaseUrl(null));
 
-            return new SupportBundleConfigSummary
-            {
-                HasArchlucidJson = false,
-                ApiBaseUrlRedacted = fallbackUrl,
-            };
+            return new SupportBundleConfigSummary { HasArchlucidJson = false, ApiBaseUrlRedacted = fallbackUrl };
         }
 
         string resolved = ArchLucidApiClient.ResolveBaseUrl(config);
@@ -187,7 +176,7 @@ public static class SupportBundleCollector
             PluginsLockFile = config.Plugins?.LockFile,
             TerraformEnabled = config.Infra?.Terraform?.Enabled,
             TerraformPath = config.Infra?.Terraform?.Path,
-            Architecture = config.Architecture,
+            Architecture = config.Architecture
         };
     }
 
@@ -201,7 +190,7 @@ public static class SupportBundleCollector
             ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
             DotnetRuntime = RuntimeInformation.FrameworkDescription,
             TimeZone = TimeZoneInfo.Local.Id,
-            ArchlucidAndDotnetEnvironment = SupportBundleRedactor.SnapshotEnvironmentForBundle(),
+            ArchlucidAndDotnetEnvironment = SupportBundleRedactor.SnapshotEnvironmentForBundle()
         };
     }
 
@@ -217,11 +206,7 @@ public static class SupportBundleCollector
 
         if (!Directory.Exists(outputsDir))
 
-            return new SupportBundleWorkspaceSection
-            {
-                OutputsDirectory = outputsDir,
-                OutputsExists = false,
-            };
+            return new SupportBundleWorkspaceSection { OutputsDirectory = outputsDir, OutputsExists = false };
 
 
         string[] files = Directory.GetFiles(outputsDir, "*", SearchOption.AllDirectories);
@@ -258,7 +243,7 @@ public static class SupportBundleCollector
             OutputsExists = true,
             FileCount = files.Length,
             TotalFileBytes = total,
-            SampleTopLevelNames = sample,
+            SampleTopLevelNames = sample
         };
     }
 
@@ -272,7 +257,7 @@ public static class SupportBundleCollector
                 "GET /health/live — liveness",
                 "GET /health/ready — readiness (summary JSON; no exception text)",
                 "GET /health — combined checks (detailed JSON; requires ReadAuthority / API key when configured)",
-                "GET /openapi/v1.json — Microsoft OpenAPI document (bounded capture in api-contract.json)",
+                "GET /openapi/v1.json — Microsoft OpenAPI document (bounded capture in api-contract.json)"
             ],
             Documentation =
             [
@@ -280,15 +265,16 @@ public static class SupportBundleCollector
                 "Correlate failures: response header X-Correlation-ID and problem JSON correlationId (API and operator proxy) match structured logs on the API host.",
                 "docs/TROUBLESHOOTING.md",
                 "docs/OPERATOR_QUICKSTART.md",
-                "docs/CLI_USAGE.md",
-            ],
+                "docs/CLI_USAGE.md"
+            ]
         };
     }
 
     /// <summary>
-    /// Optional: first ~4 KiB of a small text file under outputs if present (never connection strings from other files).
+    ///     Optional: first ~4 KiB of a small text file under outputs if present (never connection strings from other files).
     /// </summary>
-    private static string? TryReadSmallLocalLogExcerpt(string workingDirectory, ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
+    private static string? TryReadSmallLocalLogExcerpt(string workingDirectory,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         if (config is null)
             return null;
@@ -308,7 +294,7 @@ public static class SupportBundleCollector
                 return "(file too large; omitted)";
 
 
-            string text = File.ReadAllText(candidate, System.Text.Encoding.UTF8);
+            string text = File.ReadAllText(candidate, Encoding.UTF8);
 
             if (text.Length > 4_096)
                 return text[..4_096] + "\n... [truncated]";
@@ -323,5 +309,8 @@ public static class SupportBundleCollector
     }
 
     /// <summary>Serializes a section to indented JSON for writing to disk.</summary>
-    public static string SerializeIndented<T>(T value) => JsonSerializer.Serialize(value, JsonWrite);
+    public static string SerializeIndented<T>(T value)
+    {
+        return JsonSerializer.Serialize(value, JsonWrite);
+    }
 }

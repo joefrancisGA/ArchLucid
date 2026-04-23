@@ -7,36 +7,43 @@ internal sealed class RoiBulletinPreviewPayload
 {
     public string? Quarter
     {
-        get; init;
+        get;
+        init;
     }
 
     public int TenantCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? MeanBaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? MedianBaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal? P90BaselineHours
     {
-        get; init;
+        get;
+        init;
     }
 
-    internal static RoiBulletinPreviewPayload FromAggregate(RoiBulletinAggregateReadResult result) =>
-        new()
+    internal static RoiBulletinPreviewPayload FromAggregate(RoiBulletinAggregateReadResult result)
+    {
+        return new RoiBulletinPreviewPayload
         {
             Quarter = result.QuarterLabel,
             TenantCount = result.TenantCount,
             MeanBaselineHours = result.MeanBaselineHours,
             MedianBaselineHours = result.MedianBaselineHours,
-            P90BaselineHours = result.P90BaselineHours,
+            P90BaselineHours = result.P90BaselineHours
         };
+    }
 }

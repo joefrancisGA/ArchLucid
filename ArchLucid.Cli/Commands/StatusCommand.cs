@@ -4,7 +4,8 @@ using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
 
-[ExcludeFromCodeCoverage(Justification = "CLI status subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
+[ExcludeFromCodeCoverage(Justification =
+    "CLI status subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class StatusCommand
 {
     public static async Task<int> RunAsync(string runId)
@@ -29,7 +30,7 @@ internal static class StatusCommand
         }
 
         ArchLucidApiClient.RunInfo r = run.Run;
-        ArchitectureRunStatus status = (ArchitectureRunStatus)r.Status;
+        ArchitectureRunStatus status = r.Status;
         Console.WriteLine($"Run: {r.RunId}");
         Console.WriteLine($"Status: {status}");
         Console.WriteLine($"Created: {r.CreatedUtc:O}");
@@ -50,7 +51,7 @@ internal static class StatusCommand
         foreach (ArchLucidApiClient.AgentTaskInfo task in run.Tasks)
         {
             AgentType agentType = task.AgentType;
-            AgentTaskStatus taskStatus = (AgentTaskStatus)task.Status;
+            AgentTaskStatus taskStatus = task.Status;
             Console.WriteLine($"  {agentType}: {taskStatus} - {task.Objective}");
         }
 

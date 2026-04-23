@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Resolves the persisted creation trace id for a run and prints or opens the operator trace viewer URL.
+///     Resolves the persisted creation trace id for a run and prints or opens the operator trace viewer URL.
 /// </summary>
 internal static class TraceCommand
 {
@@ -93,7 +93,10 @@ internal static class TraceCommand
         return CliExitCode.Success;
     }
 
-    /// <summary>Matches <c>archlucid-ui</c> <c>trace-link.ts</c>: template with <c>{traceId}</c> placeholder, trace id URL-encoded.</summary>
+    /// <summary>
+    ///     Matches <c>archlucid-ui</c> <c>trace-link.ts</c>: template with <c>{traceId}</c> placeholder, trace id
+    ///     URL-encoded.
+    /// </summary>
     internal static string BuildTraceViewerUrl(string template, string traceId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(template);
@@ -113,7 +116,7 @@ internal static class TraceCommand
 
 
         return value.Equals("1", StringComparison.OrdinalIgnoreCase)
-            || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+               || value.Equals("true", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void TryOpenTraceInBrowser(string url)
@@ -121,11 +124,7 @@ internal static class TraceCommand
         try
         {
             Process.Start(
-                new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true,
-                });
+                new ProcessStartInfo { FileName = url, UseShellExecute = true });
         }
         catch
         {

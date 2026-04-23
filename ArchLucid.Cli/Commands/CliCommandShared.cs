@@ -12,8 +12,7 @@ internal static class CliCommandShared
 
     internal static readonly JsonSerializerOptions JsonDeserializeAgentResult = new()
     {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     internal static ArchLucidProjectScaffolder.ArchLucidCliConfig? TryLoadConfigFromCwd()
@@ -28,8 +27,10 @@ internal static class CliCommandShared
         }
     }
 
-    internal static string GetBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
-        ArchLucidApiClient.ResolveBaseUrl(config);
+    internal static string GetBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
+    {
+        return ArchLucidApiClient.ResolveBaseUrl(config);
+    }
 
     internal static int ExitCodeForFailedConnection(ApiConnectionOutcome outcome)
     {
@@ -37,7 +38,8 @@ internal static class CliCommandShared
         {
             ApiConnectionOutcome.InvalidConfiguration => CliExitCode.ConfigurationError,
             ApiConnectionOutcome.Unreachable => CliExitCode.ApiUnavailable,
-            _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Expected a failed connection outcome."),
+            _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome,
+                "Expected a failed connection outcome.")
         };
     }
 

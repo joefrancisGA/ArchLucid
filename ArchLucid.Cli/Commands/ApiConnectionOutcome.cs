@@ -4,5 +4,5 @@ internal enum ApiConnectionOutcome
 {
     Connected,
     InvalidConfiguration,
-    Unreachable,
+    Unreachable
 }

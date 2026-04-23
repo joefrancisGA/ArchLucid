@@ -3,7 +3,7 @@ using System.Globalization;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// Parsed arguments for <c>archlucid trial smoke</c>. Pure parsing (no I/O) so it is unit-testable.
+///     Parsed arguments for <c>archlucid trial smoke</c>. Pure parsing (no I/O) so it is unit-testable.
 /// </summary>
 public sealed class TrialSmokeCommandOptions
 {
@@ -11,42 +11,49 @@ public sealed class TrialSmokeCommandOptions
 
     public string? ApiBaseUrl
     {
-        get; init;
+        get;
+        init;
     }
 
     public string OrganizationName
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     public string AdminEmail
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     public string AdminDisplayName
     {
-        get; init;
+        get;
+        init;
     } = DefaultDisplayName;
 
     public decimal? BaselineReviewCycleHours
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? BaselineReviewCycleSource
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool SkipPilotRunDeltas
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
-    /// Parses the smoke-command tail after <c>trial smoke</c>. Returns null when invalid;
-    /// in that case <paramref name="error"/> contains a single-line user-friendly message.
+    ///     Parses the smoke-command tail after <c>trial smoke</c>. Returns null when invalid;
+    ///     in that case <paramref name="error" /> contains a single-line user-friendly message.
     /// </summary>
     public static TrialSmokeCommandOptions? Parse(string[] args, out string? error)
     {
@@ -89,11 +96,13 @@ public sealed class TrialSmokeCommandOptions
 
                 case "--baseline-hours":
                     if (!TryReadValue(args, ref i, arg, out string? hoursVal, out error)) return null;
-                    if (!decimal.TryParse(hoursVal, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal h) || h <= 0)
+                    if (!decimal.TryParse(hoursVal, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal h) ||
+                        h <= 0)
                     {
                         error = $"Invalid value for --baseline-hours: '{hoursVal}'. Expected a positive decimal.";
                         return null;
                     }
+
                     baselineHours = h;
                     break;
 
@@ -140,7 +149,7 @@ public sealed class TrialSmokeCommandOptions
             AdminDisplayName = string.IsNullOrWhiteSpace(displayName) ? DefaultDisplayName : displayName.Trim(),
             BaselineReviewCycleHours = baselineHours,
             BaselineReviewCycleSource = baselineSource?.Trim(),
-            SkipPilotRunDeltas = skipDeltas,
+            SkipPilotRunDeltas = skipDeltas
         };
     }
 

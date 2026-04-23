@@ -16,41 +16,43 @@ using Gen = ArchLucid.Api.Client.Generated;
 namespace ArchLucid.Cli;
 
 /// <summary>
-/// CLI-facing HTTP surface backed by the NSwag-generated <see cref="ArchLucidApiClient"/> (OpenAPI v1 contract).
-/// Binary comparison replay/zip exports still use raw <see cref="HttpClient"/> because the OpenAPI model uses
-/// <c>FileContentResult</c> JSON rather than octet-stream bodies.
+///     CLI-facing HTTP surface backed by the NSwag-generated <see cref="ArchLucidApiClient" /> (OpenAPI v1 contract).
+///     Binary comparison replay/zip exports still use raw <see cref="HttpClient" /> because the OpenAPI model uses
+///     <c>FileContentResult</c> JSON rather than octet-stream bodies.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "HTTP client against live API; covered by CLI integration tests.")]
 public sealed class ArchLucidApiClient
 {
-    private readonly HttpClient _http;
-    private readonly Gen.ArchLucidApiClient _api;
-    private readonly JsonSerializerOptions _jsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = false,
-    };
-
     /// <summary>
-    /// Bridges ArchLucid.Contracts models to NSwag <c>Gen.*</c> DTOs when the OpenAPI snapshot uses string enums
-    /// (aligned with the API JSON enum wire format).
+    ///     Bridges ArchLucid.Contracts models to NSwag <c>Gen.*</c> DTOs when the OpenAPI snapshot uses string enums
+    ///     (aligned with the API JSON enum wire format).
     /// </summary>
     private static readonly JsonSerializerOptions GenDtoJson = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new JsonStringEnumConverter() }
     };
 
     /// <summary>
-    /// API + NSwag wire JSON uses string enums for several DTOs; ArchLucid.Contracts CLI projection types use the same names.
+    ///     API + NSwag wire JSON uses string enums for several DTOs; ArchLucid.Contracts CLI projection types use the same
+    ///     names.
     /// </summary>
     private static readonly JsonSerializerOptions ContractEnumAwareJson = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    private readonly Gen.ArchLucidApiClient _api;
+    private readonly HttpClient _http;
+
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false
     };
 
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
@@ -64,13 +66,13 @@ public sealed class ArchLucidApiClient
         ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
-        _http = CreateHttpClient(normalized, useRetry: true, httpResilience);
+        _http = CreateHttpClient(normalized, true, httpResilience);
         _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
     }
 
     /// <summary>
-    /// Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
-    /// No retry pipeline is used so tests get deterministic behavior.
+    ///     Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
+    ///     No retry pipeline is used so tests get deterministic behavior.
     /// </summary>
     public ArchLucidApiClient(HttpClient httpClient)
     {
@@ -80,13 +82,14 @@ public sealed class ArchLucidApiClient
         _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
     }
 
-    private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry, CliResilienceOptions? httpResilience = null)
+    private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry,
+        CliResilienceOptions? httpResilience = null)
     {
         HttpMessageHandler inner = new HttpClientHandler
         {
             // API may respond with Content-Encoding: gzip/br (see AddArchLucidResponseCompression). Without this,
             // NSwag's stream deserializer fails with JsonException on compressed bodies (lock-baseline, doctor, etc.).
-            AutomaticDecompression = DecompressionMethods.All,
+            AutomaticDecompression = DecompressionMethods.All
         };
 
         if (useRetry)
@@ -94,10 +97,10 @@ public sealed class ArchLucidApiClient
             inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
 
 
-        HttpClient http = new(inner, disposeHandler: true)
+        HttpClient http = new(inner, true)
         {
             BaseAddress = new Uri(normalizedBaseUrl + "/"),
-            Timeout = TimeSpan.FromSeconds(30),
+            Timeout = TimeSpan.FromSeconds(30)
         };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
@@ -110,23 +113,27 @@ public sealed class ArchLucidApiClient
         return http;
     }
 
-    public static string GetDefaultBaseUrl() =>
-        Environment.GetEnvironmentVariable("ARCHLUCID_API_URL") ?? "http://localhost:5128";
+    public static string GetDefaultBaseUrl()
+    {
+        return Environment.GetEnvironmentVariable("ARCHLUCID_API_URL") ?? "http://localhost:5128";
+    }
 
     /// <summary>
-    /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
+    ///     Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
     /// </summary>
     public static string? GetInvalidApiBaseUrlReason(string? baseUrl)
     {
         if (string.IsNullOrWhiteSpace(baseUrl))
 
-            return "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
+            return
+                "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
 
 
         string trimmed = baseUrl.Trim();
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
 
-            return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
+            return
+                $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
 
 
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
@@ -139,14 +146,18 @@ public sealed class ArchLucidApiClient
     /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHLUCID_API_URL &gt; default.</summary>
     public static string ResolveBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
-        return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
+        return !string.IsNullOrWhiteSpace(config?.ApiUrl)
+            ? config.ApiUrl.Trim().TrimEnd('/')
+            : GetDefaultBaseUrl().TrimEnd('/');
     }
 
-    private static void LogCliFailure(string operation, Exception ex) =>
+    private static void LogCliFailure(string operation, Exception ex)
+    {
         Console.Error.WriteLine($"[ArchLucid CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
+    }
 
     /// <summary>
-    /// Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
+    ///     Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
     /// </summary>
     public async Task<string?> GetVersionJsonAsync(CancellationToken ct = default)
     {
@@ -165,7 +176,8 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Check connectivity to the ArchLucid API (GET /health/live). Returns true if the API process responds successfully (liveness only).
+    ///     Check connectivity to the ArchLucid API (GET /health/live). Returns true if the API process responds successfully
+    ///     (liveness only).
     /// </summary>
     public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
     {
@@ -184,7 +196,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// GET a health path (e.g. <c>/health/ready</c>) and return HTTP status plus response body for operator diagnostics.
+    ///     GET a health path (e.g. <c>/health/ready</c>) and return HTTP status plus response body for operator diagnostics.
     /// </summary>
     public async Task<(int StatusCode, string Body)> GetHealthProbeAsync(string path, CancellationToken ct = default)
     {
@@ -206,7 +218,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// GET a path and capture at most <paramref name="maxBytes"/> of the UTF-8 body (for compact support-bundle probes).
+    ///     GET a path and capture at most <paramref name="maxBytes" /> of the UTF-8 body (for compact support-bundle probes).
     /// </summary>
     public async Task<(int StatusCode, string BodyPreview, bool BodyTruncated)> GetBoundedUtf8BodyAsync(
         string relativePath,
@@ -221,7 +233,8 @@ public sealed class ArchLucidApiClient
 
         try
         {
-            using HttpResponseMessage response = await _http.GetAsync(normalized, HttpCompletionOption.ResponseHeadersRead, ct);
+            using HttpResponseMessage response =
+                await _http.GetAsync(normalized, HttpCompletionOption.ResponseHeadersRead, ct);
             int code = (int)response.StatusCode;
             await using Stream stream = await response.Content.ReadAsStreamAsync(ct);
             using MemoryStream accumulator = new();
@@ -261,7 +274,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Create an architecture run by submitting an ArchitectureRequest.
+    ///     Create an architecture run by submitting an ArchitectureRequest.
     /// </summary>
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)
     {
@@ -292,9 +305,10 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Submit an agent result for a run.
+    ///     Submit an agent result for a run.
     /// </summary>
-    public async Task<SubmitResultResult?> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken ct = default)
+    public async Task<SubmitResultResult?> SubmitAgentResultAsync(string runId, AgentResult result,
+        CancellationToken ct = default)
     {
         try
         {
@@ -327,7 +341,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Get run status, tasks, and results.
+    ///     Get run status, tasks, and results.
     /// </summary>
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken ct = default)
     {
@@ -346,7 +360,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Commit a run: merge agent results and produce a versioned manifest.
+    ///     Commit a run: merge agent results and produce a versioned manifest.
     /// </summary>
     public async Task<CommitRunResult?> CommitRunAsync(string runId, CancellationToken ct = default)
     {
@@ -359,15 +373,16 @@ public sealed class ArchLucidApiClient
         }
         catch (Gen.ArchLucidApiException ex)
         {
-            return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode, TryReadCorrelationId(ex));
+            return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode,
+                TryReadCorrelationId(ex));
         }
         catch (HttpRequestException ex)
         {
-            return new CommitRunResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}", null, null);
+            return new CommitRunResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
-            return new CommitRunResult(false, null, "Request timed out.", null, null);
+            return new CommitRunResult(false, null, "Request timed out.");
         }
     }
 
@@ -381,7 +396,7 @@ public sealed class ArchLucidApiClient
         {
             _ = await _api.ExecuteAsync(runId, ct);
 
-            return new ExecuteRunResult(true, null, null, null);
+            return new ExecuteRunResult(true, null);
         }
         catch (Gen.ArchLucidApiException ex)
         {
@@ -389,18 +404,20 @@ public sealed class ArchLucidApiClient
         }
         catch (HttpRequestException ex)
         {
-            return new ExecuteRunResult(false, $"Cannot connect to ArchLucid API: {ex.Message}", null, null);
+            return new ExecuteRunResult(false, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
-            return new ExecuteRunResult(false, "Request timed out.", null, null);
+            return new ExecuteRunResult(false, "Request timed out.");
         }
     }
 
     /// <summary>
-    /// Commits a run and returns a SHA-256 fingerprint of the committed <see cref="GoldenManifest"/> using <see cref="ContractJson.Default"/> serialization.
+    ///     Commits a run and returns a SHA-256 fingerprint of the committed <see cref="GoldenManifest" /> using
+    ///     <see cref="ContractJson.Default" /> serialization.
     /// </summary>
-    public async Task<GoldenManifestFingerprintResult?> TryCommitAndFingerprintGoldenManifestAsync(string runId, CancellationToken ct = default)
+    public async Task<GoldenManifestFingerprintResult?> TryCommitAndFingerprintGoldenManifestAsync(string runId,
+        CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             throw new ArgumentException("Run id is required.", nameof(runId));
@@ -421,7 +438,8 @@ public sealed class ArchLucidApiClient
             GoldenManifest? manifest = JsonSerializer.Deserialize<GoldenManifest>(wireJson, contractRead);
 
             if (manifest is null)
-                return new GoldenManifestFingerprintResult(false, null, "Manifest could not be deserialized to GoldenManifest.");
+                return new GoldenManifestFingerprintResult(false, null,
+                    "Manifest could not be deserialized to GoldenManifest.");
 
             string sha = GoldenManifestFingerprint.ComputeSha256Hex(manifest);
 
@@ -442,7 +460,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Seed fake results for a run (Development only).
+    ///     Seed fake results for a run (Development only).
     /// </summary>
     public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
     {
@@ -468,7 +486,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Get manifest by version.
+    ///     Get manifest by version.
     /// </summary>
     public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)
     {
@@ -515,8 +533,8 @@ public sealed class ArchLucidApiClient
                 leftExportRecordId,
                 rightExportRecordId,
                 label,
-                createdFromUtc: null,
-                createdToUtc: null,
+                null,
+                null,
                 tag,
                 tagsArray,
                 sortBy,
@@ -555,7 +573,7 @@ public sealed class ArchLucidApiClient
                 format,
                 replayMode,
                 profile,
-                persistReplay,
+                persistReplay
             };
 
             HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
@@ -567,13 +585,13 @@ public sealed class ArchLucidApiClient
                 return false;
             }
 
-            if (response.Headers.TryGetValues("X-ArchLucid-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
+            if (response.Headers.TryGetValues("X-ArchLucid-PersistedReplayRecordId",
+                    out IEnumerable<string>? persistedValues))
             {
                 string? persistedId = persistedValues.FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(persistedId))
 
                     Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
-
             }
 
             string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
@@ -584,9 +602,11 @@ public sealed class ArchLucidApiClient
             string targetPath = fileName;
             if (!string.IsNullOrWhiteSpace(outPath))
 
-                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) ||
+                    outPath.EndsWith(Path.AltDirectorySeparatorChar))
                 {
-                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar));
                     targetPath = Path.Combine(outPath, fileName);
                 }
                 else
@@ -654,15 +674,8 @@ public sealed class ArchLucidApiClient
         }
     }
 
-    public sealed class ComparisonSummary
-    {
-        public string ComparisonRecordId { get; set; } = string.Empty;
-        public string ComparisonType { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public string Summary { get; set; } = string.Empty;
-    }
-
-    public async Task<ComparisonSummary?> GetComparisonSummaryAsync(string comparisonRecordId, CancellationToken ct = default)
+    public async Task<ComparisonSummary?> GetComparisonSummaryAsync(string comparisonRecordId,
+        CancellationToken ct = default)
     {
         try
         {
@@ -697,7 +710,7 @@ public sealed class ArchLucidApiClient
                 format,
                 replayMode,
                 profile,
-                persistReplay,
+                persistReplay
             };
 
             HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
@@ -717,9 +730,11 @@ public sealed class ArchLucidApiClient
             string targetPath = fileName;
             if (!string.IsNullOrWhiteSpace(outPath))
 
-                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) ||
+                    outPath.EndsWith(Path.AltDirectorySeparatorChar))
                 {
-                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar,
+                        Path.AltDirectorySeparatorChar));
                     targetPath = Path.Combine(outPath, fileName);
                 }
                 else
@@ -756,26 +771,6 @@ public sealed class ArchLucidApiClient
         }
     }
 
-    public sealed class DriftItem
-    {
-        public string Category { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
-        public string? Description
-        {
-            get; set;
-        }
-    }
-
-    public sealed class DriftAnalysis
-    {
-        public bool DriftDetected
-        {
-            get; set;
-        }
-        public string Summary { get; set; } = string.Empty;
-        public List<DriftItem> Items { get; set; } = [];
-    }
-
     public async Task<DriftAnalysis?> GetComparisonDriftAsync(string comparisonRecordId, CancellationToken ct = default)
     {
         try
@@ -789,43 +784,6 @@ public sealed class ArchLucidApiClient
             LogCliFailure($"GetComparisonDrift({comparisonRecordId})", ex);
 
             return null;
-        }
-    }
-
-    public sealed class ReplayDiagnostics
-    {
-        public List<ReplayDiagnosticsEntry> RecentReplays { get; set; } = [];
-    }
-
-    public sealed class ReplayDiagnosticsEntry
-    {
-        public DateTime TimestampUtc
-        {
-            get; set;
-        }
-        public string ComparisonRecordId { get; set; } = string.Empty;
-        public string ComparisonType { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public string ReplayMode { get; set; } = string.Empty;
-        public long DurationMs
-        {
-            get; set;
-        }
-        public bool Success
-        {
-            get; set;
-        }
-        public bool MetadataOnly
-        {
-            get; set;
-        }
-        public string? PersistedReplayRecordId
-        {
-            get; set;
-        }
-        public string? ErrorMessage
-        {
-            get; set;
         }
     }
 
@@ -856,7 +814,7 @@ public sealed class ArchLucidApiClient
             Gen.UpdateComparisonRecordRequest body = new()
             {
                 Label = label,
-                Tags = tags?.ToList(),
+                Tags = tags?.ToList()
             };
 
             await _api.ComparisonsPATCHAsync(comparisonRecordId, body, ct);
@@ -869,46 +827,6 @@ public sealed class ArchLucidApiClient
 
             return false;
         }
-    }
-
-    public sealed class ComparisonHistoryResult
-    {
-        public List<ComparisonRecordSummary> Records { get; set; } = [];
-        public string? NextCursor
-        {
-            get; set;
-        }
-    }
-
-    public sealed class ComparisonRecordSummary
-    {
-        public string ComparisonRecordId { get; set; } = string.Empty;
-        public string ComparisonType { get; set; } = string.Empty;
-        public string? LeftRunId
-        {
-            get; set;
-        }
-        public string? RightRunId
-        {
-            get; set;
-        }
-        public string? LeftExportRecordId
-        {
-            get; set;
-        }
-        public string? RightExportRecordId
-        {
-            get; set;
-        }
-        public DateTime CreatedUtc
-        {
-            get; set;
-        }
-        public string? Label
-        {
-            get; set;
-        }
-        public List<string> Tags { get; set; } = [];
     }
 
     private TOut? DeserializeRoundTrip<TOut>(object value)
@@ -933,12 +851,19 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so <see cref="Gen.ArchLucidApiException.Response"/>
-    /// is often empty even when <see cref="Gen.ArchLucidApiException{TResult}"/> carries a typed <see cref="Gen.ProblemDetails"/> body.
+    ///     NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so
+    ///     <see cref="Gen.ArchLucidApiException.Response" />
+    ///     is often empty even when <see cref="Gen.ArchLucidApiException{TResult}" /> carries a typed
+    ///     <see cref="Gen.ProblemDetails" /> body.
     /// </summary>
     private static string? TryReadCorrelationId(Gen.ArchLucidApiException ex)
     {
-        return (from pair in ex.Headers where pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase) select pair.Value.FirstOrDefault() into first where !string.IsNullOrWhiteSpace(first) select first.Trim()).FirstOrDefault();
+        return (from pair in ex.Headers
+                where pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase)
+                select pair.Value.FirstOrDefault()
+            into first
+                where !string.IsNullOrWhiteSpace(first)
+                select first.Trim()).FirstOrDefault();
     }
 
     private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
@@ -958,7 +883,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Parse error message from JSON. Supports RFC 9457 Problem Details (detail, title) and legacy (error, errors).
+    ///     Parse error message from JSON. Supports RFC 9457 Problem Details (detail, title) and legacy (error, errors).
     /// </summary>
     private static string? TryParseError(string json)
     {
@@ -976,12 +901,12 @@ public sealed class ArchLucidApiClient
 
             if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
 
-                return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
+                return string.Join("; ",
+                    errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
 
 
             if (root.TryGetProperty("title", out JsonElement title))
                 return title.GetString();
-
         }
         catch (Exception)
         {
@@ -991,6 +916,219 @@ public sealed class ArchLucidApiClient
         return null;
     }
 
+    public sealed class ComparisonSummary
+    {
+        public string ComparisonRecordId
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string ComparisonType
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string Format
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string Summary
+        {
+            get;
+            set;
+        } = string.Empty;
+    }
+
+    public sealed class DriftItem
+    {
+        public string Category
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string Path
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string? Description
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class DriftAnalysis
+    {
+        public bool DriftDetected
+        {
+            get;
+            set;
+        }
+
+        public string Summary
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public List<DriftItem> Items
+        {
+            get;
+            set;
+        } = [];
+    }
+
+    public sealed class ReplayDiagnostics
+    {
+        public List<ReplayDiagnosticsEntry> RecentReplays
+        {
+            get;
+            set;
+        } = [];
+    }
+
+    public sealed class ReplayDiagnosticsEntry
+    {
+        public DateTime TimestampUtc
+        {
+            get;
+            set;
+        }
+
+        public string ComparisonRecordId
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string ComparisonType
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string Format
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string ReplayMode
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public long DurationMs
+        {
+            get;
+            set;
+        }
+
+        public bool Success
+        {
+            get;
+            set;
+        }
+
+        public bool MetadataOnly
+        {
+            get;
+            set;
+        }
+
+        public string? PersistedReplayRecordId
+        {
+            get;
+            set;
+        }
+
+        public string? ErrorMessage
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class ComparisonHistoryResult
+    {
+        public List<ComparisonRecordSummary> Records
+        {
+            get;
+            set;
+        } = [];
+
+        public string? NextCursor
+        {
+            get;
+            set;
+        }
+    }
+
+    public sealed class ComparisonRecordSummary
+    {
+        public string ComparisonRecordId
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string ComparisonType
+        {
+            get;
+            set;
+        } = string.Empty;
+
+        public string? LeftRunId
+        {
+            get;
+            set;
+        }
+
+        public string? RightRunId
+        {
+            get;
+            set;
+        }
+
+        public string? LeftExportRecordId
+        {
+            get;
+            set;
+        }
+
+        public string? RightExportRecordId
+        {
+            get;
+            set;
+        }
+
+        public DateTime CreatedUtc
+        {
+            get;
+            set;
+        }
+
+        public string? Label
+        {
+            get;
+            set;
+        }
+
+        public List<string> Tags
+        {
+            get;
+            set;
+        } = [];
+    }
+
     public sealed record CreateRunResult(
         bool Success,
         CreateRunResponse? Response,
@@ -998,66 +1136,130 @@ public sealed class ArchLucidApiClient
         int? StatusCode,
         string? CorrelationId = null)
     {
-        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
+        public static CreateRunResult Ok(CreateRunResponse? r)
+        {
+            return new CreateRunResult(true, r, null, null);
+        }
 
-        public static CreateRunResult Fail(int? statusCode, string error, string? correlationId = null) =>
-            new(false, null, error, statusCode, correlationId);
+        public static CreateRunResult Fail(int? statusCode, string error, string? correlationId = null)
+        {
+            return new CreateRunResult(false, null, error, statusCode, correlationId);
+        }
     }
 
     public sealed class CreateRunResponse
     {
-        public RunInfo Run { get; set; } = new();
-        public List<AgentTaskInfo> Tasks { get; set; } = [];
+        public RunInfo Run
+        {
+            get;
+            set;
+        } = new();
+
+        public List<AgentTaskInfo> Tasks
+        {
+            get;
+            set;
+        } = [];
     }
 
     public sealed class RunInfo
     {
-        public string RunId { get; set; } = "";
-        public string RequestId { get; set; } = "";
+        public string RunId
+        {
+            get;
+            set;
+        } = "";
+
+        public string RequestId
+        {
+            get;
+            set;
+        } = "";
+
         public ArchitectureRunStatus Status
         {
-            get; set;
+            get;
+            set;
         }
+
         public DateTime CreatedUtc
         {
-            get; set;
+            get;
+            set;
         }
+
         public DateTime? CompletedUtc
         {
-            get; set;
+            get;
+            set;
         }
+
         public string? CurrentManifestVersion
         {
-            get; set;
+            get;
+            set;
         }
 
         /// <summary>Persisted OpenTelemetry W3C trace id from run creation; null for older runs.</summary>
         public string? OtelTraceId
         {
-            get; set;
+            get;
+            set;
         }
     }
 
     public sealed class AgentTaskInfo
     {
-        public string TaskId { get; set; } = "";
-        public string RunId { get; set; } = "";
+        public string TaskId
+        {
+            get;
+            set;
+        } = "";
+
+        public string RunId
+        {
+            get;
+            set;
+        } = "";
+
         public AgentType AgentType
         {
-            get; set;
+            get;
+            set;
         }
-        public string Objective { get; set; } = "";
+
+        public string Objective
+        {
+            get;
+            set;
+        } = "";
+
         public AgentTaskStatus Status
         {
-            get; set;
+            get;
+            set;
         }
     }
 
     public sealed class GetRunResult
     {
-        public RunInfo Run { get; set; } = new();
-        public List<AgentTaskInfo> Tasks { get; set; } = [];
-        public List<object> Results { get; set; } = [];
+        public RunInfo Run
+        {
+            get;
+            set;
+        } = new();
+
+        public List<AgentTaskInfo> Tasks
+        {
+            get;
+            set;
+        } = [];
+
+        public List<object> Results
+        {
+            get;
+            set;
+        } = [];
     }
 
     public sealed record CommitRunResult(
@@ -1081,31 +1283,73 @@ public sealed class ArchLucidApiClient
 
     public sealed class CommitRunResponse
     {
-        public ManifestInfo Manifest { get; set; } = new();
-        public List<string> Warnings { get; set; } = [];
+        public ManifestInfo Manifest
+        {
+            get;
+            set;
+        } = new();
+
+        public List<string> Warnings
+        {
+            get;
+            set;
+        } = [];
     }
 
     public sealed class ManifestInfo
     {
-        public string RunId { get; set; } = "";
-        public string SystemName { get; set; } = "";
-        public ManifestMetadataInfo Metadata { get; set; } = new();
+        public string RunId
+        {
+            get;
+            set;
+        } = "";
+
+        public string SystemName
+        {
+            get;
+            set;
+        } = "";
+
+        public ManifestMetadataInfo Metadata
+        {
+            get;
+            set;
+        } = new();
     }
 
     public sealed class ManifestMetadataInfo
     {
-        public string ManifestVersion { get; set; } = "";
+        public string ManifestVersion
+        {
+            get;
+            set;
+        } = "";
     }
 
-    public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error, int? HttpStatusCode = null);
+    public sealed record SeedFakeResultsResult(
+        bool Success,
+        int ResultCount,
+        string? Error,
+        int? HttpStatusCode = null);
 
     public sealed class SeedFakeResultsResponse
     {
-        public string Message { get; set; } = "";
-        public string RunId { get; set; } = "";
+        public string Message
+        {
+            get;
+            set;
+        } = "";
+
+        public string RunId
+        {
+            get;
+            set;
+        } = "";
+
         public int ResultCount
         {
-            get; set;
+            get;
+            set;
         }
     }
 
@@ -1113,8 +1357,22 @@ public sealed class ArchLucidApiClient
 
     public sealed class SubmitResultResponse
     {
-        public string Message { get; set; } = "";
-        public string RunId { get; set; } = "";
-        public string ResultId { get; set; } = "";
+        public string Message
+        {
+            get;
+            set;
+        } = "";
+
+        public string RunId
+        {
+            get;
+            set;
+        } = "";
+
+        public string ResultId
+        {
+            get;
+            set;
+        } = "";
     }
 }
