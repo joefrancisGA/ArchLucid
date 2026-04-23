@@ -1,14 +1,25 @@
-> **Scope:** Canonical buyer + evaluator entry — Day-0 narrative, five-document spine, and where to go next without opening 200 root files.
+> **Scope:** Canonical buyer + evaluator entry — Day-0 narrative, audience split, five-document contributor spine, and where to go next without opening 200 root files.
 
 # Start here — ArchLucid
 
 ## Objective
 
-Give **evaluators, sponsors, operators, and engineers** one place to understand **what to open first**, **how long each step takes**, and **where depth lives** without competing “first doc” hubs.
+Give **buyers, evaluators, sponsors, operators, and engineers** one place to understand **what to open first**, **how long each step takes**, and **where depth lives** without competing "first doc" hubs.
+
+## Audience split (read this first)
+
+ArchLucid is a **SaaS** product. Pick the column that matches you — they share **almost no documents**.
+
+| You are… | What you ever touch | Start here | Never asked of you |
+|---|---|---|---|
+| **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.com`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** → cloud trial signup at `archlucid.com/signup`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
+| **ArchLucid contributor / engineer / internal operator** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (operator only) the production Azure subscription via OIDC. | The **five-document contributor spine** below. | None — this column is the one with the toolchain. |
+
+> **What about the buyer's first 30 minutes inside the product?** Today the cloud trial funnel (`archlucid.com/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §1.2 / §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md). The buyer-facing equivalent of `FIRST_30_MINUTES.md` is therefore a **planned doc, not an existing one**; drafting the copy is owner-controlled (brand voice).
 
 ## Assumptions
 
-- You may be **non-technical** (Docker-only path) or **shipping code** (.NET / Node / Azure).
+- You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](library/) and topic folders.
 
 ## Constraints
@@ -38,22 +49,24 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 | **Deeper engineering index** | You already ran the spine and need maps — **[`ARCHITECTURE_INDEX.md`](ARCHITECTURE_INDEX.md)** |
 | **Everything else** | Search or browse **[`docs/library/`](library/)** (~150+ reference markdown files moved 2026-04-23 to keep `/docs` root small) |
 
-## Data flow — canonical buyer journey
+## Data flow — canonical **buyer / evaluator** journey (no install)
 
 1. **Believe the problem is real** — read **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** (10–15 min).
-2. **See the system shape** — skim **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** (15 min; diagrams first).
-3. **Run something** — follow **[`FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md)** (Docker-only) *or* `dotnet run --project ArchLucid.Cli -- try` when you have the .NET 10 SDK + Docker.
-4. **Run a serious pilot** — **[`CORE_PILOT.md`](CORE_PILOT.md)** (operator motion, review surfaces).
+2. **See the system shape** — skim **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** (15 min; diagrams first; no install required, just look at the poster).
+3. **Run something — in the cloud, not locally** — sign up at **`archlucid.com/signup`** (cloud trial; status see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)). Until that path is live, request a guided demo.
+4. **Run a serious pilot** — read **[`CORE_PILOT.md`](CORE_PILOT.md)** for the operator motion and review surfaces (you operate the in-product UI; ArchLucid hosts the stack).
 5. **Track open decisions** — **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** (owner gates, cadence reminders).
 
-### Five-document spine (Day-1 reading order)
+### Five-document **contributor / internal-engineer** spine (Day-1 reading order)
+
+> **Audience.** ArchLucid contributors and internal engineers only. **Customers never read this spine.** It is the toolchain path for people building or operating ArchLucid itself.
 
 | # | Document | Role | Time |
 |---|----------|------|------|
-| 1 | **[`INSTALL_ORDER.md`](INSTALL_ORDER.md)** | Toolchain + install order | ~10 min |
-| 2 | **[`FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md)** | First committed manifest + finding (Docker) | ~30 min |
-| 3 | **[`CORE_PILOT.md`](CORE_PILOT.md)** | First pilot / operator motion | ~20 min |
-| 4 | **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** | Poster + ownership | ~15 min |
+| 1 | **[`INSTALL_ORDER.md`](INSTALL_ORDER.md)** | Contributor toolchain + install order (Docker, .NET, Node) | ~10 min |
+| 2 | **[`FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md)** | First committed manifest + finding on a contributor laptop (Docker) | ~30 min |
+| 3 | **[`CORE_PILOT.md`](CORE_PILOT.md)** | First pilot / operator motion (read for context; safe for buyers too) | ~20 min |
+| 4 | **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** | Poster + ownership (safe for buyers too) | ~15 min |
 | 5 | **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** | Owner decisions + gates | ~10 min |
 
 **Filename redirects:** [`FIRST_5_DOCS.md`](FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing here so bookmarks stay stable.
