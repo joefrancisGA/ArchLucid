@@ -2,7 +2,10 @@ using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Contracts.Common;
 
-/// <summary>Stable string keys for <see cref="IAgentHandler"/> registration and optional <see cref="Agents.AgentTask.AgentTypeKey"/> dispatch.</summary>
+/// <summary>
+///     Stable string keys for <see cref="IAgentHandler" /> registration and optional
+///     <see cref="Agents.AgentTask.AgentTypeKey" /> dispatch.
+/// </summary>
 public static class AgentTypeKeys
 {
     /// <summary>Topology agent role.</summary>
@@ -17,9 +20,10 @@ public static class AgentTypeKeys
     /// <summary>Critic agent role.</summary>
     public const string Critic = "critic";
 
-    /// <summary>Maps a persisted <see cref="AgentType"/> enum to its canonical dispatch key.</summary>
-    public static string FromEnum(AgentType agentType) =>
-        agentType switch
+    /// <summary>Maps a persisted <see cref="AgentType" /> enum to its canonical dispatch key.</summary>
+    public static string FromEnum(AgentType agentType)
+    {
+        return agentType switch
         {
             AgentType.Topology => Topology,
             AgentType.Cost => Cost,
@@ -27,8 +31,9 @@ public static class AgentTypeKeys
             AgentType.Critic => Critic,
             _ => throw new ArgumentOutOfRangeException(nameof(agentType), agentType, "Unknown agent type.")
         };
+    }
 
-    /// <summary>Resolves the handler lookup key: explicit <see cref="AgentTask.AgentTypeKey"/> wins, else enum mapping.</summary>
+    /// <summary>Resolves the handler lookup key: explicit <see cref="AgentTask.AgentTypeKey" /> wins, else enum mapping.</summary>
     public static string ResolveDispatchKey(AgentTask task)
     {
         ArgumentNullException.ThrowIfNull(task);
@@ -36,7 +41,10 @@ public static class AgentTypeKeys
         return !string.IsNullOrWhiteSpace(task.AgentTypeKey) ? task.AgentTypeKey.Trim() : FromEnum(task.AgentType);
     }
 
-    /// <summary>When <paramref name="agentTypeKey"/> matches a built-in key, returns the enum; otherwise <see langword="null"/>.</summary>
+    /// <summary>
+    ///     When <paramref name="agentTypeKey" /> matches a built-in key, returns the enum; otherwise
+    ///     <see langword="null" />.
+    /// </summary>
     public static AgentType? TryMapToEnum(string agentTypeKey)
     {
         if (string.IsNullOrWhiteSpace(agentTypeKey))
@@ -65,6 +73,8 @@ public static class AgentTypeKeys
     }
 
     /// <summary>Sort order for stable batch execution (lexicographic on keys).</summary>
-    public static int CompareDispatchKeys(string a, string b) =>
-        string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+    public static int CompareDispatchKeys(string a, string b)
+    {
+        return string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
+    }
 }

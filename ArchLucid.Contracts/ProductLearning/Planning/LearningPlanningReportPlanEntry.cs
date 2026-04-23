@@ -5,41 +5,67 @@ public sealed class LearningPlanningReportPlanEntry
 {
     public Guid PlanId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string ThemeTitle { get; init; } = string.Empty;
+    public string ThemeTitle
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Title { get; init; } = string.Empty;
+    public string Title
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Summary { get; init; } = string.Empty;
+    public string Summary
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public int PriorityScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? PriorityExplanation
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Status { get; init; } = string.Empty;
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public int ActionStepCount
     {
-        get; init;
+        get;
+        init;
     }
 
-    public LearningPlanningReportPlanEvidenceBlock Evidence { get; init; } = null!;
+    public LearningPlanningReportPlanEvidenceBlock Evidence
+    {
+        get;
+        init;
+    } = null!;
 }

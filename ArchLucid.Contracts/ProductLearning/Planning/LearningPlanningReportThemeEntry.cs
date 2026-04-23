@@ -5,26 +5,49 @@ public sealed class LearningPlanningReportThemeEntry
 {
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string ThemeKey { get; init; } = string.Empty;
+    public string ThemeKey
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Title { get; init; } = string.Empty;
+    public string Title
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Summary { get; init; } = string.Empty;
+    public string Summary
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string SeverityBand { get; init; } = string.Empty;
+    public string SeverityBand
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public int EvidenceSignalCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int DistinctRunCount
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Status { get; init; } = string.Empty;
+    public string Status
+    {
+        get;
+        init;
+    } = string.Empty;
 }

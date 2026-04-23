@@ -5,7 +5,13 @@ public sealed class ProductLearningImprovementOpportunitiesResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public IReadOnlyList<ImprovementOpportunity> Opportunities { get; init; } = [];
+
+    public IReadOnlyList<ImprovementOpportunity> Opportunities
+    {
+        get;
+        init;
+    } = [];
 }

@@ -1,51 +1,74 @@
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
-/// Lightweight KPI + notes for the product-learning dashboard header (no large aggregate payloads).
+///     Lightweight KPI + notes for the product-learning dashboard header (no large aggregate payloads).
 /// </summary>
 public sealed class ProductLearningDashboardSummaryResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
+
     public int TotalSignalsInScope
     {
-        get; init;
+        get;
+        init;
     }
+
     public int DistinctRunsTouched
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Count of rollups returned when a full dashboard is built with default triage options (informational for UI).</summary>
     public int TopAggregateCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int ArtifactTrendCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int ImprovementOpportunityCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int TriageQueueItemCount
     {
-        get; init;
+        get;
+        init;
     }
-    public IReadOnlyList<string> SummaryNotes { get; init; } = [];
+
+    public IReadOnlyList<string> SummaryNotes
+    {
+        get;
+        init;
+    } = [];
 }

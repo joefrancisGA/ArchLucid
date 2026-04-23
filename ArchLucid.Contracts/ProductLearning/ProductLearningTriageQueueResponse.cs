@@ -5,7 +5,13 @@ public sealed class ProductLearningTriageQueueResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public IReadOnlyList<TriageQueueItem> Items { get; init; } = [];
+
+    public IReadOnlyList<TriageQueueItem> Items
+    {
+        get;
+        init;
+    } = [];
 }

@@ -4,8 +4,9 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
-/// Preserves the historical wire shape <c>{ "kind", "runEvent"?, "ruleAudit"? }</c> while using
-/// <see cref="RunEventTrace"/> / <see cref="RuleAuditTrace"/> as the CLR types (OpenAPI stays a single object schema).
+///     Preserves the historical wire shape <c>{ "kind", "runEvent"?, "ruleAudit"? }</c> while using
+///     <see cref="RunEventTrace" /> / <see cref="RuleAuditTrace" /> as the CLR types (OpenAPI stays a single object
+///     schema).
 /// </summary>
 public sealed class DecisionTraceJsonConverter : JsonConverter<DecisionTrace>
 {
@@ -27,24 +28,30 @@ public sealed class DecisionTraceJsonConverter : JsonConverter<DecisionTrace>
 
         if (kind == DecisionTraceKind.RunEvent)
         {
-            if (!root.TryGetProperty("runEvent", out JsonElement runEventElement) || runEventElement.ValueKind == JsonValueKind.Null)
+            if (!root.TryGetProperty("runEvent", out JsonElement runEventElement) ||
+                runEventElement.ValueKind == JsonValueKind.Null)
 
                 throw new JsonException("RunEvent trace requires a non-null \"runEvent\" object.");
 
             RunEventTracePayload? payload = runEventElement.Deserialize<RunEventTracePayload>(options);
 
-            return payload is null ? throw new JsonException("RunEvent trace \"runEvent\" deserialized to null.") : RunEventTrace.From(payload);
+            return payload is null
+                ? throw new JsonException("RunEvent trace \"runEvent\" deserialized to null.")
+                : RunEventTrace.From(payload);
         }
 
         if (kind == DecisionTraceKind.RuleAudit)
         {
-            if (!root.TryGetProperty("ruleAudit", out JsonElement ruleAuditElement) || ruleAuditElement.ValueKind == JsonValueKind.Null)
+            if (!root.TryGetProperty("ruleAudit", out JsonElement ruleAuditElement) ||
+                ruleAuditElement.ValueKind == JsonValueKind.Null)
 
                 throw new JsonException("RuleAudit trace requires a non-null \"ruleAudit\" object.");
 
             RuleAuditTracePayload? payload = ruleAuditElement.Deserialize<RuleAuditTracePayload>(options);
 
-            return payload is null ? throw new JsonException("RuleAudit trace \"ruleAudit\" deserialized to null.") : RuleAuditTrace.From(payload);
+            return payload is null
+                ? throw new JsonException("RuleAudit trace \"ruleAudit\" deserialized to null.")
+                : RuleAuditTrace.From(payload);
         }
 
         throw new JsonException($"Unsupported decision trace kind '{kind}'.");

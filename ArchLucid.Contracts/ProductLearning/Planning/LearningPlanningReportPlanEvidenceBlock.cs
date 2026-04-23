@@ -5,22 +5,37 @@ public sealed class LearningPlanningReportPlanEvidenceBlock
 {
     public int LinkedSignalCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int LinkedArtifactCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int LinkedArchitectureRunCount
     {
-        get; init;
+        get;
+        init;
     }
 
-    public IReadOnlyList<LearningPlanningReportSignalRef> Signals { get; init; } = [];
+    public IReadOnlyList<LearningPlanningReportSignalRef> Signals
+    {
+        get;
+        init;
+    } = [];
 
-    public IReadOnlyList<LearningPlanningReportArtifactRef> Artifacts { get; init; } = [];
+    public IReadOnlyList<LearningPlanningReportArtifactRef> Artifacts
+    {
+        get;
+        init;
+    } = [];
 
-    public IReadOnlyList<string> ArchitectureRunIds { get; init; } = [];
+    public IReadOnlyList<string> ArchitectureRunIds
+    {
+        get;
+        init;
+    } = [];
 }

@@ -5,26 +5,31 @@ public sealed class LearningPlanningReportSummaryBlock
 {
     public int ThemeCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int PlanCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int TotalThemeEvidenceSignals
     {
-        get; init;
+        get;
+        init;
     }
 
     public int TotalLinkedSignalsAcrossPlans
     {
-        get; init;
+        get;
+        init;
     }
 
     public int? MaxPlanPriorityScore
     {
-        get; init;
+        get;
+        init;
     }
 }

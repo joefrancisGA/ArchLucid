@@ -5,21 +5,25 @@ public sealed class LearningPlanningReportArtifactRef
 {
     public Guid LinkId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid? AuthorityBundleId
     {
-        get; init;
+        get;
+        init;
     }
 
     public int? AuthorityArtifactSortOrder
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? PilotArtifactHint
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -5,14 +5,19 @@ public sealed class ProductLearningScope
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -1,50 +1,69 @@
 namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
-/// Read-only architecture analysis flags for a simulation pass. Does not enable determinism checks or replay (those mutate or spawn runs).
+///     Read-only architecture analysis flags for a simulation pass. Does not enable determinism checks or replay (those
+///     mutate or spawn runs).
 /// </summary>
 public sealed class SimulationReadProfile : IEquatable<SimulationReadProfile>
 {
     /// <summary>Default 60R shadow profile: manifest + summary only, no evidence, traces, diagram, or diffs.</summary>
-    public static SimulationReadProfile StrictReadOnly { get; } = new();
+    public static SimulationReadProfile StrictReadOnly
+    {
+        get;
+    } = new();
 
     public bool IncludeEvidence
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IncludeExecutionTraces
     {
-        get; init;
+        get;
+        init;
     }
 
-    public bool IncludeManifest { get; init; } = true;
+    public bool IncludeManifest
+    {
+        get;
+        init;
+    } = true;
 
     public bool IncludeDiagram
     {
-        get; init;
+        get;
+        init;
     }
 
-    public bool IncludeSummary { get; init; } = true;
+    public bool IncludeSummary
+    {
+        get;
+        init;
+    } = true;
 
     public bool IncludeManifestCompare
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CompareManifestVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IncludeAgentResultCompare
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CompareRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <inheritdoc />

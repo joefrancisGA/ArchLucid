@@ -5,7 +5,13 @@ public sealed class ProductLearningArtifactOutcomeTrendsResponse
 {
     public DateTime GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public IReadOnlyList<ArtifactOutcomeTrend> Trends { get; init; } = [];
+
+    public IReadOnlyList<ArtifactOutcomeTrend> Trends
+    {
+        get;
+        init;
+    } = [];
 }

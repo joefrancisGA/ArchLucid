@@ -5,26 +5,31 @@ public sealed class LearningPlanningReportLimits
 {
     public int MaxThemes
     {
-        get; init;
+        get;
+        init;
     }
 
     public int MaxPlans
     {
-        get; init;
+        get;
+        init;
     }
 
     public int MaxSignalRefsPerPlan
     {
-        get; init;
+        get;
+        init;
     }
 
     public int MaxArtifactRefsPerPlan
     {
-        get; init;
+        get;
+        init;
     }
 
     public int MaxRunRefsPerPlan
     {
-        get; init;
+        get;
+        init;
     }
 }
