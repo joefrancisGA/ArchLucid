@@ -3,7 +3,7 @@ using ArchLucid.ContextIngestion.Models;
 namespace ArchLucid.ContextIngestion.Summaries;
 
 /// <summary>
-/// Enriches per-connector delta text with normalized object counts and optional baseline vs prior snapshot hints.
+///     Enriches per-connector delta text with normalized object counts and optional baseline vs prior snapshot hints.
 /// </summary>
 public interface IContextDeltaSummaryBuilder
 {

@@ -13,10 +13,7 @@ public class TopologyHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            TopologyHints = request.TopologyHints.ToList()
-        });
+        return Task.FromResult(new RawContextPayload { TopologyHints = request.TopologyHints.ToList() });
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
@@ -29,10 +26,7 @@ public class TopologyHintsConnector : IContextConnector
         foreach (string hint in payload.TopologyHints)
         {
             string trimmed = hint.Trim();
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["text"] = trimmed
-            };
+            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = trimmed };
 
             int slash = trimmed.IndexOf('/');
             if (slash > 0 && slash < trimmed.Length - 1)

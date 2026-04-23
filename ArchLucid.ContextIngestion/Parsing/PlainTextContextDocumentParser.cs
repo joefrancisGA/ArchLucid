@@ -7,7 +7,10 @@ namespace ArchLucid.ContextIngestion.Parsing;
 
 public class PlainTextContextDocumentParser : IContextDocumentParser
 {
-    public bool CanParse(string contentType) => IsSupported(contentType);
+    public bool CanParse(string contentType)
+    {
+        return IsSupported(contentType);
+    }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
         ContextDocumentReference document,
@@ -33,10 +36,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Name = text.Length > 80 ? text[..80] : text,
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["text"] = text
-                    }
+                    Properties = new Dictionary<string, string> { ["text"] = text }
                 });
             }
             else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
@@ -49,10 +49,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Name = text.Length > 80 ? text[..80] : text,
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["text"] = text
-                    }
+                    Properties = new Dictionary<string, string> { ["text"] = text }
                 });
             }
             else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
@@ -65,10 +62,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Name = text.Length > 80 ? text[..80] : text,
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["text"] = text
-                    }
+                    Properties = new Dictionary<string, string> { ["text"] = text }
                 });
             }
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
@@ -81,11 +75,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     Name = text.Length > 80 ? text[..80] : text,
                     SourceType = "Document",
                     SourceId = document.DocumentId,
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["text"] = text,
-                        ["status"] = "declared"
-                    }
+                    Properties = new Dictionary<string, string> { ["text"] = text, ["status"] = "declared" }
                 });
             }
 

@@ -4,9 +4,9 @@ using System.Text;
 namespace ArchLucid.ContextIngestion.Topology;
 
 /// <summary>
-/// Deterministic <see cref="Models.CanonicalObject.ObjectId"/> for topology hints so
-/// cross-connector references (e.g. policy <c>applicableTopologyNodeIds</c>, <c>parentNodeId</c>)
-/// align with <c>obj-{ObjectId}</c> graph node ids after ingestion.
+///     Deterministic <see cref="Models.CanonicalObject.ObjectId" /> for topology hints so
+///     cross-connector references (e.g. policy <c>applicableTopologyNodeIds</c>, <c>parentNodeId</c>)
+///     align with <c>obj-{ObjectId}</c> graph node ids after ingestion.
 /// </summary>
 public static class TopologyHintStableObjectIds
 {

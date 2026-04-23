@@ -6,15 +6,15 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
-public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
+public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDeclarationParser> logger)
+    : IInfrastructureDeclarationParser
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public bool CanParse(string format) =>
-        string.Equals(format, "json", StringComparison.OrdinalIgnoreCase);
+    public bool CanParse(string format)
+    {
+        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase);
+    }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
         InfrastructureDeclarationReference declaration,

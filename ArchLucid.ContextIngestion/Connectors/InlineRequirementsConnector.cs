@@ -12,10 +12,7 @@ public class InlineRequirementsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            InlineRequirements = request.InlineRequirements.ToList()
-        });
+        return Task.FromResult(new RawContextPayload { InlineRequirements = request.InlineRequirements.ToList() });
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
@@ -33,10 +30,7 @@ public class InlineRequirementsConnector : IContextConnector
                 Name = requirement.Length > 80 ? requirement[..80] : requirement,
                 SourceType = "InlineRequirement",
                 SourceId = "inline",
-                Properties = new Dictionary<string, string>
-                {
-                    ["text"] = requirement
-                }
+                Properties = new Dictionary<string, string> { ["text"] = requirement }
             });
 
 
@@ -52,7 +46,9 @@ public class InlineRequirementsConnector : IContextConnector
         _ = ct;
         return Task.FromResult(new ContextDelta
         {
-            Summary = previous is null ? "Initial inline requirement ingestion" : "Updated inline requirement ingestion"
+            Summary = previous is null
+                ? "Initial inline requirement ingestion"
+                : "Updated inline requirement ingestion"
         });
     }
 }

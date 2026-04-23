@@ -1,8 +1,9 @@
 namespace ArchLucid.ContextIngestion;
 
 /// <summary>
-/// Canonical list of MIME types accepted for inline <see cref="Models.ContextDocumentReference"/> at the API boundary.
-/// Parsers (<see cref="Contracts.IContextDocumentParser"/>) should register support for these (or a subset).
+///     Canonical list of MIME types accepted for inline <see cref="Models.ContextDocumentReference" /> at the API
+///     boundary.
+///     Parsers (<see cref="Contracts.IContextDocumentParser" />) should register support for these (or a subset).
 /// </summary>
 public static class SupportedContextDocumentContentTypes
 {

@@ -18,8 +18,7 @@ public class PolicyReferenceConnector : IContextConnector
         _ = ct;
         return Task.FromResult(new RawContextPayload
         {
-            PolicyReferences = request.PolicyReferences.ToList(),
-            TopologyHints = request.TopologyHints.ToList()
+            PolicyReferences = request.PolicyReferences.ToList(), TopologyHints = request.TopologyHints.ToList()
         });
     }
 
@@ -34,8 +33,7 @@ public class PolicyReferenceConnector : IContextConnector
         {
             Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
             {
-                ["reference"] = policy,
-                ["status"] = "referenced"
+                ["reference"] = policy, ["status"] = "referenced"
             };
 
             string? targeted = BuildApplicableTopologyNodeIds(policy, payload.TopologyHints);
@@ -55,31 +53,6 @@ public class PolicyReferenceConnector : IContextConnector
         return Task.FromResult(batch);
     }
 
-    /// <summary>
-    /// When a topology hint name overlaps the policy reference (substring, case-insensitive),
-    /// links the policy to <c>obj-{stableId}</c> for that hint so graph inference can narrow <c>APPLIES_TO</c>.
-    /// </summary>
-    private static string? BuildApplicableTopologyNodeIds(string policyReference, List<string> topologyHints)
-    {
-        if (topologyHints.Count == 0)
-            return null;
-
-        HashSet<string> ids = [];
-
-        foreach (string? trimmed in from hint in topologyHints where !string.IsNullOrWhiteSpace(hint) select hint.Trim() into trimmed where PolicyReferenceOverlapsTopology(policyReference, trimmed) select trimmed)
-
-            ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
-
-
-        return ids.Count == 0 ? null : string.Join(',', ids);
-    }
-
-    private static bool PolicyReferenceOverlapsTopology(string policyReference, string topologyHint)
-    {
-        return topologyHint.Contains(policyReference, StringComparison.OrdinalIgnoreCase)
-            || policyReference.Contains(topologyHint, StringComparison.OrdinalIgnoreCase);
-    }
-
     public Task<ContextDelta> DeltaAsync(
         NormalizedContextBatch current,
         ContextSnapshot? previous,
@@ -91,5 +64,35 @@ public class PolicyReferenceConnector : IContextConnector
         {
             Summary = previous is null ? "Initial policy ingestion" : "Updated policy ingestion"
         });
+    }
+
+    /// <summary>
+    ///     When a topology hint name overlaps the policy reference (substring, case-insensitive),
+    ///     links the policy to <c>obj-{stableId}</c> for that hint so graph inference can narrow <c>APPLIES_TO</c>.
+    /// </summary>
+    private static string? BuildApplicableTopologyNodeIds(string policyReference, List<string> topologyHints)
+    {
+        if (topologyHints.Count == 0)
+            return null;
+
+        HashSet<string> ids = [];
+
+        foreach (string? trimmed in from hint in topologyHints
+                 where !string.IsNullOrWhiteSpace(hint)
+                 select hint.Trim()
+                 into trimmed
+                 where PolicyReferenceOverlapsTopology(policyReference, trimmed)
+                 select trimmed)
+
+            ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
+
+
+        return ids.Count == 0 ? null : string.Join(',', ids);
+    }
+
+    private static bool PolicyReferenceOverlapsTopology(string policyReference, string topologyHint)
+    {
+        return topologyHint.Contains(policyReference, StringComparison.OrdinalIgnoreCase)
+               || policyReference.Contains(topologyHint, StringComparison.OrdinalIgnoreCase);
     }
 }

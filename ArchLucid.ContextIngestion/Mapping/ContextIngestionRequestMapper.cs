@@ -4,8 +4,8 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.ContextIngestion.Mapping;
 
 /// <summary>
-/// Maps API / coordinator <see cref="ArchitectureRequest"/> into the ingestion pipeline model.
-/// <see cref="ArchitectureRequest.SystemName"/> becomes <see cref="ContextIngestionRequest.ProjectId"/>.
+///     Maps API / coordinator <see cref="ArchitectureRequest" /> into the ingestion pipeline model.
+///     <see cref="ArchitectureRequest.SystemName" /> becomes <see cref="ContextIngestionRequest.ProjectId" />.
 /// </summary>
 public static class ContextIngestionRequestMapper
 {
@@ -22,9 +22,7 @@ public static class ContextIngestionRequestMapper
             Documents = request.Documents
                 .Select(d => new ContextDocumentReference
                 {
-                    Name = d.Name,
-                    ContentType = d.ContentType,
-                    Content = d.Content
+                    Name = d.Name, ContentType = d.ContentType, Content = d.Content
                 })
                 .ToList(),
             PolicyReferences = request.PolicyReferences.ToList(),
@@ -33,9 +31,7 @@ public static class ContextIngestionRequestMapper
             InfrastructureDeclarations = request.InfrastructureDeclarations
                 .Select(x => new InfrastructureDeclarationReference
                 {
-                    Name = x.Name,
-                    Format = x.Format,
-                    Content = x.Content
+                    Name = x.Name, Format = x.Format, Content = x.Content
                 })
                 .ToList()
         };
