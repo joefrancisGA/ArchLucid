@@ -72,7 +72,6 @@ public sealed class ReplayRunServiceTests
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutorResolver> _executorResolver = new();
     private readonly Mock<IDecisionEngineService> _decisionEngine = new();
-    private readonly Mock<ICoordinatorDecisionTraceRepository> _decisionTraceRepository = new();
     private readonly ReplayRunService _sut;
 
     public ReplayRunServiceTests()
@@ -88,6 +87,8 @@ public sealed class ReplayRunServiceTests
         _authorityRunRepository.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
+        // ADR 0030 PR A3 (2026-04-24): ICoordinatorDecisionTraceRepository was removed from
+        // ReplayRunService — decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
         _sut = new ReplayRunService(
             _executorResolver.Object,
             _decisionEngine.Object,
@@ -96,7 +97,6 @@ public sealed class ReplayRunServiceTests
             _authorityRunRepository.Object,
             _scopeContextProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            _decisionTraceRepository.Object,
             _evidenceRepository.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),

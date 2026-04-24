@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -23,10 +22,14 @@ namespace ArchLucid.Application.Bootstrap;
 /// Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow, activations).
 /// </summary>
 /// <remarks>
-/// Persists via <c>ArchLucid.Persistence</c> repositories. **Authority:** each demo run is inserted into <c>dbo.Runs</c> via
-/// <see cref="IRunRepository.SaveAsync"/> (project slug <c>Contoso Retail Platform</c>, matching system-name-as-project-id from
-/// coordinator ingestion mapping). Committed manifest bodies are written through <see cref="IAuthorityCommittedManifestChainWriter"/>
-/// (ADR 0030); the legacy <c>dbo.GoldenManifestVersions</c> dual-write was removed with migration **111**. Coordinator NVARCHAR <c>RunId</c> columns reference the same run id string (no-dash GUID).
+/// Persists via <c>ArchLucid.Persistence</c> repositories. **Authority-only after ADR 0030 PR A3 (2026-04-24):**
+/// each demo run is inserted into <c>dbo.Runs</c> via <see cref="IRunRepository.SaveAsync"/> (project slug
+/// <c>Contoso Retail Platform</c>, matching system-name-as-project-id from coordinator ingestion mapping).
+/// Committed manifest bodies AND decision traces are written through
+/// <see cref="IAuthorityCommittedManifestChainWriter"/> in a single FK-chain insert
+/// (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
+/// <c>ICoordinatorDecisionTraceRepository</c> second write to <c>dbo.DecisionTraces</c> was removed when
+/// the coordinator interfaces themselves were deleted in PR A3 — see <c>docs/adr/0030-coordinator-authority-pipeline-unification.md</c>.
 /// The export row is optional metadata for export history — not required for consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(
@@ -35,7 +38,6 @@ public sealed class DemoSeedService(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
-    ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
     IOptionsMonitor<DemoOptions> demoOptions,
     IGovernanceApprovalRequestRepository approvalRepository,
@@ -191,9 +193,8 @@ public sealed class DemoSeedService(
 
         await resultRepository.CreateAsync(result, cancellationToken);
 
-        GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened);
-
         bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
+        GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(
             ManifestId: AuthorityDemoChainIds.Manifest(authorityRunId),
             ContextSnapshotId: AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
@@ -226,19 +227,12 @@ public sealed class DemoSeedService(
             richSeed,
             cancellationToken);
 
-        DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload
-        {
-            TraceId = traceId,
-            RunId = legacyRunId,
-            EventType = "ManifestCommitted",
-            EventDescription = isHardened
-                ? "Committed hardened Contoso retail manifest after governance review."
-                : "Committed baseline Contoso retail manifest.",
-            CreatedUtc = DemoUtc,
-            Metadata = new Dictionary<string, string> { ["demo"] = "trusted-baseline-49R" }
-        });
-
-        await decisionTraceRepository.CreateManyAsync([trace], cancellationToken);
+        // Decision-trace persistence happens inside PersistCommittedChainAsync above (AuthorityDecisionTrace
+        // FK-chain row keyed by chainKeying.DecisionTraceId). The legacy second write to dbo.DecisionTraces
+        // via ICoordinatorDecisionTraceRepository was removed in ADR 0030 PR A3 (2026-04-24) along with the
+        // interface itself. The traceId / event-shape metadata is no longer surfaced for the demo seed because
+        // ArchitectureRunDetail.DecisionTraces now reads from AuthorityDecisionTraces (see RunDetailQueryService).
+        _ = traceId;
 
         RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
 
@@ -266,7 +260,7 @@ public sealed class DemoSeedService(
                || string.Equals(seedDepth.Trim(), "production-realistic", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened)
+    private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened, bool richSeed)
     {
         ManifestGovernance gov = isHardened
             ? new ManifestGovernance
@@ -286,35 +280,91 @@ public sealed class DemoSeedService(
                 CostClassification = "Low"
             };
 
+        // ADR 0030 owner Decision B (2026-04-23): quickstart writes one-of-each minimum (single
+        // service + datastore + relationship); vertical writes the production-realistic depth
+        // (multiple services + datastore + relationships including a service-to-service edge).
+        string checkoutServiceId = isHardened ? "svc-checkout-api-v2" : "svc-checkout-api-v1";
+        string ordersDatastoreId = isHardened ? "ds-orders-v2" : "ds-orders-v1";
+
+        List<ManifestService> services =
+        [
+            new ManifestService
+            {
+                ServiceId = checkoutServiceId,
+                ServiceName = "Checkout API",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
+                Purpose = "Orchestrates cart and payment initiation.",
+                Tags = isHardened ? ["edge-hardened"] : ["legacy-monolith"],
+                RequiredControls = isHardened ? ["WAF", "ManagedIdentity"] : ["BasicAuthOff"]
+            }
+        ];
+
+        List<ManifestDatastore> datastores =
+        [
+            new ManifestDatastore
+            {
+                DatastoreId = ordersDatastoreId,
+                DatastoreName = "Orders DB",
+                DatastoreType = DatastoreType.Sql,
+                RuntimePlatform = RuntimePlatform.SqlServer,
+                Purpose = "Order and payment state."
+            }
+        ];
+
+        List<ManifestRelationship> relationships =
+        [
+            new ManifestRelationship
+            {
+                RelationshipId = $"rel-{checkoutServiceId}-writes-{ordersDatastoreId}",
+                SourceId = checkoutServiceId,
+                TargetId = ordersDatastoreId,
+                RelationshipType = RelationshipType.WritesTo,
+                Description = "Checkout API persists order and payment state."
+            }
+        ];
+
+        if (richSeed)
+        {
+            string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
+
+            services.Add(new ManifestService
+            {
+                ServiceId = paymentServiceId,
+                ServiceName = "Payment Gateway",
+                ServiceType = ServiceType.Api,
+                RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
+                Purpose = "Tokenizes card data and brokers payment provider calls.",
+                Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"],
+                RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"]
+            });
+
+            relationships.Add(new ManifestRelationship
+            {
+                RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}",
+                SourceId = checkoutServiceId,
+                TargetId = paymentServiceId,
+                RelationshipType = RelationshipType.Calls,
+                Description = "Checkout API invokes the Payment Gateway during order finalization."
+            });
+
+            relationships.Add(new ManifestRelationship
+            {
+                RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}",
+                SourceId = paymentServiceId,
+                TargetId = ordersDatastoreId,
+                RelationshipType = RelationshipType.ReadsFrom,
+                Description = "Payment Gateway reads order context for reconciliation."
+            });
+        }
+
         return new GoldenManifest
         {
             RunId = runId,
             SystemName = "Contoso Retail Platform",
-            Services =
-            [
-                new ManifestService
-                {
-                    ServiceId = isHardened ? "svc-checkout-api-v2" : "svc-checkout-api-v1",
-                    ServiceName = "Checkout API",
-                    ServiceType = ServiceType.Api,
-                    RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
-                    Purpose = "Orchestrates cart and payment initiation.",
-                    Tags = isHardened ? ["edge-hardened"] : ["legacy-monolith"],
-                    RequiredControls = isHardened ? ["WAF", "ManagedIdentity"] : ["BasicAuthOff"]
-                }
-            ],
-            Datastores =
-            [
-                new ManifestDatastore
-                {
-                    DatastoreId = isHardened ? "ds-orders-v2" : "ds-orders-v1",
-                    DatastoreName = "Orders DB",
-                    DatastoreType = DatastoreType.Sql,
-                    RuntimePlatform = RuntimePlatform.SqlServer,
-                    Purpose = "Order and payment state."
-                }
-            ],
-            Relationships = [],
+            Services = services,
+            Datastores = datastores,
+            Relationships = relationships,
             Governance = gov,
             Metadata = new ManifestMetadata
             {

@@ -79,19 +79,11 @@ public partial class Program
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
 
-        LegacyRunCommitPathOptions? legacyRunCommitPath = app.Configuration
-            .GetSection(LegacyRunCommitPathOptions.SectionPath)
-            .Get<LegacyRunCommitPathOptions>();
-
-        if (legacyRunCommitPath?.LegacyRunCommitPath is true && !app.Environment.IsDevelopment())
-        {
-            if (app.Logger.IsEnabled(LogLevel.Warning))
-
-                app.Logger.LogWarning(
-                    "Coordinator:LegacyRunCommitPath is true outside Development: the legacy run-commit orchestration still type-wires " +
-                    "ICoordinatorGoldenManifestRepository, but dbo.GoldenManifestVersions was removed (ADR 0030 PR A4 / migration 111). " +
-                    "SQL commits on the legacy path will fail; set Coordinator:LegacyRunCommitPath=false.");
-        }
+        // ADR 0030 PR A3 (2026-04-24): Coordinator:LegacyRunCommitPath was retired together with the
+        // legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector + LegacyRunCommitPathOptions.
+        // The authority-driven commit orchestrator is now the only IArchitectureRunCommitOrchestrator
+        // implementation. If the configuration key is still present, it is now warned about by
+        // ArchLucidLegacyConfigurationWarnings (legacy-keys path), not here.
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,

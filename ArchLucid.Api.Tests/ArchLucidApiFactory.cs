@@ -82,7 +82,6 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
                 ["Billing:Provider"] = "Noop",
-                ["Coordinator:LegacyRunCommitPath"] = "false",
             });
         });
     }

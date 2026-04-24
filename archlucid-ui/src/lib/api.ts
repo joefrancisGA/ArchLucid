@@ -76,6 +76,12 @@ import type {
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
+import {
+  POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
+  POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,
+  type PolicyPackDryRunRequest,
+  type PolicyPackDryRunResponse,
+} from "@/types/policy-pack-dry-run";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 import type {
   ComplianceDriftTrendPoint,
@@ -1365,6 +1371,49 @@ export async function publishPolicyPackVersion(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
     body,
   );
+}
+
+/**
+ * Dry-runs proposed threshold changes for a policy pack against a list of historic runs without
+ * committing anything (POST `/v1/governance/policy-packs/{id}/dry-run`). The default page size is
+ * fixed by `POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE` and clamped client-side to
+ * `POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE` per owner Q38 (the API will also clamp). The response always
+ * carries a `proposedThresholdsRedactedJson` value that has been through the LLM-prompt redaction
+ * pipeline (PENDING_QUESTIONS Q37) before persistence in the audit log.
+ */
+export async function dryRunPolicyPack(
+  policyPackId: string,
+  body: PolicyPackDryRunRequest,
+  options?: { page?: number; pageSize?: number },
+): Promise<PolicyPackDryRunResponse> {
+  const pageSize = clampDryRunPageSize(options?.pageSize);
+  const page = clampDryRunPage(options?.page);
+  const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+
+  return apiPostJson<PolicyPackDryRunResponse>(
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/dry-run?${query.toString()}`,
+    body,
+  );
+}
+
+function clampDryRunPageSize(input: number | undefined): number {
+  if (input === undefined || !Number.isFinite(input)) {
+    return POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE;
+  }
+
+  if (input < 1) {
+    return POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE;
+  }
+
+  return Math.min(Math.floor(input), POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE);
+}
+
+function clampDryRunPage(input: number | undefined): number {
+  if (input === undefined || !Number.isFinite(input) || input < 1) {
+    return 1;
+  }
+
+  return Math.floor(input);
 }
 
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */

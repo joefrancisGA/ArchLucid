@@ -35,4 +35,15 @@ public class TopologySection
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     ADR 0030 PR A3 (2026-04-24) — typed relationships between services and datastores. Persisted
+    ///     in <c>TopologyJson</c> alongside services and datastores so the authority FK chain round-trips
+    ///     the contract <see cref="ManifestRelationship"/> set without dropping edges.
+    /// </summary>
+    public List<ManifestRelationship> Relationships
+    {
+        get;
+        set;
+    } = [];
 }

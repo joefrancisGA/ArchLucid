@@ -75,7 +75,7 @@ public sealed class ArchitectureRunServiceAuditTests
     }
 
     [Fact]
-    public async Task CommitRun_RunNotFound_RecordsRunFailedThenThrows()
+    public async Task CommitRun_PropagatesRunNotFoundFromOrchestrator()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
@@ -88,6 +88,10 @@ public sealed class ArchitectureRunServiceAuditTests
 
         Mock<IBaselineMutationAuditService> audit = new();
 
+        // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator audit-on-not-found
+        // behavior moved to AuthorityDrivenArchitectureRunCommitOrchestrator and is covered by its own
+        // tests. ArchitectureRunService is now only responsible for delegating CommitRunAsync; we assert
+        // the exception still propagates to the caller.
         ArchitectureRunService sut = CreateRunService(
             runRepository: runRepo.Object,
             scopeContextProvider: scopeProvider.Object,
@@ -97,15 +101,6 @@ public sealed class ArchitectureRunServiceAuditTests
         Func<Task> act = () => sut.CommitRunAsync("missing");
 
         await act.Should().ThrowAsync<RunNotFoundException>();
-
-        audit.Verify(
-            a => a.RecordAsync(
-                AuditEventTypes.Baseline.Architecture.RunFailed,
-                "audit-actor",
-                "missing",
-                "Run not found.",
-                It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     private static ArchitectureRunService CreateRunService(
@@ -147,27 +142,19 @@ public sealed class ArchitectureRunServiceAuditTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
-            new ArchitectureRunCommitOrchestrator(
-                runRepository,
-                scopeContextProvider,
-                Mock.Of<IArchitectureRequestRepository>(),
-                Mock.Of<IAgentTaskRepository>(),
-                Mock.Of<IAgentResultRepository>(),
-                Mock.Of<IAgentEvaluationRepository>(),
-                Mock.Of<IAgentEvidencePackageRepository>(),
-                Mock.Of<IDecisionEngineService>(),
-                Mock.Of<IDecisionEngineV2>(),
-                Mock.Of<IDecisionNodeRepository>(),
-                Mock.Of<ICoordinatorGoldenManifestRepository>(),
-                Mock.Of<ICoordinatorDecisionTraceRepository>(),
-                actorContext,
-                baselineMutationAudit,
-                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-                Mock.Of<IPreCommitGovernanceGate>(),
-                Options.Create(new PreCommitGovernanceGateOptions()),
-                Mock.Of<IAuditService>(),
-                NoOpTrialFunnelCommitHook.Instance,
-                NoOpFirstSessionLifecycleHook.Instance,
-                NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
+            // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator concrete was deleted.
+            // CommitRun audit behavior now lives inside AuthorityDrivenArchitectureRunCommitOrchestrator and is
+            // covered by its own audit tests; here we simply propagate the run-not-found exception.
+            BuildCommitOrchestratorThatThrowsRunNotFound());
+    }
+
+    private static IArchitectureRunCommitOrchestrator BuildCommitOrchestratorThatThrowsRunNotFound()
+    {
+        Mock<IArchitectureRunCommitOrchestrator> commit = new();
+        commit
+            .Setup(c => c.CommitRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<string, CancellationToken>((runId, _) => throw new RunNotFoundException(runId));
+
+        return commit.Object;
     }
 }

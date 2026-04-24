@@ -145,6 +145,15 @@ public static class AuditEventTypes
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 
     /// <summary>
+    ///     Emitted when an operator runs a governance policy-pack dry-run / what-if evaluation
+    ///     (<c>POST /v1/governance/policy-packs/{id}/dry-run</c>). No real commit happens — the
+    ///     payload captures the proposed thresholds (always passed through the LLM-prompt redaction
+    ///     pipeline before serialisation, per PENDING_QUESTIONS Q37), the evaluated run ids, and
+    ///     would-be delta counts so reviewers can audit what was simulated and by whom.
+    /// </summary>
+    public const string GovernanceDryRunRequested = "GovernanceDryRunRequested";
+
+    /// <summary>
     ///     Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception
     ///     details).
     /// </summary>

@@ -5308,6 +5308,82 @@
         },
         "type": "object"
       },
+      "FindingInspectEvidenceItem": {
+        "properties": {
+          "artifactId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "excerpt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lineRange": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "FindingInspectResponse": {
+        "properties": {
+          "auditRowId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionRuleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionRuleName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/FindingInspectEvidenceItem"
+            },
+            "type": "array"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "manifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "typedPayload": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "FindingLlmAuditResult": {
         "properties": {
           "agentType": {
@@ -6509,6 +6585,7 @@
         ],
         "type": "object"
       },
+      "JsonElement": {},
       "LearningPlanDetailResponse": {
         "properties": {
           "actionSteps": {
@@ -8128,6 +8205,150 @@
         },
         "type": "object"
       },
+      "PolicyPackDryRunDeltaCounts": {
+        "properties": {
+          "evaluated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runMissing": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "wouldAllow": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "wouldBlock": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunRequest": {
+        "properties": {
+          "evaluateAgainstRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "proposedThresholds": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunResponse": {
+        "properties": {
+          "deltaCounts": {
+            "$ref": "#/components/schemas/PolicyPackDryRunDeltaCounts"
+          },
+          "evaluatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunRunItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "proposedThresholdsRedactedJson": {
+            "type": "string"
+          },
+          "returnedRuns": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRequestedRuns": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunRunItem": {
+        "properties": {
+          "findingsBySeverity": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunSeverityCount"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "runMissing": {
+            "type": "boolean"
+          },
+          "thresholdOutcomes": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunThresholdOutcome"
+            },
+            "type": "array"
+          },
+          "wouldBlock": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunSeverityCount": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunThresholdOutcome": {
+        "properties": {
+          "actualValue": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "proposedValue": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "wouldBreach": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PolicyPackVersion": {
         "properties": {
           "contentJson": {
@@ -8541,6 +8762,87 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecentPilotRunDeltaSummaryResponse": {
+        "properties": {
+          "isDemoTenant": {
+            "type": "boolean"
+          },
+          "manifestCommittedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "runCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "timeToCommittedManifestTotalSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "totalFindings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RecentPilotRunDeltasResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecentPilotRunDeltaSummaryResponse"
+            },
+            "type": "array"
+          },
+          "medianTimeToCommittedManifestTotalSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianTotalFindings": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "requestedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "returnedCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -12330,6 +12632,41 @@
         },
         "tags": [
           "SecurityTrustPublication"
+        ]
+      }
+    },
+    "/v1/admin/support-bundle": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "SupportBundle"
         ]
       }
     },
@@ -26053,6 +26390,105 @@
         ]
       }
     },
+    "/v1/findings/{findingId}/inspect": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "FindingInspect"
+        ]
+      }
+    },
     "/v1/governance-preview/compare-environments": {
       "post": {
         "requestBody": {
@@ -27739,6 +28175,140 @@
                 }
               },
               "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Governance"
+        ]
+      }
+    },
+    "/v1/governance/policy-packs/{id}/dry-run": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -29565,6 +30135,27 @@
         ]
       }
     },
+    "/v1/marketing/trust-center/evidence-pack.zip": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "OK"
+          },
+          "304": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "Not Modified"
+          }
+        },
+        "tags": [
+          "TrustCenterEvidencePack"
+        ]
+      }
+    },
     "/v1/marketing/why-archlucid-pack.pdf": {
       "get": {
         "responses": {
@@ -29954,6 +30545,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PilotScorecardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/runs/recent-deltas": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentPilotRunDeltasResponse"
                 }
               }
             },
@@ -32870,6 +33514,9 @@
       "name": "FindingFeedback"
     },
     {
+      "name": "FindingInspect"
+    },
+    {
       "name": "Governance"
     },
     {
@@ -32954,6 +33601,9 @@
       "name": "SecurityTrustPublication"
     },
     {
+      "name": "SupportBundle"
+    },
+    {
       "name": "TeamsIncomingWebhookConnections"
     },
     {
@@ -32976,6 +33626,9 @@
     },
     {
       "name": "TrialLocalIdentityAuth"
+    },
+    {
+      "name": "TrustCenterEvidencePack"
     },
     {
       "name": "ValueReport"

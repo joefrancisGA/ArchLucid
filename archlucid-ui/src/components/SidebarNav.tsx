@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +26,7 @@ import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
+const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
 /** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
 function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
@@ -33,6 +35,60 @@ function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean 
   }
 
   return raw !== "0";
+}
+
+/**
+ * Collapsible "Recent activity" card at the top of the sidebar. Wraps the new
+ * `BeforeAfterDeltaPanel` `sidebar` variant so the median delta on findings + time
+ * is one glance away from any operator route. Open state persists in localStorage —
+ * collapsed by default the very first time so the card does not push nav links down
+ * for a brand-new operator with zero context.
+ */
+function SidebarRecentActivityCard() {
+  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+
+      const raw = window.localStorage.getItem(RECENT_ACTIVITY_OPEN_KEY);
+
+      setOpen(raw === "1");
+    } catch {
+      setOpen(false);
+    }
+  }, []);
+
+  function persist(next: boolean): void {
+    setOpen(next);
+
+    try {
+      window.localStorage.setItem(RECENT_ACTIVITY_OPEN_KEY, next ? "1" : "0");
+    } catch {
+      /* private mode */
+    }
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={persist}>
+      <CollapsibleTrigger
+        aria-label="Recent activity"
+        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+        type="button"
+      >
+        <span>Recent activity</span>
+        <ChevronDown
+          className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", open ? "rotate-0" : "-rotate-90")}
+          aria-hidden
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div data-testid="sidebar-recent-activity-card" className="px-2 py-2">
+          <BeforeAfterDeltaPanel variant="sidebar" />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }
 
 /**
@@ -79,6 +135,7 @@ export function SidebarNav() {
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
+      <SidebarRecentActivityCard />
       {listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
         showExtended,

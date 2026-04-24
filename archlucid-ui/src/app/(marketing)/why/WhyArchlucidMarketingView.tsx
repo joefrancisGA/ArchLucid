@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BRAND_CATEGORY } from "@/lib/brand-category";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
 
 export type WhyArchlucidMarketingViewProps = {
@@ -21,13 +22,16 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
         Why ArchLucid
       </h1>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        ArchLucid is an AI Architecture Intelligence platform: specialized agents analyze architecture requests,
-        produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what
-        ships today in V1. The **front-door** comparison table below is claim-by-claim and symbol-only in the product
-        columns; the same row labels and order ship in docs/go-to-market/COMPETITIVE_LANDSCAPE.md (CI-aligned with this
-        page). The downloadable proof pack PDF still bundles the deeper five-row benchmarked narrative (citations and
-        evidence strings) kept in sync separately with the PDF builder.
+      <p
+        className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="why-brand-category-paragraph"
+      >
+        ArchLucid is an {BRAND_CATEGORY} platform: specialized agents analyze architecture requests, produce
+        explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today
+        in V1. The **front-door** comparison table below is claim-by-claim and symbol-only in the product columns; the
+        same row labels and order ship in docs/go-to-market/COMPETITIVE_LANDSCAPE.md (CI-aligned with this page). The
+        downloadable proof pack PDF still bundles the deeper five-row benchmarked narrative (citations and evidence
+        strings) kept in sync separately with the PDF builder.
       </p>
 
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">

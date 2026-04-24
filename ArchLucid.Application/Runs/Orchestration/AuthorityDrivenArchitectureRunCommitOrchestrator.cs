@@ -315,6 +315,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 new() { SystemName = request.SystemName },
                 cancellationToken);
 
+            AlignAuthorityVersionToContract(manifestModel, contract);
+
             IReadOnlyList<string> traceabilityGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [trace]);
 
             if (traceabilityGaps.Count > 0)
@@ -559,8 +561,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)
     {
+        // ADR 0030 PR A3 (2026-04-24): missing evidence package = run hasn't been executed yet,
+        // which is a conflict with the current run state, not a malformed request → 409 (not 400).
         _ = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
-            ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
+            ?? throw new ConflictException(
+                $"Run '{runId}' cannot be committed: no evidence package exists. Execute the run first.");
     }
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
@@ -591,6 +596,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;
         manifest.ProjectId = scope.ProjectId;
+    }
+
+    /// <summary>
+    ///     ADR 0030 PR A3 (2026-04-24) — the authority engine stores <c>Metadata.Version</c> as a
+    ///     bare semver (e.g. <c>1.0.0</c>), while the projection builder maps it into the contract
+    ///     as a <c>v</c>-prefixed version (e.g. <c>v1.0.0</c>). The contract value is what the API
+    ///     returns to clients and what subsequent <c>GET /v1/architecture/manifest/{manifestVersion}</c>
+    ///     lookups compare against (ordinal exact match on <c>Metadata.Version</c> via
+    ///     <c>GetByContractManifestVersionAsync</c>). Without this alignment the persisted row would
+    ///     never match the version the client just received → 404. Copying the contract version onto
+    ///     the authority row before persistence keeps the read path round-tripping.
+    /// </summary>
+    private static void AlignAuthorityVersionToContract(Dm.GoldenManifest manifestModel, Cm.GoldenManifest contract)
+    {
+        if (manifestModel is null) throw new ArgumentNullException(nameof(manifestModel));
+        if (contract is null) throw new ArgumentNullException(nameof(contract));
+        if (string.IsNullOrWhiteSpace(contract.Metadata.ManifestVersion)) return;
+
+        manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
     }
 
     private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(

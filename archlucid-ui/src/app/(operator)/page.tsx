@@ -8,6 +8,7 @@ import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
@@ -21,7 +22,10 @@ export default function HomePage() {
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
     <main>
-      <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
+        <OptInTourLauncher />
+      </div>
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         ArchLucid groups capabilities into <strong>three product layers</strong>. <strong>First-pilot success is Core Pilot
         only</strong>—new run, pipeline, commit, review artifacts (follow the checklist below).{" "}
@@ -152,6 +156,12 @@ export default function HomePage() {
               Audit log
             </Link>{" "}
             — compliance alerts and append-only audit trail export.
+          </li>
+          <li>
+            <Link href="/admin/support" className="text-teal-800 underline dark:text-teal-300">
+              Support
+            </Link>{" "}
+            — need to file a support ticket? Download a redacted support bundle here (gated on Execute authority).
           </li>
         </ul>
       </section>

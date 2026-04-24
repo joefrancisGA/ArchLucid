@@ -55,6 +55,7 @@ public static class ContractGoldenManifestMapper
             {
                 Services = [.. contract.Services],
                 Datastores = [.. contract.Datastores],
+                Relationships = [.. contract.Relationships],
                 Resources =
                 [
                     .. contract.Services.Select(s => s.ServiceName)

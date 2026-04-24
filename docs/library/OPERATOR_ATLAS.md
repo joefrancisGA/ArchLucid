@@ -28,6 +28,7 @@
 | First-session handoff | `… try` | same as create + demo | `/onboard` | Execute | [FIRST_30_MINUTES.md](../FIRST_30_MINUTES.md) |
 | Sponsor PDF (post-commit) | `… sponsor-one-pager <runId> [--save]` | export endpoints on run | Run detail → exports | Read / Execute per op | [CORE_PILOT.md](../CORE_PILOT.md), [CLI_USAGE.md](CLI_USAGE.md) |
 | First-value Markdown | `… first-value-report <runId> [--save]` | value report API | Run detail | Read / Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
+| Recent committed-run delta panel | — | `GET /v1/pilots/runs/recent-deltas?count=N` | Top of `/runs`, sidebar "Recent activity" card, inline on `/runs/{runId}` | Read | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (`BeforeAfterDeltaPanel`) |
 
 ---
 
@@ -74,6 +75,9 @@
 | Governance workflow (mutations) | — | workflow POSTs | `/governance` | Execute | [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) |
 | Audit log | — | `/v1/audit…` | `/audit` | Read (+ Auditor role for CSV where documented) | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md) |
 | Security & trust center | — | static + trust payloads | `/workspace/security-trust` (public table: `/security-trust`) | Read | [SECURITY.md](../../SECURITY.md) |
+| Trust Center evidence pack (ZIP) | — | `GET /v1/marketing/trust-center/evidence-pack.zip` | `/trust` (marketing — Download evidence pack button) | Anonymous | [trust-center.md](../trust-center.md) (one ZIP: DPA, subprocessors, SLA, `security.txt`, CAIQ Lite, SIG Core, owner sec assessment, 2026-Q2 SoW, audit matrix; SHA-256 ETag, 1h cache) |
+| In-product support bundle (ZIP) | `archlucid support-bundle` | `POST /v1/admin/support-bundle` | `/admin/support` (Download support bundle button) | Execute (per owner decision F, item 37) | [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) item 37 (parts a + b shipped 2026-04-24; redaction policy part c remains owner-pending — review bundle before forwarding) |
+| Operator opt-in tour | — | — | `/` (operator home — "Show me around" button) | Authenticated | [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) item 38 (5 steps; assistant draft copy wrapped in pending-approval markers; never auto-launches per owner Q9) |
 | Value report DOCX | — | value report generation | `/value-report` | Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
 
 ---

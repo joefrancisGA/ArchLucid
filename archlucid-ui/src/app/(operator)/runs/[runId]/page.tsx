@@ -14,6 +14,7 @@ import {
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
@@ -392,6 +393,8 @@ export default async function RunDetailPage({
         </CollapsibleSection>
         </section>
       )}
+
+      {manifestId && <BeforeAfterDeltaPanel variant="inline" runId={runId} />}
 
       {manifestId && (
         <section id="artifacts-exports" className="scroll-mt-20">

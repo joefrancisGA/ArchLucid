@@ -27,11 +27,11 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
 
         Cm.GoldenManifest result = new()
         {
-            RunId = source.RunId.ToString("D"),
+            RunId = source.RunId.ToString("N"),
             SystemName = input.SystemName,
             Services = [.. source.Topology.Services],
             Datastores = [.. source.Topology.Datastores],
-            Relationships = [],
+            Relationships = [.. source.Topology.Relationships],
             Governance = MapGovernance(source),
             Metadata = MapMetadata(source)
         };

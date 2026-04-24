@@ -33,8 +33,11 @@ public sealed class DemoOptions
     } = 300;
 
     /// <summary>
-    ///     Authority demo seed density: <c>skeleton</c> (one finding, empty graph) vs <c>vertical</c> (multiple findings +
-    ///     graph nodes/edges).
+    ///     Authority demo seed density per ADR 0030 owner Decision B (2026-04-23): <c>quickstart</c>
+    ///     (one-of-each minimum — single finding, empty graph) vs <c>vertical</c> (production-realistic
+    ///     depth — multiple findings + graph nodes/edges). The historical aliases <c>full</c> and
+    ///     <c>production-realistic</c> remain accepted as synonyms for <c>vertical</c>; any other value
+    ///     (including <c>skeleton</c>) is treated as <c>quickstart</c>.
     /// </summary>
     public string SeedDepth
     {

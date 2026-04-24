@@ -128,8 +128,10 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_RunCommitPathSelector()
+    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_AuthorityDriven()
     {
+        // ADR 0030 PR A3 (2026-04-24): RunCommitPathSelector + LegacyRunCommitPathOptions were retired.
+        // The authority-driven orchestrator is the single implementation behind IArchitectureRunCommitOrchestrator.
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
             .Build();
@@ -143,7 +145,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IArchitectureRunCommitOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
 
-        orchestrator.Should().BeOfType<RunCommitPathSelector>();
+        orchestrator.Should().BeOfType<AuthorityDrivenArchitectureRunCommitOrchestrator>();
     }
 
     [Fact]
@@ -297,7 +299,6 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["RateLimiting:Expensive:WindowMinutes"] = "1",
             ["LlmCompletionCache:Enabled"] = "false",
             ["HotPathCache:Enabled"] = "false",
-            ["Coordinator:LegacyRunCommitPath"] = "false",
         };
     }
 

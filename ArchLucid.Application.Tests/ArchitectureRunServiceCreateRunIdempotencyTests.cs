@@ -266,27 +266,8 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
-            new ArchitectureRunCommitOrchestrator(
-                runRepository,
-                scopeContextProvider,
-                Mock.Of<IArchitectureRequestRepository>(),
-                taskRepository,
-                Mock.Of<IAgentResultRepository>(),
-                Mock.Of<IAgentEvaluationRepository>(),
-                Mock.Of<IAgentEvidencePackageRepository>(),
-                Mock.Of<IDecisionEngineService>(),
-                Mock.Of<IDecisionEngineV2>(),
-                Mock.Of<IDecisionNodeRepository>(),
-                Mock.Of<ICoordinatorGoldenManifestRepository>(),
-                Mock.Of<ICoordinatorDecisionTraceRepository>(),
-                actorContext,
-                audit,
-                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-                Mock.Of<IPreCommitGovernanceGate>(),
-                Options.Create(new PreCommitGovernanceGateOptions()),
-                Mock.Of<IAuditService>(),
-                NoOpTrialFunnelCommitHook.Instance,
-                NoOpFirstSessionLifecycleHook.Instance,
-                NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
+            // ADR 0030 PR A3 (2026-04-24): create/idempotency tests do not exercise commit, so a bare
+            // IArchitectureRunCommitOrchestrator mock is sufficient now that the legacy concrete is gone.
+            Mock.Of<IArchitectureRunCommitOrchestrator>());
     }
 }

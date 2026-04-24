@@ -212,7 +212,8 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
-            manifestVersion.Should().Be($"v1-{runId}");
+            manifestVersion.Should().NotBeNullOrWhiteSpace("ADR 0030 PR A3 — authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+            manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
             manifestResponse.EnsureSuccessStatusCode();
@@ -260,7 +261,8 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
-            manifestVersion.Should().Be($"v1-{runId}");
+            manifestVersion.Should().NotBeNullOrWhiteSpace("ADR 0030 PR A3 — authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+            manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
             manifestResponse.EnsureSuccessStatusCode();

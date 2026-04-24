@@ -86,6 +86,23 @@ export default function MarketingTrustCenterPage(): ReactNode {
         <strong>in-flight engagements</strong> with links to the same files your security team can grep in CI.
       </p>
 
+      <div className="mt-6">
+        <a
+          className="inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:bg-blue-600 dark:hover:bg-blue-700"
+          data-testid="trust-center-evidence-pack-download"
+          download
+          href="/v1/marketing/trust-center/evidence-pack.zip"
+          rel="noopener"
+        >
+          Download evidence pack (ZIP)
+        </a>
+        <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          One file: DPA template, subprocessors, SLA summary, <code>security.txt</code>, CAIQ Lite, SIG Core, owner
+          security self-assessment, 2026-Q2 pen-test SoW, and the audit coverage matrix. Anonymous; cached 1 hour with a
+          content-driven ETag.
+        </p>
+      </div>
+
       {bodyMarkdown.length > 0 ? (
         <div className="mt-8">
           <MarketingAccessibilityMarkdownFragment

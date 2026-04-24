@@ -10,16 +10,15 @@ namespace ArchLucid.Persistence.Reads;
 
 /// <inheritdoc cref="IUnifiedGoldenManifestReader" />
 /// <remarks>
-///     Phase 1 shipped coordinator-backed <see cref="GetByVersionAsync" /> and a run-scoped read that mirrors
-///     <see cref="ArchLucid.Application.RunDetailQueryService" /> manifest-version selection (including the
-///     <c>v1-{runId:N}</c> first-commit convention). PR A2 adds authority fallback: when
-///     <see cref="RunRecord.GoldenManifestId" />
-///     is set, load <see cref="Decisioning.Models.GoldenManifest" /> from <see cref="IGoldenManifestRepository" /> and
-///     project
-///     to <see cref="GoldenManifest" /> via <see cref="IAuthorityCommitProjectionBuilder" />.
+///     Authority-only after ADR 0030 PR A3 (2026-04-24). The legacy
+///     <c>ICoordinatorGoldenManifestRepository</c> fallback was retired together with the
+///     interface itself — the underlying SQL table <c>dbo.GoldenManifestVersions</c> had already
+///     been dropped in PR A4 (migration 111), so the fallback was inert dead code that would
+///     have thrown at runtime. The reader continues to project authority-shape
+///     <see cref="Decisioning.Models.GoldenManifest" /> rows into the public
+///     <see cref="GoldenManifest" /> contract via <see cref="IAuthorityCommitProjectionBuilder" />.
 /// </remarks>
 public sealed class UnifiedGoldenManifestReader(
-    ICoordinatorGoldenManifestRepository coordinatorGoldenManifests,
     IRunRepository runRepository,
     IGoldenManifestRepository authorityGoldenManifests,
     IAuthorityCommitProjectionBuilder projectionBuilder,
@@ -28,9 +27,6 @@ public sealed class UnifiedGoldenManifestReader(
 {
     private readonly IGoldenManifestRepository _authorityGoldenManifests =
         authorityGoldenManifests ?? throw new ArgumentNullException(nameof(authorityGoldenManifests));
-
-    private readonly ICoordinatorGoldenManifestRepository _coordinatorGoldenManifests =
-        coordinatorGoldenManifests ?? throw new ArgumentNullException(nameof(coordinatorGoldenManifests));
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
@@ -54,23 +50,18 @@ public sealed class UnifiedGoldenManifestReader(
                 .GetByContractManifestVersionAsync(scope, manifestVersion, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (authorityModel is not null)
-        {
-            RunRecord? run = await _runRepository.GetByIdAsync(scope, authorityModel.RunId, cancellationToken)
-                .ConfigureAwait(false);
+        if (authorityModel is null) return null;
 
-            string systemName = run is null
-                ? "Unknown"
-                : await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, authorityModel.RunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            return await _projectionBuilder
-                .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
+        string systemName = run is null
+            ? "Unknown"
+            : await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
 
-        return await _coordinatorGoldenManifests
-            .GetByVersionAsync(manifestVersion, cancellationToken)
+        return await _projectionBuilder
+            .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -82,9 +73,7 @@ public sealed class UnifiedGoldenManifestReader(
     {
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
-        if (run is null)
-            return null;
-
+        if (run is null) return null;
 
         if (run.GoldenManifestId is { } goldenId)
         {
@@ -112,33 +101,14 @@ public sealed class UnifiedGoldenManifestReader(
                 .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (authorityByVersion is not null)
-        {
-            string systemName = await ResolveSystemNameAsync(run, cancellationToken);
+        if (authorityByVersion is null) return null;
 
-            return await _projectionBuilder
-                .BuildAsync(authorityByVersion, new AuthorityCommitProjectionInput { SystemName = systemName },
-                    cancellationToken)
-                .ConfigureAwait(false);
-        }
+        string fallbackSystemName = await ResolveSystemNameAsync(run, cancellationToken);
 
-        GoldenManifest? manifest = await _coordinatorGoldenManifests
-            .GetByVersionAsync(manifestVersionKey, cancellationToken)
+        return await _projectionBuilder
+            .BuildAsync(authorityByVersion, new AuthorityCommitProjectionInput { SystemName = fallbackSystemName },
+                cancellationToken)
             .ConfigureAwait(false);
-
-        if (manifest is null)
-            return null;
-
-
-        string dashedRunId = runId.ToString("D");
-        string compactRunId = runId.ToString("N");
-
-        if (!string.Equals(manifest.RunId, dashedRunId, StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(manifest.RunId, compactRunId, StringComparison.OrdinalIgnoreCase))
-            return null;
-
-
-        return manifest;
     }
 
     private async Task<string> ResolveSystemNameAsync(RunRecord run, CancellationToken cancellationToken)

@@ -91,7 +91,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
         ReplayRunService sut = new(
@@ -102,7 +101,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -211,8 +209,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
-
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
@@ -221,7 +217,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -387,10 +382,6 @@ public sealed class ReplayRunServiceTests
 
         Mock<IAuthorityCommittedManifestChainWriter> chainWriter = CreateAuthorityChainWriterMock();
 
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
-        traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
@@ -399,7 +390,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             chainWriter.Object,
-            traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -411,6 +401,8 @@ public sealed class ReplayRunServiceTests
 
         output.Manifest.Should().NotBeNull();
         output.Manifest!.Metadata.ManifestVersion.Should().Be("v-override");
+        // ADR 0030 PR A3 (2026-04-24): the legacy ICoordinatorDecisionTraceRepository second-write was removed;
+        // decision traces are now persisted exclusively through the authority FK chain writer below.
         chainWriter.Verify(
             x => x.PersistCommittedChainAsync(
                 It.IsAny<ScopeContext>(),
@@ -423,9 +415,6 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()),
-            Times.Once);
-        traceRepo.Verify(
-            x => x.CreateManyAsync(It.Is<IEnumerable<DecisionTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
             Times.Once);
         Guid replayGuid = Guid.Parse(output.ReplayRunId);
         authorityRuns.Verify(
