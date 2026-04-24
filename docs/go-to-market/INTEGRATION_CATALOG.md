@@ -39,7 +39,7 @@
 
 | Category | Connector | Description | Status |
 |----------|-----------|-------------|--------|
-| **Identity** | SCIM provisioning | Sync users and groups from Okta, Entra ID, or other IdPs | [Planned] |
+| **Identity** | SCIM provisioning | Sync users and groups from Okta, Entra ID, or other IdPs | **Available today** — see [`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |
 | **Architecture import** | Structurizr DSL | Import architecture models from Structurizr workspace files | [Planned] |
 | **Architecture import** | ArchiMate XML | Import from TOGAF / ArchiMate modeling tools | [Planned] |
 | **Architecture import** | Terraform state | Parse `terraform show -json` output into ArchLucid context | [Planned] |

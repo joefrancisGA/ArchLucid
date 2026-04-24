@@ -16,7 +16,7 @@ Provide a **repeatable recipe** to open **Jira issues** from ArchLucid using:
 1. **Inbound:** ArchLucid **HTTP webhooks** with [CloudEvents 1.0](https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md) JSON when `WebhookDelivery:UseCloudEventsEnvelope` is **true** (see [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)), and  
 2. **Outbound:** [Jira Cloud REST API v3](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/) `POST /rest/api/3/issue`.
 
-**V1 reality — no `com.archlucid.finding.*` event:** The product’s canonical integration event strings live in `IntegrationEventTypes` and [catalog.json](../../../schemas/integration-events/catalog.json). There is **no** `com.archlucid.finding.created` (or similar) in V1. For **findings → Jira**, this recipe uses:
+**V1 reality — no Finding-family CloudEvent in catalog:** The product’s canonical integration event strings live in `IntegrationEventTypes` and [catalog.json](../../../schemas/integration-events/catalog.json). There is **no** `finding.*` suffix under the `com.archlucid` namespace (for example no `…finding.created`) in V1. For **findings → Jira**, this recipe uses:
 
 - **`com.archlucid.authority.run.completed`** to signal a committed run, then **ArchLucid REST** to load run + findings; **or**
 - **`com.archlucid.alert.fired`** for a **one-step** ticket from an alert (title, severity, optional `runId`).

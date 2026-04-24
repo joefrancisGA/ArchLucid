@@ -77,7 +77,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         string slug,
         TenantTier tier,
         Guid? entraTenantId,
-        CancellationToken ct)
+        CancellationToken ct,
+        int? enterpriseScimSeatsLimit = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
@@ -106,7 +107,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialWelcomeRunId = null,
             BaselineReviewCycleHours = null,
             BaselineReviewCycleSource = null,
-            BaselineReviewCycleCapturedUtc = null
+            BaselineReviewCycleCapturedUtc = null,
+            EnterpriseSeatsLimit = enterpriseScimSeatsLimit,
+            EnterpriseSeatsUsed = 0
         };
 
         if (!_byId.TryAdd(tenantId, record))
@@ -190,7 +193,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
         _byId[tenantId] = updated;
@@ -237,7 +242,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialWelcomeRunId = null,
             BaselineReviewCycleHours = baselineReviewCycleHours,
             BaselineReviewCycleSource = baselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc
+            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
         _byId[tenantId] = updated;
@@ -280,7 +287,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
         _byId[tenantId] = updated;
@@ -476,6 +485,45 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> TryIncrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+                return Task.FromResult(false);
+
+
+            if (t.EnterpriseSeatsLimit is int lim && t.EnterpriseSeatsUsed >= lim)
+                return Task.FromResult(false);
+
+
+            _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: t.EnterpriseSeatsUsed + 1);
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
+    public Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+                return Task.CompletedTask;
+
+
+            int next = t.EnterpriseSeatsUsed > 0 ? t.EnterpriseSeatsUsed - 1 : 0;
+            _byId[tenantId] = CopyTenant(t, enterpriseSeatsUsedOverride: next);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;
@@ -588,7 +636,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialWelcomeRunId = null,
             BaselineReviewCycleHours = null,
             BaselineReviewCycleSource = null,
-            BaselineReviewCycleCapturedUtc = null
+            BaselineReviewCycleCapturedUtc = null,
+            EnterpriseSeatsLimit = null,
+            EnterpriseSeatsUsed = 0
         };
 
         if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
@@ -605,7 +655,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         DateTimeOffset? trialExpiresUtc = null,
         DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
         Guid? trialWelcomeRunId = null,
-        DateTimeOffset? trialFirstManifestCommittedUtc = null)
+        DateTimeOffset? trialFirstManifestCommittedUtc = null,
+        int? enterpriseSeatsUsedOverride = null)
     {
         return new TenantRecord
         {
@@ -630,7 +681,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = trialFirstManifestCommittedUtc ?? source.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = source.BaselineReviewCycleHours,
             BaselineReviewCycleSource = source.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc
+            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,
+            EnterpriseSeatsLimit = source.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed
         };
     }
 

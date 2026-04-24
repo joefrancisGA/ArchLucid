@@ -38,4 +38,7 @@ public static class ArchLucidPolicies
 
     /// <summary>Consulting-template DOCX export (<c>export:consulting-docx</c> permission).</summary>
     public const string CanExportConsultingDocx = "CanExportConsultingDocx";
+
+    /// <summary>SCIM 2.0 inbound provisioning (dedicated <c>ScimBearer</c> scheme; IdP automation).</summary>
+    public const string ScimWrite = "ScimWrite";
 }

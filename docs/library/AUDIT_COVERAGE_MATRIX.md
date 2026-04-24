@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:107 -->
+<!-- audit-core-const-count:115 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -117,6 +117,13 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
 | Trial lifecycle automation (expiry → read-only → export-only → purge) | `TrialLifecycleTransitionEngine` (Worker) | `TrialLifecycleTransition` | Tenant + default workspace when known | `{ fromStatus, toStatus, reason }` JSON |
 | LLM tenant daily budget warn (fire-and-forget) | `LlmDailyTenantBudgetTracker` | `AuditEventTypes.LlmTenantDailyBudgetApproaching` | Tenant/Workspace/Project from ambient scope | `{ utcDay, usedTotal, warnAt, maxTotal }` — emitted at most **once per tenant per UTC day**; scheduled on the thread pool with exception swallowing so the LLM completion path is never blocked. |
+| SCIM bearer token minted (Enterprise) | `ScimTokensAdminController` (`POST /v1/admin/scim/tokens`) | `ScimTokenIssued` | Tenant from ambient scope | `{ tokenId, publicLookupKey }` — plaintext token returned once in response body only. |
+| SCIM bearer token revoked | `ScimTokensAdminController` (`DELETE /v1/admin/scim/tokens/{id}`) | `ScimTokenRevoked` | Tenant from ambient scope | `{ tokenId }` |
+| SCIM user provisioned | `ScimUserService` (`POST /scim/v2/Users`) | `ScimUserProvisioned` | Tenant from `IScopeContextProvider` | SCIM user id / externalId summary (JSON) |
+| SCIM user updated (replace / patch) | `ScimUserService` | `ScimUserUpdated` | Tenant from scope | user id + changed fields summary |
+| SCIM user deactivated | `ScimUserService` (deprovision / `Active=false`) | `ScimUserDeactivated` | Tenant from scope | user id |
+| SCIM group provisioned | `ScimGroupService` | `ScimGroupProvisioned` | Tenant from scope | group id / displayName |
+| SCIM group membership changed | `ScimGroupService` (`members` replace / patch) | `ScimGroupMembershipChanged` | Tenant from scope | `{ groupId }` and membership delta summary |
 
 ---
 
@@ -262,6 +269,13 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
+| `ScimTokenIssued` | `ScimTokenIssued` | `ScimTokensAdminController` |
+| `ScimTokenRevoked` | `ScimTokenRevoked` | `ScimTokensAdminController` |
+| `ScimUserProvisioned` | `ScimUserProvisioned` | `ScimUserService` |
+| `ScimUserUpdated` | `ScimUserUpdated` | `ScimUserService` |
+| `ScimUserDeactivated` | `ScimUserDeactivated` | `ScimUserService` |
+| `ScimGroupProvisioned` | `ScimGroupProvisioned` | `ScimGroupService` |
+| `ScimGroupMembershipChanged` | `ScimGroupMembershipChanged` | `ScimGroupService` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
 

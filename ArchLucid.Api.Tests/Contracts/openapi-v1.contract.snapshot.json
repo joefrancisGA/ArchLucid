@@ -11227,6 +11227,17 @@
             "format": "date-time",
             "type": "string"
           },
+          "enterpriseSeatsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "enterpriseSeatsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
           "entraTenantId": {
             "format": "uuid",
             "type": [
@@ -11911,6 +11922,548 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/scim/v2/Groups": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startIndex",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      }
+    },
+    "/scim/v2/Groups/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      }
+    },
+    "/scim/v2/ResourceTypes": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/Schemas": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/ServiceProviderConfig": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/Users": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "startIndex",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      }
+    },
+    "/scim/v2/Users/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
         ]
       }
     },
@@ -12634,6 +13187,57 @@
         },
         "tags": [
           "Admin"
+        ]
+      }
+    },
+    "/v1/admin/scim/tokens": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
+        ]
+      }
+    },
+    "/v1/admin/scim/tokens/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
         ]
       }
     },
@@ -33719,6 +34323,18 @@
     },
     {
       "name": "Runs"
+    },
+    {
+      "name": "ScimDiscovery"
+    },
+    {
+      "name": "ScimGroups"
+    },
+    {
+      "name": "ScimTokensAdmin"
+    },
+    {
+      "name": "ScimUsers"
     },
     {
       "name": "ScopeDebug"

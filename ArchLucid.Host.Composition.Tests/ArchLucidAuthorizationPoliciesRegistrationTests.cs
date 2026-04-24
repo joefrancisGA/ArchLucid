@@ -50,6 +50,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanReplayComparisons).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanViewReplayDiagnostics).Should().NotBeNull();
         authorizationOptions.GetPolicy("CanSeedResults").Should().NotBeNull();
+        authorizationOptions.GetPolicy(ArchLucidPolicies.ScimWrite).Should().NotBeNull();
     }
 
     [Fact]

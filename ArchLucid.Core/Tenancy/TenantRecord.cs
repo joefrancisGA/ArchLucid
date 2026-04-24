@@ -143,4 +143,18 @@ public sealed class TenantRecord
         get;
         init;
     }
+
+    /// <summary>When set, caps <see cref="EnterpriseSeatsUsed" /> for SCIM-provisioned active users; <c>null</c> = unlimited.</summary>
+    public int? EnterpriseSeatsLimit
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Count of <c>Active=true</c> SCIM users for enterprise seat metering.</summary>
+    public int EnterpriseSeatsUsed
+    {
+        get;
+        init;
+    }
 }

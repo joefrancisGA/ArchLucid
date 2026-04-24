@@ -7,6 +7,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-24 — SCIM 2.0 inbound provisioning (Enterprise automation)
+
+**Outcome.** Shipped an RFC 7644-aligned **SCIM 2.0 Service Provider** for inbound user/group lifecycle: dedicated controllers under `/scim/v2`, **`ScimBearer`** authentication with **Argon2id**-hashed per-tenant tokens (admin mint/revoke at `/v1/admin/scim/tokens`), SQL persistence (`dbo.ScimTenantTokens`, `dbo.ScimUsers`, `dbo.ScimGroups`, `dbo.ScimGroupMembers`) plus **`EnterpriseSeatsLimit` / `EnterpriseSeatsUsed`** on `dbo.Tenants` (migration **113**), hand-rolled **filter** + **flat PATCH** evaluators, default **group→role** mapping with `Scim:GroupRoleMappingOverrides`, and **seven** new **`AuditEventTypes.Scim*`** constants (matrix marker **`audit-core-const-count:115`**). **Layering:** SCIM repository contracts + filter AST live in **`ArchLucid.Core.Scim`** so `ArchLucid.Persistence` does not reference `ArchLucid.Application` (avoids a circular dependency). **Tests:** parser/patch/token/group-mapper/seat unit coverage, architecture source guards for SCIM anonymity + `ScimBearer` registration, JWT-hosted integration assert **401** without SCIM bearer, OpenAPI snapshot refreshed. **Docs:** ADR [`docs/adr/0032-scim-v2-service-provider.md`](adr/0032-scim-v2-service-provider.md), buyer + operator SCIM docs, threat model, integration catalog + pricing + V1 scope updates.
+
 ## 2026-04-24 — First-tenant onboarding telemetry funnel (Improvement 12 / Prompt 12)
 
 **Outcome.** Shipped Improvement 12 from [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md) §Prompt 12. The marketing claim that a real tenant can reach a first finding inside 30 minutes is now **measurable** end-to-end, with a privacy posture (aggregated-only by default) that does not require an owner privacy decision before any data flows.

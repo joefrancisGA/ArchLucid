@@ -266,6 +266,20 @@ public static class AuditEventTypes
     /// </summary>
     public const string LlmTenantDailyBudgetApproaching = "LlmTenantDailyBudgetApproaching";
 
+    public const string ScimTokenIssued = "ScimTokenIssued";
+
+    public const string ScimTokenRevoked = "ScimTokenRevoked";
+
+    public const string ScimUserProvisioned = "ScimUserProvisioned";
+
+    public const string ScimUserUpdated = "ScimUserUpdated";
+
+    public const string ScimUserDeactivated = "ScimUserDeactivated";
+
+    public const string ScimGroupProvisioned = "ScimGroupProvisioned";
+
+    public const string ScimGroupMembershipChanged = "ScimGroupMembershipChanged";
+
     /// <summary>
     ///     Phase 2 canonical durable catalog for coordinator run-stage semantics (ADR 0021 § Phase 2).
     ///     Dual-written with legacy <c>CoordinatorRun*</c> wire values until the Sunset window closes.

@@ -6,7 +6,7 @@
 **Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)  
 **Event catalog (code):** [ArchLucid.Core/Integration/IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs)
 
-**V1 event note:** There is **no** `com.archlucid.finding.*` integration type in the catalog. For **findings → incident**, use **`com.archlucid.authority.run.completed`** and then **GET** run detail from ArchLucid; for **alerts → incident**, use **`com.archlucid.alert.fired`** in one step (same as the historical short template below).
+**V1 event note:** There is **no** Finding-family integration type (`finding.*` under the `com.archlucid` namespace) in the catalog. For **findings → incident**, use **`com.archlucid.authority.run.completed`** and then **GET** run detail from ArchLucid; for **alerts → incident**, use **`com.archlucid.alert.fired`** in one step (same as the historical short template below).
 
 ---
 

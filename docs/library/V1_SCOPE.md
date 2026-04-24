@@ -126,6 +126,7 @@ Use these surfaces when the next question is analytical: what changed, why it ch
 #### 2.12 Trust and access
 
 - **Entra ID / JWT bearer, API key, RBAC roles** (Admin / Operator / Reader / Auditor).
+- **SCIM 2.0 inbound provisioning** — dedicated `ScimBearer` automation surface (`/scim/v2/*`) with per-tenant bearer tokens, group→role mapping, and enterprise seat accounting ([`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md), ADR [`0032`](../adr/0032-scim-v2-service-provider.md)).
 - **Private endpoints** and WAF Terraform modules; no SMB/445 public exposure.
 - **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)).
 

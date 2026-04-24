@@ -65,6 +65,7 @@ public static partial class ServiceCollectionExtensions
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);
         services.AddFirstTenantFunnelTelemetry(configuration);
+        RegisterScimProvisioning(services, configuration);
 
         return services;
     }
