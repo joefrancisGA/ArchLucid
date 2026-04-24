@@ -1,6 +1,6 @@
-> **Scope:** Tenant-scoped tables inventory - full detail, tables, and links in the sections below.
+> **Scope:** Tenant-scoped tables inventory — full detail, tables, and links in the sections below. **Backward-compat path:** some CI and deep links still resolve `docs/TENANT_SCOPED_TABLES_INVENTORY.md`. When the **Component breakdown** table changes, update [docs/library/TENANT_SCOPED_TABLES_INVENTORY.md](library/TENANT_SCOPED_TABLES_INVENTORY.md) first, then mirror the table (and overview) here.
 
-> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # Tenant-scoped tables inventory
@@ -73,14 +73,14 @@ Writes on authority tables should set the **same** tenant/workspace/project tupl
 
 ## Security model
 
-- **RLS** predicates filter on the denormalized scope where present; see [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md).
+- **RLS** predicates filter on the denormalized scope where present; see [MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md).
 - **Operational probes** (`DataConsistencyOrphanProbeHostedService`, admin remediation) should use this inventory when classifying “missing scope” vs “expected run-only” tables.
 
 ## Operational considerations
 
 - When adding a new table that stores customer data, decide explicitly: **denormalized triple** vs **strict `RunId` FK only**; document the choice here.
 - `ArchLucid.Architecture.Tests` `TenantScopedTableDdlTests` guards a subset of critical tables; expand `TheoryData` when new authority tables ship.
-- CI **`scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py`** asserts every **`dbo.*`** row in the table above has a matching **`CREATE TABLE`** in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**. A backward-compat copy lives at **`docs/TENANT_SCOPED_TABLES_INVENTORY.md`** — when this table changes, mirror the **Component breakdown** (and overview diagram if it changes) there.
+- CI **`scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py`** asserts every **`dbo.*`** row in the table above has a matching **`CREATE TABLE`** in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
 
 ## Reliability / cost / scalability
 
