@@ -95,4 +95,16 @@ public sealed class ProblemSupportHintsTests
         string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
         hint.ToLowerInvariant().Should().Contain("drift");
     }
+
+    [Fact]
+    public void AttachForProblemType_WhenPackagingTierInsufficient_adds_checkout_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.PackagingTierInsufficient };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("billing/checkout");
+    }
 }
