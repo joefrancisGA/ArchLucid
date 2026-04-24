@@ -1,7 +1,7 @@
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Maps explainability trace completeness ratios to operator-facing labels.
+///     Maps explainability trace completeness ratios to operator-facing labels.
 /// </summary>
 public static class TraceConfidenceLabels
 {

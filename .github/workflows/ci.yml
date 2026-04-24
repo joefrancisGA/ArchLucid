@@ -124,6 +124,18 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
 
+      - name: Integration recipe CloudEvent types vs catalog
+        run: python scripts/ci/check_integration_recipes_link_alignment.py
+
+      - name: Integration recipe alignment guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_integration_recipes_link_alignment.py"
+
+      - name: READ_THIS_FIRST.md — relative targets exist
+        run: python scripts/ci/check_read_this_first_links.py
+
+      - name: Check trust center doc links
+        run: python scripts/ci/check_trust_center_links.py
+
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
 
@@ -209,6 +221,9 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: Worked-example ROI PDF freshness (warn-only; set WORKED_EXAMPLE_ROI_FRESHNESS_FAIL=1 to enforce)
+        run: python scripts/ci/check_worked_example_roi_freshness.py
+
       - name: README opener link density (max 12 links above first <details>)
         run: python scripts/ci/check_readme_density.py
 
@@ -226,6 +241,9 @@ jobs:
         # and ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs diverge on any of the
         # five differentiation-row fields (claim, evidence, baseline, citation, narrative).
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
+
+      - name: "/why front-door hard table — markdown vs why-comparison.ts row order"
+        run: python scripts/ci/check_why_table_alignment.py
 
       - name: "/why differentiation rows — non-empty evidence fields"
         run: python scripts/ci/assert_why_rows_have_evidence.py

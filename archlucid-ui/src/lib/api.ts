@@ -22,6 +22,7 @@ import type {
   RunExplanation,
   RunExplanationSummary,
 } from "@/types/explanation";
+import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type {
   ArtifactDescriptor,
   DecisionProvenanceGraph,
@@ -579,6 +580,11 @@ export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
   if (!response.ok) throw buildApiRequestErrorFromParts(response, text);
 
   return JSON.parse(text) as DemoExplainResponse;
+}
+
+/** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
+export async function getFindingInspect(findingId: string): Promise<FindingInspectPayload> {
+  return apiGet<FindingInspectPayload>(`/v1/findings/${encodeURIComponent(findingId)}/inspect`);
 }
 
 /** Persisted explainability trace + narrative for a single finding (no LLM). */

@@ -1,9 +1,9 @@
-> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60% as originally scored on 2026-04-21**, **re-scored 2026-04-23 to 70.53%** after the owner deferred the *first named, public reference customer* milestone to V1.1 (see **§0.2** below). Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
+> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60% as originally scored on 2026-04-21**, **re-scored 2026-04-23 to 70.53%** after the owner deferred the *first named, public reference customer* milestone to V1.1 (see **§0.2**), then **re-scored again 2026-04-23 to 71.71%** after the owner deferred the *commerce un-hold (Stripe live + Marketplace go-live)* milestone to V1.1 (see **§0.3**). Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
 
 > **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
-# ArchLucid Quality Assessment — 2026-04-21 (re-scored 2026-04-23 → 70.53%)
+# ArchLucid Quality Assessment — 2026-04-21 (re-scored 2026-04-23 → 71.71%)
 
 **Audience:** Product leadership, sponsoring exec, engineering leads, GTM owners.
 
@@ -19,14 +19,14 @@
 
 ## 0. Headline
 
-| Bucket | Weight share | Sub-total contribution (original 2026-04-21) | Effective bucket score (original) | Sub-total contribution (re-scored 2026-04-23) | Effective bucket score (re-scored) |
-|--------|--------------|----------------------------------------------|-----------------------------------|-----------------------------------------------|------------------------------------|
-| **Commercial** | 40 / 102 | **2,633 / 4,000** | 65.83% | **2,807 / 4,000** | **70.18%** |
-| **Enterprise** | 25 / 102 | **1,706 / 2,500** | 68.24% | **1,729 / 2,500** | **69.16%** |
-| **Engineering** | 37 / 102 | **2,658 / 3,700** | 71.84% | **2,658 / 3,700** | 71.84% (unchanged) |
-| **Total** | 102 / 102 | **6,997 / 10,200** | **68.60%** | **7,194 / 10,200** | **70.53%** |
+| Bucket | Weight share | Original (2026-04-21) | Re-score #1 (2026-04-23 — reference customer) | Re-score #2 (2026-04-23 — commerce un-hold) |
+|--------|--------------|------------------------|------------------------------------------------|----------------------------------------------|
+| **Commercial** | 40 / 102 | 2,633 / 4,000 = 65.83% | 2,807 / 4,000 = **70.18%** | **2,927 / 4,000 = 73.18%** |
+| **Enterprise** | 25 / 102 | 1,706 / 2,500 = 68.24% | 1,729 / 2,500 = **69.16%** | 1,729 / 2,500 = 69.16% (unchanged) |
+| **Engineering** | 37 / 102 | 2,658 / 3,700 = 71.84% | 2,658 / 3,700 = 71.84% (unchanged) | 2,658 / 3,700 = 71.84% (unchanged) |
+| **Total** | 102 / 102 | 6,997 / 10,200 = **68.60%** | 7,194 / 10,200 = **70.53%** | **7,314 / 10,200 = 71.71%** |
 
-**Plain-English read (re-scored 2026-04-23).** Engineering is the strongest column and continues to outpace the other two. Enterprise/governance posture is solid for V1 and now reads slightly stronger because the *first named, public reference customer* — a multi-quality external-trust gap that previously depressed five qualities at once — is **owner-deferred to V1.1** and no longer charged against V1 readiness (see §0.2 *Reference-customer-deferral re-score addendum* immediately below). The remaining external-trust gaps that genuinely belong to V1 are narrower: **no executed pen test summary, no PGP key**. Commercial readiness is still the largest headwind, but the live-V1 commercial gaps are now bounded to **Marketplace listing not published** and **Stripe live keys not flipped** — both owner-controlled events that do not require additional engineering. The score moves materially the day either of those ship.
+**Plain-English read (re-scored twice on 2026-04-23).** Engineering is the strongest column and continues to outpace the other two. Enterprise/governance posture is solid for V1 and reads stronger after re-score #1 because the *first named, public reference customer* — a multi-quality external-trust gap that previously depressed five qualities at once — is **owner-deferred to V1.1** (see §0.2). Commercial readiness then reads materially stronger after re-score #2 because the *commerce un-hold* (Stripe live keys flipped + Marketplace listing published) — which previously depressed three more qualities — is **also owner-deferred to V1.1** (see §0.3); under V1's contract, the commercial motion is **sales-led** (`/pricing` displays numbers, `ORDER_FORM_TEMPLATE.md` drives quote-to-cash, the trial funnel runs in **Stripe TEST mode on staging** as a sales-engineer-led product evaluation). The remaining live-V1 external-trust gap is now narrowly bounded to **no executed pen test summary** and **no PGP key on `security@archlucid.dev`** — both addressed by Improvement 6. The score moves materially the day Improvement 6 lands.
 
 ---
 
@@ -97,6 +97,50 @@ This rewires **five** numeric items in §1. The other 25 quality scores stand. T
 
 ---
 
+## 0.3 Commerce-un-hold-deferral re-score addendum (added 2026-04-23, after §0.2)
+
+> **Owner deferral.** On 2026-04-23 — same day as the §0.2 reference-customer deferral, fourth scope decision of the day — the owner explicitly deferred the *commerce un-hold* milestone — Stripe **live** API keys flipped on, the Azure Marketplace SaaS offer transitioned to `Published` in Partner Center, and DNS cutover for `signup.archlucid.com` to the production Front Door custom domain — to **V1.1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b (commerce-un-hold row), [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §3 (new "Out of scope for V1" row), and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Commerce un-hold scope)**.
+>
+> Per the assessment's own rule, the qualities that were depressed by the absence of live commerce must be **re-scored on V1's real contract** — sales-led adoption with `/pricing` displaying numbers, `ORDER_FORM_TEMPLATE.md` driving quote-to-cash, and the trial funnel running in **Stripe TEST mode on staging** as a sales-engineer-led product evaluation.
+
+This rewires **three** numeric items in §1, on top of the five rewired in §0.2. The other 22 quality scores stand. The trial funnel TEST-mode end-to-end work (Improvement 2) **stays a live V1 obligation** — only the "flip TEST → live" final gate is V1.1-deferred.
+
+| §1 item | Score after §0.2 | Re-scored after §0.3 (2026-04-23) | Delta × Weight = Numerator delta | Why the deferral changes the read |
+|---------|-------------------|-------------------------------------|------------------------------------|-------------------------------------|
+| **§1.2 Adoption Friction** (weight 6) | 60 / 100 | **70 / 100** | +10 × 6 = **+60** | Under V1's sales-led contract, "real paid-adoption friction is high because Stripe is in TEST mode and the Marketplace listing isn't live" stops being a V1 deficit — it becomes a V1.1 commitment. Contributor / internal-engineer friction is low; sales-engineer-led product evaluation through the trial funnel TEST-mode (Improvement 2 — **still V1**) is the V1 path. The buyer evaluator path is no longer rate-limited by a missing live-checkout — it's rate-limited only by Improvement 2 landing on staging. |
+| **§1.12 Decision Velocity** (weight 2) | 55 / 100 | **70 / 100** | +15 × 2 = **+30** | The original 55 was rate-limited by "every prospect still needs a human conversation to get a contract." That **is** the V1 design under sales-led adoption — `/pricing` displays numbers, `ORDER_FORM_TEMPLATE.md` is ready, the order-form workflow is documented. The "no self-serve checkout" weakness was double-charging V1 for what is explicitly a V1.1 commitment. |
+| **§1.15 Commercial Packaging Readiness** (weight 2) | 60 / 100 | **75 / 100** | +15 × 2 = **+30** | The V1 packaging surface is materially complete: three named tiers, single source of truth on prices (`PRICING_PHILOSOPHY.md`), `ORDER_FORM_TEMPLATE.md`, DPA, SLA summary, subprocessors, Stripe abstraction (ADR 0016), Marketplace alignment doc, packaging layer enforcement plan, `[RequiresCommercialTenantTier]` filter returning **402 Payment Required** with `ProblemTypes.PackagingTierInsufficient`, and the `BillingProductionSafetyRules` startup gate that makes the V1.1 un-hold safe. "Listing not live, Stripe not in prod" is no longer the V1 contract; it is the V1.1 commitment. |
+
+**Numerator change.** +60 + 30 + 30 = **+120 points** on the weighted numerator (out of 10,200), on top of §0.2's +197.
+
+**New weighted total.** 7,194 + 120 = **7,314 / 10,200 = 71.71%**.
+
+**Bucket arithmetic.**
+
+- **Commercial** (weight 40): adds Adoption Friction +60, Decision Velocity +30, Commercial Packaging +30 = +120. New numerator 2,807 + 120 = **2,927 / 4,000 = 73.18%**.
+- **Enterprise** (weight 25): unchanged from §0.2. **1,729 / 2,500 = 69.16%**.
+- **Engineering** (weight 37): unchanged. **2,658 / 3,700 = 71.84%**.
+- **Verify total:** 2,927 + 1,729 + 2,658 = 7,314 ✓
+
+**Knock-on edits in this same addendum.**
+
+- **§2.1 Top weaknesses** — the "Marketplace listing not live" entry is **removed from the V1 weakness list** (it is a V1.1 commitment); the "Trial signup funnel not live in production" entry is **rescoped to "not live on staging in TEST mode"** (the V1 obligation, narrower than the original). One runner-up promotes to maintain a list of 10. See updated §2.1.
+- **§2.2 Top monetization blockers** — three entries are removed ("Marketplace listing not published", "Stripe live keys not flipped", "No public price page transition from displayed to transactable" — all are the same V1.1-deferred milestone). Three runner-ups promote to maintain a list of 5. See updated §2.2.
+- **§2.5 Most Important Truth** — the "two owner-controlled events that move the score" is updated to **one** (executed pen test + redacted-summary publication). The commerce un-hold event is moved into the V1.1 sentence alongside the reference customer.
+- **§3 Improvement 2** stays actionable but its owner-gate note is updated: "Switching from Stripe TEST to live keys" is now explicitly **V1.1-deferred**, not just owner-only.
+- **§3 Improvement 4** is converted to **DEFERRED — V1.1**. No Cursor prompt is generated for it. A new **Improvement 10 — Governance dry-run / what-if mode** is added to keep the actionable improvement count at 8 (Improvements 1 and 4 are now both DEFERRED; Improvements 9 and 10 are added; net actionable count = 2, 3, 5, 6, 7, 8, 9, 10 = **8** ✓).
+
+**What does *not* change.**
+
+- The 22 quality scores not listed in either §0.2's table or §0.3's table stand at their original values.
+- All Improvements 2, 3, 5, 6, 7, 8 stay (their internal mechanics are unaffected by this deferral).
+- Engineering bucket and the Engineering scores all stand.
+- The trial funnel TEST-mode end-to-end work (Improvement 2) **stays a live V1 obligation** — runbook, CLI smoke (`archlucid trial smoke`), Playwright spec, and the on-page first-value loop all stay V1.
+- The `BillingProductionSafetyRules` startup gate **stays shipped in V1**. Its purpose is to make the V1.1 un-hold safe.
+- Archived assessments under `docs/archive/quality/` are correct *for their dates* and are **not** retroactively re-scored.
+
+---
+
 ## 1. Quality scores — ordered by improvement impact
 
 > Throughout, "the repo" means the source tree at `c:\ArchiForge\ArchiForge` on 2026-04-21.
@@ -117,7 +161,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.2 Adoption Friction — Score **60 / 100** · Weight **6** · Impact **240**
+### 1.2 Adoption Friction — Score **60 / 100** (re-scored 2026-04-23 → **70 / 100**) · Weight **6** · Impact **240** → **180**
+
+> **Re-score note (2026-04-23 §0.3).** Under V1's sales-led contract — confirmed by the commerce-un-hold deferral — "production funnel needs DNS cutover, Front Door custom domain, Stripe live keys, and Marketplace certification" stops being a V1 deficit and becomes a V1.1 commitment. The buyer evaluator path is no longer rate-limited by missing live-checkout — it is rate-limited only by Improvement 2 (trial funnel TEST-mode on staging) landing, **which stays a live V1 obligation**. Re-scored to **70 / 100**.
 
 **Justification (contributor friction only — see §0.1 SaaS-framing addendum).** Contributor / internal-engineer friction is **low**: [`docs/engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md) is Docker-only, `archlucid try` is a one-command first-value loop, the `.devcontainer/` boots in the same posture. Note: this score is **for contributors**, not for SaaS buyers — under the SaaS framing in §0.1 the buyer-facing equivalent is the trial funnel, which is **not yet live**, so buyer adoption friction is materially higher (effectively closer to **50/100** until Improvement 2 ships). Real **paid-adoption** friction remains high: the trial signup page exists at `archlucid-ui/src/app/(marketing)/signup/page.tsx` and `POST /v1/register` is wired, but the production funnel still needs DNS cutover, Front Door custom domain, Stripe live keys, and Marketplace certification — none of which are live (per the **Still open** list in [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md), items 8, 9, and 22). Self-hosting is **out of scope** by owner decision (Resolved 2026-04-21 in `PENDING_QUESTIONS.md`), which is correct for a SaaS product but means a customer who insists on BYO-cluster is turned away by design.
 
@@ -219,7 +265,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.12 Decision Velocity — Score **55 / 100** · Weight **2** · Impact **90**
+### 1.12 Decision Velocity — Score **55 / 100** (re-scored 2026-04-23 → **70 / 100**) · Weight **2** · Impact **90** → **60**
+
+> **Re-score note (2026-04-23 §0.3).** "Every prospect still needs a human conversation to get a contract" **is** the V1 design under sales-led adoption — confirmed by the commerce-un-hold deferral. `/pricing` displays numbers, `ORDER_FORM_TEMPLATE.md` is ready, the order-form workflow is documented; the "no self-serve checkout" weakness was double-charging V1 for what is explicitly a V1.1 commitment. Re-scored to **70 / 100**.
 
 **Justification.** Public `/pricing` page now renders (`archlucid-ui/src/app/(marketing)/pricing/page.tsx`) so a prospect can see the Team / Professional / Enterprise table without a sales call. Marketplace listing is **not** live (item 8). Stripe is wired (`BillingStripeWebhookController`, `BillingMarketplaceWebhookController`, `BillingCheckoutController`) but production go-live policy decisions remain owner-only (item 9). Every prospect therefore still needs a human conversation to get a contract.
 
@@ -243,7 +291,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.15 Commercial Packaging Readiness — Score **60 / 100** · Weight **2** · Impact **80**
+### 1.15 Commercial Packaging Readiness — Score **60 / 100** (re-scored 2026-04-23 → **75 / 100**) · Weight **2** · Impact **80** → **50**
+
+> **Re-score note (2026-04-23 §0.3).** "Listing not live, Stripe not in prod" is no longer the V1 contract; it is the V1.1 commitment. The V1 packaging surface is materially complete: three named tiers, single source of truth on prices, `ORDER_FORM_TEMPLATE.md`, DPA, SLA summary, subprocessors, Stripe abstraction, Marketplace alignment doc, packaging layer enforcement plan, `[RequiresCommercialTenantTier]` 402 filter, `BillingProductionSafetyRules` startup gate. Re-scored to **75 / 100**.
 
 **Justification.** Three named tiers, single source of truth on prices (`PRICING_PHILOSOPHY.md`), `ORDER_FORM_TEMPLATE.md`, DPA, SLA summary, subprocessors, Stripe abstraction (ADR 0016), Marketplace alignment doc, packaging layer enforcement plan, `[RequiresCommercialTenantTier]` filter returning **402 Payment Required** with `ProblemTypes.PackagingTierInsufficient`. **Listing not live, Stripe not in prod.**
 
@@ -311,9 +361,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 1.23 Cognitive Load — Score **58 / 100** · Weight **1** · Impact **42**
 
-**Justification.** 200+ docs files, 50+ projects, dual coordinator/authority interface families, three-layer UI model, two persistence families. The repository **does** mitigate this with `FIRST_5_DOCS.md`, `ARCHITECTURE_ON_ONE_PAGE.md`, `OPERATOR_ATLAS.md`, `DUAL_PIPELINE_NAVIGATOR.md`, scope headers on every doc (CI-enforced), `CONCEPTS.md` vocabulary guard, `bounded-context-map.md`, but a new contributor still has to read several maps before being productive. The `IMPROVEMENTS_COMPLETE.md` file at the repo root is also a stale orphan from an earlier change set — its "Run `dotnet restore`" instructions and `ArchLucid.DecisionEngine.csproj` references no longer match the current solution layout (verified — there is no `ArchLucid.DecisionEngine` project).
+**Justification.** 200+ docs files, 50+ projects, dual coordinator/authority interface families, three-layer UI model, two persistence families. The repository **does** mitigate this with `FIRST_5_DOCS.md`, `ARCHITECTURE_ON_ONE_PAGE.md`, `OPERATOR_ATLAS.md`, `DUAL_PIPELINE_NAVIGATOR.md`, scope headers on every doc (CI-enforced), `CONCEPTS.md` vocabulary guard, `bounded-context-map.md`, but a new contributor still has to read several maps before being productive. ~~The `IMPROVEMENTS_COMPLETE.md` file at the repo root is also a stale orphan from an earlier change set — its "Run `dotnet restore`" instructions and `ArchLucid.DecisionEngine.csproj` references no longer match the current solution layout (verified — there is no `ArchLucid.DecisionEngine` project).~~ **Resolved 2026-04-23:** the stale `IMPROVEMENTS_COMPLETE.md` is no longer at the repo root — verified absent via `Test-Path` 2026-04-23 owner Q&A pass; question 34 closed because the file was already removed in a prior cleanup.
 
-**Recommendation.** (1) Remove or archive the stale `IMPROVEMENTS_COMPLETE.md` at repo root — it now contradicts the project layout. (2) Add an "I have 30 minutes — what do I read?" path to `FIRST_5_DOCS.md` that picks **three** docs maximum and links to one navigator each.
+**Recommendation.** (1) ~~Remove or archive the stale `IMPROVEMENTS_COMPLETE.md` at repo root~~ — **already removed 2026-04-23 (verified absent)**. (2) Add an "I have 30 minutes — what do I read?" path to `FIRST_5_DOCS.md` that picks **three** docs maximum and links to one navigator each.
 
 ---
 
@@ -393,37 +443,41 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 2.1 Top 10 most important weaknesses (ranked by impact × weight)
 
-> **Re-ranked 2026-04-23.** The previously #1 weakness ("No published reference customer") was **deferred to V1.1** by the owner on 2026-04-23 (see §0.2) and is no longer charged against V1 readiness. The list below is the **V1-only** weakness ranking. The Microsoft Teams connector previously listed at #10 has also shipped in V1 (six production triggers, Logic Apps fan-out — see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)) and is removed. Two runner-up entries promote to maintain a list of 10.
+> **Re-ranked twice on 2026-04-23.** Two reference-customer-related entries were removed in re-rank #1 (§0.2). Re-rank #2 (§0.3) removes the "Marketplace listing not live" entry (now a V1.1 commitment) and rescopes the trial-funnel entry to its V1 obligation only (TEST-mode on staging). The list below is the **V1-only** weakness ranking after both deferrals. One runner-up promotes to maintain a list of 10.
 
-1. **Trial signup funnel not live in production.** Page exists, endpoint exists, Stripe TEST not yet wired through the staging hostname end-to-end.
+1. **Trial signup funnel not live on staging in TEST mode.** *(Rescoped 2026-04-23 §0.3 — the V1 obligation is staging end-to-end in Stripe TEST mode; the production live-keys flip is V1.1-deferred per §0.3.)* Page exists, endpoint exists, Stripe TEST not yet wired through the staging hostname end-to-end. Addressed by **Improvement 2**.
 2. **No third-party pen test summary published.** SoW awarded; redacted-summary skeleton waits on assessor delivery.
 3. **No PGP key for `security@archlucid.dev`.** Trust Center references PGP; key file (`archlucid-ui/public/.well-known/pgp-key.txt`) is missing.
-4. **Marketplace listing not live.** Wiring is complete; publication is owner-only.
-5. **Golden cohort SHAs are placeholders** — nightly workflow asserts contract only, not actual manifest drift. Real signal is one approved baseline-lock run away.
-6. **Coordinator strangler not finished.** ADR 0021 Phase 3 deferred per ADR 0022 exit gates; dual interface families remain a teaching tax on every new engineer.
-7. **No board-pack PDF / monthly executive digest preset.** Weekly digest exists; quarterly board-grade roll-up does not. (Now addressed by **Improvement 9** in §3, added 2026-04-23.)
-8. **Stale `IMPROVEMENTS_COMPLETE.md` at repo root.** References a non-existent `ArchLucid.DecisionEngine` project — small but visible inconsistency.
-9. **No regression CI for strangler progress.** Coordinator interface family count can silently grow back without a guard. *(Promoted from previous engineering-risks list.)*
-10. **No traceability bundle endpoint.** `GET /v1/runs/{runId}/traceability-bundle` (audit + decision trace + manifest + comparison delta in one ZIP) not yet wired — useful for both forensics and customer audit hand-off. *(Promoted from §1.17 recommendation.)*
+4. **Golden cohort SHAs are placeholders** — nightly workflow asserts contract only, not actual manifest drift. Real signal is one approved baseline-lock run away.
+5. **Coordinator strangler not finished.** ADR 0021 Phase 3 deferred per ADR 0022 exit gates; dual interface families remain a teaching tax on every new engineer.
+6. **No board-pack PDF / monthly executive digest preset.** Weekly digest exists; quarterly board-grade roll-up does not. Addressed by **Improvement 9** (added 2026-04-23 §0.2).
+7. ~~**Stale `IMPROVEMENTS_COMPLETE.md` at repo root.** References a non-existent `ArchLucid.DecisionEngine` project — small but visible inconsistency.~~ **Resolved 2026-04-23 — file already absent at repo root** (verified). Removed from the top-10 list as a finding; replaces with the next runner-up if a fresh assessment is run.
+8. **No regression CI for strangler progress.** Coordinator interface family count can silently grow back without a guard. *(Promoted from previous engineering-risks list.)*
+9. **No traceability bundle endpoint.** `GET /v1/runs/{runId}/traceability-bundle` (audit + decision trace + manifest + comparison delta in one ZIP) not yet wired — useful for both forensics and customer audit hand-off. *(Promoted from §1.17 recommendation.)*
+10. **No governance dry-run / what-if mode for policy threshold changes.** Operators tightening a severity threshold today must commit, observe, and roll back if the impact is wrong. *(Promoted from §1.22 recommendation. Now addressed by **Improvement 10**, added 2026-04-23 §0.3.)*
 
 **Removed 2026-04-23 (now V1.1 commitments or V1-shipped, not V1 weaknesses):**
 
 - ~~No published reference customer~~ — deferred to V1.1 (§0.2); CI guard correctly stays in warn-mode for V1.
 - ~~No Microsoft Teams connector~~ — shipped in V1 (six production triggers, Logic Apps Standard fan-out).
+- ~~Marketplace listing not live~~ — deferred to V1.1 (§0.3); wiring stays in V1 and the `BillingProductionSafetyRules` startup gate makes the V1.1 un-hold safe.
 
 ### 2.2 Top 5 monetization blockers
 
-> **Re-ranked 2026-04-23.** The previously #1 blocker ("No `Published` reference customer row") was **deferred to V1.1** by the owner on 2026-04-23 (§0.2) and is no longer charged against V1 monetization. The list below is the **V1-only** blocker ranking. One runner-up promotes to maintain a list of 5.
+> **Re-ranked twice on 2026-04-23.** Re-rank #1 (§0.2) removed the reference-customer entry. Re-rank #2 (§0.3) removes three commerce-un-hold entries (Marketplace listing not published, Stripe live keys not flipped, no transactable price page) — **all are the same V1.1-deferred milestone under §0.3**. The list below is the **V1-only** blocker ranking under sales-led adoption. Three runner-ups promote to maintain a list of 5.
 
-1. **Marketplace listing not published** — buyers on MACC contracts cannot transact; the assistant cannot resolve this (Partner Center seller verification is owner-only).
-2. **Stripe live keys not flipped** — self-serve payment loop stops at Stripe TEST mode in staging.
-3. **No SOC 2 attestation or executed pen test** — every regulated buyer requires at least one of these to start procurement. (SOC 2 is owner-resolved to the ~$1M ARR band per item 6; pen test is the V1 obligation.)
-4. **No public price page transition from "displayed" to "transactable"** — `/pricing` shows numbers but the buyer cannot click through to a live checkout that mints a tenant.
-5. **No quarterly board-pack PDF for sponsor-driven expansion conversations** — weekly digest exists, but the artefact a sponsor takes into a budget review does not. *(Promoted; now addressed by Improvement 9 in §3.)*
+1. **No third-party pen test summary published** — every regulated buyer requires this (or a SOC 2 attestation, which is owner-resolved to the ~$1M ARR band per item 6, so pen test is the V1 path). Addressed by **Improvement 6**.
+2. **Trial signup funnel not live on staging in TEST mode** — without a sales-engineer-led product evaluation path, sales calls turn into demo requests instead of guided trials. Addressed by **Improvement 2** (the V1 obligation; the live-keys flip is V1.1-deferred per §0.3).
+3. **No quarterly board-pack PDF for sponsor-driven expansion conversations** — sponsors at existing customers cannot take a single artefact into a budget review; expansion velocity suffers. Addressed by **Improvement 9** (added 2026-04-23 §0.2).
+4. **No PGP key for `security@archlucid.dev`** — security teams notice this on first procurement contact; corrodes initial trust signal. *(Promoted; addressed by Improvement 6.)*
+5. **No aggregate ROI bulletin published** — V1 ships the template (`AGGREGATE_ROI_BULLETIN_TEMPLATE.md`) and the privacy guards (min N=5 per item 27 resolution), but the first publication waits on the V1.1 reference customer; the absence of any external ROI signal weakens prospect-facing collateral. *(Promoted from §1.4 recommendation; the publication itself is gated on the V1.1 reference customer per item 27.)*
 
-**Removed 2026-04-23 (now a V1.1 commitment, not a V1 monetization blocker):**
+**Removed 2026-04-23 (now V1.1 commitments, not V1 monetization blockers):**
 
-- ~~No `Published` reference customer row~~ — deferred to V1.1 (§0.2); the `−15%` reference discount stays notional for V1 by design and re-rate is a V1.1 candidate.
+- ~~No `Published` reference customer row~~ — deferred to V1.1 (§0.2); the `−15%` reference discount stays notional for V1 by design.
+- ~~Marketplace listing not published~~ — deferred to V1.1 (§0.3); wiring stays V1, publication is V1.1.
+- ~~Stripe live keys not flipped~~ — deferred to V1.1 (§0.3); TEST-mode staging stays V1.
+- ~~No public price page transition from "displayed" to "transactable"~~ — same milestone as the live-keys flip; deferred to V1.1 (§0.3). V1's commercial motion is sales-led.
 
 ### 2.3 Top 5 enterprise adoption blockers
 
@@ -443,11 +497,11 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 2.5 Most Important Truth
 
-> **Updated 2026-04-23 after the reference-customer deferral (§0.2).** The original 2026-04-21 truth named **three** owner-controlled events; one of them (the published reference customer) was explicitly deferred to V1.1 and is no longer a V1 readiness lever. Updated truth below.
+> **Updated twice on 2026-04-23.** The original 2026-04-21 truth named **three** owner-controlled events. §0.2's update collapsed it to **two**. §0.3's update collapses it to **one**. Updated truth below.
 
-**ArchLucid has built almost every piece of evidence a V1 buyer needs to commit, but two external signals remain unpublished and continue to rate-limit the V1 score.** The product, the trust posture, the engineering quality, and the documentation are all materially ahead of where the live-V1 third-party assurance and the live-V1 transactability rails are. Two owner-controlled events — **(1)** the awarded pen test executes and a redacted summary publishes (item 20 / Improvement 6), **(2)** the Marketplace listing goes live and Stripe live keys flip (items 8 / 9 / 22 / Improvement 4) — would each independently move the weighted V1 score by **5–8 points**. Neither requires additional engineering. They require the owner's calendar, signature, or single payment authorization. **The V1 score is no longer rate-limited by what we build; it is rate-limited by what we publish, attest, and transact.**
+**ArchLucid has built almost every piece of evidence a V1 buyer needs to commit, and after the 2026-04-23 scope decisions only one external V1 signal remains unpublished.** The product, the trust posture, the engineering quality, the documentation, and the V1 commercial motion (sales-led with `/pricing` displaying numbers and `ORDER_FORM_TEMPLATE.md` driving quote-to-cash) are all materially complete on V1's contract. **One** owner-controlled event — the awarded pen test executes and the redacted summary publishes (item 20 / Improvement 6) — independently moves the weighted V1 score by **3–5 points** and is the only **owner-action-required** V1 lever remaining. Beyond that, the V1 score is rate-limited by **engineering work the assistant can land today**: Improvement 2 (trial funnel TEST-mode staging), Improvement 3 (ROI bulletin template + soft-required baseline), Improvement 5 (downloadable competitive PDF on `/why`), Improvement 6 (pen test scaffold + PGP recipe), Improvement 7 (Microsoft Teams connector), Improvement 8 (golden-cohort baseline lock), Improvement 9 (board-pack PDF endpoint), and Improvement 10 (governance dry-run). **The V1 score is no longer rate-limited by what we publish, attest, or transact externally — it is rate-limited by one owner action and a small set of in-band engineering improvements.**
 
-**Separately, on the V1.1 horizon:** the first named, public reference customer (deferred 2026-04-23) becomes the headline V1.1 milestone — it triggers the `−15%` reference-discount re-rate in `PRICING_PHILOSOPHY.md` § 5.3, flips the reference-customer CI guard from warn-mode to merge-blocking, and is the gate the aggregate ROI bulletin (item 27) waits on. That is **a V1.1 conversation**, not a V1 readiness conversation, and §0.2's re-score reflects that boundary.
+**Separately, on the V1.1 horizon:** two milestones now define V1.1 readiness — **(1)** the first named, public reference customer (deferred 2026-04-23 §0.2) and **(2)** the commerce un-hold (Stripe live keys flipped + Marketplace listing published; deferred 2026-04-23 §0.3). The first triggers the `−15%` reference-discount re-rate in `PRICING_PHILOSOPHY.md` § 5.3, flips the reference-customer CI guard from warn-mode to merge-blocking, and gates the aggregate ROI bulletin (item 27). The second flips the V1 commercial motion from sales-led to self-serve transactable. **Both are V1.1 conversations, not V1 readiness conversations.**
 
 ---
 
@@ -482,9 +536,9 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 **What I can do today.** Trace the existing happy path end-to-end and document it as a runbook (`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`); add a Playwright spec running the funnel against the deterministic mocks; ship an `archlucid trial smoke` CLI command that runs the funnel in dev and prints PASS/FAIL per step; surface the `baselineReviewCycleHours` capture on the operator dashboard once one run has committed.
 
-**What is owner-only.** Switching from Stripe TEST to live keys; turning off the trial signup feature flag in production; DNS cutover for `signup.archlucid.com` (or staging variant).
+**What is owner-only — *and now V1.1-deferred per §0.3*.** Switching from Stripe TEST to live keys; turning off the trial signup feature flag in production; DNS cutover for `signup.archlucid.com`. **All three are explicitly V1.1-deferred** by the **Resolved 2026-04-23 (Commerce un-hold scope)** decision — they are no longer V1 owner-action items. The trial funnel TEST-mode end-to-end work in this improvement **stays a live V1 obligation** and is what the prompt below ships; only the final "flip TEST → live" gate is V1.1.
 
-**Pending question.** Items 9, 22 in `PENDING_QUESTIONS.md`.
+**Pending question.** Items 9, 22 in `PENDING_QUESTIONS.md` — both **still open** but now release-window-pinned to V1.1, not V1.
 
 ---
 
@@ -500,15 +554,30 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 ---
 
-### Improvement 4 — Marketplace + Stripe live readiness (production-safety guards) — partial; owner-only for "Go live"
+### Improvement 4 — DEFERRED — V1.1 — Marketplace + Stripe live readiness (commerce un-hold)
 
-**Quality moved.** Decision Velocity (+10), Commercial Packaging Readiness (+10), Adoption Friction (+5).
+> **Status (Resolved 2026-04-23 §0.3).** **Deferred to V1.1** by owner decision — see [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b (commerce-un-hold row), [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §3, and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Commerce un-hold scope)**. **No Cursor prompt is generated for this item** (per the operating rule for DEFERRED improvements). The qualities this improvement would have moved are no longer charged against V1 readiness — they have been re-scored upward in §0.3 to reflect V1's sales-led contract. The actionable improvement count is preserved at 8 by the addition of **Improvement 10** below.
 
-**What I can do today.** Add `BillingProductionSafetyRules` that fails `ASPNETCORE_ENVIRONMENT=Production` startup when (a) Stripe live key prefix `sk_live_` is configured without a webhook secret, or (b) Marketplace landing page URL is empty/localhost; add `archlucid marketplace preflight` CLI that prints PASS/FAIL per Partner Center checklist; add `scripts/ci/assert_marketplace_pricing_alignment.py` ensuring `PRICING_PHILOSOPHY` tier numbers match `MARKETPLACE_PUBLICATION.md` SKU numbers; document the Stripe TEST staging path end-to-end in `docs/go-to-market/STRIPE_CHECKOUT.md`.
+**What's already shipped in V1 (and stays in V1 — do not remove).**
 
-**What is owner-only.** Setting any live Stripe key, Marketplace publisher ID, or production webhook secret; pressing "Go live" in Partner Center; tax profile, payout account, seller verification.
+- `BillingProductionSafetyRules` startup gate — fails `ASPNETCORE_ENVIRONMENT=Production` when (a) Stripe live key prefix `sk_live_` is configured without a webhook secret, or (b) Marketplace landing page URL is empty/localhost. **Its purpose is to make the V1.1 un-hold safe; it is V1 hardening, not V1 commerce.**
+- `archlucid marketplace preflight` CLI — prints PASS/FAIL per Partner Center checklist (read-only; the V1 deliverable was the *checklist*, not the *publication*).
+- `scripts/ci/assert_marketplace_pricing_alignment.py` — ensures `PRICING_PHILOSOPHY` tier numbers match `MARKETPLACE_PUBLICATION.md` SKU numbers (CI alignment, V1).
+- Stripe TEST staging path documented end-to-end in `docs/go-to-market/STRIPE_CHECKOUT.md` (V1).
 
-**Pending question.** Items 8, 9, 22.
+**Why no Cursor prompt now.**
+
+- The owner has named V1.1 as the release window for this milestone — there is no further V1 work for the assistant to do here.
+- All three V1.1 actions are owner-only: setting any live Stripe key, setting a Marketplace publisher ID + production webhook secret, pressing "Go live" in Partner Center, tax profile + payout account + seller verification.
+- The trial funnel TEST-mode work is **not** here — it is in **Improvement 2** (which stays actionable for V1).
+
+**What needs the owner — *at V1.1 planning time*, not now.**
+
+- Tax profile, payout account, and seller verification in Partner Center (cannot be filed by the assistant).
+- Setting any `sk_live_` Stripe key + production webhook secret rotation.
+- Pressing "Go live" on the Marketplace SaaS offer.
+- DNS cutover for `signup.archlucid.com` to the production Front Door custom domain.
+- Pinning a calendar date inside the V1.1 window (currently unpinned per the **Resolved 2026-04-23 (Commerce un-hold scope)** decision).
 
 ---
 
@@ -582,20 +651,55 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 ---
 
+### Improvement 10 — Governance dry-run (what-if) mode for policy threshold changes (added 2026-04-23 to replace deferred Improvement 4)
+
+> **Why this improvement was added.** Improvement 4 (Marketplace + Stripe live readiness) was deferred to V1.1 on 2026-04-23 (§0.3), removing one slot from the eight-actionable-improvement list. Improvement 10 fills that slot with a **fully actionable** enterprise-governance feature that does **not** depend on owner-only events. Sourced from §1.22's standing recommendation. Its absence is also weakness #10 in the updated §2.1.
+
+**Quality moved.** Policy and Governance Alignment (+5), Usability (+3), Stickiness (+3).
+
+**What I can do today.**
+
+- Add a new endpoint `POST /v1/governance/dry-run` (gated `ExecuteAuthority`) that accepts a candidate manifest (or a pointer to an existing committed manifest) plus an optional set of *proposed* policy threshold overrides (e.g., "raise findings.severity.criticalThreshold from 70 to 80") and returns the policy-evaluation result **without** writing the audit trail, **without** blocking commit, and **without** mutating any persisted policy. Internally reuses `GovernanceWorkflowService` and the existing policy-pack evaluation pipeline behind a `DryRunPolicyOverrideContext` that the persistence layer rejects (RLS + new `[NotForCommit]` marker on the dry-run audit row source).
+- Add a CLI command `archlucid governance dry-run --manifest <id> --overrides overrides.json --out report.md` that calls the endpoint and renders a one-page Markdown report (sections: current evaluation, proposed evaluation, delta of would-be-blocked findings, delta of would-be-warned findings, sponsor-summary one-liner).
+- Add an operator UI affordance under `/governance/policy-packs/<packId>` — a "Dry-run threshold change" modal with a live preview of the affected committed manifests in the current tenant (limit to most recent 20 by default; show "load more" pagination); shape the page in Operate (governance and trust) tier (`ExecuteAuthority` for write, `ReadAuthority` for view); add to `nav-config.ts` and the existing Vitest seam tests.
+- Add a new audit constant `AuditEventTypes.GovernanceDryRunRequested` (read-only event — captures *that* a dry-run was requested and by whom, never the proposed-override payload itself, to avoid leaking proposed policy intent into the audit log); bump the `audit-core-const-count` snapshot.
+- Add Application unit tests for the `DryRunPolicyOverrideContext` (must reject any attempt to persist), governance workflow + dry-run path coverage, and the threshold-delta calculator.
+- Add an Api integration test (Suite=Core, GreenfieldSqlApiFactory) calling `POST /v1/governance/dry-run` and asserting (a) `ExecuteAuthority` gate, (b) no rows inserted into `dbo.AuditEvents` for *the policy evaluation itself* (only the request marker), (c) no rows inserted into the policy-pack mutation table.
+- Add Schemathesis contract coverage for the new endpoint.
+- Add a Vitest spec for the `/governance/policy-packs/<packId>` modal that mocks the endpoint.
+- Document under a new `docs/library/GOVERNANCE_DRY_RUN.md` (audience: operators with ExecuteAuthority, plus governance/audit reviewers who need to know the dry-run audit shape) plus a one-line pointer in `OPERATOR_ATLAS.md`, `library/PRODUCT_PACKAGING.md`, and the sponsor brief.
+- Add a CHANGELOG entry under 2026-04-23 with the standard format.
+
+**What is owner-only.**
+
+- Decision on whether the dry-run audit marker (`GovernanceDryRunRequested`) should also capture the *count* of proposed-override entries (numeric metadata only — no payload) for forensic purposes. Assistant ships **count yes, payload no** as the safe default.
+- Decision on the "load more" pagination cap on the policy-pack page (assistant ships 20-default, 100-max as the safe default).
+
+**Pending question.** New items 37 and 38 below in §4.
+
+---
+
 ## 4. Pending owner-only questions for later (additive)
 
 The companion file [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) is the canonical list. This assessment **adds** the following items so that when you next ask "what is still open?", the answer is complete:
 
-- **29.** Sponsor approval on the `BeforeAfterDeltaPanel` placement in the operator dashboard (Improvement 3) — top of `/runs` list, sidebar widget, or `/runs/[runId]`?
-- **30.** Marketplace publisher legal entity name on customer statements (Improvement 4) — "ArchLucid, Inc." or DBA variant?
-- **31.** Approval on the **side-by-side downloadable PDF** in Improvement 5 — should the incumbent comparison ship as **PDF** (downloadable), as **inline page section** (visible without download), or **both**?
-- **32.** Preferred Teams connector trigger set in Improvement 7 — exactly the three events listed (`run.committed`, `governance.approval.requested`, `alert.raised`) or also `compliance.drift.escalated` and `seat.reservation.released`?
-- **33.** Golden-cohort baseline-lock approval (Improvement 8) — do you want me to commit baseline SHAs from a single approved simulator run today, or wait for a product reviewer to approve the cohort scenario list before locking?
-- **34.** Ownership of removing the stale `IMPROVEMENTS_COMPLETE.md` at repo root (§1.23) — the file references a non-existent `ArchLucid.DecisionEngine` project; safe to delete, but the file's history may still be useful for someone. Confirm I can delete (vs move to `docs/archive/`).
-- **35.** *(Added 2026-04-23 with Improvement 9.)* **Board-pack PDF cover-page narrative** — should the assistant draft the placeholder narrative from `EXECUTIVE_SPONSOR_BRIEF.md` boilerplate (subject to your approval before any external use), or wait for a marketing-supplied template? Current default: assistant drafts a placeholder marked `<<sponsor cover narrative — owner approval before external use>>`.
-- **36.** *(Added 2026-04-23 with Improvement 9.)* **Monthly exec-digest cadence default** — should new tenants default to **opt-in** monthly cadence (assistant's safe default — no surprise emails) or **opt-out** (every new tenant gets monthly automatically)?
+- ~~**29.** Sponsor approval on the `BeforeAfterDeltaPanel` placement in the operator dashboard (Improvement 3) — top of `/runs` list, sidebar widget, or `/runs/[runId]`?~~ **Resolved 2026-04-23 — all three placements** (single component instance gated by route context). See `PENDING_QUESTIONS.md` § *Resolved 2026-04-23 (assessment §4 items 29, 31–38 + two cross-cutting — 11 decisions)*.
+- **30.** Marketplace publisher legal entity name on customer statements (Improvement 4) — "ArchLucid, Inc." or DBA variant? **Open — deferred to V1.1 commerce un-hold; revisit at V1.1 planning time.** (Improvement 4 itself is `DEFERRED — V1.1`; this question waits with it.)
+- ~~**31.** Approval on the **side-by-side downloadable PDF** in Improvement 5~~ **Resolved 2026-04-23 — both surfaces** (inline page section visible without download AND a "Download PDF" button rendering the same artefact).
+- ~~**32.** Preferred Teams connector trigger set in Improvement 7~~ **Resolved 2026-04-23 — all five triggers** (`run.committed`, `governance.approval.requested`, `alert.raised`, `compliance.drift.escalated`, `seat.reservation.released`).
+- ~~**33.** Golden-cohort baseline-lock approval (Improvement 8)~~ **Resolved 2026-04-23 — lock SHAs today** from a single approved simulator run via `archlucid golden-cohort lock-baseline --write`.
+- ~~**34.** Ownership of removing the stale `IMPROVEMENTS_COMPLETE.md` at repo root (§1.23)~~ **Resolved 2026-04-23 — delete** (git history preserves it).
+- ~~**35.** *(Added 2026-04-23 with Improvement 9.)* **Board-pack PDF cover-page narrative**~~ **Resolved 2026-04-23 — assistant-drafted placeholder** `<<sponsor cover narrative — owner approval before external use>>`; owner approves before any external use.
+- ~~**36.** *(Added 2026-04-23 with Improvement 9.)* **Monthly exec-digest cadence default**~~ **Resolved 2026-04-23 — opt-out for NEW tenants** (existing tenants stay 'Weekly' via the three-step migration shape — see `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md` Prompt 1 (replacement) step 1). **Safe-default override flagged:** the V1 migration MUST use the three-step backfill shape so SQL Server's `ADD … NOT NULL DEFAULT` behaviour does not silently flip every existing tenant to Monthly.
+- ~~**37.** *(Added 2026-04-23 with Improvement 10.)* **Governance dry-run audit metadata**~~ **Resolved 2026-04-23 — capture count AND payload** with the existing `LlmPromptRedaction`-style PII redaction pipeline mandatory before serialisation. **Safe-default override flagged:** payload capture is **conditional on the redaction pipeline being applied**; if redaction is bypassed in a future change to the audit write path, payload capture must be turned off until redaction is restored. Anyone with `ReadAuditAuthority` in the same tenant can see proposed policy override values.
+- ~~**38.** *(Added 2026-04-23 with Improvement 10.)* **Governance dry-run "load more" pagination cap**~~ **Resolved 2026-04-23 — 20-default / 100-max** (matches assistant default).
+- **39.** *(Added 2026-04-23 from cross-cutting q11.)* **"AI Architecture Review Board" rebrand workstream — schedule.** Owner opened the door 2026-04-23 to repositioning "AI Architecture Intelligence" toward "AI Architecture Review Board" (more buyer-recognisable). The rebrand is multi-doc + multi-route (marketing site `/why`, `/pricing`, `/get-started`; sponsor brief; competitive landscape; per-vertical briefs; Trust Center; in-product copy on operator-shell governance pages). **Owner-only:** schedule (V1, V1.1, or post-V1.1?) and rebrand owner. Assistant safe default until scheduled: do not change current product copy.
 
-When you ask later "what pending questions do you have?" the answer is **items 29–36 from this assessment plus items 17–28 from the previous assessment that are still unresolved in `PENDING_QUESTIONS.md`**. **Item 19** (first PLG row owner) is **closed** as of 2026-04-23 because the underlying milestone is now V1.1 and the ownership question was already resolved to "Owner solo" — see **Resolved 2026-04-23 (Reference-customer publication scope)** in `PENDING_QUESTIONS.md`.
+**Cross-cutting items (resolved 2026-04-23 in the same Q&A — not numbered above):**
+- Trust Center "Recent assurance activity" update timing when Aeronova pen test redacted summary lands → **update immediately on assessor delivery** (no comms draft gate).
+- "AI Architecture Intelligence" category-name fixed vs repositionable → **open to repositioning** toward "AI Architecture Review Board" (surfaces as new pending question 39 above).
+
+When you ask later "what pending questions do you have?" the answer is **items 30 (V1.1-deferred) and 39 (rebrand workstream schedule) from this assessment plus items 17–28 from the previous assessment that are still unresolved in `PENDING_QUESTIONS.md`**. **Items 29, 31–38** are **all resolved 2026-04-23** — see the **Resolved 2026-04-23 (assessment §4 items 29, 31–38 + two cross-cutting — 11 decisions)** section in `PENDING_QUESTIONS.md`. **Item 19** (first PLG row owner) is **closed** as of 2026-04-23 because the underlying milestone is now V1.1 and the ownership question was already resolved to "Owner solo" — see **Resolved 2026-04-23 (Reference-customer publication scope)** in `PENDING_QUESTIONS.md`. **Items 8, 9, 22** (Marketplace listing live, Stripe live keys flipped, DNS cutover) are **release-window-pinned to V1.1** as of 2026-04-23 — see **Resolved 2026-04-23 (Commerce un-hold scope)** in `PENDING_QUESTIONS.md`. They remain owner-only at V1.1 planning time but are no longer V1 owner-action items.
 
 ---
 

@@ -1,5 +1,7 @@
 > **Scope:** Canonical buyer + evaluator entry — Day-0 narrative, audience split, five-document contributor spine, and where to go next without opening 200 root files.
 
+> **Read this first (forced tree):** **[`READ_THIS_FIRST.md`](READ_THIS_FIRST.md)** — single Y/N entry surface; this file is the deeper hub after you pick a lane.
+
 # Start here — ArchLucid
 
 ## Objective
@@ -69,7 +71,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 | 4 | **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** | Poster + ownership (safe for buyers too) | ~15 min |
 | 5 | **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** | Owner decisions + gates | ~10 min |
 
-**Filename redirects:** [`FIRST_5_DOCS.md`](FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing here so bookmarks stay stable.
+**Filename redirects:** [`FIRST_5_DOCS.md`](FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing at [`READ_THIS_FIRST.md`](READ_THIS_FIRST.md) so bookmarks stay stable; spine detail stays in this file.
 
 ## Security model (read once)
 

@@ -135,7 +135,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 **Last reviewed:** 2026-04-23.
 
-**Open gaps: 0** as of 2026-04-22 (independent assessment improvement 6 verification — see `docs/CHANGELOG.md`). Every `IBaselineMutationAuditService.RecordAsync` call site in `ArchLucid.Application/**` is paired with a sibling durable `IAuditService.LogAsync` (or `DurableAuditLogRetry.TryLogAsync` / `CoordinatorRunFailedDurableAudit.TryLogAsync`) call. The pairing is enforced at code-review time and asserted by the test below.
+**Open gaps: 0** as of 2026-04-23. Architecture coordinator durable rows are emitted from `BaselineMutationAuditService` (not necessarily in the same file as each `RecordAsync`). Other `RecordAsync` call sites remain paired with a sibling durable call in-file **or** are explicitly allowed in `BaselineMutationAuditDualWritePairingTests`. The pairing rule is asserted by the test below.
 
 **2026-04-23 addendum (implicit gap closed).** `IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync` (demo trusted-baseline seed + replay commit) previously wrote authority SQL rows without a durable audit row; it now emits **`AuthorityCommittedChainPersisted`** from `DemoSeedService` / `ReplayRunService` after successful persistence (replay: after `IArchLucidUnitOfWork.CommitAsync`). See `docs/CHANGELOG.md` § 2026-04-23 — durable audit for authority committed manifest chain.
 

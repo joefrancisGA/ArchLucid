@@ -39,6 +39,7 @@ using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.GoToMarket;
 using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Feedback;
+using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
@@ -144,6 +145,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IContextSnapshotRepository, SqlContextSnapshotRepository>();
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
+        services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
 

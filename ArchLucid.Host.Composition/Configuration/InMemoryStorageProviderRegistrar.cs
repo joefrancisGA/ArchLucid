@@ -37,6 +37,7 @@ using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Feedback;
+using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Diagnostics;
@@ -70,6 +71,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();
+        services.AddSingleton<IFindingInspectReadRepository>(sp =>
+            new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();

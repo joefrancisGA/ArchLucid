@@ -1,3 +1,1 @@
-> **Scope:** Redirect — the five-document spine table now lives in ``docs/START_HERE.md``.
-
-Canonical entry: [docs/START_HERE.md](START_HERE.md).
+> **Redirect:** **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — single forced entry tree (replaces this stub).

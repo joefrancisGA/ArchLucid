@@ -1,3 +1,1 @@
-> **Scope:** Redirect — filename alias for the canonical onboarding hub.
-
-Canonical entry: [docs/START_HERE.md](START_HERE.md).
+> **Redirect:** **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — single forced entry tree (replaces this stub).

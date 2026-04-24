@@ -1,13 +1,14 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { WHY_COMPARISON_ROWS } from "@/lib/why-comparison";
+
 import { WhyArchlucidMarketingView } from "./WhyArchlucidMarketingView";
-import { WHY_ARCHLUCID_COMPARISON_ROWS } from "@/marketing/why-archlucid-comparison";
 
 describe("WhyArchlucidMarketingView", () => {
   it("matches snapshot (marketing /why layout + proof pack download)", () => {
     const { container } = render(
-      <WhyArchlucidMarketingView rows={WHY_ARCHLUCID_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
     );
 
     expect(container.firstChild).toMatchSnapshot();
@@ -15,7 +16,7 @@ describe("WhyArchlucidMarketingView", () => {
 
   it("renders proof pack download targeting the proxied PDF endpoint", () => {
     const { getByTestId } = render(
-      <WhyArchlucidMarketingView rows={WHY_ARCHLUCID_COMPARISON_ROWS} showDemoEmbed={false} />,
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
     );
 
     const link = getByTestId("why-proof-pack-download");

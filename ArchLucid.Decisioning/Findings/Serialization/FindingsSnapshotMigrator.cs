@@ -1,9 +1,10 @@
+using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
-/// Normalizes legacy findings (pre-envelope) to the current schema so stored snapshots remain readable.
+///     Normalizes legacy findings (pre-envelope) to the current schema so stored snapshots remain readable.
 /// </summary>
 public static class FindingsSnapshotMigrator
 {
@@ -40,17 +41,21 @@ public static class FindingsSnapshotMigrator
             return "Topology";
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
             return "Security";
-        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase) ? "Cost" : "General";
+        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase)
+            ? "Cost"
+            : "General";
     }
 
     private static string? InferPayloadTypeName(string findingType)
     {
         if (string.Equals(findingType, "RequirementFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(Payloads.RequirementFindingPayload);
+            return nameof(RequirementFindingPayload);
         if (string.Equals(findingType, "TopologyGap", StringComparison.OrdinalIgnoreCase))
-            return nameof(Payloads.TopologyGapFindingPayload);
+            return nameof(TopologyGapFindingPayload);
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(Payloads.SecurityControlFindingPayload);
-        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase) ? nameof(Payloads.CostConstraintFindingPayload) : null;
+            return nameof(SecurityControlFindingPayload);
+        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase)
+            ? nameof(CostConstraintFindingPayload)
+            : null;
     }
 }

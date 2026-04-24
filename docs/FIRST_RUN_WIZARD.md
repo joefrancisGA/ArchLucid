@@ -1,3 +1,1 @@
-> **Scope:** Redirect — operator UI wizard design note moved under ``docs/library/``.
-
-Canonical entry: [docs/START_HERE.md](START_HERE.md). Full wizard design: [FIRST_RUN_WIZARD.md](library/FIRST_RUN_WIZARD.md).
+> **Redirect:** **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — single forced entry tree; full wizard note: [docs/library/FIRST_RUN_WIZARD.md](library/FIRST_RUN_WIZARD.md).

@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 
 import { WhyArchlucidMarketingView } from "./WhyArchlucidMarketingView";
-import { WHY_ARCHLUCID_COMPARISON_ROWS } from "@/marketing/why-archlucid-comparison";
+import { type WhyHardComparisonRow, WHY_COMPARISON_ROWS_SERIALIZED } from "@/lib/why-comparison";
+
+const FRONT_DOOR_ROWS: readonly WhyHardComparisonRow[] = JSON.parse(
+  WHY_COMPARISON_ROWS_SERIALIZED,
+) as readonly WhyHardComparisonRow[];
 
 export const metadata: Metadata = {
   title: "ArchLucid · Why ArchLucid",
@@ -11,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function WhyMarketingPage() {
-  return <WhyArchlucidMarketingView rows={WHY_ARCHLUCID_COMPARISON_ROWS} />;
+  return <WhyArchlucidMarketingView frontDoorRows={FRONT_DOOR_ROWS} />;
 }

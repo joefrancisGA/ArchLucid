@@ -24,7 +24,7 @@ const PILLARS: { title: string; body: string }[] = [
   },
 ];
 
-/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/signup`. */
+/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/see-it`. */
 export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -44,18 +44,29 @@ export function WelcomeMarketingPage() {
             className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
             size="lg"
           >
-            <Link href="/signup">Start free trial</Link>
+            <Link href="/see-it">See it in 30 seconds</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
+            <Link href="/signup">Start free trial</Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
             <Link href="/auth/signin">Sign in</Link>
           </Button>
         </div>
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/demo/preview">See a real commit page</Link>
-          </Button>
+        <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Anchored in real ArchLucid services. No signup.
+            Same committed demo as{" "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+              /demo/preview
+            </Link>{" "}
+            — full page, no signup.
+          </p>
+          <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/WORKED_EXAMPLE_ROI.pdf">
+              See worked example (PDF)
+            </Link>{" "}
+            — Contoso sample ROI (fictional tenant); markdown companion in{" "}
+            <code className="text-xs">docs/go-to-market/WORKED_EXAMPLE_ROI.md</code>.
           </p>
         </div>
       </section>

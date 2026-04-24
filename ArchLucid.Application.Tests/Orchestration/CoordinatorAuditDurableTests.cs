@@ -33,8 +33,9 @@ using Moq;
 namespace ArchLucid.Application.Tests.Orchestration;
 
 /// <summary>
-/// Verifies that the coordinator orchestrators emit durable <see cref="IAuditService.LogAsync"/>
-/// calls with the correct <c>CoordinatorRun*</c> event types alongside the existing baseline mutation audit.
+/// Verifies that coordinator orchestrators drive durable <see cref="IAuditService.LogAsync"/> rows
+/// (legacy <c>CoordinatorRun*</c> + <see cref="AuditEventTypes.Run"/> catalog) via
+/// <see cref="BaselineMutationAuditService"/> when they call <see cref="IBaselineMutationAuditService.RecordAsync"/>.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

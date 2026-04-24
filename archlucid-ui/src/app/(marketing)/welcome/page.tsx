@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+// Public marketing home is `/welcome` (not `app/(marketing)/page.tsx`) because `app/(operator)/page.tsx` already owns `/`.
 import { WelcomeMarketingPage } from "@/components/marketing/WelcomeMarketingPage";
 
 export const metadata: Metadata = {

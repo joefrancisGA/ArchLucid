@@ -1,8 +1,10 @@
-<!-- **Scope:** Repository overview; canonical buyer path `docs/START_HERE.md`; deeper engineering index `docs/ARCHITECTURE_INDEX.md` + `docs/library/`. -->
+<!-- **Scope:** Repository overview; forced entry `docs/READ_THIS_FIRST.md`; canonical hub `docs/START_HERE.md`; deeper engineering index `docs/ARCHITECTURE_INDEX.md` + `docs/library/`. -->
 
 # ArchLucid
 
 [![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+
+**New here? Read [docs/READ_THIS_FIRST.md](docs/READ_THIS_FIRST.md) first.**
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package, helping teams ship committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
@@ -14,11 +16,16 @@ dotnet run --project ArchLucid.Cli -- try
 
 Windows Docker-only helper: `.\scripts\demo-start.ps1`
 
+<details>
+<summary><strong>Quick doc links (personas)</strong> — START_HERE, sponsor brief, architecture poster</summary>
+
 | Doc | Open this when… |
 |-----|-----------------|
 | **[`docs/START_HERE.md`](docs/START_HERE.md)** | You need the **single canonical first-30-minutes** buyer / operator path |
 | **[`docs/EXECUTIVE_SPONSOR_BRIEF.md`](docs/EXECUTIVE_SPONSOR_BRIEF.md)** | You are a **sponsor, procurement partner, or outward buyer** |
 | **[`docs/ARCHITECTURE_ON_ONE_PAGE.md`](docs/ARCHITECTURE_ON_ONE_PAGE.md)** | You want the **architecture poster** (C4-style system map) |
+
+</details>
 
 **Deeper dive index:** [`docs/ARCHITECTURE_INDEX.md`](docs/ARCHITECTURE_INDEX.md) · bulk reference markdown now lives under [`docs/library/`](docs/library/).
 
@@ -35,11 +42,14 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-> **Audience.** This README and the documents linked from it are for **ArchLucid contributors and internal operators** building, testing, or operating ArchLucid itself. **Buyers / evaluators / sponsors / customers** never run Docker, SQL, .NET, Node, or any local CLI — they sign up at **`archlucid.com`** and use the in-product operator UI. See **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" for the customer entry path and **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)** for the canonical outward narrative.
+> **Audience.** This README and the documents linked from it are for **ArchLucid contributors and internal operators** building, testing, or operating ArchLucid itself. **Buyers / evaluators / sponsors / customers** never run Docker, SQL, .NET, Node, or any local CLI — they sign up at **`archlucid.com`** and use the in-product operator UI. Start with **[docs/READ_THIS_FIRST.md](docs/READ_THIS_FIRST.md)** for a forced tree, then **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" for the customer entry path and **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)** for the canonical outward narrative.
 
 **Canonical install order (contributor / internal operator):** **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
 
 **Pick your contributor persona.** If you have never run ArchLucid on this machine, **Docker-only first-run:** **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** needs nothing but Docker.
+
+<details>
+<summary><strong>Contributor persona table</strong> — who starts where (deeper than READ_THIS_FIRST)</summary>
 
 | You are a... | Start here (contributor / internal-operator path) |
 |---|---|
@@ -48,10 +58,12 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | **Internal operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
 | **Developer** about to commit code | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
 | **SRE / Platform** owner | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
-| **Security / GRC** reviewer | **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
+| **Security / GRC** reviewer | **[docs/trust-center.md](docs/trust-center.md)** (trust posture table) · **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
 | **Executive sponsor / buyer** | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
-**Customer entry point (no install):** **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" — explicit buyer / sponsor / evaluator path that never asks them to install Docker, SQL, .NET, Node, or Terraform. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
+</details>
+
+**Customer entry point (no install):** **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" — explicit buyer / sponsor / evaluator path that never asks them to install Docker, SQL, .NET, Node, or Terraform. **Security / GRC reviewer (single URL):** **[docs/trust-center.md](docs/trust-center.md)** (in-product: **`/trust`** on `archlucid.com`). **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 
 ## Product layers
 

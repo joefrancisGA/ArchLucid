@@ -3,11 +3,12 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Scores how thoroughly each finding's <see cref="ExplainabilityTrace"/> is populated, and aggregates by engine type.
+///     Scores how thoroughly each finding's <see cref="ExplainabilityTrace" /> is populated, and aggregates by engine
+///     type.
 /// </summary>
 public static class ExplainabilityTraceCompletenessAnalyzer
 {
-    /// <summary>Analyzes a single finding's trace; treats null <see cref="Finding.Trace"/> as empty.</summary>
+    /// <summary>Analyzes a single finding's trace; treats null <see cref="Finding.Trace" /> as empty.</summary>
     public static TraceCompletenessScore AnalyzeFinding(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
@@ -57,11 +58,11 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             HasAlternativePaths = hasAlt,
             HasNotes = hasNotes,
             PopulatedFieldCount = populated,
-            CompletenessRatio = populated / 5.0,
+            CompletenessRatio = populated / 5.0
         };
     }
 
-    /// <summary>Aggregates scores for all findings in the snapshot, grouped by <see cref="Finding.EngineType"/>.</summary>
+    /// <summary>Aggregates scores for all findings in the snapshot, grouped by <see cref="Finding.EngineType" />.</summary>
     public static TraceCompletenessSummary AnalyzeSnapshot(FindingsSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -70,12 +71,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
         if (findings.Count == 0)
 
-            return new TraceCompletenessSummary
-            {
-                TotalFindings = 0,
-                OverallCompletenessRatio = 0.0,
-                ByEngine = [],
-            };
+            return new TraceCompletenessSummary { TotalFindings = 0, OverallCompletenessRatio = 0.0, ByEngine = [] };
 
 
         List<TraceCompletenessScore> scores = findings.Select(AnalyzeFinding).ToList();
@@ -98,16 +94,14 @@ public static class ExplainabilityTraceCompletenessAnalyzer
                     RulesAppliedPopulatedCount = list.Count(x => x.HasRulesApplied),
                     DecisionsTakenPopulatedCount = list.Count(x => x.HasDecisionsTaken),
                     AlternativePathsPopulatedCount = list.Count(x => x.HasAlternativePaths),
-                    NotesPopulatedCount = list.Count(x => x.HasNotes),
+                    NotesPopulatedCount = list.Count(x => x.HasNotes)
                 };
             })
             .ToList();
 
         return new TraceCompletenessSummary
         {
-            TotalFindings = findings.Count,
-            OverallCompletenessRatio = overall,
-            ByEngine = byEngine,
+            TotalFindings = findings.Count, OverallCompletenessRatio = overall, ByEngine = byEngine
         };
     }
 
