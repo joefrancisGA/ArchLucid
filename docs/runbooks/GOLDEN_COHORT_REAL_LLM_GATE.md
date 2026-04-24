@@ -1,4 +1,4 @@
-> **Scope.** End-to-end operator instructions for the optional **real-LLM** golden-cohort nightly path: how to flip the gate from disabled to required, how to respond when the **kill-switch** trips, and how to read the cost-and-latency Workbook. Pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) for the budget mechanics.
+> **Scope:** End-to-end operator instructions for the optional **real-LLM** golden-cohort nightly path: how to flip the gate from disabled to required, how to respond when the **kill-switch** trips, and how to read the cost-and-latency Workbook. Pair with [`GOLDEN_COHORT_BUDGET.md`](./GOLDEN_COHORT_BUDGET.md) for the budget mechanics.
 
 > **Spine doc.** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 

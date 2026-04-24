@@ -1,3 +1,5 @@
+> **Scope:** Operators and privacy or compliance reviewers; states controller-side processing activities and legal-basis framing for ArchLucid operational telemetry. Not legal advice, a full subprocessors inventory, tenant workload DPA terms, or final policy until DRAFT sign-off below is complete.
+
 > **Status:** **DRAFT — OWNER REVIEW PENDING.** This file was created on 2026-04-24 as part of Improvement 12 (first-tenant onboarding telemetry funnel) because the assistant needed to record the funnel as a named processing activity and no prior privacy notice existed. Every section below is owner-reviewable; the **First-tenant onboarding funnel** activity is the only one currently relied on by shipping code (and only under the **aggregated-only** default — per-tenant emission stays off until the owner explicitly flips it).
 >
 > **What needs owner sign-off before this file stops being marked DRAFT:**
