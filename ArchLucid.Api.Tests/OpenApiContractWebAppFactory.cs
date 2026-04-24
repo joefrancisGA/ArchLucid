@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 ///     (Scalar + <c>/swagger/v1/swagger.json</c> + Microsoft OpenAPI; generation uses <c>CustomSchemaIds</c> and optional
 ///     auth security filters).
 /// </summary>
-public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
+public class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

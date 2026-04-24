@@ -169,6 +169,14 @@ public static class ArchLucidInstrumentation
             "archlucid_runs_created_total",
             description: "Authority runs created (pre-pipeline, at RunRecord insertion).");
 
+    /// <summary>
+    ///     Operator new-run wizard cost-preview fetches when <c>AgentExecution:Mode=Real</c> (no tenant / PII tags).
+    /// </summary>
+    public static readonly Counter<long> RunsCostPreviewViewedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.runs.cost_preview.viewed_total",
+            description: "GET /v1/agent-execution/cost-preview served for Real mode (wizard review step).");
+
     /// <summary>Authority pipeline runs that exceeded <c>AuthorityPipeline:PipelineTimeout</c>.</summary>
     public static readonly Counter<long> PipelineTimeoutsTotal =
         AppMeter.CreateCounter<long>(

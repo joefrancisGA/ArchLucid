@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createArchitectureRunMock, getRunSummaryMock } = vi.hoisted(() => ({
   createArchitectureRunMock: vi.fn(),
@@ -46,6 +46,26 @@ async function clickNextAndSettle() {
 describe("NewRunWizardClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+        if (url.includes("/v1/agent-execution/cost-preview")) {
+          return {
+            ok: true,
+            json: async () => ({
+              mode: "Simulator",
+              maxCompletionTokens: 4096,
+              estimatedCostUsd: null,
+              deploymentName: null,
+            }),
+          };
+        }
+
+        return { ok: false, status: 404, json: async () => ({}) };
+      }),
+    );
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "integration-run-1" } });
     getRunSummaryMock.mockResolvedValue({
       runId: "integration-run-1",
@@ -123,5 +143,9 @@ describe("NewRunWizardClient", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 });

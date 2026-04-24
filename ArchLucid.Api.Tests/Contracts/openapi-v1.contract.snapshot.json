@@ -239,6 +239,36 @@
         },
         "type": "object"
       },
+      "AgentExecutionCostPreviewResponse": {
+        "properties": {
+          "deploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "maxCompletionTokens": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "type": "object"
+      },
       "AgentExecutionTrace": {
         "properties": {
           "agentType": {
@@ -1630,6 +1660,15 @@
               "null",
               "string"
             ]
+          },
+          "pilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "realModeFellBackToSimulator": {
+            "type": "boolean"
           },
           "requestId": {
             "type": "string"
@@ -10476,8 +10515,17 @@
               "string"
             ]
           },
+          "pilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "projectId": {
             "type": "string"
+          },
+          "realModeFellBackToSimulator": {
+            "type": "boolean"
           },
           "rowVersion": {
             "format": "byte",
@@ -11972,7 +12020,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12001,7 +12049,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12041,7 +12089,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12079,7 +12127,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12117,7 +12165,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12148,7 +12196,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12179,7 +12227,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12210,7 +12258,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12274,7 +12322,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12303,7 +12351,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12343,7 +12391,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12381,7 +12429,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12419,7 +12467,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -12457,7 +12505,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
+              "application/scim\u002Bjson": {}
             },
             "description": "OK"
           }
@@ -13195,12 +13243,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              }
+              "application/json": {}
             },
             "description": "OK"
           }
@@ -13213,12 +13256,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              }
+              "application/json": {}
             },
             "description": "OK"
           }
@@ -14188,6 +14226,35 @@
         },
         "tags": [
           "Advisory"
+        ]
+      }
+    },
+    "/v1/agent-execution/cost-preview": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AgentExecutionCostPreview"
         ]
       }
     },
@@ -22234,8 +22301,8 @@
             "in": "query",
             "name": "pilotTryRealModeFellBack",
             "schema": {
-              "type": "boolean",
-              "default": false
+              "default": false,
+              "type": "boolean"
             }
           }
         ],
@@ -34152,6 +34219,9 @@
     },
     {
       "name": "AdvisoryScheduling"
+    },
+    {
+      "name": "AgentExecutionCostPreview"
     },
     {
       "name": "AlertRoutingSubscriptions"
