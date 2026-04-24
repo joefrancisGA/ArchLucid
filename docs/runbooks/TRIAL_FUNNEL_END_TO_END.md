@@ -208,17 +208,22 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 ## 9. Local quick-start (Stripe TEST mode against staging)
 
 ```bash
-# 1. Point the CLI at staging.
-export ARCHLUCID_API_URL=https://staging.archlucid.com
+# 1. Point the CLI at staging (auto-set when you pass --staging).
+dotnet run --project ArchLucid.Cli -- trial smoke --staging \
+  --org "TrialSmoke-$(date +%s)" --email "trial-smoke@example.invalid" --baseline-hours 16
+# One-line output: PASS host=https://staging.archlucid.com correlation=<guid> ...
 
-# 2. Run the smoke loop (pure HTTP — no docker, no SQL on your laptop).
+# 2. Or, the per-step long form (any base URL):
+export ARCHLUCID_API_URL=https://staging.archlucid.com
 dotnet run --project ArchLucid.Cli -- trial smoke --org "TrialSmoke-$(date +%s)" \
   --email "trial-smoke@example.invalid" --baseline-hours 16
 
-# 3. Watch each step print PASS / FAIL with the audit hint to follow up on failure.
-
-# 4. Mock-Playwright equivalent (no API):
+# 3. Mock-Playwright equivalent (no API):
 cd archlucid-ui && npx playwright test -c playwright.mock.config.ts trial-funnel
+
+# 4. Staging UI smoke (real browser → signup.staging.archlucid.com; self-skips
+#    if STRIPE_TEST_KEY is unset):
+STRIPE_TEST_KEY=<key> npx playwright test -c playwright.trial-funnel-test-mode.config.ts
 ```
 
 **Live (real SQL) acceptance** stays in [`TRIAL_END_TO_END.md`](TRIAL_END_TO_END.md) — that runbook is the canonical merge gate; this one exists so anyone can reason about the funnel end-to-end **without** spinning up SQL.
