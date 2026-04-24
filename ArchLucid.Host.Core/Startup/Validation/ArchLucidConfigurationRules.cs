@@ -2,6 +2,8 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Host.Core.Startup.Validation;
 
 /// <summary>
@@ -84,4 +86,11 @@ public static class ArchLucidConfigurationRules
 
         return errors;
     }
+
+    /// <summary>
+    ///     After startup validation succeeds, logs a single INFO when <c>AgentExecution:Mode=Real</c> and Azure OpenAI
+    ///     credentials are present (operator confirmation for the first-real-value Docker overlay path).
+    /// </summary>
+    public static void LogAgentExecutionRealModeInformation(IConfiguration configuration, ILogger logger) =>
+        AgentExecutionRules.LogInformationWhenRealModeConfigured(configuration, logger);
 }

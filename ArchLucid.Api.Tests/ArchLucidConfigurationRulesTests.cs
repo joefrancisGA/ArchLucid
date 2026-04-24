@@ -1,3 +1,5 @@
+using System.Linq;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -6,6 +8,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -447,6 +450,50 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenAgentExecutionModeRealWithoutAzureOpenAi_error_namesShellEnvVars()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        string? msg = errors.FirstOrDefault(e => e.Contains("AZURE_OPENAI_ENDPOINT", StringComparison.Ordinal));
+        msg.Should().NotBeNull();
+        msg.Should().Contain("AZURE_OPENAI_API_KEY");
+        msg.Should().Contain("AZURE_OPENAI_DEPLOYMENT_NAME");
+    }
+
+    [Fact]
+    public void LogAgentExecutionRealModeInformation_WhenRealWithAzureOpenAiConfigured_doesNotThrow()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:ApiKey"] = "key",
+            ["AzureOpenAI:DeploymentName"] = "dep"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+
+        Action act = () => ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(
+            configuration,
+            NullLogger.Instance);
+
+        act.Should().NotThrow();
     }
 
     [Fact]

@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -714,6 +715,60 @@ public sealed class ArchitectureApplicationServiceTests
         result.Error.Should().BeNull();
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task SeedFakeResultsAsync_WhenPilotMarkFellBack_UpdatesRunAndWritesAudit()
+    {
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runId = runGuid.ToString("N");
+        ArchitectureRun run = ValidRun(runId);
+        ArchitectureRequest request = ValidRequest();
+        List<AgentTask> tasks =
+        [
+            ValidTask(runId),
+            ValidTask(runId, AgentType.Cost),
+            ValidTask(runId, AgentType.Compliance),
+            ValidTask(runId, AgentType.Critic)
+        ];
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailFor(run, tasks, []));
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _resultRepository.Setup(r =>
+                r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = "p",
+            CreatedUtc = DateTime.UtcNow,
+            RealModeFellBackToSimulator = false
+        };
+
+        _runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+
+        PilotSeedFakeResultsOptions pilot = new(MarkRealModeFellBackToSimulator: true);
+        SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync(runId, pilot);
+
+        result.Success.Should().BeTrue();
+        _runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(h => h.RealModeFellBackToSimulator && h.PilotAoaiDeploymentSnapshot == "gpt-test"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.FirstRealValueRunFellBackToSimulator && e.RunId == runGuid),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     #endregion

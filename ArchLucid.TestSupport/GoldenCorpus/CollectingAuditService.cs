@@ -2,12 +2,12 @@ using ArchLucid.Core.Audit;
 
 namespace ArchLucid.TestSupport.GoldenCorpus;
 
-/// <summary>In-memory <see cref="IAuditService"/> for golden-corpus regression: records event type strings in order.</summary>
+/// <summary>In-memory <see cref="IAuditService" /> for golden-corpus regression: records event type strings in order.</summary>
 public sealed class CollectingAuditService : IAuditService
 {
     private readonly List<string> _eventTypes = [];
 
-    /// <summary>Immutable snapshot of recorded <see cref="AuditEvent.EventType"/> values (append order).</summary>
+    /// <summary>Immutable snapshot of recorded <see cref="AuditEvent.EventType" /> values (append order).</summary>
     public IReadOnlyList<string> EventTypes => _eventTypes;
 
     /// <inheritdoc />

@@ -11972,7 +11972,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12001,7 +12001,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12041,7 +12041,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12079,7 +12079,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12117,7 +12117,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12148,7 +12148,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12179,7 +12179,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12210,7 +12210,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12274,7 +12274,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12303,7 +12303,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12343,7 +12343,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12381,7 +12381,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12419,7 +12419,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -12457,7 +12457,7 @@
         "responses": {
           "200": {
             "content": {
-              "application/scim\u002Bjson": {}
+              "application/scim\u002Bjson": { "schema": { "type": "object", "additionalProperties": true } }
             },
             "description": "OK"
           }
@@ -13195,7 +13195,12 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
             },
             "description": "OK"
           }
@@ -13208,7 +13213,12 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {}
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
             },
             "description": "OK"
           }
@@ -22218,6 +22228,14 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pilotTryRealModeFellBack",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
