@@ -6,14 +6,18 @@ using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Persistence.Tenancy;
 
-/// <summary>Records first-manifest trial funnel latency, usage ratio metrics, and <see cref="AuditEventTypes.TrialFirstRunCompleted"/>.</summary>
+/// <summary>
+///     Records first-manifest trial funnel latency, usage ratio metrics, and
+///     <see cref="AuditEventTypes.TrialFirstRunCompleted" />.
+/// </summary>
 public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository, IAuditService auditService)
     : ITrialFunnelCommitHook
 {
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     public async Task OnTrialTenantManifestCommittedAsync(
         Guid tenantId,
@@ -57,8 +61,8 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
                     new
                     {
                         signupToCommitSeconds = outcome.SignupToCommitSeconds,
-                        trialRunUsageRatio = outcome.TrialRunUsageRatio,
-                    }),
+                        trialRunUsageRatio = outcome.TrialRunUsageRatio
+                    })
             },
             cancellationToken).ConfigureAwait(false);
     }

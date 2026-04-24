@@ -1,6 +1,6 @@
 [
   {
-    "findingId": "3dcda10154e94ee3b7df01a2f9fdf84c",
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",

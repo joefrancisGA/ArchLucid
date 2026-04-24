@@ -15,37 +15,37 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         ArgumentNullException.ThrowIfNull(row);
 
         const string sql = """
-            INSERT INTO dbo.BackgroundJobs
-            (
-                JobId,
-                WorkUnitJson,
-                State,
-                CreatedUtc,
-                StartedUtc,
-                CompletedUtc,
-                Error,
-                FileName,
-                ContentType,
-                RetryCount,
-                MaxRetries,
-                ResultBlobName
-            )
-            VALUES
-            (
-                @JobId,
-                @WorkUnitJson,
-                @State,
-                @CreatedUtc,
-                @StartedUtc,
-                @CompletedUtc,
-                @Error,
-                @FileName,
-                @ContentType,
-                @RetryCount,
-                @MaxRetries,
-                @ResultBlobName
-            )
-            """;
+                           INSERT INTO dbo.BackgroundJobs
+                           (
+                               JobId,
+                               WorkUnitJson,
+                               State,
+                               CreatedUtc,
+                               StartedUtc,
+                               CompletedUtc,
+                               Error,
+                               FileName,
+                               ContentType,
+                               RetryCount,
+                               MaxRetries,
+                               ResultBlobName
+                           )
+                           VALUES
+                           (
+                               @JobId,
+                               @WorkUnitJson,
+                               @State,
+                               @CreatedUtc,
+                               @StartedUtc,
+                               @CompletedUtc,
+                               @Error,
+                               @FileName,
+                               @ContentType,
+                               @RetryCount,
+                               @MaxRetries,
+                               @ResultBlobName
+                           )
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -59,30 +59,27 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             return null;
 
         const string sql = """
-            SELECT
-                JobId,
-                WorkUnitJson,
-                State,
-                CreatedUtc,
-                StartedUtc,
-                CompletedUtc,
-                Error,
-                FileName,
-                ContentType,
-                RetryCount,
-                MaxRetries,
-                ResultBlobName
-            FROM dbo.BackgroundJobs
-            WHERE JobId = @JobId
-            """;
+                           SELECT
+                               JobId,
+                               WorkUnitJson,
+                               State,
+                               CreatedUtc,
+                               StartedUtc,
+                               CompletedUtc,
+                               Error,
+                               FileName,
+                               ContentType,
+                               RetryCount,
+                               MaxRetries,
+                               ResultBlobName
+                           FROM dbo.BackgroundJobs
+                           WHERE JobId = @JobId
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<BackgroundJobRow>(
-            new CommandDefinition(sql, new
-            {
-                JobId = jobId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
     }
 
     public async Task<int> TryMarkRunningAsync(string jobId, CancellationToken cancellationToken = default)
@@ -91,20 +88,17 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             return 0;
 
         const string sql = """
-            UPDATE dbo.BackgroundJobs
-            SET State = N'Running',
-                StartedUtc = COALESCE(StartedUtc, SYSUTCDATETIME())
-            WHERE JobId = @JobId
-              AND State = N'Pending'
-            """;
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Running',
+                               StartedUtc = COALESCE(StartedUtc, SYSUTCDATETIME())
+                           WHERE JobId = @JobId
+                             AND State = N'Pending'
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.ExecuteAsync(
-            new CommandDefinition(sql, new
-            {
-                JobId = jobId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
@@ -122,31 +116,28 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         try
         {
             const string selectSql = """
-                SELECT
-                    JobId,
-                    WorkUnitJson,
-                    State,
-                    CreatedUtc,
-                    StartedUtc,
-                    CompletedUtc,
-                    Error,
-                    FileName,
-                    ContentType,
-                    RetryCount,
-                    MaxRetries,
-                    ResultBlobName
-                FROM dbo.BackgroundJobs WITH (UPDLOCK, ROWLOCK)
-                WHERE JobId = @JobId
-                """;
+                                     SELECT
+                                         JobId,
+                                         WorkUnitJson,
+                                         State,
+                                         CreatedUtc,
+                                         StartedUtc,
+                                         CompletedUtc,
+                                         Error,
+                                         FileName,
+                                         ContentType,
+                                         RetryCount,
+                                         MaxRetries,
+                                         ResultBlobName
+                                     FROM dbo.BackgroundJobs WITH (UPDLOCK, ROWLOCK)
+                                     WHERE JobId = @JobId
+                                     """;
 
             BackgroundJobRow? row = await connection.QuerySingleOrDefaultAsync<BackgroundJobRow>(
                 new CommandDefinition(
                     selectSql,
-                    new
-                    {
-                        JobId = jobId
-                    },
-                    transaction: transaction,
+                    new { JobId = jobId },
+                    transaction,
                     cancellationToken: cancellationToken));
 
             if (row is null)
@@ -178,21 +169,18 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             }
 
             const string updateSql = """
-                UPDATE dbo.BackgroundJobs
-                SET State = N'Running',
-                    StartedUtc = COALESCE(StartedUtc, SYSUTCDATETIME())
-                WHERE JobId = @JobId
-                  AND State = N'Pending'
-                """;
+                                     UPDATE dbo.BackgroundJobs
+                                     SET State = N'Running',
+                                         StartedUtc = COALESCE(StartedUtc, SYSUTCDATETIME())
+                                     WHERE JobId = @JobId
+                                       AND State = N'Pending'
+                                     """;
 
             int affected = await connection.ExecuteAsync(
                 new CommandDefinition(
                     updateSql,
-                    new
-                    {
-                        JobId = jobId
-                    },
-                    transaction: transaction,
+                    new { JobId = jobId },
+                    transaction,
                     cancellationToken: cancellationToken));
 
             if (affected == 0)
@@ -230,19 +218,6 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         }
     }
 
-    private static bool IsTerminalJobState(string state)
-    {
-        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return false;
-    }
-
     public async Task MarkSucceededAsync(
         string jobId,
         string resultBlobName,
@@ -255,28 +230,22 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         ArgumentNullException.ThrowIfNull(contentType);
 
         const string sql = """
-            UPDATE dbo.BackgroundJobs
-            SET State = N'Succeeded',
-                CompletedUtc = SYSUTCDATETIME(),
-                Error = NULL,
-                FileName = @FileName,
-                ContentType = @ContentType,
-                ResultBlobName = @ResultBlobName
-            WHERE JobId = @JobId
-            """;
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Succeeded',
+                               CompletedUtc = SYSUTCDATETIME(),
+                               Error = NULL,
+                               FileName = @FileName,
+                               ContentType = @ContentType,
+                               ResultBlobName = @ResultBlobName
+                           WHERE JobId = @JobId
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    JobId = jobId,
-                    ResultBlobName = resultBlobName,
-                    FileName = fileName,
-                    ContentType = contentType
-                },
+                new { JobId = jobId, ResultBlobName = resultBlobName, FileName = fileName, ContentType = contentType },
                 cancellationToken: cancellationToken));
     }
 
@@ -287,25 +256,20 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.BackgroundJobs
-            SET State = N'Failed',
-                CompletedUtc = SYSUTCDATETIME(),
-                Error = @Error,
-                RetryCount = @RetryCount
-            WHERE JobId = @JobId
-            """;
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Failed',
+                               CompletedUtc = SYSUTCDATETIME(),
+                               Error = @Error,
+                               RetryCount = @RetryCount
+                           WHERE JobId = @JobId
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    JobId = jobId,
-                    Error = error,
-                    RetryCount = retryCount
-                },
+                new { JobId = jobId, Error = error, RetryCount = retryCount },
                 cancellationToken: cancellationToken));
     }
 
@@ -316,35 +280,30 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            UPDATE dbo.BackgroundJobs
-            SET State = N'Pending',
-                Error = @Error,
-                RetryCount = @RetryCount,
-                StartedUtc = NULL
-            WHERE JobId = @JobId
-            """;
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Pending',
+                               Error = @Error,
+                               RetryCount = @RetryCount,
+                               StartedUtc = NULL
+                           WHERE JobId = @JobId
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    JobId = jobId,
-                    RetryCount = retryCount,
-                    Error = error
-                },
+                new { JobId = jobId, RetryCount = retryCount, Error = error },
                 cancellationToken: cancellationToken));
     }
 
     public async Task<int> CountNonTerminalAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT COUNT_BIG(1)
-            FROM dbo.BackgroundJobs
-            WHERE State IN (N'Pending', N'Running')
-            """;
+                           SELECT COUNT_BIG(1)
+                           FROM dbo.BackgroundJobs
+                           WHERE State IN (N'Pending', N'Running')
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -352,5 +311,18 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             new CommandDefinition(sql, cancellationToken: cancellationToken));
 
         return count > int.MaxValue ? int.MaxValue : (int)count;
+    }
+
+    private static bool IsTerminalJobState(string state)
+    {
+        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        return false;
     }
 }

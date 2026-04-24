@@ -1,6 +1,6 @@
 [
   {
-    "findingId": "0ce4a8aeb78b449ab9cc4b90d2bd7fd2",
+    "findingId": "d69db978-4aa7-ed82-1a98-1fee7910b515",
     "findingType": "ComplianceFinding",
     "category": "Compliance",
     "severity": "Warning",
@@ -18,7 +18,7 @@
     ]
   },
   {
-    "findingId": "fe29fea4ef8041a9a82c9b5e8fda7f4b",
+    "findingId": "5483bd3e-82c1-fbac-3665-dddab961e6ae",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
@@ -34,7 +34,7 @@
     ]
   },
   {
-    "findingId": "9842b80fbc50475d808b600bcab35972",
+    "findingId": "0758bf2b-b304-56a7-8094-842bf223342d",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",

@@ -5,10 +5,13 @@ using Polly.Retry;
 
 namespace ArchLucid.Persistence.Connections;
 
-/// <summary>Builds <see cref="ResiliencePipeline"/> instances for SQL connection open retries (transient errors only).</summary>
+/// <summary>Builds <see cref="ResiliencePipeline" /> instances for SQL connection open retries (transient errors only).</summary>
 public static class SqlOpenResilienceDefaults
 {
-    /// <summary>Matches the historical <see cref="ResilientSqlConnectionFactory"/> defaults: 3 attempts, 200 ms base exponential backoff with jitter.</summary>
+    /// <summary>
+    ///     Matches the historical <see cref="ResilientSqlConnectionFactory" /> defaults: 3 attempts, 200 ms base
+    ///     exponential backoff with jitter.
+    /// </summary>
     public static ResiliencePipeline BuildSqlOpenRetryPipeline(
         ILogger<ResilientSqlConnectionFactory>? logger = null,
         int maxRetryAttempts = 3,
@@ -40,7 +43,7 @@ public static class SqlOpenResilienceDefaults
 
 
                     return ValueTask.CompletedTask;
-                },
+                }
             })
             .Build();
     }

@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -13,9 +12,11 @@ using ArchLucid.Persistence.Queries;
 namespace ArchLucid.Persistence.Findings;
 
 /// <summary>
-/// In-memory storage mode: resolves the inspector from hydrated <see cref="RunDetailDto"/> (no relational SQL tables).
+///     In-memory storage mode: resolves the inspector from hydrated <see cref="RunDetailDto" /> (no relational SQL
+///     tables).
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "In-memory composition path; SQL integration tests cover the Dapper implementation.")]
+[ExcludeFromCodeCoverage(Justification =
+    "In-memory composition path; SQL integration tests cover the Dapper implementation.")]
 public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService authorityQuery)
     : IFindingInspectReadRepository
 {
@@ -28,7 +29,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     /// <inheritdoc />
-    public async Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId, CancellationToken ct)
+    public async Task<FindingInspectResponse?> GetInspectAsync(ScopeContext scope, string findingId,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -59,13 +61,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
 
         List<FindingInspectEvidenceItem> evidence = match.RelatedNodeIds
             .Where(static n => !string.IsNullOrWhiteSpace(n))
-            .Select(
-                static n => new FindingInspectEvidenceItem
-                {
-                    ArtifactId = null,
-                    LineRange = null,
-                    Excerpt = n.Trim(),
-                })
+            .Select(static n =>
+                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
             .ToList();
 
         string? ruleId = null;
@@ -99,7 +96,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             Evidence = evidence,
             AuditRowId = null,
             RunId = runId,
-            ManifestVersion = detail.Run.CurrentManifestVersion,
+            ManifestVersion = detail.Run.CurrentManifestVersion
         };
     }
 

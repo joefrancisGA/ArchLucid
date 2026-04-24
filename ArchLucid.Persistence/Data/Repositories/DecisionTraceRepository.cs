@@ -11,7 +11,8 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : ICoordinatorDecisionTraceRepository
+public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory)
+    : ICoordinatorDecisionTraceRepository
 {
     public async Task CreateManyAsync(
         IEnumerable<DecisionTrace> traces,
@@ -22,25 +23,25 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         ArgumentNullException.ThrowIfNull(traces);
 
         const string sql = """
-            INSERT INTO DecisionTraces
-            (
-                TraceId,
-                RunId,
-                EventType,
-                EventDescription,
-                EventJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @TraceId,
-                @RunId,
-                @EventType,
-                @EventDescription,
-                @EventJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO DecisionTraces
+                           (
+                               TraceId,
+                               RunId,
+                               EventType,
+                               EventDescription,
+                               EventJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @TraceId,
+                               @RunId,
+                               @EventType,
+                               @EventDescription,
+                               @EventJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         var rows = traces.Select(t =>
         {
@@ -65,7 +66,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             await conn.ExecuteAsync(new CommandDefinition(
                 sql,
                 rows,
-                transaction: transaction,
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally
@@ -81,19 +82,16 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT EventJson
-            FROM DecisionTraces
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(2000)};
-            """;
+                      SELECT EventJson
+                      FROM DecisionTraces
+                      WHERE RunId = @RunId
+                      ORDER BY CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(2000)};
+                      """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         List<DecisionTrace> traces = [];

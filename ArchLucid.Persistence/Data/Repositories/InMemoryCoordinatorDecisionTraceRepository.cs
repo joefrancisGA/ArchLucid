@@ -1,15 +1,15 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using System.Data;
-
 using ArchLucid.Contracts.DecisionTraces;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="ICoordinatorDecisionTraceRepository"/> for architecture runs (JSON clone-on-read).
-/// Distinct from the authority-layer decision trace contract in the Decisioning assembly.
+///     Thread-safe in-memory <see cref="ICoordinatorDecisionTraceRepository" /> for architecture runs (JSON
+///     clone-on-read).
+///     Distinct from the authority-layer decision trace contract in the Decisioning assembly.
 /// </summary>
 public sealed class InMemoryCoordinatorDecisionTraceRepository : ICoordinatorDecisionTraceRepository
 {

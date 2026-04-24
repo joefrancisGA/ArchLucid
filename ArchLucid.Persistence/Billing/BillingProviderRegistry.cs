@@ -13,15 +13,15 @@ public sealed class BillingProviderRegistry(
     StripeBillingProvider stripe,
     AzureMarketplaceBillingProvider azureMarketplace) : IBillingProviderRegistry
 {
+    private readonly AzureMarketplaceBillingProvider _azureMarketplace =
+        azureMarketplace ?? throw new ArgumentNullException(nameof(azureMarketplace));
+
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
     private readonly NoopBillingProvider _noop = noop ?? throw new ArgumentNullException(nameof(noop));
 
     private readonly StripeBillingProvider _stripe = stripe ?? throw new ArgumentNullException(nameof(stripe));
-
-    private readonly AzureMarketplaceBillingProvider _azureMarketplace =
-        azureMarketplace ?? throw new ArgumentNullException(nameof(azureMarketplace));
 
     public IBillingProvider ResolveActiveProvider()
     {

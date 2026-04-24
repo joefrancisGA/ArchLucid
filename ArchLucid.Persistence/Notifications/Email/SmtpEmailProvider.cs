@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Notifications.Email;
 
-/// <summary>Dev-oriented SMTP sender (legacy <see cref="SmtpClient"/>; not recommended for production scale-out).</summary>
+/// <summary>Dev-oriented SMTP sender (legacy <see cref="SmtpClient" />; not recommended for production scale-out).</summary>
 public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> optionsMonitor) : IEmailProvider
 {
     private readonly IOptionsMonitor<EmailNotificationOptions> _optionsMonitor =
@@ -34,10 +34,7 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
 #pragma warning disable CA1416 // SmtpClient is obsolete but intentionally used for lightweight dev SMTP.
 #pragma warning disable SYSLIB0014
-        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort)
-        {
-            EnableSsl = options.SmtpPort is 587 or 465,
-        };
+        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort) { EnableSsl = options.SmtpPort is 587 or 465 };
 
         if (!string.IsNullOrWhiteSpace(options.SmtpUser))
 
@@ -50,15 +47,14 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
         using (smtp)
         using (MailMessage mail = new(from, new MailAddress(message.To.Trim()))
-        {
-            Subject = message.Subject,
-            Body = message.HtmlBody,
-            IsBodyHtml = true,
-        })
+               {
+                   Subject = message.Subject, Body = message.HtmlBody, IsBodyHtml = true
+               })
         {
             if (!string.IsNullOrWhiteSpace(message.TextBody))
 
-                mail.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(message.TextBody, null, "text/plain"));
+                mail.AlternateViews.Add(
+                    AlternateView.CreateAlternateViewFromString(message.TextBody, null, "text/plain"));
 
 
             return smtp.SendMailAsync(mail, cancellationToken);

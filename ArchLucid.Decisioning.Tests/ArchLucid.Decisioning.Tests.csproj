@@ -73,7 +73,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\tests\golden-corpus\decisioning\**\*" Link="golden-corpus\decisioning\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <!-- One parent: project folder → solution root (..\..\ would escape the repo on disk). -->
+    <None Include="..\tests\golden-corpus\decisioning\**\*" Link="golden-corpus\decisioning\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

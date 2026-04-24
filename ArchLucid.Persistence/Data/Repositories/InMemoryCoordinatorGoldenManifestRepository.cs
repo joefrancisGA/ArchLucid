@@ -1,15 +1,15 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using System.Data;
-
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="ICoordinatorGoldenManifestRepository"/> for coordinator/replay flows (JSON clone-on-read).
-/// Distinct from the authority-layer in-memory manifest store registered in API storage extensions.
+///     Thread-safe in-memory <see cref="ICoordinatorGoldenManifestRepository" /> for coordinator/replay flows (JSON
+///     clone-on-read).
+///     Distinct from the authority-layer in-memory manifest store registered in API storage extensions.
 /// </summary>
 public sealed class InMemoryCoordinatorGoldenManifestRepository : ICoordinatorGoldenManifestRepository
 {
@@ -48,7 +48,6 @@ public sealed class InMemoryCoordinatorGoldenManifestRepository : ICoordinatorGo
 
             return Task.FromResult(
                 _byVersion.TryGetValue(manifestVersion, out GoldenManifest? m) ? Clone(m) : null);
-
     }
 
     private static GoldenManifest Clone(GoldenManifest source)

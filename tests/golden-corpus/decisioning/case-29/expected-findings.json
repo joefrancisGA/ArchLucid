@@ -1,6 +1,6 @@
 [
   {
-    "findingId": "2d8e617c711746f9871b464e9e08293c",
+    "findingId": "62ea881e-afb7-76f1-b758-268578c2d511",
     "findingType": "SecurityControlFinding",
     "category": "Security",
     "severity": "Error",
@@ -18,7 +18,7 @@
     ]
   },
   {
-    "findingId": "33c956c9b13b4cc4ab413b124302c130",
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",

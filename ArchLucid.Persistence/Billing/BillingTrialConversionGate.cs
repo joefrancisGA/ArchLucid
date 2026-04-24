@@ -8,10 +8,10 @@ namespace ArchLucid.Persistence.Billing;
 public sealed class BillingTrialConversionGate(IOptionsMonitor<BillingOptions> options, IBillingLedger ledger)
     : IBillingTrialConversionGate
 {
+    private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
     private readonly IOptionsMonitor<BillingOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
-
-    private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
 
     public async Task EnsureManualConversionAllowedAsync(Guid tenantId, CancellationToken cancellationToken)
     {

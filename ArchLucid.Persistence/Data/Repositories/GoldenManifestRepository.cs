@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Manifest;
@@ -6,12 +7,14 @@ using ArchLucid.Persistence.Data.Infrastructure;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed coordinator manifest port — <b>retired for SQL</b> after ADR 0030 PR A4 (migration 111 drops
-/// <c>dbo.GoldenManifestVersions</c>). <see cref="CreateAsync"/> throws; <see cref="GetByVersionAsync"/> returns
-/// <see langword="null"/>. Use <see cref="InMemoryCoordinatorGoldenManifestRepository"/> for in-memory coordinator flows.
+///     Dapper-backed coordinator manifest port — <b>retired for SQL</b> after ADR 0030 PR A4 (migration 111 drops
+///     <c>dbo.GoldenManifestVersions</c>). <see cref="CreateAsync" /> throws; <see cref="GetByVersionAsync" /> returns
+///     <see langword="null" />. Use <see cref="InMemoryCoordinatorGoldenManifestRepository" /> for in-memory coordinator
+///     flows.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL coordinator manifest store removed; throws on write path.")]
-public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFactory) : ICoordinatorGoldenManifestRepository
+public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFactory)
+    : ICoordinatorGoldenManifestRepository
 {
     private readonly IDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
@@ -20,8 +23,8 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
     public Task CreateAsync(
         GoldenManifest manifest,
         CancellationToken cancellationToken = default,
-        System.Data.IDbConnection? connection = null,
-        System.Data.IDbTransaction? transaction = null)
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         if (manifest is null)
             throw new ArgumentNullException(nameof(manifest));
@@ -37,7 +40,8 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
+    public Task<GoldenManifest?> GetByVersionAsync(string manifestVersion,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(manifestVersion))
             throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));

@@ -10,11 +10,13 @@ namespace ArchLucid.Persistence.Reads;
 
 /// <inheritdoc cref="IUnifiedGoldenManifestReader" />
 /// <remarks>
-/// Phase 1 shipped coordinator-backed <see cref="GetByVersionAsync"/> and a run-scoped read that mirrors
-/// <see cref="ArchLucid.Application.RunDetailQueryService"/> manifest-version selection (including the
-/// <c>v1-{runId:N}</c> first-commit convention). PR A2 adds authority fallback: when <see cref="RunRecord.GoldenManifestId"/>
-/// is set, load <see cref="Decisioning.Models.GoldenManifest"/> from <see cref="IGoldenManifestRepository"/> and project
-/// to <see cref="GoldenManifest"/> via <see cref="IAuthorityCommitProjectionBuilder"/>.
+///     Phase 1 shipped coordinator-backed <see cref="GetByVersionAsync" /> and a run-scoped read that mirrors
+///     <see cref="ArchLucid.Application.RunDetailQueryService" /> manifest-version selection (including the
+///     <c>v1-{runId:N}</c> first-commit convention). PR A2 adds authority fallback: when
+///     <see cref="RunRecord.GoldenManifestId" />
+///     is set, load <see cref="Decisioning.Models.GoldenManifest" /> from <see cref="IGoldenManifestRepository" /> and
+///     project
+///     to <see cref="GoldenManifest" /> via <see cref="IAuthorityCommitProjectionBuilder" />.
 /// </remarks>
 public sealed class UnifiedGoldenManifestReader(
     ICoordinatorGoldenManifestRepository coordinatorGoldenManifests,
@@ -24,13 +26,11 @@ public sealed class UnifiedGoldenManifestReader(
     IArchitectureRequestRepository requestRepository,
     IScopeContextProvider scopeContextProvider) : IUnifiedGoldenManifestReader
 {
-    private readonly ICoordinatorGoldenManifestRepository _coordinatorGoldenManifests =
-        coordinatorGoldenManifests ?? throw new ArgumentNullException(nameof(coordinatorGoldenManifests));
-
-    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
     private readonly IGoldenManifestRepository _authorityGoldenManifests =
         authorityGoldenManifests ?? throw new ArgumentNullException(nameof(authorityGoldenManifests));
+
+    private readonly ICoordinatorGoldenManifestRepository _coordinatorGoldenManifests =
+        coordinatorGoldenManifests ?? throw new ArgumentNullException(nameof(coordinatorGoldenManifests));
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
@@ -38,14 +38,18 @@ public sealed class UnifiedGoldenManifestReader(
     private readonly IArchitectureRequestRepository _requestRepository =
         requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
 
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
-    public async Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
+    public async Task<GoldenManifest?> GetByVersionAsync(string manifestVersion,
+        CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        ArchLucid.Decisioning.Models.GoldenManifest? authorityModel =
+        Decisioning.Models.GoldenManifest? authorityModel =
             await _authorityGoldenManifests
                 .GetByContractManifestVersionAsync(scope, manifestVersion, cancellationToken)
                 .ConfigureAwait(false);
@@ -60,7 +64,8 @@ public sealed class UnifiedGoldenManifestReader(
                 : await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
 
             return await _projectionBuilder
-                .BuildAsync(authorityModel, new() { SystemName = systemName }, cancellationToken)
+                .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
+                    cancellationToken)
                 .ConfigureAwait(false);
         }
 
@@ -83,7 +88,7 @@ public sealed class UnifiedGoldenManifestReader(
 
         if (run.GoldenManifestId is { } goldenId)
         {
-            ArchLucid.Decisioning.Models.GoldenManifest? authorityModel =
+            Decisioning.Models.GoldenManifest? authorityModel =
                 await _authorityGoldenManifests.GetByIdAsync(scope, goldenId, cancellationToken);
 
             if (authorityModel is not null)
@@ -91,7 +96,8 @@ public sealed class UnifiedGoldenManifestReader(
                 string systemName = await ResolveSystemNameAsync(run, cancellationToken);
 
                 return await _projectionBuilder
-                    .BuildAsync(authorityModel, new() { SystemName = systemName }, cancellationToken)
+                    .BuildAsync(authorityModel, new AuthorityCommitProjectionInput { SystemName = systemName },
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
         }
@@ -101,7 +107,7 @@ public sealed class UnifiedGoldenManifestReader(
             ? $"v1-{runKey}"
             : run.CurrentManifestVersion!;
 
-        ArchLucid.Decisioning.Models.GoldenManifest? authorityByVersion =
+        Decisioning.Models.GoldenManifest? authorityByVersion =
             await _authorityGoldenManifests
                 .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);
@@ -111,7 +117,8 @@ public sealed class UnifiedGoldenManifestReader(
             string systemName = await ResolveSystemNameAsync(run, cancellationToken);
 
             return await _projectionBuilder
-                .BuildAsync(authorityByVersion, new() { SystemName = systemName }, cancellationToken)
+                .BuildAsync(authorityByVersion, new AuthorityCommitProjectionInput { SystemName = systemName },
+                    cancellationToken)
                 .ConfigureAwait(false);
         }
 

@@ -23,7 +23,7 @@ Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN
 | File | Purpose |
 |------|---------|
 | `input.json` | Agent-result bundle: graph snapshot, run identifiers, optional merge payload (same shape as `GoldenCorpusInputDocument`). |
-| `expected-findings.json` | Normalized typed finding rows (stable sort order). |
+| `expected-findings.json` | Normalized typed finding rows (stable sort order). Each `findingId` is a **deterministic surrogate** (SHA256-derived Guid over canonical fields) because production engines emit fresh runtime IDs per run; golden files must not depend on those. |
 | `expected-decisions.json` | Manifest decision payload after authority + optional merge (stable shape). |
 | `expected-audit-types.json` | Sorted list of `AuditEventType` string names emitted during the harness run. |
 | `README.md` | What the case exercises; note any intentional quirks of frozen behavior. |

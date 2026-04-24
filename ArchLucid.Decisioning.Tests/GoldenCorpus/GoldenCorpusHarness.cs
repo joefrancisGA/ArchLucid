@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -255,8 +257,40 @@ public static class GoldenCorpusNormalization
         IReadOnlyList<string> RulesApplied,
         IReadOnlyList<string> DecisionsTaken)
     {
+        /// <summary>
+        /// Production engines assign runtime <see cref="Finding.FindingId"/> values; golden JSON must not depend on those.
+        /// This surrogate is stable for the same logical finding across record/replay and CI machines.
+        /// </summary>
+        private static string StableFindingId(Finding f)
+        {
+            ArgumentNullException.ThrowIfNull(f);
+
+            string related = string.Join('|', f.RelatedNodeIds.OrderBy(static x => x, StringComparer.Ordinal));
+            string rules = string.Join('|', f.Trace.RulesApplied.OrderBy(static x => x, StringComparer.Ordinal));
+            string decisions = string.Join('|', f.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal));
+            string canonical = string.Join(
+                '\n',
+                new[]
+                {
+                    f.FindingType,
+                    f.Category,
+                    f.Title,
+                    f.Rationale,
+                    related,
+                    f.PayloadType ?? string.Empty,
+                    rules,
+                    decisions,
+                });
+
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(canonical));
+            Span<byte> guidBytes = stackalloc byte[16];
+            hash.AsSpan(0, 16).CopyTo(guidBytes);
+
+            return new Guid(guidBytes).ToString("d");
+        }
+
         public static FindingGoldenRow FromFinding(Finding f) => new(
-            f.FindingId,
+            StableFindingId(f),
             f.FindingType,
             f.Category,
             f.Severity.ToString(),

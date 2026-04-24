@@ -12,7 +12,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<bool> TenantHasActiveSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_subscriptions.TryGetValue(tenantId, out BillingSubRow? row) && string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(_subscriptions.TryGetValue(tenantId, out BillingSubRow? row) &&
+                               string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
     }
 
     public Task UpsertPendingCheckoutAsync(
@@ -61,7 +62,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<string?> GetWebhookEventResultStatusAsync(string dedupeKey, CancellationToken cancellationToken)
     {
-        return _webhookStatuses.TryGetValue(dedupeKey, out string? status) ? Task.FromResult<string?>(status) : Task.FromResult<string?>(null);
+        return _webhookStatuses.TryGetValue(dedupeKey, out string? status)
+            ? Task.FromResult<string?>(status)
+            : Task.FromResult<string?>(null);
     }
 
     public Task ActivateSubscriptionAsync(
@@ -129,7 +132,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         return Task.CompletedTask;
     }
 
-    public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken)
+    public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson,
+        CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
             _subscriptions[tenantId] = row with
@@ -140,7 +144,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         return Task.CompletedTask;
     }
 
-    public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken)
+    public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
+        CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
             _subscriptions[tenantId] = row with

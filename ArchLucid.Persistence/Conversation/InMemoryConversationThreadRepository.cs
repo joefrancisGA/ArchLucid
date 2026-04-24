@@ -4,7 +4,7 @@ using ArchLucid.Core.Pagination;
 namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IConversationThreadRepository"/> for tests and storage-off mode.
+///     Thread-safe in-memory <see cref="IConversationThreadRepository" /> for tests and storage-off mode.
 /// </summary>
 public sealed class InMemoryConversationThreadRepository : IConversationThreadRepository
 {
@@ -23,6 +23,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
             if (_threads.Count > MaxEntries)
                 _threads.RemoveRange(0, _threads.Count - MaxEntries);
         }
+
         return Task.CompletedTask;
     }
 
@@ -99,7 +100,6 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
             if (thread is { ArchivedUtc: null })
 
                 thread.LastUpdatedUtc = updatedUtc;
-
         }
 
         return Task.CompletedTask;

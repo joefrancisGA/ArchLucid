@@ -1,12 +1,11 @@
 using Microsoft.Data.SqlClient;
-
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Opens either a read-scale-out connection string resolved for <paramref name="route"/> or the primary
-/// <see cref="ResilientSqlConnectionFactory"/> path, then applies <see cref="IRlsSessionContextApplicator"/>.
+///     Opens either a read-scale-out connection string resolved for <paramref name="route" /> or the primary
+///     <see cref="ResilientSqlConnectionFactory" /> path, then applies <see cref="IRlsSessionContextApplicator" />.
 /// </summary>
 public sealed class ReadReplicaRoutedConnectionFactory(
     ResilientSqlConnectionFactory resilientFactory,
@@ -15,16 +14,16 @@ public sealed class ReadReplicaRoutedConnectionFactory(
     ReadReplicaQueryRoute route) : IAuthorityRunListConnectionFactory, IGovernanceResolutionReadConnectionFactory,
     IGoldenManifestLookupReadConnectionFactory
 {
-    private readonly ResilientSqlConnectionFactory _resilientFactory =
-        resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
-
     private readonly IOptionsMonitor<SqlServerOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
-    private readonly IRlsSessionContextApplicator _sessionContextApplicator =
-        sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
+    private readonly ResilientSqlConnectionFactory _resilientFactory =
+        resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
 
     private readonly ReadReplicaQueryRoute _route = route;
+
+    private readonly IRlsSessionContextApplicator _sessionContextApplicator =
+        sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
 
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)

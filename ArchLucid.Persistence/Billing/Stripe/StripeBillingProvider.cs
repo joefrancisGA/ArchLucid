@@ -20,13 +20,13 @@ public sealed class StripeBillingProvider(
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
+    private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
+        changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
+
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
 
     private readonly BillingWebhookTrialActivator _trialActivator =
         trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
-
-    private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
-        changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
 
     public string ProviderName => BillingProviderNames.Stripe;
 
@@ -64,12 +64,12 @@ public sealed class StripeBillingProvider(
                 ["project_id"] = request.ProjectId.ToString("D", CultureInfo.InvariantCulture),
                 ["tier"] = BillingTierCode.CheckoutTierLabel(request.TargetTier),
                 ["seats"] = Math.Max(1, request.Seats).ToString(CultureInfo.InvariantCulture),
-                ["workspaces"] = Math.Max(1, request.Workspaces).ToString(CultureInfo.InvariantCulture),
+                ["workspaces"] = Math.Max(1, request.Workspaces).ToString(CultureInfo.InvariantCulture)
             },
             LineItems =
             [
-                new() { Price = priceId, Quantity = 1 }
-            ],
+                new SessionLineItemOptions { Price = priceId, Quantity = 1 }
+            ]
         };
 
         if (!string.IsNullOrWhiteSpace(request.BillingEmail))
@@ -77,10 +77,7 @@ public sealed class StripeBillingProvider(
             options.CustomerEmail = request.BillingEmail;
 
 
-        RequestOptions requestOptions = new()
-        {
-            ApiKey = secretKey
-        };
+        RequestOptions requestOptions = new() { ApiKey = secretKey };
 
         Session session = await sessionService.CreateAsync(options, requestOptions, cancellationToken);
 
@@ -103,9 +100,7 @@ public sealed class StripeBillingProvider(
 
         return new BillingCheckoutResult
         {
-            CheckoutUrl = session.Url ?? string.Empty,
-            ProviderSessionId = session.Id,
-            ExpiresUtc = expiresUtc,
+            CheckoutUrl = session.Url ?? string.Empty, ProviderSessionId = session.Id, ExpiresUtc = expiresUtc
         };
     }
 
@@ -118,7 +113,8 @@ public sealed class StripeBillingProvider(
 
         if (string.IsNullOrWhiteSpace(signingSecret) || string.IsNullOrWhiteSpace(inbound.StripeSignatureHeader))
 
-            return BillingWebhookHandleResult.Rejected("Stripe webhook signing secret or Stripe-Signature header is missing.");
+            return BillingWebhookHandleResult.Rejected(
+                "Stripe webhook signing secret or Stripe-Signature header is missing.");
 
 
         Event stripeEvent;
@@ -129,8 +125,8 @@ public sealed class StripeBillingProvider(
                 inbound.RawBody,
                 inbound.StripeSignatureHeader,
                 signingSecret,
-                tolerance: 300,
-                throwOnApiVersionMismatch: false);
+                300,
+                false);
         }
         catch (StripeException ex)
         {
@@ -150,7 +146,6 @@ public sealed class StripeBillingProvider(
 
             if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
                 return BillingWebhookHandleResult.Duplicate();
-
         }
 
         try
@@ -199,7 +194,7 @@ public sealed class StripeBillingProvider(
         {
             BillingCheckoutTier.Pro => "archlucid-stripe-pro",
             BillingCheckoutTier.Enterprise => "archlucid-stripe-enterprise",
-            _ => "archlucid-stripe-team",
+            _ => "archlucid-stripe-team"
         };
 
         using JsonDocument planDoc = JsonDocument.Parse(
@@ -242,7 +237,7 @@ public sealed class StripeBillingProvider(
         {
             "Pro" => BillingCheckoutTier.Pro,
             "Enterprise" => BillingCheckoutTier.Enterprise,
-            _ => BillingCheckoutTier.Team,
+            _ => BillingCheckoutTier.Team
         };
     }
 
@@ -257,12 +252,14 @@ public sealed class StripeBillingProvider(
             : fallback;
     }
 
-    private static string? ResolvePriceId(BillingOptions billing, BillingCheckoutTier tier) =>
-        tier switch
+    private static string? ResolvePriceId(BillingOptions billing, BillingCheckoutTier tier)
+    {
+        return tier switch
         {
             BillingCheckoutTier.Team => billing.Stripe.PriceIdTeam?.Trim(),
             BillingCheckoutTier.Pro => billing.Stripe.PriceIdPro?.Trim(),
             BillingCheckoutTier.Enterprise => billing.Stripe.PriceIdEnterprise?.Trim(),
-            _ => billing.Stripe.PriceIdTeam?.Trim(),
+            _ => billing.Stripe.PriceIdTeam?.Trim()
         };
+    }
 }

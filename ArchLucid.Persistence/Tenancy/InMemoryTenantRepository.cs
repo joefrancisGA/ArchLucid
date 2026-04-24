@@ -11,20 +11,26 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 {
     private readonly ConcurrentDictionary<Guid, TenantRecord> _byId = new();
 
-    private readonly ConcurrentDictionary<string, Guid> _slugToId = new(StringComparer.OrdinalIgnoreCase);
-
-    private readonly ConcurrentDictionary<Guid, List<TenantWorkspaceRow>> _workspacesByTenant = new();
-
     private readonly ConcurrentDictionary<Guid, Guid> _entraTenantIdToTenantId = new();
 
-    private readonly ConcurrentDictionary<(Guid TenantId, string PrincipalKey), byte> _trialSeatOccupants = new();
-
-    private readonly object _trialGate = new();
+    private readonly ConcurrentDictionary<string, Guid> _slugToId = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly ConcurrentDictionary<Guid, byte> _trialFirstManifestCommitted = new();
 
-    /// <summary>Seeds <see cref="ScopeIds.DefaultTenant"/> so DevelopmentBypass + commercial-tier filters resolve a Standard tenant without SQL.</summary>
-    public InMemoryTenantRepository() => TrySeedDefaultDevelopmentTenant();
+    private readonly object _trialGate = new();
+
+    private readonly ConcurrentDictionary<(Guid TenantId, string PrincipalKey), byte> _trialSeatOccupants = new();
+
+    private readonly ConcurrentDictionary<Guid, List<TenantWorkspaceRow>> _workspacesByTenant = new();
+
+    /// <summary>
+    ///     Seeds <see cref="ScopeIds.DefaultTenant" /> so DevelopmentBypass + commercial-tier filters resolve a Standard
+    ///     tenant without SQL.
+    /// </summary>
+    public InMemoryTenantRepository()
+    {
+        TrySeedDefaultDevelopmentTenant();
+    }
 
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
@@ -65,44 +71,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return Task.FromResult(list);
     }
 
-    private void TrySeedDefaultDevelopmentTenant()
-    {
-        if (_byId.ContainsKey(ScopeIds.DefaultTenant))
-            return;
-
-        const string slug = "archlucid-dev-default-scope";
-        DateTimeOffset now = DateTimeOffset.UtcNow;
-
-        TenantRecord record = new()
-        {
-            Id = ScopeIds.DefaultTenant,
-            Name = "Development default tenant",
-            Slug = slug,
-            Tier = TenantTier.Standard,
-            EntraTenantId = null,
-            CreatedUtc = now,
-            SuspendedUtc = null,
-            TrialStartUtc = null,
-            TrialExpiresUtc = null,
-            TrialRunsLimit = null,
-            TrialRunsUsed = 0,
-            TrialSeatsLimit = null,
-            TrialSeatsUsed = 1,
-            TrialStatus = null,
-            TrialSampleRunId = null,
-            TrialArchitecturePreseedEnqueuedUtc = null,
-            TrialWelcomeRunId = null,
-            BaselineReviewCycleHours = null,
-            BaselineReviewCycleSource = null,
-            BaselineReviewCycleCapturedUtc = null,
-        };
-
-        if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
-            return;
-
-        _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
-    }
-
     public Task InsertTenantAsync(
         Guid tenantId,
         string name,
@@ -138,7 +106,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialWelcomeRunId = null,
             BaselineReviewCycleHours = null,
             BaselineReviewCycleSource = null,
-            BaselineReviewCycleCapturedUtc = null,
+            BaselineReviewCycleCapturedUtc = null
         };
 
         if (!_byId.TryAdd(tenantId, record))
@@ -186,7 +154,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     TenantId = tenantId,
                     Name = name,
                     DefaultProjectId = defaultProjectId,
-                    CreatedUtc = DateTimeOffset.UtcNow,
+                    CreatedUtc = DateTimeOffset.UtcNow
                 });
 
 
@@ -222,7 +190,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc
         };
 
         _byId[tenantId] = updated;
@@ -269,7 +237,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialWelcomeRunId = null,
             BaselineReviewCycleHours = baselineReviewCycleHours,
             BaselineReviewCycleSource = baselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+            BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc
         };
 
         _byId[tenantId] = updated;
@@ -312,7 +280,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc
         };
 
         _byId[tenantId] = updated;
@@ -358,7 +326,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     ComputeDaysRemaining(t.TrialExpiresUtc));
 
 
-            _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
+            _byId[tenantId] = CopyTenant(t, t.TrialRunsUsed + 1);
         }
 
         return Task.CompletedTask;
@@ -486,11 +454,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             _byId[tenantId] = CopyTenant(t, trialFirstManifestCommittedUtc: committedUtc);
 
             return Task.FromResult<TrialFirstManifestCommitOutcome?>(
-                new TrialFirstManifestCommitOutcome
-                {
-                    SignupToCommitSeconds = seconds,
-                    TrialRunUsageRatio = ratio,
-                });
+                new TrialFirstManifestCommitOutcome { SignupToCommitSeconds = seconds, TrialRunUsageRatio = ratio });
         }
     }
 
@@ -574,6 +538,65 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return Task.CompletedTask;
     }
 
+    public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
+            return Task.FromResult<TenantWorkspaceLink?>(null);
+
+        TenantWorkspaceRow? row;
+
+        lock (list)
+
+            row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
+
+
+        if (row is null)
+            return Task.FromResult<TenantWorkspaceLink?>(null);
+
+        return Task.FromResult<TenantWorkspaceLink?>(
+            new TenantWorkspaceLink { WorkspaceId = row.Id, DefaultProjectId = row.DefaultProjectId });
+    }
+
+    private void TrySeedDefaultDevelopmentTenant()
+    {
+        if (_byId.ContainsKey(ScopeIds.DefaultTenant))
+            return;
+
+        const string slug = "archlucid-dev-default-scope";
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        TenantRecord record = new()
+        {
+            Id = ScopeIds.DefaultTenant,
+            Name = "Development default tenant",
+            Slug = slug,
+            Tier = TenantTier.Standard,
+            EntraTenantId = null,
+            CreatedUtc = now,
+            SuspendedUtc = null,
+            TrialStartUtc = null,
+            TrialExpiresUtc = null,
+            TrialRunsLimit = null,
+            TrialRunsUsed = 0,
+            TrialSeatsLimit = null,
+            TrialSeatsUsed = 1,
+            TrialStatus = null,
+            TrialSampleRunId = null,
+            TrialArchitecturePreseedEnqueuedUtc = null,
+            TrialWelcomeRunId = null,
+            BaselineReviewCycleHours = null,
+            BaselineReviewCycleSource = null,
+            BaselineReviewCycleCapturedUtc = null
+        };
+
+        if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
+            return;
+
+        _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
+    }
+
     private static TenantRecord CopyTenant(
         TenantRecord source,
         int? trialRunsUsed = null,
@@ -582,8 +605,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         DateTimeOffset? trialExpiresUtc = null,
         DateTimeOffset? trialArchitecturePreseedEnqueuedUtc = null,
         Guid? trialWelcomeRunId = null,
-        DateTimeOffset? trialFirstManifestCommittedUtc = null) =>
-        new()
+        DateTimeOffset? trialFirstManifestCommittedUtc = null)
+    {
+        return new TenantRecord
         {
             Id = source.Id,
             Name = source.Name,
@@ -606,8 +630,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialFirstManifestCommittedUtc = trialFirstManifestCommittedUtc ?? source.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = source.BaselineReviewCycleHours,
             BaselineReviewCycleSource = source.BaselineReviewCycleSource,
-            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,
+            BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc
         };
+    }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
@@ -620,53 +645,36 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return days < 0 ? 0 : days;
     }
 
-    public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
-    {
-        _ = ct;
-
-        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
-            return Task.FromResult<TenantWorkspaceLink?>(null);
-
-        TenantWorkspaceRow? row;
-
-        lock (list)
-
-            row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
-
-
-        if (row is null)
-            return Task.FromResult<TenantWorkspaceLink?>(null);
-
-        return Task.FromResult<TenantWorkspaceLink?>(
-            new TenantWorkspaceLink
-            {
-                WorkspaceId = row.Id,
-                DefaultProjectId = row.DefaultProjectId,
-            });
-    }
-
     private sealed record TenantWorkspaceRow
     {
         public Guid Id
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid TenantId
         {
-            get; init;
+            get;
+            init;
         }
 
-        public string Name { get; init; } = string.Empty;
+        public string Name
+        {
+            get;
+            init;
+        } = string.Empty;
 
         public Guid DefaultProjectId
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

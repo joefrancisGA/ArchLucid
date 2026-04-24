@@ -1,6 +1,6 @@
 [
   {
-    "findingId": "aebf846b94304c1faa7bc6ab0c53579b",
+    "findingId": "652c32db-26d1-e32f-2656-529ee2451d12",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
@@ -18,7 +18,7 @@
     ]
   },
   {
-    "findingId": "e8160a84701443ca8c3d8b62779fa78f",
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
