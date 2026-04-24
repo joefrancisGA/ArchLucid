@@ -7,6 +7,7 @@ import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -43,6 +44,7 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
     try {
       const a = await getFindingLlmAudit(runId, findingId.trim());
       setAudit(a);
+      recordFirstTenantFunnelEvent("first_finding_viewed");
 
       try {
         const chain = await getFindingEvidenceChain(runId, findingId.trim());

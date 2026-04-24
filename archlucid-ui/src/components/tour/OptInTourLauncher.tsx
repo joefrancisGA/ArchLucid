@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
 import { OptInTour } from "./OptInTour";
 
@@ -16,6 +17,7 @@ export function OptInTourLauncher() {
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
+    recordFirstTenantFunnelEvent("tour_opt_in");
   }, []);
 
   const handleClose = useCallback(() => {

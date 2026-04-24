@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   BASELINE_REVIEW_CYCLE_HOURS_MAX,
   companySizeOptions,
@@ -140,6 +141,7 @@ export function SignupForm() {
         /* ignore */
       }
 
+      recordFirstTenantFunnelEvent("signup");
       showSuccess("Organization created — check your email if verification is required.");
       router.push(`/signup/verify?email=${encodeURIComponent(values.adminEmail)}`);
     } catch (e: unknown) {

@@ -19,6 +19,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun } from "@/lib/api";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
@@ -204,6 +205,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(6);
+      recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Run ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
       const message =
