@@ -488,6 +488,12 @@ public static class ArchLucidInstrumentation
             "archlucid_data_consistency_alerts_total",
             description: "Data consistency enforcement alert increments (labels table, column).");
 
+    /// <summary>Rows inserted into <c>dbo.DataConsistencyQuarantine</c> from orphan probes (labels <c>table</c>, <c>column</c>).</summary>
+    public static readonly Counter<long> DataConsistencyOrphansQuarantined =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_consistency_orphans_quarantined_total",
+            description: "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
+
     /// <summary><c>ArchLucid.Jobs.Cli</c> / <c>IArchLucidJob</c> executions (labels: <c>job_name</c>, <c>exit_class</c>).</summary>
     public static readonly Counter<long> ContainerJobRunsTotal =
         AppMeter.CreateCounter<long>(

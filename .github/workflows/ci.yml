@@ -130,6 +130,9 @@ jobs:
       - name: Contributor one-page line budget unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_contributor_on_one_page_size.py"
 
+      - name: Pen test remediation tracker hygiene
+        run: python scripts/ci/assert_pen_test_remediation_no_stale.py
+
       - name: Audit coverage matrix vs AuditEventTypes (names + count marker)
         run: python scripts/ci/assert_audit_const_count.py
 
