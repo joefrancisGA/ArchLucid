@@ -14,6 +14,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="OpenTelemetry.Api" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="RazorLight" />
   </ItemGroup>
