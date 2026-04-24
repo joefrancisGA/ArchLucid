@@ -139,6 +139,12 @@ jobs:
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
 
+      - name: Buyer first-30-minutes path — vertical picker + q35 prose guard
+        run: python scripts/ci/assert_buyer_first_30_minutes_in_sync.py
+
+      - name: Buyer first-30-minutes guard self-test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_buyer_first_30_minutes_in_sync.py"
+
       - name: "Advisory — PR B tracker vs ADR 0029 checklist (warn-only; strict via ARCHLUCID_PR_B_TRACKER_STRICT)"
         continue-on-error: true
         run: python scripts/ci/assert_pr_b_tracker_in_sync.py

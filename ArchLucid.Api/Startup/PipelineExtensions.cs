@@ -38,11 +38,10 @@ internal static class PipelineExtensions
 
                     if (logger.IsEnabled(LogLevel.Error))
 
-                        logger.LogError(
+                        logger.LogErrorUnhandledWorkerHttpRequest(
                             ex,
-                            "Unhandled exception for {Method} {Path}",
-                            LogSanitizer.Sanitize(context.Request.Method),
-                            LogSanitizer.Sanitize(context.Request.Path.Value));
+                            context.Request.Method,
+                            context.Request.Path.ToString());
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
