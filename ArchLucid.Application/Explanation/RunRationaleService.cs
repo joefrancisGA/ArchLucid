@@ -41,14 +41,9 @@ public sealed class RunRationaleService(
         if (detail.FindingsSnapshot is not null)
             return BuildAuthorityRationale(detail, provenanceAvailable, explanationAvailable);
 
-
         ArchitectureRunDetail? coordinator = await runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
 
-        if (coordinator is not null)
-            return BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable);
-
-
-        return BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
+        return coordinator is not null ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable) : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
     }
 
     private static RunRationale BuildAuthorityRationale(
@@ -57,7 +52,7 @@ public sealed class RunRationaleService(
         bool explanationAvailable)
     {
         FindingsSnapshot snapshot = detail.FindingsSnapshot!;
-        List<Finding> findings = snapshot.Findings ?? [];
+        List<Finding> findings = snapshot.Findings;
 
         List<FindingRationale> mapped = findings
             .Select(
@@ -67,14 +62,14 @@ public sealed class RunRationaleService(
 
                     return new FindingRationale
                     {
-                        FindingId = f.FindingId ?? string.Empty,
-                        Title = f.Title ?? string.Empty,
+                        FindingId = f.FindingId,
+                        Title = f.Title,
                         Severity = f.Severity.ToString(),
-                        Rationale = f.Rationale ?? string.Empty,
-                        Category = f.Category ?? string.Empty,
-                        EngineType = f.EngineType ?? string.Empty,
-                        RelatedNodeIds = f.RelatedNodeIds ?? [],
-                        RecommendedActions = f.RecommendedActions ?? [],
+                        Rationale = f.Rationale,
+                        Category = f.Category,
+                        EngineType = f.EngineType,
+                        RelatedNodeIds = f.RelatedNodeIds,
+                        RecommendedActions = f.RecommendedActions,
                         TraceCompleteness = ToApiScore(score),
                     };
                 })
@@ -122,7 +117,7 @@ public sealed class RunRationaleService(
         bool explanationAvailable)
     {
         List<FindingRationale> findings = coordinator.Results
-            .SelectMany(r => r.Findings ?? [])
+            .SelectMany(r => r.Findings)
             .Select(MapArchitectureFinding)
             .ToList();
 
@@ -192,7 +187,7 @@ public sealed class RunRationaleService(
                 ["appliedRuleIds"] = p.AppliedRuleIds ?? [],
                 ["acceptedFindingIds"] = p.AcceptedFindingIds ?? [],
                 ["rejectedFindingIds"] = p.RejectedFindingIds ?? [],
-                ["notes"] = p.Notes ?? [],
+                ["notes"] = p.Notes,
             },
         };
     }
@@ -201,13 +196,8 @@ public sealed class RunRationaleService(
     {
         Dictionary<string, object> details = new(StringComparer.Ordinal);
 
-        if (p.Metadata is not null)
-
-            foreach (KeyValuePair<string, string> kv in p.Metadata)
-
-                details[kv.Key] = kv.Value;
-
-
+        foreach (KeyValuePair<string, string> kv in p.Metadata)
+            details[kv.Key] = kv.Value;
 
         details["runId"] = p.RunId;
         details["eventType"] = p.EventType;
@@ -224,17 +214,17 @@ public sealed class RunRationaleService(
 
     private static FindingRationale MapArchitectureFinding(ArchitectureFinding f)
     {
-        string message = f.Message ?? string.Empty;
+        string message = f.Message;
 
         return new FindingRationale
         {
-            FindingId = f.FindingId ?? string.Empty,
+            FindingId = f.FindingId,
             Title = message,
-            Severity = f.Severity ?? string.Empty,
+            Severity = f.Severity,
             Rationale = message,
-            Category = f.Category ?? string.Empty,
+            Category = f.Category,
             EngineType = f.SourceAgent.ToString(),
-            RelatedNodeIds = f.EvidenceRefs ?? [],
+            RelatedNodeIds = f.EvidenceRefs,
             RecommendedActions = [],
             TraceCompleteness = null,
         };
@@ -258,19 +248,14 @@ public sealed class RunRationaleService(
 
     private static string BuildAuthoritySummary(RunDetailDto detail, int findingCount)
     {
-        string? fromManifest = detail.GoldenManifest?.Metadata?.Summary;
+        string? fromManifest = detail.GoldenManifest?.Metadata.Summary;
 
         if (!string.IsNullOrWhiteSpace(fromManifest))
             return fromManifest.Trim();
 
-
         string? desc = detail.Run.Description;
 
-        if (!string.IsNullOrWhiteSpace(desc))
-            return desc.Trim();
-
-
-        return $"Authority run with {findingCount} finding(s).";
+        return !string.IsNullOrWhiteSpace(desc) ? desc.Trim() : $"Authority run with {findingCount} finding(s).";
     }
 
     private static string BuildCoordinatorSummary(
@@ -278,19 +263,14 @@ public sealed class RunRationaleService(
         ArchitectureRunDetail coordinator,
         int findingCount)
     {
-        string? authorityManifestSummary = authorityDetail.GoldenManifest?.Metadata?.Summary;
+        string? authorityManifestSummary = authorityDetail.GoldenManifest?.Metadata.Summary;
 
         if (!string.IsNullOrWhiteSpace(authorityManifestSummary))
             return authorityManifestSummary.Trim();
 
-
         if (coordinator.Manifest is { } manifest)
         {
-            if (!string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription))
-                return manifest.Metadata.ChangeDescription.Trim();
-
-
-            return $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
+            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription) ? manifest.Metadata.ChangeDescription.Trim() : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
         }
 
         return $"Coordinator run ({coordinator.Run.Status}) with {findingCount} agent finding(s).";

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Identity;
 
 public sealed class TrialLocalIdentityService(
-    IOptions<TrialAuthOptions> trialOptions,
+    IOptions<TrialAuthOptions>? trialOptions,
     ITrialIdentityUserRepository repository,
     PasswordHasher<TrialIdentityHasherUser> passwordHasher,
     TrialPasswordPolicyValidator passwordPolicy,

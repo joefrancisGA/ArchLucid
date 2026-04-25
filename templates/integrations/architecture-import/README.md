@@ -5,6 +5,8 @@
 **Server-side reference (read-only in this recipe):**  
 [`ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs`](../../../ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs) parses the **full** `terraform show -json` document when a declaration is marked `terraform-show-json` on the **host**. The **public** `POST` validator today accepts `json` and `simple-terraform` only ([`ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs`](../../../ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs)), so this recipe **converts** Terraform/ARM into the **`json`** public contract.
 
+**Integration events (outbound webhooks, CloudEvent types):** Canonical type list in [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json); narrative and HMAC patterns in [`docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
+
 ---
 
 ## Terraform (PowerShell)
