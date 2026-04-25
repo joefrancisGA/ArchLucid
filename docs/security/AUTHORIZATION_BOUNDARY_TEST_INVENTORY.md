@@ -37,7 +37,7 @@ dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --filter "Suite=Core&
 
 ## Tenant isolation (`TenantIsolationSmokeTests`)
 
-These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TEST` is set to a **reachable** SQL Server (same as other explicit SQL work in [docs/BUILD.md](../BUILD.md)) **and** a **4s connect probe** to `master` succeeds. RLS is verified only in that configuration (localhost-only Windows is intentionally **not** used here so a stopped LocalDB does not block the test host for minutes). If the check fails, the test is **skipped** (via **Xunit.SkippableFact** — there is no custom `[SkipIfNoSql]` attribute; the skip reason matches the “no SQL/RLS for this run” intent).
+These run only when **either** `ARCHLUCID_API_TEST_SQL` **or** `ARCHLUCID_SQL_TEST` is set to a **reachable** SQL Server (same as other explicit SQL work in [docs/engineering/BUILD.md](../engineering/BUILD.md)) **and** a **4s connect probe** to `master` succeeds. RLS is verified only in that configuration (localhost-only Windows is intentionally **not** used here so a stopped LocalDB does not block the test host for minutes). If the check fails, the test is **skipped** (via **Xunit.SkippableFact** — there is no custom `[SkipIfNoSql]` attribute; the skip reason matches the “no SQL/RLS for this run” intent).
 
 | # | Test (method) | HTTP / action | Expected |
 |---|---------------|---------------|----------|
