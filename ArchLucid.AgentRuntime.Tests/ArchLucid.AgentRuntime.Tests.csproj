@@ -60,6 +60,9 @@
 
   <ItemGroup>
     <None Include="..\scripts\ci\prompt_regression_baseline.json" Link="Fixtures\Regression\prompt_regression_baseline.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="AgentPromptTemplateHashesBaseline.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
