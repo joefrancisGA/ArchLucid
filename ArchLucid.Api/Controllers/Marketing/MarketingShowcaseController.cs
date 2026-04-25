@@ -63,15 +63,13 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
             return true;
         }
 
-        if (lowered is "contoso-hardened" or "contoso-retail-hardened")
-        {
-            runId = ContosoRetailDemoIdentifiers.AuthorityRunHardenedId;
+        if (lowered is not ("contoso-hardened" or "contoso-retail-hardened"))
+            return trimmed.Length == 32 && IsHex32(trimmed) && Guid.TryParseExact(trimmed, "N", out runId);
+        runId = ContosoRetailDemoIdentifiers.AuthorityRunHardenedId;
 
-            return true;
-        }
+        return true;
 
         // 32-char hex without dashes (operator URLs often use "N" format).
-        return trimmed.Length == 32 && IsHex32(trimmed) && Guid.TryParseExact(trimmed, "N", out runId);
     }
 
     private static bool IsHex32(string value)

@@ -9,7 +9,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Create your first architecture run using the wizard, or submit one via the CLI or API. Runs appear here when they exist for the project in the URL.",
   actions: [
     { label: "Create your first run", href: "/runs/new" },
-    { label: "View onboarding", href: "/onboarding", variant: "outline" },
+    { label: "Getting started", href: "/getting-started", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };

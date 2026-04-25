@@ -132,7 +132,7 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Trial funnel health probe: starting against base {BaseUrl} every {Interval} (demo preview {Path}).", baseUrl, ProbeInterval, DemoPreviewRelativePath);
 
-        while (stoppingToken.IsCancellationRequested == false)
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {

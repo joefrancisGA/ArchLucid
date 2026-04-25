@@ -8,7 +8,6 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
@@ -124,7 +123,7 @@ public partial class Program
 
         if (!app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath?.Trim()))
+            && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath.Trim()))
 
             if (app.Logger.IsEnabled(LogLevel.Warning))
 

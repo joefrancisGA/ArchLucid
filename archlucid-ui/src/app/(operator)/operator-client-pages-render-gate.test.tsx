@@ -26,7 +26,7 @@ import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscript
 import AskPage from "./ask/page";
 import EvolutionReviewPage from "./evolution-review/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
-import OnboardingStartPage from "./onboarding/start/page";
+import GettingStartedPage from "./getting-started/page";
 import PolicyPacksPage from "./policy-packs/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
@@ -130,8 +130,9 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
   });
 
-  it("OnboardingStartPage renders primary heading", () => {
-    render(<OnboardingStartPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Onboarding" })).toBeInTheDocument();
+  it("GettingStartedPage renders primary heading", async () => {
+    const page = await GettingStartedPage({ searchParams: Promise.resolve({}) });
+    render(page);
+    expect(screen.getByRole("heading", { level: 2, name: "Getting started" })).toBeInTheDocument();
   });
 });

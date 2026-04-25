@@ -42,18 +42,6 @@ public sealed class BaselineMutationAuditService(
         if (!IsArchitectureBaselineMutationEvent(eventType))
             return;
 
-        if (auditService is null || scopeContextProvider is null)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.LogWarning(
-                    "Baseline durable echo skipped for {EventType}: IAuditService or IScopeContextProvider is null.",
-                    LogSanitizer.Sanitize(eventType));
-            }
-
-            return;
-        }
-
         try
         {
             await BaselineMutationAuditArchitectureDurableWriter.TryWriteArchitectureDurableEchoAsync(

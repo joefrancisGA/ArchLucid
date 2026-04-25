@@ -99,8 +99,8 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
           </div>
 
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            In-app routes: see <Link href="/onboarding" className="text-teal-800 underline dark:text-teal-300">Onboarding</Link>{" "}
-            and <Link href="/getting-started" className="text-teal-800 underline dark:text-teal-300">Getting started</Link>.
+            In-app: <Link href="/getting-started" className="text-teal-800 underline dark:text-teal-300">Getting started</Link>{" "}
+            (same Core Pilot checklist as Home).
           </p>
         </div>
       </DialogContent>

@@ -19,7 +19,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["wizard", "create", "pipeline", "run"],
     summary: "Use New run to submit a request, then track the authority pipeline until the golden manifest is ready.",
     docPath: "docs/FIRST_RUN_WIZARD.md",
-    routes: ["/runs/new", "/"],
+    routes: ["/runs/new", "/", "/getting-started"],
   },
   {
     id: "artifacts",

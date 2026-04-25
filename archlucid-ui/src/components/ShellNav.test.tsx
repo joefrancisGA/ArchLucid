@@ -53,7 +53,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         "Guided first-run wizard — system identity through pipeline tracking (Alt+N)",
       );
       expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
-      expect(screen.getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
+      expect(screen.getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/getting-started");
 
       // Graph is now tier="extended" — Core Pilot path does not require graph exploration.
       // It must NOT be visible in the default (no extended) sidebar.

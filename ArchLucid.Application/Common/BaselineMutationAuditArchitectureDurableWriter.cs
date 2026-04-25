@@ -71,7 +71,11 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { requestId, systemName }),
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            requestId,
+                            systemName
+                        }),
                     };
 
                     await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
@@ -104,7 +108,10 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId }),
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            runId = entityId
+                        }),
                     };
 
                     await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
@@ -138,7 +145,11 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId, resultCount }),
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            runId = entityId,
+                            resultCount
+                        }),
                     };
 
                     await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
@@ -169,7 +180,12 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
 
                     // Coordinator path historically omitted warningCount/commitPath in DataJson; authority adds commitPath (+ counts).
                     string commitJson = string.IsNullOrWhiteSpace(commitPath)
-                        ? JsonSerializer.Serialize(new { runId = entityId, manifestVersion, systemName })
+                        ? JsonSerializer.Serialize(new
+                        {
+                            runId = entityId,
+                            manifestVersion,
+                            systemName
+                        })
                         : JsonSerializer.Serialize(
                             new
                             {
@@ -201,8 +217,6 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                 logger,
                 $"CoordinatorRunCommitCompleted:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
-
-            return;
         }
     }
 

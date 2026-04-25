@@ -114,7 +114,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
- * - **Omit** on Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.
+ * - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
  * - **Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
@@ -156,19 +156,11 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
-        href: "/onboarding",
-        label: "Onboarding",
-        title: "Guided operator onboarding checklist",
+        href: "/getting-started",
+        label: "Getting started",
+        title: "Same Core Pilot checklist as Home — plus trial handoff and anchors",
         icon: BookOpen,
         tier: "essential",
-      },
-      {
-        href: "/onboard",
-        label: "First session",
-        title: "Pilot four-step wizard (request → seed → commit → hand-off)",
-        icon: ClipboardList,
-        tier: "essential",
-        requiredAuthority: "ExecuteAuthority",
       },
       {
         href: "/runs/new",

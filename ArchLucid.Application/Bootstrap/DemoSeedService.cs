@@ -1,14 +1,14 @@
+using ArchLucid.Application.Authority;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Application.Authority;
-using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -288,7 +288,7 @@ public sealed class DemoSeedService(
 
         List<ManifestService> services =
         [
-            new ManifestService
+            new()
             {
                 ServiceId = checkoutServiceId,
                 ServiceName = "Checkout API",
@@ -302,7 +302,7 @@ public sealed class DemoSeedService(
 
         List<ManifestDatastore> datastores =
         [
-            new ManifestDatastore
+            new()
             {
                 DatastoreId = ordersDatastoreId,
                 DatastoreName = "Orders DB",
@@ -314,7 +314,7 @@ public sealed class DemoSeedService(
 
         List<ManifestRelationship> relationships =
         [
-            new ManifestRelationship
+            new()
             {
                 RelationshipId = $"rel-{checkoutServiceId}-writes-{ordersDatastoreId}",
                 SourceId = checkoutServiceId,
@@ -324,39 +324,54 @@ public sealed class DemoSeedService(
             }
         ];
 
-        if (richSeed)
+        if (!richSeed)
+            return new GoldenManifest
+            {
+                RunId = runId,
+                SystemName = "Contoso Retail Platform",
+                Services = services,
+                Datastores = datastores,
+                Relationships = relationships,
+                Governance = gov,
+                Metadata = new ManifestMetadata
+                {
+                    ManifestVersion = manifestVersion,
+                    ParentManifestVersion = null,
+                    ChangeDescription = isHardened ? "Hardened retail posture" : "Baseline lift-and-shift",
+                    DecisionTraceIds = [],
+                    CreatedUtc = DemoUtc
+                }
+            };
+        string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
+
+        services.Add(new ManifestService
         {
-            string paymentServiceId = isHardened ? "svc-payment-gateway-v2" : "svc-payment-gateway-v1";
+            ServiceId = paymentServiceId,
+            ServiceName = "Payment Gateway",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
+            Purpose = "Tokenizes card data and brokers payment provider calls.",
+            Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"],
+            RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"]
+        });
 
-            services.Add(new ManifestService
-            {
-                ServiceId = paymentServiceId,
-                ServiceName = "Payment Gateway",
-                ServiceType = ServiceType.Api,
-                RuntimePlatform = isHardened ? RuntimePlatform.ContainerApps : RuntimePlatform.AppService,
-                Purpose = "Tokenizes card data and brokers payment provider calls.",
-                Tags = isHardened ? ["edge-hardened", "pci-scope"] : ["pci-scope"],
-                RequiredControls = isHardened ? ["WAF", "ManagedIdentity", "PrivateLink"] : ["TLS-1.2"]
-            });
+        relationships.Add(new ManifestRelationship
+        {
+            RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}",
+            SourceId = checkoutServiceId,
+            TargetId = paymentServiceId,
+            RelationshipType = RelationshipType.Calls,
+            Description = "Checkout API invokes the Payment Gateway during order finalization."
+        });
 
-            relationships.Add(new ManifestRelationship
-            {
-                RelationshipId = $"rel-{checkoutServiceId}-calls-{paymentServiceId}",
-                SourceId = checkoutServiceId,
-                TargetId = paymentServiceId,
-                RelationshipType = RelationshipType.Calls,
-                Description = "Checkout API invokes the Payment Gateway during order finalization."
-            });
-
-            relationships.Add(new ManifestRelationship
-            {
-                RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}",
-                SourceId = paymentServiceId,
-                TargetId = ordersDatastoreId,
-                RelationshipType = RelationshipType.ReadsFrom,
-                Description = "Payment Gateway reads order context for reconciliation."
-            });
-        }
+        relationships.Add(new ManifestRelationship
+        {
+            RelationshipId = $"rel-{paymentServiceId}-reads-{ordersDatastoreId}",
+            SourceId = paymentServiceId,
+            TargetId = ordersDatastoreId,
+            RelationshipType = RelationshipType.ReadsFrom,
+            Description = "Payment Gateway reads order context for reconciliation."
+        });
 
         return new GoldenManifest
         {

@@ -288,8 +288,8 @@ export function OperatorFirstRunWorkflowPanel() {
 
       <p className="mt-[18px] text-[13px] text-neutral-700 dark:text-neutral-300">
         More orientation:{" "}
-        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/onboarding">
-          Onboarding
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/getting-started">
+          Getting started
         </Link>{" "}
         ·{" "}
         <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/">
