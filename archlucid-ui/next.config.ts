@@ -26,6 +26,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  /** Production/Docker `next build` must not typecheck Vitest-only roots (`testing/`, `vitest.*.ts`). IDE keeps `tsconfig.json`. */
+  typescript: {
+    tsconfigPath: "tsconfig.build.json",
+  },
   reactStrictMode: true,
   // Standalone output copies only required node_modules into .next/standalone,
   // producing a self-contained deployment unit suitable for Docker / App Service.
