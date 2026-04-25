@@ -17,7 +17,11 @@ export type PricingDoc = {
   schemaVersion: number;
   effectiveDate: string;
   currency: string;
-  /** When set, Team tier card shows an external Stripe Checkout / Payment Link CTA. */
+  /**
+   * When set (non-empty), the Team tier card shows “Subscribe with Stripe” linking here.
+   * The repo may ship with `https://checkout.stripe.com/placeholder-replace-before-launch` from
+   * `PRICING_PHILOSOPHY.md` locked-prices — replace with a real Stripe URL before launch, or omit to hide the button.
+   */
   teamStripeCheckoutUrl?: string | null;
   packages: PricingPackage[];
 };

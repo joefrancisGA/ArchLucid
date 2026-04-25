@@ -154,6 +154,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
   "schemaVersion": 1,
   "effectiveDate": "2026-04-17",
   "currency": "USD",
+  "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
   "packages": [
     {
       "id": "team",
@@ -186,6 +187,8 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
   ]
 }
 ```
+
+**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready.
 
 | Item | Price |
 |------|-------|
