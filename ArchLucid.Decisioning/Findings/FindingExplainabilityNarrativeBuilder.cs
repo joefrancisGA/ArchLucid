@@ -19,12 +19,12 @@ public static class FindingExplainabilityNarrativeBuilder
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
+        ExplainabilityTrace trace = finding.Trace;
 
         List<string> evidenceRefs = CollectEvidenceRefs(finding, trace);
         List<string> alternativePaths = CollectNonEmptyTrimmed(trace.AlternativePathsConsidered);
         string ruleId = ResolveRuleId(trace);
-        string conclusion = finding.Rationale ?? string.Empty;
+        string conclusion = finding.Rationale;
 
         return new FindingExplainabilityEvidence(evidenceRefs, conclusion, alternativePaths, ruleId);
     }
@@ -79,13 +79,13 @@ public static class FindingExplainabilityNarrativeBuilder
 
         string? agentTraceId = trace.SourceAgentExecutionTraceId;
 
-        if (!string.IsNullOrWhiteSpace(agentTraceId))
-        {
-            string agentRef = $"agentExecutionTrace:{agentTraceId.Trim()}";
+        if (string.IsNullOrWhiteSpace(agentTraceId))
+            return refs;
 
-            if (!refs.Contains(agentRef, StringComparer.Ordinal))
-                refs.Add(agentRef);
-        }
+        string agentRef = $"agentExecutionTrace:{agentTraceId.Trim()}";
+
+        if (!refs.Contains(agentRef, StringComparer.Ordinal))
+            refs.Add(agentRef);
 
         return refs;
     }

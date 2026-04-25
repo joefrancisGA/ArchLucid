@@ -13,7 +13,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
+        ExplainabilityTrace trace = finding.Trace;
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
@@ -39,19 +39,15 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
 
         if (hasAlt)
-
             populated++;
-
 
         if (hasNotes)
-
             populated++;
-
 
         return new TraceCompletenessScore
         {
-            FindingId = finding.FindingId ?? string.Empty,
-            EngineType = finding.EngineType ?? string.Empty,
+            FindingId = finding.FindingId,
+            EngineType = finding.EngineType,
             HasGraphNodeIds = hasGraph,
             HasRulesApplied = hasRules,
             HasDecisionsTaken = hasDecisions,
@@ -67,12 +63,10 @@ public static class ExplainabilityTraceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        List<Finding> findings = snapshot.Findings ?? [];
+        List<Finding> findings = snapshot.Findings;
 
         if (findings.Count == 0)
-
             return new TraceCompletenessSummary { TotalFindings = 0, OverallCompletenessRatio = 0.0, ByEngine = [] };
-
 
         List<TraceCompletenessScore> scores = findings.Select(AnalyzeFinding).ToList();
 
@@ -101,7 +95,9 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
         return new TraceCompletenessSummary
         {
-            TotalFindings = findings.Count, OverallCompletenessRatio = overall, ByEngine = byEngine
+            TotalFindings = findings.Count,
+            OverallCompletenessRatio = overall,
+            ByEngine = byEngine
         };
     }
 

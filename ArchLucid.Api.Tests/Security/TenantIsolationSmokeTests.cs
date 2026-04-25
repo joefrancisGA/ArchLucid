@@ -51,32 +51,39 @@ public sealed class TenantIsolationSmokeTests
         Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
-        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB)
-            .ConfigureAwait(false);
+        using (HttpClient primer = factory.CreateClient())
+        {
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            // DbUp + first SQL queries can return 503 until the authority pipeline is warm; avoid relying on a single
+            // probe shape so CI stays stable.
+            await WarmListRunsPathAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
         using HttpClient clientA = factory.CreateClient();
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTISO-" + Guid.NewGuid().ToString("N")[..12];
-        HttpResponseMessage create = await clientA
-            .PostAsJsonAsync("/v1/architecture/request", TestRequestFactory.CreateArchitectureRequest(requestId))
-            .ConfigureAwait(false);
+        HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
         create.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>().ConfigureAwait(false);
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
         string runId = created!.Run.RunId;
 
         using HttpClient clientB = factory.CreateClient();
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
-        HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}").ConfigureAwait(false);
+        HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}");
         getOther.StatusCode.Should().Be(HttpStatusCode.NotFound, "RLS + scope must hide other-tenant runs.");
 
-        HttpResponseMessage listOther = await clientB.GetAsync("/v1/architecture/runs?limit=200").ConfigureAwait(false);
+        HttpResponseMessage listOther = await clientB.GetAsync("/v1/architecture/runs?limit=200");
         listOther.EnsureSuccessStatusCode();
-        string listJson = await listOther.Content.ReadAsStringAsync().ConfigureAwait(false);
+        string listJson = await listOther.Content.ReadAsStringAsync();
         ListContainsRunId(listJson, runId).Should().BeFalse("list must not return runs from another tenant.");
 
-        HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/run/{runId}").ConfigureAwait(false);
+        HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/run/{runId}");
         getOwn.EnsureSuccessStatusCode();
     }
 
@@ -113,14 +120,14 @@ public sealed class TenantIsolationSmokeTests
         Guid defaultProjectId)
     {
         await using SqlConnection connection = new(connectionString);
-        await connection.OpenAsync().ConfigureAwait(false);
+        await connection.OpenAsync();
         await using (SqlCommand bypass = connection.CreateCommand())
         {
             bypass.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
             bypass.Parameters.AddWithValue("@k", "al_rls_bypass");
             bypass.Parameters.AddWithValue("@v", 1);
             bypass.Parameters.AddWithValue("@read_only", 0);
-            await bypass.ExecuteNonQueryAsync().ConfigureAwait(false);
+            await bypass.ExecuteNonQueryAsync();
         }
 
         await using SqlCommand cmd = connection.CreateCommand();
@@ -136,6 +143,36 @@ public sealed class TenantIsolationSmokeTests
         cmd.Parameters.AddWithValue("@Tid", tenantId);
         cmd.Parameters.AddWithValue("@Wid", workspaceId);
         cmd.Parameters.AddWithValue("@Pid", defaultProjectId);
-        _ = await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+        _ = await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static async Task WarmListRunsPathAsync(HttpClient client)
+    {
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                return;
+
+            await Task.Delay(1000);
+        }
+    }
+
+    private static async Task<HttpResponseMessage> PostArchitectureRequestWithTransientRetryAsync(
+        HttpClient client,
+        object body)
+    {
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            HttpResponseMessage response = await client
+                .PostAsJsonAsync("/v1/architecture/request", body);
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+                return response;
+
+            response.Dispose();
+            await Task.Delay(750 * (attempt + 1));
+        }
+
+        return await client.PostAsJsonAsync("/v1/architecture/request", body);
     }
 }

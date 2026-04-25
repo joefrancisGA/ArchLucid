@@ -618,39 +618,192 @@ content.
 
 ---
 
-### Improvement 7 — DEFERRED: Add operator-visible tenant/workspace settings and scope-switching UI
+### Improvement 7 — Add operator-visible tenant/workspace settings, scope switching, and role management UI
 
 **Impact:** Manageability (+5), Usability (+2). Estimated weighted lift: **+0.80 points.**
 
 **Problem.** Scope headers (`x-tenant-id`, `x-workspace-id`, `x-project-id`) are the only way to control data isolation, but operators cannot inspect or change their current scope from the UI. There is no tenant settings page, no user management surface, and no scope switcher.
 
-**Why deferred.** Requires owner decisions on:
-- Which settings to expose in the UI vs. keeping config-file-only
-- Whether scope-switching should be a dropdown, a settings page, or a header bar element
-- Whether user/role management belongs in V1 UI or stays API-only
-- Multi-workspace navigation model (if tenants have multiple workspaces)
+**Owner decisions (2026-04-25):**
+- Workspace/project scope switching from the UI: **approved**.
+- Non-obscure tenant-level settings should be editable from the UI.
+- Role/authority management UI: **approved** for V1.
 
-**Pending questions (saved for later):**
-1. Should operators be able to switch workspace/project scope from the UI, or is the current proxy-env-var model the intended V1 experience?
-2. Which tenant-level settings (if any) should be editable from the UI vs. remaining in appsettings.json?
-3. Should user/role management (create operator, assign authority rank) have a UI surface in V1, or stay API/CLI-only?
+```
+Goal: add three operator-management surfaces — scope switching, tenant
+settings, and role/authority management — based on owner decisions
+recorded 2026-04-25.
+
+Read first:
+- archlucid-ui/src/components/AppShellClient.tsx  (header layout where
+  scope switcher should live)
+- archlucid-ui/src/app/(operator)/admin/support/page.tsx  (existing
+  admin page pattern)
+- archlucid-ui/src/lib/nav-config.ts  (where to add new nav entries)
+- archlucid-ui/src/lib/nav-authority.ts  (authority rank model)
+- archlucid-ui/src/components/OperatorNavAuthorityProvider.tsx
+  (useNavCallerAuthorityRank)
+- docs/library/API_CONTRACTS.md  (scope header contract)
+- docs/library/GLOSSARY.md  (workspace, project definitions)
+
+Surface 1 — Scope switcher (header bar element):
+1. Add a compact dropdown or popover in the AppShellClient header bar
+   (between breadcrumbs and the Help button) that displays the current
+   workspace and project name.
+2. Populate the dropdown from GET /v1/tenant/workspaces (or equivalent
+   API — check for an existing endpoint). If no endpoint exists, create
+   a stub page that reads from the proxy env vars and displays them
+   read-only (with a note that the API endpoint is needed).
+3. On selection, persist the chosen workspace/project IDs in a cookie
+   or localStorage and pass them as proxy scope headers on subsequent
+   API calls. Read archlucid-ui/src/app/api/proxy/ to understand how
+   scope headers are currently forwarded.
+4. Show the current scope in the header so operators always know their
+   context (e.g. "Workspace: default / Project: my-pilot-project").
+5. Gate scope switching behind ReadAuthority at minimum (any
+   authenticated operator can switch their own view).
+
+Surface 2 — Tenant settings page (/settings/tenant):
+1. Create archlucid-ui/src/app/(operator)/settings/tenant/page.tsx.
+2. Display non-obscure tenant settings that operators commonly need:
+   - Tenant display name
+   - Default workspace / project
+   - Notification preferences (if applicable)
+   - Trial status (read-only, from GET /v1/tenant/trial-status)
+3. "Non-obscure" means: settings that affect the operator's daily
+   experience. Do NOT expose database connection strings, internal
+   feature flags, circuit breaker thresholds, or infrastructure config.
+4. Each editable field should POST/PUT to the appropriate API endpoint.
+   If no endpoint exists for a setting, render it read-only with a
+   note "(API endpoint not yet available)".
+5. Add a nav entry under the existing "Settings" group in nav-config.ts
+   with requiredAuthority matching ExecuteAuthority or AdminAuthority
+   (tenant settings are operator/admin scope).
+
+Surface 3 — Role/authority management page (/admin/users):
+1. Create archlucid-ui/src/app/(operator)/admin/users/page.tsx.
+2. List current users/principals for the tenant (GET /v1/admin/users
+   or equivalent). Show display name, email, authority rank.
+3. Allow assigning authority rank (Reader / Operator / Admin) via a
+   dropdown per user row (PUT /v1/admin/users/{userId}/authority or
+   equivalent).
+4. If the user-management API endpoints do not exist, build the page
+   as a read-only list with a note "(User management API endpoints
+   are required to enable editing)".
+5. Gate this page behind AdminAuthority in nav-config.ts.
+6. Add a nav entry under a new "Admin" group or the existing
+   operate-governance group.
+
+For all three surfaces:
+- Use design system components (Card, Input, Button, Label, Select).
+- Add dark-mode support.
+- Add ContextualHelp (?) icons with appropriate help text.
+- Write component tests for each new page.
+- Follow the existing nav-config drift guard checklist when adding
+  nav entries.
+
+Stop-and-ask boundaries:
+- If no API endpoints exist for workspace listing, tenant settings
+  mutation, or user management, list what endpoints are needed and
+  build the UI as read-only stubs. Do NOT invent API contracts.
+- If the proxy scope-header forwarding model cannot support per-session
+  scope switching (e.g. headers are baked into env vars at deploy
+  time), stop and describe the constraint before building the switcher.
+
+Do NOT change existing API endpoints. Do NOT add backend code. This
+is a UI-only improvement that consumes existing or future APIs.
+```
 
 ---
 
-### Improvement 8 — DEFERRED: Add in-app diagnostics/health dashboard for operators
+### Improvement 8 — Add in-app diagnostics/health dashboard for operators
 
 **Impact:** Supportability (+3), Observability (+3). Estimated weighted lift: **+0.74 points.**
 
 **Problem.** Operators who want to check system health, circuit breaker state, recent error rates, or pipeline throughput must use the CLI (`doctor`, `support-bundle`) or call API endpoints directly. There is no in-UI health or diagnostics panel.
 
-**Why deferred.** Requires owner decisions on:
-- Which diagnostics to expose in the UI (full `/health/ready` detail? circuit breakers? error rates?)
-- Security model for the diagnostics panel (operator-only? admin-only? what authority rank?)
-- Whether this duplicates the intended Grafana/OTLP consumption path or complements it
+**Owner decisions (2026-04-25):**
+- Include an in-app health/diagnostics panel: **approved**.
+- Authority gate: **none — show to any authenticated user (ReadAuthority floor).**
 
-**Pending questions (saved for later):**
-4. Should the operator UI include a health/diagnostics panel, or is the intended consumption path always external (Grafana/App Insights)?
-5. If an in-app panel is desired, what authority rank should gate access to diagnostics data?
+```
+Goal: add an in-app diagnostics/health dashboard page that gives any
+authenticated operator a single-glance view of system health, without
+requiring CLI access or external tooling.
+
+Read first:
+- docs/library/OBSERVABILITY.md  (custom metrics, health endpoints)
+- docs/TROUBLESHOOTING.md  (health endpoint contract, circuit breakers)
+- docs/library/OPERATOR_QUICKSTART.md  (doctor, support-bundle commands)
+- archlucid-ui/src/app/(operator)/admin/support/page.tsx  (existing
+  admin page — reference for layout pattern)
+- archlucid-ui/src/lib/api.ts  (apiGet helper)
+- archlucid-ui/src/components/OperatorApiProblem.tsx  (error rendering)
+- archlucid-ui/src/components/EmptyState.tsx
+- archlucid-ui/src/lib/nav-config.ts  (where to add the nav entry)
+
+Create: archlucid-ui/src/app/(operator)/admin/health/page.tsx
+
+Layout — three sections in a single scrollable page:
+
+Section 1 — System health (top):
+1. Call GET /api/proxy/health/ready on page load.
+2. Render each health check entry as a row: check name, status
+   (Healthy / Degraded / Unhealthy) with color-coded badge (green /
+   amber / red), and duration.
+3. Show the overall status as a large badge at the top: "Healthy",
+   "Degraded", or "Unhealthy".
+4. Show build identity (version, commitSha) from the same response or
+   from GET /api/proxy/version.
+5. Add a "Refresh" button that re-fetches.
+
+Section 2 — Circuit breakers (middle):
+1. Call GET /api/proxy/health (authenticated endpoint that includes
+   circuit_breakers in the response).
+2. Render each breaker gate as a row: name, state (Closed / Open /
+   HalfOpen) with color-coded badge, and DurationOfBreakSeconds.
+3. If the authenticated health endpoint returns 401/403, show a
+   note: "Circuit breaker detail requires API authentication" and
+   skip this section gracefully.
+
+Section 3 — Operator task success rates (bottom):
+1. Call GET /api/proxy/v1/diagnostics/operator-task-success-rates.
+2. Render as a simple table: task name, count, last occurrence.
+3. This gives operators visibility into onboarding funnel health
+   without external tooling.
+
+Additional:
+- Add a ContextualHelp (?) icon next to the page heading with text:
+  "System health shows API readiness checks, circuit breaker state,
+  and onboarding milestone rates. For full metrics, connect
+  Prometheus or Application Insights — see
+  docs/library/OBSERVABILITY.md."
+- Add the page to nav-config.ts under the operate-governance group
+  (or a new "Admin" sub-section if one exists). Set tier to
+  "essential" and do NOT set requiredAuthority (ReadAuthority floor
+  per owner decision — any authenticated user can view).
+- Add a loading.tsx skeleton.
+- Use Card components for each section. Use the shell color palette.
+- Add dark-mode support.
+- Write component tests:
+  - Renders health checks from mocked /health/ready response
+  - Shows Unhealthy badge when any check is Unhealthy
+  - Handles 401 on circuit breaker endpoint gracefully
+  - Renders operator task success rates table
+- Add a help-topics.ts entry for the health page.
+- Add a contextual-help-content.ts entry with key "system-health".
+
+Stop-and-ask boundaries:
+- If GET /health/ready or GET /health do not return the expected JSON
+  shape (entries[], circuit_breakers), list the actual shape and
+  propose a mapping before building the UI.
+- If GET /v1/diagnostics/operator-task-success-rates does not exist
+  or returns an unexpected shape, build section 3 as a stub with
+  "(Endpoint not yet available)".
+
+Do NOT add new API endpoints. Do NOT modify health check registration.
+This is a UI-only consumer of existing API surfaces.
+```
 
 ---
 
@@ -702,13 +855,14 @@ operator what to toggle.
 
 ## 4. Pending questions for owner (saved for later)
 
-When you have time to answer, these unblock the two DEFERRED improvements and inform future work:
+**Resolved 2026-04-25:**
+1. ~~Should operators be able to switch workspace/project scope from the UI?~~ **Yes — approved.** Scope switching from the UI is in scope.
+2. ~~Which tenant-level settings should be editable from the UI?~~ **Non-obscure settings should be editable from the UI.** Obscure/infrastructure settings stay config-file-only.
+3. ~~Should user/role management have a UI surface in V1?~~ **Yes — a role/authority management UI makes sense for V1.**
 
-1. Should operators be able to switch workspace/project scope from the UI, or is the current proxy-env-var model the intended V1 experience?
-2. Which tenant-level settings (if any) should be editable from the UI vs. remaining in appsettings.json?
-3. Should user/role management (create operator, assign authority rank) have a UI surface in V1, or stay API/CLI-only?
-4. Should the operator UI include a health/diagnostics panel, or is the intended consumption path always external (Grafana/App Insights)?
-5. If an in-app panel is desired, what authority rank should gate access to diagnostics data?
+**Resolved 2026-04-25:**
+4. ~~Should the operator UI include a health/diagnostics panel?~~ **Yes — include an in-app health/diagnostics panel.**
+5. ~~What authority rank should gate access?~~ **No restriction — show it to any authenticated user (ReadAuthority floor).**
 
 ---
 

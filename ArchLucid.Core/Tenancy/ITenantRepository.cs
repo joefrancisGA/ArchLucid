@@ -49,6 +49,7 @@ public interface ITenantRepository
         CancellationToken ct);
 
     /// <summary>Marks an active self-service trial as converted after billing activation.</summary>
+    /// <param name="tenantId"></param>
     /// <param name="newCommercialTier">When set, updates <c>dbo.Tenants.Tier</c> alongside conversion.</param>
     Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct);
 
@@ -102,6 +103,7 @@ public interface ITenantRepository
         CancellationToken ct);
 
     /// <summary>E2E harness only: sets <see cref="TenantRecord.TrialExpiresUtc" /> (clock tests; never product code).</summary>
+    // ReSharper disable once InconsistentNaming
     Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct);
 
     /// <summary>Marks a self-service trial tenant for background simulator pre-seed (idempotent).</summary>

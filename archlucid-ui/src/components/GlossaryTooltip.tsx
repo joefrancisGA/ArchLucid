@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { type GlossaryTermKey, GLOSSARY_TERMS } from "@/lib/glossary-terms";
+import { type GlossaryTermEntry, type GlossaryTermKey, GLOSSARY_TERMS } from "@/lib/glossary-terms";
 import { cn } from "@/lib/utils";
 
 export type GlossaryTooltipProps = {
@@ -20,7 +20,7 @@ const SEEN_KEY_PREFIX = "glossary-seen-";
  * Use within an app region wrapped by `TooltipProvider` (see `AppShellClient`).
  */
 export function GlossaryTooltip({ termKey, children, pulseOnFirstSession = true }: GlossaryTooltipProps) {
-  const entry = GLOSSARY_TERMS[termKey];
+  const entry: GlossaryTermEntry = GLOSSARY_TERMS[termKey];
   const [firstPulse, setFirstPulse] = useState(false);
 
   useEffect(() => {
