@@ -81,8 +81,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
                       </a>
                     ) : (
                       <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                        Set <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">NEXT_PUBLIC_DOCS_BASE_URL</code>{" "}
-                        (e.g. raw GitHub base) to enable external links.
+                        External documentation link is unavailable for this topic (missing path).
                       </p>
                     )}
                   </li>

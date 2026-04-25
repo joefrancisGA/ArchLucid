@@ -1,3 +1,5 @@
+import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
+
 export type ContextualHelpEntry = {
   text: string;
   learnMoreUrl?: string;
@@ -70,19 +72,18 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   },
 };
 
-const DEFAULT_BLOB_BASE = "https://github.com/joefrancisGA/ArchLucid/blob/main";
-
 /**
  * Resolves a relative in-repo docs path (e.g. `/docs/CORE_PILOT.md#h`) to a `blob` URL for “Learn more”.
- * Override with <code>NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE</code> when the default branch or fork differs.
+ * Override with <code>NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE</code> when the default branch or fork differs;
+ * when unset, uses the same public ArchiForge GitHub `main` blob base as `getDocHref` in `help-topics`.
  */
 export function toDocsBlobUrl(learnMoreUrl: string): string {
-  const custom = process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE;
+  const custom = process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE?.trim();
 
   if (custom && custom.length > 0) {
-    return `${custom.replace(/\/$/, "")}${learnMoreUrl}`;
+    return `${custom.replace(/\/$/, "")}/${learnMoreUrl.replace(/^\//, "")}`;
   }
 
   const withoutLeading = learnMoreUrl.replace(/^\//, "");
-  return `${DEFAULT_BLOB_BASE}/${withoutLeading}`;
+  return `${DEFAULT_GITHUB_BLOB_BASE.replace(/\/$/, "")}/${withoutLeading}`;
 }

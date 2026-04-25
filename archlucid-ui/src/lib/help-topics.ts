@@ -1,3 +1,5 @@
+import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
+
 /**
  * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
  */
@@ -6,7 +8,7 @@ export type HelpTopic = {
   title: string;
   keywords: string[];
   summary: string;
-  /** Relative path under repo root (for copy/paste; optional web URL via getDocHref). */
+  /** Relative path under repo root (for copy/paste; web URL via getDocHref). */
   docPath: string;
   /** App routes where this topic is most relevant (pathname prefix or exact). */
   routes: string[];
@@ -120,17 +122,23 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
 ];
 
-/** Optional public docs site or raw GitHub base; when unset, doc links show path only. */
+/**
+ * Full URL to the doc on the web. Uses NEXT_PUBLIC_DOCS_BASE_URL when set; otherwise the public
+ * ArchiForge GitHub blob URL for `main`.
+ */
 export function getDocHref(docPath: string): string | null {
-  const base = process.env.NEXT_PUBLIC_DOCS_BASE_URL?.trim();
+  const relative = docPath?.trim() ?? "";
 
-  if (!base || base.length === 0) {
+  if (relative.length === 0) {
     return null;
   }
 
+  const custom = process.env.NEXT_PUBLIC_DOCS_BASE_URL?.trim();
+  const base = custom && custom.length > 0 ? custom : DEFAULT_GITHUB_BLOB_BASE;
   const normalized = base.replace(/\/$/, "");
+  const path = relative.replace(/^\//, "");
 
-  return `${normalized}/${docPath.replace(/^\//, "")}`;
+  return `${normalized}/${path}`;
 }
 
 export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {
