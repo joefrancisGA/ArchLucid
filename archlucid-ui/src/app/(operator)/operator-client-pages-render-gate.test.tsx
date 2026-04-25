@@ -1,8 +1,5 @@
-import type { ReactElement } from "react";
-import { render as rtlRender, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
@@ -35,10 +32,6 @@ import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningPage from "./recommendation-learning/page";
 import SearchPage from "./search/page";
-
-function render(ui: ReactElement) {
-  return rtlRender(<TooltipProvider delayDuration={0}>{ui}</TooltipProvider>);
-}
 
 /**
  * Render-gate: first paint + import chain for client-only operator pages that had no tests.

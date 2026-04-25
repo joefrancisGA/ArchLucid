@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -78,7 +79,10 @@ export function AdvisoryScansContent() {
 
   return (
     <main style={{ maxWidth: 900 }}>
-      <h2 style={{ marginTop: 0 }}>Improvement Advisor</h2>
+      <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
+        <h2 className="m-0">Improvement Advisor</h2>
+        <ContextualHelp helpKey="advisory-hub" />
+      </div>
       <p style={{ color: "#444", fontSize: 14 }}>
         Ranked recommendations from manifest gaps, issues, cost risks, and optional comparison to a prior run. Generated
         plans are persisted; accept, reject, defer, or mark implemented to feed the governance workflow.
