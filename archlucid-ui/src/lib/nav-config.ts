@@ -11,6 +11,7 @@ import {
   GitBranch,
   GitCompare,
   GitGraph,
+  HeartPulse,
   Home,
   LifeBuoy,
   LayoutDashboard,
@@ -329,6 +330,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     caption:
       "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
     links: [
+      {
+        href: "/admin/health",
+        label: "System health",
+        title: "System health — readiness, circuit breakers, onboarding funnel metrics",
+        icon: HeartPulse,
+        tier: "essential",
+        requiredAuthority: "ReadAuthority",
+      },
       {
         href: "/alerts",
         label: "Alerts",

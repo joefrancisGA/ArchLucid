@@ -82,6 +82,10 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
+  "system-health": {
+    text: "System health shows API readiness, circuit breaker state, and onboarding rates. For full metrics, use Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
+    learnMoreUrl: "/docs/library/OBSERVABILITY.md",
+  },
 };
 
 /**

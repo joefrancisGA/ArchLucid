@@ -73,6 +73,14 @@ export const HELP_TOPICS: HelpTopic[] = [
     routes: ["/policy-packs", "/governance-resolution"],
   },
   {
+    id: "system-health",
+    title: "System health dashboard",
+    keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
+    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the shell.",
+    docPath: "docs/library/OBSERVABILITY.md",
+    routes: ["/admin/health"],
+  },
+  {
     id: "troubleshooting",
     title: "Troubleshooting",
     keywords: ["error", "503", "401", "health", "proxy"],

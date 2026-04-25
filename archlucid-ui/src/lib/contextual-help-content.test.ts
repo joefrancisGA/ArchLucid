@@ -26,6 +26,7 @@ const contextualHelpComponentKeys = [
   "operator-scope-switcher",
   "tenant-settings-page",
   "admin-users-page",
+  "system-health",
 ] as const;
 
 describe("contextualHelpByKey", () => {
