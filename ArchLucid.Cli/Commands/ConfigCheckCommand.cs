@@ -291,8 +291,10 @@ internal static class ConfigCheckCommand
       if (d?.Keys is not { } rows || rows.Count == 0)
         return (null, "API: (skip) empty body");
 
-      IReadOnlyDictionary<string, bool> m = rows.ToDictionary(
-        x => x.ConfigPath, x => x.IsSet, StringComparer.OrdinalIgnoreCase);
+      IReadOnlyDictionary<string, bool> m = rows
+        .Where(static r => !string.IsNullOrEmpty(r.ConfigPath))
+        .ToDictionary(
+          static r => r.ConfigPath!, static r => r.IsSet, StringComparer.OrdinalIgnoreCase);
       return (m, "API: merged key presence (non-secret) from GET /v1/admin/config-summary.");
     }
     catch (Exception ex)

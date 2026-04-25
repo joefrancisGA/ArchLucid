@@ -46,7 +46,7 @@ public sealed class AgentExecutionCostPreviewController(
     public ActionResult<AgentExecutionCostPreviewResponse> GetCostPreview()
     {
         bool isReal = string.Equals(
-            _agentExecutionOptions.CurrentValue.Mode?.Trim(),
+            _agentExecutionOptions.CurrentValue.Mode.Trim(),
             "Real",
             StringComparison.OrdinalIgnoreCase);
 

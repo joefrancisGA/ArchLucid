@@ -57,7 +57,7 @@ public sealed class SupportBundleController(
     public async Task<IActionResult> DownloadSupportBundle(CancellationToken cancellationToken = default)
     {
         SupportBundleRequest request = new(
-            RequesterDisplayId: User?.Identity?.Name,
+            RequesterDisplayId: User.Identity?.Name,
             TenantDisplayName: null);
 
         SupportBundleArtifact artifact = await _assembler.AssembleAsync(request, cancellationToken);
@@ -67,7 +67,11 @@ public sealed class SupportBundleController(
             {
                 EventType = AuditEventTypes.SupportBundleDownloaded,
                 DataJson = JsonSerializer.Serialize(
-                    new { fileName = artifact.FileName, sizeBytes = artifact.Bytes.Length })
+                    new
+                    {
+                        fileName = artifact.FileName,
+                        sizeBytes = artifact.Bytes.Length
+                    })
             },
             cancellationToken);
 

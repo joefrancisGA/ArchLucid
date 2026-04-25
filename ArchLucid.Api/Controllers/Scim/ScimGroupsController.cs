@@ -1,14 +1,13 @@
 using System.Text.Json;
 
-using Asp.Versioning;
-
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Scim;
-using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Scoping;
 
-using Microsoft.AspNetCore.Http;
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,10 +47,7 @@ public sealed class ScimGroupsController(
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-        if (g is null)
-            return ScimErrorResultFactory.Create(404, "notFound", "Group not found.");
-
-        return ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+        return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
     }
 
     [HttpPost]
@@ -103,10 +99,7 @@ public sealed class ScimGroupsController(
             await _groups.ReplaceAsync(tenantId, id, body, cancellationToken);
             ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-            if (g is null)
-                return ScimErrorResultFactory.Create(404, "notFound", "Group not found.");
-
-            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+            return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
         }
         catch (ScimNotFoundException)
         {
@@ -139,10 +132,7 @@ public sealed class ScimGroupsController(
             await _groups.PatchMembersAsync(tenantId, id, body, cancellationToken);
             ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-            if (g is null)
-                return ScimErrorResultFactory.Create(404, "notFound", "Group not found.");
-
-            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+            return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
         }
         catch (ScimNotFoundException)
         {

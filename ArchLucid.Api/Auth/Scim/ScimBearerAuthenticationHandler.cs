@@ -39,8 +39,8 @@ public sealed class ScimBearerAuthenticationHandler(
 
         Claim[] claims =
         [
-            new Claim("tenant_id", auth.TenantId.ToString("D")),
-            new Claim("scim_token_id", auth.TokenRowId.ToString("D"))
+            new("tenant_id", auth.TenantId.ToString("D")),
+            new("scim_token_id", auth.TokenRowId.ToString("D"))
         ];
 
         ClaimsIdentity identity = new(claims, ScimBearerDefaults.AuthenticationScheme);

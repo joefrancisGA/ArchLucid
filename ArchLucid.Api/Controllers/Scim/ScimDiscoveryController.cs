@@ -1,12 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-using Asp.Versioning;
-
 using ArchLucid.Core.Authorization;
 
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Scim;
@@ -42,21 +41,22 @@ public sealed class ScimDiscoveryController : ControllerBase
     [Produces("application/scim+json")]
     public IActionResult Schemas()
     {
-        JsonArray arr = new()
-        {
+        JsonArray arr =
+        [
             new JsonObject
             {
                 ["id"] = "urn:ietf:params:scim:schemas:core:2.0:User",
                 ["name"] = "User",
                 ["meta"] = new JsonObject { ["resourceType"] = "Schema" }
             },
+
             new JsonObject
             {
                 ["id"] = "urn:ietf:params:scim:schemas:core:2.0:Group",
                 ["name"] = "Group",
                 ["meta"] = new JsonObject { ["resourceType"] = "Schema" }
             }
-        };
+        ];
 
         JsonObject body = new()
         {
@@ -74,8 +74,8 @@ public sealed class ScimDiscoveryController : ControllerBase
     [Produces("application/scim+json")]
     public IActionResult ResourceTypes()
     {
-        JsonArray arr = new()
-        {
+        JsonArray arr =
+        [
             new JsonObject
             {
                 ["schemas"] = new JsonArray("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
@@ -84,6 +84,7 @@ public sealed class ScimDiscoveryController : ControllerBase
                 ["endpoint"] = "/Users",
                 ["schema"] = "urn:ietf:params:scim:schemas:core:2.0:User"
             },
+
             new JsonObject
             {
                 ["schemas"] = new JsonArray("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
@@ -92,7 +93,7 @@ public sealed class ScimDiscoveryController : ControllerBase
                 ["endpoint"] = "/Groups",
                 ["schema"] = "urn:ietf:params:scim:schemas:core:2.0:Group"
             }
-        };
+        ];
 
         JsonObject body = new()
         {

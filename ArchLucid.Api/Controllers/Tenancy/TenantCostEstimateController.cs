@@ -43,9 +43,6 @@ public sealed class TenantCostEstimateController(
         TenantCostEstimate? estimate =
             await _estimateService.TryGetEstimateAsync(scope.TenantId, cancellationToken);
 
-        if (estimate is null)
-            return this.NotFoundProblem("No cost estimate is configured for this tenant.", type: ProblemTypes.ResourceNotFound);
-
-        return Ok(TenantCostEstimateResponse.FromDomain(estimate));
+        return estimate is null ? this.NotFoundProblem("No cost estimate is configured for this tenant.", type: ProblemTypes.ResourceNotFound) : Ok(TenantCostEstimateResponse.FromDomain(estimate));
     }
 }

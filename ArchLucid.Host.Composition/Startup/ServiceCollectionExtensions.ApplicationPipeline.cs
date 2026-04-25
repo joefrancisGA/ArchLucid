@@ -13,12 +13,12 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Pilots;
-using ArchLucid.Application.Support;
-using ArchLucid.Application.Value;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
+using ArchLucid.Application.Support;
 using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
@@ -148,8 +148,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
-        services.AddSingleton<ArchLucid.Application.Pilots.IExecutionProvenanceFooterRenderer,
-            ArchLucid.Application.Pilots.ExecutionProvenanceFooterRenderer>();
+        services.AddSingleton<IExecutionProvenanceFooterRenderer,
+            ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

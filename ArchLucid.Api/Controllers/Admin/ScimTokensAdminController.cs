@@ -2,18 +2,16 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Scoping;
-
-using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Admin;
@@ -79,7 +77,7 @@ public sealed class ScimTokensAdminController(
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         IReadOnlyList<ScimTokenSummaryRow> rows = await _tokens.ListForTenantAsync(tenantId, cancellationToken);
 
-        JsonArray arr = new();
+        JsonArray arr = [];
 
         foreach (ScimTokenSummaryRow r in rows)
         {
@@ -93,7 +91,10 @@ public sealed class ScimTokensAdminController(
                 });
         }
 
-        JsonObject body = new() { ["tokens"] = arr };
+        JsonObject body = new()
+        {
+            ["tokens"] = arr
+        };
 
         return Content(
             body.ToJsonString(new JsonSerializerOptions { WriteIndented = false }),

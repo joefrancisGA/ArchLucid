@@ -1,8 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Configuration.Summary;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
@@ -14,7 +14,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
 
 namespace ArchLucid.Api.Controllers.Admin;
@@ -29,40 +28,31 @@ public sealed class AdminController(
     IAdminDiagnosticsService diagnostics,
     IFeatureManager featureManager) : ControllerBase
 {
-  private readonly IConfiguration _configuration =
-    configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly IConfiguration _configuration =
+      configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IAdminDiagnosticsService _diagnostics =
         diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
 
-  private readonly IFeatureManager _featureManager =
-    featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+    private readonly IFeatureManager _featureManager =
+      featureManager ?? throw new ArgumentNullException(nameof(featureManager));
 
-  /// <summary>Non-secret <c>IsSet</c> snapshot of catalog keys for <c>archlucid config check</c> and operators.</summary>
-  [HttpGet("config-summary")]
-  [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
-  public ActionResult<AdminConfigSummaryResponse> GetConfigSummary()
-  {
-    List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
-
-    foreach (ConfigurationKeyEntry e in ConfigurationKeyCatalog.All)
+    /// <summary>Non-secret <c>IsSet</c> snapshot of catalog keys for <c>archlucid config check</c> and operators.</summary>
+    [HttpGet("config-summary")]
+    [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
+    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary()
     {
-      keys.Add(
-        new ConfigSummaryKeyRow
-        {
-          ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(
-            _configuration, e.ConfigPath)
-        });
+        List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
+        keys.AddRange(ConfigurationKeyCatalog.All.Select(e => new ConfigSummaryKeyRow { ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(_configuration, e.ConfigPath) }));
+
+        return Ok(
+          new AdminConfigSummaryResponse
+          {
+              Keys = keys
+          });
     }
 
-    return Ok(
-      new AdminConfigSummaryResponse
-      {
-        Keys = keys
-      });
-  }
-
-  /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>
-  [HttpGet("diagnostics/outboxes")]
+    /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>
+    [HttpGet("diagnostics/outboxes")]
     [ProducesResponseType(typeof(AdminOutboxSnapshot), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetOutboxes(CancellationToken cancellationToken = default)
     {

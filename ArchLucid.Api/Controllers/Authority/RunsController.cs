@@ -105,7 +105,10 @@ public sealed partial class RunsController(
                 return CreatedAtAction(
                     nameof(RunQueryController.GetRun),
                     "RunQuery",
-                    new { runId = result.Run.RunId },
+                    new
+                    {
+                        runId = result.Run.RunId
+                    },
                     response);
 
             Response.Headers.Append("Idempotency-Replayed", "true");
@@ -182,15 +185,15 @@ public sealed partial class RunsController(
 
             LogRunExecuted(runId, result.Results.Count, user, correlationId);
 
-            if (pilotTryRealMode)
-            {
-                ArchLucidInstrumentation.RecordTryRealModePilotSucceeded();
-                await LogPilotTryRealModeAuditAsync(
-                    AuditEventTypes.FirstRealValueRunCompleted,
-                    runId,
-                    user,
-                    cancellationToken);
-            }
+            if (!pilotTryRealMode)
+                return Ok(response);
+
+            ArchLucidInstrumentation.RecordTryRealModePilotSucceeded();
+            await LogPilotTryRealModeAuditAsync(
+                AuditEventTypes.FirstRealValueRunCompleted,
+                runId,
+                user,
+                cancellationToken);
 
             return Ok(response);
         }
@@ -405,11 +408,7 @@ public sealed partial class RunsController(
 
     private bool IsPilotTryRealModeRequest()
     {
-        if (!Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw))
-            return false;
-
-
-        return string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
+        return Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw) && string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
     }
 
     private async Task LogPilotTryRealModeAuditAsync(

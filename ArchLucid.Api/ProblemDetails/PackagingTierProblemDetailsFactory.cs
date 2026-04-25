@@ -1,9 +1,6 @@
 using ArchLucid.Core.Tenancy;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Api.ProblemDetails;
 
@@ -37,7 +34,8 @@ internal static class PackagingTierProblemDetailsFactory
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+            StatusCode = problem.Status,
+            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 

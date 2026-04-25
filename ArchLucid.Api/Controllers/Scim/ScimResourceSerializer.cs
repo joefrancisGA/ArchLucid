@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 
 using ArchLucid.Core.Scim.Models;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Scim;
@@ -38,7 +37,7 @@ internal static class ScimResourceSerializer
 
     public static JsonObject ListResponse(int total, int startIndex, IReadOnlyList<ScimUserRecord> items)
     {
-        JsonArray arr = new();
+        JsonArray arr = [];
 
         foreach (ScimUserRecord u in items)
             arr.Add(User(u));
@@ -72,7 +71,7 @@ internal static class ScimResourceSerializer
 
     public static JsonObject GroupListResponse(int total, int startIndex, IReadOnlyList<ScimGroupRecord> items)
     {
-        JsonArray arr = new();
+        JsonArray arr = [];
 
         foreach (ScimGroupRecord g in items)
             arr.Add(Group(g));

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 
 using ArchLucid.Core.Diagnostics;
 
@@ -52,13 +51,11 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
             return b.Uri.GetLeftPart(UriPartial.Authority);
         }
 
-        if (h is "[::]" or "[::0]" or "::")
-        {
-            b.Host = "127.0.0.1";
+        if (h is not ("[::]" or "[::0]" or "::"))
             return b.Uri.GetLeftPart(UriPartial.Authority);
-        }
-
+        b.Host = "127.0.0.1";
         return b.Uri.GetLeftPart(UriPartial.Authority);
+
     }
 
     internal string ResolveBaseUrl()
@@ -66,7 +63,7 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         IServerAddressesFeature? addrs = _server.Features.Get<IServerAddressesFeature>();
         if (addrs?.Addresses is { Count: > 0 } set)
         {
-            foreach (string? a in set)
+            foreach (string a in set)
             {
                 string? mapped = TryMapToLoopbackBase(a);
                 if (!string.IsNullOrEmpty(mapped))
@@ -109,9 +106,10 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         IHostApplicationLifetime lifetime,
         CancellationToken stoppingToken)
     {
-        if (lifetime.ApplicationStarted.IsCancellationRequested) return;
+        if (lifetime.ApplicationStarted.IsCancellationRequested)
+            return;
         TaskCompletionSource tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        using (lifetime.ApplicationStarted.Register(static state => ((TaskCompletionSource)state!).TrySetResult(), tcs))
+        await using (lifetime.ApplicationStarted.Register(static state => ((TaskCompletionSource)state!).TrySetResult(), tcs))
         {
             await tcs.Task.WaitAsync(stoppingToken).ConfigureAwait(false);
         }

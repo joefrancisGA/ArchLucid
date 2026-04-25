@@ -3,14 +3,13 @@ using System.Text.Json;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Scim;
 using ArchLucid.Application.Scim.Filtering;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -63,10 +62,7 @@ public sealed class ScimUsersController(
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-        if (u is null)
-            return ScimErrorResultFactory.Create(404, "notFound", "User not found.");
-
-        return ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+        return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
     }
 
     [HttpPost]
@@ -126,10 +122,7 @@ public sealed class ScimUsersController(
             await _users.ReplaceAsync(tenantId, id, body, cancellationToken);
             ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-            if (u is null)
-                return ScimErrorResultFactory.Create(404, "notFound", "User not found.");
-
-            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+            return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
         }
         catch (ScimNotFoundException)
         {
@@ -166,10 +159,7 @@ public sealed class ScimUsersController(
             await _users.PatchAsync(tenantId, id, body, cancellationToken);
             ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-            if (u is null)
-                return ScimErrorResultFactory.Create(404, "notFound", "User not found.");
-
-            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+            return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
         }
         catch (ScimNotFoundException)
         {

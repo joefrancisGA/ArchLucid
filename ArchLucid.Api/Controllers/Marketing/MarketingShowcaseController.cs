@@ -39,10 +39,7 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
         DemoCommitPagePreviewResponse? payload =
             await _showcaseClient.GetShowcaseCommitPageAsync(runId, cancellationToken);
 
-        if (payload is null)
-            return this.NotFoundProblem("The showcase was not found.", type: ProblemTypes.ResourceNotFound);
-
-        return Ok(payload);
+        return payload is null ? this.NotFoundProblem("The showcase was not found.", type: ProblemTypes.ResourceNotFound) : Ok(payload);
     }
 
     private static bool TryResolveRunId(string runKey, out Guid runId)
@@ -74,20 +71,11 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
         }
 
         // 32-char hex without dashes (operator URLs often use "N" format).
-        if (trimmed.Length == 32 && IsHex32(trimmed) && Guid.TryParseExact(trimmed, "N", out runId))
-            return true;
-
-        return false;
+        return trimmed.Length == 32 && IsHex32(trimmed) && Guid.TryParseExact(trimmed, "N", out runId);
     }
 
     private static bool IsHex32(string value)
     {
-        for (int i = 0; i < value.Length; i++)
-        {
-            if (!Uri.IsHexDigit(value[i]))
-                return false;
-        }
-
-        return true;
+        return value.All(Uri.IsHexDigit);
     }
 }
