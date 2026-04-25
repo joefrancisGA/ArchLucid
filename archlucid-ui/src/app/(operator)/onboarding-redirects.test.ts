@@ -30,4 +30,14 @@ describe("legacy onboarding routes redirect to /getting-started", () => {
     });
     expect(redirect).toHaveBeenCalledWith("/getting-started?source=registration");
   });
+
+  it("redirects /onboarding/start and preserves multiple query keys", async () => {
+    await OnboardingStartRedirectPage({
+      searchParams: Promise.resolve({ source: "registration", foo: "bar" }),
+    });
+    const call = vi.mocked(redirect).mock.calls[0]?.[0] as string;
+    expect(call.startsWith("/getting-started?")).toBe(true);
+    expect(call).toContain("source=registration");
+    expect(call).toContain("foo=bar");
+  });
 });
