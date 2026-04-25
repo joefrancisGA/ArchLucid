@@ -4,6 +4,8 @@
 
 **Related (structured manifest delta in PRs):** For the shipped **compare / manifest delta** workflow that reuses a single Node script and posts sticky PR comments, see the repository’s [`integrations/github-action-manifest-delta/`](../../../integrations/github-action-manifest-delta/) and [`integrations/github-action-manifest-delta-pr-comment/`](../../../integrations/github-action-manifest-delta-pr-comment/) (same Markdown source of truth as Azure DevOps tasks). This recipe is **complementary**: it uses **create → execute → poll** and **findings-based** gating.
 
+**Integration events (outbound webhooks, CloudEvent types):** Canonical type list in [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json); narrative and HMAC patterns in [`docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
+
 ---
 
 ## Configuration

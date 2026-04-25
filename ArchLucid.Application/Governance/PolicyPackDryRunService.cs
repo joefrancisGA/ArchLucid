@@ -61,8 +61,10 @@ public sealed class PolicyPackDryRunService(
         int? page,
         CancellationToken cancellationToken = default)
     {
-        if (proposedThresholds is null) throw new ArgumentNullException(nameof(proposedThresholds));
-        if (evaluateAgainstRunIds is null) throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
+        if (proposedThresholds is null)
+            throw new ArgumentNullException(nameof(proposedThresholds));
+        if (evaluateAgainstRunIds is null)
+            throw new ArgumentNullException(nameof(evaluateAgainstRunIds));
 
         int clampedPageSize = ClampPageSize(pageSize);
         List<string> cleanedRunIds = evaluateAgainstRunIds
@@ -114,14 +116,13 @@ public sealed class PolicyPackDryRunService(
 
     private static int ClampPageSize(int? pageSize)
     {
-        if (pageSize is null) return IPolicyPackDryRunService.DefaultPageSize;
-
-        return Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
+        return pageSize is null ? IPolicyPackDryRunService.DefaultPageSize : Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
     }
 
     private static int ClampPage(int? page, int totalItems, int pageSize)
     {
-        if (totalItems == 0) return 1;
+        if (totalItems == 0)
+            return 1;
 
         int requested = page.GetValueOrDefault(1);
         int maxPage = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -136,7 +137,8 @@ public sealed class PolicyPackDryRunService(
     {
         ArchitectureRunDetail? detail = await TryLoadRunDetailAsync(runId, cancellationToken);
 
-        if (detail is null) return new PolicyPackDryRunRunItem { RunId = runId, RunMissing = true };
+        if (detail is null)
+            return new PolicyPackDryRunRunItem { RunId = runId, RunMissing = true };
 
         PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
 
@@ -183,13 +185,12 @@ public sealed class PolicyPackDryRunService(
         IReadOnlyDictionary<string, double> parsedThresholds,
         PilotRunDeltas deltas)
     {
-        if (parsedThresholds is null) return [];
-
         List<PolicyPackDryRunThresholdOutcome> outcomes = [];
 
         foreach (string key in PolicyPackDryRunSupportedThresholdKeys.All)
         {
-            if (!parsedThresholds.TryGetValue(key, out double proposed)) continue;
+            if (!parsedThresholds.TryGetValue(key, out double proposed))
+                continue;
 
             double actual = ComputeActualForKey(key, deltas);
             bool breach = actual > proposed;
@@ -224,8 +225,8 @@ public sealed class PolicyPackDryRunService(
         new()
         {
             Evaluated = items.Count,
-            WouldBlock = items.Count(i => !i.RunMissing && i.WouldBlock),
-            WouldAllow = items.Count(i => !i.RunMissing && !i.WouldBlock),
+            WouldBlock = items.Count(i => i is { RunMissing: false, WouldBlock: true }),
+            WouldAllow = items.Count(i => i is { RunMissing: false, WouldBlock: false }),
             RunMissing = items.Count(i => i.RunMissing),
         };
 
@@ -241,8 +242,10 @@ public sealed class PolicyPackDryRunService(
 
         foreach (KeyValuePair<string, string> entry in proposedThresholds)
         {
-            if (string.IsNullOrWhiteSpace(entry.Key)) continue;
-            if (string.IsNullOrWhiteSpace(entry.Value)) continue;
+            if (string.IsNullOrWhiteSpace(entry.Key))
+                continue;
+            if (string.IsNullOrWhiteSpace(entry.Value))
+                continue;
 
             if (!double.TryParse(entry.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
                 continue;

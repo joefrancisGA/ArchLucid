@@ -9,24 +9,14 @@ public static class GoldenCohortFindingCategoryAggregator
     /// <summary>Distinct non-empty <see cref="ArchitectureFinding.Category"/> values across all results (ordinal case-sensitive sort).</summary>
     public static SortedSet<string> DistinctCategories(IEnumerable<AgentResult> results)
     {
-        if (results is null)
-            throw new ArgumentNullException(nameof(results));
+        ArgumentNullException.ThrowIfNull(results);
 
         SortedSet<string> set = new(StringComparer.Ordinal);
 
         foreach (AgentResult result in results)
         {
-            if (result?.Findings is null)
-                continue;
-
-            foreach (ArchitectureFinding finding in result.Findings)
+            foreach (ArchitectureFinding finding in result.Findings.Where(finding => !string.IsNullOrWhiteSpace(finding.Category)))
             {
-                if (finding is null)
-                    continue;
-
-                if (string.IsNullOrWhiteSpace(finding.Category))
-                    continue;
-
                 set.Add(finding.Category.Trim());
             }
         }

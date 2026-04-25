@@ -14,12 +14,12 @@ vi.mock("@testing-library/react", async (importOriginal) => {
     ...actual,
     render: (ui: Parameters<typeof actual.render>[0], options?: Parameters<typeof actual.render>[1]) => {
       const { wrapper: W, ...rest } = options ?? {};
-      const Wrapper = ({ children }: { children: React.ReactNode }) =>
-        React.createElement(
-          TooltipProvider,
-          { delayDuration: 0 },
-          W ? React.createElement(W as React.ComponentType<{ children: React.ReactNode }>, null, children) : children,
-        );
+      const Wrapper = ({ children }: { children: React.ReactNode }) => {
+        const inner =
+          W ? React.createElement(W as React.ComponentType<{ children: React.ReactNode }>, null, children) : children;
+
+        return React.createElement(TooltipProvider, { delayDuration: 0, children: inner });
+      };
       return actual.render(ui, { ...rest, wrapper: Wrapper });
     },
   };
