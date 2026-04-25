@@ -108,6 +108,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselineReviewCycleHours = null,
             BaselineReviewCycleSource = null,
             BaselineReviewCycleCapturedUtc = null,
+            BaselineManualPrepHoursPerReview = null,
+            BaselinePeoplePerReview = null,
+            BaselineManualPrepCapturedUtc = null,
+            CompanySize = null,
+            ArchitectureTeamSize = null,
+            IndustryVertical = null,
+            IndustryVerticalOther = null,
             EnterpriseSeatsLimit = enterpriseScimSeatsLimit,
             EnterpriseSeatsUsed = 0
         };
@@ -194,6 +201,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
+            CompanySize = existing.CompanySize,
+            ArchitectureTeamSize = existing.ArchitectureTeamSize,
+            IndustryVertical = existing.IndustryVertical,
+            IndustryVerticalOther = existing.IndustryVerticalOther,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
@@ -214,6 +228,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         decimal? baselineReviewCycleHours,
         string? baselineReviewCycleSource,
         DateTimeOffset? baselineReviewCycleCapturedUtc,
+        string? companySize,
+        int? architectureTeamSize,
+        string? industryVertical,
+        string? industryVerticalOther,
         CancellationToken ct)
     {
         _ = ct;
@@ -240,14 +258,72 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = sampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = null,
             TrialWelcomeRunId = null,
+            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
             BaselineReviewCycleHours = baselineReviewCycleHours,
             BaselineReviewCycleSource = baselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+            CompanySize = companySize,
+            ArchitectureTeamSize = architectureTeamSize,
+            IndustryVertical = industryVertical,
+            IndustryVerticalOther = industryVerticalOther,
+            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
 
         _byId[tenantId] = updated;
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task UpdateBaselineAsync(
+        Guid tenantId,
+        decimal? manualPrepHoursPerReview,
+        int? peoplePerReview,
+        DateTimeOffset? capturedUtc,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            return Task.CompletedTask;
+
+        _byId[tenantId] = new TenantRecord
+        {
+            Id = existing.Id,
+            Name = existing.Name,
+            Slug = existing.Slug,
+            Tier = existing.Tier,
+            EntraTenantId = existing.EntraTenantId,
+            CreatedUtc = existing.CreatedUtc,
+            SuspendedUtc = existing.SuspendedUtc,
+            TrialStartUtc = existing.TrialStartUtc,
+            TrialExpiresUtc = existing.TrialExpiresUtc,
+            TrialRunsLimit = existing.TrialRunsLimit,
+            TrialRunsUsed = existing.TrialRunsUsed,
+            TrialSeatsLimit = existing.TrialSeatsLimit,
+            TrialSeatsUsed = existing.TrialSeatsUsed,
+            TrialStatus = existing.TrialStatus,
+            TrialSampleRunId = existing.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = existing.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = existing.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = existing.TrialFirstManifestCommittedUtc,
+            BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
+            BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = manualPrepHoursPerReview,
+            BaselinePeoplePerReview = peoplePerReview,
+            BaselineManualPrepCapturedUtc = capturedUtc,
+            CompanySize = existing.CompanySize,
+            ArchitectureTeamSize = existing.ArchitectureTeamSize,
+            IndustryVertical = existing.IndustryVertical,
+            IndustryVerticalOther = existing.IndustryVerticalOther,
+            EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
+        };
 
         return Task.CompletedTask;
     }
@@ -288,6 +364,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselineReviewCycleHours = existing.BaselineReviewCycleHours,
             BaselineReviewCycleSource = existing.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = existing.BaselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = existing.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = existing.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = existing.BaselineManualPrepCapturedUtc,
+            CompanySize = existing.CompanySize,
+            ArchitectureTeamSize = existing.ArchitectureTeamSize,
+            IndustryVertical = existing.IndustryVertical,
+            IndustryVerticalOther = existing.IndustryVerticalOther,
             EnterpriseSeatsLimit = existing.EnterpriseSeatsLimit,
             EnterpriseSeatsUsed = existing.EnterpriseSeatsUsed
         };
@@ -633,6 +716,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselineReviewCycleHours = null,
             BaselineReviewCycleSource = null,
             BaselineReviewCycleCapturedUtc = null,
+            BaselineManualPrepHoursPerReview = null,
+            BaselinePeoplePerReview = null,
+            BaselineManualPrepCapturedUtc = null,
+            CompanySize = null,
+            ArchitectureTeamSize = null,
+            IndustryVertical = null,
+            IndustryVerticalOther = null,
             EnterpriseSeatsLimit = null,
             EnterpriseSeatsUsed = 0
         };
@@ -678,6 +768,13 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             BaselineReviewCycleHours = source.BaselineReviewCycleHours,
             BaselineReviewCycleSource = source.BaselineReviewCycleSource,
             BaselineReviewCycleCapturedUtc = source.BaselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = source.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = source.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = source.BaselineManualPrepCapturedUtc,
+            CompanySize = source.CompanySize,
+            ArchitectureTeamSize = source.ArchitectureTeamSize,
+            IndustryVertical = source.IndustryVertical,
+            IndustryVerticalOther = source.IndustryVerticalOther,
             EnterpriseSeatsLimit = source.EnterpriseSeatsLimit,
             EnterpriseSeatsUsed = enterpriseSeatsUsedOverride ?? source.EnterpriseSeatsUsed
         };

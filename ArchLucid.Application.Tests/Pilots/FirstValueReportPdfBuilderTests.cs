@@ -108,7 +108,10 @@ public sealed class FirstValueReportPdfBuilderTests
                     null,
                     null,
                     null,
-                    0));
+                    0,
+                    null,
+                    null,
+                    null));
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());

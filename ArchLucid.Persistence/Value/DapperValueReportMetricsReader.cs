@@ -123,7 +123,12 @@ public sealed class DapperValueReportMetricsReader(ISqlConnectionFactory connect
             new CommandDefinition(findingFeedbackSql, parameters, cancellationToken: cancellationToken));
 
         const string tenantBaselineSql = """
-                                         SELECT BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
+                                         SELECT BaselineReviewCycleHours,
+                                                BaselineReviewCycleSource,
+                                                BaselineReviewCycleCapturedUtc,
+                                                BaselineManualPrepHoursPerReview,
+                                                BaselinePeoplePerReview,
+                                                ArchitectureTeamSize
                                          FROM dbo.Tenants
                                          WHERE Id = @TenantId;
                                          """;
@@ -167,7 +172,10 @@ public sealed class DapperValueReportMetricsReader(ISqlConnectionFactory connect
             tenantBaseline?.BaselineReviewCycleSource,
             tenantBaseline?.BaselineReviewCycleCapturedUtc,
             measuredAvg,
-            sampleSize);
+            sampleSize,
+            tenantBaseline?.BaselineManualPrepHoursPerReview,
+            tenantBaseline?.BaselinePeoplePerReview,
+            tenantBaseline?.ArchitectureTeamSize);
     }
 
     private sealed class FindingFeedbackAggRow
@@ -200,6 +208,24 @@ public sealed class DapperValueReportMetricsReader(ISqlConnectionFactory connect
         }
 
         public DateTimeOffset? BaselineReviewCycleCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public decimal? BaselineManualPrepHoursPerReview
+        {
+            get;
+            init;
+        }
+
+        public int? BaselinePeoplePerReview
+        {
+            get;
+            init;
+        }
+
+        public int? ArchitectureTeamSize
         {
             get;
             init;

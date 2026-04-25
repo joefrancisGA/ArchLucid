@@ -309,6 +309,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
+      {
+        href: "/settings/baseline",
+        label: "Baseline settings",
+        title: "Baseline settings — ROI measurement inputs",
+        icon: BarChart3,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      },
     ],
   },
   {

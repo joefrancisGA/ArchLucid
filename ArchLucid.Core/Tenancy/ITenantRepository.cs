@@ -46,6 +46,18 @@ public interface ITenantRepository
         decimal? baselineReviewCycleHours,
         string? baselineReviewCycleSource,
         DateTimeOffset? baselineReviewCycleCapturedUtc,
+        string? companySize,
+        int? architectureTeamSize,
+        string? industryVertical,
+        string? industryVerticalOther,
+        CancellationToken ct);
+
+    /// <summary>Updates deferrable manual-prep baseline fields (settings page).</summary>
+    Task UpdateBaselineAsync(
+        Guid tenantId,
+        decimal? manualPrepHoursPerReview,
+        int? peoplePerReview,
+        DateTimeOffset? capturedUtc,
         CancellationToken ct);
 
     /// <summary>Marks an active self-service trial as converted after billing activation.</summary>

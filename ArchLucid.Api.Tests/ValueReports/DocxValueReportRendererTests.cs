@@ -47,7 +47,9 @@ public sealed class DocxValueReportRendererTests
             null,
             null,
             0,
-            0);
+            0,
+            null,
+            null);
 
         byte[] docx = await sut.RenderAsync(snapshot, CancellationToken.None);
 

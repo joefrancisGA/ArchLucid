@@ -166,7 +166,10 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
                 null,
                 null,
                 null,
-                0);
+                0,
+                null,
+                null,
+                null);
 
             return Task.FromResult(raw);
         }

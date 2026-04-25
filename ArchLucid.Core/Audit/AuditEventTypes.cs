@@ -236,6 +236,12 @@ public static class AuditEventTypes
     /// <summary>Prospect supplied optional review-cycle baseline hours at trial signup (persisted on <c>dbo.Tenants</c>).</summary>
     public const string TrialBaselineReviewCycleCaptured = "TrialBaselineReviewCycleCaptured";
 
+    /// <summary>First save of <c>BaselineManualPrep*</c> on <c>dbo.Tenants</c> (settings or migration from prior null).</summary>
+    public const string TrialBaselineManualPrepCaptured = "TrialBaselineManualPrepCaptured";
+
+    /// <summary>Subsequent edits to <c>BaselineManualPrep*</c> after the first capture.</summary>
+    public const string TrialBaselineManualPrepUpdated = "TrialBaselineManualPrepUpdated";
+
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
 

@@ -53,7 +53,9 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
             delta,
             deltaPct,
             0,
-            0);
+            0,
+            null,
+            null);
     }
 
     [Fact]

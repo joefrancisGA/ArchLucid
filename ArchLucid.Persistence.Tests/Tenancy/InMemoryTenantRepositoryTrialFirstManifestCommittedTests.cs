@@ -26,6 +26,10 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
             null,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
             CancellationToken.None);
 
         DateTimeOffset committed = DateTimeOffset.Parse("2026-04-10T15:30:00+00:00");

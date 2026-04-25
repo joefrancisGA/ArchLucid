@@ -15,7 +15,10 @@ public sealed class InMemoryValueReportMetricsReader : IValueReportMetricsReader
         null,
         null,
         null,
-        0);
+        0,
+        null,
+        null,
+        null);
 
     public Task<ValueReportRawMetrics> ReadAsync(
         Guid tenantId,

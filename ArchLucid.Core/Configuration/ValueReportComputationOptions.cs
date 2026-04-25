@@ -71,4 +71,11 @@ public sealed class ValueReportComputationOptions
         init;
     } =
         "LLM spend is estimated using docs/go-to-market/ROI_MODEL.md §4 (~USD per completed run). Token-level SQL accounting is not persisted in V1.";
+
+    /// <summary>Denominator for <c>peoplePerReview / teamSize</c> hourly scaling when the tenant has no <c>ArchitectureTeamSize</c>.</summary>
+    public decimal DefaultTeamSizeForHourlyCostScaling
+    {
+        get;
+        init;
+    } = 4m;
 }

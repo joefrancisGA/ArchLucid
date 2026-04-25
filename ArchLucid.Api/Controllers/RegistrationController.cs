@@ -96,6 +96,60 @@ public sealed class RegistrationController(
             }
         }
 
+        if (body.CompanySize is { } companySize)
+        {
+            if (!StructuredBaselineConstants.AllowedCompanySizes.Contains(companySize))
+            {
+                return await RegisterFailureValidationAsync(
+                    body,
+                    "validation",
+                    "CompanySize is not a supported band.",
+                    "company_size_invalid",
+                    "Company size must be one of the allowed options when provided.",
+                    cancellationToken);
+            }
+        }
+
+        if (body.ArchitectureTeamSize is { } teamSize)
+        {
+            if (teamSize <= 0 || teamSize > 10_000)
+            {
+                return await RegisterFailureValidationAsync(
+                    body,
+                    "validation",
+                    "ArchitectureTeamSize must be between 1 and 10000 when provided.",
+                    "architecture_team_size_out_of_range",
+                    "Architecture team size must be between 1 and 10,000 when provided.",
+                    cancellationToken);
+            }
+        }
+
+        if (body.IndustryVertical is { } ind)
+        {
+            if (!StructuredBaselineConstants.IndustryVerticals.Contains(ind))
+            {
+                return await RegisterFailureValidationAsync(
+                    body,
+                    "validation",
+                    "IndustryVertical is not in the curated list.",
+                    "industry_vertical_invalid",
+                    "Industry must be one of the listed options (or Other) when provided.",
+                    cancellationToken);
+            }
+        }
+
+        if (string.Equals(body.IndustryVertical, "Other", StringComparison.Ordinal) &&
+            string.IsNullOrWhiteSpace(body.IndustryVerticalOther))
+        {
+            return await RegisterFailureValidationAsync(
+                body,
+                "validation",
+                "IndustryVerticalOther is required when IndustryVertical is Other.",
+                "industry_other_required",
+                "Please specify your industry when you select \"Other.\"",
+                cancellationToken);
+        }
+
         string actorEmail = body.AdminEmail.Trim();
 
         await _audit.LogAsync(
@@ -163,7 +217,20 @@ public sealed class RegistrationController(
                     WorkspaceId = result.DefaultWorkspaceId,
                     ProjectId = result.DefaultProjectId,
                     DataJson = JsonSerializer.Serialize(
-                        new { organizationName = body.OrganizationName.Trim(), adminEmail = body.AdminEmail.Trim() })
+                        new
+                        {
+                            organizationName = body.OrganizationName.Trim(),
+                            adminEmail = body.AdminEmail.Trim(),
+                            companySize = body.CompanySize,
+                            architectureTeamSize = body.ArchitectureTeamSize,
+                            industryVertical = body.IndustryVertical,
+                            industryVerticalOther = string.Equals(
+                                body.IndustryVertical,
+                                "Other",
+                                StringComparison.Ordinal)
+                                ? body.IndustryVerticalOther?.Trim()
+                                : null
+                        })
                 },
                 cancellationToken);
 
@@ -171,10 +238,25 @@ public sealed class RegistrationController(
                 ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, DateTimeOffset.UtcNow)
                 : null;
 
+            bool hasCompanyProfile = body.CompanySize is not null
+                || body.ArchitectureTeamSize is not null
+                || !string.IsNullOrWhiteSpace(body.IndustryVertical);
+
+            TrialSignupCompanyProfileCapture? companyProfile = hasCompanyProfile
+                ? new TrialSignupCompanyProfileCapture(
+                    body.CompanySize,
+                    body.ArchitectureTeamSize,
+                    body.IndustryVertical,
+                    string.Equals(body.IndustryVertical, "Other", StringComparison.Ordinal)
+                        ? body.IndustryVerticalOther?.Trim()
+                        : null)
+                : null;
+
             await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(
                 result,
                 actor,
                 baselineCapture,
+                companyProfile,
                 cancellationToken);
 
             if (baselineCapture is not null)
@@ -194,7 +276,11 @@ public sealed class RegistrationController(
                             {
                                 baselineReviewCycleHours = baselineCapture.Hours,
                                 baselineReviewCycleSource = normalizedBaselineSource,
-                                capturedUtc = baselineCapture.CapturedUtc
+                                capturedUtc = baselineCapture.CapturedUtc,
+                                companySize = companyProfile?.CompanySize,
+                                architectureTeamSize = companyProfile?.ArchitectureTeamSize,
+                                industryVertical = companyProfile?.IndustryVertical,
+                                industryVerticalOther = companyProfile?.IndustryVerticalOther
                             })
                     },
                     cancellationToken);

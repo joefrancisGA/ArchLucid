@@ -24,6 +24,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
                                   EnterpriseSeatsLimit, EnterpriseSeatsUsed
                            FROM dbo.Tenants
                            WHERE Id = @Id;
@@ -47,6 +49,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
                                   EnterpriseSeatsLimit, EnterpriseSeatsUsed
                            FROM dbo.Tenants
                            WHERE Slug = @Slug;
@@ -68,6 +72,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
                                   EnterpriseSeatsLimit, EnterpriseSeatsUsed
                            FROM dbo.Tenants
                            WHERE EntraTenantId = @EntraTenantId;
@@ -89,6 +95,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                   TrialStatus, TrialSampleRunId,
                                   TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
                                   BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
                                   EnterpriseSeatsLimit, EnterpriseSeatsUsed
                            FROM dbo.Tenants
                            ORDER BY CreatedUtc DESC;
@@ -111,6 +119,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         decimal? baselineReviewCycleHours,
         string? baselineReviewCycleSource,
         DateTimeOffset? baselineReviewCycleCapturedUtc,
+        string? companySize,
+        int? architectureTeamSize,
+        string? industryVertical,
+        string? industryVerticalOther,
         CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
@@ -127,7 +139,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                TrialSampleRunId = @TrialSampleRunId,
                                BaselineReviewCycleHours = @BaselineReviewCycleHours,
                                BaselineReviewCycleSource = @BaselineReviewCycleSource,
-                               BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc
+                               BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc,
+                               CompanySize = @CompanySize,
+                               ArchitectureTeamSize = @ArchitectureTeamSize,
+                               IndustryVertical = @IndustryVertical,
+                               IndustryVerticalOther = @IndustryVerticalOther
                            WHERE Id = @Id;
                            """;
 
@@ -145,7 +161,42 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     TrialSampleRunId = sampleRunId,
                     BaselineReviewCycleHours = baselineReviewCycleHours,
                     BaselineReviewCycleSource = baselineReviewCycleSource,
-                    BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc
+                    BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+                    CompanySize = companySize,
+                    ArchitectureTeamSize = architectureTeamSize,
+                    IndustryVertical = industryVertical,
+                    IndustryVerticalOther = industryVerticalOther
+                },
+                cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateBaselineAsync(
+        Guid tenantId,
+        decimal? manualPrepHoursPerReview,
+        int? peoplePerReview,
+        DateTimeOffset? capturedUtc,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET BaselineManualPrepHoursPerReview = @ManualPrepHours,
+                               BaselinePeoplePerReview = @PeoplePerReview,
+                               BaselineManualPrepCapturedUtc = @CapturedUtc
+                           WHERE Id = @TenantId;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    ManualPrepHours = manualPrepHoursPerReview,
+                    PeoplePerReview = peoplePerReview,
+                    CapturedUtc = capturedUtc
                 },
                 cancellationToken: ct));
     }
@@ -914,6 +965,48 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             init;
         }
 
+        public decimal? BaselineManualPrepHoursPerReview
+        {
+            get;
+            init;
+        }
+
+        public int? BaselinePeoplePerReview
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? BaselineManualPrepCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? CompanySize
+        {
+            get;
+            init;
+        }
+
+        public int? ArchitectureTeamSize
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVertical
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVerticalOther
+        {
+            get;
+            init;
+        }
+
         public int? EnterpriseSeatsLimit
         {
             get;
@@ -951,6 +1044,13 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 BaselineReviewCycleHours = BaselineReviewCycleHours,
                 BaselineReviewCycleSource = BaselineReviewCycleSource,
                 BaselineReviewCycleCapturedUtc = BaselineReviewCycleCapturedUtc,
+                BaselineManualPrepHoursPerReview = BaselineManualPrepHoursPerReview,
+                BaselinePeoplePerReview = BaselinePeoplePerReview,
+                BaselineManualPrepCapturedUtc = BaselineManualPrepCapturedUtc,
+                CompanySize = CompanySize,
+                ArchitectureTeamSize = ArchitectureTeamSize,
+                IndustryVertical = IndustryVertical,
+                IndustryVerticalOther = IndustryVerticalOther,
                 EnterpriseSeatsLimit = EnterpriseSeatsLimit,
                 EnterpriseSeatsUsed = EnterpriseSeatsUsed
             };

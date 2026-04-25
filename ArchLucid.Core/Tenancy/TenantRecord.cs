@@ -144,6 +144,51 @@ public sealed class TenantRecord
         init;
     }
 
+    /// <summary>Deferrable: person-hours of manual prep per design review (baseline settings; optional at signup path).</summary>
+    public decimal? BaselineManualPrepHoursPerReview
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Deferrable: people involved in each review for ROI team-cost scaling (baseline settings).</summary>
+    public int? BaselinePeoplePerReview
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When <see cref="BaselineManualPrepHoursPerReview" /> / <see cref="BaselinePeoplePerReview" /> were last set via settings.</summary>
+    public DateTimeOffset? BaselineManualPrepCapturedUtc
+    {
+        get;
+        init;
+    }
+
+    public string? CompanySize
+    {
+        get;
+        init;
+    }
+
+    public int? ArchitectureTeamSize
+    {
+        get;
+        init;
+    }
+
+    public string? IndustryVertical
+    {
+        get;
+        init;
+    }
+
+    public string? IndustryVerticalOther
+    {
+        get;
+        init;
+    }
+
     /// <summary>When set, caps <see cref="EnterpriseSeatsUsed" /> for SCIM-provisioned active users; <c>null</c> = unlimited.</summary>
     public int? EnterpriseSeatsLimit
     {

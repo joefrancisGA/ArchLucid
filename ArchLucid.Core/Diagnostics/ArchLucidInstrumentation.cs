@@ -303,6 +303,12 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_signup_baseline_skipped_total",
             description: "Self-service trial signup completed without tenant-supplied baseline review-cycle hours.");
 
+    /// <summary>Manual prep / people-per-review baseline persisted (settings UI gate).</summary>
+    public static readonly Counter<long> BaselineManualPrepCapturedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_baseline_manual_prep_captured_total",
+            description: "Tenant manual baseline fields saved (PUT /v1/tenant/baseline).");
+
     /// <summary>Seconds from trial anchor to first golden manifest commit (self-service trials).</summary>
     public static readonly Histogram<double> TrialFirstRunSeconds =
         AppMeter.CreateHistogram(
@@ -771,6 +777,12 @@ public static class ArchLucidInstrumentation
     public static void RecordTrialSignupBaselineSkipped()
     {
         TrialSignupBaselineSkippedTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="BaselineManualPrepCapturedTotal" />.</summary>
+    public static void RecordBaselineManualPrepCaptured()
+    {
+        BaselineManualPrepCapturedTotal.Add(1);
     }
 
     /// <summary>Records <see cref="TrialFirstRunSeconds" /> when positive and finite.</summary>
