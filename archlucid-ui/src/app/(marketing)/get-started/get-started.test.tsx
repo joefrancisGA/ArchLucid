@@ -55,13 +55,15 @@ describe("GetStartedPage", () => {
 });
 
 describe("docs/BUYER_FIRST_30_MINUTES.md", () => {
-  it("ships with q35 placeholder markers on owner-blocked sentences", () => {
+  it("keeps scope header, buyer/contributor split, and hosted get-started handoff (Q35 copy shipped)", () => {
     const repoRoot = resolve(__dirname, "../../../../..");
     const docPath = join(repoRoot, "docs", "BUYER_FIRST_30_MINUTES.md");
     const text = readFileSync(docPath, "utf-8");
 
-    expect(text).toContain("<<placeholder copy — replace before external use>>");
+    expect(text).toMatch(/>\s*\*\*Scope:\*\*/);
     expect(text).toContain("Audience banner:");
     expect(text).toContain("docs/engineering/FIRST_30_MINUTES.md");
+    expect(text).toContain("archlucid.com/get-started");
+    expect(text).not.toContain("<<placeholder copy");
   });
 });
