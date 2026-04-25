@@ -20,8 +20,6 @@ public sealed class ReadReplicaRoutedConnectionFactory(
     private readonly ResilientSqlConnectionFactory _resilientFactory =
         resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
 
-    private readonly ReadReplicaQueryRoute _route = route;
-
     private readonly IRlsSessionContextApplicator _sessionContextApplicator =
         sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
 
@@ -29,7 +27,7 @@ public sealed class ReadReplicaRoutedConnectionFactory(
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
     {
         SqlServerOptions snapshot = _optionsMonitor.CurrentValue;
-        string? replica = SqlReadReplicaConnectionStringResolver.Resolve(_route, snapshot.ReadReplica);
+        string? replica = SqlReadReplicaConnectionStringResolver.Resolve(route, snapshot.ReadReplica);
 
         SqlConnection connection;
         if (string.IsNullOrEmpty(replica))

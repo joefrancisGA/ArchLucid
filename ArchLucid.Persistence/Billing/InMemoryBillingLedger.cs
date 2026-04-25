@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 
 using ArchLucid.Core.Billing;
 
+using JetBrains.Annotations;
+
 namespace ArchLucid.Persistence.Billing;
 
 public sealed class InMemoryBillingLedger : IBillingLedger
@@ -157,7 +159,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     }
 
     private sealed record BillingSubRow(
-        Guid TenantId,
+        [UsedImplicitly] Guid TenantId,
         Guid WorkspaceId,
         Guid ProjectId,
         string Provider,

@@ -8,10 +8,12 @@ const requiredKeys = [
   "commit-manifest",
   "manifest-review",
   "governance-gate",
+  "semantic-search",
+  "ask-archlucid",
 ] as const;
 
 describe("contextualHelpByKey", () => {
-  it("defines all five core pilot help keys with non-empty text under 200 chars", () => {
+  it("defines all contextual help keys with non-empty text under 200 chars", () => {
     for (const key of requiredKeys) {
       const entry = contextualHelpByKey[key];
       expect(entry, key).toBeDefined();

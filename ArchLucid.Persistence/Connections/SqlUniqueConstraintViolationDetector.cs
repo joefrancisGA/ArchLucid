@@ -20,9 +20,6 @@ public static class SqlUniqueConstraintViolationDetector
         if (ex is null)
             return false;
 
-        if (ex is SqlException { Number: 2601 or 2627 })
-            return true;
-
-        return IsUniqueKeyViolation(ex.InnerException);
+        return ex is SqlException { Number: 2601 or 2627 } || IsUniqueKeyViolation(ex.InnerException);
     }
 }

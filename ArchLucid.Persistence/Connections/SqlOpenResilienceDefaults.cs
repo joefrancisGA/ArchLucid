@@ -30,7 +30,7 @@ public static class SqlOpenResilienceDefaults
                 Delay = delay,
                 BackoffType = DelayBackoffType.Exponential,
                 UseJitter = true,
-                ShouldHandle = new PredicateBuilder().Handle<Exception>(ex => SqlTransientDetector.IsTransient(ex)),
+                ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient),
                 OnRetry = args =>
                 {
                     if (logger is not null && args.Outcome.Exception is { } ex)
@@ -40,7 +40,6 @@ public static class SqlOpenResilienceDefaults
                             "Transient SQL error on connection open; retry {AttemptNumber} (max {MaxRetryAttempts}).",
                             args.AttemptNumber,
                             maxRetryAttempts);
-
 
                     return ValueTask.CompletedTask;
                 }

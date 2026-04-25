@@ -2,6 +2,8 @@ import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lu
 
 import type { EmptyStateProps } from "@/components/EmptyState";
 
+export { SEARCH_EMPTY } from "./search-empty-preset";
+
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No runs in this project yet",

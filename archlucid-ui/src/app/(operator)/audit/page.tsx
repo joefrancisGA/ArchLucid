@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -244,7 +245,10 @@ export default function AuditPage() {
   return (
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
-      <h2 style={{ marginTop: 0 }}>Audit log</h2>
+      <div className="m-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0">Audit log</h2>
+        <ContextualHelp helpKey="audit-log" />
+      </div>
       <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (

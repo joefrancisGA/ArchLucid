@@ -167,9 +167,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         {
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(cancellationToken);
 
-            foreach (AgentTraceDocument doc in page)
-
-                list.Add(Deserialize(doc));
+            list.AddRange(page.Select(Deserialize));
         }
 
         return list;
@@ -220,9 +218,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         {
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
 
-            foreach (AgentTraceDocument doc in page)
-
-                traces.Add(Deserialize(doc));
+            traces.AddRange(page.Select(Deserialize));
         }
 
         return (traces, total);

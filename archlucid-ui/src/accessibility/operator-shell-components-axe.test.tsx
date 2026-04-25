@@ -40,4 +40,24 @@ describe("operator shell components — axe (Vitest)", () => {
 
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it("ContextualHelp (semantic-search) has no accessibility violations when open", async () => {
+    const { container, getByLabelText } = render(<ContextualHelp helpKey="semantic-search" />);
+
+    act(() => {
+      fireEvent.click(getByLabelText(/help: semantic-search/i));
+    });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it("ContextualHelp (ask-archlucid) has no accessibility violations when open", async () => {
+    const { container, getByLabelText } = render(<ContextualHelp helpKey="ask-archlucid" />);
+
+    act(() => {
+      fireEvent.click(getByLabelText(/help: ask-archlucid/i));
+    });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
 });

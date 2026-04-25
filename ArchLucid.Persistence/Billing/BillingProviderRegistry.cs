@@ -25,15 +25,12 @@ public sealed class BillingProviderRegistry(
 
     public IBillingProvider ResolveActiveProvider()
     {
-        string name = _billingOptions.CurrentValue.Provider?.Trim() ?? string.Empty;
+        string name = _billingOptions.CurrentValue.Provider.Trim();
 
-        if (string.Equals(name, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
-            return _stripe;
-
+        if (string.Equals(name, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))  return _stripe;
 
         if (string.Equals(name, BillingProviderNames.AzureMarketplace, StringComparison.OrdinalIgnoreCase))
             return _azureMarketplace;
-
 
         return _noop;
     }

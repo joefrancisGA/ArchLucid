@@ -28,6 +28,46 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "When enabled, the governance gate checks findings against severity thresholds before allowing commit.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
+  "alerts-inbox": {
+    text: "Alerts inbox shows deduplicated architecture-risk alerts. Ack, filter by severity, or configure rules via the Rules tab.",
+    learnMoreUrl: "/docs/ALERTS.md",
+  },
+  "governance-dashboard": {
+    text: "Governance dashboard tracks approval requests, promotions, and activations across runs.",
+    learnMoreUrl: "/docs/API_CONTRACTS.md",
+  },
+  "compare-runs": {
+    text: "Compare diffs two committed manifests. Enter base and target run IDs from the Runs list.",
+    learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
+  },
+  "replay-run": {
+    text: "Replay re-validates a stored comparison. Verify mode detects drift since the original comparison.",
+    learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
+  },
+  "architecture-graph": {
+    text: "Graph shows provenance or architecture view for a single run. Enter a run ID and choose a mode.",
+    learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
+  },
+  "audit-log": {
+    text: "Append-only audit trail. Use filters and keyset pagination to browse events. Export via API.",
+    learnMoreUrl: "/docs/AUDIT_COVERAGE_MATRIX.md",
+  },
+  "policy-packs": {
+    text: "Policy packs bundle rules and scope defaults. Assign them to workspaces to enforce governance.",
+    learnMoreUrl: "/docs/API_CONTRACTS.md",
+  },
+  "advisory-hub": {
+    text: "Advisory scans evaluate your architecture against configurable advisory rules.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
+  "semantic-search": {
+    text: "Scoped to your workspace. Uses the same embedding index as Ask ArchLucid.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
+  "ask-archlucid": {
+    text: "Multi-turn conversations about your architecture. First message needs a run ID; follow-ups reuse the thread.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
 };
 
 const DEFAULT_BLOB_BASE = "https://github.com/joefrancisGA/ArchLucid/blob/main";

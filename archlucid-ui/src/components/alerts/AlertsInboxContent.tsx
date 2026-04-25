@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -198,7 +199,10 @@ export function AlertsInboxContent() {
   return (
     <div className="mx-auto max-w-3xl">
       <LayerHeader pageKey="alerts" />
-      <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
+      <div className="mb-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
+        <ContextualHelp helpKey="alerts-inbox" />
+      </div>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
       </p>

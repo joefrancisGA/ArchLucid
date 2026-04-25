@@ -88,10 +88,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
         // Ceiling to whole seconds, add buffer for scheduling. Max orchestrator lock is 600s; command timeout must exceed that.
         int seconds = (lockTimeoutMs + 999) / 1000 + 30;
 
-        if (seconds > 660)
-            return 660;
-
-        return seconds;
+        return seconds > 660 ? 660 : seconds;
     }
 
     private static string NormalizeResourceName(string lockResourceName)
@@ -106,15 +103,11 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
 
     private sealed class SessionLockScope(SqlConnection connection, string resourceName) : IAsyncDisposable
     {
-        private readonly SqlConnection _connection = connection;
-
-        private readonly string _resourceName = resourceName;
-
         public async ValueTask DisposeAsync()
         {
             try
             {
-                await using SqlCommand release = _connection.CreateCommand();
+                await using SqlCommand release = connection.CreateCommand();
                 release.CommandText =
                     """
                     DECLARE @result int;
@@ -122,7 +115,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
                     SELECT @result;
                     """;
                 SqlParameter pResource = release.Parameters.Add("@resource", SqlDbType.NVarChar, 255);
-                pResource.Value = _resourceName;
+                pResource.Value = resourceName;
 
                 await release.ExecuteNonQueryAsync();
             }
@@ -132,7 +125,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
             }
             finally
             {
-                await _connection.DisposeAsync();
+                await connection.DisposeAsync();
             }
         }
     }

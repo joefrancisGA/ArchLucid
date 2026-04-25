@@ -1,5 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { render as rtlRender, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
@@ -32,6 +35,10 @@ import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningPage from "./recommendation-learning/page";
 import SearchPage from "./search/page";
+
+function render(ui: ReactElement) {
+  return rtlRender(<TooltipProvider delayDuration={0}>{ui}</TooltipProvider>);
+}
 
 /**
  * Render-gate: first paint + import chain for client-only operator pages that had no tests.
@@ -120,14 +127,16 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Governance resolution" })).toBeInTheDocument();
   });
 
-  it("SearchPage renders primary heading", () => {
+  it("SearchPage renders primary heading and contextual help", () => {
     render(<SearchPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/help: semantic-search/i)).toBeInTheDocument();
   });
 
-  it("AskPage renders primary heading", () => {
+  it("AskPage renders primary heading and contextual help", () => {
     render(<AskPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/help: ask-archlucid/i)).toBeInTheDocument();
   });
 
   it("GettingStartedPage renders primary heading", async () => {

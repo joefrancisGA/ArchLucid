@@ -112,18 +112,13 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         DateTime cutoff = cutoffUtc.UtcDateTime;
         DateTime stamp = DateTime.UtcNow;
         int count = 0;
+
         lock (_gate)
-
-            foreach (ConversationThread t in _threads)
+            foreach (ConversationThread t in _threads.Where(t => !t.ArchivedUtc.HasValue && t.LastUpdatedUtc < cutoff))
             {
-                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff)
-                    continue;
-
-
                 t.ArchivedUtc = stamp;
                 count++;
             }
-
 
         return Task.FromResult(count);
     }
