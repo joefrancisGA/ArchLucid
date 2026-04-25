@@ -742,3 +742,327 @@ After all changes:
 4. Manual: click "Show me around" on the operator home page. All five steps
    render clean copy with no amber "pending owner approval" banner.
 ```
+
+---
+
+## Prompt 12 — Structured baseline intake form and ROI instrumentation (owner-approved 2026-04-24)
+
+```
+## Goal
+
+Extend the self-service signup and tenant settings to capture a structured baseline
+intake beyond the single "review-cycle hours" field that exists today, so the value-
+report pipeline can compute customer-specific ROI instead of relying on model-constant
+placeholders.
+
+Owner decisions (2026-04-24):
+- V1 includes all three Tier 1 fields (review-cycle hours already exists; add manual
+  prep hours and people per review).
+- Manual prep hours and people-per-review are deferrable: captured via a tenant
+  settings page, not required at signup.
+- Company size is persisted server-side (expanded range dropdown).
+- Architecture team size (numeric) and industry vertical (curated dropdown + "Other"
+  free-text) are captured at signup.
+- Industry vertical options: Healthcare, Financial Services, Technology,
+  Government / Public Sector, Manufacturing, Retail, Insurance,
+  Energy / Utilities, Education, Telecommunications, Other.
+
+## Layer 1 — SQL migration (new file: `ArchLucid.Persistence/Migrations/102_Tenants_StructuredBaseline.sql`)
+
+Add columns to `dbo.Tenants`. Follow the idempotent pattern used in migration 101.
+
+```sql
+SET NOCOUNT ON;
+GO
+
+/* 102: Structured baseline intake — company profile + deferrable ROI fields. */
+
+IF COL_LENGTH(N'dbo.Tenants', N'BaselineManualPrepHoursPerReview') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        BaselineManualPrepHoursPerReview     DECIMAL(9,2)     NULL,
+        BaselinePeoplePerReview              INT              NULL,
+        BaselineManualPrepCapturedUtc        DATETIMEOFFSET(7) NULL,
+        CompanySize                          NVARCHAR(30)     NULL,
+        ArchitectureTeamSize                 INT              NULL,
+        IndustryVertical                     NVARCHAR(100)    NULL,
+        IndustryVerticalOther                NVARCHAR(200)    NULL;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.check_constraints
+    WHERE name = N'CK_Tenants_BaselineManualPrepHoursPerReview_Positive'
+      AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_BaselineManualPrepHoursPerReview_Positive
+        CHECK (BaselineManualPrepHoursPerReview IS NULL OR BaselineManualPrepHoursPerReview > 0);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.check_constraints
+    WHERE name = N'CK_Tenants_BaselinePeoplePerReview_Positive'
+      AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_BaselinePeoplePerReview_Positive
+        CHECK (BaselinePeoplePerReview IS NULL OR BaselinePeoplePerReview > 0);
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.check_constraints
+    WHERE name = N'CK_Tenants_ArchitectureTeamSize_Positive'
+      AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_ArchitectureTeamSize_Positive
+        CHECK (ArchitectureTeamSize IS NULL OR ArchitectureTeamSize > 0);
+END;
+GO
+```
+
+Also add a rollback script at `ArchLucid.Persistence/Migrations/Rollback/R102_Tenants_StructuredBaseline.sql`
+that drops the three constraints then the seven columns, same pattern as `R101`.
+
+Also append the same idempotent DDL to the master script at
+`ArchLucid.Persistence/Scripts/ArchLucid.sql` (after the migration 101 block).
+
+## Layer 2 — Domain model (`ArchLucid.Core/Tenancy/TenantRecord.cs`)
+
+Add seven new properties (all nullable) after the existing `BaselineReviewCycleCapturedUtc`
+property, before `EnterpriseSeatsLimit`:
+
+- `decimal? BaselineManualPrepHoursPerReview`
+- `int? BaselinePeoplePerReview`
+- `DateTimeOffset? BaselineManualPrepCapturedUtc`
+- `string? CompanySize`
+- `int? ArchitectureTeamSize`
+- `string? IndustryVertical`
+- `string? IndustryVerticalOther`
+
+## Layer 3 — Persistence (`ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs`)
+
+3a. Update every `SELECT` that reads `dbo.Tenants` columns to include the seven new
+    columns (four queries: GetByIdAsync, GetBySlugAsync, GetByEntraTenantIdAsync,
+    GetAllAsync). Add them after `BaselineReviewCycleCapturedUtc`.
+
+3b. Update the `TenantRow` mapping class (private, inside the same file) with seven
+    matching properties and update the `ToRecord()` mapper.
+
+3c. Update `ActivateTrialAsync` (or whichever method currently persists baseline data)
+    to also write `CompanySize`, `ArchitectureTeamSize`, `IndustryVertical`,
+    `IndustryVerticalOther` during trial activation.
+
+3d. Add a new method `UpdateBaselineAsync` for the deferred baseline capture:
+    ```csharp
+    Task UpdateBaselineAsync(
+        Guid tenantId,
+        decimal? manualPrepHoursPerReview,
+        int? peoplePerReview,
+        DateTimeOffset? capturedUtc,
+        CancellationToken ct);
+    ```
+    SQL: `UPDATE dbo.Tenants SET BaselineManualPrepHoursPerReview = @ManualPrepHours,
+    BaselinePeoplePerReview = @PeoplePerReview, BaselineManualPrepCapturedUtc = @CapturedUtc
+    WHERE Id = @TenantId;`
+
+3e. Add `UpdateBaselineAsync` to `ITenantRepository` interface in
+    `ArchLucid.Core/Tenancy/ITenantRepository.cs`.
+
+3f. Update `InMemoryTenantRepository` with the same new method (update the in-memory
+    dictionary entry).
+
+## Layer 4 — API registration model (`ArchLucid.Api/Models/Tenancy/TenantRegistrationRequest.cs`)
+
+Add four new optional properties:
+
+- `[MaxLength(30)] string? CompanySize` — valid values: "1-10", "11-50", "51-200",
+  "201-1000", "1001-5000", "5001-50000", "50001+".
+- `int? ArchitectureTeamSize` — must be > 0 and <= 10000 if provided.
+- `[MaxLength(100)] string? IndustryVertical` — must be one of the curated values
+  or "Other".
+- `[MaxLength(200)] string? IndustryVerticalOther` — required when
+  IndustryVertical == "Other", ignored otherwise.
+
+## Layer 5 — Registration controller (`ArchLucid.Api/Controllers/RegistrationController.cs`)
+
+5a. After the existing baseline validation block, add validation for:
+    - `CompanySize`: if provided, must be in the allowed set; return 400 if not.
+    - `ArchitectureTeamSize`: if provided, must be > 0 and <= 10000; return 400 if not.
+    - `IndustryVertical`: if provided, must be in the curated list; return 400 if not.
+    - `IndustryVerticalOther`: if `IndustryVertical == "Other"` and
+      `IndustryVerticalOther` is blank, return 400.
+
+5b. Pass the four new values through to `_trialBootstrap.TryBootstrapAfterSelfRegistrationAsync`.
+    This requires extending either the capture DTO or adding a new DTO alongside
+    `TrialSignupBaselineReviewCycleCapture`.
+
+5c. Audit-log the new fields in the `TrialBaselineReviewCycleCaptured` event data
+    (extend the anonymous object in DataJson).
+
+## Layer 6 — Deferred baseline API endpoint
+
+Create `ArchLucid.Api/Controllers/Tenancy/TenantBaselineController.cs`:
+
+- `[Authorize] [ApiVersion("1.0")] [Route("v{version:apiVersion}/tenant/baseline")]`
+- `PUT` endpoint: accepts `{ manualPrepHoursPerReview?: decimal, peoplePerReview?: int }`.
+- Validates ranges (same as registration: > 0, <= 10000).
+- Calls `ITenantRepository.UpdateBaselineAsync`.
+- Emits audit event `TrialBaselineManualPrepCaptured`.
+- Returns 200 with the updated values.
+- Emits instrumentation counter `ArchLucidInstrumentation.RecordBaselineManualPrepCaptured()`.
+
+## Layer 7 — Value report pipeline integration
+
+7a. Extend `ValueReportRawMetrics` (in `ArchLucid.Persistence/Value/ValueReportRawMetrics.cs`)
+    with two new fields:
+    - `decimal? TenantBaselineManualPrepHoursPerReview`
+    - `int? TenantBaselinePeoplePerReview`
+
+7b. Extend `IValueReportMetricsReader.ReadAsync` and its two implementations
+    (`DapperValueReportMetricsReader`, `InMemoryValueReportMetricsReader`) to read
+    the new columns from the tenant row.
+
+7c. Extend `ValueReportSnapshot` with:
+    - `decimal? TenantBaselineManualPrepHoursPerReview`
+    - `int? TenantBaselinePeoplePerReview`
+
+7d. In `ValueReportBuilder.BuildAsync`: when `TenantBaselineManualPrepHoursPerReview`
+    is not null, use it instead of the model constant
+    `BaselineArchitectHoursBeforeArchLucidPerCommittedManifest` for the manifest-hours
+    computation. When `TenantBaselinePeoplePerReview` is not null, multiply the
+    hourly rate by (peoplePerReview / averageTeamSize) as a team-cost scaling factor.
+    When null, fall back to current model constants (no behavior change for existing
+    tenants).
+
+7e. In `ValueReportReviewCycleSectionFormatter`: extend `ReviewCycleBaselineProvenance`
+    enum with `TenantSuppliedViaSettings` to distinguish signup-time capture from
+    deferred-settings-page capture (the "captured at" line should reflect the source).
+
+## Layer 8 — UI: signup form updates (`archlucid-ui/src/`)
+
+8a. Update `archlucid-ui/src/lib/signup-schema.ts`:
+    - Expand `companySizeOptions` to:
+      `["1-10", "11-50", "51-200", "201-1000", "1001-5000", "5001-50000", "50001+"]`
+    - Add `industryVerticalOptions`:
+      `["Healthcare", "Financial Services", "Technology", "Government / Public Sector",
+        "Manufacturing", "Retail", "Insurance", "Energy / Utilities", "Education",
+        "Telecommunications", "Other"]`
+    - Add schema fields:
+      `architectureTeamSize: z.string().optional()` (numeric string, validated in
+      superRefine like baseline hours)
+      `industryVertical: z.enum(industryVerticalOptions).optional()`
+      `industryVerticalOther: z.string().max(200).optional()` (required when
+      industryVertical is "Other", enforced in superRefine)
+
+8b. Update `archlucid-ui/src/components/marketing/SignupForm.tsx`:
+    - Add "Architecture team size" numeric input (optional, after company size).
+    - Add "Industry" select dropdown (optional, after architecture team size).
+    - Add "Industry (specify)" text input, shown only when "Other" is selected.
+    - Include `companySize`, `architectureTeamSize`, `industryVertical`,
+      `industryVerticalOther` in the POST payload to `/api/proxy/v1/register`.
+    - Remove the `sessionStorage.setItem("archlucid_signup_company_size", ...)`
+      line — no longer needed since it's persisted server-side.
+
+8c. Update `archlucid-ui/src/components/marketing/SignupForm.test.tsx`:
+    - Add test for expanded company-size dropdown rendering all options.
+    - Add test for industry vertical dropdown rendering all options.
+    - Add test for "Other" industry showing the free-text input.
+    - Add test for architecture team size validation (non-numeric, zero, negative).
+
+## Layer 9 — UI: deferred baseline settings page
+
+9a. Create `archlucid-ui/src/app/(operator)/settings/baseline/page.tsx`:
+    - Authenticated page (operator layout).
+    - Title: "Baseline settings — ROI measurement"
+    - Intro copy: "These fields tighten the 'before' anchor for your value reports.
+      If you skip them, we use conservative model defaults. You can update them
+      at any time."
+    - Two fields:
+      - "Manual preparation hours per review" (numeric input, optional)
+      - "People involved per review" (numeric input, optional)
+    - "Save" button that PUTs to `/api/proxy/v1/tenant/baseline`.
+    - On load, GET the current tenant record and pre-fill if values exist.
+    - Toast on success / error.
+
+9b. Add nav entry in `archlucid-ui/src/lib/nav-config.ts`:
+    - Under the `settings` group (or create one if none exists), add:
+      ```ts
+      {
+        href: "/settings/baseline",
+        label: "Baseline settings",
+        title: "Baseline settings — ROI measurement inputs",
+        icon: BarChart3,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      }
+      ```
+
+9c. Add test `archlucid-ui/src/app/(operator)/settings/baseline/page.test.tsx`:
+    - Renders the form with empty defaults.
+    - Submits with valid values — mock PUT succeeds — success toast shown.
+    - Validation: rejects zero and negative values.
+    - Pre-fills when tenant record has existing values.
+
+## Layer 10 — Audit events
+
+Add to `ArchLucid.Core/Audit/AuditEventTypes.cs`:
+- `TrialBaselineManualPrepCaptured` (used by the new PUT endpoint)
+- `TrialBaselineManualPrepUpdated` (used when values are changed after initial set)
+
+## Layer 11 — Tests (.NET)
+
+11a. `ArchLucid.Api.Tests/RegistrationControllerStructuredBaselineTests.cs`:
+    - Registration with valid company size, architecture team size, industry vertical.
+    - Registration with invalid company size returns 400.
+    - Registration with architecture team size <= 0 returns 400.
+    - Registration with IndustryVertical = "Other" but blank IndustryVerticalOther
+      returns 400.
+    - Registration without any of the new fields still succeeds (backward compatible).
+
+11b. `ArchLucid.Api.Tests/TenantBaselineControllerTests.cs`:
+    - PUT with valid manual prep hours and people per review returns 200.
+    - PUT with zero or negative values returns 400.
+    - PUT updates the tenant record (verify via repository read-back).
+    - PUT emits the correct audit event.
+
+11c. `ArchLucid.Persistence.Tests/Tenancy/Migration102_StructuredBaselineColumnsTests.cs`:
+    - Verify columns exist after migration.
+    - Verify check constraints reject invalid values.
+    - Verify rollback script removes columns cleanly.
+
+11d. `ArchLucid.Application.Tests/Value/ValueReportBuilderStructuredBaselineTests.cs`:
+    - When `TenantBaselineManualPrepHoursPerReview` is provided, the value report
+      uses it instead of the model constant.
+    - When null, falls back to model constant (existing behavior preserved).
+    - When `TenantBaselinePeoplePerReview` is provided, the team-cost scaling
+      factor is applied.
+
+## Constraints
+
+- Do not modify historical SQL migration files (001–101). Only add new migration 102.
+- Do not break existing tenants: all new columns are NULL, all new API fields are
+  optional, all value-report fallbacks use existing model constants when tenant data
+  is absent.
+- Do not remove `sessionStorage` for company size until the server-side persistence
+  is confirmed working.
+- The deferred baseline fields (manual prep hours, people per review) are NOT on the
+  signup form — they are ONLY on the settings page. The signup form captures review-
+  cycle hours (existing), company size, architecture team size, and industry vertical.
+- Follow the existing audit-event pattern: structured JSON in `DataJson`, actor from
+  the authenticated principal.
+
+## Acceptance criteria
+
+1. `dotnet build` succeeds with zero warnings in the new files.
+2. All new .NET tests pass: `dotnet test --filter "StructuredBaseline|TenantBaseline|Migration102|ValueReportBuilderStructuredBaseline"`
+3. `cd archlucid-ui && npm test` — all signup and baseline settings tests pass.
+4. Existing registration flow works unchanged when new fields are omitted.
+5. Value report with tenant-supplied manual-prep hours shows customer-specific ROI
+   instead of model-constant placeholder.
+6. Value report without tenant-supplied data shows identical output to today (no
+   regression).
+```

@@ -1193,13 +1193,13 @@ Acceptance criteria:
 
 ---
 
-### DEFERRED: Improvement 9 — Real Customer ROI Validation Instrumentation
+### Improvement 9 — Real Customer ROI Validation Instrumentation (owner-approved 2026-04-24)
 
-**Title:** DEFERRED: Real Customer ROI Validation Instrumentation
+**Title:** Structured baseline intake form and ROI instrumentation
 
-**Reason deferred:** No real customer or pilot exists to generate ROI data. The instrumentation can be built, but there is no data to validate until a real architecture team uses the product on a real project.
+**Status:** Actionable — owner decisions resolved 2026-04-24. Full prompt at `CURSOR_PROMPTS_COGNITIVE_LOAD_2026_04_24_63_65.md` Prompt 12.
 
-**Information needed from owner:** (a) Identity of the first pilot customer or design partner. (b) Whether the pilot will use real-LLM mode or simulator. (c) Whether the customer consents to anonymized ROI data collection. (d) What "architect-hours saved" measurement methodology the customer will use (self-report, time tracking, or estimation).
+**Owner decisions (2026-04-24):** (a) V1 includes all three Tier 1 fields (review-cycle hours already exists; add manual prep hours per review and people per review). (b) Manual prep hours and people-per-review are deferrable — captured via a tenant settings page, not required at signup. (c) Company size persisted server-side with expanded range dropdown. (d) Architecture team size (numeric) and industry vertical (curated dropdown: Healthcare, Financial Services, Technology, Government / Public Sector, Manufacturing, Retail, Insurance, Energy / Utilities, Education, Telecommunications, Other) captured at signup.
 
 ---
 

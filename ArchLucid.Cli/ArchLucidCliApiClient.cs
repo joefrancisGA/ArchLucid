@@ -1209,6 +1209,13 @@ public sealed class ArchLucidApiClient
             get;
             set;
         }
+
+        /// <summary>When <see langword="true" />, real-mode execution used deterministic simulator output instead of the LLM.</summary>
+        public bool? RealModeFellBackToSimulator
+        {
+            get;
+            set;
+        }
     }
 
     public sealed class AgentTaskInfo

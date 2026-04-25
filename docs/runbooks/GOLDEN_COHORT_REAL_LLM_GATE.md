@@ -88,10 +88,53 @@ These are explicitly listed in `docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_2
 * **Injecting the Azure OpenAI secret** into the protected GitHub Environment.
 * **Flipping `cohort-real-llm-gate`** from `if:` (optional) to no-`if:` (required). That is the one-line change in § 2 and must be a separate PR after the deployment exists.
 
-## 7. Related files
+## 7. Structural validation (real-LLM output)
+
+When the optional [`../../ArchLucid.Core/GoldenCorpus/RealLlmOutputStructuralValidator.cs`](../../ArchLucid.Core/GoldenCorpus/RealLlmOutputStructuralValidator.cs) gate is used, automation checks **only JSON shape** for each `AgentResult` returned by the API (after execute). It does **not** compare claim text, finding messages, or category strings to a golden string — those remain covered by the locked manifest SHA and finding-category multiset in the standard drift path.
+
+**What is checked**
+
+- The payload is valid JSON and the root is an object.
+- Required top-level **AgentResult** properties are present: `resultId`, `taskId`, `runId`, `agentType`, `claims`, `evidenceRefs`, `confidence`, `createdUtc`, `findings` (camelCase, matching [`ArchLucid.Contracts.Agents.AgentResult`](../../ArchLucid.Contracts/Agents/AgentResult.cs) serialization).
+- `agentType` in JSON matches the expected agent (Topology / Cost / Compliance / Critic), including enum-as-number when the API emits an integer.
+- `findings` is a **non-empty** array (the cohort is expected to surface at least one finding per result for the gate to be meaningful).
+- Each element of `findings` has a `trace` object (ExplainabilityTrace) with the list-shaped fields `graphNodeIdsExamined`, `rulesApplied`, `decisionsTaken`, `alternativePathsConsidered`, and `notes` (each a JSON array; empty arrays are valid). `sourceAgentExecutionTraceId` is optional and may be null or omitted.
+- **No** assertion is made on the *contents* of strings or arrays (only that required keys exist and lists are JSON arrays).
+
+**Why this shape**
+
+Real models can paraphrase text while still being “correct” for product semantics; comparing raw strings is brittle. Structural checks catch systematic wiring failures (missing explainability, empty finding sets, wrong envelope) that would make MTD cost and the Workbook hard to trust without content-level flakiness.
+
+**CLI entry points**
+
+- `archlucid golden-cohort drift --strict-real` — when the shell is configured for a real-LLM API host (`ARCHLUCID_GOLDEN_COHORT_REAL_LLM` and/or `ARCHLUCID_AGENT_EXECUTION_MODE` / `AgentExecution__Mode=Real`) and the run has not recorded simulator fallback, run SHA + category drift **and** per-result structural validation. Any structural failure yields exit code 4 and prints a **JSON** report to stdout.
+- `archlucid golden-cohort drift --structural-only` — skips **SHA-256 and category** checks (same [manifest fingerprinting](../../ArchLucid.Cli/Commands/GoldenCohortDriftCommand.cs) code path is simply not used for comparison); only structural validation and API connectivity. Combine with `--strict-real` to enforce the real-LLM shell + no-fallback rules and structural checks together.
+
+**Unit tests** live under [`../../ArchLucid.Core.Tests/GoldenCorpus/RealLlmOutputStructuralValidatorTests.cs`](../../ArchLucid.Core.Tests/GoldenCorpus/RealLlmOutputStructuralValidatorTests.cs) and use `[Trait("Suite", "Core")]`; they cover valid/invalid/edge cases for all four agent types.
+
+> Note: the structural validator **implementation** is in `ArchLucid.Core` (so the CLI and tests can share it). The `*.Tests` project contains the tests only.
+
+## 8. Interpreting structural failures
+
+| Symptom in JSON / stderr | Likely cause | What to do |
+| ------------------------ | ------------ | ---------- |
+| `jsonSyntax` check failed | Truncated body, non-JSON error page, or gzip/stream handling issue | Re-run with `--json` on a failing HTTP client, verify `/v1/architecture/run/{runId}` returns JSON, confirm proxy is not returning HTML. |
+| `topLevelKeys` or `findingsNonEmpty` | Omitted contract field or empty `findings` from the executor | Inspect coordinator/agent pipeline for the agent type; real-LLM path must still emit a full `AgentResult` contract. |
+| `agentTypeMatch` | Mismatched or missing `agentType` on a result row | Check task/result mapping for the run; each result should match the task’s agent. |
+| `findingTrace` / `traceLists` | Missing `trace` or a Explainability list field is not a JSON array | Ensure persistence/serialization of ExplainabilityTrace (see decisioning models) is wired for real execution. |
+| `sourceAgentExecutionTraceId` with wrong type | Value is neither `null` nor a string | Fix serializer or model to emit a string or null. |
+| Exit 4 with `code: "realModeFellBackToSimulator"` | The API recorded a real-LLM attempt that fell back to the simulator | Fix Azure OpenAI reachability, quota, or deployment name; the strict gate refuses to treat output as “real-LLM validated” in that case. |
+| `strict-real` refused before connect | Real-LLM env not set in the shell | Export `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` or set agent execution mode to `Real` for the CLI process, as documented above. |
+
+**Example: truncated trace** (single finding with `graphNodeIdsExamined` as a string instead of an array) fails the `traceLists` check with a message pointing at the offending `findings[i].trace` path — fix the type in the result builder, not the text of graph node ids.
+
+## 9. Related files
 
 | File | Purpose |
 | ---- | ------- |
+| [`../../ArchLucid.Core/GoldenCorpus/RealLlmOutputStructuralValidator.cs`](../../ArchLucid.Core/GoldenCorpus/RealLlmOutputStructuralValidator.cs) | Structural JSON validation (no content matching) |
+| [`../../ArchLucid.Core.Tests/GoldenCorpus/RealLlmOutputStructuralValidatorTests.cs`](../../ArchLucid.Core.Tests/GoldenCorpus/RealLlmOutputStructuralValidatorTests.cs) | Core suite tests for the validator |
+| [`../../ArchLucid.Cli/Commands/GoldenCohortDriftCommand.cs`](../../ArchLucid.Cli/Commands/GoldenCohortDriftCommand.cs) | `archlucid golden-cohort drift` (SHA drift + optional `--strict-real` / `--structural-only`) |
 | [`tests/golden-cohort/budget.config.json`](../../tests/golden-cohort/budget.config.json) | `monthlyTokenBudgetUsd`, `warnThresholdPercent: 80`, `killSwitchThresholdPercent: 95` |
 | [`scripts/golden_cohort_budget_probe.py`](../../scripts/golden_cohort_budget_probe.py) | The MTD probe; emits exit codes 0/1/2/3 |
 | [`scripts/ci/assert_golden_cohort_kill_switch_present.py`](../../scripts/ci/assert_golden_cohort_kill_switch_present.py) | Merge-blocking guard for the Q15-conditional rule |
