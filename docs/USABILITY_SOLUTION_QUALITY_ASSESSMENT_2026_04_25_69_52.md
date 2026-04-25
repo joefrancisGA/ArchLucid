@@ -68,9 +68,9 @@
 **What this measures.** How much mental effort the system imposes while completing tasks.
 
 **Evidence of strength.**
-- Three-layer mental model (Core Pilot → Advanced Analysis → Enterprise Controls) consistently labeled across home page, sidebar groups, layer context strip, help topics, and onboarding.
+- Two-layer mental model (**Pilot** vs **Operate** — Operate spans analysis workloads and governance/trust) consistently labeled across home page, sidebar groups, layer context strip, help topics, and onboarding.
 - Progressive disclosure defaults hide ~60% of nav surface until the operator explicitly opts in — essential-only is the default state.
-- Home page structures information in clear priority: Core Pilot checklist (required) → Advanced Analysis (optional maturity) → Enterprise Controls (optional maturity), each with inline "not required for first pilot" callouts.
+- Home page structures information in clear priority: Core Pilot checklist (required) → Operate (analysis workloads) (optional maturity) → Operate (governance and trust) (optional maturity), each with inline "not required for first pilot" callouts.
 - `AfterCorePilotChecklistHint` appears only after all 4 core steps are marked done.
 - OptInTour is explicitly non-auto-launching (owner Q9 decision) — avoids unwanted interruption.
 - Sidebar "Recent activity" card is collapsed by default for new operators with zero context.
@@ -122,7 +122,7 @@
 - `OperatorTaskSuccessTile` provides visual confirmation of onboarding progress.
 
 **Gaps.**
-- After the first committed run, there is no guided "what to do next" funnel that leads to Advanced Analysis or Enterprise Controls. The `AfterCorePilotChecklistHint` exists but is a static text block, not a continuation of the interactive checklist model.
+- After the first committed run, there is no guided "what to do next" funnel that leads to Operate (analysis workloads) or Operate (governance and trust). The `AfterCorePilotChecklistHint` exists but is a static text block, not a continuation of the interactive checklist model.
 - The `BeforeAfterDeltaPanel` (sidebar variant) is powerful but collapsed by default and not explained to new operators — its value requires understanding "baseline hours" and "pilot run deltas" concepts first.
 - No embedded walkthrough video or animated demo (the marketing `/see-it` route exists but is separate from operator onboarding).
 
@@ -811,12 +811,12 @@ This is a UI-only consumer of existing API surfaces.
 
 **Impact:** Time-to-Value (+2), Adoption Friction (+1). Estimated weighted lift: **+0.58 points.**
 
-**Problem.** The `AfterCorePilotChecklistHint` is a static text block that appears after all 4 checklist steps are done. It suggests Advanced Analysis and Enterprise Controls but does not continue the interactive checklist model. Operators who completed the pilot successfully have momentum — the system should channel it into the next value layer.
+**Problem.** The `AfterCorePilotChecklistHint` is a static text block that appears after all 4 checklist steps are done. It suggests Operate (analysis workloads) and Operate (governance and trust) but does not continue the interactive checklist model. Operators who completed the pilot successfully have momentum — the system should channel it into the next value layer.
 
 ```
 Goal: replace the static AfterCorePilotChecklistHint with an
 interactive "what's next" continuation panel that guides operators from
-Core Pilot completion into Advanced Analysis or Enterprise Controls.
+Core Pilot completion into Operate (analysis workloads) or Operate (governance and trust).
 
 Read first:
 - archlucid-ui/src/components/AfterCorePilotChecklistHint.tsx

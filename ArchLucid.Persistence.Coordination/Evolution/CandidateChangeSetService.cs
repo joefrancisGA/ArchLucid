@@ -38,18 +38,11 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
                 createdUtc)
         ];
 
-        if (orderedSteps.Count > 1)
+        if (orderedSteps.Count <= 1)
+            return results;
 
-            foreach (CandidateChangeSetStep step in orderedSteps)
-
-                results.Add(
-                    BuildStepSliceChangeSet(
-                        plan,
-                        step,
-                        components,
-                        impact,
-                        createdUtc));
-
+        results.AddRange(orderedSteps.Select(step =>
+            BuildStepSliceChangeSet(plan, step, components, impact, createdUtc)));
 
         return results;
     }
@@ -84,41 +77,41 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         ProductLearningImprovementPlanRecord plan,
         ProductLearningImprovementThemeRecord? theme)
     {
-        if (theme is not null)
-        {
-            List<ChangeSetAffectedComponent> list =
+        if (theme is null)
+            return
             [
-                new()
+                new ChangeSetAffectedComponent
                 {
-                    ComponentKey = theme.ThemeKey,
-                    DisplayName = theme.Title,
-                    WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
+                    ComponentKey = plan.PlanId.ToString("N"),
+                    DisplayName = plan.Title,
+                    WorkflowArea = "ImprovementPlan"
                 }
             ];
 
-            if (!string.IsNullOrWhiteSpace(theme.PatternKey))
-            {
-                string patternKey = theme.PatternKey.Trim();
-
-                list.Add(
-                    new ChangeSetAffectedComponent
-                    {
-                        ComponentKey = patternKey,
-                        DisplayName = patternKey,
-                        WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
-                    });
-            }
-
-            return list;
-        }
-
-        return
+        List<ChangeSetAffectedComponent> list =
         [
-            new ChangeSetAffectedComponent
+            new()
             {
-                ComponentKey = plan.PlanId.ToString("N"), DisplayName = plan.Title, WorkflowArea = "ImprovementPlan"
+                ComponentKey = theme.ThemeKey,
+                DisplayName = theme.Title,
+                WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
             }
         ];
+
+        if (string.IsNullOrWhiteSpace(theme.PatternKey))
+            return list;
+
+        string patternKey = theme.PatternKey.Trim();
+
+        list.Add(
+            new ChangeSetAffectedComponent
+            {
+                ComponentKey = patternKey,
+                DisplayName = patternKey,
+                WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
+            });
+
+        return list;
     }
 
     private static ExpectedImpact BuildExpectedImpact(
@@ -209,11 +202,7 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
 
     private static string BuildAggregateDescription(ProductLearningImprovementPlanRecord plan)
     {
-        if (!string.IsNullOrWhiteSpace(plan.Summary))
-            return plan.Summary.Trim();
-
-
-        return plan.Title.Trim();
+        return !string.IsNullOrWhiteSpace(plan.Summary) ? plan.Summary.Trim() : plan.Title.Trim();
     }
 
     private static string BuildStepSliceDescription(

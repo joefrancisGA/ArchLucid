@@ -11,17 +11,15 @@ public static class HotPathCacheProviderResolver
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        string raw = options.Provider ?? "Memory";
+        string raw = options.Provider;
 
-        if (string.Equals(raw, "Auto", StringComparison.OrdinalIgnoreCase))
-        {
-            if (options.ExpectedApiReplicaCount > 1 &&
-                !string.IsNullOrWhiteSpace(options.RedisConnectionString))
-                return "Redis";
+        if (!string.Equals(raw, "Auto", StringComparison.OrdinalIgnoreCase))
+            return raw.Trim();
 
-            return "Memory";
-        }
+        if (options.ExpectedApiReplicaCount > 1 &&
+            !string.IsNullOrWhiteSpace(options.RedisConnectionString))
+            return "Redis";
 
-        return raw.Trim();
+        return "Memory";
     }
 }

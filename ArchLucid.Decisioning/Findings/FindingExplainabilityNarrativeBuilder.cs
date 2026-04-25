@@ -128,10 +128,7 @@ public static class FindingExplainabilityNarrativeBuilder
         if (rules.Count == 0)
             return "unspecified";
 
-        if (rules.Count == 1)
-            return rules[0];
-
-        return string.Join(";", rules);
+        return rules.Count == 1 ? rules[0] : string.Join(";", rules);
     }
 
     private static void AppendHeader(

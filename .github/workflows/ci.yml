@@ -700,6 +700,37 @@ jobs:
       - name: Test — finding-engine template (not in main solution)
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
+  # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
+  # continue-on-error: remove after every root is known clean in CI (see docs/engineering/SAAS_INFRA_VALIDATION.md).
+  saas-terraform-roots-validate:
+    name: "SaaS: Terraform roots validate (script suite)"
+    needs: dotnet-fast-core
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install PowerShell
+        run: |
+          set -euo pipefail
+          PWSH_VER=7.4.6
+          curl -sSL -o /tmp/pwsh.tgz "https://github.com/PowerShell/PowerShell/releases/download/v${PWSH_VER}/powershell-${PWSH_VER}-linux-x64.tar.gz"
+          sudo mkdir -p /opt/microsoft/powershell7
+          sudo tar zxf /tmp/pwsh.tgz -C /opt/microsoft/powershell7
+          sudo chmod a+x /opt/microsoft/powershell7/pwsh
+          sudo ln -sf /opt/microsoft/powershell7/pwsh /usr/local/bin/pwsh
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: assert_terraform_roots_valid (PowerShell + Terraform, no cloud auth)
+        run: python3 scripts/ci/assert_terraform_roots_valid.py
+
   # Empty catalog + API process: catches DbUp vs SqlSchemaBootstrapper ordering and greenfield migration gaps (see GreenfieldSqlBootIntegrationTests).
   api-greenfield-boot:
     name: ".NET: greenfield SQL boot (empty catalog)"

@@ -16,9 +16,6 @@ public static class TraceConfidenceLabels
         if (completenessRatio >= 0.8 - 1e-9)
             return High;
 
-        if (completenessRatio >= 0.5 - 1e-9)
-            return Medium;
-
-        return Low;
+        return completenessRatio >= 0.5 - 1e-9 ? Medium : Low;
     }
 }

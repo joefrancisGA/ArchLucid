@@ -509,7 +509,7 @@ This is a UI-only consumer of existing API surfaces.
 ```
 Goal: replace the static AfterCorePilotChecklistHint with an
 interactive "what's next" continuation panel that guides operators from
-Core Pilot completion into Advanced Analysis or Enterprise Controls.
+Core Pilot completion into Operate (analysis workloads) or Operate (governance and trust).
 
 Read first:
 - archlucid-ui/src/components/AfterCorePilotChecklistHint.tsx

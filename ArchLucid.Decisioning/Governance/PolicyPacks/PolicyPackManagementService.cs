@@ -39,7 +39,8 @@ public sealed class PolicyPackManagementService(
 
     private static readonly JsonSerializerOptions ChangeLogJsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
     };
 
     /// <inheritdoc />
@@ -120,7 +121,13 @@ public sealed class PolicyPackManagementService(
         }
 
         string newValueJson = JsonSerializer.Serialize(
-            new { name, description, packType, initialVersion = InitialVersion },
+            new
+            {
+                name,
+                description,
+                packType,
+                initialVersion = InitialVersion
+            },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(
@@ -133,9 +140,7 @@ public sealed class PolicyPackManagementService(
             null,
             newValueJson,
             $"Policy pack '{name}' created with initial version {InitialVersion}.",
-            ct,
-            null,
-            null);
+            ct);
 
         return pack;
     }
@@ -172,9 +177,7 @@ public sealed class PolicyPackManagementService(
             previousValue,
             normalizedJson,
             $"Version '{version}' published for pack '{policyPackId}'.",
-            ct,
-            null,
-            null);
+            ct);
 
         return packVersion;
     }
@@ -226,7 +229,12 @@ public sealed class PolicyPackManagementService(
         await assignmentRepository.CreateAsync(assignment, ct);
 
         string assignJson = JsonSerializer.Serialize(
-            new { scopeLevel = normalized, version, isPinned },
+            new
+            {
+                scopeLevel = normalized,
+                version,
+                isPinned
+            },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(
@@ -239,9 +247,7 @@ public sealed class PolicyPackManagementService(
             null,
             assignJson,
             $"Pack '{policyPackId}' assigned at {normalized} scope, version '{version}'.",
-            ct,
-            null,
-            null);
+            ct);
 
         return assignment;
     }
@@ -268,9 +274,7 @@ public sealed class PolicyPackManagementService(
             null,
             null,
             $"Assignment '{assignmentId}' archived.",
-            ct,
-            null,
-            null);
+            ct);
 
         return true;
     }

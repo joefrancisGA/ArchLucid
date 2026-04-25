@@ -20,19 +20,22 @@ namespace ArchLucid.Api.Tests.Security;
 [Trait("Category", "Integration")]
 public sealed class TenantIsolationSmokeTests
 {
-    private const string SqlUnavailable =
-        "SQL + RLS tenant tests need SQL Server. Set "
+    // Unlike idempotent-create SQL tests, this one requires *explicit* SQL (env var). Windows+localhost only is too easy
+    // to misconfigure and caused long host-build hangs; CI sets the standard variables (see docs/BUILD.md).
+    private const string SqlExplicitUnavailable =
+        "Tenant RLS smoke: set "
         + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
         + " or "
         + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
-        + " (see docs/BUILD.md), or use Windows with LocalDB.";
+        + " to a reachable instance, with a 4s connect probe to master (see "
+        + nameof(Tenant_b_cannot_see_tenant_a_run_sql_rls) + " and docs/BUILD.md).";
 
     // Fixed alternate scope: distinct from <see cref="ScopeIds" /> defaults (tenant A in tests).
     private static readonly Guid TenantB = Guid.Parse("44444444-4444-4444-4444-444444444444");
     private static readonly Guid WorkspaceB = Guid.Parse("55555555-5555-5555-5555-555555555555");
     private static readonly Guid ProjectB = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
-    private static bool IsSqlServerConfiguredForApiIntegration()
+    private static bool IsExplicitSqlServerEnvironmentConfigured()
     {
         if (!string.IsNullOrWhiteSpace(
                 Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
@@ -42,17 +45,38 @@ public sealed class TenantIsolationSmokeTests
                 Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
             return true;
 
-        return OperatingSystem.IsWindows();
+        return false;
+    }
+
+    /// <summary>Fast probe so we skip before <see cref="GreenfieldSqlApiFactory" /> when SQL is down (avoids long hangs).</summary>
+    private static bool IsSqlServerReachableWithShortTimeout()
+    {
+        if (!IsExplicitSqlServerEnvironmentConfigured())
+            return false;
+
+        try
+        {
+            string connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
+            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
+            using SqlConnection connection = new(builder.ConnectionString);
+            connection.Open();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     [SkippableFact]
     public async Task Tenant_b_cannot_see_tenant_a_run_sql_rls()
     {
-        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
+            primer.Timeout = TimeSpan.FromMinutes(2);
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             // DbUp + first SQL queries can return 503 until the authority pipeline is warm; avoid relying on a single
             // probe shape so CI stays stable.
@@ -62,6 +86,7 @@ public sealed class TenantIsolationSmokeTests
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
         using HttpClient clientA = factory.CreateClient();
+        clientA.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTISO-" + Guid.NewGuid().ToString("N")[..12];
@@ -73,6 +98,7 @@ public sealed class TenantIsolationSmokeTests
         string runId = created!.Run.RunId;
 
         using HttpClient clientB = factory.CreateClient();
+        clientB.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}");
@@ -148,14 +174,24 @@ public sealed class TenantIsolationSmokeTests
 
     private static async Task WarmListRunsPathAsync(HttpClient client)
     {
-        for (int attempt = 0; attempt < 40; attempt++)
+        for (int attempt = 0; attempt < 30; attempt++)
         {
             using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
-            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+            if (response.IsSuccessStatusCode)
                 return;
+
+            if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
+            {
+                response.EnsureSuccessStatusCode();
+                return;
+            }
 
             await Task.Delay(1000);
         }
+
+        throw new InvalidOperationException(
+            "GET /v1/architecture/runs stayed 503 (host still warming or SQL not reachable). "
+            + "See " + nameof(WarmListRunsPathAsync) + " and greenfield host startup.");
     }
 
     private static async Task<HttpResponseMessage> PostArchitectureRequestWithTransientRetryAsync(
