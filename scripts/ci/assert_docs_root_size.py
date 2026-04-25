@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Fail if ``docs/*.md`` count exceeds the documentation-surface budget (default 31).
+"""Fail if ``docs/*.md`` count exceeds the documentation-surface budget (default 32).
 
 Default raised from 30 → 31 to include ``docs/CONTRIBUTOR_ON_ONE_PAGE.md`` at repo root next to
-``READ_THIS_FIRST.md`` without moving depth content; see ``docs/CHANGELOG.md``.
-"""
+``READ_THIS_FIRST.md`` without moving depth content; see ``docs/CHANGELOG.md``. Raised 31 → 32 for
+``docs/NAVIGATOR.md`` (single-page task → doc map; buyer-spine quick lookup from ``READ_THIS_FIRST``)."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ def main() -> int:
     parser.add_argument(
         "--max",
         type=int,
-        default=31,
-        help="Maximum markdown files allowed directly under docs/ (default: 31; includes contributor one-pager).",
+        default=32,
+        help="Maximum markdown files allowed directly under docs/ (default: 32; includes contributor one-pager + navigator).",
     )
     parser.add_argument(
         "--docs-dir",

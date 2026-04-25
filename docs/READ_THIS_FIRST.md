@@ -4,6 +4,8 @@
 
 # Read this first
 
+**Quick lookup:** [Doc Navigator](NAVIGATOR.md) — find the right doc in one click.
+
 - **Are you a buyer or sponsor?** → [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)
 - **Are you a security reviewer?** → [`docs/trust-center.md`](trust-center.md)
 - **Are you a contributor running the product locally?** → [`docs/CORE_PILOT.md`](CORE_PILOT.md)

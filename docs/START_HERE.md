@@ -21,6 +21,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 ## Assumptions
 
+- **Quick lookup:** [Doc Navigator](NAVIGATOR.md) — one table, 15 common tasks, each row links to a single best document.
 - You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](library/) and topic folders.
 

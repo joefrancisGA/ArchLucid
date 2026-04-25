@@ -52,7 +52,7 @@ jobs:
           config-path: .gitleaks.toml
 
   docs-root-size:
-    name: "Docs: root markdown count guard (≤31)"
+    name: "Docs: root markdown count guard (≤32)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -63,6 +63,22 @@ jobs:
 
       - name: Assert docs root .md count
         run: python scripts/ci/assert_docs_root_size.py
+
+  docs-navigator-links:
+    name: "Docs: NAVIGATOR.md link targets exist"
+    needs:
+      - gitleaks
+      - docs-root-size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Assert docs/NAVIGATOR.md links resolve
+        run: python scripts/ci/assert_navigator_links_valid.py
 
   two-layer-naming-lint:
     name: "Docs: Pilot/Operate buyer naming lint"
@@ -106,6 +122,7 @@ jobs:
     needs:
       - gitleaks
       - docs-root-size
+      - docs-navigator-links
       - two-layer-naming-lint
     runs-on: ubuntu-latest
     steps:
