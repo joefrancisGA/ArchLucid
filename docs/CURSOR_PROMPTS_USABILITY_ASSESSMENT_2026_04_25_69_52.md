@@ -6,6 +6,8 @@
 
 **How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) accordingly.
 
+**Extended bundle (same nine prompts + nine Linear-inspired UI prompts):** [`library/CURSOR_PROMPTS_UI_MODERNIZATION_2026_04_25.md`](library/CURSOR_PROMPTS_UI_MODERNIZATION_2026_04_25.md).
+
 **Owner decisions recorded 2026-04-25.** All five pending questions from the assessment are resolved:
 - Q1–Q3: Scope switching, non-obscure tenant settings UI, and role/authority management UI all **approved** for V1.
 - Q4–Q5: In-app health/diagnostics panel **approved**, gated at **ReadAuthority** (visible to any authenticated user).

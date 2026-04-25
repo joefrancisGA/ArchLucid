@@ -1,12 +1,12 @@
 > **Scope:** Eighteen paste-ready Cursor prompts — the nine V1-actionable usability improvements from the 69.52% assessment **plus** nine Linear-inspired UI modernization prompts that introduce new visual patterns without breaking existing infrastructure. Each prompt is self-contained.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-> **Lineage:** Prompts 1–9 are the usability assessment prompts from [`CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md`](CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md). Prompts 10–18 incorporate Linear-inspired workbench concepts — inspector panel, unified status pills, report readability, run detail flagship, dashboard evolution, visual density, and consistency — **calibrated to the actual codebase** (existing `AppShellClient`, `SidebarNav`, `EmptyState`, `RunStatusBadge`, `governance-status-badge-class`, shadcn/Radix/Tailwind stack, 48 operator pages).
+> **Lineage:** Prompts 1–9 are the usability assessment prompts from [`CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md`](../CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md). Prompts 10–18 incorporate Linear-inspired workbench concepts — inspector panel, unified status pills, report readability, run detail flagship, dashboard evolution, visual density, and consistency — **calibrated to the actual codebase** (existing `AppShellClient`, `SidebarNav`, `EmptyState`, `RunStatusBadge`, `governance-status-badge-class`, shadcn/Radix/Tailwind stack, 48 operator pages).
 
 # Cursor prompts — V1 UI modernization (usability + Linear-inspired polish)
 
-**How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) accordingly.
+**How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) accordingly.
 
 **Recommended execution order.** Prompts 1–9 (usability fixes) first, in order. Then Prompts 10–18 (Linear-inspired polish) in order. The usability prompts fix structural issues; the Linear prompts layer visual polish on top.
 
@@ -1035,10 +1035,10 @@ Hard constraints:
 - Do NOT remove or reorder existing home page components
   (WelcomeBanner, PilotOutcomeCard, OperatorTaskSuccessTile,
   BeforeAfterDeltaPanel, OperatorFirstRunWorkflowPanel,
-  AfterCorePilotChecklistHint, Advanced Analysis section, Enterprise
-  Controls section).
+  AfterCorePilotChecklistHint, Operate · analysis section, Operate ·
+  governance section).
 - Insert the CommandCenterSection AFTER AfterCorePilotChecklistHint
-  and BEFORE the "Advanced Analysis" section.
+  and BEFORE the Operate · analysis section (nav group operate-analysis).
 - Do NOT add API endpoints. Use ONLY existing endpoints.
 - Do NOT make the command center the primary home experience — the
   checklist remains the primary for new operators.
