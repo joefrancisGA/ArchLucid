@@ -35,6 +35,14 @@ resource "azurerm_storage_account" "artifacts" {
   public_network_access_enabled   = var.public_network_access_enabled
   allow_nested_items_to_be_public = false
 
+  # AZU-0012 / deny-by-default: explicit firewall; private endpoints + managed identity paths use bypass.
+  network_rules {
+    default_action             = "Deny"
+    bypass                     = ["AzureServices"]
+    ip_rules                   = var.network_rule_ip_allowlist
+    virtual_network_subnet_ids = var.network_rule_subnet_ids
+  }
+
   blob_properties {
     versioning_enabled = true
     delete_retention_policy {

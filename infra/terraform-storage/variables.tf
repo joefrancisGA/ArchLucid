@@ -39,6 +39,18 @@ variable "public_network_access_enabled" {
   default     = true
 }
 
+variable "network_rule_ip_allowlist" {
+  type        = list(string)
+  description = "Public IPv4 addresses allowed through the storage firewall (single-host /32 style strings Azure accepts). Leave empty for private-endpoint-only access."
+  default     = []
+}
+
+variable "network_rule_subnet_ids" {
+  type        = list(string)
+  description = "Subnet resource IDs permitted to reach the storage account over the service endpoint. Leave empty when using private link only."
+  default     = []
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

@@ -18,5 +18,6 @@ Creates an Azure Storage account (blob only usage) and private containers aligne
 ## Security
 
 - Containers are **private**; no anonymous blob access.
+- **Network default is Deny** (`network_rules.default_action`); trusted Azure services can bypass per `bypass = ["AzureServices"]`. Add **`network_rule_subnet_ids`** (service endpoints) and/or **`network_rule_ip_allowlist`** only where you intentionally need public-path access.
 - **Soft delete** and **versioning** reduce accidental loss.
 - Do not expose SMB (port 445); this stack is **HTTPS blob** only.
