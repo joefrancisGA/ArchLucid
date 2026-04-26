@@ -20,11 +20,11 @@ describe("ColorModeToggle", () => {
 
     render(<ColorModeToggle />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("group", { name: /color mode/i })).toBeInTheDocument();
-    });
+    const themeButton = await waitFor(() =>
+      screen.getByRole("button", { name: /theme: system\. click to switch to light\./i }),
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: /^Light$/i }));
+    fireEvent.click(themeButton);
 
     expect(setItem).toHaveBeenCalledWith("archlucid_color_mode", "light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
@@ -33,11 +33,17 @@ describe("ColorModeToggle", () => {
   it("persists dark preference and applies dark class on html", async () => {
     render(<ColorModeToggle />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("group", { name: /color mode/i })).toBeInTheDocument();
-    });
+    const fromSystem = await waitFor(() =>
+      screen.getByRole("button", { name: /theme: system\. click to switch to light\./i }),
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: /^Dark$/i }));
+    fireEvent.click(fromSystem);
+
+    const fromLight = await waitFor(() =>
+      screen.getByRole("button", { name: /theme: light\. click to switch to dark\./i }),
+    );
+
+    fireEvent.click(fromLight);
 
     expect(document.documentElement.classList.contains("dark")).toBe(true);
   });
