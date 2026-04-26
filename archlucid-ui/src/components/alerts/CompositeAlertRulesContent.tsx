@@ -124,9 +124,9 @@ export function CompositeAlertRulesContent() {
   }
 
   return (
-    <div style={{ maxWidth: 900 }}>
+    <div className="max-w-4xl">
       <LayerHeader pageKey="composite-alert-rules" />
-      <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
+      <h2 className="mt-0">Composite alert rules</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
       </p>
@@ -147,7 +147,7 @@ export function CompositeAlertRulesContent() {
           className={cn("min-w-0", !canMutateComposite && "opacity-95")}
           aria-labelledby="composite-rules-current-heading"
         >
-          <h3 id="composite-rules-current-heading" style={{ fontSize: "1rem", marginTop: 8 }}>
+          <h3 id="composite-rules-current-heading" className="mt-2 text-base">
             {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
           </h3>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
@@ -171,19 +171,19 @@ export function CompositeAlertRulesContent() {
               </span>
             ) : null}
           </div>
-          <div style={{ display: "grid", gap: 14 }}>
+          <div className="grid gap-3.5">
             {items.length === 0 ? (
-              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
                 {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
               </p>
             ) : (
               items.map((r) => (
                 <div
                   key={r.compositeRuleId}
-                  style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}
+                  className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{r.name}</strong>
-                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                  <div className="mt-2 text-sm">
                     <div>
                       Join: {r.operator} · Severity: {r.severity} · Enabled: {String(r.isEnabled)}
                     </div>
@@ -191,7 +191,7 @@ export function CompositeAlertRulesContent() {
                       Suppression: {r.suppressionWindowMinutes} min · Cooldown: {r.cooldownMinutes} min · Dedupe:{" "}
                       {r.dedupeScope}
                     </div>
-                    <ul style={{ marginTop: 8 }}>
+                    <ul className="mt-2">
                       {(r.conditions ?? []).map((c) => (
                         <li key={c.conditionId ?? `${c.metricType}-${c.thresholdValue}`}>
                           {c.metricType} {c.operator} {c.thresholdValue}
@@ -209,27 +209,27 @@ export function CompositeAlertRulesContent() {
           className={cn("min-w-0", !canMutateComposite && "opacity-90")}
           aria-labelledby="composite-rules-change-heading"
         >
-          <h3 id="composite-rules-change-heading" style={{ fontSize: "1rem" }}>
+          <h3 id="composite-rules-change-heading" className="text-base">
             {canMutateComposite
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
+          <p className="mb-2.5 mt-0 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">
             {alertToolingConfigureSectionSubline}
           </p>
       <fieldset
         disabled={!canMutateComposite}
         title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
         aria-label="New composite rule form"
-        style={{ border: "none", margin: 0, padding: 0 }}
+        className="m-0 border-none p-0"
       >
-      <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 28 }}>
+      <div className="mb-7 grid max-w-3xl gap-3">
         <label>
           Name
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
         <label>
@@ -237,7 +237,7 @@ export function CompositeAlertRulesContent() {
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           >
             {SEVERITIES.map((s) => (
               <option key={s} value={s}>
@@ -251,7 +251,7 @@ export function CompositeAlertRulesContent() {
           <select
             value={joinOperator}
             onChange={(e) => setJoinOperator(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           >
             {JOIN_OPS.map((j) => (
               <option key={j.value} value={j.value}>
@@ -261,15 +261,15 @@ export function CompositeAlertRulesContent() {
           </select>
         </label>
 
-        <fieldset style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12 }}>
+        <fieldset className="rounded-lg border border-neutral-300 p-3 dark:border-neutral-600">
           <legend>Condition 1</legend>
-          <div style={{ display: "grid", gap: 8 }}>
+          <div className="grid gap-2">
             <label>
               Metric
               <select
                 value={m1}
                 onChange={(e) => setM1(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {METRICS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -283,7 +283,7 @@ export function CompositeAlertRulesContent() {
               <select
                 value={o1}
                 onChange={(e) => setO1(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {COND_OPS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -299,21 +299,21 @@ export function CompositeAlertRulesContent() {
                 step="any"
                 value={v1}
                 onChange={(e) => setV1(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
           </div>
         </fieldset>
 
-        <fieldset style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12 }}>
+        <fieldset className="rounded-lg border border-neutral-300 p-3 dark:border-neutral-600">
           <legend>Condition 2</legend>
-          <div style={{ display: "grid", gap: 8 }}>
+          <div className="grid gap-2">
             <label>
               Metric
               <select
                 value={m2}
                 onChange={(e) => setM2(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {METRICS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -327,7 +327,7 @@ export function CompositeAlertRulesContent() {
               <select
                 value={o2}
                 onChange={(e) => setO2(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {COND_OPS.map((x) => (
                   <option key={x.value} value={x.value}>
@@ -343,7 +343,7 @@ export function CompositeAlertRulesContent() {
                 step="any"
                 value={v2}
                 onChange={(e) => setV2(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
           </div>
@@ -355,7 +355,7 @@ export function CompositeAlertRulesContent() {
             type="number"
             value={suppressionWindowMinutes}
             onChange={(e) => setSuppressionWindowMinutes(Number(e.target.value))}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
         <label>
@@ -364,7 +364,7 @@ export function CompositeAlertRulesContent() {
             type="number"
             value={cooldownMinutes}
             onChange={(e) => setCooldownMinutes(Number(e.target.value))}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
         <label>
@@ -374,7 +374,7 @@ export function CompositeAlertRulesContent() {
             step="any"
             value={reopenDeltaThreshold}
             onChange={(e) => setReopenDeltaThreshold(Number(e.target.value))}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
         <label>
@@ -382,7 +382,7 @@ export function CompositeAlertRulesContent() {
           <select
             value={dedupeScope}
             onChange={(e) => setDedupeScope(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           >
             {DEDUPE.map((d) => (
               <option key={d.value} value={d.value}>

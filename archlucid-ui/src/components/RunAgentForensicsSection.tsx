@@ -55,9 +55,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
 
   return (
-    <section id="agent-forensics" style={{ marginBottom: 24 }} aria-labelledby="agent-forensics-title">
+    <section id="agent-forensics" className="mb-6" aria-labelledby="agent-forensics-title">
       <h3 id="agent-forensics-title">Agent traces & output structure</h3>
-      <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
+      <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
         Prompt/response audit rows and a structural JSON completeness pass over persisted agent outputs (no LLM). Requires
         architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
       </p>
@@ -66,15 +66,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
         <div
           role="status"
           aria-live="polite"
-          style={{
-            marginBottom: 12,
-            padding: "10px 12px",
-            borderRadius: 8,
-            border: "1px solid #f59e0b",
-            background: "#fffbeb",
-            fontSize: 14,
-            color: "#92400e",
-          }}
+          className="mb-3 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-300"
         >
           <strong>Blob persistence warning:</strong> at least one trace row has{" "}
           <code>blobUploadFailed=true</code> (full prompt/response blobs may be missing). See{" "}
@@ -85,7 +77,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
       {tracesFailure ? (
         <>
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>Traces could not be loaded.</p>
+          <p className="mb-2 text-sm font-semibold">Traces could not be loaded.</p>
           <OperatorApiProblem
             problem={tracesFailure.problem}
             fallbackMessage={tracesFailure.message}
@@ -97,7 +89,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
       {evaluationFailure ? (
         <>
-          <p style={{ margin: "12px 0 8px", fontSize: 14, fontWeight: 600 }}>
+          <p className="mb-2 mt-3 text-sm font-semibold">
             On-demand evaluation could not be loaded.
           </p>
           <OperatorApiProblem
@@ -110,19 +102,19 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {!tracesFailure && traces.length === 0 ? (
-        <p style={{ fontSize: 14, color: "#64748b" }}>No execution traces returned for this run (first page).</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">No execution traces returned for this run (first page).</p>
       ) : null}
 
       {!tracesFailure && traces.length > 0 ? (
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
             <thead>
-              <tr style={{ textAlign: "left", borderBottom: "1px solid #e2e8f0" }}>
-                <th style={{ padding: "8px 6px" }}>Agent</th>
-                <th style={{ padding: "8px 6px" }}>Trace ID</th>
-                <th style={{ padding: "8px 6px" }}>Parse OK</th>
-                <th style={{ padding: "8px 6px" }}>Blob upload</th>
-                <th style={{ padding: "8px 6px" }}>Structural ratio</th>
+              <tr className="border-b border-neutral-200 text-left dark:border-neutral-700">
+                <th className="px-1.5 py-2">Agent</th>
+                <th className="px-1.5 py-2">Trace ID</th>
+                <th className="px-1.5 py-2">Parse OK</th>
+                <th className="px-1.5 py-2">Blob upload</th>
+                <th className="px-1.5 py-2">Structural ratio</th>
               </tr>
             </thead>
             <tbody>
@@ -130,14 +122,14 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 const sc = scoreForTrace(evaluationPayload?.scores, t.traceId);
 
                 return (
-                  <tr key={t.traceId} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "8px 6px", whiteSpace: "nowrap" }}>{agentTypeLabel(t.agentType)}</td>
-                    <td style={{ padding: "8px 6px", fontFamily: "monospace", fontSize: 12 }}>{t.traceId}</td>
-                    <td style={{ padding: "8px 6px" }}>{t.parseSucceeded ? "yes" : "no"}</td>
-                    <td style={{ padding: "8px 6px" }}>
+                  <tr key={t.traceId} className="border-b border-neutral-100 dark:border-neutral-800">
+                    <td className="whitespace-nowrap px-1.5 py-2">{agentTypeLabel(t.agentType)}</td>
+                    <td className="px-1.5 py-2 font-mono text-xs">{t.traceId}</td>
+                    <td className="px-1.5 py-2">{t.parseSucceeded ? "yes" : "no"}</td>
+                    <td className="px-1.5 py-2">
                       {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "—"}
                     </td>
-                    <td style={{ padding: "8px 6px" }}>
+                    <td className="px-1.5 py-2">
                       {sc
                         ? sc.isJsonParseFailure
                           ? "parse failure"
@@ -155,7 +147,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {evaluationPayload && !evaluationFailure ? (
-        <p style={{ marginTop: 12, fontSize: 13, color: "#64748b" }}>
+        <p className="mt-3 text-[13px] text-neutral-500 dark:text-neutral-400">
           Evaluated at {new Date(evaluationPayload.evaluatedAtUtc).toLocaleString()} · skipped traces:{" "}
           {evaluationPayload.tracesSkippedCount}
           {evaluationPayload.averageStructuralCompletenessRatio !== null &&

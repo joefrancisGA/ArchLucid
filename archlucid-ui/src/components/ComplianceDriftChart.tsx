@@ -50,8 +50,7 @@ export function ComplianceDriftChart({ points }: ComplianceDriftChartProps) {
         return (
           <div
             key={point.bucketUtc}
-            className="flex min-w-0 flex-1 flex-col items-center justify-end gap-1"
-            style={{ minHeight: barMaxPx + 24 }}
+            className="flex min-w-0 min-h-[144px] flex-1 flex-col items-center justify-end gap-1"
           >
             <div
               className="w-full max-w-[2rem] rounded-t bg-violet-600/90 dark:bg-violet-500/90"

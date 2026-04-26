@@ -145,14 +145,12 @@ describe("NewRunWizardClient", () => {
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
+    fireEvent.blur(systemName);
 
     expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent(/System name is required/i);
+    expect(alert).toHaveTextContent(/Required/i);
   });
 
   it("clears the system name error when the user types", async () => {
@@ -167,15 +165,12 @@ describe("NewRunWizardClient", () => {
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
+    fireEvent.blur(systemName);
     expect(await screen.findByRole("alert")).toBeInTheDocument();
 
-    fireEvent.change(systemName, { target: { value: "X" } });
+    fireEvent.change(systemName, { target: { value: "Ab" } });
     await waitFor(() => {
-      expect(screen.queryByText(/System name is required/i)).toBeNull();
+      expect(screen.queryByText(/Required/i)).toBeNull();
     });
   });
 
@@ -207,15 +202,14 @@ describe("NewRunWizardClient", () => {
     });
     expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
 
-    fireEvent.change(screen.getByLabelText("Prior manifest version (optional)"), {
+    const prior = screen.getByLabelText("Prior manifest version (optional)");
+    fireEvent.change(prior, {
       target: { value: "not-a-uuid" },
     });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
+    fireEvent.blur(prior);
 
     expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
   });
 
@@ -233,13 +227,12 @@ describe("NewRunWizardClient", () => {
     });
     expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
 
-    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "short" } });
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
+    const description = screen.getByLabelText("Description");
+    fireEvent.change(description, { target: { value: "short" } });
+    fireEvent.blur(description);
 
     expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
   });
 

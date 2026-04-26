@@ -55,23 +55,18 @@ function CandidateCard({
   const { candidate, simulationResult, scoreBreakdown } = evaluation;
   return (
     <div
-      style={{
-        border: highlight ? "2px solid #333" : "1px solid #ddd",
-        borderRadius: 8,
-        padding: 12,
-        background: highlight ? "#f9f9f9" : "#fff",
-      }}
+      className={`rounded-lg p-3 ${highlight ? "border-2 border-neutral-700 bg-neutral-50 dark:border-neutral-300 dark:bg-neutral-900" : "border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"}`}
     >
       <strong>Threshold: {candidate.thresholdValue}</strong> ({candidate.label})
-      <div style={{ marginTop: 8, fontSize: 14 }}>
+      <div className="mt-2 text-sm">
         <div>Evaluated runs: {simulationResult.evaluatedRunCount}</div>
         <div>Matched: {simulationResult.matchedCount}</div>
         <div>Would create: {simulationResult.wouldCreateCount}</div>
         <div>Would suppress: {simulationResult.wouldSuppressCount}</div>
       </div>
-      <div style={{ marginTop: 8 }}>
+      <div className="mt-2">
         <strong>Score breakdown</strong>
-        <ul style={{ margin: "4px 0", paddingLeft: 20 }}>
+        <ul className="my-1 pl-5">
           <li>Coverage: {scoreBreakdown.coverageScore.toFixed(2)}</li>
           <li>Noise penalty: {scoreBreakdown.noisePenalty.toFixed(2)}</li>
           <li>Suppression penalty: {scoreBreakdown.suppressionPenalty.toFixed(2)}</li>
@@ -80,7 +75,7 @@ function CandidateCard({
             <strong>Final: {scoreBreakdown.finalScore.toFixed(2)}</strong>
           </li>
         </ul>
-        <ul style={{ margin: "8px 0 0", paddingLeft: 20, fontSize: 13, color: "#444" }}>
+        <ul className="mt-2 pl-5 text-[13px] text-neutral-600 dark:text-neutral-400">
           {scoreBreakdown.notes.map((note, i) => (
             <li key={i}>{note}</li>
           ))}
@@ -209,9 +204,9 @@ export function AlertTuningContent() {
   const recommendedLabel = result?.recommendedCandidate?.candidate.label;
 
   return (
-    <div style={{ maxWidth: 900 }}>
+    <div className="max-w-4xl">
       <LayerHeader pageKey="alert-tuning" />
-      <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
+      <h2 className="mt-0">Alert tuning</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">{alertTuningPageLead}</p>
       <AlertOperatorToolingRankCue />
 
@@ -227,14 +222,14 @@ export function AlertTuningContent() {
 
       <div className="flex flex-col gap-10">
         <section className="min-w-0" aria-labelledby="alert-tuning-current-heading">
-          <h3 id="alert-tuning-current-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
+          <h3 id="alert-tuning-current-heading" className="mb-2 mt-0 text-base">
             {canMutateEnterpriseShell
               ? alertTuningCurrentTuningHeadingOperator
               : alertTuningCurrentTuningHeadingReader}
           </h3>
           {result ? (
             <>
-              <h4 style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>Summary</h4>
+              <h4 className="mb-2 mt-0 text-base">Summary</h4>
               <ul>
                 {result.summaryNotes.map((note, index) => (
                   <li key={index}>{note}</li>
@@ -242,14 +237,14 @@ export function AlertTuningContent() {
               </ul>
 
               {result.recommendedCandidate ? (
-                <section style={{ marginBottom: 24, marginTop: 16 }}>
-                  <h4 style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>Recommended candidate</h4>
+                <section className="mb-6 mt-4">
+                  <h4 className="mb-2 mt-0 text-base">Recommended candidate</h4>
                   <CandidateCard evaluation={result.recommendedCandidate} highlight />
                 </section>
               ) : null}
 
-              <h4 style={{ fontSize: "1rem", marginTop: 8, marginBottom: 8 }}>All candidates (sorted by final score, highest first)</h4>
-              <div style={{ display: "grid", gap: 12 }}>
+              <h4 className="mb-2 mt-2 text-base">All candidates (sorted by final score, highest first)</h4>
+              <div className="grid gap-3">
                 {[...result.candidates]
                   .sort((a, b) => b.scoreBreakdown.finalScore - a.scoreBreakdown.finalScore)
                   .map((c, i) => (
@@ -262,26 +257,26 @@ export function AlertTuningContent() {
               </div>
             </>
           ) : (
-            <p style={{ color: "#666", fontSize: 14, maxWidth: "42rem", marginTop: 0 }}>
+            <p className="mt-0 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
               No tuning results yet. Run a recommendation below to compare candidate thresholds against recent runs.
             </p>
           )}
         </section>
 
         <section className="min-w-0" aria-labelledby="alert-tuning-change-heading">
-          <h3 id="alert-tuning-change-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
+          <h3 id="alert-tuning-change-heading" className="mb-2 mt-0 text-base">
             {alertToolingChangeConfigurationHeadingOperator}
           </h3>
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
+          <p className="mb-2.5 mt-0 max-w-2xl text-xs text-neutral-500 dark:text-neutral-400">
             {alertToolingConfigureSectionSubline}
           </p>
-      <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 24 }}>
+      <div className="mb-6 grid max-w-3xl gap-3">
         <label>
           Rule kind
           <select
             value={ruleKind}
             onChange={(e) => setRuleKind(e.target.value as "Simple" | "Composite")}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           >
             <option value="Simple">Simple</option>
             <option value="Composite">Composite</option>
@@ -293,7 +288,7 @@ export function AlertTuningContent() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
 
@@ -303,7 +298,7 @@ export function AlertTuningContent() {
             <select
               value={ruleType}
               onChange={(e) => setRuleType(e.target.value)}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              className="mt-1 block w-full p-2"
             >
               {SIMPLE_RULE_TYPES.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -319,7 +314,7 @@ export function AlertTuningContent() {
               <select
                 value={tunedMetricComposite}
                 onChange={(e) => setTunedMetricComposite(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {COMPOSITE_METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -333,20 +328,20 @@ export function AlertTuningContent() {
               <select
                 value={cJoin}
                 onChange={(e) => setCJoin(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="And">All (AND)</option>
                 <option value="Or">Any (OR)</option>
               </select>
             </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="grid grid-cols-2 gap-3">
               <label>
                 Suppression window (min)
                 <input
                   type="number"
                   value={cSuppression}
                   onChange={(e) => setCSuppression(Number(e.target.value))}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="mt-1 block w-full p-2"
                 />
               </label>
               <label>
@@ -355,7 +350,7 @@ export function AlertTuningContent() {
                   type="number"
                   value={cCooldown}
                   onChange={(e) => setCCooldown(Number(e.target.value))}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="mt-1 block w-full p-2"
                 />
               </label>
             </div>
@@ -364,15 +359,15 @@ export function AlertTuningContent() {
               <select
                 value={cDedupe}
                 onChange={(e) => setCDedupe(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="RuleOnly">Rule only</option>
                 <option value="RuleAndRun">Rule + run</option>
                 <option value="RuleAndComparison">Rule + run + comparison</option>
               </select>
             </label>
-            <p style={{ margin: 0, fontWeight: 600 }}>Condition 1</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            <p className="m-0 font-semibold">Condition 1</p>
+            <div className="grid grid-cols-3 gap-2">
               <select value={cM1} onChange={(e) => setCM1(e.target.value)}>
                 {COMPOSITE_METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -389,8 +384,8 @@ export function AlertTuningContent() {
               </select>
               <input type="number" value={cV1} onChange={(e) => setCV1(Number(e.target.value))} />
             </div>
-            <p style={{ margin: 0, fontWeight: 600 }}>Condition 2</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            <p className="m-0 font-semibold">Condition 2</p>
+            <div className="grid grid-cols-3 gap-2">
               <select value={cM2} onChange={(e) => setCM2(e.target.value)}>
                 {COMPOSITE_METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -415,7 +410,7 @@ export function AlertTuningContent() {
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           >
             {SEVERITIES.map((s) => (
               <option key={s} value={s}>
@@ -431,7 +426,7 @@ export function AlertTuningContent() {
             value={candidateThresholdsStr}
             onChange={(e) => setCandidateThresholdsStr(e.target.value)}
             placeholder="5,10,15,20,25"
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
 
@@ -443,7 +438,7 @@ export function AlertTuningContent() {
             max={50}
             value={recentRunCount}
             onChange={(e) => setRecentRunCount(Number(e.target.value))}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
 
@@ -452,11 +447,11 @@ export function AlertTuningContent() {
           <input
             value={runSlug}
             onChange={(e) => setRunSlug(e.target.value)}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+            className="mt-1 block w-full p-2"
           />
         </label>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="grid grid-cols-2 gap-3">
           <label>
             Target created alerts (min)
             <input
@@ -464,7 +459,7 @@ export function AlertTuningContent() {
               min={0}
               value={targetMin}
               onChange={(e) => setTargetMin(Number(e.target.value))}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              className="mt-1 block w-full p-2"
             />
           </label>
           <label>
@@ -474,7 +469,7 @@ export function AlertTuningContent() {
               min={0}
               value={targetMax}
               onChange={(e) => setTargetMax(Number(e.target.value))}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              className="mt-1 block w-full p-2"
             />
           </label>
         </div>
@@ -484,7 +479,7 @@ export function AlertTuningContent() {
           onClick={() => void recommend()}
           disabled={loading}
           title={alertTuningRecommendButtonTitle}
-          style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer", maxWidth: 240 }}
+          className={`max-w-[240px] px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
         >
           {loading ? "Running…" : "Recommend threshold"}
         </button>

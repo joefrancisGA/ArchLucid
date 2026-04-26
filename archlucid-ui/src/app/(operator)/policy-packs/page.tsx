@@ -4,9 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -308,14 +307,9 @@ export default function PolicyPacksPage() {
   const compareRightVersion = packVersions.find((v) => v.policyPackVersionId === compareRightId);
 
   return (
-    <main style={{ maxWidth: 960 }}>
+    <main className="max-w-5xl">
       <LayerHeader pageKey="policy-packs" />
-      <div className="m-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">
-          <GlossaryTooltip termKey="policy_pack">Policy packs</GlossaryTooltip>
-        </h2>
-        <ContextualHelp helpKey="policy-packs" />
-      </div>
+      <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
@@ -347,12 +341,12 @@ export default function PolicyPacksPage() {
       ) : null}
 
       <div className={cn("flex flex-col gap-8", !canMutatePacks && "flex-col-reverse")}>
-      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-current-heading">
+      <section className="mb-8" aria-labelledby="policy-packs-current-heading">
         <h3 id="policy-packs-current-heading">
           {canMutatePacks ? policyPacksCurrentPacksHeadingOperator : policyPacksCurrentPacksHeadingReader}
         </h3>
         {packs.length === 0 ? (
-          <p style={{ color: "#666", maxWidth: "42rem", fontSize: 14 }}>
+          <p className="text-neutral-500 dark:text-neutral-400 max-w-2xl text-sm">
             {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
           </p>
         ) : (
@@ -361,19 +355,19 @@ export default function PolicyPacksPage() {
               <li key={p.policyPackId}>
                 <strong>{p.name}</strong> — {p.packType} / {p.status} / current{" "}
                 <code>{p.currentVersion}</code>
-                <div style={{ fontSize: 13, color: "#555" }}>{p.description}</div>
+                <div className="text-[13px] text-neutral-600 dark:text-neutral-400">{p.description}</div>
               </li>
             ))}
           </ul>
         )}
 
-        <label style={{ display: "block", marginTop: 12 }}>
+        <label className="block mt-3">
           Selected pack (inspect versions and lifecycle)
           <select
             value={selectedPackId}
             onChange={(e) => setSelectedPackId(e.target.value)}
             title={canMutatePacks ? undefined : policyPacksPackSelectReaderTitle}
-            style={{ display: "block", width: "100%", maxWidth: 480, padding: 8, marginTop: 4 }}
+            className="block w-full max-w-lg p-2 mt-1"
           >
             <option value="">—</option>
             {packs.map((p) => (
@@ -385,41 +379,23 @@ export default function PolicyPacksPage() {
         </label>
       </section>
 
-      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-content-heading">
+      <section className="mb-8" aria-labelledby="policy-packs-content-heading">
         <h3 id="policy-packs-content-heading">
           {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
         </h3>
-        <h4 style={{ marginTop: 8, marginBottom: 8 }}>Effective resolved packs</h4>
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 360,
-            marginBottom: 20,
-          }}
-        >
+        <h4 className="mt-2 mb-2">Effective resolved packs</h4>
+        <pre className="bg-neutral-100 p-3 overflow-auto text-xs max-h-[360px] mb-5 dark:bg-neutral-800">
           {effective ? JSON.stringify(effective, null, 2) : "—"}
         </pre>
 
-        <h4 style={{ marginTop: 0, marginBottom: 8 }}>Resolved effective content</h4>
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 360,
-            marginBottom: 24,
-          }}
-        >
+        <h4 className="mt-0 mb-2">Resolved effective content</h4>
+        <pre className="bg-neutral-100 p-3 overflow-auto text-xs max-h-[360px] mb-6 dark:bg-neutral-800">
           {effectiveContent ? JSON.stringify(effectiveContent, null, 2) : "—"}
         </pre>
 
-        <h4 style={{ marginTop: 0, marginBottom: 8 }}>Published versions</h4>
+        <h4 className="mt-0 mb-2">Published versions</h4>
         {packVersions.length === 0 ? (
-          <p style={{ color: "#666", fontSize: 14 }}>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm">
             {selectedPackId
               ? canMutatePacks
                 ? policyPacksPublishedVersionsEmptyOperatorLine
@@ -427,27 +403,27 @@ export default function PolicyPacksPage() {
               : "Select a pack to load versions."}
           </p>
         ) : (
-          <ul style={{ fontSize: 14, lineHeight: 1.6 }}>
+          <ul className="text-sm leading-relaxed">
             {packVersions.map((v) => (
               <li key={v.policyPackVersionId}>
                 <strong>{v.version}</strong>
                 {v.isPublished ? " · published" : " · draft"}
-                <span style={{ color: "#64748b" }}> · {v.createdUtc}</span>
+                <span className="text-neutral-500 dark:text-neutral-400"> · {v.createdUtc}</span>
               </li>
             ))}
           </ul>
         )}
 
-        <h4 style={{ marginTop: 20, marginBottom: 8 }}>Compare versions</h4>
+        <h4 className="mt-5 mb-2">Compare versions</h4>
         {!canMutatePacks ? (
           <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
             {policyPacksCompareVersionsReaderSubline}
           </p>
         ) : null}
-        <p style={{ fontSize: 14, color: "#555", marginTop: 0 }}>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-0">
           {canMutatePacks ? policyPacksCompareVersionsIntroOperator : policyPacksCompareVersionsIntroReader}
         </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end", marginBottom: 12 }}>
+        <div className="flex flex-wrap gap-3 items-end mb-3">
           <label>
             Left version
             <select
@@ -456,7 +432,7 @@ export default function PolicyPacksPage() {
                 setCompareLeftId(e.target.value);
                 setShowVersionDiff(false);
               }}
-              style={{ display: "block", minWidth: 220, padding: 8, marginTop: 4 }}
+              className="block min-w-[220px] p-2 mt-1"
             >
               <option value="">—</option>
               {packVersions.map((v) => (
@@ -474,7 +450,7 @@ export default function PolicyPacksPage() {
                 setCompareRightId(e.target.value);
                 setShowVersionDiff(false);
               }}
-              style={{ display: "block", minWidth: 220, padding: 8, marginTop: 4 }}
+              className="block min-w-[220px] p-2 mt-1"
             >
               <option value="">—</option>
               {packVersions.map((v) => (
@@ -502,23 +478,23 @@ export default function PolicyPacksPage() {
           <PolicyPackDiffView leftVersion={compareLeftVersion} rightVersion={compareRightVersion} />
         ) : null}
         {showVersionDiff && compareLeftId !== compareRightId && (!compareLeftVersion || !compareRightVersion) ? (
-          <p style={{ color: "#b91c1c" }}>Selected versions are no longer in the list; refresh and try again.</p>
+          <p className="text-red-700 dark:text-red-400">Selected versions are no longer in the list; refresh and try again.</p>
         ) : null}
       </section>
       </div>
 
-      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-lifecycle-heading">
+      <section className="mb-8" aria-labelledby="policy-packs-lifecycle-heading">
         <h3 id="policy-packs-lifecycle-heading">
           {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
         </h3>
         {canMutatePacks ? null : (
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "48rem", marginTop: 4, marginBottom: 8 }}>
+          <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-3xl mt-1 mb-2">
             {policyPacksLifecycleLeadReaderLine}
           </p>
         )}
         <div className={cn(!canMutatePacks && "opacity-90")}>
-          <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-vertical-import-heading">
-            <h4 id="policy-packs-vertical-import-heading" style={{ marginTop: 0, marginBottom: 8 }}>
+          <section className="mb-8" aria-labelledby="policy-packs-vertical-import-heading">
+            <h4 id="policy-packs-vertical-import-heading" className="mt-0 mb-2">
               Import a vertical policy pack
             </h4>
             <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
@@ -545,9 +521,9 @@ export default function PolicyPacksPage() {
             </div>
           </section>
 
-          <section style={{ marginBottom: 32 }}>
-            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Create pack</h4>
-            <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
+          <section className="mb-8">
+            <h4 className="mt-0 mb-2">Create pack</h4>
+            <div className="grid gap-2.5 max-w-3xl">
               <label>
                 Name
                 <input
@@ -555,7 +531,7 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setName(e.target.value)}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="block w-full p-2 mt-1"
                 />
               </label>
               <label>
@@ -565,7 +541,7 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="block w-full p-2 mt-1"
                 />
               </label>
               <label>
@@ -575,7 +551,7 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setPackType(e.target.value)}
                   disabled={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="block w-full p-2 mt-1"
                 >
                   {PACK_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
@@ -592,7 +568,7 @@ export default function PolicyPacksPage() {
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
-                  style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
+                  className="block w-full font-mono text-xs mt-1"
                 />
               </label>
               <button
@@ -610,12 +586,12 @@ export default function PolicyPacksPage() {
             </div>
           </section>
 
-          <section style={{ marginBottom: 32 }}>
-            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Publish version</h4>
-            <p style={{ fontSize: 14, color: "#555" }}>
+          <section className="mb-8">
+            <h4 className="mt-0 mb-2">Publish version</h4>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
             </p>
-            <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
+            <div className="grid gap-2.5 max-w-3xl">
               <label>
                 Version label
                 <input
@@ -623,7 +599,7 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setPublishVersion(e.target.value)}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="block w-full p-2 mt-1"
                 />
               </label>
               <label>
@@ -634,7 +610,7 @@ export default function PolicyPacksPage() {
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
-                  style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
+                  className="block w-full font-mono text-xs mt-1"
                 />
               </label>
               <button
@@ -652,12 +628,12 @@ export default function PolicyPacksPage() {
             </div>
           </section>
 
-          <section style={{ marginBottom: 0 }}>
-            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Assign to current scope</h4>
-            <p style={{ fontSize: 14, color: "#555" }}>
+          <section className="mb-0">
+            <h4 className="mt-0 mb-2">Assign to current scope</h4>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Assignment must reference an existing version string for that pack (e.g. the one you published).
             </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div className="flex gap-3 flex-wrap items-end">
               <label>
                 Version
                 <input
@@ -665,7 +641,7 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setAssignVersion(e.target.value)}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
+                  className="block p-2 mt-1 w-40"
                 />
               </label>
               <label>
@@ -675,14 +651,14 @@ export default function PolicyPacksPage() {
                   onChange={(e) => setAssignScopeLevel(e.target.value)}
                   disabled={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  style={{ display: "block", padding: 8, marginTop: 4, minWidth: 140 }}
+                  className="block p-2 mt-1 min-w-[140px]"
                 >
                   <option value="Tenant">Tenant</option>
                   <option value="Workspace">Workspace</option>
                   <option value="Project">Project</option>
                 </select>
               </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+              <label className="flex items-center gap-2 mb-1">
                 <input
                   type="checkbox"
                   checked={assignPinned}

@@ -29,8 +29,9 @@ const ENVIRONMENT_OPTIONS = [
  * Step 2: system name, environment, cloud (Azure only), optional prior manifest version.
  */
 export function WizardStepIdentity() {
-  const { register, control, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { register, control, formState, clearErrors, watch } = useFormContext<WizardFormValues>();
   const { errors } = formState;
+  const systemNameValue = watch("systemName") ?? "";
   const systemErr = errors.systemName?.message;
   const priorErr = errors.priorManifestVersion?.message;
   const environmentErr = errors.environment?.message;
@@ -57,6 +58,9 @@ export function WizardStepIdentity() {
             })}
           />
           <WizardFieldError id="err-wizard-systemName" message={systemErr != null ? String(systemErr) : undefined} />
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {systemNameValue.trim().length} characters (minimum 2)
+          </p>
         </div>
 
         <div>

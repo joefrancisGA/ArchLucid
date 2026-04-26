@@ -1,21 +1,7 @@
-import type { CSSProperties } from "react";
+export const planningTableCls = "mt-2 w-full border-collapse text-sm";
 
-export const planningTableStyle: CSSProperties = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: 14,
-  marginTop: 8,
-};
+export const planningThTdCls =
+  "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 
-export const planningThTd: CSSProperties = {
-  border: "1px solid #e2e8f0",
-  padding: "8px 10px",
-  textAlign: "left",
-  verticalAlign: "top",
-};
-
-export const planningNumericCell: CSSProperties = {
-  ...planningThTd,
-  textAlign: "right",
-  fontVariantNumeric: "tabular-nums",
-};
+export const planningNumericCellCls =
+  `${planningThTdCls} text-right tabular-nums`;

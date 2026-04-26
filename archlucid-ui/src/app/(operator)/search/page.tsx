@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { EmptyState } from "@/components/EmptyState";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,46 +55,45 @@ export default function SearchPage() {
 
   return (
     <main className="max-w-4xl">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Semantic Search</h2>
-        <ContextualHelp helpKey="semantic-search" />
-      </div>
-      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Scoped to your workspace. Uses the same embedding + index as Ask ArchLucid (in-memory + fake vectors by
-        default).
-      </p>
+      <OperatorPageHeader
+        title="Semantic Search"
+        helpKey="semantic-search"
+        subtitle="Scoped to your workspace. Uses the same embedding + index as Ask ArchLucid (in-memory + fake vectors by default)."
+      />
 
-      <div className="mb-6 grid max-w-xl gap-3">
-        <div className="space-y-2">
-          <Label htmlFor="semantic-search-query">Query</Label>
-          <Input
-            id="semantic-search-query"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search architecture knowledge..."
-            autoComplete="off"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="semantic-search-run-id">Optional run ID</Label>
-          <Input
-            id="semantic-search-run-id"
-            className="font-mono text-sm"
-            value={runId}
-            onChange={(e) => setRunId(e.target.value)}
-            placeholder="Optional Run ID filter"
-            autoComplete="off"
-          />
-        </div>
-        <Button
-          type="button"
-          className="w-fit bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-          onClick={() => void onSearch()}
-          disabled={loading || !query.trim()}
-        >
-          {loading ? "Searching…" : "Search"}
-        </Button>
-      </div>
+      <Card className="mb-6 max-w-xl border-neutral-200 dark:border-neutral-700">
+        <CardContent className="grid gap-3 p-4">
+          <div className="space-y-2">
+            <Label htmlFor="semantic-search-query">Query</Label>
+            <Input
+              id="semantic-search-query"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search architecture knowledge..."
+              autoComplete="off"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="semantic-search-run-id">Optional run ID</Label>
+            <Input
+              id="semantic-search-run-id"
+              className="font-mono text-sm"
+              value={runId}
+              onChange={(e) => setRunId(e.target.value)}
+              placeholder="Optional Run ID filter"
+              autoComplete="off"
+            />
+          </div>
+          <Button
+            type="button"
+            className="w-fit bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            onClick={() => void onSearch()}
+            disabled={loading || !query.trim()}
+          >
+            {loading ? "Searching…" : "Search"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {failure !== null ? (
         <div role="alert">

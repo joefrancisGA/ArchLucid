@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { FieldPath } from "react-hook-form";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -106,9 +106,19 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, setError, clearErrors } = form;
+  const { trigger, getValues, setError, clearErrors, control } = form;
 
-  const canProceed = !submitting;
+  const watchedValues = useWatch({ control });
+
+  const stepHasValidationErrors = useMemo(() => {
+    if (stepIndex < 1 || stepIndex > 4) {
+      return false;
+    }
+
+    return validateWizardStep(stepIndex, watchedValues as WizardFormValues).length > 0;
+  }, [stepIndex, watchedValues]);
+
+  const canProceed = !submitting && (stepIndex === 0 || stepIndex === 5 || !stepHasValidationErrors);
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {

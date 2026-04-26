@@ -18,7 +18,7 @@ public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository toke
         if (string.IsNullOrWhiteSpace(plaintextToken))
             return null;
 
-        if (!TryParseToken(plaintextToken.Trim(), out string? publicKey, out byte[]? secretBytes))
+        if (!TryParseToken(plaintextToken.Trim(), out string publicKey, out byte[]? secretBytes))
             return null;
 
         ScimTokenRow? row = await _tokens.FindActiveByPublicLookupKeyAsync(publicKey, cancellationToken);
@@ -35,10 +35,7 @@ public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository toke
 
         CryptographicOperations.ZeroMemory(secretBytes!);
 
-        if (!ok)
-            return null;
-
-        return new ScimBearerAuthenticationResult { TenantId = row.TenantId, TokenRowId = row.Id };
+        return !ok ? null : new ScimBearerAuthenticationResult { TenantId = row.TenantId, TokenRowId = row.Id };
     }
 
     private static bool TryParseToken(string token, out string publicKey, out byte[]? secretBytes)

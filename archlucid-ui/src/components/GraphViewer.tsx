@@ -48,7 +48,7 @@ export function GraphViewer({
     if (typeFilter) {
       return (
         <OperatorEmptyState title="No nodes match this filter">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             No nodes match type &quot;{typeFilter}&quot;. Clear the type filter or reload the graph
             with different scope.
           </p>
@@ -58,7 +58,7 @@ export function GraphViewer({
 
     return (
       <OperatorEmptyState title="No graph data to display">
-        <p style={{ margin: 0 }}>
+        <p className="m-0">
           The API returned a graph with no nodes (valid empty result, not a filter).
         </p>
       </OperatorEmptyState>
@@ -66,15 +66,8 @@ export function GraphViewer({
   }
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }}>
-      <div
-        style={{
-          height: "70vh",
-          width: "100%",
-          border: "1px solid #ddd",
-          background: "#fff",
-        }}
-      >
+    <div className="grid grid-cols-[1fr_320px] gap-4">
+      <div className="h-[70vh] w-full border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950">
         <ReactFlowProvider>
           <ReactFlow
             nodes={nodes as Node[]}
@@ -91,17 +84,8 @@ export function GraphViewer({
         </ReactFlowProvider>
       </div>
 
-      <aside
-        style={{
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          padding: 16,
-          background: "#fff",
-          overflow: "auto",
-          maxHeight: "70vh",
-        }}
-      >
-        <h3 style={{ marginTop: 0 }}>Node detail</h3>
+      <aside className="max-h-[70vh] overflow-auto rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
+        <h3 className="mt-0">Node detail</h3>
 
         {!selectedNode && <p>Select a node to inspect it.</p>}
 

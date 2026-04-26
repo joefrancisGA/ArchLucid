@@ -60,7 +60,7 @@ export default async function ManifestDetailPage({
     return (
       <main>
         <h2>Manifest</h2>
-        <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+        <p className="mb-2 text-sm font-semibold">
           Manifest summary could not be loaded.
         </p>
         <OperatorApiProblem
@@ -73,7 +73,7 @@ export default async function ManifestDetailPage({
           Re-open the manifest link from <Link href="/runs?projectId=default">Runs</Link> → run detail, or confirm the
           ID in the URL matches a committed manifest in scope.
         </OperatorTryNext>
-        <p style={{ fontSize: 14 }}>
+        <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
           <Link href="/runs?projectId=default">Runs</Link>
@@ -88,13 +88,13 @@ export default async function ManifestDetailPage({
         <h2>Manifest</h2>
         <OperatorMalformedCallout>
           <strong>Manifest summary response was not usable.</strong>
-          <p style={{ margin: "8px 0 0" }}>{summaryMalformed}</p>
+          <p className="mt-2">{summaryMalformed}</p>
         </OperatorMalformedCallout>
         <OperatorTryNext>
           Align API and UI versions (<code>GET /version</code>). If you followed a stale bookmark, open the manifest
           again from <Link href="/runs?projectId=default">Runs</Link>.
         </OperatorTryNext>
-        <p style={{ fontSize: 14 }}>
+        <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
           <Link href="/runs?projectId=default">Runs</Link>
@@ -109,7 +109,7 @@ export default async function ManifestDetailPage({
         <h2>Manifest</h2>
         <OperatorErrorCallout>
           <strong>Manifest summary missing.</strong>
-          <p style={{ margin: "8px 0 0" }}>
+          <p className="mt-2">
             The API returned no summary object and no parseable error payload—an unexpected empty success path. Retry
             once; if it persists, capture <code>GET /version</code> and request logs for the manifest ID in the URL.
           </p>
@@ -118,7 +118,7 @@ export default async function ManifestDetailPage({
           Hard-refresh, confirm proxy scope headers match the manifest&apos;s tenant/project, then navigate from run
           detail instead of a pasted ID.
         </OperatorTryNext>
-        <p style={{ fontSize: 14 }}>
+        <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
           <Link href="/runs?projectId=default">Runs</Link>
@@ -130,14 +130,14 @@ export default async function ManifestDetailPage({
   return (
     <main>
       <h2>Manifest</h2>
-      <p style={{ fontSize: 14 }}>
+      <p className="text-sm">
         <Link href="/">Home</Link>
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
         <Link href={`/runs/${summary.runId}`}>Run detail</Link>
       </p>
-      <p style={{ fontSize: 14, color: "#64748b", maxWidth: 720 }}>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-3xl">
         Artifact rows link here for review. Use bundle download for the full ZIP.
       </p>
       <p>
@@ -147,14 +147,14 @@ export default async function ManifestDetailPage({
         <strong>Status:</strong> {summary.status}
       </p>
       {summary.operatorSummary && (
-        <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.5 }}>{summary.operatorSummary}</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-normal">{summary.operatorSummary}</p>
       )}
       <p>
         <strong>Rule set:</strong> {summary.ruleSetId} {summary.ruleSetVersion}
       </p>
       <p>
         <strong>Manifest hash:</strong>{" "}
-        <span style={{ fontFamily: "monospace", fontSize: 13 }}>{summary.manifestHash}</span>
+        <span className="font-mono text-[13px]">{summary.manifestHash}</span>
       </p>
       <p>
         <strong>Decisions:</strong> {summary.decisionCount}
@@ -166,16 +166,16 @@ export default async function ManifestDetailPage({
         <strong>Unresolved issues:</strong> {summary.unresolvedIssueCount}
       </p>
 
-      <section style={{ marginTop: 24 }}>
+      <section className="mt-6">
         <h3>Artifacts</h3>
 
-        <p style={{ marginBottom: 12 }}>
+        <p className="mb-3">
           <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
         </p>
 
         {artifactsFailure && (
           <>
-            <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+            <p className="mb-2 text-sm font-semibold">
               Artifact list could not be loaded.
             </p>
             <OperatorApiProblem
@@ -196,7 +196,7 @@ export default async function ManifestDetailPage({
           <>
             <OperatorMalformedCallout>
               <strong>Artifact list response was not usable.</strong>
-              <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
+              <p className="mt-2">{artifactsMalformed}</p>
             </OperatorMalformedCallout>
             <OperatorTryNext>
               Compare API/UI versions. You can still use bundle download when the list contract drifts but storage is
@@ -207,7 +207,7 @@ export default async function ManifestDetailPage({
 
         {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
           <OperatorEmptyState title="No artifacts listed for this manifest">
-            <p style={{ margin: 0 }}>
+            <p className="m-0">
               The summary loaded, but the artifact descriptor list is empty (valid empty result).
               Bundle ZIP may return 404 when there is no bundle.
             </p>

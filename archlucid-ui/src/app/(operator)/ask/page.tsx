@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ChevronDown } from "lucide-react";
+
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +33,7 @@ export default function AskPage() {
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
 
@@ -183,33 +187,49 @@ export default function AskPage() {
                   autoComplete="off"
                 />
               </div>
-              <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 open:border-teal-600/40 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
-                <summary className="cursor-pointer font-medium text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 dark:text-neutral-100">
-                  Optional: compare two runs
-                </summary>
-                <div className="mt-3 grid gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="ask-base-run">Base run ID</Label>
-                    <Input
-                      id="ask-base-run"
-                      className="font-mono text-sm"
-                      value={baseRunId}
-                      onChange={(e) => setBaseRunId(e.target.value)}
-                      autoComplete="off"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ask-target-run">Target run ID</Label>
-                    <Input
-                      id="ask-target-run"
-                      className="font-mono text-sm"
-                      value={targetRunId}
-                      onChange={(e) => setTargetRunId(e.target.value)}
-                      autoComplete="off"
-                    />
-                  </div>
+              <Collapsible open={compareOpen} onOpenChange={setCompareOpen}>
+                <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
+                      aria-expanded={compareOpen}
+                    >
+                      <span>Optional: compare two runs</span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",
+                          compareOpen && "rotate-180",
+                        )}
+                        aria-hidden
+                      />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3 grid gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="ask-base-run">Base run ID</Label>
+                      <Input
+                        id="ask-base-run"
+                        className="font-mono text-sm"
+                        value={baseRunId}
+                        onChange={(e) => setBaseRunId(e.target.value)}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ask-target-run">Target run ID</Label>
+                      <Input
+                        id="ask-target-run"
+                        className="font-mono text-sm"
+                        value={targetRunId}
+                        onChange={(e) => setTargetRunId(e.target.value)}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </CollapsibleContent>
                 </div>
-              </details>
+              </Collapsible>
               <div className="space-y-2">
                 <Label htmlFor="ask-question">Question</Label>
                 <Textarea

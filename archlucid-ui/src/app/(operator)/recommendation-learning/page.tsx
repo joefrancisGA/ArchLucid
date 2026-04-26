@@ -40,14 +40,14 @@ export default function RecommendationLearningPage() {
   }
 
   return (
-    <main style={{ maxWidth: 900 }}>
-      <h2 style={{ marginTop: 0 }}>Recommendation learning</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
+    <main className="max-w-4xl">
+      <h2 className="mt-0">Recommendation learning</h2>
+      <p className="text-neutral-600 dark:text-neutral-400 text-sm">
         Inspect adaptive weights derived from historical recommendation outcomes (category, urgency, inferred signal type).
         Rebuild analyzes up to 5000 records in the current scope and stores a new profile snapshot.
       </p>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+      <div className="flex gap-3 mb-6 flex-wrap">
         <button type="button" onClick={() => void loadLatest()} disabled={loading}>
           Load latest profile
         </button>
@@ -74,7 +74,7 @@ export default function RecommendationLearningPage() {
               <li key={index}>{note}</li>
             ))}
           </ul>
-          <p style={{ color: "#666", fontSize: 13 }}>
+          <p className="text-neutral-500 dark:text-neutral-400 text-[13px]">
             Generated: {new Date(profile.generatedUtc).toLocaleString()}
           </p>
 
@@ -106,7 +106,7 @@ export default function RecommendationLearningPage() {
           </ul>
         </>
       ) : !loading && failure === null ? (
-        <p style={{ color: "#666" }}>No profile loaded. Use the buttons above.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">No profile loaded. Use the buttons above.</p>
       ) : null}
     </main>
   );

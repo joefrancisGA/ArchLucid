@@ -42,13 +42,14 @@ public sealed class FirstTenantFunnelEmitter(
                 eventName,
                 $"eventName must be one of: {string.Join(", ", FirstTenantFunnelEventNames.All)}.");
 
-        FirstTenantFunnelOptions options = _optionsMonitor.CurrentValue ?? new FirstTenantFunnelOptions();
+        FirstTenantFunnelOptions options = _optionsMonitor.CurrentValue;
         bool perTenant = options.PerTenantEmission;
         string? tenantLabel = perTenant ? NormalizeTenantId(tenantId) : null;
 
         ArchLucidInstrumentation.RecordFirstTenantFunnelEvent(eventName, perTenant, tenantLabel);
 
-        if (!perTenant) return;
+        if (!perTenant)
+            return;
 
         try
         {

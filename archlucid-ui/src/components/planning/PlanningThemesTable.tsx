@@ -1,6 +1,5 @@
-import type { CSSProperties } from "react";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
-import { planningNumericCell, planningTableStyle, planningThTd } from "./planning-table-styles";
+import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
 type PlanningThemesTableProps = {
   themes: LearningThemeResponse[];
@@ -9,11 +8,7 @@ type PlanningThemesTableProps = {
   onSelectThemeForPlans: (themeId: string) => void;
 };
 
-const browseBtn: CSSProperties = {
-  fontSize: 13,
-  padding: "4px 10px",
-  cursor: "pointer",
-};
+const browseBtnCls = "cursor-pointer px-2.5 py-1 text-[13px]";
 
 function countPlansForTheme(plans: LearningPlanListItemResponse[], themeId: string): number {
   return plans.filter((p) => p.themeId === themeId).length;
@@ -25,24 +20,24 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
 
   if (themes.length === 0) {
     return (
-      <p style={{ color: "#64748b", fontSize: 14 }} role="status">
+      <p className="text-sm text-neutral-500 dark:text-neutral-400" role="status">
         No themes in this scope.
       </p>
     );
   }
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={planningTableStyle}>
+    <div className="overflow-x-auto">
+      <table className={planningTableCls}>
         <thead>
-          <tr style={{ background: "#f8fafc" }}>
-            <th style={planningThTd}>Title</th>
-            <th style={planningThTd}>Severity</th>
-            <th style={planningNumericCell}>Evidence signals</th>
-            <th style={planningNumericCell}>Runs</th>
-            <th style={planningThTd}>Area</th>
-            <th style={planningThTd}>Plans</th>
-            <th style={planningThTd}>Summary</th>
+          <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+            <th className={planningThTdCls}>Title</th>
+            <th className={planningThTdCls}>Severity</th>
+            <th className={planningNumericCellCls}>Evidence signals</th>
+            <th className={planningNumericCellCls}>Runs</th>
+            <th className={planningThTdCls}>Area</th>
+            <th className={planningThTdCls}>Plans</th>
+            <th className={planningThTdCls}>Summary</th>
           </tr>
         </thead>
         <tbody>
@@ -51,22 +46,22 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
             const isActive = selectedThemeId === t.themeId;
 
             return (
-              <tr key={t.themeId} style={isActive ? { background: "#eff6ff" } : undefined}>
-                <td style={planningThTd}>
+              <tr key={t.themeId} className={isActive ? "bg-blue-50 dark:bg-blue-950/30" : ""}>
+                <td className={planningThTdCls}>
                   <strong>{t.title}</strong>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{t.themeKey}</div>
+                  <div className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{t.themeKey}</div>
                 </td>
-                <td style={planningThTd}>{t.severityBand}</td>
-                <td style={planningNumericCell}>{t.evidenceSignalCount}</td>
-                <td style={planningNumericCell}>{t.distinctRunCount}</td>
-                <td style={planningThTd}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</td>
-                <td style={planningThTd}>
+                <td className={planningThTdCls}>{t.severityBand}</td>
+                <td className={planningNumericCellCls}>{t.evidenceSignalCount}</td>
+                <td className={planningNumericCellCls}>{t.distinctRunCount}</td>
+                <td className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</td>
+                <td className={planningThTdCls}>
                   {planCount === 0 ? (
-                    <span style={{ color: "#94a3b8", fontSize: 13 }}>—</span>
+                    <span className="text-[13px] text-neutral-400 dark:text-neutral-500">—</span>
                   ) : (
                     <button
                       type="button"
-                      style={browseBtn}
+                      className={browseBtnCls}
                       onClick={() => onSelectThemeForPlans(t.themeId)}
                       aria-pressed={isActive}
                       aria-label={`Show ${planCount} plan(s) for theme ${t.title}`}
@@ -75,7 +70,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                     </button>
                   )}
                 </td>
-                <td style={{ ...planningThTd, fontSize: 13, maxWidth: 280 }}>{t.summary}</td>
+                <td className={`${planningThTdCls} max-w-[280px] text-[13px]`}>{t.summary}</td>
               </tr>
             );
           })}

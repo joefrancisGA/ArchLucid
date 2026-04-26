@@ -1,60 +1,91 @@
 using ArchLucid.Host.Core.Configuration;
 
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>Fail-fast checks for dangerous authentication configuration combinations.</summary>
 public static class AuthSafetyGuard
 {
-    private const string DevelopmentBypassNotAllowedMessage =
-        "DevelopmentBypass auth mode is not permitted in Production environments. "
-        + "Set ArchLucidAuth:Mode to JwtBearer or ApiKey.";
+    /// <summary>
+    ///     Thrown when <c>ArchLucidAuth:Mode</c> is <c>DevelopmentBypass</c> but the host environment name is not
+    ///     <see cref="Environments.Development" /> (see <see cref="IHostEnvironment.IsDevelopment()" />).
+    /// </summary>
+    public const string DevelopmentBypassOutsideDevelopmentMessage =
+        "DevelopmentBypass auth mode is not allowed outside Development environments. "
+        + "Set ArchLucidAuth:Mode to ApiKey or JwtBearer.";
 
     private const string DevelopmentBypassAllNotAllowedMessage =
         "Authentication:ApiKey:DevelopmentBypassAll is not permitted in Production environments. "
         + "Set Authentication:ApiKey:DevelopmentBypassAll to false.";
 
     /// <summary>
-    /// Throws <see cref="InvalidOperationException"/> when any production-incompatible development auth
-    /// setting is active and the host is treated as production-like: <see cref="IHostEnvironment.IsProduction"/>,
-    /// <c>ASPNETCORE_ENVIRONMENT</c> / <c>ARCHLUCID_ENVIRONMENT</c> names containing <c>prod</c> (excluding
-    /// <c>non-production</c> / <c>nonproduction</c>), or exact Production via configuration.
+    ///     Throws <see cref="InvalidOperationException" /> when any production-incompatible development auth
+    ///     setting is active and the host is treated as production-like: <see cref="IHostEnvironment.IsProduction" />,
+    ///     <c>ASPNETCORE_ENVIRONMENT</c> / <c>ARCHLUCID_ENVIRONMENT</c> names containing <c>prod</c> (excluding
+    ///     <c>non-production</c> / <c>nonproduction</c>), or exact Production via configuration.
     /// </summary>
     /// <remarks>
-    /// Checks: <c>ArchLucidAuth:Mode=DevelopmentBypass</c> and
-    /// <c>Authentication:ApiKey:DevelopmentBypassAll=true</c>. Call before registering authentication services.
+    ///     <para>
+    ///         <c>ArchLucidAuth:Mode=DevelopmentBypass</c> is only allowed when
+    ///         <see cref="IHostEnvironment.IsDevelopment()" /> is true (so Staging/Production/Test hosts cannot
+    ///         accidentally ship with bypass auth even if <c>ASPNETCORE_ENVIRONMENT</c> is mis-set).
+    ///     </para>
+    ///     <para>
+    ///         When DevelopmentBypass is active in Development, <paramref name="logger" /> receives a warning
+    ///         (include <c>ArchLucidAuth:DevUserId</c>); pass <see langword="null" /> in unit tests if not needed.
+    ///     </para>
+    ///     <para>
+    ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked only in production-like
+    ///         environments (same heuristic as before). Call before registering authentication services.
+    ///     </para>
     /// </remarks>
     public static void GuardAllDevelopmentBypasses(
         IConfiguration configuration,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment hostEnvironment,
+        ILogger? logger = null)
     {
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(hostEnvironment);
+
+        string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+
+        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+        {
+            bool productionLike = IsProductionEnvironment(hostEnvironment, configuration);
+
+            if (!hostEnvironment.IsDevelopment() || productionLike)
+                throw new InvalidOperationException(DevelopmentBypassOutsideDevelopmentMessage);
+
+            string devUserId =
+                ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "DevUserId") ?? "dev-user";
+
+            logger?.LogWarning(
+                "DevelopmentBypass auth mode is active. All requests are authenticated as {DevUserId}. Do not use in production.",
+                devUserId);
+        }
+
 
         if (!IsProductionEnvironment(hostEnvironment, configuration))
             return;
 
 
-        string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
-
-        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(DevelopmentBypassNotAllowedMessage);
-
-
         if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
             throw new InvalidOperationException(DevelopmentBypassAllNotAllowedMessage);
-
     }
 
     /// <summary>
-    /// Throws <see cref="InvalidOperationException"/> when auth mode is DevelopmentBypass and the host is
-    /// treated as Production (<see cref="IHostEnvironment.IsProduction"/> or <c>ARCHLUCID_ENVIRONMENT=Production</c>).
+    ///     Same guard as <see cref="GuardAllDevelopmentBypasses" /> (DevelopmentBypass rules + production-like
+    ///     <c>DevelopmentBypassAll</c> check). Prefer calling <see cref="GuardAllDevelopmentBypasses" /> from new code.
     /// </summary>
-    /// <remarks>Delegates to <see cref="GuardAllDevelopmentBypasses"/> so API-key open-access flags are enforced in the same pass.</remarks>
+    /// <remarks>Delegates to <see cref="GuardAllDevelopmentBypasses" /> so API-key open-access flags are enforced in the same pass.</remarks>
     public static void GuardDevelopmentBypassInProduction(
         IConfiguration configuration,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment hostEnvironment,
+        ILogger? logger = null)
     {
-        GuardAllDevelopmentBypasses(configuration, hostEnvironment);
+        GuardAllDevelopmentBypasses(configuration, hostEnvironment, logger);
     }
 
     private static bool IsProductionEnvironment(IHostEnvironment hostEnvironment, IConfiguration configuration)
@@ -78,9 +109,9 @@ public static class AuthSafetyGuard
     }
 
     /// <summary>
-    /// Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
-    /// (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot run DevelopmentBypass.
-    /// Excludes <c>non-production</c> / <c>nonproduction</c> so dev stacks that embed that phrase are not blocked.
+    ///     Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
+    ///     (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot run DevelopmentBypassAll.
+    ///     Excludes <c>non-production</c> / <c>nonproduction</c> so dev stacks that embed that phrase are not blocked.
     /// </summary>
     private static bool EnvironmentNameImpliesProductionLike(string? environmentName)
     {

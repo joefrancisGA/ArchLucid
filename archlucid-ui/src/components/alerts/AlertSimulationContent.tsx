@@ -50,52 +50,45 @@ const TABS = ["simple", "composite", "compare"] as const;
 type Tab = (typeof TABS)[number];
 
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
-  if (outcomes.length === 0) return <p style={{ color: "#666" }}>No per-run rows.</p>;
+  if (outcomes.length === 0) return <p className="text-neutral-500 dark:text-neutral-400">No per-run rows.</p>;
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: 13,
-          marginTop: 8,
-        }}
-      >
+    <div className="overflow-x-auto">
+      <table className="mt-2 w-full border-collapse text-[13px]">
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
-            <th style={{ padding: 6 }}>Run</th>
-            <th style={{ padding: 6 }}>Match</th>
-            <th style={{ padding: 6 }}>Would create</th>
-            <th style={{ padding: 6 }}>Suppressed</th>
-            <th style={{ padding: 6 }}>Severity</th>
-            <th style={{ padding: 6 }}>Title / description</th>
-            <th style={{ padding: 6 }}>Suppression / dedupe</th>
+          <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
+            <th className="p-1.5">Run</th>
+            <th className="p-1.5">Match</th>
+            <th className="p-1.5">Would create</th>
+            <th className="p-1.5">Suppressed</th>
+            <th className="p-1.5">Severity</th>
+            <th className="p-1.5">Title / description</th>
+            <th className="p-1.5">Suppression / dedupe</th>
           </tr>
         </thead>
         <tbody>
           {outcomes.map((o, i) => (
-            <tr key={`${o.runId ?? "x"}-${i}`} style={{ borderBottom: "1px solid #eee", verticalAlign: "top" }}>
-              <td style={{ padding: 6, whiteSpace: "nowrap" }}>{o.runId ?? "—"}</td>
-              <td style={{ padding: 6 }}>{o.ruleMatched ? "yes" : "no"}</td>
-              <td style={{ padding: 6 }}>{o.wouldCreateAlert ? "yes" : "no"}</td>
-              <td style={{ padding: 6 }}>{o.wouldBeSuppressed ? "yes" : "no"}</td>
-              <td style={{ padding: 6 }}>{o.severity}</td>
-              <td style={{ padding: 6 }}>
+            <tr key={`${o.runId ?? "x"}-${i}`} className="border-b border-neutral-100 align-top dark:border-neutral-800">
+              <td className="whitespace-nowrap p-1.5">{o.runId ?? "—"}</td>
+              <td className="p-1.5">{o.ruleMatched ? "yes" : "no"}</td>
+              <td className="p-1.5">{o.wouldCreateAlert ? "yes" : "no"}</td>
+              <td className="p-1.5">{o.wouldBeSuppressed ? "yes" : "no"}</td>
+              <td className="p-1.5">{o.severity}</td>
+              <td className="p-1.5">
                 <strong>{o.title}</strong>
-                <div style={{ color: "#444", marginTop: 4 }}>{o.description}</div>
+                <div className="mt-1 text-neutral-600 dark:text-neutral-400">{o.description}</div>
                 {o.notes?.length ? (
-                  <ul style={{ margin: "6px 0 0", paddingLeft: 18, color: "#555" }}>
+                  <ul className="mt-1.5 pl-[18px] text-neutral-600 dark:text-neutral-400">
                     {o.notes.map((n, j) => (
                       <li key={j}>{n}</li>
                     ))}
                   </ul>
                 ) : null}
               </td>
-              <td style={{ padding: 6, fontSize: 12 }}>
+              <td className="p-1.5 text-xs">
                 <div>
                   <strong>Reason:</strong> {o.suppressionReason || "—"}
                 </div>
-                <div style={{ marginTop: 4 }}>
+                <div className="mt-1">
                   <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
                 </div>
               </td>
@@ -110,22 +103,22 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
 function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
   if (!result) return null;
   return (
-    <div style={{ marginTop: 16 }}>
-      <h4 style={{ margin: "0 0 8px" }}>Summary</h4>
-      <ul style={{ margin: 0 }}>
+    <div className="mt-4">
+      <h4 className="mb-2">Summary</h4>
+      <ul className="m-0">
         <li>Evaluated runs: {result.evaluatedRunCount}</li>
         <li>Matched: {result.matchedCount}</li>
         <li>Would create alerts: {result.wouldCreateCount}</li>
         <li>Would suppress: {result.wouldSuppressCount}</li>
       </ul>
       {result.summaryNotes?.length ? (
-        <ul style={{ marginTop: 8 }}>
+        <ul className="mt-2">
           {result.summaryNotes.map((n, i) => (
             <li key={i}>{n}</li>
           ))}
         </ul>
       ) : null}
-      <h4 style={{ margin: "16px 0 8px" }}>Outcomes</h4>
+      <h4 className="mb-2 mt-4">Outcomes</h4>
       <OutcomeTable outcomes={result.outcomes} />
     </div>
   );
@@ -292,28 +285,21 @@ export function AlertSimulationContent() {
   }
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <div className="max-w-[1100px]">
       <LayerHeader pageKey="alert-simulation" />
-      <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
+      <h2 className="mt-0">Alert rule simulation</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {alertSimulationPageLead}
       </p>
       <AlertOperatorToolingRankCue className="mb-3" />
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+      <div className="mb-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 6,
-              border: tab === t ? "2px solid #333" : "1px solid #ccc",
-              background: tab === t ? "#f4f4f4" : "#fff",
-              cursor: "pointer",
-              textTransform: "capitalize",
-            }}
+            className={`cursor-pointer capitalize rounded-md px-3.5 py-2 ${tab === t ? "border-2 border-neutral-700 bg-neutral-100 dark:border-neutral-300 dark:bg-neutral-800" : "border border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-950"}`}
           >
             {t}
           </button>
@@ -333,16 +319,16 @@ export function AlertSimulationContent() {
       {tab === "simple" ? (
         <>
           <section aria-labelledby="sim-simple-inputs-heading">
-            <h3 id="sim-simple-inputs-heading" style={{ marginTop: 0 }}>
+            <h3 id="sim-simple-inputs-heading" className="mt-0">
               Simulation inputs
             </h3>
-            <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
+            <div className="grid max-w-[640px] gap-3">
             <label>
               Name
               <input
                 value={sName}
                 onChange={(e) => setSName(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -350,7 +336,7 @@ export function AlertSimulationContent() {
               <select
                 value={sRuleType}
                 onChange={(e) => setSRuleType(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -364,7 +350,7 @@ export function AlertSimulationContent() {
               <select
                 value={sSeverity}
                 onChange={(e) => setSSeverity(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -379,7 +365,7 @@ export function AlertSimulationContent() {
                 type="number"
                 value={sThreshold}
                 onChange={(e) => setSThreshold(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -390,7 +376,7 @@ export function AlertSimulationContent() {
                 max={50}
                 value={sRecent}
                 onChange={(e) => setSRecent(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -398,7 +384,7 @@ export function AlertSimulationContent() {
               <input
                 value={sSlug}
                 onChange={(e) => setSSlug(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -407,7 +393,7 @@ export function AlertSimulationContent() {
                 value={sRunId}
                 onChange={(e) => setSRunId(e.target.value)}
                 placeholder="00000000-0000-0000-0000-000000000000"
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -415,10 +401,10 @@ export function AlertSimulationContent() {
               <input
                 value={sCompareRun}
                 onChange={(e) => setSCompareRun(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={sUseHistory}
@@ -431,14 +417,14 @@ export function AlertSimulationContent() {
               onClick={() => void runSimple()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
+              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Simulate"}
             </button>
           </div>
           </section>
-          <section aria-labelledby="sim-simple-behavior-heading" style={{ marginTop: 24 }}>
-            <h3 id="sim-simple-behavior-heading" style={{ marginTop: 0 }}>
+          <section aria-labelledby="sim-simple-behavior-heading" className="mt-6">
+            <h3 id="sim-simple-behavior-heading" className="mt-0">
               {canMutateEnterpriseShell
                 ? alertSimulationCurrentBehaviorHeadingOperator
                 : alertSimulationCurrentBehaviorHeadingReader}
@@ -446,7 +432,7 @@ export function AlertSimulationContent() {
             {simpleResult ? (
               <SummaryBlock result={simpleResult} />
             ) : (
-              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a simulation to see outcomes here.</p>
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a simulation to see outcomes here.</p>
             )}
           </section>
         </>
@@ -455,16 +441,16 @@ export function AlertSimulationContent() {
       {tab === "composite" ? (
         <>
           <section aria-labelledby="sim-composite-inputs-heading">
-            <h3 id="sim-composite-inputs-heading" style={{ marginTop: 0 }}>
+            <h3 id="sim-composite-inputs-heading" className="mt-0">
               Simulation inputs
             </h3>
-            <div style={{ display: "grid", gap: 12, maxWidth: 720 }}>
+            <div className="grid max-w-3xl gap-3">
             <label>
               Name
               <input
                 value={cName}
                 onChange={(e) => setCName(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -472,7 +458,7 @@ export function AlertSimulationContent() {
               <select
                 value={cSeverity}
                 onChange={(e) => setCSeverity(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -486,20 +472,20 @@ export function AlertSimulationContent() {
               <select
                 value={cJoin}
                 onChange={(e) => setCJoin(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="And">All (AND)</option>
                 <option value="Or">Any (OR)</option>
               </select>
             </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="grid grid-cols-2 gap-3">
               <label>
                 Suppression window (min)
                 <input
                   type="number"
                   value={cSuppression}
                   onChange={(e) => setCSuppression(Number(e.target.value))}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="mt-1 block w-full p-2"
                 />
               </label>
               <label>
@@ -508,7 +494,7 @@ export function AlertSimulationContent() {
                   type="number"
                   value={cCooldown}
                   onChange={(e) => setCCooldown(Number(e.target.value))}
-                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                  className="mt-1 block w-full p-2"
                 />
               </label>
             </div>
@@ -517,15 +503,15 @@ export function AlertSimulationContent() {
               <select
                 value={cDedupe}
                 onChange={(e) => setCDedupe(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="RuleOnly">Rule only</option>
                 <option value="RuleAndRun">Rule + run</option>
                 <option value="RuleAndComparison">Rule + run + comparison</option>
               </select>
             </label>
-            <p style={{ margin: 0, fontWeight: 600 }}>Condition 1</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            <p className="m-0 font-semibold">Condition 1</p>
+            <div className="grid grid-cols-3 gap-2">
               <select value={cM1} onChange={(e) => setCM1(e.target.value)}>
                 {METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -542,8 +528,8 @@ export function AlertSimulationContent() {
               </select>
               <input type="number" value={cV1} onChange={(e) => setCV1(Number(e.target.value))} />
             </div>
-            <p style={{ margin: 0, fontWeight: 600 }}>Condition 2</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            <p className="m-0 font-semibold">Condition 2</p>
+            <div className="grid grid-cols-3 gap-2">
               <select value={cM2} onChange={(e) => setCM2(e.target.value)}>
                 {METRICS.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -568,7 +554,7 @@ export function AlertSimulationContent() {
                 max={50}
                 value={cRecent}
                 onChange={(e) => setCRecent(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -576,7 +562,7 @@ export function AlertSimulationContent() {
               <input
                 value={cSlug}
                 onChange={(e) => setCSlug(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <button
@@ -584,14 +570,14 @@ export function AlertSimulationContent() {
               onClick={() => void runComposite()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
+              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Simulate"}
             </button>
           </div>
           </section>
-          <section aria-labelledby="sim-composite-behavior-heading" style={{ marginTop: 24 }}>
-            <h3 id="sim-composite-behavior-heading" style={{ marginTop: 0 }}>
+          <section aria-labelledby="sim-composite-behavior-heading" className="mt-6">
+            <h3 id="sim-composite-behavior-heading" className="mt-0">
               {canMutateEnterpriseShell
                 ? alertSimulationCurrentBehaviorHeadingOperator
                 : alertSimulationCurrentBehaviorHeadingReader}
@@ -599,7 +585,7 @@ export function AlertSimulationContent() {
             {compositeResult ? (
               <SummaryBlock result={compositeResult} />
             ) : (
-              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a simulation to see outcomes here.</p>
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a simulation to see outcomes here.</p>
             )}
           </section>
         </>
@@ -608,19 +594,19 @@ export function AlertSimulationContent() {
       {tab === "compare" ? (
         <>
           <section aria-labelledby="sim-compare-inputs-heading">
-            <h3 id="sim-compare-inputs-heading" style={{ marginTop: 0 }}>
+            <h3 id="sim-compare-inputs-heading" className="mt-0">
               Simulation inputs
             </h3>
-            <p style={{ color: "#555", fontSize: 14 }}>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
             </p>
-            <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
+            <div className="grid max-w-[640px] gap-3">
             <label>
               Name
               <input
                 value={cmpName}
                 onChange={(e) => setCmpName(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -628,7 +614,7 @@ export function AlertSimulationContent() {
               <select
                 value={cmpRuleType}
                 onChange={(e) => setCmpRuleType(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SIMPLE_RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -642,7 +628,7 @@ export function AlertSimulationContent() {
               <select
                 value={cmpSeverity}
                 onChange={(e) => setCmpSeverity(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -657,7 +643,7 @@ export function AlertSimulationContent() {
                 type="number"
                 value={cmpA}
                 onChange={(e) => setCmpA(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -666,7 +652,7 @@ export function AlertSimulationContent() {
                 type="number"
                 value={cmpB}
                 onChange={(e) => setCmpB(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -677,7 +663,7 @@ export function AlertSimulationContent() {
                 max={50}
                 value={cmpRecent}
                 onChange={(e) => setCmpRecent(Number(e.target.value))}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -685,7 +671,7 @@ export function AlertSimulationContent() {
               <input
                 value={cmpSlug}
                 onChange={(e) => setCmpSlug(e.target.value)}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <button
@@ -693,33 +679,33 @@ export function AlertSimulationContent() {
               onClick={() => void runCompare()}
               disabled={loading}
               title={alertSimulationRunControlTitle}
-              style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
+              className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
             >
               {loading ? "Running…" : "Compare candidates"}
             </button>
           </div>
           </section>
-          <section aria-labelledby="sim-compare-behavior-heading" style={{ marginTop: 24 }}>
-            <h3 id="sim-compare-behavior-heading" style={{ marginTop: 0 }}>
+          <section aria-labelledby="sim-compare-behavior-heading" className="mt-6">
+            <h3 id="sim-compare-behavior-heading" className="mt-0">
               {canMutateEnterpriseShell
                 ? alertSimulationCurrentBehaviorHeadingOperator
                 : alertSimulationCurrentBehaviorHeadingReader}
             </h3>
             {compareResult ? (
-              <div style={{ marginTop: 8 }}>
-                <h4 style={{ margin: "0 0 8px" }}>Comparison notes</h4>
+              <div className="mt-2">
+                <h4 className="mb-2">Comparison notes</h4>
                 <ul>
                   {compareResult.summaryNotes.map((n, i) => (
                     <li key={i}>{n}</li>
                   ))}
                 </ul>
-                <h4 style={{ margin: "16px 0 8px" }}>Candidate A</h4>
+                <h4 className="mb-2 mt-4">Candidate A</h4>
                 <SummaryBlock result={compareResult.candidateA} />
-                <h4 style={{ margin: "16px 0 8px" }}>Candidate B</h4>
+                <h4 className="mb-2 mt-4">Candidate B</h4>
                 <SummaryBlock result={compareResult.candidateB} />
               </div>
             ) : (
-              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a comparison to see outcomes here.</p>
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Run a comparison to see outcomes here.</p>
             )}
           </section>
         </>

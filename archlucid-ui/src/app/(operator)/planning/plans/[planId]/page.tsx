@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -11,17 +10,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { LearningPlanDetailResponse } from "@/types/learning";
-
-const dlRow: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "160px 1fr",
-  gap: "8px 16px",
-  fontSize: 14,
-  marginBottom: 8,
-  alignItems: "baseline",
-};
-
-const muted: CSSProperties = { color: "#64748b" };
 
 /**
  * Single improvement plan detail: steps, priority, and evidence link counts (59R).
@@ -59,17 +47,17 @@ export default function PlanningPlanDetailPage() {
   }, [load]);
 
   return (
-    <main style={{ maxWidth: 720 }}>
-      <p style={{ marginTop: 0, marginBottom: 16 }}>
-        <Link href="/planning" style={{ color: "#1d4ed8", fontSize: 14 }}>
+    <main className="max-w-3xl">
+      <p className="mt-0 mb-4">
+        <Link href="/planning" className="text-blue-700 dark:text-blue-400 text-sm">
           ← Back to planning
         </Link>
       </p>
 
-      <h2 style={{ marginTop: 0 }}>Improvement plan</h2>
+      <h2 className="mt-0">Improvement plan</h2>
 
       {!planId.trim() ? (
-        <p role="alert" style={{ color: "#b91c1c" }}>
+        <p role="alert" className="text-red-700 dark:text-red-400">
           Missing plan id.
         </p>
       ) : null}
@@ -77,12 +65,12 @@ export default function PlanningPlanDetailPage() {
       {loading && plan === null ? (
         <OperatorLoadingNotice>
           <strong>Loading plan.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching plan detail from the API…</p>
+          <p className="mt-2 text-sm">Fetching plan detail from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {failure !== null ? (
-        <div role="alert" style={{ marginBottom: 16 }}>
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={failure.problem}
             fallbackMessage={failure.message}
@@ -93,43 +81,43 @@ export default function PlanningPlanDetailPage() {
 
       {plan !== null ? (
         <>
-          <section style={{ marginBottom: 24 }} aria-labelledby="plan-detail-title">
-            <h3 id="plan-detail-title" style={{ fontSize: 20, marginBottom: 8 }}>
+          <section className="mb-6" aria-labelledby="plan-detail-title">
+            <h3 id="plan-detail-title" className="text-xl mb-2">
               {plan.title}
             </h3>
-            <p style={{ color: "#334155", lineHeight: 1.55, marginTop: 0 }}>{plan.summary}</p>
+            <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed mt-0">{plan.summary}</p>
 
-            <div style={{ marginTop: 16 }}>
-              <div style={dlRow}>
-                <span style={muted}>Priority score</span>
+            <div className="mt-4">
+              <div className="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm mb-2 items-baseline">
+                <span className="text-neutral-500 dark:text-neutral-400">Priority score</span>
                 <span>{plan.priorityScore}</span>
               </div>
               {plan.priorityExplanation ? (
-                <div style={dlRow}>
-                  <span style={muted}>Priority note</span>
+                <div className="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm mb-2 items-baseline">
+                  <span className="text-neutral-500 dark:text-neutral-400">Priority note</span>
                   <span>{plan.priorityExplanation}</span>
                 </div>
               ) : null}
-              <div style={dlRow}>
-                <span style={muted}>Status</span>
+              <div className="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm mb-2 items-baseline">
+                <span className="text-neutral-500 dark:text-neutral-400">Status</span>
                 <span>{plan.status}</span>
               </div>
-              <div style={dlRow}>
-                <span style={muted}>Created</span>
+              <div className="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm mb-2 items-baseline">
+                <span className="text-neutral-500 dark:text-neutral-400">Created</span>
                 <span>{formatIsoUtcForDisplay(plan.createdUtc)}</span>
               </div>
-              <div style={dlRow}>
-                <span style={muted}>Theme id</span>
-                <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>{plan.themeId}</span>
+              <div className="grid grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm mb-2 items-baseline">
+                <span className="text-neutral-500 dark:text-neutral-400">Theme id</span>
+                <span className="font-mono text-[13px]">{plan.themeId}</span>
               </div>
             </div>
           </section>
 
-          <section style={{ marginBottom: 24 }} aria-labelledby="plan-evidence-heading">
-            <h4 id="plan-evidence-heading" style={{ fontSize: 16, marginBottom: 8 }}>
+          <section className="mb-6" aria-labelledby="plan-evidence-heading">
+            <h4 id="plan-evidence-heading" className="text-base mb-2">
               Evidence counts (linked)
             </h4>
-            <ul style={{ margin: 0, paddingLeft: 20, color: "#334155", lineHeight: 1.6 }}>
+            <ul className="m-0 pl-5 text-neutral-700 dark:text-neutral-300 leading-relaxed">
               <li>Pilot signals: {plan.evidenceCounts.linkedSignalCount}</li>
               <li>Artifacts: {plan.evidenceCounts.linkedArtifactCount}</li>
               <li>Architecture runs: {plan.evidenceCounts.linkedArchitectureRunCount}</li>
@@ -137,35 +125,35 @@ export default function PlanningPlanDetailPage() {
           </section>
 
           {plan.theme ? (
-            <section style={{ marginBottom: 24 }} aria-labelledby="plan-theme-heading">
-              <h4 id="plan-theme-heading" style={{ fontSize: 16, marginBottom: 8 }}>
+            <section className="mb-6" aria-labelledby="plan-theme-heading">
+              <h4 id="plan-theme-heading" className="text-base mb-2">
                 Parent theme
               </h4>
-              <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{plan.theme.title}</p>
-              <p style={{ margin: "0 0 8px", fontSize: 14, color: "#475569" }}>{plan.theme.summary}</p>
-              <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>
+              <p className="mb-2 font-semibold">{plan.theme.title}</p>
+              <p className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">{plan.theme.summary}</p>
+              <p className="m-0 text-[13px] text-neutral-500 dark:text-neutral-400">
                 Evidence signals: {plan.theme.evidenceSignalCount} · Runs: {plan.theme.distinctRunCount} · Severity:{" "}
                 {plan.theme.severityBand}
               </p>
             </section>
           ) : null}
 
-          <section style={{ marginBottom: 24 }} aria-labelledby="plan-steps-heading">
-            <h4 id="plan-steps-heading" style={{ fontSize: 16, marginBottom: 8 }}>
+          <section className="mb-6" aria-labelledby="plan-steps-heading">
+            <h4 id="plan-steps-heading" className="text-base mb-2">
               Action steps
             </h4>
             {plan.actionSteps.length === 0 ? (
-              <p style={{ color: "#64748b", fontSize: 14 }}>No steps recorded.</p>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm">No steps recorded.</p>
             ) : (
-              <ol style={{ margin: 0, paddingLeft: 22, lineHeight: 1.55, color: "#334155" }}>
+              <ol className="m-0 pl-[22px] leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {[...plan.actionSteps].sort((a, b) => a.ordinal - b.ordinal).map((s) => (
-                  <li key={`${s.ordinal}-${s.actionType}`} style={{ marginBottom: 12 }}>
+                  <li key={`${s.ordinal}-${s.actionType}`} className="mb-3">
                     <strong>
                       {s.ordinal}. {s.actionType}
                     </strong>
-                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>{s.description}</p>
+                    <p className="mt-1.5 text-sm">{s.description}</p>
                     {s.acceptanceCriteria ? (
-                      <p style={{ margin: "6px 0 0", fontSize: 13, color: "#475569" }}>
+                      <p className="mt-1.5 text-[13px] text-neutral-600 dark:text-neutral-400">
                         <em>Acceptance:</em> {s.acceptanceCriteria}
                       </p>
                     ) : null}

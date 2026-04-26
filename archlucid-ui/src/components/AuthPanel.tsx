@@ -74,20 +74,12 @@ export function AuthPanel() {
           <> — not signed in</>
         )}
       </div>
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+      <div className="flex items-center gap-2.5">
         {!signedIn ? (
           <Link
-            className="auth-panel-focus"
+            className="auth-panel-focus rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white no-underline dark:bg-slate-800"
             href="/auth/signin"
             aria-label="Sign in with your organization account"
-            style={{
-              padding: "6px 12px",
-              background: "#0f172a",
-              color: "#fff",
-              borderRadius: 6,
-              textDecoration: "none",
-              fontSize: 14,
-            }}
           >
             Sign in
           </Link>

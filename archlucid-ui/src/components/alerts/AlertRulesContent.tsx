@@ -87,9 +87,9 @@ export function AlertRulesContent() {
   }
 
   return (
-    <div style={{ maxWidth: 800 }}>
+    <div className="max-w-3xl">
       <LayerHeader pageKey="alert-rules" />
-      <h2 style={{ marginTop: 0 }}>Alert rules</h2>
+      <h2 className="mt-0">Alert rules</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertRules ? alertRulesPageLeadOperator : alertRulesPageLeadReader}
       </p>
@@ -114,14 +114,14 @@ export function AlertRulesContent() {
           className={cn("min-w-0", !canMutateAlertRules && "opacity-95")}
           aria-labelledby="alert-rules-current-heading"
         >
-          <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+          <h3 id="alert-rules-current-heading" className="mb-2 mt-1 text-base">
             {canMutateAlertRules ? alertRulesCurrentRulesHeadingOperator : alertRulesCurrentRulesHeadingReader}
           </h3>
           <button
             type="button"
             onClick={() => void load()}
             disabled={loading}
-            style={{ marginBottom: 8 }}
+            className="mb-2"
             title={
               canMutateAlertRules
                 ? alertToolingListRefreshButtonTitleOperator
@@ -130,24 +130,19 @@ export function AlertRulesContent() {
           >
             {loading ? "Loading…" : "Refresh"}
           </button>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="grid gap-3">
             {items.length === 0 ? (
-              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
                 {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
               </p>
             ) : (
               items.map((r) => (
                 <div
                   key={r.ruleId}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    padding: 12,
-                    background: "#fff",
-                  }}
+                  className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{r.name}</strong>
-                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                  <div className="mt-2 text-sm">
                     <div>Type: {r.ruleType}</div>
                     <div>Severity: {r.severity}</div>
                     <div>Threshold: {r.thresholdValue}</div>
@@ -164,15 +159,15 @@ export function AlertRulesContent() {
           className={cn("min-w-0", !canMutateAlertRules && "opacity-90")}
           aria-labelledby="alert-rules-change-heading"
         >
-          <h3 id="alert-rules-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+          <h3 id="alert-rules-change-heading" className="mb-2 mt-1 text-base">
             {canMutateAlertRules
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
+          <p className="mb-2.5 mt-0 max-w-xl text-xs text-neutral-500 dark:text-neutral-400">
             {alertToolingConfigureSectionSubline}
           </p>
-          <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
+          <div className="mb-4 grid max-w-2xl gap-3">
             <label>
               Name
               <input
@@ -180,7 +175,7 @@ export function AlertRulesContent() {
                 onChange={(e) => setName(e.target.value)}
                 disabled={!canMutateAlertRules}
                 title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -190,7 +185,7 @@ export function AlertRulesContent() {
                 onChange={(e) => setRuleType(e.target.value)}
                 disabled={!canMutateAlertRules}
                 title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {RULE_TYPES.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -206,7 +201,7 @@ export function AlertRulesContent() {
                 onChange={(e) => setSeverity(e.target.value)}
                 disabled={!canMutateAlertRules}
                 title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 {SEVERITIES.map((s) => (
                   <option key={s} value={s}>
@@ -224,7 +219,7 @@ export function AlertRulesContent() {
                 onChange={(e) => setThreshold(Number(e.target.value))}
                 disabled={!canMutateAlertRules}
                 title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <button

@@ -79,8 +79,8 @@ export function WizardStepDescription() {
             id="err-wizard-description"
             message={descErr != null ? String(descErr) : undefined}
           />
-          <p id="wizard-description-count" className="mt-1 text-xs text-neutral-500">
-            {description.length} / 4000 characters (minimum 10)
+          <p id="wizard-description-count" className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {description.trim().length} / 4000 characters (minimum 10)
           </p>
         </div>
 

@@ -21,9 +21,6 @@ public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
         if (scope.TenantId == Guid.Empty)
             return Task.CompletedTask;
 
-        if (string.IsNullOrWhiteSpace(principalKey))
-            return Task.CompletedTask;
-
-        return _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
+        return string.IsNullOrWhiteSpace(principalKey) ? Task.CompletedTask : _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
     }
 }

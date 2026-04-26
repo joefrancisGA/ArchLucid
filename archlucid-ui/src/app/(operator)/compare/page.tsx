@@ -21,8 +21,8 @@ import {
   coerceGoldenManifestComparison,
   coerceRunComparison,
 } from "@/lib/operator-response-guards";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
@@ -221,13 +221,11 @@ function CompareForm() {
   return (
     <main>
       <LayerHeader pageKey="compare" />
-      <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 flex flex-wrap items-baseline gap-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-          <span>Compare runs</span>
-          <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />
-        </h2>
-        <ContextualHelp helpKey="compare-runs" />
-      </div>
+      <OperatorPageHeader
+        title="Compare runs"
+        helpKey="compare-runs"
+        metadata={<ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />}
+      />
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
