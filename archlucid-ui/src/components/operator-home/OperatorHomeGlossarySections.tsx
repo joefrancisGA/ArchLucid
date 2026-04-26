@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
+import { Check, FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 import type { ComponentType } from "react";
+
+type PipelineStepStatus = "not-started" | "current" | "completed";
 
 /**
  * Product-layer cards for operator home — replaces the prior prose-heavy glossary sections.
@@ -16,7 +18,7 @@ export function OperatorHomeGlossarySections() {
       </h3>
       <div className="relative">
         <div
-          className="pointer-events-none absolute left-8 right-8 top-1/2 hidden h-px -translate-y-1/2 bg-gradient-to-r from-teal-200 via-neutral-200 to-teal-200 dark:from-teal-800 dark:via-neutral-700 dark:to-teal-800 lg:block"
+          className="pointer-events-none absolute left-8 right-8 top-1/2 hidden h-0.5 -translate-y-1/2 bg-gradient-to-r from-teal-400 via-neutral-300 to-teal-400 dark:from-teal-600 dark:via-neutral-600 dark:to-teal-600 lg:block"
           aria-hidden
         />
         <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -40,8 +42,8 @@ export function OperatorHomeGlossarySections() {
         <ActionCard
           step={3}
           icon={Play}
-          label="Commit Run"
-          description="Commit the reviewed manifest and export artifacts."
+          label="Commit Manifest"
+          description="Finalize the reviewed manifest and export artifacts."
           href="/runs?projectId=default"
         />
         <ActionCard
@@ -66,21 +68,72 @@ type ActionCardProps = {
   shortcut?: string;
   /** Matches `NAV_GROUPS` shell link name (e.g. Runs) so home quick actions align with sidebar AT. */
   linkAccessibleName?: string;
+  /** Optional stepper state for future pipeline UX; omitted = all steps use the default “current” emphasis. */
+  pipelineStatus?: PipelineStepStatus;
 };
 
-function ActionCard({ step, icon: Icon, label, description, href, shortcut, linkAccessibleName }: ActionCardProps) {
+function StepIndicator({ step, pipelineStatus }: { step: 1 | 2 | 3 | 4; pipelineStatus?: PipelineStepStatus }) {
+  const resolved: PipelineStepStatus = pipelineStatus ?? "current";
+  const base =
+    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold leading-none";
+
+  if (resolved === "completed") {
+    return (
+      <span
+        className={`${base} bg-emerald-100 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300`}
+        aria-hidden
+      >
+        <Check className="h-3 w-3" strokeWidth={3} aria-hidden />
+      </span>
+    );
+  }
+
+  if (resolved === "not-started") {
+    return (
+      <span
+        className={`${base} bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400`}
+        aria-hidden
+      >
+        {step}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`${base} bg-teal-100 text-teal-800 dark:bg-teal-900/80 dark:text-teal-300`}
+      aria-hidden
+    >
+      {step}
+    </span>
+  );
+}
+
+function ActionCard({
+  step,
+  icon: Icon,
+  label,
+  description,
+  href,
+  shortcut,
+  linkAccessibleName,
+  pipelineStatus,
+}: ActionCardProps) {
   return (
     <Link
       href={href}
       aria-label={linkAccessibleName}
       className="group flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
-        Step {step}
-      </p>
       <div className="flex items-center gap-2">
-        <Icon className="h-6 w-6 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
-        <span className="text-sm font-bold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300">
+        <StepIndicator step={step} pipelineStatus={pipelineStatus} />
+        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+          Step {step}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Icon className="h-7 w-7 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+        <span className="text-base font-bold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300">
           {label}
         </span>
         {shortcut ? (

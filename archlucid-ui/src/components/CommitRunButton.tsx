@@ -77,10 +77,10 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
             setDialogOpen(true);
           }}
         >
-          Commit run
+          Commit manifest
         </Button>
         <p className="mt-1.5 max-w-xl text-sm text-neutral-600 dark:text-neutral-400">
-          Produces the golden manifest and decision traces when the run is ready. Requires permission to commit runs.
+          Finalizes the golden manifest and decision traces when the run is ready. Requires permission to commit manifests.
         </p>
       </div>
 
@@ -95,9 +95,9 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       <ConfirmationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Commit this run?"
-        description="Merges agent results through the decision engine and persists the golden manifest. If the run is not ready, the API returns a conflict — adjust the run and try again."
-        confirmLabel="Commit run"
+        title="Commit this manifest?"
+        description="Merges agent results for this run through the decision engine and persists the golden manifest. If the run is not ready, the API returns a conflict — adjust the run and try again."
+        confirmLabel="Commit manifest"
         cancelLabel="Cancel"
         variant="default"
         onConfirm={() => void onConfirm()}

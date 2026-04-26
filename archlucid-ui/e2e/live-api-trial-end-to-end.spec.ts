@@ -286,8 +286,8 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByText(/Loading run detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    await page.getByRole("button", { name: "Commit run" }).first().click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Commit run" }).click();
+    await page.getByRole("button", { name: "Commit manifest" }).first().click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Commit manifest" }).click();
 
     await expect(page.getByText(/This run is already committed/i)).toBeVisible({ timeout: 120_000 });
 

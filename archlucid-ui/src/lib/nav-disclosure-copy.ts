@@ -5,9 +5,9 @@
 export const NAV_DISCLOSURE = {
   extended: {
     /** Collapsed: reveal extended-tier links (analysis / investigation). */
-    show: "Show extended navigation",
+    show: "Show advanced tools",
     /** Expanded: hide extended-tier links. */
-    hide: "Hide extended navigation",
+    hide: "Hide advanced tools",
     /** `title` on the sidebar toggle and settings checkbox. */
     title:
       "Compare runs, replay authority chains, advisory scans, and similar investigation tools.",

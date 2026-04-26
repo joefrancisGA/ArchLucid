@@ -123,13 +123,13 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
 
       const wizardStep7 = page
         .getByTestId("operator-first-run-wizard-step-7")
-        .or(page.getByRole("button", { name: /commit run/i }));
+        .or(page.getByRole("button", { name: /commit manifest/i }));
       await expect(wizardStep7).toBeVisible({ timeout: 60_000 });
 
       const commitResPromise = page.waitForResponse(
         (res) => res.url().includes("/architecture/run/") && res.url().endsWith("/commit"),
       );
-      await page.getByRole("button", { name: /commit run/i }).click();
+      await page.getByRole("button", { name: /commit manifest/i }).click();
 
       const commitRes = await commitResPromise;
       expect(commitRes.ok(), `commit failed; correlation=${correlation.lastSeen ?? "<none>"}`).toBeTruthy();
