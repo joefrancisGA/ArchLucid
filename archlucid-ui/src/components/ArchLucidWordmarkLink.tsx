@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
   variant: "operator" | "marketing";
   "aria-label": string;
+  /** Merged with Radix <Button asChild> and layout utilities. */
+  className?: string;
 };
 
 /**
