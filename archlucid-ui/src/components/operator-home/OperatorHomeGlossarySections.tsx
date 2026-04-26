@@ -5,6 +5,8 @@ import { Check, FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 import type { ComponentType } from "react";
 import { Fragment } from "react";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 type PipelineStepStatus = "not-started" | "current" | "completed";
 
 type PipelineStepConfig = {
@@ -16,6 +18,8 @@ type PipelineStepConfig = {
   href: string;
   shortcut?: string;
   linkAccessibleName?: string;
+  /** Explains the Finalize step when the label alone is too abstract. */
+  tooltip?: string;
 };
 
 const PIPELINE_STEPS: PipelineStepConfig[] = [
@@ -45,6 +49,8 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     label: "Finalize Manifest",
     description: "Finalize the reviewed manifest and export artifacts.",
     href: "/runs?projectId=default",
+    tooltip:
+      "Finalizing records the reviewed manifest as the authoritative output for this run. You can still compare, export, and review its artifacts afterward.",
   },
   {
     step: 4,
@@ -145,8 +151,9 @@ function ActionCard({
   shortcut,
   linkAccessibleName,
   pipelineStatus,
+  tooltip,
 }: ActionCardProps) {
-  return (
+  const link = (
     <Link
       href={href}
       aria-label={linkAccessibleName}
@@ -177,4 +184,17 @@ function ActionCard({
       <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-400">{description}</span>
     </Link>
   );
+
+  if (tooltip !== undefined && tooltip.length > 0) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{link}</TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-xs text-left">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return link;
 }

@@ -63,6 +63,6 @@ public sealed class FileWithRangeResultTests
         http.Response.ContentLength.Should().Be(2);
         http.Response.Headers.ContentRange.ToString().Should().Be("bytes 1-2/4");
         MemoryStream body = (MemoryStream)http.Response.Body;
-        body.ToArray().Should().Equal(0x20, 0x30);
+        body.ToArray().Should().Equal(" 0"u8.ToArray());
     }
 }

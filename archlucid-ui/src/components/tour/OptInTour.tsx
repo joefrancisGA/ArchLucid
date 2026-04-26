@@ -35,7 +35,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "2. Start a run",
     body:
-      "Click New run (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
+      "Click New request (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
       "constraints, then kicks off the analysis pipeline. You will see live progress on step 7.",
   },
   {
@@ -47,7 +47,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "4. Governance and alerts",
     body:
-      "After your first finalization, dashboards and alerts can highlight policy gaps and approval queues. These are " +
+      "After finalizing your first manifest, dashboards and alerts can highlight policy gaps and approval queues. These are " +
       "available when you are ready — they are not required for a successful first pilot.",
   },
   {

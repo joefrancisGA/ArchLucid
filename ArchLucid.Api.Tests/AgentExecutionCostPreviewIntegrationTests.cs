@@ -59,25 +59,25 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         public string Mode
         {
             get;
-            set;
+            init;
         } = "";
 
         public int MaxCompletionTokens
         {
             get;
-            set;
+            init;
         }
 
         public double? EstimatedCostUsd
         {
             get;
-            set;
+            init;
         }
 
         public string? DeploymentName
         {
             get;
-            set;
+            init;
         }
     }
 }

@@ -31,7 +31,7 @@ const corePilotSteps: WorkflowStep[] = [
     detail:
       "The wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
     primaryHref: "/runs/new",
-    primaryLabel: "Start new run wizard",
+    primaryLabel: "Start new request",
     secondary: (
       <>
         Or open the{" "}
@@ -43,7 +43,7 @@ const corePilotSteps: WorkflowStep[] = [
     ),
   },
   {
-    title: "Let the pipeline run, then open the run",
+    title: "Track run progress",
     shortBody: "Watch progress in the wizard or open the run from the runs list when ready.",
     detail:
       "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open run detail anytime.",
@@ -64,7 +64,7 @@ const corePilotSteps: WorkflowStep[] = [
     primaryLabel: "Choose run → open detail",
   },
   {
-    title: "Inspect manifest & artifacts",
+    title: "Review manifest and artifacts",
     shortBody: "After finalization, review the manifest summary, artifact table, and export links on run detail.",
     detail:
       "Open the reviewed manifest link from run detail for the full page; use artifact actions for download and review.",
@@ -307,7 +307,7 @@ export function OperatorFirstRunWorkflowPanel() {
 
       <div className="mt-3 border-t border-sky-200/40 pt-2.5 dark:border-sky-800/40">
         <p className="m-0 mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After your first finalization</span>
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After finalizing your first manifest</span>
           <Link
             className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
             href="/compare"

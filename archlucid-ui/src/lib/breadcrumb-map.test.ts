@@ -11,7 +11,7 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/runs/new")).toEqual([
       { label: "Home", href: "/" },
       { label: "Runs", href: "/runs" },
-      { label: "New run" },
+      { label: "New request" },
     ]);
   });
 

@@ -1,5 +1,3 @@
-using System.Text;
-
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Integration;
 
@@ -17,7 +15,7 @@ public sealed class LoggingIntegrationEventHandlerTests
     public async Task HandleAsync_completes_for_utf8_payload()
     {
         LoggingIntegrationEventHandler sut = new(NullLogger<LoggingIntegrationEventHandler>.Instance);
-        ReadOnlyMemory<byte> body = Encoding.UTF8.GetBytes("{\"a\":1}");
+        ReadOnlyMemory<byte> body = "{\"a\":1}"u8.ToArray();
 
         Func<Task> act = async () => await sut.HandleAsync(body, CancellationToken.None);
 

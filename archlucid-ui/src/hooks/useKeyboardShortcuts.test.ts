@@ -14,7 +14,7 @@ describe("useKeyboardShortcuts", () => {
 
     renderHook(() =>
       useKeyboardShortcuts({
-        "alt+n": { handler, description: "New run" },
+        "alt+n": { handler, description: "New request" },
       }),
     );
 
@@ -28,7 +28,7 @@ describe("useKeyboardShortcuts", () => {
 
     renderHook(() =>
       useKeyboardShortcuts({
-        "alt+n": { handler, description: "New run" },
+        "alt+n": { handler, description: "New request" },
       }),
     );
 
@@ -45,7 +45,7 @@ describe("useKeyboardShortcuts", () => {
 
     renderHook(() =>
       useKeyboardShortcuts({
-        "alt+n": { handler, description: "New run", allowInInput: true },
+        "alt+n": { handler, description: "New request", allowInInput: true },
       }),
     );
 
@@ -76,7 +76,7 @@ describe("useKeyboardShortcuts", () => {
 
     const { unmount } = renderHook(() =>
       useKeyboardShortcuts({
-        "alt+n": { handler, description: "New run" },
+        "alt+n": { handler, description: "New request" },
       }),
     );
 

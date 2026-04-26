@@ -100,7 +100,7 @@ describe("NewRunWizardClient", () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Create run" }));
+      fireEvent.click(screen.getByRole("button", { name: "Create request" }));
     });
 
     await waitFor(() => {

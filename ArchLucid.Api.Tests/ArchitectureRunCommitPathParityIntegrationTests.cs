@@ -9,6 +9,8 @@ using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
+using JetBrains.Annotations;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -102,7 +104,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
     }
 
     private sealed record CohortArtifacts(
-        string RunId,
+        [UsedImplicitly] string RunId,
         int CommitManifestDecisionTraceIdCount,
         IReadOnlyList<string> TraceabilityZipEntryNames,
         string FirstValueReportMarkdown,

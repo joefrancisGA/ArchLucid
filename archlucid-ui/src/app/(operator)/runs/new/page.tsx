@@ -6,7 +6,7 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 export const metadata: Metadata = {
-  title: "New run",
+  title: "New request",
 };
 
 function NewRunWizardFallback() {
@@ -17,7 +17,7 @@ export default function NewRunPage() {
   return (
     <main>
       <div className="mb-1 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">New run</h2>
+        <h2 className="m-0">New request</h2>
         <ContextualHelp helpKey="new-run-wizard" />
       </div>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">

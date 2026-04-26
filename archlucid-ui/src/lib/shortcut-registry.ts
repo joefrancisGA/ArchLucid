@@ -15,7 +15,7 @@ export type ShortcutEntry = {
 export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+n",
-    label: "New run",
+    label: "New request",
     route: "/runs/new",
     description: "Open the guided run wizard",
   },

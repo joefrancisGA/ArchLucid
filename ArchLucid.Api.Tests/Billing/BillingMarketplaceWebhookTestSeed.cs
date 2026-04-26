@@ -65,7 +65,7 @@ internal static class BillingMarketplaceWebhookTestSeed
 
         object? scalar = await command.ExecuteScalarAsync();
 
-        return scalar is string s ? s : string.Empty;
+        return scalar as string ?? string.Empty;
     }
 
     public static async Task<int> ReadBillingSeatsAsync(string connectionString, Guid tenantId)

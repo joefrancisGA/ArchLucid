@@ -41,7 +41,6 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IIntegrationEventOutboxRepository> _integrationOutbox;
     private readonly Mock<IGovernancePromotionRecordRepository> _promotionRepo;
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
-    private readonly Mock<IScopeContextProvider> _scopeContext;
     private readonly GovernanceWorkflowService _sut;
 
     public GovernanceWorkflowServiceTests()
@@ -55,7 +54,7 @@ public sealed class GovernanceWorkflowServiceTests
         _durableAudit
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _scopeContext = new Mock<IScopeContextProvider>();
+        Mock<IScopeContextProvider> scopeContext = new();
         _integrationEvents = new Mock<IIntegrationEventPublisher>();
         _integrationOutbox = new Mock<IIntegrationEventOutboxRepository>();
         _integrationEventOptions = new Mock<IOptionsMonitor<IntegrationEventsOptions>>();
@@ -89,7 +88,7 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        _scopeContext
+        scopeContext
             .Setup(s => s.GetCurrentScope())
             .Returns(
                 new ScopeContext
@@ -117,7 +116,7 @@ public sealed class GovernanceWorkflowServiceTests
             _runDetailQueryService.Object,
             _baselineAudit.Object,
             _durableAudit.Object,
-            _scopeContext.Object,
+            scopeContext.Object,
             _integrationEvents.Object,
             _integrationOutbox.Object,
             _integrationEventOptions.Object,
@@ -360,7 +359,9 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-draft", Status = GovernanceApprovalStatus.Draft, RequestedBy = "alice"
+            ApprovalRequestId = "apr-draft",
+            Status = GovernanceApprovalStatus.Draft,
+            RequestedBy = "alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-draft", It.IsAny<CancellationToken>()))
@@ -391,7 +392,8 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-rejected", Status = GovernanceApprovalStatus.Rejected
+            ApprovalRequestId = "apr-rejected",
+            Status = GovernanceApprovalStatus.Rejected
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected", It.IsAny<CancellationToken>()))
@@ -445,8 +447,6 @@ public sealed class GovernanceWorkflowServiceTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == CoreAuditEventTypes.GovernanceSelfApprovalBlocked
-                    // Moq: expression trees cannot use `is` / `is not` (CS8122).
-                    && e.DataJson != null
                     && e.DataJson.Contains("\"approvalRequestId\":\"apr-sod\"", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"requestedBy\":\"bob\"", StringComparison.Ordinal)
                     && e.DataJson.Contains("\"attemptedReviewerBy\":\"bob\"", StringComparison.Ordinal)),
@@ -478,7 +478,9 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-sod-ci", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "Alice"
+            ApprovalRequestId = "apr-sod-ci",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "Alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod-ci", It.IsAny<CancellationToken>()))
@@ -576,7 +578,9 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-2", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "alice"
+            ApprovalRequestId = "apr-2",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-2", It.IsAny<CancellationToken>()))
@@ -618,7 +622,8 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-approved", Status = GovernanceApprovalStatus.Approved
+            ApprovalRequestId = "apr-approved",
+            Status = GovernanceApprovalStatus.Approved
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
@@ -648,7 +653,9 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-rej-sod", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "dana"
+            ApprovalRequestId = "apr-rej-sod",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "dana"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rej-sod", It.IsAny<CancellationToken>()))
@@ -741,7 +748,8 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest pendingApproval = new()
         {
-            ApprovalRequestId = "apr-pending", Status = GovernanceApprovalStatus.Submitted
+            ApprovalRequestId = "apr-pending",
+            Status = GovernanceApprovalStatus.Submitted
         };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
