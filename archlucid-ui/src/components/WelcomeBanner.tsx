@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { listRunsByProjectPaged } from "@/lib/api";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
 
@@ -21,12 +22,16 @@ type TrialStatusPayload = {
 
 /**
  * Operator-home welcome: trial-aware copy when `GET /v1/tenant/trial-status` reports an active self-service trial;
- * otherwise the original first-run guidance. Dismissal persists in localStorage.
+ * first-run vs returning-user hero copy from a lightweight runs page (`listRunsByProjectPaged`, page size 1).
+ * Dismissal persists in localStorage.
  */
+const DEFAULT_PROJECT_ID = "default";
+
 export function WelcomeBanner() {
   const [dismissed, setDismissed] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [trial, setTrial] = useState<TrialStatusPayload | null>(null);
+  const [hasExistingRuns, setHasExistingRuns] = useState(false);
 
   useEffect(() => {
     try {
@@ -57,17 +62,24 @@ export function WelcomeBanner() {
           mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
         );
 
-        if (!res.ok || cancelled) {
-          return;
-        }
-
-        const json = (await res.json()) as TrialStatusPayload;
-
-        if (!cancelled) {
+        if (!cancelled && res.ok) {
+          const json = (await res.json()) as TrialStatusPayload;
           setTrial(json);
         }
       } catch {
         /* ignore */
+      }
+
+      try {
+        const page = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, 1);
+
+        if (!cancelled) {
+          setHasExistingRuns((page.items?.length ?? 0) > 0);
+        }
+      } catch {
+        if (!cancelled) {
+          setHasExistingRuns(false);
+        }
       }
     })();
 
@@ -82,6 +94,14 @@ export function WelcomeBanner() {
 
   const trialActive = trial?.status === "Active";
   const days = trial?.daysRemaining;
+  const returningUser = hasExistingRuns;
+  const headingText = returningUser
+    ? "Architecture manifest workspace"
+    : "Generate your first architecture manifest";
+  const subheadingText = returningUser
+    ? "Monitor active runs, commit manifests, and review governance findings."
+    : "Turn architecture intent into governed, reviewable output your team can inspect, commit, and improve.";
+  const secondaryCtaLabel = returningUser ? "View runs" : "See a completed example";
 
   return (
     <div
@@ -120,18 +140,16 @@ export function WelcomeBanner() {
       ) : null}
 
       <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
-        Generate your first architecture manifest
+        {headingText}
       </h2>
-      <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
-        Turn architecture intent into governed, reviewable output your team can inspect, commit, and improve.
-      </p>
+      <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2.5">
         <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
           <Link href="/runs/new">Create Run</Link>
         </Button>
         <Button asChild variant="outline" className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40">
-          <Link href="/runs?projectId=default">See a completed example</Link>
+          <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>
         </Button>
         {trialActive ? (
           <Button asChild variant="outline" size="sm" className="h-8">
