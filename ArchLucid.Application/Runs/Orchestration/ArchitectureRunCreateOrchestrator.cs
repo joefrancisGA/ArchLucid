@@ -75,10 +75,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (ms < 1_000)
             return 1_000;
 
-        if (ms > 600_000)
-            return 600_000;
-
-        return ms;
+        return ms > 600_000 ? 600_000 : ms;
     }
 
     private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
@@ -91,6 +88,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        // ReSharper disable once InvertIf
         if (idempotency is not null)
         {
             CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
@@ -100,32 +98,30 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
             string gateKey = BuildIdempotencyGateKey(idempotency);
 
-            await using (IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
+            await using IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
                 .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken)
-                .ConfigureAwait(false))
+                .ConfigureAwait(false);
+            CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+
+            if (replayUnderDistributed is not null)
+                return replayUnderDistributed;
+
+            SemaphoreSlim gate = IdempotencyGates.GetOrAddGate(gateKey);
+
+            await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
-                CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+                CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
-                if (replayUnderDistributed is not null)
-                    return replayUnderDistributed;
+                if (replayUnderLock is not null)
+                    return replayUnderLock;
 
-                SemaphoreSlim gate = IdempotencyGates.GetOrAddGate(gateKey);
-
-                await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
-                try
-                {
-                    CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
-
-                    if (replayUnderLock is not null)
-                        return replayUnderLock;
-
-                    return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
-                }
-                finally
-                {
-                    gate.Release();
-                    IdempotencyGates.TryEvictAfterRelease(gateKey);
-                }
+                return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
+            }
+            finally
+            {
+                gate.Release();
+                IdempotencyGates.TryEvictAfterRelease(gateKey);
             }
         }
 
@@ -348,15 +344,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     coordination.Run.RunId,
                     cancellationToken);
 
-        if (!inserted)
+        if (inserted)
+            return inserted;
 
-            if (_logger.IsEnabled(LogLevel.Information))
-
-                _logger.LogInformation(
-                    "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
-                    LogSanitizer.Sanitize(coordination.Run.RunId));
-
-
+        if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation(
+                "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
+                LogSanitizer.Sanitize(coordination.Run.RunId));
 
         return inserted;
     }

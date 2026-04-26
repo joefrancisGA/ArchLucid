@@ -42,15 +42,13 @@ export function AuthPanel() {
   if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
     return (
       <div
-        role="region"
-        aria-label="Authentication status"
-        className="mb-4 rounded-lg border border-neutral-300 bg-white p-3 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+        role="status"
+        aria-label="Environment mode"
+        className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
       >
-        <strong>Auth mode:</strong> Development bypass (API auto-authenticates; no UI sign-in). Set{" "}
-        <code className="text-[13px] text-neutral-800 dark:text-neutral-200">
-          NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt
-        </code>{" "}
-        and OIDC env vars for Entra / OIDC.
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
+        DEV MODE
+        <span className="font-normal text-amber-700 dark:text-amber-400">Auto-authenticated · OIDC disabled</span>
       </div>
     );
   }
@@ -59,41 +57,30 @@ export function AuthPanel() {
     <div
       role="region"
       aria-label="Authentication status"
-      className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+      className="mb-3 flex flex-wrap items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400"
     >
-      <div>
-        <strong>Auth:</strong> OIDC (JWT bearer to API via <code>/api/proxy</code>)
-        {signedIn && displayName ? (
-          <>
-            {" "}
-            — signed in as <strong>{displayName}</strong>
-          </>
-        ) : signedIn ? (
-          <> — signed in</>
-        ) : (
-          <> — not signed in</>
-        )}
-      </div>
-      <div className="flex items-center gap-2.5">
-        {!signedIn ? (
-          <Link
-            className="auth-panel-focus rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white no-underline dark:bg-slate-800"
-            href="/auth/signin"
-            aria-label="Sign in with your organization account"
-          >
-            Sign in
-          </Link>
-        ) : (
-          <button
-            type="button"
-            className="auth-panel-focus rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
-            aria-label="Sign out and return to the operator home page"
-            onClick={() => void signOutAndRedirectHome()}
-          >
-            Sign out
-          </button>
-        )}
-      </div>
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+        <span className={`h-1.5 w-1.5 rounded-full ${signedIn ? "bg-emerald-500" : "bg-neutral-400"}`} aria-hidden />
+        {signedIn && displayName ? displayName : signedIn ? "Signed in" : "Not signed in"}
+      </span>
+      {!signedIn ? (
+        <Link
+          className="auth-panel-focus rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white no-underline dark:bg-slate-800"
+          href="/auth/signin"
+          aria-label="Sign in with your organization account"
+        >
+          Sign in
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="auth-panel-focus rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+          aria-label="Sign out and return to the operator home page"
+          onClick={() => void signOutAndRedirectHome()}
+        >
+          Sign out
+        </button>
+      )}
     </div>
   );
 }

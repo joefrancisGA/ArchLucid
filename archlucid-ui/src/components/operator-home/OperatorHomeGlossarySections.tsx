@@ -1,59 +1,76 @@
 "use client";
 
 import Link from "next/link";
-
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { ShortcutHint } from "@/components/ShortcutHint";
+import { FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 
 /**
- * Body copy for operator home with inline glossary (first use per term; max 5 per page here).
- * Server `page.tsx` defers to this client island for GlossaryTooltip.
+ * Product-layer cards for operator home — replaces the prior prose-heavy glossary sections.
+ * Four action cards for Core Pilot + two summary cards for optional maturity layers.
  */
 export function OperatorHomeGlossarySections() {
   return (
-    <>
-      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        ArchLucid groups capabilities into <strong>three product layers</strong>. <strong>First-pilot success is Core Pilot
-        only</strong>—new <GlossaryTooltip termKey="run">run</GlossaryTooltip>, pipeline, commit, review{" "}
-        <GlossaryTooltip termKey="artifact_bundle">artifacts</GlossaryTooltip> and surfaced{" "}
-        <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> (follow the checklist below).{" "}
-        <strong>Advanced Analysis</strong> and <strong>Enterprise Controls</strong> are <strong>optional maturity</strong>
-        : skip them until those four steps are done or sponsors explicitly expand scope (
-        <code className="text-[0.85em]">docs/OPERATOR_DECISION_GUIDE.md</code>).
-      </p>
+    <section className="mt-1 mb-2" aria-labelledby="quick-actions-heading">
+      <h3 id="quick-actions-heading" className="sr-only">
+        Quick actions
+      </h3>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ActionCard
+          icon={Rocket}
+          label="Create Run"
+          description="Guided wizard — system identity through pipeline"
+          href="/runs/new"
+          shortcut="Alt+N"
+        />
+        <ActionCard
+          icon={ListOrdered}
+          label="View Runs"
+          description="List, inspect detail, and track pipeline progress"
+          href="/runs?projectId=default"
+          shortcut="Alt+R"
+        />
+        <ActionCard
+          icon={Play}
+          label="Commit Run"
+          description="Produce golden manifest and artifact exports"
+          href="/runs?projectId=default"
+        />
+        <ActionCard
+          icon={FileCheck}
+          label="Review Artifacts"
+          description="Preview, download, and export artifact bundles"
+          href="/runs?projectId=default"
+        />
+      </div>
+    </section>
+  );
+}
 
-      <section className="mt-2" aria-labelledby="core-pilot-heading">
-        <h3 id="core-pilot-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          Core Pilot path
-        </h3>
-        <p className="mb-3 max-w-3xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-          These four links cover the complete first-pilot journey.
-        </p>
-        <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 leading-relaxed text-neutral-700 dark:text-neutral-300">
-          <li>
-            <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
-              New run (wizard)
-            </Link>{" "}
-            <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" /> — guided seven-step
-            create; submits the run and tracks the pipeline in real time.
-          </li>
-          <li>
-            <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
-              Runs
-            </Link>{" "}
-            — list all runs; open detail, commit, inspect manifest, download artifacts and exports.
-          </li>
-          <li>
-            <strong>Commit</strong> — on run detail, use <em>Commit run</em> once the pipeline is complete to produce
-            the <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> and artifacts. CLI/API
-            alternative: <code>docs/OPERATOR_QUICKSTART.md</code>.
-          </li>
-          <li>
-            <strong>Artifacts</strong> — after commit, open run detail and use the Artifacts table to review,
-            preview, and download each artifact. Bundle ZIP also available.
-          </li>
-        </ul>
-      </section>
-    </>
+type ActionCardProps = {
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  label: string;
+  description: string;
+  href: string;
+  shortcut?: string;
+};
+
+function ActionCard({ icon: Icon, label, description, href, shortcut }: ActionCardProps) {
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+    >
+      <div className="flex items-center gap-2">
+        <Icon className="h-5 w-5 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+        <span className="text-sm font-semibold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300">
+          {label}
+        </span>
+        {shortcut ? (
+          <kbd className="ml-auto rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 font-mono text-[10px] text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+            {shortcut}
+          </kbd>
+        ) : null}
+      </div>
+      <span className="text-xs leading-snug text-neutral-600 dark:text-neutral-400">{description}</span>
+    </Link>
   );
 }

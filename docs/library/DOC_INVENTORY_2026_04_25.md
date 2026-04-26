@@ -51,7 +51,7 @@
 | `CONCEPTS.md` | 2026-04-23 | N | Y |  |
 | `CORE_PILOT.md` | 2026-04-23 | Y | N |  |
 | `COVERAGE_GAP_ANALYSIS.md` | 2026-04-22 | Y | Y |  |
-| `COVERAGE_GAP_ANALYSIS_RECENT.md` | 2026-04-22 | Y | Y |  |
+| `library/COVERAGE_GAP_ANALYSIS_RECENT.md` | 2026-04-22 | Y | Y |  |
 | `CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md` | 2026-04-23 | Y | Y |  |
 | `data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md` | 2026-04-23 | N | N |  |
 | `deployment/PER_TENANT_COST_MODEL.md` | 2026-04-23 | N | Y |  |

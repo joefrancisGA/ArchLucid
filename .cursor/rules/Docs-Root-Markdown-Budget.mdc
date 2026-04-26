@@ -1,0 +1,12 @@
+---
+description: Enforce docs/ root markdown budget (CI assert_docs_root_size); prefer docs/library/ for new depth docs.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Documentation root surface (`docs/*.md` budget)
+
+- CI runs `python scripts/ci/assert_docs_root_size.py` and fails if there are more than **32** markdown files **directly** under `docs/` (not in subfolders).
+- **Default for new long-form or reference material:** add under `docs/library/` or a topic folder (`docs/security/`, `docs/runbooks/`, …), not at `docs/` root.
+- **Reserve `docs/` root** for the buyer / evaluator spine and a small set of entry anchors (see `docs/START_HERE.md`, `docs/PENDING_QUESTIONS.md`, `docs/library/DOC_INVENTORY_*.md`).
+- Before adding a new `docs/Something.md`, run `python scripts/ci/assert_docs_root_size.py` locally. If it would exceed the cap, place the file under `docs/library/` (or move an existing depth doc) and update links; do not bump `--max` unless the team explicitly widens the spine.

@@ -87,7 +87,7 @@
 
 ## How to refresh
 
-Narrative bullets under **Recent targeted tests** live in `docs/COVERAGE_GAP_ANALYSIS_RECENT.md` and are merged by this script when that file exists.
+Narrative bullets under **Recent targeted tests** live in `docs/library/COVERAGE_GAP_ANALYSIS_RECENT.md` and are merged by this script when that file exists.
 
 ```powershell
 dotnet test ArchLucid.sln -c Release --settings coverage.runsettings `
