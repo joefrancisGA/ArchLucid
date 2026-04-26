@@ -20,15 +20,13 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-using Cm = ArchLucid.Contracts.Manifest;
-using Dm = ArchLucid.Decisioning.Models;
-using DmIn = ArchLucid.Decisioning.Interfaces;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
 using DecisioningIGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository;
+using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -40,7 +38,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IArchitectureRequestRepository requestRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IGraphSnapshotRepository graphSnapshotRepository,
-    DmIn.IFindingsSnapshotRepository findingsSnapshotRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionEngine decisionEngine,
     DecisioningIdTraceRepository decisionTraceRepository,
     DecisioningIGoldenManifestRepository goldenManifestRepository,
@@ -70,7 +68,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
-    private readonly DmIn.IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository = findingsSnapshotRepository
         ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
     private readonly IDecisionEngine _decisionEngine = decisionEngine ?? throw new ArgumentNullException(nameof(decisionEngine));
@@ -310,7 +308,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
             contract = await _projectionBuilder.BuildAsync(
                 manifestModel,
-                new() { SystemName = request.SystemName },
+                new()
+                {
+                    SystemName = request.SystemName
+                },
                 cancellationToken);
 
             AlignAuthorityVersionToContract(manifestModel, contract);
@@ -499,7 +500,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         Cm.GoldenManifest contract = await _projectionBuilder.BuildAsync(
             manifestModel,
-            new() { SystemName = request.SystemName },
+            new()
+            {
+                SystemName = request.SystemName
+            },
             cancellationToken);
 
         IReadOnlyList<string> storedGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [trace]);
@@ -552,8 +556,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         header.GoldenManifestId = goldenManifestId;
         header.DecisionTraceId = decisionTraceId;
 
-        if (header.CompletedUtc is null)
-            header.CompletedUtc = DateTime.UtcNow;
+        header.CompletedUtc ??= DateTime.UtcNow;
 
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
@@ -609,9 +612,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     /// </summary>
     private static void AlignAuthorityVersionToContract(Dm.GoldenManifest manifestModel, Cm.GoldenManifest contract)
     {
-        if (manifestModel is null) throw new ArgumentNullException(nameof(manifestModel));
-        if (contract is null) throw new ArgumentNullException(nameof(contract));
-        if (string.IsNullOrWhiteSpace(contract.Metadata.ManifestVersion)) return;
+        if (manifestModel is null)
+            throw new ArgumentNullException(nameof(manifestModel));
+        if (contract is null)
+            throw new ArgumentNullException(nameof(contract));
+        if (string.IsNullOrWhiteSpace(contract.Metadata.ManifestVersion))
+            return;
 
         manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
     }

@@ -186,15 +186,13 @@ public sealed class TrialLifecycleEmailDispatcher(
             if (tenant.TrialExpiresUtc is { } expMid && expMid <= utcNow)
                 return false;
 
-
             return (utcNow - tenant.TrialStartUtc.Value).TotalDays >= 7d;
         }
 
         if (trigger is TrialLifecycleEmailTrigger.ApproachingRunLimit)
         {
-            if (tenant.TrialRunsLimit is not { } limit || limit <= 0)
+            if (tenant.TrialRunsLimit is not ({ } limit and > 0))
                 return false;
-
 
             int threshold = (int)Math.Ceiling(limit * 0.8d);
 

@@ -70,14 +70,14 @@ public sealed class RunDetailQueryService(
         }
 
         IReadOnlyList<AgentTask> tasks =
-            await taskRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
+            await taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
         ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(
             record,
             tasks.Select(t => t.TaskId).ToList());
 
         IReadOnlyList<AgentResult> results =
-            await resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
+            await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         Contracts.Manifest.GoldenManifest? manifest =
             await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
@@ -137,10 +137,6 @@ public sealed class RunDetailQueryService(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

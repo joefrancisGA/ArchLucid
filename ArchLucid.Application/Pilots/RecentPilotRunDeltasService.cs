@@ -50,7 +50,8 @@ public sealed class RecentPilotRunDeltasService(
 
             RecentPilotRunDeltaSummaryResponse? row = await TryProjectAsync(summary, cancellationToken);
 
-            if (row is not null) rows.Add(row);
+            if (row is not null)
+                rows.Add(row);
         }
 
         double? medianFindings = ComputeMedian(rows.Select(r => (double)r.TotalFindings));
@@ -79,7 +80,8 @@ public sealed class RecentPilotRunDeltasService(
         {
             ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken);
 
-            if (detail is null) return null;
+            if (detail is null)
+                return null;
 
             PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
 
@@ -93,7 +95,7 @@ public sealed class RecentPilotRunDeltasService(
             return new RecentPilotRunDeltaSummaryResponse
             {
                 RunId = summary.RunId,
-                RequestId = summary.RequestId ?? string.Empty,
+                RequestId = summary.RequestId,
                 RunCreatedUtc = deltas.RunCreatedUtc,
                 ManifestCommittedUtc = deltas.ManifestCommittedUtc,
                 TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
@@ -119,11 +121,10 @@ public sealed class RecentPilotRunDeltasService(
     /// </summary>
     internal static double? ComputeMedian(IEnumerable<double> values)
     {
-        if (values is null) return null;
-
         double[] sorted = values.OrderBy(v => v).ToArray();
 
-        if (sorted.Length == 0) return null;
+        if (sorted.Length == 0)
+            return null;
 
         int mid = sorted.Length / 2;
 

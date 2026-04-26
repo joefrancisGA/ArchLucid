@@ -132,7 +132,7 @@ export const HELP_TOPICS: HelpTopic[] = [
 
 /**
  * Full URL to the doc on the web. Uses NEXT_PUBLIC_DOCS_BASE_URL when set; otherwise the public
- * ArchiForge GitHub blob URL for `main`.
+ * ArchLucid GitHub blob URL for `main`.
  */
 export function getDocHref(docPath: string): string | null {
   const relative = docPath?.trim() ?? "";
