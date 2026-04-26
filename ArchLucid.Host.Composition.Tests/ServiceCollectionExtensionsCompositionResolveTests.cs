@@ -138,7 +138,6 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
             .Build();
         ServiceCollection services = CreateCoreServices(configuration);
-        services.AddHttpContextAccessor();
 
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
 
@@ -239,6 +238,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(hostEnvironmentName));
         services.AddLogging(static b => b.AddDebug());
+        services.AddHttpContextAccessor();
         services.AddSingleton<IScopeContextProvider, FixedCompositionScopeContextProvider>();
 
         return services;

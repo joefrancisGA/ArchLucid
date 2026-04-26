@@ -48,7 +48,7 @@ function walkSourceFiles(dir: string, out: string[]): void {
 
 /**
  * Collects every JSX `helpKey` string literal from production `src` (excludes `*.test.*` / `*.spec.*`).
- * Used to keep {@link contextualHelpByKey} in lockstep with `<ContextualHelp />` usages.
+ * Includes keys on `OperatorPageHeader` and any other component that forwards to {@link ContextualHelp}.
  */
 export function collectContextualHelpKeysFromSource(srcRoot: string): string[] {
   const files: string[] = [];
@@ -58,7 +58,8 @@ export function collectContextualHelpKeysFromSource(srcRoot: string): string[] {
   for (const file of files) {
     const text = readFileSync(file, "utf8");
 
-    if (!text.includes("ContextualHelp")) {
+    // Count `helpKey=` anywhere (e.g. `<ContextualHelp />` or `OperatorPageHeader` forwarding to it).
+    if (!/\bhelpKey=["']/.test(text)) {
       continue;
     }
 
