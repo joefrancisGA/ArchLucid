@@ -73,7 +73,7 @@ public sealed class TenantHealthScoringHostedServiceTests
 
         await sut.StartAsync(hostCts.Token);
 
-        await Task.Delay(500);
+        await Task.Delay(500, hostCts.Token);
 
         await sut.StopAsync(CancellationToken.None);
 

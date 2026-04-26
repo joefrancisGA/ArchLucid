@@ -19,6 +19,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
             double expected = score.PopulatedFieldCount / 5.0;
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             return score.CompletenessRatio == expected
                    && score.PopulatedFieldCount is >= 0 and <= 5;
         });

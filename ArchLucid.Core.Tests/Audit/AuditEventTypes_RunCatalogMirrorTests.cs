@@ -11,7 +11,7 @@ namespace ArchLucid.Core.Tests.Audit;
 ///     <see cref="AuditEventTypes.Run" /> twin.
 /// </summary>
 [Trait("Suite", "Core")]
-public sealed class AuditEventTypes_RunCatalogMirrorTests
+public sealed class AuditEventTypesRunCatalogMirrorTests
 {
     private static readonly IReadOnlyDictionary<string, string> LegacyToCanonical = new Dictionary<string, string>
     {
