@@ -356,6 +356,7 @@ jobs:
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
           CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+          CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
         run: |
           if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
             echo "Skipping Container Apps update (set ACR_LOGIN_SERVER, AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME)."
@@ -370,6 +371,29 @@ jobs:
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
             UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
             az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+          fi
+          # Pin 100% ingress to latest revision when multiple revisions exist (traffic can stay on an older revision
+          # after a failed deploy). Skip API when canary is enabled — the canary step splits API traffic next.
+          if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
+            A_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+            if [ -n "${A_LATEST:-}" ]; then
+              az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision-weight "${A_LATEST}=100" \
+                || echo "API: ingress traffic set skipped."
+            fi
+          fi
+          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            W_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
+            if [ -n "${W_LATEST:-}" ]; then
+              az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision-weight "${W_LATEST}=100" \
+                || echo "Worker: ingress traffic set skipped (no ingress or single-revision)."
+            fi
+          fi
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            U_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --query "properties.latestRevisionName" -o tsv)
+            if [ -n "${U_LATEST:-}" ]; then
+              az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --revision-weight "${U_LATEST}=100" \
+                || echo "UI: ingress traffic set skipped (no ingress or single-revision)."
+            fi
           fi
 
       - name: Record API revision after update
