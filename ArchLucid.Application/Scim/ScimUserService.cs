@@ -3,10 +3,10 @@ using System.Text.Json;
 using ArchLucid.Application.Scim.Filtering;
 using ArchLucid.Application.Scim.Patching;
 using ArchLucid.Application.Scim.RoleMapping;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -86,8 +86,8 @@ public sealed class ScimUserService(
     /// <inheritdoc />
     public async Task ReplaceAsync(Guid tenantId, Guid id, JsonElement resource, CancellationToken cancellationToken)
     {
-        ScimUserRecord? existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
-            ?? throw new ScimNotFoundException("User not found.");
+        ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
+                                  ?? throw new ScimNotFoundException("User not found.");
 
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
 
@@ -107,8 +107,8 @@ public sealed class ScimUserService(
     /// <inheritdoc />
     public async Task PatchAsync(Guid tenantId, Guid id, JsonElement patch, CancellationToken cancellationToken)
     {
-        ScimUserRecord? existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
-            ?? throw new ScimNotFoundException("User not found.");
+        ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
+                                  ?? throw new ScimNotFoundException("User not found.");
 
         Dictionary<string, JsonElement> current = BuildFlatMap(existing);
 
@@ -144,8 +144,8 @@ public sealed class ScimUserService(
     /// <inheritdoc />
     public async Task DeactivateAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
-        ScimUserRecord? existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
-            ?? throw new ScimNotFoundException("User not found.");
+        ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
+                                  ?? throw new ScimNotFoundException("User not found.");
 
         if (existing.Active)
             await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);

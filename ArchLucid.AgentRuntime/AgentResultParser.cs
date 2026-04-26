@@ -62,7 +62,6 @@ public sealed class AgentResultParser : IAgentResultParser
         if (string.IsNullOrWhiteSpace(json))
             throw new InvalidOperationException("Agent returned empty JSON.");
 
-
         AgentResult? result;
 
         try
@@ -80,7 +79,6 @@ public sealed class AgentResultParser : IAgentResultParser
 
         if (result is null)
             throw new InvalidOperationException("Agent returned null AgentResult.");
-
 
         SchemaValidationResult schemaResult = _schemaValidationService.ValidateAgentResultJson(json);
         string agentTypeLabel = expectedAgentType.ToString();
@@ -101,58 +99,42 @@ public sealed class AgentResultParser : IAgentResultParser
             }
 
             if (_logger.IsEnabled(LogLevel.Warning))
-
                 _logger.LogWarning(
                     "AgentResult JSON failed schema validation but AgentExecution:SchemaValidation:EnforceOnParse is false; continuing. Errors: {Errors}",
                     string.Join("; ", schemaResult.Errors));
         }
         else
-
             ArchLucidInstrumentation.RecordAgentResultSchemaValidation(agentTypeLabel, "valid");
-
 
         if (!string.Equals(result.RunId, expectedRunId, StringComparison.OrdinalIgnoreCase))
 
             throw new InvalidOperationException(
                 $"AgentResult.RunId '{result.RunId}' does not match expected runId '{expectedRunId}'.");
 
-
         if (!string.Equals(result.TaskId, expectedTaskId, StringComparison.OrdinalIgnoreCase))
-
             throw new InvalidOperationException(
                 $"AgentResult.TaskId '{result.TaskId}' does not match expected taskId '{expectedTaskId}'.");
 
-
         if (result.AgentType != expectedAgentType)
-
             throw new InvalidOperationException(
                 $"AgentResult.AgentType '{result.AgentType}' does not match expected type '{expectedAgentType}'.");
-
 
         if (string.IsNullOrWhiteSpace(result.ResultId))
             throw new InvalidOperationException("AgentResult.ResultId is required.");
 
-
         if (result.Claims is null)
             throw new InvalidOperationException("AgentResult.Claims is required.");
-
 
         if (result.EvidenceRefs is null)
             throw new InvalidOperationException("AgentResult.EvidenceRefs is required.");
 
-
-        if (result.Confidence is < 0.0 or > 1.0)
-            throw new InvalidOperationException("AgentResult.Confidence must be between 0 and 1.");
-
-
-        return result;
+        return result.Confidence is < 0.0 or > 1.0 ? throw new InvalidOperationException("AgentResult.Confidence must be between 0 and 1.") : result;
     }
 
     private static string TruncateJson(string json)
     {
         if (json.Length <= MaxTruncatedJsonLength)
             return json;
-
 
         return json[..MaxTruncatedJsonLength] + "…";
     }
