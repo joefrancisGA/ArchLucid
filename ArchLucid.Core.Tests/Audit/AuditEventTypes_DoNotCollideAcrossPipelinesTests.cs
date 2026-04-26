@@ -20,7 +20,7 @@ namespace ArchLucid.Core.Tests.Audit;
 ///     audit row in <c>dbo.AuditEvents</c>.
 /// </remarks>
 [Trait("Suite", "Core")]
-public sealed class AuditEventTypes_DoNotCollideAcrossPipelinesTests
+public sealed class AuditEventTypesDoNotCollideAcrossPipelinesTests
 {
     /// <summary>
     ///     Coordinator-only event types that have <b>no</b> authority counterpart by design.
@@ -124,7 +124,8 @@ public sealed class AuditEventTypes_DoNotCollideAcrossPipelinesTests
 
         foreach (string coordinatorValue in coordinatorValues)
         {
-            if (CoordinatorOnlyEventTypes.Contains(coordinatorValue)) continue;
+            if (CoordinatorOnlyEventTypes.Contains(coordinatorValue))
+                continue;
 
             if (!CoordinatorToAuthorityMap.TryGetValue(coordinatorValue, out string? authorityValue))
             {
@@ -146,17 +147,18 @@ public sealed class AuditEventTypes_DoNotCollideAcrossPipelinesTests
     {
         return typeof(AuditEventTypes)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-            .Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
+            .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
             .Select(f => new KeyValuePair<string, string>(f.Name, (string)f.GetRawConstantValue()!));
     }
 
     private static IEnumerable<string> GetNestedStringConstantValues(Type containerType)
     {
-        if (containerType is null) throw new ArgumentNullException(nameof(containerType));
+        if (containerType is null)
+            throw new ArgumentNullException(nameof(containerType));
 
         IEnumerable<string> direct = containerType
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-            .Where(f => f.IsLiteral && !f.IsInitOnly && f.FieldType == typeof(string))
+            .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
             .Select(f => (string)f.GetRawConstantValue()!);
 
         IEnumerable<string> nested = containerType

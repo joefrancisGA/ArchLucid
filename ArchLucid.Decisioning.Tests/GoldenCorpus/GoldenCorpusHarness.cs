@@ -4,8 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Analysis;
@@ -20,6 +20,8 @@ using ArchLucid.Decisioning.Services;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.TestSupport.GoldenCorpus;
+
+using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -135,9 +137,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             merge.ParentManifestVersion);
 
         List<string> errors = result.Errors.OrderBy(static e => e, StringComparer.Ordinal).ToList();
-        List<string> serviceIds = result.Manifest is null
-            ? []
-            : result.Manifest.Services.Select(static s => s.ServiceId).OrderBy(static id => id, StringComparer.Ordinal).ToList();
+        List<string> serviceIds = result.Manifest.Services.Select(static s => s.ServiceId).OrderBy(static id => id, StringComparer.Ordinal).ToList();
 
         return new GoldenCorpusMergeSummary(result.Success, errors, serviceIds);
     }
@@ -248,7 +248,7 @@ public static class GoldenCorpusNormalization
     private sealed record FindingGoldenRow(
         string FindingId,
         string FindingType,
-        string Category,
+        [UsedImplicitly] string Category,
         string Severity,
         string Title,
         string Rationale,
@@ -302,5 +302,5 @@ public static class GoldenCorpusNormalization
             f.Trace.DecisionsTaken.OrderBy(static x => x, StringComparer.Ordinal).ToList());
     }
 
-    private sealed record DecisionGoldenRow(string Category, string SelectedOption, string Title, string Rationale);
+    private sealed record DecisionGoldenRow(string Category, [UsedImplicitly] string SelectedOption, string Title, string Rationale);
 }

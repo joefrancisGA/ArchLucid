@@ -85,10 +85,9 @@ public sealed class RealLlmOutputStructuralValidatorTests
         using JsonDocument doc = JsonDocument.Parse(full);
         Dictionary<string, JsonElement> o = new();
 
-        foreach (JsonProperty p in doc.RootElement.EnumerateObject())
+        foreach (JsonProperty p in doc.RootElement.EnumerateObject().Where(p => !string.Equals(p.Name, omit, StringComparison.Ordinal)))
         {
-            if (!string.Equals(p.Name, omit, StringComparison.Ordinal))
-                o[p.Name] = p.Value.Clone();
+            o[p.Name] = p.Value.Clone();
         }
 
         string json = JsonSerializer.Serialize(o);

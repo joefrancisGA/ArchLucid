@@ -251,5 +251,6 @@ public sealed class TrialFunnelInstrumentationTests
 
     private sealed record LongMeasurementRecord(string Name, long Value, List<KeyValuePair<string, object?>> Tags);
 
+    // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record DoubleMeasurementRecord(string Name, double Value, List<KeyValuePair<string, object?>> Tags);
 }

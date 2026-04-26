@@ -16,7 +16,11 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new { schemaVersion = 1, environment = "Prod" }));
+                new
+                {
+                    schemaVersion = 1,
+                    environment = "Prod"
+                }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
@@ -30,7 +34,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     [Fact]
     public void TryResolveForPublish_alert_fired_without_severity_or_dedupe_returns_null()
     {
-        byte[] utf8 = Encoding.UTF8.GetBytes("{\"schemaVersion\":1}");
+        byte[] utf8 = "{\"schemaVersion\":1}"u8.ToArray();
 
         IntegrationEventServiceBusApplicationProperties
             .TryResolveForPublish(IntegrationEventTypes.AlertFiredV1, utf8)
@@ -43,7 +47,12 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new { schemaVersion = 1, severity = "High", deduplicationKey = "rule:1:run:a" }));
+                new
+                {
+                    schemaVersion = 1,
+                    severity = "High",
+                    deduplicationKey = "rule:1:run:a"
+                }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
@@ -60,7 +69,11 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new { schemaVersion = 1, deduplicationKey = " k " }));
+                new
+                {
+                    schemaVersion = 1,
+                    deduplicationKey = " k "
+                }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(

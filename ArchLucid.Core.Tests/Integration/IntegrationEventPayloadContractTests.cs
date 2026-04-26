@@ -289,14 +289,14 @@ public sealed class IntegrationEventPayloadContractTests
             }
         }
 
-        if (schemaRoot.TryGetProperty("properties", out JsonElement propertiesElement)
-            && propertiesElement.ValueKind == JsonValueKind.Object)
+        if (!schemaRoot.TryGetProperty("properties", out JsonElement propertiesElement)
+            || propertiesElement.ValueKind != JsonValueKind.Object)
+            return;
+
+        foreach (JsonProperty payloadProperty in payloadRoot.EnumerateObject())
         {
-            foreach (JsonProperty payloadProperty in payloadRoot.EnumerateObject())
-            {
-                propertiesElement.TryGetProperty(payloadProperty.Name, out JsonElement _).Should().BeTrue(
-                    $"serialized payload property '{payloadProperty.Name}' must be declared in schema {schemaFileName} (catch typos; additional payload fields require a schema update)");
-            }
+            propertiesElement.TryGetProperty(payloadProperty.Name, out JsonElement _).Should().BeTrue(
+                $"serialized payload property '{payloadProperty.Name}' must be declared in schema {schemaFileName} (catch typos; additional payload fields require a schema update)");
         }
     }
 }

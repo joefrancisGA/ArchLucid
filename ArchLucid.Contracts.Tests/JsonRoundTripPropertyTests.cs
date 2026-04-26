@@ -167,20 +167,13 @@ public static class ContractJsonRoundTripArbitraries
         const string pad = "0123456789";
 
         if (s.Length >= 10)
-        {
             return s;
-        }
 
         return s + pad[..(10 - s.Length)];
     }
 
     private static string EnsureNonEmpty(string? seed)
     {
-        if (string.IsNullOrWhiteSpace(seed))
-        {
-            return "Sys";
-        }
-
-        return seed.Trim();
+        return string.IsNullOrWhiteSpace(seed) ? "Sys" : seed.Trim();
     }
 }
