@@ -69,7 +69,7 @@ describe("HomePage (55R smoke — landing)", () => {
 
     expect(screen.getByText("Create Run")).toBeInTheDocument();
     expect(screen.getByText("View Runs")).toBeInTheDocument();
-    expect(screen.getByText("Commit Run")).toBeInTheDocument();
+    expect(screen.getByText("Commit Manifest")).toBeInTheDocument();
     expect(screen.getByText("Review Artifacts")).toBeInTheDocument();
   });
 

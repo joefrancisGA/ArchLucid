@@ -163,19 +163,19 @@ function RecentActivityCommandCard() {
       data-testid="command-center-activity-card"
     >
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
-        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Pilot impact</CardTitle>
+        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Run outcomes</CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           Findings surfaced and time-to-commit trends across committed runs.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
         {status === "loading" ? (
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading pilot impact…</p>
+          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading run outcomes…</p>
         ) : null}
 
         {status === "error" ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Pilot impact is unavailable right now. Try again later or open the runs list.
+            Run outcomes are unavailable right now. Try again later or open the runs list.
           </p>
         ) : null}
 
@@ -302,7 +302,7 @@ function SystemHealthCommandCard() {
 }
 
 /**
- * Workspace status: runs snapshot, pilot impact medians, and API readiness — always on home so the page stays an
+ * Workspace status: runs snapshot, run outcome medians, and API readiness — always on home so the page stays an
  * operator cockpit, not only a first-run checklist.
  */
 export function CommandCenterSection() {

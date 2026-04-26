@@ -34,7 +34,7 @@ export const auditExportControlDisabledTitle =
 export const enterpriseNavHintReaderRank = "Read-tier nav; operator links omitted.";
 
 /** Sidebar / mobile: operator+ framing for Enterprise group */
-export const enterpriseNavHintOperatorRank = "Governance and platform depth beyond Pilot.";
+export const enterpriseNavHintOperatorRank = "Policies, findings, and controls.";
 
 /**
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:

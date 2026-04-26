@@ -90,8 +90,8 @@ export function WelcomeBanner() {
       className={cn(
         "relative mb-4 rounded-xl border bg-gradient-to-br px-5 py-4 shadow-sm",
         trialActive
-          ? "border-amber-200 from-amber-50 to-white dark:border-amber-900 dark:from-amber-950/30 dark:to-neutral-900"
-          : "border-teal-200 from-teal-50 to-white dark:border-teal-900 dark:from-teal-950/30 dark:to-neutral-900",
+          ? "border border-amber-200 border-l-4 border-l-amber-500 from-amber-50/80 to-white dark:border-amber-900 dark:border-l-amber-500 dark:from-amber-950/30 dark:to-neutral-900"
+          : "border border-teal-200 border-l-4 border-l-teal-600 from-teal-50/80 to-white dark:border-teal-900 dark:border-l-teal-500 dark:from-teal-950/30 dark:to-neutral-900",
       )}
     >
       <Button
@@ -119,10 +119,10 @@ export function WelcomeBanner() {
         </span>
       ) : null}
 
-      <h2 className="pr-10 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+      <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
         Generate your first architecture manifest
       </h2>
-      <p className="mt-2 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
         Turn architecture intent into governed, reviewable output your team can inspect, commit, and improve.
       </p>
 
@@ -131,7 +131,7 @@ export function WelcomeBanner() {
           <Link href="/runs/new">Create Run</Link>
         </Button>
         <Button asChild variant="outline" className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40">
-          <Link href="/runs?projectId=default">See ArchLucid with real data</Link>
+          <Link href="/runs?projectId=default">See a completed example</Link>
         </Button>
         {trialActive ? (
           <Button asChild variant="outline" size="sm" className="h-8">

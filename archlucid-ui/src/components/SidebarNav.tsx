@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
+import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -44,8 +45,12 @@ function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean 
  * is one glance away from any operator route. Open state persists in localStorage —
  * collapsed by default the very first time so the card does not push nav links down
  * for a brand-new operator with zero context.
+ *
+ * Hidden entirely until at least one committed run exists (same rule as the compact
+ * sidebar delta panel) so first-run tenants do not see an empty collapsible.
  */
 function SidebarRecentActivityCard() {
+  const { status, data } = useDeltaQuery({ count: 5 });
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -68,6 +73,13 @@ function SidebarRecentActivityCard() {
     } catch {
       /* private mode */
     }
+  }
+
+  const hasDeltaData =
+    status === "ready" && data !== null && data.returnedCount > 0;
+
+  if (!hasDeltaData) {
+    return null;
   }
 
   return (

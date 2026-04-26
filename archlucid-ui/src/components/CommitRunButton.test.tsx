@@ -29,11 +29,11 @@ describe("CommitRunButton", () => {
 
     render(<CommitRunButton runId="run-1" disabled={false} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /^commit run$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^commit manifest$/i }));
 
     const dialog = await screen.findByRole("alertdialog");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^commit run$/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^commit manifest$/i }));
 
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-1");
