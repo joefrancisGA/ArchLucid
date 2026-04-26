@@ -35,7 +35,7 @@ public sealed class GraphNodeFactoryTests
     [Fact]
     public void CreateNode_SetsNodeTypeFromObjectType()
     {
-        CanonicalObject item = BuildItem(GraphNodeTypes.TopologyResource);
+        CanonicalObject item = BuildItem();
 
         GraphNode node = _sut.CreateNode(item);
 

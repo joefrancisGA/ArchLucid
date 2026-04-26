@@ -19,7 +19,8 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -56,7 +57,11 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
                 await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            object body = new { version = "2.1.0-conc", contentJson = """{"metadata":{"k":"conc8"}}""" };
+            object body = new
+            {
+                version = "2.1.0-conc",
+                contentJson = """{"metadata":{"k":"conc8"}}"""
+            };
 
             const int parallel = 8;
             Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];

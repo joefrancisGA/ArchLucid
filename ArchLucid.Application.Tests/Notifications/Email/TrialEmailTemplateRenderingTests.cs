@@ -25,6 +25,18 @@ public sealed class TrialEmailTemplateRenderingTests
     }
 
     [Fact]
+    public async Task TrialWelcome_renders_logo_when_LogoImageUrl_set()
+    {
+        string html = await _renderer.RenderHtmlAsync(
+            EmailTemplateIds.TrialWelcome,
+            new TrialWelcomeEmailModel("Contoso", "ArchLucid", "https://cdn.example/logo.png"),
+            CancellationToken.None);
+
+        html.Should().Contain("https://cdn.example/logo.png");
+        html.Should().Contain("alt=\"ArchLucid\"");
+    }
+
+    [Fact]
     public async Task TrialFirstRunComplete_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(

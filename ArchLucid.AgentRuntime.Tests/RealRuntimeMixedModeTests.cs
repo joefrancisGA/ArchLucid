@@ -323,8 +323,7 @@ public sealed class RealRuntimeMixedModeTests
             "v1",
             results,
             [],
-            [],
-            null);
+            []);
 
         merge.Success.Should().BeTrue();
         merge.Manifest.Services.Should().Contain(s => s.ServiceName == "rag-api");

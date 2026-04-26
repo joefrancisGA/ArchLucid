@@ -21,7 +21,8 @@ public sealed class PolicyPackDryRunIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     [Fact]
@@ -84,7 +85,8 @@ public sealed class PolicyPackDryRunIntegrationTests
 
         var body = new
         {
-            ProposedThresholds = new Dictionary<string, string>(), EvaluateAgainstRunIds = Array.Empty<string>()
+            ProposedThresholds = new Dictionary<string, string>(),
+            EvaluateAgainstRunIds = Array.Empty<string>()
         };
 
         StringContent json = new(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");

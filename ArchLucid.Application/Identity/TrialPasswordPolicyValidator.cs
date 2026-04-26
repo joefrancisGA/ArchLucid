@@ -10,8 +10,11 @@ public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> tria
     private readonly TrialAuthOptions _trial =
         trialOptions.Value ?? throw new ArgumentNullException(nameof(trialOptions));
 
-    public TrialPasswordValidationResult Validate(string password)
+    public TrialPasswordValidationResult Validate(string? password)
     {
+        if (password is null)
+            return TrialPasswordValidationResult.Fail("Password is required.");
+
         TrialLocalIdentityOptions local = _trial.LocalIdentity;
 
         if (password.Length < local.MinimumPasswordLength)

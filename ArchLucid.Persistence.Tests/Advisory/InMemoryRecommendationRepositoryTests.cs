@@ -150,8 +150,7 @@ public sealed class InMemoryRecommendationRepositoryTests
                 RunId,
                 1,
                 BaseUtc,
-                BaseUtc.AddDays(1),
-                RecommendationStatus.Proposed),
+                BaseUtc.AddDays(1)),
             CancellationToken.None);
 
         IReadOnlyList<RecommendationRecord> all =

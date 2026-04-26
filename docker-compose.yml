@@ -147,12 +147,14 @@ services:
         # Optional: see docker-compose.demo.yml for https:// → /get-started "Try the live demo"
         NEXT_PUBLIC_DEMO_URL: ""
         NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
+        NEXT_PUBLIC_ARCHLUCID_SITE_URL: "http://localhost:3000"
     container_name: archlucid-ui
     ports:
       - "3000:3000"
     environment:
       ARCHLUCID_API_BASE_URL: "http://api:8080"
       NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
+      NEXT_PUBLIC_ARCHLUCID_SITE_URL: "http://localhost:3000"
     depends_on:
       api:
         condition: service_healthy

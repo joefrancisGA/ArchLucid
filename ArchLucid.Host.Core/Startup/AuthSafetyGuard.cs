@@ -1,8 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>Fail-fast checks for dangerous authentication configuration combinations.</summary>

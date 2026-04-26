@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type ReactNode } from "react";
 
+import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -44,11 +44,9 @@ export function AppShellClient({ children }: AppShellClientProps) {
             <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <MobileNavDrawer />
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  <Button variant="ghost" className="h-auto p-0 text-2xl font-semibold" asChild>
-                    <Link href="/" aria-label="ArchLucid — go to operator home">
-                      ArchLucid
-                    </Link>
+                <h1 className="m-0">
+                  <Button variant="ghost" className="h-auto p-0" asChild>
+                    <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
                   </Button>
                 </h1>
               </div>

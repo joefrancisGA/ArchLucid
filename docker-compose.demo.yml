@@ -36,3 +36,4 @@ services:
         # Match root docker-compose `ui` service; add public demo base URL for marketing CTA
         NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
         NEXT_PUBLIC_DEMO_URL: "https://demo.archlucid.net"
+        NEXT_PUBLIC_ARCHLUCID_SITE_URL: "https://demo.archlucid.net"

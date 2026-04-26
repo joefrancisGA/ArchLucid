@@ -63,6 +63,10 @@ public sealed class ExecDigestEmailDispatcher(
             ? DefaultProductName
             : emailOptions.ProductDisplayName.Trim();
 
+        string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
+            ? null
+            : emailOptions.OperatorBaseUrl.TrimEnd('/');
+
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,
@@ -74,6 +78,7 @@ public sealed class ExecDigestEmailDispatcher(
             DashboardUrl = composition.DashboardUrl,
             SponsorValueReportUrl = composition.SponsorValueReportUrl,
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
+            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
         };
 
         string idempotencyKey = $"exec-digest:{tenantId:N}:{isoWeekIdempotencyKey}";

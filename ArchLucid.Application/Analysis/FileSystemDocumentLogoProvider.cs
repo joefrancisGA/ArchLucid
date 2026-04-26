@@ -6,6 +6,10 @@ namespace ArchLucid.Application.Analysis;
 /// <see cref="IDocumentLogoProvider"/> that reads a logo image from the local file system.
 /// Returns <see langword="null"/> when logo inclusion is disabled, the path is blank, or the file does not exist.
 /// </summary>
+/// <remarks>
+/// Relative <see cref="ConsultingDocxTemplateOptions.LogoPath"/> values resolve against
+/// <see cref="System.AppContext.BaseDirectory"/> so assets copied with <c>CopyToOutputDirectory</c> load next to the host assembly.
+/// </remarks>
 [ExcludeFromCodeCoverage(Justification = "Reads files from local filesystem; would require temp-file fixture with marginal value for simple guard-clause logic.")]
 public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
 {
@@ -23,11 +27,24 @@ public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
             return null;
 
 
-        if (!File.Exists(options.LogoPath))
+        string? resolved = ResolveLogoPath(options.LogoPath);
+
+        if (resolved is null || !File.Exists(resolved))
             return null;
 
 
-        return await File.ReadAllBytesAsync(options.LogoPath, cancellationToken);
+        return await File.ReadAllBytesAsync(resolved, cancellationToken);
+    }
+
+    private static string? ResolveLogoPath(string logoPath)
+    {
+        string trimmed = logoPath.Trim();
+
+        if (Path.IsPathRooted(trimmed))
+            return trimmed;
+
+
+        return Path.Combine(AppContext.BaseDirectory, trimmed.Replace('/', Path.DirectorySeparatorChar));
     }
 }
 

@@ -19,7 +19,8 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
 
     public Task<byte[]> RenderAsync(ValueReportSnapshot snapshot, CancellationToken cancellationToken)
     {
-        if (snapshot is null) throw new ArgumentNullException(nameof(snapshot));
+        if (snapshot is null)
+            throw new ArgumentNullException(nameof(snapshot));
 
         _logger.LogInformation(
             "Rendering value report DOCX for tenant {TenantId} window {From:o}–{To:o}.",
@@ -37,7 +38,7 @@ public sealed class DocxValueReportRenderer(ILogger<DocxValueReportRenderer> log
             Body body = main.Document.AppendChild(new Body());
 
             body.AppendChild(Paragraph("ArchLucid — tenant value report", true, fontSizeHalfPoints: 32));
-            body.AppendChild(Paragraph("Stakeholder summary (automated)", false, fontSizeHalfPoints: 24));
+            body.AppendChild(Paragraph("Stakeholder summary (automated)", fontSizeHalfPoints: 24));
             body.AppendChild(Paragraph($"Tenant: {snapshot.TenantId:D}"));
             body.AppendChild(Paragraph($"Workspace: {snapshot.WorkspaceId:D} · Project: {snapshot.ProjectId:D}"));
             body.AppendChild(

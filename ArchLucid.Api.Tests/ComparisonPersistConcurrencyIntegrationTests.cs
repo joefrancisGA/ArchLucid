@@ -22,7 +22,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null, true) }
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     [Fact]

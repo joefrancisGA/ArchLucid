@@ -105,14 +105,14 @@ public sealed class CircuitBreakerGate
 
     /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
     public CircuitBreakerGate(string gateName, CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow)
-        : this(gateName, options, utcNow is null ? null : new DelegateTimeProvider(utcNow), null)
+        : this(gateName, options, utcNow is null ? null : new DelegateTimeProvider(utcNow))
     {
     }
 
     /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
     public CircuitBreakerGate(string gateName, IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
         Func<DateTimeOffset>? utcNow)
-        : this(gateName, optionsMonitor, utcNow is null ? null : new DelegateTimeProvider(utcNow), null)
+        : this(gateName, optionsMonitor, utcNow is null ? null : new DelegateTimeProvider(utcNow))
     {
     }
 
