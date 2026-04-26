@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, ClipboardCheck, FileCheck2, Package, Target, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import type { CSSProperties } from "react";
@@ -30,8 +30,9 @@ type TrialStatusPayload = {
 const DEFAULT_PROJECT_ID = "default";
 
 const dotMaskStyle: CSSProperties = {
-  WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.75) 100%)",
-  maskImage: "linear-gradient(to right, transparent 0%, transparent 22%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.75) 100%)",
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, transparent 35%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.7) 100%)",
+  maskImage: "linear-gradient(to right, transparent 0%, transparent 35%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.7) 100%)",
 };
 
 function readRunsCache(): boolean {
@@ -296,14 +297,14 @@ export function WelcomeBanner() {
             <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
               {(
                 [
-                  "Governed manifest",
-                  "Actionable findings",
-                  "Exportable artifact bundle",
-                  "Review trail",
+                  { label: "Governed manifest" as const, Icon: FileCheck2 },
+                  { label: "Actionable findings" as const, Icon: Target },
+                  { label: "Exportable artifact bundle" as const, Icon: Package },
+                  { label: "Review trail" as const, Icon: ClipboardCheck },
                 ] as const
-              ).map((label) => (
+              ).map(({ label, Icon }) => (
                 <li key={label} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" aria-hidden />
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
                   {label}
                 </li>
               ))}

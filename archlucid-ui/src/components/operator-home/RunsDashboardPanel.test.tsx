@@ -108,6 +108,13 @@ describe("RunsDashboardPanel", () => {
     await waitFor(() => {
       expect(screen.getByText(/No architecture runs yet/i)).toBeInTheDocument();
     });
+    expect(
+      screen.getByText(/Create a request to generate your first architecture manifest, surfaced findings/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Try an example" })).toHaveAttribute(
+      "href",
+      "/runs?projectId=default",
+    );
   });
 
   it("handles runs list API errors in the recent tab", async () => {

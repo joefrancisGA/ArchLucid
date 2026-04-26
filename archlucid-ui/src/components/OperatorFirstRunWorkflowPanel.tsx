@@ -391,14 +391,6 @@ export function OperatorFirstRunWorkflowPanel() {
                   {expanded ? (
                     <div className="mt-1.5">
                       <p className="m-0 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
-                      {step.detail ? (
-                        <details className="mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">
-                          <summary className="cursor-pointer select-none text-teal-800 underline decoration-teal-300/50 dark:text-teal-300">
-                            More detail
-                          </summary>
-                          <p className="mt-1.5 m-0 leading-relaxed text-neutral-600 dark:text-neutral-400">{step.detail}</p>
-                        </details>
-                      ) : null}
                       <div className="mt-1.5">
                         <Button asChild variant="outline" size="sm" className="h-7 text-xs font-medium">
                           <Link className="no-underline" href={step.primaryHref}>
@@ -407,7 +399,9 @@ export function OperatorFirstRunWorkflowPanel() {
                         </Button>
                       </div>
                       {step.secondary ? (
-                        <div className="mt-1.5 text-[11px] leading-snug text-neutral-600 dark:text-neutral-500">{step.secondary}</div>
+                        <div className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500 [&_a]:text-teal-700 [&_a]:underline [&_a]:decoration-teal-300/50 dark:[&_a]:text-teal-400">
+                          {step.secondary}
+                        </div>
                       ) : null}
                     </div>
                   ) : null}
