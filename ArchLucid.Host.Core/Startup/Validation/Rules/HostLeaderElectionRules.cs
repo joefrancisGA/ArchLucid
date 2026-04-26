@@ -12,7 +12,7 @@ internal static class HostLeaderElectionRules
 
         int leaseSeconds = configuration.GetValue("HostLeaderElection:LeaseDurationSeconds", 90);
 
-        if (leaseSeconds < 15 || leaseSeconds > 3600)
+        if (leaseSeconds is < 15 or > 3600)
 
             errors.Add(
                 "HostLeaderElection:LeaseDurationSeconds must be between 15 and 3600 inclusive when HostLeaderElection:Enabled is true.");
@@ -34,7 +34,7 @@ internal static class HostLeaderElectionRules
 
         int followerMs = configuration.GetValue("HostLeaderElection:FollowerPollMilliseconds", 2000);
 
-        if (followerMs < 100 || followerMs > 120_000)
+        if (followerMs is < 100 or > 120_000)
 
             errors.Add(
                 "HostLeaderElection:FollowerPollMilliseconds must be between 100 and 120000 when HostLeaderElection:Enabled is true.");

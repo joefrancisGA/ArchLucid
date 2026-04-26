@@ -128,7 +128,7 @@ public sealed class TrialScheduledLifecycleEmailScanner(
         IntegrationEventsOptions options,
         CancellationToken cancellationToken)
     {
-        if (tenant.TrialRunsLimit is not { } limit || limit <= 0)
+        if (tenant.TrialRunsLimit is not ({ } limit and > 0))
             return;
 
 

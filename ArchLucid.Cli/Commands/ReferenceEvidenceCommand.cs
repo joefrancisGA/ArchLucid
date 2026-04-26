@@ -32,7 +32,10 @@ internal static class ReferenceEvidenceCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new() { Timeout = TimeSpan.FromMinutes(3) };
+        using HttpClient http = new()
+        {
+            Timeout = TimeSpan.FromMinutes(3)
+        };
         http.BaseAddress = new Uri(normalized + "/");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
@@ -72,8 +75,7 @@ internal static class ReferenceEvidenceCommand
             return CliExitCode.UsageError;
         }
 
-        if (response.StatusCode == HttpStatusCode.Forbidden
-            || response.StatusCode == HttpStatusCode.Unauthorized)
+        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized)
         {
             Console.WriteLine("Admin API key with AdminAuthority is required for --tenant exports.");
 
@@ -261,7 +263,10 @@ internal static class ReferenceEvidenceCommand
 
             return new ReferenceEvidenceArgs
             {
-                RunId = run, TenantId = tenant, OutputDirectory = output, IncludeDemo = includeDemo
+                RunId = run,
+                TenantId = tenant,
+                OutputDirectory = output,
+                IncludeDemo = includeDemo
             };
         }
     }

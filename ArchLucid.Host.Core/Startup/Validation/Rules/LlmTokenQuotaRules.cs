@@ -12,7 +12,7 @@ internal static class LlmTokenQuotaRules
 
         int windowMinutes = configuration.GetValue("LlmTokenQuota:WindowMinutes", 60);
 
-        if (windowMinutes < 1 || windowMinutes > 1440)
+        if (windowMinutes is < 1 or > 1440)
 
             errors.Add("LlmTokenQuota:WindowMinutes must be between 1 and 1440 when LlmTokenQuota:Enabled is true.");
 
@@ -28,7 +28,7 @@ internal static class LlmTokenQuotaRules
 
         int assumedPrompt = configuration.GetValue("LlmTokenQuota:AssumedMaxPromptTokensPerRequest", 32_768);
 
-        if (assumedPrompt < 1 || assumedPrompt > 1_000_000)
+        if (assumedPrompt is < 1 or > 1_000_000)
 
             errors.Add(
                 "LlmTokenQuota:AssumedMaxPromptTokensPerRequest must be between 1 and 1000000 when LlmTokenQuota:Enabled is true.");
@@ -36,7 +36,7 @@ internal static class LlmTokenQuotaRules
 
         int assumedCompletion = configuration.GetValue("LlmTokenQuota:AssumedMaxCompletionTokensPerRequest", 8_192);
 
-        if (assumedCompletion < 1 || assumedCompletion > 262_144)
+        if (assumedCompletion is < 1 or > 262_144)
 
             errors.Add(
                 "LlmTokenQuota:AssumedMaxCompletionTokensPerRequest must be between 1 and 262144 when LlmTokenQuota:Enabled is true.");

@@ -66,7 +66,7 @@ internal static class DoctorCommand
             Console.WriteLine(
                 "Detailed /health requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHLUCID_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
         }
-        else if (aggregateCode < 200 || aggregateCode >= 300)
+        else if (aggregateCode is < 200 or >= 300)
         {
             Console.WriteLine();
             Console.WriteLine("Combined /health did not return 2xx; review JSON above.");

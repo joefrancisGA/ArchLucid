@@ -23,7 +23,8 @@ public sealed class ArchitectureControllerTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -381,7 +382,7 @@ public sealed class ArchitectureControllerTests
 
             foreach (HttpResponseMessage response in responses)
             {
-                (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.OK)
+                (response.StatusCode is HttpStatusCode.Created or HttpStatusCode.OK)
                     .Should()
                     .BeTrue();
 

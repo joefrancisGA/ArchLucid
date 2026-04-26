@@ -171,7 +171,7 @@ internal static class TryCommand
             cancellationToken);
 
         bool needsSeedFallback =
-            reached == ArchitectureRunStatus.Failed || reached < ArchitectureRunStatus.ReadyForCommit;
+            reached is ArchitectureRunStatus.Failed or < ArchitectureRunStatus.ReadyForCommit;
 
         if (needsSeedFallback && options.StrictReal && options.IsPilotRealAzureOpenAiAttempt)
         {
@@ -266,8 +266,10 @@ internal static class TryCommand
     {
         ArgumentNullException.ThrowIfNull(probe);
 
-        if (deadline <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(deadline));
-        if (pollInterval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(pollInterval));
+        if (deadline <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(deadline));
+        if (pollInterval <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(pollInterval));
 
         // Stopwatch is monotonic and immune to wall-clock changes — important when this command runs inside
         // a freshly-booted devcontainer whose clock may step shortly after start.
@@ -286,7 +288,7 @@ internal static class TryCommand
                     return last;
 
 
-                if (last == ArchitectureRunStatus.ReadyForCommit || last == ArchitectureRunStatus.Committed)
+                if (last is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
                     return last;
             }
 
@@ -342,7 +344,10 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(60) };
+            using HttpClient http = new()
+            {
+                Timeout = TimeSpan.FromSeconds(60)
+            };
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
 
             string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
@@ -387,7 +392,10 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(30) };
+            using HttpClient http = new()
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -423,7 +431,10 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(60) };
+            using HttpClient http = new()
+            {
+                Timeout = TimeSpan.FromSeconds(60)
+            };
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
 
