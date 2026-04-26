@@ -5,19 +5,18 @@ namespace ArchLucid.Core.Configuration;
 /// <summary>Scalar presence checks aligned with "set vs missing" in <c>archlucid config check</c> (no secret material).</summary>
 public static class ConfigurationKeyPresence
 {
-  public static bool IsValuePresent(IConfiguration configuration, string configPath)
-  {
-    ArgumentNullException.ThrowIfNull(configuration);
-    if (string.IsNullOrWhiteSpace(configPath))
-      return false;
+    public static bool IsValuePresent(IConfiguration configuration, string configPath)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
 
-    string? v = configuration[configPath];
-    if (v is null)
-      return false;
+        if (string.IsNullOrWhiteSpace(configPath))
+            return false;
 
-    if (string.IsNullOrWhiteSpace(v))
-      return false;
+        string? v = configuration[configPath];
 
-    return true;
-  }
+        if (v is null)
+            return false;
+
+        return !string.IsNullOrWhiteSpace(v);
+    }
 }

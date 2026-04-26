@@ -23,7 +23,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     await screen.findByRole("heading", { name: "Core Pilot checklist" });
 
-    fireEvent.click(screen.getByRole("button", { name: "Hide checklist" }));
+    fireEvent.click(screen.getByRole("button", { name: "Hide" }));
 
     expect(screen.queryByRole("heading", { name: "Core Pilot checklist" })).not.toBeInTheDocument();
     expect(localStorage.getItem("archlucid_operator_workflow_guide_v1")).toBe("1");

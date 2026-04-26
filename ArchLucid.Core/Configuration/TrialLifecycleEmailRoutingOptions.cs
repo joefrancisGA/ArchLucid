@@ -30,7 +30,7 @@ public sealed class TrialLifecycleEmailRoutingOptions
 
     public bool IsLogicAppOwned()
     {
-        return string.Equals(Owner?.Trim(), OwnerModes.LogicApp, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(Owner.Trim(), OwnerModes.LogicApp, StringComparison.OrdinalIgnoreCase);
     }
 
     public static class OwnerModes

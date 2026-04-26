@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
+import type { ComponentType } from "react";
 
 /**
  * Product-layer cards for operator home — replaces the prior prose-heavy glossary sections.
@@ -15,6 +16,7 @@ export function OperatorHomeGlossarySections() {
       </h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ActionCard
+          step={1}
           icon={Rocket}
           label="Create Run"
           description="Guided wizard — system identity through pipeline"
@@ -22,6 +24,7 @@ export function OperatorHomeGlossarySections() {
           shortcut="Alt+N"
         />
         <ActionCard
+          step={2}
           icon={ListOrdered}
           label="View Runs"
           description="List, inspect detail, and track pipeline progress"
@@ -30,12 +33,14 @@ export function OperatorHomeGlossarySections() {
           linkAccessibleName="Runs"
         />
         <ActionCard
+          step={3}
           icon={Play}
           label="Commit Run"
           description="Produce golden manifest and artifact exports"
           href="/runs?projectId=default"
         />
         <ActionCard
+          step={4}
           icon={FileCheck}
           label="Review Artifacts"
           description="Preview, download, and export artifact bundles"
@@ -47,7 +52,8 @@ export function OperatorHomeGlossarySections() {
 }
 
 type ActionCardProps = {
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  step: 1 | 2 | 3 | 4;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   label: string;
   description: string;
   href: string;
@@ -56,13 +62,16 @@ type ActionCardProps = {
   linkAccessibleName?: string;
 };
 
-function ActionCard({ icon: Icon, label, description, href, shortcut, linkAccessibleName }: ActionCardProps) {
+function ActionCard({ step, icon: Icon, label, description, href, shortcut, linkAccessibleName }: ActionCardProps) {
   return (
     <Link
       href={href}
       aria-label={linkAccessibleName}
       className="group flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
     >
+      <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+        Step {step}
+      </p>
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
         <span className="text-sm font-semibold text-neutral-900 group-hover:text-teal-800 dark:text-neutral-100 dark:group-hover:text-teal-300">

@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
@@ -87,7 +88,7 @@ export function WelcomeBanner() {
       role="banner"
       aria-label={trialActive ? "Trial welcome" : "Welcome"}
       className={cn(
-        "relative mb-6 rounded-xl border bg-gradient-to-br px-6 py-6 shadow-sm",
+        "relative mb-4 rounded-xl border bg-gradient-to-br px-5 py-4 shadow-sm",
         trialActive
           ? "border-amber-200 from-amber-50 to-white dark:border-amber-900 dark:from-amber-950/30 dark:to-neutral-900"
           : "border-teal-200 from-teal-50 to-white dark:border-teal-900 dark:from-teal-950/30 dark:to-neutral-900",
@@ -121,22 +122,23 @@ export function WelcomeBanner() {
       <h2 className="pr-10 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
         {trialActive ? "Start your first pilot run" : "Start your first pilot run"}
       </h2>
-      <p className="mt-1.5 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-1 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
         Generate manifests and review artifacts in the guided workflow.
       </p>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Button asChild variant="primary" className="h-10 px-6 text-sm font-semibold shadow-sm">
+      <div className="mt-3 flex flex-wrap items-center gap-2.5">
+        <Button asChild variant="primary" className="h-9 px-5 text-sm font-semibold shadow-sm">
           <Link href="/runs/new">Create Run</Link>
         </Button>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline" size="sm" className="h-8">
           <Link href="/runs?projectId=default">Explore demo data</Link>
         </Button>
         {trialActive ? (
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="h-8">
             <Link href="/getting-started?source=registration">Onboarding checklist</Link>
           </Button>
         ) : null}
+        <OptInTourLauncher buttonVariant="ghost" className="h-8" />
       </div>
     </div>
   );

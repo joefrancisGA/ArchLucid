@@ -7,10 +7,6 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { StatusPill } from "@/components/StatusPill";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  CORE_PILOT_CHECKLIST_CHANGED_EVENT,
-  readCorePilotChecklistAllDone,
-} from "@/lib/core-pilot-checklist-storage";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -299,34 +295,10 @@ function SystemHealthCommandCard() {
 }
 
 /**
- * Post–Core Pilot command center: actionable runs snapshot, recent delta medians, and readiness — hidden until all
- * four checklist steps are marked done in local storage (see `readCorePilotChecklistAllDone`).
+ * Command center: runs snapshot, recent delta medians, and API readiness — always on home so the page stays an
+ * operator cockpit, not only a first-run checklist.
  */
 export function CommandCenterSection() {
-  const [pilotComplete, setPilotComplete] = useState(false);
-
-  useEffect(() => {
-    function sync() {
-      setPilotComplete(readCorePilotChecklistAllDone());
-    }
-
-    sync();
-
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.addEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, sync);
-
-    return () => {
-      window.removeEventListener(CORE_PILOT_CHECKLIST_CHANGED_EVENT, sync);
-    };
-  }, []);
-
-  if (!pilotComplete) {
-    return null;
-  }
-
   return (
     <section className="mt-6" aria-labelledby="command-center-heading">
       <h3 id="command-center-heading" className="mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">

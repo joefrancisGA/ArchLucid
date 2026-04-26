@@ -104,11 +104,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
     expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
-    expect(
-      screen.getByText(
-        "Policy, audit, alerts, and trust controls.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
+      "title",
+      "Policy, audit, alerts, and trust controls.",
+    );
     expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
