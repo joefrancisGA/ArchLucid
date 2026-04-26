@@ -27,24 +27,19 @@ public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
             return null;
 
 
-        string? resolved = ResolveLogoPath(options.LogoPath);
+        string resolved = ResolveLogoPath(options.LogoPath);
 
-        if (resolved is null || !File.Exists(resolved))
+        if (!File.Exists(resolved))
             return null;
-
 
         return await File.ReadAllBytesAsync(resolved, cancellationToken);
     }
 
-    private static string? ResolveLogoPath(string logoPath)
+    private static string ResolveLogoPath(string logoPath)
     {
         string trimmed = logoPath.Trim();
 
-        if (Path.IsPathRooted(trimmed))
-            return trimmed;
-
-
-        return Path.Combine(AppContext.BaseDirectory, trimmed.Replace('/', Path.DirectorySeparatorChar));
+        return Path.IsPathRooted(trimmed) ? trimmed : Path.Combine(AppContext.BaseDirectory, trimmed.Replace('/', Path.DirectorySeparatorChar));
     }
 }
 

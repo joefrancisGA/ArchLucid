@@ -60,7 +60,10 @@ public sealed class AgentPromptRegressionTests
             buildEvidence(RegressionRunId),
             new AgentTask
             {
-                TaskId = "t-cost", RunId = RegressionRunId, AgentType = AgentType.Cost, Objective = "Cost."
+                TaskId = "t-cost",
+                RunId = RegressionRunId,
+                AgentType = AgentType.Cost,
+                Objective = "Cost."
             },
             CancellationToken.None);
 
@@ -134,7 +137,7 @@ public sealed class AgentPromptRegressionTests
     /// </summary>
     private static string withExplainabilityTracesHydratedForContract(string agentResultJson)
     {
-        JsonNode? root = JsonNode.Parse(agentResultJson) ?? throw new InvalidOperationException("Result JSON is null.");
+        JsonNode root = JsonNode.Parse(agentResultJson) ?? throw new InvalidOperationException("Result JSON is null.");
         if (root is not JsonObject obj)
             throw new InvalidOperationException("AgentResult JSON root must be an object.");
 
