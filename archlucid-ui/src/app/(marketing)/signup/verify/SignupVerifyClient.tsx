@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+
 /**
  * Post-`POST /v1/register` handoff: Entra / External Id environments require email verification before trial
  * automation completes; DevelopmentBypass tenants may proceed immediately to onboarding.
@@ -21,13 +23,11 @@ export function SignupVerifyClient() {
         <strong>registration</strong> rate limit on <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">POST /v1/register</code>.
       </p>
       <div className="flex flex-wrap gap-3 pt-2">
-        <Link
-          href="/getting-started?source=registration"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-medium text-white hover:bg-teal-800"
-          data-testid="signup-verify-continue-onboarding"
-        >
-          Continue to onboarding
-        </Link>
+        <Button asChild variant="primary" size="lg">
+          <Link href="/getting-started?source=registration" data-testid="signup-verify-continue-onboarding">
+            Continue to onboarding
+          </Link>
+        </Button>
         <Link
           href="/auth/signin"
           className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 bg-white px-4 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"

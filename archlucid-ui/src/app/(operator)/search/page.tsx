@@ -86,7 +86,8 @@ export default function SearchPage() {
           </div>
           <Button
             type="button"
-            className="w-fit bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            variant="primary"
+            className="w-fit"
             onClick={() => void onSearch()}
             disabled={loading || !query.trim()}
           >

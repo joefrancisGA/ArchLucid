@@ -118,10 +118,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 </dl>
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (
-                    <Button
-                      asChild
-                      className="w-full bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
-                    >
+                    <Button asChild variant="primary" className="w-full">
                       <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
                     </Button>
                   ) : null}
@@ -145,11 +142,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
           </ul>
           {props.showSignupCallToAction !== false ? (
             <div className="mt-8 flex justify-center">
-              <Button
-                asChild
-                className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
-                size="lg"
-              >
+              <Button asChild variant="primary" size="lg">
                 <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
               </Button>
             </div>

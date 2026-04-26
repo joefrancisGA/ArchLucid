@@ -19,3 +19,4 @@
 | Understand pricing, tiers, and overage | [go-to-market/PRICING_PHILOSOPHY.md](go-to-market/PRICING_PHILOSOPHY.md) | 8 min |
 | Read the public HTTP and contract surface | [library/API_CONTRACTS.md](library/API_CONTRACTS.md) | 15 min |
 | Request the procurement and evidence pack | [go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md](go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md) | 5 min |
+| Match brand colors, typography, and UI patterns to the shipped operator UI | [brand/BRAND_SYSTEM.md](brand/BRAND_SYSTEM.md) | 8 min |

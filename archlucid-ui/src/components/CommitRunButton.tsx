@@ -71,8 +71,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       <div>
         <Button
           type="button"
-          variant="default"
-          className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          variant="primary"
           onClick={() => {
             setError(null);
             setDialogOpen(true);

@@ -171,7 +171,7 @@ export default function BaselineSettingsPage() {
             />
           </div>
           <div>
-            <Button type="submit" disabled={saving} className="bg-teal-700 text-white hover:bg-teal-800" data-testid="baseline-save">
+            <Button type="submit" disabled={saving} variant="primary" data-testid="baseline-save">
               {saving ? "Saving…" : "Save"}
             </Button>
           </div>

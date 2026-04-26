@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export type EmptyStateAction = {
   label: string;
   href: string;
-  variant?: "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
+  variant?: "primary" | "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
 };
 
 export type EmptyStateProps = {
@@ -37,18 +37,13 @@ export function EmptyState({ icon: Icon, title, description, actions, helpTopicP
             <div className="flex flex-wrap items-center justify-center gap-3">
               {actionList.map((action, index) => {
                 const isPrimary = index === 0 && action.variant === undefined;
-                const variant = isPrimary ? "default" : (action.variant ?? "outline");
+                const variant = isPrimary ? "primary" : (action.variant ?? "outline");
 
                 return (
                   <Button
                     key={`${action.href}-${action.label}`}
                     asChild
                     variant={variant}
-                    className={
-                      isPrimary
-                        ? "bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-                        : undefined
-                    }
                   >
                     <Link href={action.href}>{action.label}</Link>
                   </Button>

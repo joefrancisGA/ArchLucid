@@ -168,8 +168,7 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button
           type="button"
-          variant="default"
-          className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          variant="primary"
           disabled={busy}
           onClick={() => void onDownload()}
           data-testid="email-run-to-sponsor-primary-action"
