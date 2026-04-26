@@ -1,14 +1,14 @@
-> **Scope:** Eighteen paste-ready Cursor prompts — the nine V1-actionable usability improvements from the 69.52% assessment **plus** nine Linear-inspired UI modernization prompts that introduce new visual patterns without breaking existing infrastructure. Each prompt is self-contained.
+> **Scope:** Twenty-three paste-ready Cursor prompts — the nine V1-actionable usability improvements from the 69.52% assessment, nine Linear-inspired UI modernization prompts that introduce new visual patterns without breaking existing infrastructure, and five follow-up prompts (19–23) that finish the inline-style migration, unify page headers, and add print support. Each prompt is self-contained.
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-> **Lineage:** Prompts 1–9 are the usability assessment prompts from [`CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md`](../CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md). Prompts 10–18 incorporate Linear-inspired workbench concepts — inspector panel, unified status pills, report readability, run detail flagship, dashboard evolution, visual density, and consistency — **calibrated to the actual codebase** (existing `AppShellClient`, `SidebarNav`, `EmptyState`, `RunStatusBadge`, `governance-status-badge-class`, shadcn/Radix/Tailwind stack, 48 operator pages).
+> **Lineage:** Prompts 1–9 are the usability assessment prompts from [`CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md`](../CURSOR_PROMPTS_USABILITY_ASSESSMENT_2026_04_25_69_52.md). Prompts 10–18 incorporate Linear-inspired workbench concepts — inspector panel, unified status pills, report readability, run detail flagship, dashboard evolution, visual density, and consistency — **calibrated to the actual codebase** (existing `AppShellClient`, `SidebarNav`, `EmptyState`, `RunStatusBadge`, `governance-status-badge-class`, shadcn/Radix/Tailwind stack, 48 operator pages). Prompts 19–23 are follow-up prompts generated from the Prompt 18 punch list — they finish the inline-style sweep, introduce `OperatorPageHeader`, bring parity to lagging surfaces, unify compare views, and add print support.
 
 # Cursor prompts — V1 UI modernization (usability + Linear-inspired polish)
 
 **How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) accordingly.
 
-**Recommended execution order.** Prompts 1–9 (usability fixes) first, in order. Then Prompts 10–18 (Linear-inspired polish) in order. The usability prompts fix structural issues; the Linear prompts layer visual polish on top.
+**Recommended execution order.** Prompts 1–9 (usability fixes) first, in order. Then Prompts 10–18 (Linear-inspired polish) in order. Then Prompts 19–23 (cleanup and polish) in order. The usability prompts fix structural issues; the Linear prompts layer visual polish on top; the cleanup prompts finish migration and add infrastructure.
 
 **Owner decisions recorded 2026-04-25.** All five pending questions from the assessment are resolved:
 - Q1–Q3: Scope switching, non-obscure tenant settings UI, and role/authority management UI all **approved** for V1.
@@ -82,9 +82,7 @@ is consolidation, not feature addition.
 
 ## Prompt 2 — Upgrade Search and Ask pages to use design system components
 
-**Status: shipped.** `/search` and `/ask` use `Input`, `Button`, `Card`, `Label`, `Textarea` (ask), Tailwind neutral/teal shell tokens, `ContextualHelp` (`semantic-search`, `ask-archlucid` in `contextual-help-content.ts`), and `OperatorApiProblem`. Zero-hit search uses **`SEARCH_EMPTY`** from **`archlucid-ui/src/lib/search-empty-preset.ts`**. Empty conversation on Ask uses **`ASK_CONVERSATION_EMPTY`** from **`archlucid-ui/src/lib/ask-conversation-empty-preset.ts`**. Tests: **`archlucid-ui/src/app/(operator)/search-ask-pages-render.test.tsx`** (smoke), **`archlucid-ui/src/accessibility/search-ask-pages-axe.test.tsx`** (axe).
-
-**Why this mattered (historical).** Those pages were the last raw-HTML / inline-style operator surfaces; estimated weighted lift was **+1.55 points.**
+**Why this matters.** `/search` and `/ask` are the only operator pages using raw HTML elements and inline `style={}` — no dark mode, no focus rings, no design system consistency. Estimated weighted lift: **+1.55 points.**
 
 ```
 Goal: refactor the /search and /ask operator pages to use the same
@@ -109,8 +107,8 @@ For /search:
    palette (neutral/teal).
 4. Wrap search results in <Card> + <CardContent> instead of inline
    style divs.
-5. Add a zero-results empty state using SEARCH_EMPTY (preset in
-   archlucid-ui/src/lib/search-empty-preset.ts).
+5. Add a zero-results empty state using SEARCH_EMPTY (create a new
+   preset in empty-state-presets.ts if needed, or inline text).
 6. Add dark-mode classes matching the shell palette.
 
 For /ask:
@@ -141,9 +139,7 @@ refactor only.
 
 ## Prompt 3 — Add contextual help entries to high-traffic operator pages
 
-**Status: shipped.** All listed keys live in **`archlucid-ui/src/lib/contextual-help-content.ts`**. Operator surfaces wire **`<ContextualHelp helpKey="…" />`** next to headings (alerts inbox, governance dashboard, compare, replay, graph, audit, policy-packs, search, ask, advisory scans/schedules, plus wizard/run/settings/admin/scope entries). **Tests:** **`contextual-help-content.test.ts`** asserts every production **`helpKey=`** literal under **`src/`** (excluding `*.test.*`) has an index entry **and** the index has no unused keys — scan helper **`contextual-help-keys-from-source.ts`**.
-
-**Why this mattered (historical).** High-traffic operator pages lacked inline (?); estimated weighted lift was **+1.20 points.**
+**Why this matters.** `ContextualHelp` (?) popovers exist in only two places. Ten high-traffic pages have no inline help. Estimated weighted lift: **+1.20 points.**
 
 ```
 Goal: expand the contextual-help-content.ts index and wire ContextualHelp
@@ -213,9 +209,7 @@ entries for marketing pages.
 
 ## Prompt 4 — Add inline validation feedback to the new-run wizard steps
 
-**Status: shipped.** `NewRunWizardClient` runs **`validateWizardStep`** (`archlucid-ui/src/lib/wizard-step-validate.ts` — Zod `pick` per step) on **Next**; failures use RHF **`setError`**; **`WizardFieldError`** renders **`text-red-600` / `text-sm` / `role="alert"`**; step fields clear errors on **`onChange`** / **`Select`** / chip updates (`WizardStepIdentity`, `WizardStepDescription`, …). **`priorManifestVersion`** uses schema **`refine`** (UUID / 32-hex or blank). **`NewRunWizardClient.test.tsx`** covers empty system name, error clear on type, happy-path advance, **invalid prior manifest UUID**, and **description under min length**.
-
-**Why this mattered (historical).** Validation used to surface only on submit; estimated weighted lift was **+1.05 points.**
+**Why this matters.** The 7-step wizard validates only on submit. Operators discover empty/invalid fields only after clicking Next or Submit. Estimated weighted lift: **+1.05 points.**
 
 ```
 Goal: add inline validation to the new-run wizard so operators see
@@ -298,8 +292,6 @@ self-explanatory to a two-year developer (e.g. "run ID", "API",
 "JSON").
 ```
 
-**Status: shipped.** Home uses **`OperatorHomeGlossarySections`** (first body occurrences: **run**, **findings**, **artifact bundle**, **golden manifest** — ≤5, not in headings). Run detail **`runs/[runId]/page.tsx`** wraps **run**, **golden manifest**, **authority pipeline**, **context snapshot**, **decision trace** in body copy. **`/compare`**, **`/governance/dashboard`**, and **`/alerts`** use **`GlossaryTooltip`** for **manifest diff** / **comparison record**, **approval request** / **governance resolution**, and **finding** respectively; keys live in **`glossary-terms.ts`**. **Tests:** **`GlossaryTooltip.test.tsx`**, **`GlossaryTerm.test.tsx`** (pass).
-
 ---
 
 ## Prompt 6 — Wire NEXT_PUBLIC_DOCS_BASE_URL default or fallback for HelpPanel doc links
@@ -341,8 +333,6 @@ public URL before hardcoding a default.
 Do NOT change the HelpPanel component layout. Do NOT change help topic
 content.
 ```
-
-**Status: shipped.** **`getDocHref`** (`help-topics.ts`) uses **`NEXT_PUBLIC_DOCS_BASE_URL`** when non-empty; otherwise **`DEFAULT_GITHUB_BLOB_BASE`** from **`docs-public-base.ts`** (public `main` blob for the canonical repo). **`toDocsBlobUrl`** mirrors this via **`NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE`** or the same default. **HelpPanel** only shows the “unavailable” copy when **`docPath`** is empty (not when the env var is unset). **Tests:** **`help-topics.test.ts`**, **`contextual-help-content.test.ts`** (including **`toDocsBlobUrl`** override / trailing-slash cases).
 
 ---
 
@@ -435,8 +425,6 @@ Do NOT change existing API endpoints. Do NOT add backend code. This
 is a UI-only improvement that consumes existing or future APIs.
 ```
 
-**Status: shipped.** **Scope:** **`ScopeSwitcher`** in **`AppShellClient`** on the breadcrumb row **between** breadcrumbs **and** the Help control (then Help); **`localStorage`** + **`getEffectiveBrowserProxyScopeHeaders`** → proxy **`/api/proxy`** scope headers; **`GET /v1/tenant/workspaces`** with empty/error notes when missing. **Tenant:** **`/settings/tenant`** — trial, digest prefs (existing API), scope summary, tenant display name stub. **Users:** **`/admin/users`** — directory table + read-only note until admin user APIs exist (no **`PUT …/authority`** in repo yet). **Nav:** **`nav-config.ts`** — **`/settings/tenant`** (**`ExecuteAuthority`**), **`operator-admin`** **`/admin/users`** (**`AdminAuthority`**). **ContextualHelp** on scope, tenant, admin users. **Tests:** **`ScopeSwitcher.test.tsx`**, **`settings/tenant/page.test.tsx`**, **`admin/users/page.test.tsx`**.
-
 ---
 
 ## Prompt 8 — Add in-app diagnostics/health dashboard for operators
@@ -522,8 +510,6 @@ Do NOT add new API endpoints. Do NOT modify health check registration.
 This is a UI-only consumer of existing API surfaces.
 ```
 
-**Status: shipped.** **`/admin/health`** — **`page.tsx`** (three **Cards**: readiness via **`/api/proxy/health/ready`**, circuits via **`/api/proxy/health`**, onboarding counters via **`/api/proxy/v1/diagnostics/operator-task-success-rates`**), **`loading.tsx`**, **`health-dashboard-types.ts`**, **`ContextualHelp`** **`system-health`**, **`help-topics`** **`system-health`**, **`nav-config`** under **`operate-governance`** (**`essential`**, **`requiredAuthority`** omitted for diagnostics). **Tests:** **`admin/health/page.test.tsx`**.
-
 ---
 
 ## Prompt 9 — Add a "what's next" continuation funnel after Core Pilot checklist completion
@@ -567,8 +553,6 @@ Do NOT add new wizard steps. Do NOT change the Core Pilot checklist.
 Do NOT auto-enable extended/advanced sidebar links — just tell the
 operator what to toggle.
 ```
-
-**Status: shipped.** **`AfterCorePilotChecklistHint`** renders a **Card** with **“Ready for more?”** / **“Expand your pilot”**, intro copy (**`after-core-pilot-intro`**), **Dismiss** → **`AFTER_CORE_PILOT_WHATS_NEXT_DISMISSED_KEY`**, and a **Collapsible** list of four **Next.js** links (**/compare**, **/graph**, **`/alerts?tab=rules`**, **`/policy-packs`**) plus per-item **sidebar** notes from **`NAV_DISCLOSURE`**. Gated on **`readCorePilotChecklistAllDone()`** and listens for **`CORE_PILOT_CHECKLIST_CHANGED_EVENT`**. **Tests:** **`AfterCorePilotChecklistHint.test.tsx`** (incomplete steps → hidden; all done → links; dismiss persists).
 
 ---
 
@@ -669,8 +653,6 @@ Do NOT change backend behavior. Do NOT change stored status values.
 Do NOT remove RunStatusBadge — refactor it to delegate.
 ```
 
-**Status: shipped.** **`StatusPill`** (`StatusPill.tsx`) wraps **`Badge`** using **`lib/status-pill-domain-classes.ts`** (`pipeline` | `governance` | `health` | `general`). **`RunStatusBadge`** delegates with **`ariaLabel`** for run lists. **Governance** dashboard + workflow pages use **`StatusPill`**; **`governance-status-badge-class.ts`** re-exports **`governanceDomainBadgeClass`** with **`@deprecated`**. **Admin health** uses **`StatusPill`** for readiness/circuit/overall badges. **Tests:** **`StatusPill.test.tsx`**, **`RunStatusBadge.test.tsx`**, **`governance-status-badge-class.test.ts`**.
-
 ---
 
 ## Prompt 11 — Redesign Run Detail as the flagship screen
@@ -768,8 +750,6 @@ After implementation:
   the same card/header/metadata grid structure.
 ```
 
-**Status: shipped.** **`runs/[runId]/page.tsx`** — **`max-w-4xl`**, **`space-y-6`**, breadcrumb **`nav`**, **`RunDetailPageHeader`** (client: **`h1`**, **`RunStatusBadge`**, Run ID **`CopyIdButton`**, **Commit** + governance **ContextualHelp**), **Cards** for Run / Timeline / Chain / Manifest / Actions, **provenance** vertical list with **copy** + manifest **Link**, **`<dl>`** manifest grid, **`<Button variant="outline|secondary">`** for downloads / compare / replay, **no `style={{}}`**. New: **`RunDetailPageHeader.tsx`**, **`CopyIdButton.tsx`**, **`lib/run-summary-from-detail.ts`** (+ **`run-summary-from-detail.test.ts`**). **Scroll:** **`scroll-mt-24`** on section anchors. **Flagship pattern:** card shell + header strip + metadata grid for future detail routes.
-
 ---
 
 ## Prompt 12 — Add a right-side inspector panel pattern
@@ -855,8 +835,6 @@ After implementation:
   /policy-packs lists by following the same pattern.
 ```
 
-**Status: shipped.** **`InspectorPanel.tsx`**, **`RunInspectorPreview.tsx`** (list **`RunSummary`** only), **`RunsListClient.tsx`** (row click + **`Open run`** with **`stopPropagation`**, docked inspector at **`lg+`**, slide-over sheet when **`useViewportNarrow()`** is true), **`useViewportNarrow.ts`**, tests **`InspectorPanel.test.tsx`** / **`RunsListClient.test.tsx`**. **`AppShellClient`** unchanged. **Reuse:** same **`InspectorPanel`** shell for governance, alerts, advisory, policy-pack lists.
-
 ---
 
 ## Prompt 13 — Polish the Runs list as a work queue
@@ -932,8 +910,6 @@ After implementation:
 - Note which RunSummary fields were used vs which were unavailable.
 ```
 
-**Status: shipped.** **`RunsListClient.tsx`** — work-queue **sections** (**Needs attention** / **In progress** / **Committed**) via **`partitionRunsIntoWorkQueueSections`** (groups from **`hasGoldenManifest`** / **`hasFindingsSnapshot`** only; **in-progress** = not yet at findings). Rows: **semibold** primary title (**`description`** or **Untitled run**), **`RunStatusBadge`** (**`StatusPill`**), **runId** + optional **project** when **`projectId`** differs from the page filter, **`formatRelativeTime`** + **`title`** full timestamp, **`RunProvenanceInline`** (four **`has*Snapshot`** / **`hasGoldenManifest`** dots). **Dense** **`px-3 py-2`**, **`divide-y`**, **`tabIndex={0}`** + **Enter/Space** row activate, focus ring. **`run-work-queue-groups.ts`** + tests; **`RunProvenanceInline.tsx`** + test. **Not used on list rows:** `goldenManifestId`, snapshot id strings, **`hasDecisionTrace`**, **`hasArtifactBundle`**. **`page.tsx`**, **`RUNS_EMPTY`**, **BeforeAfter** panels unchanged.
-
 ---
 
 ## Prompt 14 — Polish the governance dashboard as a work queue
@@ -984,8 +960,6 @@ Tests:
 
 After implementation, summarize changed files.
 ```
-
-**Status: shipped.** **`governance/dashboard/page.tsx`** — pending approvals as a **dense table** (**`divide-y`**, **`px-3 py-2`**, hover / selection ring) with **primary label** **`sourceEnvironment → targetEnvironment`**, **`StatusPill`** (`domain="governance"`), **run** link, **`formatRelativeTime`** + **`title`** absolute, **requested-by** line, actions with **`stopPropagation`**; **`InspectorPanel`** + **`useViewportNarrow`** (docked / sheet) and **`GovernanceApprovalInspectorPreview`** on row click (**Enter**/**Space**). **Recent decisions** table same visual language. **Change log** uses **`StatusPill`** (`domain="general"`, **`uppercase={false}`**) + relative **`changedUtc`**. **`GovernanceApprovalInspectorPreview.tsx`** + test. **`governanceStatusBadgeClass`** remains deprecated delegate; **`governance-status-badge-class.test.ts`** unchanged. **Promotions / activations** lists are not on this dashboard DTO — **N/A**. **`max-w-6xl`** for inspector room.
 
 ---
 
@@ -1061,10 +1035,10 @@ Hard constraints:
 - Do NOT remove or reorder existing home page components
   (WelcomeBanner, PilotOutcomeCard, OperatorTaskSuccessTile,
   BeforeAfterDeltaPanel, OperatorFirstRunWorkflowPanel,
-  AfterCorePilotChecklistHint, Operate · analysis section, Operate ·
-  governance section).
+  AfterCorePilotChecklistHint, Advanced Analysis section, Enterprise
+  Controls section).
 - Insert the CommandCenterSection AFTER AfterCorePilotChecklistHint
-  and BEFORE the Operate · analysis section (nav group operate-analysis).
+  and BEFORE the "Advanced Analysis" section.
 - Do NOT add API endpoints. Use ONLY existing endpoints.
 - Do NOT make the command center the primary home experience — the
   checklist remains the primary for new operators.
@@ -1079,8 +1053,6 @@ Tests:
 After implementation, summarize changed files and describe the
 conditional rendering logic.
 ```
-
-**Status: shipped.** **`CommandCenterSection.tsx`** — visible only when **`readCorePilotChecklistAllDone()`** is true; listens for **`CORE_PILOT_CHECKLIST_CHANGED_EVENT`**. Cards: **Runs** (`**listRunsByProjectPaged**` + **`coerceRunSummaryPaged**`, filter **`hasFindingsSnapshot`** && not **`hasGoldenManifest`**, up to 3 rows with **`RunStatusBadge`** / **`StatusPill`**, link **`/runs?projectId=default`**); **Recent activity** (**`useDeltaQuery`** medians, same endpoint as delta banner; link runs list); **System health** (**`GET /api/proxy/health/ready`**, **`StatusPill`** `domain="health"`, fallback copy per prompt). **`page.tsx`** inserts section **after** **`AfterCorePilotChecklistHint`**, **before** Advanced Analysis. **`CommandCenterSection.test.tsx`**. **Not in scope:** governance/alerts/advisory cards (no single lightweight list APIs on home without new calls).
 
 ---
 
@@ -1285,6 +1257,575 @@ Be direct. Do not flatter the project.
 
 ---
 
+# Part C — Remaining inline-style cleanup, page header unification, and polish (Prompts 19–23)
+
+These five prompts finish the inline-style migration, introduce a reusable page header, bring advisory schedules to parity, unify the compare views, and add a print stylesheet. Run after Prompts 1–18.
+
+---
+
+## Prompt 19 — Replace remaining inline styles across operator pages and shared components
+
+**Why this matters.** After Prompts 16–17, approximately 340 `style={{ }}` instances remain across 14 operator page files and 28 component files. These bypass the design system, break dark mode, and prevent visual consistency. This prompt is a continuation of Prompt 17 — same rules, broader scope.
+
+```
+Goal: systematically replace every remaining style={{ }} object across
+operator pages and shared components with equivalent Tailwind classes.
+Mechanical cleanup — no behavior changes.
+
+Read first (sorted by inline-style count, highest first):
+Pages:
+- archlucid-ui/src/app/(operator)/replay/page.tsx          (~43 instances)
+- archlucid-ui/src/app/(operator)/policy-packs/page.tsx     (~45 instances)
+- archlucid-ui/src/app/(operator)/evolution-review/page.tsx  (~36 instances)
+- archlucid-ui/src/app/(operator)/audit/page.tsx             (~33 instances)
+- archlucid-ui/src/app/(operator)/governance-resolution/page.tsx (~28 instances)
+- archlucid-ui/src/app/(operator)/graph/page.tsx             (~18 instances)
+- archlucid-ui/src/app/(operator)/product-learning/page.tsx  (~61 instances)
+- archlucid-ui/src/app/(operator)/planning/page.tsx          (~13 instances)
+- archlucid-ui/src/app/(operator)/planning/plans/[planId]/page.tsx (~27 instances)
+- archlucid-ui/src/app/(operator)/manifests/[manifestId]/page.tsx  (~15 instances)
+- archlucid-ui/src/app/(operator)/recommendation-learning/page.tsx (~6 instances)
+
+Shared components:
+- archlucid-ui/src/components/alerts/AlertSimulationContent.tsx     (~83 instances)
+- archlucid-ui/src/components/alerts/AlertTuningContent.tsx          (~38 instances)
+- archlucid-ui/src/components/alerts/CompositeAlertRulesContent.tsx  (~29 instances)
+- archlucid-ui/src/components/alerts/AlertRoutingContent.tsx         (~18 instances)
+- archlucid-ui/src/components/alerts/AlertRulesContent.tsx           (~15 instances)
+- archlucid-ui/src/components/ProvenanceGraphDiagram.tsx             (~19 instances)
+- archlucid-ui/src/components/PolicyPackDiffView.tsx                 (~19 instances)
+- archlucid-ui/src/components/ArtifactListTable.tsx                  (~18 instances)
+- archlucid-ui/src/components/RunAgentForensicsSection.tsx           (~21 instances)
+- archlucid-ui/src/components/evolution/SimulationRunDiffCard.tsx    (~34 instances)
+- archlucid-ui/src/components/digests/DigestSubscriptionsContent.tsx (~17 instances)
+- archlucid-ui/src/components/planning/PlanningSummarySection.tsx    (~9 instances)
+- archlucid-ui/src/components/planning/PlanningPlansTable.tsx        (~5 instances)
+- archlucid-ui/src/components/planning/PlanningThemesTable.tsx       (~6 instances)
+- archlucid-ui/src/components/planning/PlanningExportReadinessNote.tsx (~3 instances)
+- archlucid-ui/src/components/ArtifactReviewContent.tsx              (~7 instances)
+- archlucid-ui/src/components/SectionCard.tsx                        (~2 instances)
+- archlucid-ui/src/components/OperatorApiProblem.tsx                 (~2 instances + CSSProperties const)
+- archlucid-ui/src/components/AuthorityPipelineTimeline.tsx          (~7 instances)
+- archlucid-ui/src/components/ComplianceDriftChart.tsx               (~2 instances)
+- archlucid-ui/src/components/explanation/CitationChips.tsx           (~3 instances)
+- archlucid-ui/src/components/GraphViewer.tsx                         (~6 instances)
+- archlucid-ui/src/components/AuthPanel.tsx                           (~2 instances)
+- archlucid-ui/src/components/ColorModeToggle.tsx                     (~1 instance)
+- archlucid-ui/src/components/compare/LegacyRunComparisonView.tsx    (~15 instances)
+- archlucid-ui/src/components/compare/StructuredComparisonView.tsx   (~22 instances)
+- archlucid-ui/src/components/compare/AiComparisonExplanationView.tsx (~13 instances)
+
+For auth pages (auth/callback, auth/signin) — leave as-is; they
+have minimal inline styles and are not operator workflow pages.
+
+Translation map (reuse from Prompt 17, plus additions):
+- margin: 0 → m-0
+- margin: "8px 0 0" → mt-2
+- margin: "10px 0 0" → mt-2.5
+- margin: "12px 0 8px" → mt-3 mb-2
+- marginTop: 0 → mt-0
+- marginTop: 4 → mt-1
+- marginTop: 8 → mt-2
+- marginTop: 12 → mt-3
+- marginTop: 16 → mt-4
+- marginTop: 20 → mt-5
+- marginTop: 24 → mt-6
+- marginTop: 28 → mt-7
+- marginBottom: 0 → mb-0
+- marginBottom: 6 → mb-1.5
+- marginBottom: 8 → mb-2
+- marginBottom: 10 → mb-2.5
+- marginBottom: 12 → mb-3
+- marginBottom: 16 → mb-4
+- marginBottom: 24 → mb-6
+- marginBottom: 28 → mb-7
+- marginBottom: 32 → mb-8
+- padding: 8 → p-2
+- padding: 12 → p-3
+- padding: 16 → p-4
+- padding: "10px 16px" → px-4 py-2.5
+- paddingLeft: 18 → pl-[18px]  (or pl-5 if close enough)
+- paddingLeft: 20 → pl-5
+- fontSize: 11 → text-[11px]
+- fontSize: 12 → text-xs
+- fontSize: 13 → text-[13px]
+- fontSize: 14 → text-sm
+- fontSize: 15 → text-[15px]
+- fontSize: 17 → text-[17px]
+- fontSize: 20 → text-xl
+- fontSize: "0.875rem" → text-sm
+- fontSize: "1rem" → text-base
+- fontWeight: 600 → font-semibold
+- fontFamily: "monospace" → font-mono
+- fontFamily: "ui-monospace, monospace" → font-mono
+- lineHeight: 1.5 → leading-normal
+- lineHeight: 1.55 → leading-relaxed
+- lineHeight: 1.6 → leading-relaxed
+- color: "#64748b" → text-neutral-500 dark:text-neutral-400
+- color: "#475569" → text-neutral-600 dark:text-neutral-400
+- color: "#444" → text-neutral-600 dark:text-neutral-400
+- color: "#555" → text-neutral-600 dark:text-neutral-400
+- color: "#666" → text-neutral-500 dark:text-neutral-400
+- color: "#333" → text-neutral-700 dark:text-neutral-300
+- color: "#334155" → text-neutral-700 dark:text-neutral-300
+- color: "#b91c1c" → text-red-700 dark:text-red-400
+- color: "#b45309" → text-amber-700 dark:text-amber-400
+- color: "#4338ca" → text-indigo-700 dark:text-indigo-400
+- color: "#1d4ed8" → text-blue-700 dark:text-blue-400  (or use
+  the existing teal link pattern for nav links)
+- background: "#fafafa" → bg-neutral-50 dark:bg-neutral-950
+- background: "#f8fafc" → bg-neutral-50/90 dark:bg-neutral-900/50
+- background: "#fff" → bg-white dark:bg-neutral-950
+- background: "#fff8f8" → bg-red-50/60 dark:bg-red-950/20
+- background: "#fffbeb" → bg-amber-50 dark:bg-amber-950/40
+- background: "#f0fdf4" → bg-green-50 dark:bg-green-950/40
+- border: "1px solid #ddd" → border border-neutral-200 dark:border-neutral-700
+- border: "1px solid #ccc" → border border-neutral-300 dark:border-neutral-600
+- border: "1px solid #e0c4c4" → border border-red-200 dark:border-red-900
+- border: "1px solid #e2e8f0" → border border-neutral-200 dark:border-neutral-700
+- border: "1px dashed #94a3b8" → border border-dashed border-neutral-400
+  dark:border-neutral-500
+- borderRadius: 6 → rounded-md
+- borderRadius: 8 → rounded-lg
+- display: "grid" → grid
+- display: "flex" → flex
+- display: "block" → block
+- gap: 8 → gap-2
+- gap: 10 → gap-2.5
+- gap: 12 → gap-3
+- gap: 14 → gap-3.5
+- gap: 16 → gap-4
+- flexWrap: "wrap" → flex-wrap
+- alignItems: "center" → items-center
+- alignItems: "flex-end" → items-end
+- maxWidth: 720 → max-w-3xl
+- maxWidth: 800 → max-w-3xl
+- maxWidth: 900 → max-w-4xl
+- maxWidth: 960 → max-w-5xl
+- maxWidth: 1100 → max-w-6xl
+- overflowX: "auto" → overflow-x-auto
+- overflow: "auto" → overflow-auto
+- maxHeight: 200 → max-h-[200px]
+- maxHeight: 220 → max-h-[220px]
+- wordBreak: "break-all" → break-all
+- whiteSpace: "nowrap" → whitespace-nowrap
+- cursor: "pointer" → cursor-pointer
+- cursor: "wait" → cursor-wait
+- textAlign: "left" → text-left
+- columns: 2 → columns-2
+- pointerEvents: "none" → pointer-events-none
+- width: "100%" → w-full
+- width: 80 → w-20
+- width: 160 → w-40
+- minWidth: 140 → min-w-[140px]
+- minWidth: 220 → min-w-[220px]
+- borderCollapse: "collapse" → border-collapse
+- listStyle: "none" → list-none
+
+Special cases:
+- SectionCard.tsx: replace the style const entirely with Tailwind on
+  the <section> and <h3>. This is a shared component — convert it
+  to Tailwind classes so every consumer benefits.
+- OperatorApiProblem.tsx: remove the CSSProperties import and the
+  correlationStyle const; convert to Tailwind className.
+- ProvenanceGraphDiagram.tsx SVG colors — keep inline style for SVG
+  fill/stroke that Tailwind cannot replace (e.g. dynamic node
+  colors). Add a TODO comment where inline SVG paint is necessary.
+- progress.tsx — keep the transform inline style (Radix internal).
+- ColorModeToggle.tsx — keep if it is a single toggle animation
+  style.
+
+Rules (same as Prompt 17):
+- Do NOT change conditional rendering logic.
+- Do NOT change component props or data flow.
+- Do NOT change text content.
+- Do NOT change element types.
+- If an inline style has no obvious Tailwind equivalent, use an
+  arbitrary value class (e.g. w-[72%]) or leave a TODO.
+- Every replaced hardcoded color MUST include a dark: variant.
+- Replace raw <button> with <Button> from shadcn only where safe
+  (no custom event handlers beyond onClick).
+
+After implementation:
+- Run the build. Fix any Tailwind class typos.
+- Run existing tests — no behavior should change.
+- List every file modified and the count of inline styles replaced.
+- Report any remaining inline styles that could not be cleanly
+  replaced (expected: SVG paint, Radix transform, animation).
+
+Stop-and-ask boundaries:
+- If a file has more than 60 inline styles and the mapping is
+  ambiguous for more than 5 of them, pause and list the ambiguous
+  cases before proceeding.
+- If a component uses CSSProperties for dynamic computed styles
+  (not static objects), stop and describe them — those may need a
+  different approach (cn() with conditional classes).
+```
+
+---
+
+## Prompt 20 — Introduce OperatorPageHeader and migrate highest-traffic pages
+
+**Why this matters.** Operator pages use at least four heading patterns: plain `<h2 style={{}}>`, `<h2 className="...">`, `<h2>` with adjacent `<p>` metadata, and `<h2>` paired with `<ContextualHelp>`. A shared `OperatorPageHeader` — title, optional subtitle, optional `ContextualHelp` key, optional metadata line — eliminates drift and makes every page feel like part of the same product.
+
+```
+Goal: create a reusable OperatorPageHeader component and migrate
+the highest-traffic operator pages to use it, replacing ad hoc
+heading patterns with a single consistent structure.
+
+Read first:
+- archlucid-ui/src/app/(operator)/runs/[runId]/page.tsx
+  (flagship run detail — likely already has a structured header;
+  use as the reference pattern)
+- archlucid-ui/src/app/(operator)/runs/page.tsx
+- archlucid-ui/src/app/(operator)/governance/page.tsx
+- archlucid-ui/src/app/(operator)/governance/dashboard/page.tsx
+- archlucid-ui/src/app/(operator)/policy-packs/page.tsx
+- archlucid-ui/src/app/(operator)/audit/page.tsx
+- archlucid-ui/src/app/(operator)/replay/page.tsx
+- archlucid-ui/src/app/(operator)/graph/page.tsx
+- archlucid-ui/src/app/(operator)/evolution-review/page.tsx
+- archlucid-ui/src/app/(operator)/governance-resolution/page.tsx
+- archlucid-ui/src/app/(operator)/planning/page.tsx
+- archlucid-ui/src/app/(operator)/compare/page.tsx
+- archlucid-ui/src/app/(operator)/search/page.tsx
+- archlucid-ui/src/app/(operator)/ask/page.tsx
+- archlucid-ui/src/components/ContextualHelp.tsx
+
+Create: archlucid-ui/src/components/OperatorPageHeader.tsx
+
+Component design:
+1. Props:
+   - title: string (required)
+   - subtitle?: string (muted secondary line under the title)
+   - helpKey?: string (renders <ContextualHelp helpKey={helpKey} />
+     next to the title)
+   - metadata?: React.ReactNode (small text/badges rendered below
+     the title row — for timestamps, status pills, counts)
+   - actions?: React.ReactNode (right-aligned action buttons)
+   - children?: React.ReactNode (extra content below the header
+     block; e.g. tab bars, search bars)
+2. Layout:
+   - Top row: flex, items-center, gap-2. Title (<h2> text-xl
+     font-bold text-neutral-900 dark:text-neutral-50 m-0).
+     ContextualHelp icon inline. Actions pushed right with ml-auto.
+   - If subtitle present: <p> text-sm text-neutral-500
+     dark:text-neutral-400 m-0 mt-1 max-w-2xl.
+   - If metadata present: <div> text-sm text-neutral-600
+     dark:text-neutral-400 mt-1 flex flex-wrap gap-x-4 gap-y-1.
+   - children rendered below with mt-4.
+   - Wrapper: <header> with mb-6 border-b border-neutral-200
+     dark:border-neutral-800 pb-4.
+3. Pure presentation — no data fetching, no hooks.
+
+Apply OperatorPageHeader to these pages (highest-traffic first):
+4. /runs — "Architecture runs" title, helpKey if one exists.
+5. /governance — "Governance" title.
+6. /governance/dashboard — "Governance dashboard" title.
+7. /policy-packs — "Policy packs" title, helpKey "policy-packs".
+8. /audit — title "Audit log", helpKey "audit".
+9. /replay — title "Replay", helpKey "replay".
+10. /graph — title "Architecture graph", helpKey "graph".
+11. /evolution-review — title "Simulation review".
+12. /governance-resolution — title "Governance resolution".
+13. /planning — title "Planning".
+14. /compare — title "Compare runs".
+15. /search — title, if one exists.
+16. /ask — title, if one exists.
+
+For each page:
+- Replace the existing <h2 ...> (plus any adjacent subtitle <p>)
+  with <OperatorPageHeader title="..." ... />.
+- Keep any existing ContextualHelp — move its helpKey into the
+  OperatorPageHeader prop.
+- Keep any existing actions/buttons — pass as actions prop.
+- Do NOT change data loading, route structure, or conditional
+  rendering.
+
+Tests:
+- OperatorPageHeader.test.tsx: renders title; renders subtitle when
+  provided; renders ContextualHelp when helpKey provided; renders
+  actions right-aligned; omits subtitle when not provided.
+
+Hard constraints:
+- Do NOT change routes or URLs.
+- Do NOT rename files.
+- Do NOT change API contracts.
+- Do NOT change component prop types on existing components.
+- Pages not listed above: leave their headings as-is for now.
+
+Product vocabulary to apply during migration (UI text only, NOT
+API fields or route paths):
+- "Architecture runs" (not "Runs") for the runs list page heading
+- "Architecture graph" (not "Graph") for the graph page heading
+- "Policy packs" (not "Rule sets") in the heading
+- "Simulation review" (not "Evolution review") for the heading
+- "Provenance chain" (not "Authority chain") in headings
+
+After implementation, list every file modified and summarize which
+pages now use OperatorPageHeader vs. which still have ad hoc headers.
+```
+
+---
+
+## Prompt 21 — Advisory schedules tab parity and inline-style cleanup
+
+**Why this matters.** The advisory hub has two tabs. After Prompt 16/17, the scans tab uses `DocumentLayout`, `Button`, and Tailwind. The schedules tab (`AdvisorySchedulesContent`) still has ~17 inline styles, raw `<button>` elements, and no `DocumentLayout`. Side-by-side, the tabs look like they belong to different products.
+
+```
+Goal: bring AdvisorySchedulesContent to visual parity with the
+refreshed AdvisoryScansContent. Replace inline styles with Tailwind,
+swap raw <button> for <Button>, add DocumentLayout where appropriate,
+and apply OperatorPageHeader if Prompt 20 has been run.
+
+Read first:
+- archlucid-ui/src/components/advisory/AdvisoryScansContent.tsx
+  (reference — already refreshed with DocumentLayout + Button +
+  Tailwind)
+- archlucid-ui/src/components/advisory/AdvisorySchedulesContent.tsx
+  (~17 inline styles, raw <button>, no DocumentLayout)
+- archlucid-ui/src/components/advisory/AdvisoryHubClient.tsx
+  (tab container — verify tab layout is consistent)
+- archlucid-ui/src/components/ui/button.tsx  (import path)
+- archlucid-ui/src/components/DocumentLayout.tsx
+
+Changes:
+1. Replace all style={{ }} in AdvisorySchedulesContent.tsx with
+   Tailwind classes. Use the same translation map from Prompt 17/19.
+2. Replace raw <button> elements with <Button> from shadcn. Keep
+   onClick handlers unchanged. Use variant="outline" for secondary
+   actions, default for primary.
+3. Wrap the main content area in <DocumentLayout> (no TOC — the
+   page is form-heavy, not long-form narrative).
+4. Wrap <main> in className="mx-auto max-w-4xl px-4 py-6" to match
+   the scans tab main container.
+5. Apply consistent form input styling:
+   - input/select: rounded-md border border-neutral-300 bg-white
+     p-2 font-mono text-sm dark:border-neutral-600
+     dark:bg-neutral-950 dark:text-neutral-100
+6. Schedule list cards: rounded-lg border border-neutral-200
+   bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950
+   (matching recommendation cards in the scans tab).
+7. If OperatorPageHeader exists (from Prompt 20), use it for the
+   section headings; otherwise use the same heading pattern as
+   the scans tab (<h3 className="m-0 text-lg font-semibold ...">).
+8. Ensure the enterprise-controls copy functions and conditional
+   mutation guards are preserved — do NOT change any behavior.
+9. Verify that dark mode looks correct for every replaced style.
+
+Rules:
+- Do NOT change the state management, API calls, or mutation logic.
+- Do NOT change the enterprise-mutation-capability guards.
+- Do NOT change the tab container (AdvisoryHubClient).
+- Do NOT remove any ContextualHelp or GlossaryTooltip placements.
+- Do NOT change route paths.
+
+After implementation:
+- Run the build.
+- Run any existing advisory tests.
+- List inline-style count before and after.
+- Visually confirm both tabs feel like the same product.
+```
+
+---
+
+## Prompt 22 — Unify compare views with Tailwind and dark mode
+
+**Why this matters.** The three compare views (`LegacyRunComparisonView`, `StructuredComparisonView`, `AiComparisonExplanationView`) contain a combined ~50 inline styles with hardcoded hex colors, table backgrounds, and monospace font stacks. They are among the most visible power-user surfaces and currently have no dark mode support at all — dark mode renders invisible text on invisible backgrounds.
+
+```
+Goal: convert the three run comparison views from inline styles to
+Tailwind classes with full dark mode support. Mechanical cleanup —
+no behavior changes.
+
+Read first:
+- archlucid-ui/src/components/compare/LegacyRunComparisonView.tsx
+  (~15 inline styles including cellStyle/mono const objects and
+  per-element overrides)
+- archlucid-ui/src/components/compare/StructuredComparisonView.tsx
+  (~22 inline styles; table header rows, section headings, metadata
+  spans)
+- archlucid-ui/src/components/compare/AiComparisonExplanationView.tsx
+  (~13 inline styles)
+- archlucid-ui/src/app/(operator)/compare/page.tsx  (check how these
+  components are composed)
+- archlucid-ui/src/components/DocumentLayout.tsx  (reference table
+  styling conventions: [&_thead_th], [&_tbody_tr:nth-child(odd)])
+
+Changes — LegacyRunComparisonView:
+1. Remove the cellStyle and mono CSSProperties const objects.
+2. Define shared Tailwind class strings at the top:
+   - const cellClass = "p-2.5 text-sm align-top border-b
+     border-neutral-100 dark:border-neutral-800";
+   - const monoClass = "font-mono text-xs";
+3. Replace all inline style objects on <td>, <tr>, <th>, <p>, <h4>
+   with the equivalent Tailwind classes.
+4. Table header rows: bg-neutral-50/90 dark:bg-neutral-900/50.
+5. Section headings (<h4>): text-[15px] font-semibold mt-6.
+6. "No rows" text: text-sm text-neutral-600 dark:text-neutral-400.
+
+Changes — StructuredComparisonView:
+7. Same table styling conventions as above (cellClass, monoClass).
+8. The metadata span with run IDs and status: use text-neutral-500
+   dark:text-neutral-400 and code elements with font-mono text-xs.
+9. The separator arrow (aria-hidden): text-neutral-300
+   dark:text-neutral-600.
+10. Section headings (<h4>): mt-0 mb-2 text-[15px] font-semibold
+    text-neutral-900 dark:text-neutral-100.
+11. Summary highlights <ul>: standard list styling (list-disc pl-5
+    leading-relaxed).
+12. Each comparison section (decisions, requirements, security,
+    topology, cost): consistent heading + empty-state + table pattern.
+
+Changes — AiComparisonExplanationView:
+13. Replace all inline styles with Tailwind equivalents.
+14. Ensure any code/pre blocks match the DocumentLayout convention
+    (rounded-md border bg-neutral-100 dark:bg-neutral-800 p-3).
+
+Shared pattern extraction (optional but encouraged):
+15. If all three views share the same table header/cell pattern,
+    extract shared class strings into a
+    archlucid-ui/src/components/compare/compare-table-classes.ts
+    file with named exports (compareHeaderRowClass, compareCellClass,
+    compareMonoClass). Import in each view. This prevents drift.
+
+Rules:
+- Do NOT change the comparison logic, diff algorithms, or data flow.
+- Do NOT change component prop interfaces.
+- Do NOT change the section IDs (compare-legacy, compare-structured).
+- Do NOT change text content.
+- Keep the before/after background tints for diff highlighting
+  (convert #fffbeb → bg-amber-50 dark:bg-amber-950/40 and
+  #f0fdf4 → bg-green-50 dark:bg-green-950/40).
+
+Tests:
+- If existing snapshot tests exist for compare views, update them.
+- Add a small test for compare-table-classes.ts if the shared file
+  is created (just verify the exports exist and contain expected
+  Tailwind fragments).
+
+After implementation:
+- Run the build.
+- Toggle dark mode and verify every table, heading, diff badge, and
+  metadata span is legible in both modes.
+- List files modified and inline-style count before/after for each.
+```
+
+---
+
+## Prompt 23 — Print stylesheet and global print chrome cleanup
+
+**Why this matters.** `DocumentLayout` already has `print:max-w-none` and `print:hidden` on the TOC nav, but the surrounding operator shell (sidebar, top bar, command palette trigger) still renders in print. Anyone printing a value report, explanation, or provenance chain gets 4+ pages of navigation chrome before the content starts. A lightweight print stylesheet makes these document views actually printable — a real requirement for compliance teams.
+
+```
+Goal: add a global print stylesheet that hides operator navigation
+chrome and expands content to full width when printing, so document
+views (value report, explanation, provenance, finding audit) produce
+clean, printable output.
+
+Read first:
+- archlucid-ui/src/components/AppShellClient.tsx  (main shell layout:
+  sidebar + top bar + main content area)
+- archlucid-ui/src/components/SidebarNav.tsx  (sidebar navigation)
+- archlucid-ui/src/components/CommandPalette.tsx  (Cmd+K trigger)
+- archlucid-ui/src/components/ColorModeToggle.tsx  (theme toggle)
+- archlucid-ui/src/components/HelpPanel.tsx  (help overlay)
+- archlucid-ui/src/components/DocumentLayout.tsx  (already has
+  print:max-w-none on article and print:hidden on TOC nav)
+- archlucid-ui/src/app/globals.css  (global stylesheet — check for
+  existing @media print rules)
+- archlucid-ui/tailwind.config.ts  (verify print: variant is enabled;
+  Tailwind v4+ has it by default)
+
+Plan:
+1. In globals.css (or a new archlucid-ui/src/styles/print.css
+   imported from globals.css), add a @media print block:
+
+   @media print {
+     /* Hide all navigation and non-content chrome */
+     [data-testid="sidebar-nav"],
+     [data-testid="app-shell-topbar"],
+     [data-testid="command-palette-trigger"],
+     [data-testid="color-mode-toggle"],
+     [data-testid="help-panel"],
+     [data-testid="help-panel-trigger"] {
+       display: none !important;
+     }
+
+     /* Expand content area to full width */
+     [data-testid="app-shell-main"] {
+       margin-left: 0 !important;
+       padding-left: 0 !important;
+       max-width: 100% !important;
+     }
+
+     /* Suppress background colors and borders that waste ink */
+     body {
+       background: white !important;
+       color: black !important;
+     }
+
+     /* Force page breaks before major sections */
+     h2 { page-break-before: auto; }
+     h2, h3, h4 { page-break-after: avoid; }
+     table, pre, figure { page-break-inside: avoid; }
+   }
+
+2. Add data-testid attributes to the shell components IF they do not
+   already have them:
+   - SidebarNav wrapper → data-testid="sidebar-nav"
+   - AppShellClient top bar → data-testid="app-shell-topbar"
+   - AppShellClient main content → data-testid="app-shell-main"
+   - CommandPalette trigger button → data-testid="command-palette-trigger"
+   - ColorModeToggle → data-testid="color-mode-toggle"
+   - HelpPanel overlay → data-testid="help-panel"
+   These data-testid values also benefit test automation, so this
+   is a two-for-one improvement.
+
+3. Add print:hidden to any chrome elements that already use Tailwind
+   but lack print suppression:
+   - SidebarNav wrapper: add print:hidden
+   - Top bar: add print:hidden
+   - Any floating action buttons: add print:hidden
+
+4. Verify DocumentLayout's existing print classes still work with
+   the global sheet (no conflicts).
+
+5. Add a print-friendly header that appears ONLY in print:
+   - In AppShellClient (or a new PrintHeader component), render a
+     <div className="hidden print:block print:mb-6"> containing:
+     - The product name "ArchLucid" in text-lg font-semibold
+     - The current page title (from document.title or a prop)
+     - Printed timestamp: new Date().toLocaleDateString()
+   This gives every printed page an enterprise header.
+
+Rules:
+- Do NOT change any runtime behavior (no visible changes in browser).
+- Do NOT remove any components — only hide them in @media print.
+- Do NOT change the shell layout or sidebar state management.
+- Do NOT change the responsive breakpoint behavior.
+- Keep all existing data-testid values — only ADD new ones.
+- The print stylesheet should be additive — it should not break
+  any existing styles in normal browser rendering.
+
+Tests:
+- No unit tests needed for CSS print rules (they require a real
+  print rendering context).
+- Verify the build succeeds with the new print stylesheet.
+- Manually verify by opening a document view (value report or
+  explanation) and using the browser's Print Preview (Ctrl+P) to
+  confirm navigation is hidden and content fills the page.
+
+After implementation:
+- List every file modified.
+- Describe how to verify the print output (which page to open,
+  what to expect in Print Preview).
+- Note any components that could not be print-hidden because they
+  lack a stable selector.
+```
+
+---
+
 # Appendix — Execution notes
 
 ## Prompt dependency graph
@@ -1301,7 +1842,17 @@ Prompt 15 (Command center): Benefits from Prompts 10 + 8 (health page).
 Prompt 16 (Document layout): Independent.
 Prompt 17 (Inline style cleanup): Run after Prompts 11–16 (they may
           introduce new Tailwind or remove old styles).
-Prompt 18 (Consistency pass): Run LAST — it sweeps everything.
+Prompt 18 (Consistency pass): Run LAST in Part B — it sweeps everything.
+
+Prompt 19 (Full inline-style sweep): Run after Prompt 17 (finishes what
+          17 started). Independent of Prompts 20–23.
+Prompt 20 (OperatorPageHeader): Independent. Run early in Part C.
+Prompt 21 (Advisory schedules parity): Benefits from Prompt 20
+          (OperatorPageHeader). Run after Prompts 16 + 19.
+Prompt 22 (Compare views): Independent. Benefits from Prompt 19 (shared
+          translation map). Run after Prompt 19.
+Prompt 23 (Print stylesheet): Run after Prompts 16 + 20 (DocumentLayout
+          and OperatorPageHeader provide print hooks).
 ```
 
 ## What these prompts preserve
@@ -1325,3 +1876,7 @@ Prompt 18 (Consistency pass): Run LAST — it sweeps everything.
 - Consistent Tailwind styling replacing all inline `style={{ }}` objects.
 - Work-queue visual treatment for runs and governance lists.
 - Flagship Run Detail screen as the reference pattern.
+- `OperatorPageHeader` — unified page header with title, subtitle, help, metadata, and actions.
+- Shared compare-table class tokens for consistent diff/table styling.
+- Global print stylesheet — hides navigation chrome, expands content, adds enterprise header.
+- Print-friendly document views for compliance/auditor artifact export.
