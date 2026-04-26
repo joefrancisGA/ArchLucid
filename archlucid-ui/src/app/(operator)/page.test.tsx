@@ -67,15 +67,17 @@ describe("HomePage (55R smoke — landing)", () => {
       .filter((el) => el.getAttribute("href") === "/runs?projectId=default");
     expect(runsLinks.length).toBeGreaterThan(0);
 
-    expect(screen.getByText("Create Run")).toBeInTheDocument();
-    expect(screen.getByText("View Runs")).toBeInTheDocument();
-    expect(screen.getByText("Commit Manifest")).toBeInTheDocument();
-    expect(screen.getByText("Review Artifacts")).toBeInTheDocument();
+    // Mobile + desktop pipelines both mount (one is CSS-hidden) — assert presence without getBy* ambiguity.
+    expect(screen.getAllByText("Create Request").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("View Runs").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Commit Manifest").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Review Artifacts").length).toBeGreaterThanOrEqual(1);
   });
 
   it("exposes primary workflow destinations matching shell review paths", () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
+    const runsNavLinks = screen.getAllByRole("link", { name: "Runs" });
+    expect(runsNavLinks.some((el) => el.getAttribute("href") === "/runs?projectId=default")).toBe(true);
   });
 });

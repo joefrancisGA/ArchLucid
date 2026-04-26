@@ -56,7 +56,7 @@ const corePilotSteps: WorkflowStep[] = [
     ),
   },
   {
-    title: "Commit the golden manifest",
+    title: "Commit the reviewed manifest",
     shortBody: "On run detail, commit when the run is ready, or use the API/CLI for automation.",
     detail:
       "Until commit, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
@@ -67,7 +67,7 @@ const corePilotSteps: WorkflowStep[] = [
     title: "Inspect manifest & artifacts",
     shortBody: "After commit, review the manifest summary, artifact table, and export links on run detail.",
     detail:
-      "Open the Golden manifest link from run detail for the full page; use artifact actions for download and review.",
+      "Open the reviewed manifest link from run detail for the full page; use artifact actions for download and review.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Open a committed run",
   },
@@ -305,26 +305,28 @@ export function OperatorFirstRunWorkflowPanel() {
         })}
       </ol>
 
-      <div className="mt-3 border-t border-sky-200/40 pt-2.5 text-[11px] dark:border-sky-800/40">
-        <p className="m-0 mb-0.5 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Later (optional)</p>
-        <p className="m-0 mb-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-500">
-          After committing a run, explore Compare, Replay, and Graph from the sidebar.
+      <div className="mt-3 border-t border-sky-200/40 pt-2.5 dark:border-sky-800/40">
+        <p className="m-0 mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After your first commit</span>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/compare"
+          >
+            Compare
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/replay"
+          >
+            Replay
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/graph"
+          >
+            Graph
+          </Link>
         </p>
-        <ul className="m-0 list-none space-y-0.5 p-0 text-[11px] text-neutral-600 dark:text-neutral-400">
-          <li>
-            <Link className="workflow-inline-link text-teal-800 dark:text-teal-300" href="/compare">
-              Compare
-            </Link>{" "}
-            ·{" "}
-            <Link className="workflow-inline-link text-teal-800 dark:text-teal-300" href="/replay">
-              Replay
-            </Link>{" "}
-            ·{" "}
-            <Link className="workflow-inline-link text-teal-800 dark:text-teal-300" href="/graph">
-              Graph
-            </Link>
-          </li>
-        </ul>
       </div>
     </section>
   );

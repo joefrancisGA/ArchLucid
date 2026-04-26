@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
-import { StatusPill } from "@/components/StatusPill";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -165,7 +164,7 @@ function RecentActivityCommandCard() {
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
         <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Run outcomes</CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Findings surfaced and time-to-commit trends across committed runs.
+          Manifests committed, findings surfaced, and average time to commit.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -198,8 +197,8 @@ function RecentActivityCommandCard() {
 
         {status === "ready" && data !== null && data.returnedCount === 0 ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            After your first committed run, this panel will show median findings surfaced and time-to-commit across recent
-            runs.
+            After your first committed run, this panel will show manifests committed, findings surfaced, and average time to
+            commit.
           </p>
         ) : null}
 
@@ -214,7 +213,26 @@ function RecentActivityCommandCard() {
   );
 }
 
-function SystemHealthCommandCard() {
+function healthReadinessDotClass(status: string): string {
+  const normalized = status.trim().toLowerCase();
+
+  if (normalized.includes("unhealthy") || normalized.includes("down") || normalized.includes("fail")) {
+    return "bg-red-500";
+  }
+
+  if (normalized.includes("degraded") || normalized.includes("warn")) {
+    return "bg-amber-500";
+  }
+
+  if (normalized.includes("healthy") || normalized.includes("ok")) {
+    return "bg-emerald-500";
+  }
+
+  return "bg-neutral-400";
+}
+
+/** Compact readiness strip above the workspace grid — full cards reserved for runs and outcomes. */
+function SystemHealthStatusStrip() {
   const [phase, setPhase] = useState<"loading" | "ready" | "unavailable">("loading");
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
 
@@ -264,40 +282,45 @@ function SystemHealthCommandCard() {
   const overall = ready?.status?.trim() ?? "";
 
   return (
-    <Card
-      className="border border-neutral-200 bg-neutral-50/60 shadow-none dark:border-neutral-800 dark:bg-neutral-900/30"
+    <div
       data-testid="command-center-health-card"
+      className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2 text-xs dark:border-neutral-800 dark:bg-neutral-900/30"
+      aria-label="System health"
     >
-      <CardHeader className="space-y-1 px-3 pb-2 pt-3">
-        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">System health</CardTitle>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">Platform services availability.</p>
-      </CardHeader>
-      <CardContent className="space-y-3 px-3 pb-3 text-sm">
-        {phase === "loading" ? (
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Checking readiness…</p>
-        ) : null}
+      {phase === "loading" ? (
+        <span className="text-neutral-500 dark:text-neutral-400">Checking readiness…</span>
+      ) : null}
 
-        {phase === "unavailable" ? (
-          <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Health dashboard not configured yet.
-          </p>
-        ) : null}
+      {phase === "unavailable" ? (
+        <>
+          <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
+          <span className="text-neutral-600 dark:text-neutral-400">Health dashboard not configured yet.</span>
+        </>
+      ) : null}
 
-        {phase === "ready" && overall.length > 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusPill status={overall} domain="health" ariaLabel={`Overall readiness: ${overall}`} />
-          </div>
-        ) : null}
+      {phase === "ready" && overall.length > 0 ? (
+        <>
+          <span
+            className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
+            aria-hidden
+          />
+          <span className="text-neutral-800 dark:text-neutral-200">
+            Platform services: <span className="font-medium">{overall}</span>
+          </span>
+        </>
+      ) : null}
 
-        {phase === "ready" && overall.length === 0 ? (
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">Readiness payload had no overall status.</p>
-        ) : null}
+      {phase === "ready" && overall.length === 0 ? (
+        <span className="text-neutral-600 dark:text-neutral-400">Readiness payload had no overall status.</span>
+      ) : null}
 
-        <Link href="/admin/health" className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300">
-          Open system health
-        </Link>
-      </CardContent>
-    </Card>
+      <Link
+        href="/admin/health"
+        className="ml-auto inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
+      >
+        Details
+      </Link>
+    </div>
   );
 }
 
@@ -311,10 +334,10 @@ export function CommandCenterSection() {
       <h3 id="workspace-status-heading" className="mb-3 text-base font-bold text-neutral-900 dark:text-neutral-100">
         Workspace status
       </h3>
+      <SystemHealthStatusStrip />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RunsNeedingAttentionCard />
         <RecentActivityCommandCard />
-        <SystemHealthCommandCard />
       </div>
     </section>
   );

@@ -3,8 +3,66 @@
 import Link from "next/link";
 import { Check, FileCheck, ListOrdered, Play, Rocket } from "lucide-react";
 import type { ComponentType } from "react";
+import { Fragment } from "react";
 
 type PipelineStepStatus = "not-started" | "current" | "completed";
+
+type PipelineStepConfig = {
+  step: 1 | 2 | 3 | 4;
+  stage: string;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  label: string;
+  description: string;
+  href: string;
+  shortcut?: string;
+  linkAccessibleName?: string;
+};
+
+const PIPELINE_STEPS: PipelineStepConfig[] = [
+  {
+    step: 1,
+    stage: "Start",
+    icon: Rocket,
+    label: "Create Request",
+    description: "Capture architecture intent, requirements, and constraints.",
+    href: "/runs/new",
+    shortcut: "Alt+N",
+  },
+  {
+    step: 2,
+    stage: "Track",
+    icon: ListOrdered,
+    label: "View Runs",
+    description: "List, inspect detail, and track pipeline progress",
+    href: "/runs?projectId=default",
+    shortcut: "Alt+R",
+    linkAccessibleName: "Runs",
+  },
+  {
+    step: 3,
+    stage: "Finalize",
+    icon: Play,
+    label: "Commit Manifest",
+    description: "Finalize the reviewed manifest and export artifacts.",
+    href: "/runs?projectId=default",
+  },
+  {
+    step: 4,
+    stage: "Review",
+    icon: FileCheck,
+    label: "Review Artifacts",
+    description: "Review, download, and share architecture artifacts.",
+    href: "/runs?projectId=default",
+  },
+];
+
+function PipelineConnectorBar() {
+  return (
+    <div className="flex w-5 shrink-0 items-center justify-center self-center" aria-hidden>
+      <div className="h-0.5 w-4 shrink-0 rounded-full bg-teal-300 dark:bg-teal-700" />
+    </div>
+  );
+}
 
 /**
  * Product-layer cards for operator home — replaces the prior prose-heavy glossary sections.
@@ -16,58 +74,26 @@ export function OperatorHomeGlossarySections() {
       <h3 id="quick-actions-heading" className="sr-only">
         Quick actions
       </h3>
-      <div className="relative">
-        <div
-          className="pointer-events-none absolute left-8 right-8 top-1/2 hidden h-0.5 -translate-y-1/2 bg-gradient-to-r from-teal-400 via-neutral-300 to-teal-400 dark:from-teal-600 dark:via-neutral-600 dark:to-teal-600 lg:block"
-          aria-hidden
-        />
-        <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <ActionCard
-          step={1}
-          icon={Rocket}
-          label="Create Run"
-          description="Capture architecture intent, requirements, and constraints."
-          href="/runs/new"
-          shortcut="Alt+N"
-        />
-        <ActionCard
-          step={2}
-          icon={ListOrdered}
-          label="View Runs"
-          description="List, inspect detail, and track pipeline progress"
-          href="/runs?projectId=default"
-          shortcut="Alt+R"
-          linkAccessibleName="Runs"
-        />
-        <ActionCard
-          step={3}
-          icon={Play}
-          label="Commit Manifest"
-          description="Finalize the reviewed manifest and export artifacts."
-          href="/runs?projectId=default"
-        />
-        <ActionCard
-          step={4}
-          icon={FileCheck}
-          label="Review Artifacts"
-          description="Review, download, and share architecture artifacts."
-          href="/runs?projectId=default"
-        />
-        </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
+        {PIPELINE_STEPS.map((config) => (
+          <ActionCard key={config.step} {...config} />
+        ))}
+      </div>
+      <div className="hidden lg:flex lg:items-stretch lg:gap-0">
+        {PIPELINE_STEPS.map((config, index) => (
+          <Fragment key={config.step}>
+            <div className="min-w-0 flex-1">
+              <ActionCard {...config} />
+            </div>
+            {index < PIPELINE_STEPS.length - 1 ? <PipelineConnectorBar /> : null}
+          </Fragment>
+        ))}
       </div>
     </section>
   );
 }
 
-type ActionCardProps = {
-  step: 1 | 2 | 3 | 4;
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  label: string;
-  description: string;
-  href: string;
-  shortcut?: string;
-  /** Matches `NAV_GROUPS` shell link name (e.g. Runs) so home quick actions align with sidebar AT. */
-  linkAccessibleName?: string;
+type ActionCardProps = PipelineStepConfig & {
   /** Optional stepper state for future pipeline UX; omitted = all steps use the default “current” emphasis. */
   pipelineStatus?: PipelineStepStatus;
 };
@@ -111,6 +137,7 @@ function StepIndicator({ step, pipelineStatus }: { step: 1 | 2 | 3 | 4; pipeline
 
 function ActionCard({
   step,
+  stage,
   icon: Icon,
   label,
   description,
@@ -123,13 +150,18 @@ function ActionCard({
     <Link
       href={href}
       aria-label={linkAccessibleName}
-      className="group flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+      className="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-start gap-2">
         <StepIndicator step={step} pipelineStatus={pipelineStatus} />
-        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
-          Step {step}
-        </p>
+        <div className="min-w-0 flex flex-col gap-0">
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+            {stage}
+          </span>
+          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+            Step {step}
+          </p>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Icon className="h-7 w-7 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
