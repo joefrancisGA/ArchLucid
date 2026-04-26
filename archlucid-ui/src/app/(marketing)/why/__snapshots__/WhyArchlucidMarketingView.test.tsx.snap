@@ -55,12 +55,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
       id="why-demo-heading"
     >
-      See a real commit-shaped page
+      See a real finalized-manifest page
     </h2>
     <p
       class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
     >
-      Anonymous read-only preview of the latest committed demo-seed run (cached JSON + marketing UI). Same shape as the operator commit experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
+      Anonymous read-only preview of the latest finalized demo-seed run (cached JSON + marketing UI). Same shape as the operator finalize experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
     </p>
     <p
       class="mt-4 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
