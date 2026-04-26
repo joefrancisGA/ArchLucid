@@ -5,14 +5,22 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
+import { cn } from "@/lib/utils";
+
 import { OptInTour } from "./OptInTour";
+
+export type OptInTourLauncherProps = {
+  /** Ghost sits beside hero CTAs as a tertiary action; default matches standalone use in a column. */
+  buttonVariant?: "outline" | "ghost";
+  className?: string;
+};
 
 /**
  * Operator-home launcher for the in-product opt-in tour. The button is the ONLY way
  * the tour opens (owner Q9 — never auto-launch). Even users who previously dismissed
  * the tour can re-open it by clicking again.
  */
-export function OptInTourLauncher() {
+export function OptInTourLauncher({ buttonVariant = "outline", className }: OptInTourLauncherProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = useCallback(() => {
@@ -28,8 +36,9 @@ export function OptInTourLauncher() {
     <>
       <Button
         type="button"
-        variant="outline"
+        variant={buttonVariant}
         size="sm"
+        className={cn(buttonVariant === "ghost" && "text-neutral-600 dark:text-neutral-400", className)}
         onClick={handleOpen}
         data-testid="opt-in-tour-launcher"
       >

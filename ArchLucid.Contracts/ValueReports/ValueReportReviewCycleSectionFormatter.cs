@@ -150,7 +150,7 @@ public static class ValueReportReviewCycleSectionFormatter
 
     private static decimal? ComputeEffectiveBaselineHours(ValueReportSnapshot snapshot)
     {
-        if (snapshot.MeasuredAverageReviewCycleHoursForWindow is { } m && snapshot.ReviewCycleHoursDelta is { } d)
+        if (snapshot is { MeasuredAverageReviewCycleHoursForWindow: { } m, ReviewCycleHoursDelta: { } d })
             return m + d;
 
         return snapshot.TenantBaselineReviewCycleHours;

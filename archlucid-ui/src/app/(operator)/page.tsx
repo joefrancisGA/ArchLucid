@@ -8,10 +8,10 @@ import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
-import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { CommandCenterSection } from "@/components/operator-home/CommandCenterSection";
 import { OperatorHomeGlossarySections } from "@/components/operator-home/OperatorHomeGlossarySections";
+import { RecentRunsHomePanel } from "@/components/operator-home/RecentRunsHomePanel";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
 export const metadata: Metadata = {
@@ -24,63 +24,67 @@ export default function HomePage() {
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
-      {/* ── Top section: welcome + primary action ── */}
       <WelcomeBanner />
 
-      {/* ── Workflow cards ── */}
-      <OperatorHomeGlossarySections />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
+        <div className="min-w-0 space-y-6">
+          <OperatorHomeGlossarySections />
+          <RecentRunsHomePanel />
+          <CommandCenterSection />
+          <AfterCorePilotChecklistHint />
 
-      {/* ── Onboarding cluster: checklist + tour ── */}
-      <div className="flex flex-wrap items-start gap-4">
-        <OperatorFirstRunWorkflowPanel />
-        <div className="flex flex-col gap-2 pt-1">
-          <OptInTourLauncher />
+          <section aria-labelledby="operational-metrics-heading">
+            <h3
+              id="operational-metrics-heading"
+              className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              Operational metrics
+            </h3>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <PilotOutcomeCard />
+              <OperatorTaskSuccessTile />
+            </div>
+          </section>
+
+          <BeforeAfterDeltaPanel />
+
+          <section aria-labelledby="maturity-layers-heading">
+            <h3
+              id="maturity-layers-heading"
+              className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              Explore when ready
+            </h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <LayerCard
+                icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
+                title="Advanced Analysis"
+                items={["Compare runs", "Replay", "Graph", "Ask", "Advisory"]}
+                href="/compare"
+              />
+              <LayerCard
+                icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
+                title="Enterprise Controls"
+                items={["Governance", "Policy packs", "Audit log", "Alerts"]}
+                href="/governance/dashboard"
+              />
+              <LayerCard
+                icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}
+                title="Search & Insights"
+                items={["Indexed search", "Planning", "Digests", "Value report"]}
+                href="/search"
+              />
+            </div>
+          </section>
         </div>
+
+        <aside
+          className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
+          aria-label="Core Pilot checklist and guidance"
+        >
+          <OperatorFirstRunWorkflowPanel />
+        </aside>
       </div>
-
-      <AfterCorePilotChecklistHint />
-
-      {/* ── Operational metrics ── */}
-      <section aria-labelledby="operational-metrics-heading">
-        <h3 id="operational-metrics-heading" className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Operational metrics
-        </h3>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <PilotOutcomeCard />
-          <OperatorTaskSuccessTile />
-        </div>
-      </section>
-
-      <BeforeAfterDeltaPanel />
-
-      <CommandCenterSection />
-
-      {/* ── Optional maturity layers — compact card row ── */}
-      <section aria-labelledby="maturity-layers-heading">
-        <h3 id="maturity-layers-heading" className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Explore when ready
-        </h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <LayerCard
-            icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
-            title="Advanced Analysis"
-            items={["Compare runs", "Replay", "Graph", "Ask", "Advisory"]}
-            href="/compare"
-          />
-          <LayerCard
-            icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
-            title="Enterprise Controls"
-            items={["Governance", "Policy packs", "Audit log", "Alerts"]}
-            href="/governance/dashboard"
-          />
-          <LayerCard
-            icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}
-            title="Search & Insights"
-            items={["Indexed search", "Planning", "Digests", "Value report"]}
-            href="/search"
-          />
-        </div>
-      </section>
     </main>
     </OperatorHomeGate>
   );
