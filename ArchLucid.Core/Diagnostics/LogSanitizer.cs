@@ -15,22 +15,11 @@ public static class LogSanitizer
         if (string.IsNullOrEmpty(input))
             return string.Empty;
 
-
         // Fast path: no control chars at all (common case)
-        bool clean = true;
-
-        for (int i = 0; i < input.Length; i++)
-
-            if (char.IsControl(input[i]))
-            {
-                clean = false;
-                break;
-            }
-
+        bool clean = input.All(t => !char.IsControl(t));
 
         if (clean)
             return input;
-
 
         return string.Create(input.Length, input, static (span, src) =>
         {

@@ -58,10 +58,6 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
 
     private static bool IsTrackedInstrument(Instrument instrument)
     {
-        if (instrument is null)
-            return false;
-        if (instrument.Meter is null)
-            return false;
         if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             return false;
 
@@ -104,7 +100,9 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
             return;
         }
 
-        if (instrument.Name == OperatorTaskSuccessInstrumentName)
+        if (instrument.Name != OperatorTaskSuccessInstrumentName)
+            return;
+
         {
             string task = ResolveTaskTag(tags);
 
