@@ -1,5 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const listRunsByProjectPaged = vi.fn();
+
+vi.mock("@/lib/api", () => ({
+  listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
+}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -46,10 +52,25 @@ vi.mock("@/components/OperatorHomeGate", () => ({
 
 import HomePage from "./page";
 
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+beforeEach(() => {
+  listRunsByProjectPaged.mockResolvedValue({
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: 5,
+    hasMore: false,
+  });
+});
+
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders action cards, maturity layer cards, and workflow panel", async () => {
+  it("renders Runs panel, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);
 
+    expect(screen.getByRole("heading", { name: "Runs" })).toBeInTheDocument();
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();
@@ -59,7 +80,7 @@ describe("HomePage (55R smoke — landing)", () => {
     });
   });
 
-  it("exposes primary workflow destinations via action cards and layer cards", () => {
+  it("exposes Create Request from runs empty state and layer card links", async () => {
     render(<HomePage />);
 
     const runsLinks = screen
@@ -67,17 +88,19 @@ describe("HomePage (55R smoke — landing)", () => {
       .filter((el) => el.getAttribute("href") === "/runs?projectId=default");
     expect(runsLinks.length).toBeGreaterThan(0);
 
-    // Mobile + desktop pipelines both mount (one is CSS-hidden) — assert presence without getBy* ambiguity.
-    expect(screen.getAllByText("Create Request").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Track Progress").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Finalize Manifest").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Review Artifacts").length).toBeGreaterThanOrEqual(1);
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Create Request" })).toBeInTheDocument();
+    });
   });
 
-  it("exposes primary workflow destinations matching shell review paths", () => {
+  it("exposes primary workflow destinations matching shell review paths", async () => {
     render(<HomePage />);
 
-    const runsNavLinks = screen.getAllByRole("link", { name: "Runs" });
-    expect(runsNavLinks.some((el) => el.getAttribute("href") === "/runs?projectId=default")).toBe(true);
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Open full runs list" })).toHaveAttribute(
+        "href",
+        "/runs?projectId=default",
+      );
+    });
   });
 });

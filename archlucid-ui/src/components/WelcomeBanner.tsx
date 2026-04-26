@@ -262,6 +262,13 @@ export function WelcomeBanner() {
             <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
               <Link href="/runs/new">Create Request</Link>
             </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+            >
+              <Link href="/runs?projectId=default">See completed example</Link>
+            </Button>
             {returningUser ? (
               <Button
                 asChild
@@ -286,16 +293,24 @@ export function WelcomeBanner() {
             aria-label="What you will receive from a completed run"
           >
             <p className="m-0 mb-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200">What you&apos;ll get</p>
+            <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
+              {(
+                [
+                  "Governed manifest",
+                  "Actionable findings",
+                  "Exportable artifact bundle",
+                  "Review trail",
+                ] as const
+              ).map((label) => (
+                <li key={label} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              One request produces a governed manifest, actionable findings, and exportable artifacts — ready for
-              review.
+              One request produces everything — ready for review.
             </p>
-            <Link
-              className="mt-2 inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
-              href="/runs?projectId=default"
-            >
-              See a completed example
-            </Link>
           </div>
         ) : null}
       </div>

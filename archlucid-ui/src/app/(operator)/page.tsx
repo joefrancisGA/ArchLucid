@@ -10,7 +10,6 @@ import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWork
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
-import { OperatorHomeGlossarySections } from "@/components/operator-home/OperatorHomeGlossarySections";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
@@ -29,7 +28,6 @@ export default function HomePage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className="min-w-0 space-y-6">
-          <OperatorHomeGlossarySections />
           <SystemHealthStatusStrip />
           <RunsDashboardPanel />
           <AfterCorePilotChecklistHint />

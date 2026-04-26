@@ -27,8 +27,8 @@ type AppShellClientProps = {
 };
 
 /**
- * Operator shell: sticky header (logo, command palette, theme), breadcrumbs, collapsible sidebar (lg+),
- * mobile drawer, auth strip, keyboard shortcuts, main landmark.
+ * Operator shell: sticky header (logo, auth/environment, scope, command palette, help, theme), breadcrumbs,
+ * collapsible sidebar (lg+), mobile drawer, keyboard shortcuts, main landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   const [helpOpen, setHelpOpen] = useState(false);
@@ -54,7 +54,8 @@ export function AppShellClient({ children }: AppShellClientProps) {
                   <Breadcrumbs />
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
+              <div className="flex max-w-[min(100%,42rem)] shrink-0 flex-wrap items-center justify-end gap-2">
+                <AuthPanel />
                 <ScopeSwitcher />
                 <CommandPalette />
                 <Button
@@ -79,7 +80,6 @@ export function AppShellClient({ children }: AppShellClientProps) {
               <SidebarNav />
             </aside>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
-              <AuthPanel />
               <TrialBanner />
               <KeyboardShortcutProvider
                 onHelpRequested={() => {
