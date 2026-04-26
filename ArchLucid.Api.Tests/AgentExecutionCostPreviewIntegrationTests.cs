@@ -14,7 +14,8 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     [Fact]

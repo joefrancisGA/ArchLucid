@@ -22,4 +22,7 @@ public sealed class ExecDigestEmailModel
     public string SponsorValueReportUrl { get; init; } = string.Empty;
 
     public string UnsubscribeUrl { get; init; } = string.Empty;
+
+    /// <summary>Optional absolute URL to a PNG logo (same host as <see cref="DashboardUrl"/>).</summary>
+    public string? LogoImageUrl { get; init; }
 }

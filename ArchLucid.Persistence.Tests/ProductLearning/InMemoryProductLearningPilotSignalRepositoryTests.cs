@@ -111,8 +111,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
             Signal(
                 ProductLearningDispositionValues.Trusted,
                 "cost.section",
-                "run-a",
-                null),
+                "run-a"),
             CancellationToken.None);
 
         await repo.InsertAsync(

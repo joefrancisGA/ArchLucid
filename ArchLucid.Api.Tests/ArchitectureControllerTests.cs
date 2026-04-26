@@ -24,7 +24,7 @@ public sealed class ArchitectureControllerTests
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null, true) }
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)

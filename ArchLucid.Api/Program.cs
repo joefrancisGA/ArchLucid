@@ -18,8 +18,6 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Api;
 
 [ExcludeFromCodeCoverage(Justification =

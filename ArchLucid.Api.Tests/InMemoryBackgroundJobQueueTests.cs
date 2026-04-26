@@ -206,7 +206,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         await queue.StartAsync(CancellationToken.None);
 
-        string jobId = await queue.EnqueueAsync(Work("no-retry"), 0);
+        string jobId = await queue.EnqueueAsync(Work("no-retry"));
 
         await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(5));
 

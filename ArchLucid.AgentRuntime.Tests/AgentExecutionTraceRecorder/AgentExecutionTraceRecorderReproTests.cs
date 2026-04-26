@@ -68,11 +68,6 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "{}",
             "{}",
             true,
-            null,
-            null,
-            null,
-            null,
-            null,
             null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");

@@ -226,10 +226,11 @@ public sealed class TrialLifecycleEmailDispatcher(
         DateTimeOffset utcNow)
     {
         string idempotencyKey = TrialEmailIdempotencyKeys.ForTrigger(envelope.Trigger, envelope.TenantId);
+        string? logoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(baseUrl);
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
         {
-            TrialWelcomeEmailModel model = new(tenant.Name, productName);
+            TrialWelcomeEmailModel model = new(tenant.Name, productName, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -240,7 +241,7 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.FirstRunCommitted)
         {
-            TrialFirstRunEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"));
+            TrialFirstRunEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"), logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -251,7 +252,7 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.MidTrialDay7)
         {
-            TrialMidTrialEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"));
+            TrialMidTrialEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"), logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -266,7 +267,7 @@ public sealed class TrialLifecycleEmailDispatcher(
                 return null;
 
 
-            TrialApproachingRunLimitEmailModel model = new(productName, tenant.TrialRunsUsed, limit);
+            TrialApproachingRunLimitEmailModel model = new(productName, tenant.TrialRunsUsed, limit, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -283,7 +284,7 @@ public sealed class TrialLifecycleEmailDispatcher(
 
             int daysRemaining = (int)Math.Max(0d, Math.Ceiling((tenant.TrialExpiresUtc.Value - utcNow).TotalDays));
 
-            TrialExpiringSoonEmailModel model = new(productName, daysRemaining);
+            TrialExpiringSoonEmailModel model = new(productName, daysRemaining, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -294,7 +295,7 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (envelope.Trigger is TrialLifecycleEmailTrigger.Expired)
         {
-            TrialExpiredEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"));
+            TrialExpiredEmailModel model = new(productName, CombineUrl(baseUrl, "/welcome"), logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
@@ -308,7 +309,7 @@ public sealed class TrialLifecycleEmailDispatcher(
         {
             string tier = string.IsNullOrWhiteSpace(envelope.TargetTier) ? tenant.Tier.ToString() : envelope.TargetTier.Trim();
 
-            TrialConvertedEmailModel model = new(productName, tier);
+            TrialConvertedEmailModel model = new(productName, tier, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,

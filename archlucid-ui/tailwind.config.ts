@@ -4,7 +4,14 @@ const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          navy: "#1E3A5F",
+          cyan: "#00AEEF",
+        },
+      },
+    },
   },
   plugins: [],
 };

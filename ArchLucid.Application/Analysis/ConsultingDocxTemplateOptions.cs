@@ -105,8 +105,8 @@ public sealed class ConsultingDocxTemplateOptions
     public bool IncludeLogo { get; set; } = false;
 
     /// <summary>
-    /// Absolute path to the logo image file. Only used when <see cref="IncludeLogo"/> is
-    /// <see langword="true"/>.
+    /// Path to the logo PNG file. Only used when <see cref="IncludeLogo"/> is
+    /// <see langword="true"/>. May be absolute or relative to <see cref="System.AppContext.BaseDirectory"/> (publish / build output).
     /// </summary>
     public string? LogoPath
     {
