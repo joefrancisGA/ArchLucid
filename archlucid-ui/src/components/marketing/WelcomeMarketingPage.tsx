@@ -45,11 +45,7 @@ export function WelcomeMarketingPage() {
           {HERO_PITCH}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button
-            asChild
-            className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
-            size="lg"
-          >
+          <Button asChild variant="primary" size="lg">
             <Link href="/see-it">See it in 30 seconds</Link>
           </Button>
           <Button asChild variant="outline" size="lg">

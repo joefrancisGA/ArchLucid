@@ -117,7 +117,7 @@ export function OnboardingStartClient() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             {hasSample ? (
-              <Button asChild className="bg-teal-700 text-white hover:bg-teal-800">
+              <Button asChild variant="primary">
                 <Link href={wizardHref} data-testid="onboarding-open-wizard-sample">
                   Continue in new-run wizard (sample highlighted)
                 </Link>

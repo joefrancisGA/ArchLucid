@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const storageKey = "archlucid_color_mode";
@@ -105,8 +106,10 @@ export function ColorModeToggle() {
 
   const segmentInactive =
     "rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100";
-  const segmentActive =
-    "rounded-md border border-teal-700 bg-teal-700 px-2.5 py-1.5 text-xs font-semibold text-white dark:border-teal-800 dark:bg-teal-800 dark:text-white";
+  const segmentActive = cn(
+    buttonVariants({ variant: "primary", size: "sm" }),
+    "min-h-0 !h-auto border border-teal-700 px-2.5 py-1.5 font-semibold dark:border-teal-800",
+  );
 
   return (
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Color mode">

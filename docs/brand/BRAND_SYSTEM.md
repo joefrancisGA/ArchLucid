@@ -193,13 +193,14 @@ Marketing route group `(marketing)` has its own layout chrome. Pages use `max-w-
 | Variant | Light | Dark |
 |---------|-------|------|
 | `default` (neutral) | `bg-neutral-900 text-neutral-50` | — |
+| `primary` (brand CTA) | `bg-teal-700 text-white hover:bg-teal-800` | `dark:bg-teal-800 dark:hover:bg-teal-700` |
 | `secondary` | `bg-neutral-200 text-neutral-900` | `dark:bg-neutral-700 dark:text-neutral-50` |
 | `destructive` | `bg-red-600 text-white` | `dark:bg-red-600` |
 | `outline` | `border-neutral-300 bg-white` | `dark:border-neutral-600 dark:bg-neutral-900` |
 | `ghost` | transparent, `hover:bg-neutral-100` | `dark:hover:bg-neutral-800` |
 | `link` | underline on hover | — |
 
-**Teal CTA override:** Primary call-to-action buttons override with `className="bg-teal-700 text-white hover:bg-teal-800"`. This is not a CVA variant — it is an intentional per-instance override applied on CTAs like "See it in 30 seconds", "Start new run", "Commit manifest".
+**Primary CTA:** Use `variant="primary"` (shadcn `Button`) for the default teal CTA. Do not paste ad hoc `className` strings with `bg-teal-700` — that drifted in dark mode before the variant existed.
 
 ### Cards
 

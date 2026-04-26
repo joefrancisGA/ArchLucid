@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { SeeItPreviewSource } from "./load-see-it-demo-preview";
 
@@ -73,14 +74,15 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
       </section>
 
       <section className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <a
-          data-testid="see-it-proof-pack-download"
-          className="inline-flex items-center justify-center rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
-          href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
-          download="why-archlucid-pack.pdf"
-        >
-          Download proof pack (PDF)
-        </a>
+        <Button asChild variant="primary">
+          <a
+            data-testid="see-it-proof-pack-download"
+            href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
+            download="why-archlucid-pack.pdf"
+          >
+            Download proof pack (PDF)
+          </a>
+        </Button>
         <Link
           data-testid="see-it-full-preview-link"
           className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"

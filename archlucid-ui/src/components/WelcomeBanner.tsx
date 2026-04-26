@@ -142,10 +142,7 @@ export function WelcomeBanner() {
         )}
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Button
-          asChild
-          className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:text-white dark:hover:bg-teal-700"
-        >
+        <Button asChild variant="primary">
           <Link href="/runs/new">Create your first run</Link>
         </Button>
         <Button asChild variant="outline">

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -234,12 +236,11 @@ export function OperatorFirstRunWorkflowPanel() {
             </div>
             <span className="text-sm text-neutral-600 dark:text-neutral-400">{step.body}</span>
             <div>
-              <Link
-                className="workflow-primary-action mt-2.5 inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-800 dark:text-white dark:hover:bg-teal-700"
-                href={step.primaryHref}
-              >
-                {step.primaryLabel}
-              </Link>
+              <Button asChild variant="primary" className="mt-2.5 h-auto min-h-0 px-[18px] py-2.5 text-sm font-semibold">
+                <Link className="workflow-primary-action no-underline" href={step.primaryHref}>
+                  {step.primaryLabel}
+                </Link>
+              </Button>
             </div>
             {step.secondary ? (
               <div className="mt-2 text-[13px] leading-normal text-neutral-600 dark:text-neutral-400">
