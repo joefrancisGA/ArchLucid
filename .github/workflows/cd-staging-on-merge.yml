@@ -8,7 +8,7 @@
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
 # Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
-# Container Apps deploy uses `--revision-suffix` so a new revision is created even when `IMAGE_TAG` matches a prior deploy (ACA otherwise may not pull a moved tag digest).
+# Container Apps deploy sets `CD_DEPLOY_RUN` on each update so the revision template changes every run (ACA may not pull a new digest when only `image:tag` repeats).
 name: CD staging on merge
 
 on:
@@ -150,14 +150,14 @@ jobs:
             exit 0
           fi
           API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
-          REV_SUFFIX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
-          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" --revision-suffix "$REV_SUFFIX"
+          DEPLOY_STAMP="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT:-1}"
+          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
-            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" --revision-suffix "$REV_SUFFIX"
+            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
             UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
-            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" --revision-suffix "$REV_SUFFIX"
+            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
           fi
 
       - name: Post-deploy validation (health, readiness, OpenAPI, version)
