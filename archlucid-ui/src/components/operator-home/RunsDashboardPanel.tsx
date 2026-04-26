@@ -169,7 +169,8 @@ export function RunsDashboardPanel() {
                     No architecture runs yet
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Create a request to generate your first manifest, findings, and artifact bundle.
+                    Create a request to generate your first architecture manifest, surfaced findings, and exportable
+                    artifact bundle.
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <Button asChild variant="outline" size="sm" className="h-8">
@@ -181,9 +182,7 @@ export function RunsDashboardPanel() {
                       size="sm"
                       className="h-8 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
                     >
-                      <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
-                        See completed example
-                      </Link>
+                      <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>Try an example</Link>
                     </Button>
                   </div>
                 </div>
