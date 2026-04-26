@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
@@ -23,6 +23,10 @@ import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
 import { validateWizardStep } from "@/lib/wizard-step-validate";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+} from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 const WIZARD_STEP_DEFINITIONS = [
   { label: "Starting point", description: "Preset or scratch" },
@@ -106,7 +110,31 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, setError, clearErrors, control } = form;
+  const { trigger, getValues, setError, clearErrors, control, setValue } = form;
+
+  const operatorHomeExampleKey = useMemo(() => {
+    const raw = searchParams?.get("example")?.trim().toLowerCase() ?? "";
+
+    if (raw === OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
+      return OPERATOR_HOME_EXAMPLE_QUERY_VALUE;
+    }
+
+    return null;
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (operatorHomeExampleKey !== OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
+      return;
+    }
+
+    if (stepIndex >= 1) {
+      setValue("systemName", "ClaimsIntake", { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (stepIndex >= 2) {
+      setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [operatorHomeExampleKey, setValue, stepIndex]);
 
   const watchedValues = useWatch({ control });
 
