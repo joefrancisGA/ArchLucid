@@ -36,6 +36,10 @@ vi.mock("@/components/PilotOutcomeCard", () => ({
   PilotOutcomeCard: () => <div data-testid="pilot-outcome-mock" aria-hidden />,
 }));
 
+vi.mock("@/components/operator-home/OperationalMetricsGate", () => ({
+  OperationalMetricsGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
+}));
+
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));

@@ -1,5 +1,6 @@
 "use client";
 
+import { HelpCircle } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
@@ -66,7 +67,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
                     setHelpOpen(true);
                   }}
                 >
-                  <span className="text-xs">?</span>
+                  <HelpCircle className="h-4 w-4" aria-hidden />
                 </Button>
                 <ColorModeToggle />
               </div>

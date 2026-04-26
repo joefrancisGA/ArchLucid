@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 
@@ -84,6 +85,7 @@ export function OperatorFirstRunWorkflowPanel() {
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => steps.map(() => false));
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const nextDone: boolean[] = [];
@@ -116,6 +118,32 @@ export function OperatorFirstRunWorkflowPanel() {
 
   const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
   const allDone = doneCount === steps.length;
+
+  const firstUndoneIndex = useMemo(() => doneByIndex.findIndex((d) => !d), [doneByIndex]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    if (firstUndoneIndex < 0) {
+      setExpandedIndex(null);
+
+      return;
+    }
+
+    setExpandedIndex((prev) => {
+      if (prev !== null && doneByIndex[prev]) {
+        return firstUndoneIndex;
+      }
+
+      if (prev === null) {
+        return firstUndoneIndex;
+      }
+
+      return prev;
+    });
+  }, [hydrated, doneByIndex, firstUndoneIndex]);
 
   const toggleStep = useCallback((index: number) => {
     setDoneByIndex((prev) => {
@@ -212,47 +240,70 @@ export function OperatorFirstRunWorkflowPanel() {
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
         Complete these four steps to get from an empty workspace to a reviewed, exportable run.
       </p>
-      <ol className="m-0 list-none space-y-3 p-0">
-        {steps.map((step, index) => (
-          <li key={step.title} className="rounded border border-sky-100/80 bg-white/70 p-2 dark:border-sky-900/50 dark:bg-neutral-900/50">
-            <div className="mb-1 flex items-start gap-2">
-              <input
-                id={`workflow-step-done-${index}`}
-                type="checkbox"
-                className="auth-panel-focus mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-neutral-300 text-teal-700 focus:ring-teal-700 dark:border-neutral-600 dark:bg-neutral-900"
-                checked={doneByIndex[index] === true}
-                onChange={() => {
-                  toggleStep(index);
-                }}
-                aria-label={`Mark step ${index + 1} done: ${step.title}`}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="m-0 text-xs font-semibold text-neutral-900 dark:text-neutral-100">
-                  Step {index + 1} — {step.title}
-                </p>
-                <p className="m-0 mt-0.5 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">
-                  {step.shortBody}
-                </p>
-                {step.detail ? (
-                  <details className="mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">
-                    <summary className="cursor-pointer select-none text-teal-800 underline decoration-teal-300/50 dark:text-teal-300">
-                      More detail
-                    </summary>
-                    <p className="mt-1.5 m-0 leading-relaxed text-neutral-600 dark:text-neutral-400">{step.detail}</p>
-                  </details>
-                ) : null}
-                <div className="mt-1.5">
-                  <Button asChild variant="outline" size="sm" className="h-7 text-xs font-medium">
-                    <Link className="no-underline" href={step.primaryHref}>
-                      {step.primaryLabel}
-                    </Link>
-                  </Button>
+      <ol className="m-0 list-none space-y-2 p-0">
+        {steps.map((step, index) => {
+          const done = doneByIndex[index] === true;
+          const expanded = expandedIndex === index;
+
+          return (
+            <li
+              key={step.title}
+              className={cn(
+                "rounded border border-sky-100/80 bg-white/70 p-2 dark:border-sky-900/50 dark:bg-neutral-900/50",
+                done ? "opacity-75" : "",
+              )}
+            >
+              <div className="flex items-start gap-2">
+                <input
+                  id={`workflow-step-done-${index}`}
+                  type="checkbox"
+                  className="auth-panel-focus mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-neutral-300 text-teal-700 focus:ring-teal-700 dark:border-neutral-600 dark:bg-neutral-900"
+                  checked={done}
+                  onChange={() => {
+                    toggleStep(index);
+                  }}
+                  aria-label={`Mark step ${index + 1} done: ${step.title}`}
+                />
+                <div className="min-w-0 flex-1">
+                  <button
+                    type="button"
+                    className="auth-panel-focus m-0 w-full cursor-pointer rounded-sm border-0 bg-transparent p-0 text-left text-xs font-semibold text-neutral-900 hover:text-teal-900 dark:text-neutral-100 dark:hover:text-teal-200"
+                    aria-expanded={expanded}
+                    onClick={() => {
+                      setExpandedIndex((prev) => (prev === index ? null : index));
+                    }}
+                  >
+                    Step {index + 1} — {step.title}
+                    {done ? <span className="ml-1 text-[10px] font-normal text-teal-700 dark:text-teal-400">(done)</span> : null}
+                  </button>
+                  {expanded ? (
+                    <div className="mt-1.5">
+                      <p className="m-0 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
+                      {step.detail ? (
+                        <details className="mt-1 text-[11px] text-neutral-600 dark:text-neutral-400">
+                          <summary className="cursor-pointer select-none text-teal-800 underline decoration-teal-300/50 dark:text-teal-300">
+                            More detail
+                          </summary>
+                          <p className="mt-1.5 m-0 leading-relaxed text-neutral-600 dark:text-neutral-400">{step.detail}</p>
+                        </details>
+                      ) : null}
+                      <div className="mt-1.5">
+                        <Button asChild variant="outline" size="sm" className="h-7 text-xs font-medium">
+                          <Link className="no-underline" href={step.primaryHref}>
+                            {step.primaryLabel}
+                          </Link>
+                        </Button>
+                      </div>
+                      {step.secondary ? (
+                        <div className="mt-1.5 text-[11px] leading-snug text-neutral-600 dark:text-neutral-500">{step.secondary}</div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-                {step.secondary ? <div className="mt-1.5 text-[11px] leading-snug text-neutral-600 dark:text-neutral-500">{step.secondary}</div> : null}
               </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ol>
 
       <div className="mt-2 rounded border border-neutral-200/80 bg-white/60 px-2 py-2 text-[11px] dark:border-neutral-700 dark:bg-neutral-900/40">

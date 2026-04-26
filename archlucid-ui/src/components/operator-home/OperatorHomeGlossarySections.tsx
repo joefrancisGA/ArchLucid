@@ -19,7 +19,7 @@ export function OperatorHomeGlossarySections() {
           step={1}
           icon={Rocket}
           label="Create Run"
-          description="Guided wizard — system identity through pipeline"
+          description="Capture architecture intent, requirements, and constraints."
           href="/runs/new"
           shortcut="Alt+N"
         />
@@ -36,14 +36,14 @@ export function OperatorHomeGlossarySections() {
           step={3}
           icon={Play}
           label="Commit Run"
-          description="Produce golden manifest and artifact exports"
+          description="Commit the reviewed manifest and export artifacts."
           href="/runs?projectId=default"
         />
         <ActionCard
           step={4}
           icon={FileCheck}
           label="Review Artifacts"
-          description="Preview, download, and export artifact bundles"
+          description="Review, download, and share architecture artifacts."
           href="/runs?projectId=default"
         />
       </div>

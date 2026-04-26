@@ -54,7 +54,7 @@ describe("CommandCenterSection", () => {
     globalThis.fetch = originalFetch;
   });
 
-  it("renders command center and cards without checklist gating", async () => {
+  it("renders workspace status and cards without checklist gating", async () => {
     listRuns.mockResolvedValue({
       items: [],
       totalCount: 0,
@@ -66,7 +66,7 @@ describe("CommandCenterSection", () => {
 
     render(<CommandCenterSection />);
 
-    expect(screen.getByRole("heading", { name: /^command center$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^workspace status$/i })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("command-center-runs-card")).toBeInTheDocument();
     });
