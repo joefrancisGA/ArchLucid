@@ -23,8 +23,8 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
-        services.AddScoped<ArchLucid.Application.Authority.IAuthorityCommittedManifestChainWriter,
-            ArchLucid.Application.Authority.AuthorityCommittedManifestChainWriter>();
+        services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
+            Application.Authority.AuthorityCommittedManifestChainWriter>();
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));

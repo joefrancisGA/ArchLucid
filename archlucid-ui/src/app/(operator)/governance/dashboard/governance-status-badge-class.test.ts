@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { governanceStatusBadgeClass } from "./governance-status-badge-class";
 
+/** Same status strings as StatusPill with domain "governance" (see status-pill-domain-classes). */
 describe("governanceStatusBadgeClass", () => {
   it("maps known statuses to colored badge classes", () => {
     expect(governanceStatusBadgeClass("Submitted")).toContain("bg-blue-600");

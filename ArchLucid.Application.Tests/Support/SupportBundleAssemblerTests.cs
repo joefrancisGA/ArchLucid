@@ -93,7 +93,7 @@ public sealed class SupportBundleAssemblerTests
     {
         SupportBundleAssembler assembler = new(TimeProvider.System);
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = () => assembler.AssembleAsync(new SupportBundleRequest("op", null), cts.Token);
 
@@ -113,7 +113,8 @@ public sealed class SupportBundleAssemblerTests
         using ZipArchive archive = new(memory, ZipArchiveMode.Read);
         ZipArchiveEntry? entry = archive.GetEntry(entryName);
 
-        if (entry is null) throw new InvalidOperationException($"Entry '{entryName}' missing from bundle.");
+        if (entry is null)
+            throw new InvalidOperationException($"Entry '{entryName}' missing from bundle.");
 
         using Stream stream = entry.Open();
         using StreamReader reader = new(stream, Encoding.UTF8);

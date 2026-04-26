@@ -985,6 +985,8 @@ Tests:
 After implementation, summarize changed files.
 ```
 
+**Status: shipped.** **`governance/dashboard/page.tsx`** — pending approvals as a **dense table** (**`divide-y`**, **`px-3 py-2`**, hover / selection ring) with **primary label** **`sourceEnvironment → targetEnvironment`**, **`StatusPill`** (`domain="governance"`), **run** link, **`formatRelativeTime`** + **`title`** absolute, **requested-by** line, actions with **`stopPropagation`**; **`InspectorPanel`** + **`useViewportNarrow`** (docked / sheet) and **`GovernanceApprovalInspectorPreview`** on row click (**Enter**/**Space**). **Recent decisions** table same visual language. **Change log** uses **`StatusPill`** (`domain="general"`, **`uppercase={false}`**) + relative **`changedUtc`**. **`GovernanceApprovalInspectorPreview.tsx`** + test. **`governanceStatusBadgeClass`** remains deprecated delegate; **`governance-status-badge-class.test.ts`** unchanged. **Promotions / activations** lists are not on this dashboard DTO — **N/A**. **`max-w-6xl`** for inspector room.
+
 ---
 
 ## Prompt 15 — Evolve the operator home toward a command center

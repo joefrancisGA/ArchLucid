@@ -7,6 +7,8 @@
 # Full-stack integration (containerised API + UI):
 #   docker compose --profile full-stack up -d
 #   → Everything, including the ArchLucid API and Operator UI images.
+#   After UI or root-level pricing/docs changes, rebuild the image: add `--build`
+#   (e.g. `docker compose --profile full-stack up -d --build ui`).
 #
 # SQL Server: localhost:1433
 # Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)
@@ -138,8 +140,9 @@ services:
   ui:
     profiles: ["full-stack"]
     build:
-      context: archlucid-ui
-      dockerfile: Dockerfile
+      # Repo root — matches archlucid-ui/Dockerfile (COPY archlucid-ui/…, docs/, scripts/).
+      context: .
+      dockerfile: archlucid-ui/Dockerfile
     container_name: archlucid-ui
     ports:
       - "3000:3000"
