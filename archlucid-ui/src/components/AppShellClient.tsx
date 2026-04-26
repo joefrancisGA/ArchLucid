@@ -53,7 +53,6 @@ export function AppShellClient({ children }: AppShellClientProps) {
                 </h1>
               </div>
               <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-                <ScopeSwitcher />
                 <Button
                   type="button"
                   variant="outline"
@@ -77,7 +76,14 @@ export function AppShellClient({ children }: AppShellClientProps) {
               </div>
             </div>
             <div className="mx-auto max-w-[1600px] border-t border-neutral-100 px-4 pb-2 pt-1 dark:border-neutral-800 lg:px-6">
-              <Breadcrumbs />
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="min-w-0 flex-1 basis-[min(100%,28rem)]">
+                  <Breadcrumbs />
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <ScopeSwitcher />
+                </div>
+              </div>
             </div>
           </header>
           <LayerContextFromRoute />
