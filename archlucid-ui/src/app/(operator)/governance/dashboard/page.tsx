@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { StatusPill } from "@/components/StatusPill";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,17 +62,8 @@ import type {
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 import { useNavSurface } from "@/lib/use-nav-surface";
-import { governanceStatusBadgeClass } from "./governance-status-badge-class";
 
 const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
-
-function GovernanceStatusBadge({ status }: { status: string }) {
-  return (
-    <Badge className={cn("text-xs font-semibold", governanceStatusBadgeClass(status))} variant="outline">
-      {status}
-    </Badge>
-  );
-}
 
 function DashboardSkeleton() {
   return (
@@ -515,7 +507,7 @@ export default function GovernanceDashboardPage() {
                         </CardDescription>
                         </div>
                       </div>
-                      <GovernanceStatusBadge status={row.status} />
+                      <StatusPill status={row.status} domain="governance" className="text-xs" />
                     </CardHeader>
                     <CardContent className="grid gap-2 text-sm">
                       <div>
@@ -621,7 +613,7 @@ export default function GovernanceDashboardPage() {
                           {row.reviewedUtc ? formatIsoUtcForDisplay(row.reviewedUtc) : "—"}
                         </CardDescription>
                       </div>
-                      <GovernanceStatusBadge status={row.status} />
+                      <StatusPill status={row.status} domain="governance" className="text-xs" />
                     </CardHeader>
                     <CardContent className="grid gap-2 text-sm">
                       <div>

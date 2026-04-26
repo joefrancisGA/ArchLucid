@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;

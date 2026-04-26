@@ -17,8 +17,6 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Core.Services;
 
 /// <summary>

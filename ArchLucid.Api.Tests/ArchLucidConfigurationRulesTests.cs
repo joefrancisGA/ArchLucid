@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -349,7 +347,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -366,7 +365,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Sql", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -384,7 +384,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -401,7 +402,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Blob", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "Blob",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

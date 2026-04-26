@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/StatusPill";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -27,20 +27,6 @@ export function deriveRunListPipelineLabel(run: RunSummary): RunPipelineLabel {
   return "Starting";
 }
 
-function variantForLabel(label: RunPipelineLabel): "default" | "secondary" | "destructive" | "outline" {
-  switch (label) {
-    case "Committed":
-      return "default";
-    case "Ready for commit":
-      return "secondary";
-    case "In pipeline":
-      return "outline";
-    case "Starting":
-    default:
-      return "outline";
-  }
-}
-
 export type RunStatusBadgeProps = {
   run: RunSummary;
   className?: string;
@@ -51,15 +37,13 @@ export type RunStatusBadgeProps = {
  */
 export function RunStatusBadge({ run, className }: RunStatusBadgeProps) {
   const label = deriveRunListPipelineLabel(run);
-  const variant = variantForLabel(label);
 
   return (
-    <Badge
-      variant={variant}
-      className={cn("shrink-0", label === "Ready for commit" && "border-amber-500/60 bg-amber-50 text-amber-950 dark:bg-amber-950/40 dark:text-amber-100", className)}
-      aria-label={`Run pipeline status: ${label}`}
-    >
-      {label}
-    </Badge>
+    <StatusPill
+      status={label}
+      domain="pipeline"
+      className={cn("shrink-0", className)}
+      ariaLabel={`Run pipeline status: ${label}`}
+    />
   );
 }

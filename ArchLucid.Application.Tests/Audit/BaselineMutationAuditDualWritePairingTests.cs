@@ -64,10 +64,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         if (text.Contains("BaselineMutationAuditService", StringComparison.Ordinal))
             return false;
 
-        if (text.Contains("IBaselineMutationAuditService", StringComparison.Ordinal))
-            return ContainsRecordAsyncOnBaselineSymbol(text);
-
-        return Regex.IsMatch(text, @"\bbaselineMutationAudit(Service)?\s*\.RecordAsync\(", RegexOptions.Compiled);
+        return text.Contains("IBaselineMutationAuditService", StringComparison.Ordinal) ? ContainsRecordAsyncOnBaselineSymbol(text) : Regex.IsMatch(text, @"\bbaselineMutationAudit(Service)?\s*\.RecordAsync\(", RegexOptions.Compiled);
     }
 
     private static bool ContainsRecordAsyncOnBaselineSymbol(string text)

@@ -27,9 +27,18 @@ describe("deriveRunListPipelineLabel", () => {
 });
 
 describe("RunStatusBadge", () => {
-  it("exposes pipeline status in aria-label", () => {
+  it("exposes pipeline status in aria-label via StatusPill", () => {
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
     expect(screen.getByLabelText(/Run pipeline status: Committed/i)).toBeInTheDocument();
+  });
+
+  it("delegates to StatusPill pipeline domain (Committed styling)", () => {
+    const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+    const pill = container.querySelector('[aria-label="Run pipeline status: Committed"]');
+
+    expect(pill).not.toBeNull();
+    expect(pill?.className).toMatch(/rounded-full/);
+    expect(pill?.className).toMatch(/emerald-600/);
   });
 });
