@@ -10,7 +10,14 @@ describe("getLayerForRoute", () => {
   it("returns operate-analysis for a known analysis nav path", () => {
     expect(getLayerForRoute("/ask")).toBe("operate-analysis");
     expect(getLayerForRoute("/search")).toBe("operate-analysis");
-    expect(getLayerForRoute("/settings/tenant-cost")).toBe("operate-analysis");
+  });
+
+  it("returns operator-admin for tenant admin nav paths", () => {
+    expect(getLayerForRoute("/settings/tenant-cost")).toBe("operator-admin");
+    expect(getLayerForRoute("/settings/baseline")).toBe("operator-admin");
+    expect(getLayerForRoute("/settings/tenant")).toBe("operator-admin");
+    expect(getLayerForRoute("/admin/support")).toBe("operator-admin");
+    expect(getLayerForRoute("/admin/users")).toBe("operator-admin");
   });
 
   it("returns operate-governance for a known governance nav path and nested routes", () => {

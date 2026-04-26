@@ -20,6 +20,11 @@ describe("LayerContextStrip", () => {
         id: "operate-governance" as const,
         wantLabel: "Governance",
         wantQuestion: "How do we govern, audit, and operationalize architecture decisions?"
+      },
+      {
+        id: "operator-admin" as const,
+        wantLabel: "Admin",
+        wantQuestion: "How do we configure the tenant, cost visibility, and access for this workspace?"
       }
     ] as const
   )("renders label and question for $id", ({ id, wantLabel, wantQuestion }) => {

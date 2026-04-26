@@ -14,7 +14,12 @@ export function OperatorHomeGlossarySections() {
       <h3 id="quick-actions-heading" className="sr-only">
         Quick actions
       </h3>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="relative">
+        <div
+          className="pointer-events-none absolute left-8 right-8 top-1/2 hidden h-px -translate-y-1/2 bg-gradient-to-r from-teal-200 via-neutral-200 to-teal-200 dark:from-teal-800 dark:via-neutral-700 dark:to-teal-800 lg:block"
+          aria-hidden
+        />
+        <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ActionCard
           step={1}
           icon={Rocket}
@@ -46,6 +51,7 @@ export function OperatorHomeGlossarySections() {
           description="Review, download, and share architecture artifacts."
           href="/runs?projectId=default"
         />
+        </div>
       </div>
     </section>
   );

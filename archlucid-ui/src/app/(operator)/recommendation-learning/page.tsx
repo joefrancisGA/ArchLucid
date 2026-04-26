@@ -41,7 +41,7 @@ export default function RecommendationLearningPage() {
 
   return (
     <main className="max-w-4xl">
-      <h2 className="mt-0">Recommendation learning</h2>
+      <h2 className="mt-0">Recommendation tuning</h2>
       <p className="text-neutral-600 dark:text-neutral-400 text-sm">
         Inspect adaptive weights derived from historical recommendation outcomes (category, urgency, inferred signal type).
         Rebuild analyzes up to 5000 records in the current scope and stores a new profile snapshot.

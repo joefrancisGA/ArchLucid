@@ -4,7 +4,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
  * Product layer (buyer context) for operator shell — aligned with `NAV_GROUPS[].id` in `nav-config.ts` (read-only;
  * this module does not modify that file).
  */
-export type LayerId = "pilot" | "operate-analysis" | "operate-governance";
+export type LayerId = "pilot" | "operate-analysis" | "operate-governance" | "operator-admin";
 
 function hrefToPathname(href: string): string {
   try {
@@ -31,7 +31,8 @@ type NavPathMatch = { groupId: LayerId; path: string; pathLength: number };
 const LAYER_GROUP_ORDER: ReadonlyArray<LayerId> = [
   "pilot",
   "operate-analysis",
-  "operate-governance"
+  "operate-governance",
+  "operator-admin",
 ];
 
 const NAV_PATH_MATCHES: ReadonlyArray<NavPathMatch> = (() => {
@@ -39,7 +40,12 @@ const NAV_PATH_MATCHES: ReadonlyArray<NavPathMatch> = (() => {
   for (const g of NAV_GROUPS) {
     for (const link of g.links) {
       const p = hrefToPathname(link.href);
-      if (g.id === "pilot" || g.id === "operate-analysis" || g.id === "operate-governance") {
+      if (
+        g.id === "pilot"
+        || g.id === "operate-analysis"
+        || g.id === "operate-governance"
+        || g.id === "operator-admin"
+      ) {
         rows.push({ groupId: g.id, path: p, pathLength: p.length });
       }
     }

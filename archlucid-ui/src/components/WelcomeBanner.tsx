@@ -123,16 +123,15 @@ export function WelcomeBanner() {
         Generate your first architecture manifest
       </h2>
       <p className="mt-2 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
-        Capture an architecture request, run the pipeline, and produce a committed manifest with reviewable artifacts and
-        governance findings.
+        Turn architecture intent into governed, reviewable output your team can inspect, commit, and improve.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2.5">
         <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
           <Link href="/runs/new">Create Run</Link>
         </Button>
-        <Button asChild variant="secondary" size="sm" className="h-8">
-          <Link href="/runs?projectId=default">Explore demo data</Link>
+        <Button asChild variant="outline" className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40">
+          <Link href="/runs?projectId=default">See ArchLucid with real data</Link>
         </Button>
         {trialActive ? (
           <Button asChild variant="outline" size="sm" className="h-8">

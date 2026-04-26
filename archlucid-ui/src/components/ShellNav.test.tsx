@@ -37,7 +37,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows Pilot extended links by default and can hide them",
+    "shows compact Pilot by default; navigation settings can reveal extended Analysis links",
     () => {
       render(<ShellNav />);
 
@@ -55,6 +55,14 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
       expect(screen.getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/getting-started");
 
+      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
+      fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
         "title",
@@ -62,16 +70,6 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       );
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
-
-      fireEvent.click(screen.getByRole("button", { name: NAV_DISCLOSURE.extended.hide }));
-
-      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
-
-      fireEvent.click(screen.getByRole("button", { name: NAV_DISCLOSURE.extended.show }));
-
-      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
 
       const linksWithKeyShortcuts = screen
         .getAllByRole("link")
@@ -89,6 +87,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     "exposes Analysis and Governance group navigations when sections are expanded",
     () => {
       render(<ShellNav />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
+      fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
       expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");

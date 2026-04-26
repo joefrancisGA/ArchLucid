@@ -119,13 +119,13 @@ describe("filterNavLinksForOperatorShell", () => {
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
    * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
-  it("hides Core Pilot extended Execute link (/replay) until showExtended even for Admin rank", () => {
-    const core = NAV_GROUPS.find((g) => g.id === "pilot");
+  it("hides Analysis extended Execute link (/replay) until showExtended even for Admin rank", () => {
+    const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
-    expect(core).toBeDefined();
+    expect(analysis).toBeDefined();
 
     const extendedOff = filterNavLinksForOperatorShell(
-      core!.links,
+      analysis!.links,
       false,
       false,
       AUTHORITY_RANK.AdminAuthority,
@@ -133,7 +133,12 @@ describe("filterNavLinksForOperatorShell", () => {
 
     expect(extendedOff.some((l) => l.href === "/replay")).toBe(false);
 
-    const extendedOn = filterNavLinksForOperatorShell(core!.links, true, false, AUTHORITY_RANK.AdminAuthority);
+    const extendedOn = filterNavLinksForOperatorShell(
+      analysis!.links,
+      true,
+      false,
+      AUTHORITY_RANK.AdminAuthority,
+    );
 
     expect(extendedOn.some((l) => l.href === "/replay")).toBe(true);
   });

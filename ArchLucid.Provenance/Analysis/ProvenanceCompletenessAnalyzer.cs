@@ -17,8 +17,9 @@ public static class ProvenanceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(graph);
 
-        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes;
-        IReadOnlyList<ProvenanceEdge> edges = graph.Edges;
+        // Deserialization or hand-built graphs can leave list properties null; treat as empty.
+        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes is not null ? graph.Nodes : Array.Empty<ProvenanceNode>();
+        IReadOnlyList<ProvenanceEdge> edges = graph.Edges is not null ? graph.Edges : Array.Empty<ProvenanceEdge>();
 
         Dictionary<Guid, ProvenanceNode> nodeById = nodes.ToDictionary(n => n.Id, n => n);
 

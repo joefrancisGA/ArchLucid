@@ -38,10 +38,7 @@ public sealed class ArchitectureApplicationServiceTests
     private readonly ArchitectureApplicationService _sut;
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader;
     private readonly Mock<IRunRepository> _runRepository;
-    private readonly Mock<IScopeContextProvider> _scopeContextProvider;
-    private readonly IConfiguration _configuration;
     private readonly Mock<IAuditService> _auditService;
-    private readonly Mock<IActorContext> _actorContext;
 
     public ArchitectureApplicationServiceTests()
     {
@@ -52,15 +49,15 @@ public sealed class ArchitectureApplicationServiceTests
         _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
         _evidenceBuilder = new Mock<IEvidenceBuilder>();
         _runRepository = new Mock<IRunRepository>();
-        _scopeContextProvider = new Mock<IScopeContextProvider>();
-        _configuration = new ConfigurationBuilder()
+        Mock<IScopeContextProvider> scopeContextProvider = new();
+        IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "gpt-test" })
             .Build();
         _auditService = new Mock<IAuditService>();
-        _actorContext = new Mock<IActorContext>();
+        Mock<IActorContext> actorContext = new();
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
 
-        _scopeContextProvider
+        scopeContextProvider
             .Setup(s => s.GetCurrentScope())
             .Returns(
                 new ScopeContext
@@ -74,7 +71,7 @@ public sealed class ArchitectureApplicationServiceTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        _actorContext.Setup(a => a.GetActor()).Returns("unit-test");
+        actorContext.Setup(a => a.GetActor()).Returns("unit-test");
 
         _agentEvidencePackageRepository
             .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -107,10 +104,10 @@ public sealed class ArchitectureApplicationServiceTests
             _evidenceBuilder.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             _runRepository.Object,
-            _scopeContextProvider.Object,
-            _configuration,
+            scopeContextProvider.Object,
+            configuration,
             _auditService.Object,
-            _actorContext.Object,
+            actorContext.Object,
             logger.Object);
     }
 

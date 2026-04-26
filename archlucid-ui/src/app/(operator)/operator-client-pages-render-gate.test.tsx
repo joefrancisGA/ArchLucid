@@ -82,7 +82,7 @@ describe("operator client pages — render gate", () => {
 
   it("RecommendationLearningPage renders primary heading", () => {
     render(<RecommendationLearningPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Recommendation learning" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Recommendation tuning" })).toBeInTheDocument();
   });
 
   it("ProductLearningPage renders primary heading", () => {

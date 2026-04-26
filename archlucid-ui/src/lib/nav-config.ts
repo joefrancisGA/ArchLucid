@@ -24,7 +24,6 @@ import {
   Shield,
   ShieldCheck,
   Sparkles,
-  Stars,
   Users,
   Wallet,
 } from "lucide-react";
@@ -99,7 +98,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`ExecuteAuthority`** row vs **`enterpriseMutationCapabilityFromRank`**; **`authority-shaped-ui-regression.test.ts`** —
  *   every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested).
  *   **`operate-governance`** monotonicity Reader→Admin.
- *   **`nav-shell-visibility.test.ts`** also locks **Pilot** extended **Execute**
+ *   **`nav-shell-visibility.test.ts`** also locks **Analysis** extended **Execute**
  *   links (e.g. **`/replay`**) behind **Show more** — tier before rank. **`current-principal.test.ts`** locks **`maxAuthority`**
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
  *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**;
@@ -119,7 +118,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
  * - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
- * - **Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
+ * - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
  * - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
@@ -185,14 +184,19 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: ListOrdered,
         tier: "essential",
       },
+    ],
+  },
+  {
+    id: "operate-analysis",
+    label: "Analysis",
+    caption: "Compare, replay, graph, architecture advisory, and deeper questions after Pilot proof.",
+    links: [
       {
         href: "/graph",
         label: "Graph",
         title: navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+y"),
         keyShortcut: "alt+y",
         icon: GitGraph,
-        // Graph is a useful inspection tool but is not part of the Core Pilot path
-        // (create → run → commit → review). It surfaces under extended disclosure (see NAV_DISCLOSURE.extended).
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
@@ -215,23 +219,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ExecuteAuthority",
       },
       {
-        href: "/why-archlucid",
-        label: "Why ArchLucid",
-        // Core Pilot proof page — read-only telemetry projection over the seeded Contoso Retail demo run.
-        // Intentionally has no `requiredAuthority` so any signed-in pilot can show it to a sponsor; the API
-        // endpoints it calls still enforce `[Authorize(Policy = ReadAuthority)]`.
-        title: "Why ArchLucid — live demo telemetry, sponsor first-value report, and run explanation citations",
-        icon: Stars,
-        tier: "extended",
-      },
-    ],
-  },
-  {
-    id: "operate-analysis",
-    label: "Analysis",
-    caption: "Search, planning, advisory, and deeper questions after Pilot proof.",
-    links: [
-      {
         href: "/ask",
         label: "Ask",
         title: navTitleWithShortcut("Ask — natural language Q&A over architecture context", "alt+a"),
@@ -250,16 +237,16 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       },
       {
         href: "/advisory",
-        label: "Advisory",
-        title: "Advisory — architecture scans and scan schedules",
+        label: "Architecture advisory",
+        title: "Architecture advisory — architecture scans and scan schedules",
         icon: Activity,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
       {
         href: "/recommendation-learning",
-        label: "Recommendation learning",
-        title: "Recommendation learning — profiles and ranking signals",
+        label: "Recommendation tuning",
+        title: "Recommendation tuning — profiles and ranking signals",
         icon: Sparkles,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -295,30 +282,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: FileSearch,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/settings/tenant-cost",
-        label: "Tenant cost",
-        title: "Tenant cost — estimated monthly spend band (Standard+)",
-        icon: Wallet,
-        tier: "extended",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/settings/baseline",
-        label: "Baseline settings",
-        title: "Baseline settings — ROI measurement inputs",
-        icon: BarChart3,
-        tier: "extended",
-        requiredAuthority: "ExecuteAuthority",
-      },
-      {
-        href: "/settings/tenant",
-        label: "Tenant settings",
-        title: "Tenant settings — trial, digest email, and request scope",
-        icon: Building2,
-        tier: "extended",
-        requiredAuthority: "ExecuteAuthority",
       },
     ],
   },
@@ -416,8 +379,32 @@ export const NAV_GROUPS: NavGroupConfig[] = [
   {
     id: "operator-admin",
     label: "Admin",
-    caption: "Support bundles and tenant user administration.",
+    caption: "Tenant cost, settings, support bundles, and user administration.",
     links: [
+      {
+        href: "/settings/tenant-cost",
+        label: "Tenant cost",
+        title: "Tenant cost — estimated monthly spend band (Standard+)",
+        icon: Wallet,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/settings/baseline",
+        label: "Baseline settings",
+        title: "Baseline settings — ROI measurement inputs",
+        icon: BarChart3,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/settings/tenant",
+        label: "Tenant settings",
+        title: "Tenant settings — trial, digest email, and request scope",
+        icon: Building2,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      },
       {
         href: "/admin/support",
         label: "Support",

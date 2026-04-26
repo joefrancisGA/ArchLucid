@@ -248,8 +248,8 @@ export function OperatorFirstRunWorkflowPanel() {
             <li
               key={step.title}
               className={cn(
-                "rounded border border-sky-100/80 bg-white/70 p-2 dark:border-sky-900/50 dark:bg-neutral-900/50",
-                done ? "opacity-75" : "",
+                "border-b border-sky-200/40 pb-2.5 last:border-b-0 dark:border-sky-800/40",
+                done ? "opacity-60" : "",
               )}
             >
               <div className="flex items-start gap-2">
@@ -305,7 +305,7 @@ export function OperatorFirstRunWorkflowPanel() {
         })}
       </ol>
 
-      <div className="mt-2 rounded border border-neutral-200/80 bg-white/60 px-2 py-2 text-[11px] dark:border-neutral-700 dark:bg-neutral-900/40">
+      <div className="mt-3 border-t border-sky-200/40 pt-2.5 text-[11px] dark:border-sky-800/40">
         <p className="m-0 mb-0.5 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Later (optional)</p>
         <p className="m-0 mb-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-500">
           After committing a run, explore Compare, Replay, and Graph from the sidebar.

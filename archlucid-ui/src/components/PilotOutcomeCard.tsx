@@ -86,7 +86,7 @@ export function PilotOutcomeCard() {
           Pilot health (last 30 days)
         </h2>
         <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-          No pilot runs yet. Create a run to start tracking success rates and commit metrics.
+          After your first committed run, this panel will show success rates, committed manifests, and time-to-commit trends.
         </p>
       </section>
     );
