@@ -107,9 +107,9 @@ export function AlertRoutingContent() {
   }
 
   return (
-    <div style={{ maxWidth: 800 }}>
+    <div className="max-w-3xl">
       <LayerHeader pageKey="alert-routing" />
-      <h2 style={{ marginTop: 0 }}>Alert routing</h2>
+      <h2 className="mt-0">Alert routing</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader}
       </p>
@@ -130,47 +130,42 @@ export function AlertRoutingContent() {
           className={cn("min-w-0", !canMutateRouting && "opacity-95")}
           aria-labelledby="alert-routing-current-heading"
         >
-          <h3 id="alert-routing-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+          <h3 id="alert-routing-current-heading" className="mb-2 mt-1 text-base">
             {canMutateRouting ? alertRoutingCurrentRoutingHeadingOperator : alertRoutingCurrentRoutingHeadingReader}
           </h3>
           <button
             type="button"
             onClick={() => void load()}
             disabled={loading}
-            style={{ marginBottom: 8 }}
+            className="mb-2"
             title={
               canMutateRouting ? alertToolingListRefreshButtonTitleOperator : alertToolingListRefreshButtonTitleReader
             }
           >
             {loading ? "Loading…" : "Refresh"}
           </button>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="grid gap-3">
             {items.length === 0 ? (
-              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
                 {canMutateRouting ? alertRoutingSubscriptionsEmptyOperatorLine : alertRoutingSubscriptionsEmptyReaderLine}
               </p>
             ) : (
               items.map((item) => (
                 <div
                   key={item.routingSubscriptionId}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    padding: 12,
-                    background: "#fff",
-                  }}
+                  className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{item.name}</strong>
-                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                  <div className="mt-2 text-sm">
                     <div>Channel: {item.channelType}</div>
-                    <div style={{ wordBreak: "break-all" }}>Destination: {item.destination}</div>
+                    <div className="break-all">Destination: {item.destination}</div>
                     <div>Minimum severity: {item.minimumSeverity}</div>
                     <div>Enabled: {String(item.isEnabled)}</div>
                     <div>
                       Last delivered: {item.lastDeliveredUtc ? new Date(item.lastDeliveredUtc).toLocaleString() : "Never"}
                     </div>
                   </div>
-                  <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => void loadAttempts(item.routingSubscriptionId)}
@@ -202,7 +197,7 @@ export function AlertRoutingContent() {
                     </button>
                   </div>
                   {attemptsBySub[item.routingSubscriptionId]?.length ? (
-                    <ul style={{ marginTop: 12, fontSize: 13, paddingLeft: 20 }}>
+                    <ul className="mt-3 pl-5 text-[13px]">
                       {attemptsBySub[item.routingSubscriptionId].map((a) => (
                         <li key={a.alertDeliveryAttemptId}>
                           {a.status} — alert {a.alertId.slice(0, 8)}… — {new Date(a.attemptedUtc).toLocaleString()}
@@ -222,15 +217,15 @@ export function AlertRoutingContent() {
           className={cn("min-w-0", !canMutateRouting && "opacity-90")}
           aria-labelledby="alert-routing-change-heading"
         >
-          <h3 id="alert-routing-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+          <h3 id="alert-routing-change-heading" className="mb-2 mt-1 text-base">
             {canMutateRouting
               ? alertToolingChangeConfigurationHeadingOperator
               : alertToolingChangeConfigurationHeadingReader}
           </h3>
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
+          <p className="mb-2.5 mt-0 max-w-xl text-xs text-neutral-500 dark:text-neutral-400">
             {alertToolingConfigureSectionSubline}
           </p>
-          <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
+          <div className="mb-4 grid max-w-2xl gap-3">
             <label>
               Name
               <input
@@ -238,7 +233,7 @@ export function AlertRoutingContent() {
                 onChange={(e) => setName(e.target.value)}
                 disabled={!canMutateRouting}
                 title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -248,7 +243,7 @@ export function AlertRoutingContent() {
                 onChange={(e) => setChannelType(e.target.value)}
                 disabled={!canMutateRouting}
                 title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="Email">Email</option>
                 <option value="TeamsWebhook">Teams Webhook</option>
@@ -264,7 +259,7 @@ export function AlertRoutingContent() {
                 placeholder="Email or webhook URL"
                 disabled={!canMutateRouting}
                 title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
+                className="mt-1 block w-full font-mono p-2"
               />
             </label>
             <label>
@@ -274,7 +269,7 @@ export function AlertRoutingContent() {
                 onChange={(e) => setMinimumSeverity(e.target.value)}
                 disabled={!canMutateRouting}
                 title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="Info">Info</option>
                 <option value="Warning">Warning</option>

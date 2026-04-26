@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { redirect } from "next/navigation";
 
 import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
@@ -69,12 +70,10 @@ export default async function RunsPage({
 
   return (
     <main aria-labelledby="runs-page-heading">
-      <h2 id="runs-page-heading">
-        Runs{" "}
-        <span className="text-[0.92em] font-normal text-neutral-600 dark:text-neutral-400">
-          — project {projectId}
-        </span>
-      </h2>
+      <OperatorPageHeader
+        title="Architecture runs"
+        metadata={<span>Project {projectId}</span>}
+      />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Open a run for manifest summary, artifact review, compare and replay links, and exports. Results are paged
         server-side (default 20 per page; use <code>?page=</code> and <code>?pageSize=</code>, or legacy{" "}

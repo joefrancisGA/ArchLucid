@@ -18,3 +18,10 @@ services:
       Demo__Enabled: "true"
       Demo__SeedOnStartup: "true"
       AgentExecution__Mode: "Simulator"
+
+  ui:
+    build:
+      args:
+        NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
+    environment:
+      NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"

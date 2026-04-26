@@ -1,22 +1,7 @@
-import type { CSSProperties } from "react";
-
 import { OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import type { PreparedArtifactBody } from "@/lib/artifact-review-helpers";
 
-const preBox: CSSProperties = {
-  margin: 0,
-  padding: 16,
-  border: "1px solid #e2e8f0",
-  borderRadius: 8,
-  background: "#fff",
-  whiteSpace: "pre-wrap",
-  wordBreak: "break-word",
-  fontSize: 14,
-  lineHeight: 1.55,
-  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
-  maxHeight: "min(70vh, 720px)",
-  overflow: "auto",
-};
+const preBoxCls = "m-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-neutral-200 bg-white p-4 font-mono text-sm leading-relaxed dark:border-neutral-700 dark:bg-neutral-950 max-h-[min(70vh,720px)]";
 
 /**
  * Human-readable panel plus optional raw disclosure (deterministic; no HTML injection).
@@ -34,8 +19,8 @@ export function ArtifactReviewContent(props: {
     return (
       <OperatorWarningCallout>
         <strong>In-shell preview unavailable.</strong>
-        <p style={{ margin: "8px 0 0" }}>{contentError}</p>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+        <p className="mt-2">{contentError}</p>
+        <p className="mt-2 text-sm">
           Use <strong>Download</strong> to open the artifact locally. Descriptor metadata above is still
           valid when the download endpoint succeeds.
         </p>
@@ -61,25 +46,25 @@ export function ArtifactReviewContent(props: {
       {truncated && (
         <OperatorWarningCallout>
           <strong>Preview truncated.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          <p className="mt-2 text-sm">
             Showing the first portion of this artifact ({byteLength.toLocaleString()} bytes total). Download
             for the full file.
           </p>
         </OperatorWarningCallout>
       )}
 
-      <p style={{ margin: "0 0 8px", fontSize: 13, color: "#64748b" }}>
+      <p className="mb-2 text-[13px] text-neutral-500 dark:text-neutral-400">
         {caption} · <code>{contentType}</code> · {byteLength.toLocaleString()} bytes
       </p>
 
-      <pre style={preBox}>{prepared.readableText}</pre>
+      <pre className={preBoxCls}>{prepared.readableText}</pre>
 
-      <details style={{ marginTop: 16 }}>
-        <summary style={{ cursor: "pointer", fontWeight: 600, color: "#334155" }}>
+      <details className="mt-4">
+        <summary className="cursor-pointer font-semibold text-neutral-700 dark:text-neutral-300">
           Raw UTF-8 content
           {rawIsDistinct ? " (exact, unmodified from API)" : " (same as readable above)"}
         </summary>
-        <pre style={{ ...preBox, marginTop: 12, background: "#f8fafc" }}>{prepared.rawText}</pre>
+        <pre className={`${preBoxCls} mt-3 bg-neutral-50/90 dark:bg-neutral-900/50`}>{prepared.rawText}</pre>
       </details>
     </div>
   );

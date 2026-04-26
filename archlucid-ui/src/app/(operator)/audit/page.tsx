@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   useNavCallerAuthorityRank,
@@ -243,12 +243,9 @@ export default function AuditPage() {
       : auditSearchNoResultsOperatorLine;
 
   return (
-    <main style={{ maxWidth: 900 }}>
+    <main className="max-w-4xl">
       <LayerHeader pageKey="audit" />
-      <div className="m-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">Audit log</h2>
-        <ContextualHelp helpKey="audit-log" />
-      </div>
+      <OperatorPageHeader title="Audit log" helpKey="audit-log" />
       <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
@@ -269,15 +266,9 @@ export default function AuditPage() {
 
       <section
         aria-labelledby="audit-search-heading"
-        style={{
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          padding: 12,
-          marginBottom: 16,
-          background: "#fff",
-        }}
+        className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-4 bg-white dark:bg-neutral-950"
       >
-        <h3 id="audit-search-heading" style={{ marginTop: 0, marginBottom: 12, fontSize: "1rem" }}>
+        <h3 id="audit-search-heading" className="mt-0 mb-3 text-base">
           {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
             ? auditSearchEventsSectionHeadingReader
             : auditSearchEventsSectionHeadingOperator}
@@ -285,14 +276,14 @@ export default function AuditPage() {
         {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority ? (
           <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">{auditSearchSectionLeadReaderLine}</p>
         ) : null}
-        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
           <label>
             Event type{" "}
             <select
               value={eventType}
               onChange={(e) => setEventType(e.target.value)}
               disabled={loadingTypes}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             >
               <option value="">Any</option>
               {eventTypes.map((t) => (
@@ -308,7 +299,7 @@ export default function AuditPage() {
               type="datetime-local"
               value={fromUtc}
               onChange={(e) => setFromUtc(e.target.value)}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             />
           </label>
           <label>
@@ -317,7 +308,7 @@ export default function AuditPage() {
               type="datetime-local"
               value={toUtc}
               onChange={(e) => setToUtc(e.target.value)}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             />
           </label>
           <label>
@@ -325,7 +316,7 @@ export default function AuditPage() {
             <input
               value={correlationId}
               onChange={(e) => setCorrelationId(e.target.value)}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             />
           </label>
           <label>
@@ -333,7 +324,7 @@ export default function AuditPage() {
             <input
               value={actorUserId}
               onChange={(e) => setActorUserId(e.target.value)}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             />
           </label>
           <label>
@@ -341,11 +332,11 @@ export default function AuditPage() {
             <input
               value={runId}
               onChange={(e) => setRunId(e.target.value)}
-              style={{ width: "100%", marginTop: 4 }}
+              className="w-full mt-1"
             />
           </label>
         </div>
-        <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="mt-3 flex gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => void runSearch()}
@@ -374,61 +365,50 @@ export default function AuditPage() {
       </section>
 
       <section aria-labelledby="audit-results-heading">
-        <h3 id="audit-results-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
+        <h3 id="audit-results-heading" className="mt-0 mb-2 text-base">
           {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
             ? auditResultsSectionHeadingReader
             : auditResultsSectionHeadingOperator}
         </h3>
-        <p style={{ color: "#555", fontSize: 13, marginTop: 0, marginBottom: 8, maxWidth: "42rem" }}>
+        <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
           Each card below is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip> (time, type, actor,
           run, and data JSON).
         </p>
-        <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14, marginTop: 0 }}>
+        <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
           Load more for older rows.
         </p>
 
-        <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+        <div className="grid gap-3 mt-3">
         {events.length === 0 ? (
-          <p style={{ color: "#666" }}>{auditSearchEmptyLine}</p>
+          <p className="text-neutral-500 dark:text-neutral-400">{auditSearchEmptyLine}</p>
         ) : (
           events.map((ev) => (
             <div
               key={ev.eventId}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 12,
-                background: "#fff",
-              }}
+              className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-white dark:bg-neutral-950"
             >
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              <div className="flex flex-wrap gap-2 items-center">
                 <strong>{formatUtc(ev.occurredUtc)}</strong>
                 <span
-                  style={{
-                    fontSize: 12,
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                    background: "#e0e7ff",
-                    color: "#312e81",
-                  }}
+                  className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 dark:bg-indigo-900/50 dark:text-indigo-300"
                 >
                   {ev.eventType}
                 </span>
               </div>
-              <div style={{ marginTop: 6, fontSize: 14 }}>
+              <div className="mt-1.5 text-sm">
                 Actor: {ev.actorUserName} ({ev.actorUserId})
               </div>
-              <div style={{ fontSize: 14 }}>Correlation: {ev.correlationId ?? "—"}</div>
+              <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
               {ev.otelTraceId ? (
-                <div style={{ fontSize: 14 }}>
+                <div className="text-sm">
                   Trace:{" "}
-                  <code title={ev.otelTraceId} style={{ fontSize: 12 }}>
+                  <code title={ev.otelTraceId} className="text-xs">
                     {ev.otelTraceId.slice(0, 16)}…
                   </code>
                 </div>
               ) : null}
-              <div style={{ fontSize: 14 }}>
+              <div className="text-sm">
                 Run:{" "}
                 {ev.runId ? (
                   <Link href={`/runs/${ev.runId}`} title="Open run detail">
@@ -439,23 +419,16 @@ export default function AuditPage() {
                 )}
               </div>
               {ev.runId ? (
-                <div style={{ fontSize: 13, marginTop: 2 }}>
-                  <Link href={`/runs/${ev.runId}#agent-traces`} style={{ fontSize: 12 }}>
+                <div className="text-[13px] mt-0.5">
+                  <Link href={`/runs/${ev.runId}#agent-traces`} className="text-xs">
                     View agent traces →
                   </Link>
                 </div>
               ) : null}
-              <details style={{ marginTop: 10 }}>
-                <summary style={{ cursor: "pointer" }}>Data JSON</summary>
+              <details className="mt-2.5">
+                <summary className="cursor-pointer">Data JSON</summary>
                 <pre
-                  style={{
-                    marginTop: 8,
-                    padding: 8,
-                    background: "#f8fafc",
-                    borderRadius: 6,
-                    overflow: "auto",
-                    fontSize: 12,
-                  }}
+                  className="mt-2 p-2 bg-neutral-50/90 dark:bg-neutral-900/50 rounded-md overflow-auto text-xs"
                 >
                   {tryFormatDataJson(ev.dataJson)}
                 </pre>
@@ -466,7 +439,7 @@ export default function AuditPage() {
         </div>
 
         {events.length > 0 && hasMoreResults ? (
-          <div style={{ marginTop: 16 }}>
+          <div className="mt-4">
             <button
               type="button"
               onClick={() => void loadMore()}
@@ -486,21 +459,14 @@ export default function AuditPage() {
       <section
         aria-labelledby="audit-export-heading"
         className={cn(
-          /* Deemphasize write path whenever CSV is not actionable (Read tier, missing window, or non-Auditor Operator). */
+          "border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mt-5 bg-neutral-50 dark:bg-neutral-950",
           !csvExportUiAllowed && "opacity-90",
         )}
-        style={{
-          border: "1px solid #ddd",
-          borderRadius: 8,
-          padding: 12,
-          marginTop: 20,
-          background: "#fafafa",
-        }}
       >
-        <h3 id="audit-export-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
+        <h3 id="audit-export-heading" className="mt-0 mb-2 text-base">
           {csvExportUiAllowed ? "Export" : "Export (restricted)"}
         </h3>
-        <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 12 }}>
+        <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-xl mt-0 mb-3">
           {auditExportSectionSupportingLine}
         </p>
         <button

@@ -105,9 +105,9 @@ export function DigestSubscriptionsContent() {
   }
 
   return (
-    <main style={{ maxWidth: 800 }}>
-      <h2 style={{ marginTop: 0 }}>Digest subscriptions</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
+    <main className="max-w-3xl">
+      <h2 className="mt-0">Digest subscriptions</h2>
+      <p className="text-sm text-neutral-600 dark:text-neutral-400">
         When an architecture digest is generated (scheduled or manual scan), enabled subscriptions in this scope receive
         a delivery attempt. Dev uses fake email/webhook loggers — check API logs for output.
       </p>
@@ -123,9 +123,9 @@ export function DigestSubscriptionsContent() {
       ) : null}
 
       <div className={cn("flex flex-col gap-6", !canMutateSubscriptions && "flex-col-reverse")}>
-        <section style={{ marginBottom: 0, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>
-          <h3 style={{ marginTop: 0 }}>New subscription</h3>
-          <div style={{ display: "grid", gap: 12, maxWidth: 700 }}>
+        <section className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+          <h3 className="mt-0">New subscription</h3>
+          <div className="grid max-w-2xl gap-3">
             <label>
               Name
               <input
@@ -134,7 +134,7 @@ export function DigestSubscriptionsContent() {
                 placeholder="Subscription name"
                 readOnly={!canMutateSubscriptions}
                 title={canMutateSubscriptions ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               />
             </label>
             <label>
@@ -144,7 +144,7 @@ export function DigestSubscriptionsContent() {
                 onChange={(e) => setChannelType(e.target.value)}
                 disabled={!canMutateSubscriptions}
                 title={canMutateSubscriptions ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                className="mt-1 block w-full p-2"
               >
                 <option value="Email">Email</option>
                 <option value="TeamsWebhook">Teams Webhook</option>
@@ -159,7 +159,7 @@ export function DigestSubscriptionsContent() {
                 placeholder="you@example.com or https://..."
                 readOnly={!canMutateSubscriptions}
                 title={canMutateSubscriptions ? undefined : enterpriseMutationControlDisabledTitle}
-                style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
+                className="mt-1 block w-full font-mono p-2"
               />
             </label>
             <button
@@ -180,7 +180,7 @@ export function DigestSubscriptionsContent() {
         </section>
 
         <div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          <div className="mb-4 flex gap-2">
             <button
               type="button"
               onClick={() => void load()}
@@ -200,9 +200,9 @@ export function DigestSubscriptionsContent() {
               ? digestSubscriptionsYourSubscriptionsHeadingOperator
               : digestSubscriptionsYourSubscriptionsHeadingReader}
           </h3>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="grid gap-3">
             {items.length === 0 ? (
-              <p style={{ color: "#666" }}>
+              <p className="text-neutral-500 dark:text-neutral-400">
                 {canMutateSubscriptions
                   ? digestSubscriptionsEmptyListOperatorLine
                   : digestSubscriptionsEmptyListReaderLine}
@@ -211,24 +211,19 @@ export function DigestSubscriptionsContent() {
               items.map((item) => (
                 <div
                   key={item.subscriptionId}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    padding: 12,
-                    background: "#fff",
-                  }}
+                  className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950"
                 >
                   <strong>{item.name}</strong>
-                  <div style={{ fontSize: 14, color: "#333", marginTop: 8 }}>
+                  <div className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
                     <div>Channel: {item.channelType}</div>
-                    <div style={{ wordBreak: "break-all" }}>Destination: {item.destination}</div>
+                    <div className="break-all">Destination: {item.destination}</div>
                     <div>Enabled: {String(item.isEnabled)}</div>
                     <div>
                       Last delivered:{" "}
                       {item.lastDeliveredUtc ? new Date(item.lastDeliveredUtc).toLocaleString() : "Never"}
                     </div>
                   </div>
-                  <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => void onToggle(item.subscriptionId)}
@@ -262,7 +257,7 @@ export function DigestSubscriptionsContent() {
                     </button>
                   </div>
                   {attemptsBySub[item.subscriptionId]?.length ? (
-                    <ul style={{ marginTop: 12, fontSize: 13, paddingLeft: 20 }}>
+                    <ul className="mt-3 pl-5 text-[13px]">
                       {attemptsBySub[item.subscriptionId].map((a) => (
                         <li key={a.attemptId}>
                           {a.status} — {new Date(a.attemptedUtc).toLocaleString()}

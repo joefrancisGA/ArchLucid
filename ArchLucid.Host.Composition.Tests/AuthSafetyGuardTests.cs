@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -24,20 +25,40 @@ public sealed class AuthSafetyGuardTests
         Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*DevelopmentBypass*JwtBearer*ApiKey*");
+            .WithMessage(AuthSafetyGuard.DevelopmentBypassOutsideDevelopmentMessage);
     }
 
     [Fact]
-    public void GuardDevelopmentBypassInProduction_development_environment_and_dev_bypass_does_not_throw()
+    public void GuardDevelopmentBypassInProduction_staging_host_and_development_bypass_throws()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "DevelopmentBypass" })
             .Build();
-        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Staging);
 
         Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
 
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage(AuthSafetyGuard.DevelopmentBypassOutsideDevelopmentMessage);
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_development_environment_and_dev_bypass_logs_warning()
+    {
+        List<string> warnings = [];
+        ILogger logger = new WarningCaptureLogger(warnings);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass", ["ArchLucidAuth:DevUserId"] = "custom-dev-user",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment, logger);
+
         act.Should().NotThrow();
+        warnings.Should().ContainSingle(w => w.Contains("DevelopmentBypass", StringComparison.Ordinal) && w.Contains("custom-dev-user", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -102,10 +123,10 @@ public sealed class AuthSafetyGuardTests
     }
 
     [Fact]
-    public void GuardDevelopmentBypassInProduction_environment_name_non_production_does_not_throw()
+    public void GuardDevelopmentBypassInProduction_environment_name_non_production_jwt_bearer_does_not_throw()
     {
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "DevelopmentBypass" })
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "JwtBearer" })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment("non-production");
 
@@ -223,6 +244,41 @@ public sealed class AuthSafetyGuardTests
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
+    }
+
+    private sealed class WarningCaptureLogger : ILogger
+    {
+        private readonly List<string> _warnings;
+
+        public WarningCaptureLogger(List<string> warnings)
+        {
+            _warnings = warnings;
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+            where TState : notnull => NullScope.Instance;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            if (logLevel == LogLevel.Warning)
+                _warnings.Add(formatter(state, exception));
+        }
+    }
+
+    private sealed class NullScope : IDisposable
+    {
+        public static readonly NullScope Instance = new();
+
+        public void Dispose()
+        {
+        }
     }
 
     private sealed class StubHostEnvironment : IHostEnvironment

@@ -18,6 +18,8 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Api;
 
 [ExcludeFromCodeCoverage(Justification =
@@ -57,7 +59,16 @@ public partial class Program
 
         builder.Services.AddArchLucidMvc();
 
-        AuthSafetyGuard.GuardAllDevelopmentBypasses(builder.Configuration, builder.Environment);
+        using (ILoggerFactory authSafetyLoggerFactory = LoggerFactory.Create(logging =>
+               {
+                   logging.ClearProviders();
+                   logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
+                   logging.AddConsole();
+               }))
+        {
+            ILogger authSafetyLogger = authSafetyLoggerFactory.CreateLogger("AuthSafetyGuard");
+            AuthSafetyGuard.GuardAllDevelopmentBypasses(builder.Configuration, builder.Environment, authSafetyLogger);
+        }
 
         builder.Services.AddHttpContextAccessor();
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.

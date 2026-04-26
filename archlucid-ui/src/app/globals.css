@@ -108,3 +108,38 @@ kbd {
   color: #f5f5f5;
   box-shadow: 0 1px 0 #404040;
 }
+
+/* ── Print stylesheet ────────────────────────────────────────────────
+   Hides operator chrome so document views (value report, explanation,
+   provenance, finding audit) produce clean, printable output.
+   Pairs with print:hidden on shell elements and print:max-w-none
+   in DocumentLayout.                                                */
+
+@media print {
+  [data-testid="app-shell-topbar"],
+  [data-testid="sidebar-nav"],
+  .skip-to-main {
+    display: none !important;
+  }
+
+  [data-testid="app-shell-main"] {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  table, pre, figure {
+    page-break-inside: avoid;
+  }
+}

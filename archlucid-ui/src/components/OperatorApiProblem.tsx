@@ -1,17 +1,8 @@
 "use client";
 
-import type { CSSProperties } from "react";
-
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
-
-const correlationStyle: CSSProperties = {
-  margin: "10px 0 0",
-  fontSize: 12,
-  fontFamily: "ui-monospace, monospace",
-  color: "#475569",
-};
 
 type OperatorApiProblemProps = {
   problem: ApiProblemDetails | null;
@@ -38,12 +29,12 @@ export function OperatorApiProblem({
   return (
     <Callout>
       <strong>{heading}</strong>
-      <p style={{ margin: "8px 0 0" }}>{body}</p>
+      <p className="mt-2">{body}</p>
       {hint ? (
-        <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.5 }}>{hint}</p>
+        <p className="mt-2.5 text-sm leading-normal">{hint}</p>
       ) : null}
       {trimmedCorrelation && trimmedCorrelation.length > 0 ? (
-        <p style={correlationStyle}>
+        <p className="mt-2.5 font-mono text-xs text-neutral-600 dark:text-neutral-400">
           Reference (correlation ID — use with API logs and support bundle): {trimmedCorrelation}
         </p>
       ) : null}

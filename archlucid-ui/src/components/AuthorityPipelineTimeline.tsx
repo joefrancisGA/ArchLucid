@@ -13,7 +13,7 @@ export function AuthorityPipelineTimeline({
 }: AuthorityPipelineTimelineProps) {
   if (loadErrorMessage) {
     return (
-      <p style={{ fontSize: 14, color: "#b45309", marginTop: 0 }}>
+      <p className="mt-0 text-sm text-amber-700 dark:text-amber-400">
         Pipeline timeline could not be loaded: {loadErrorMessage}
       </p>
     );
@@ -21,7 +21,7 @@ export function AuthorityPipelineTimeline({
 
   if (items === null) {
     return (
-      <p style={{ fontSize: 14, color: "#64748b", marginTop: 0 }}>
+      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
         Pipeline timeline not loaded.
       </p>
     );
@@ -29,34 +29,25 @@ export function AuthorityPipelineTimeline({
 
   if (items.length === 0) {
     return (
-      <p style={{ fontSize: 14, color: "#64748b", marginTop: 0 }}>
+      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
         No audit events are recorded for this run yet (normal for brand-new runs or environments without durable audit).
       </p>
     );
   }
 
   return (
-    <ol
-      style={{
-        margin: 0,
-        paddingLeft: 20,
-        fontSize: 14,
-        color: "#334155",
-        lineHeight: 1.6,
-        maxWidth: 720,
-      }}
-    >
+    <ol className="m-0 max-w-3xl pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
       {items.map((row) => (
-        <li key={row.eventId} style={{ marginBottom: 8 }}>
+        <li key={row.eventId} className="mb-2">
           <strong>{new Date(row.occurredUtc).toLocaleString()}</strong>
           {" — "}
-          <code style={{ fontSize: 13 }}>{row.eventType}</code>
+          <code className="text-[13px]">{row.eventType}</code>
           {" · "}
           {row.actorUserName}
           {row.correlationId ? (
             <>
               {" · "}
-              <span style={{ color: "#64748b" }}>correlation {row.correlationId}</span>
+              <span className="text-neutral-500 dark:text-neutral-400">correlation {row.correlationId}</span>
             </>
           ) : null}
         </li>

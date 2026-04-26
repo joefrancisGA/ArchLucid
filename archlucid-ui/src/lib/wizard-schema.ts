@@ -36,10 +36,24 @@ export const wizardFormSchema = z.object({
   requestId: z.string().min(1),
   description: z
     .string()
-    .min(10, "Description must be at least 10 characters so agents have enough context.")
-    .max(4000, "Description is too long."),
-  systemName: z.string().min(1, "System name is required — use a short project slug, e.g. OrderService."),
-  environment: z.string().min(1, "Select an environment."),
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, "Required")
+        .min(10, "Brief must be at least 10 characters for agents to have enough context.")
+        .max(4000, "Description is too long."),
+    ),
+  systemName: z
+    .string()
+    .transform((s) => s.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, "Required")
+        .min(2, "System name must be at least 2 characters — use a short project slug, e.g. OrderService."),
+    ),
+  environment: z.string().min(1, "Required"),
   cloudProvider: z.literal("Azure"),
   constraints: z.array(z.string()),
   requiredCapabilities: z.array(z.string()),

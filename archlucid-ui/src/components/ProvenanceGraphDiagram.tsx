@@ -149,21 +149,21 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
 
   if (nodes.length === 0) {
     return (
-      <p style={{ fontSize: 14, color: "#64748b" }} aria-live="polite">
+      <p className="text-sm text-neutral-500 dark:text-neutral-400" aria-live="polite">
         No graph nodes to visualize.
       </p>
     );
   }
 
   return (
-    <section aria-labelledby="prov-graph-heading" style={{ marginBottom: 24 }}>
-      <h3 id="prov-graph-heading" style={{ marginTop: 0 }}>
+    <section aria-labelledby="prov-graph-heading" className="mb-6">
+      <h3 id="prov-graph-heading" className="mt-0">
         Provenance graph
       </h3>
-      <p style={{ fontSize: 13, color: "#444", marginTop: 4 }}>
+      <p className="mt-1 text-[13px] text-neutral-600 dark:text-neutral-400">
         Layered view of coordinator linkage. Click a node to scroll to its row in the table below.
       </p>
-      <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fafafa" }}>
+      <div className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950">
         <svg
           width={width}
           height={height}
@@ -202,7 +202,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
             const r = highlightId === n.id ? 22 : 18;
 
             return (
-              <g key={n.id} style={{ cursor: "pointer" }} onClick={() => onNodeActivate(n.id)}>
+              <g key={n.id} className="cursor-pointer" onClick={() => onNodeActivate(n.id)}>
                 <circle
                   cx={n.x}
                   cy={n.y}
@@ -219,7 +219,7 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
                   textAnchor="middle"
                   fontSize={11}
                   fill="#334155"
-                  style={{ pointerEvents: "none" }}
+                  className="pointer-events-none"
                 >
                   {n.label}
                 </text>
@@ -228,38 +228,38 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
           })}
         </svg>
       </div>
-      <div style={{ marginTop: 12, fontSize: 12, color: "#475569" }}>
+      <div className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
         <strong>Legend</strong>
-        <ul style={{ margin: "8px 0 0", paddingLeft: 18, columns: 2, gap: 8 }}>
+        <ul className="mt-2 columns-2 gap-2 pl-[18px]">
           <li>
-            <span style={{ color: "#94a3b8" }}>●</span> ContextSnapshot
+            <span className="text-neutral-400 dark:text-neutral-500">●</span> ContextSnapshot
           </li>
           <li>
-            <span style={{ color: "#64748b" }}>●</span> GraphSnapshot
+            <span className="text-neutral-500 dark:text-neutral-400">●</span> GraphSnapshot
           </li>
           <li>
-            <span style={{ color: "#f97316" }}>●</span> FindingsSnapshot
+            <span className="text-orange-500">●</span> FindingsSnapshot
           </li>
           <li>
-            <span style={{ color: "#fb923c" }}>●</span> Finding
+            <span className="text-orange-400">●</span> Finding
           </li>
           <li>
-            <span style={{ color: "#3b82f6" }}>●</span> DecisionTrace
+            <span className="text-blue-500">●</span> DecisionTrace
           </li>
           <li>
-            <span style={{ color: "#60a5fa" }}>●</span> Decision
+            <span className="text-blue-400">●</span> Decision
           </li>
           <li>
-            <span style={{ color: "#22c55e" }}>●</span> GoldenManifest
+            <span className="text-green-500">●</span> GoldenManifest
           </li>
           <li>
-            <span style={{ color: "#a78bfa" }}>●</span> ArtifactBundle
+            <span className="text-violet-400">●</span> ArtifactBundle
           </li>
           <li>
-            <span style={{ color: "#cbd5e1" }}>●</span> Other
+            <span className="text-neutral-300 dark:text-neutral-600">●</span> Other
           </li>
         </ul>
-        <p style={{ margin: "8px 0 0", fontSize: 11 }}>Layers (top to bottom): {LAYER_LABELS.join(" → ")}</p>
+        <p className="mt-2 text-[11px]">Layers (top to bottom): {LAYER_LABELS.join(" → ")}</p>
       </div>
       <style>{`
         .prov-node-row--flash {

@@ -4,8 +4,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -20,7 +20,7 @@ const GraphViewer = dynamic(
     loading: () => (
       <OperatorLoadingNotice>
         <strong>Loading graph viewer.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Preparing the interactive canvas (client-only bundle)…</p>
+        <p className="mt-2 text-sm">Preparing the interactive canvas (client-only bundle)…</p>
       </OperatorLoadingNotice>
     ),
   },
@@ -108,39 +108,36 @@ export default function GraphPage() {
   return (
     <main>
       <LayerHeader pageKey="graph" />
-      <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Graph</h2>
-        <ContextualHelp helpKey="architecture-graph" />
-      </div>
-      <p style={{ marginTop: 4, fontSize: 14 }}>
+      <OperatorPageHeader title="Architecture graph" helpKey="architecture-graph" />
+      <p className="mt-1 text-sm">
         <Link href="/">Home</Link>
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
         <Link href="/compare">Compare two runs</Link>
       </p>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+      <p className="max-w-3xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
         Load provenance (decisions, findings, rules) or the architecture graph for a run. Copy the run ID from
         the Runs list or run detail, choose a view, then load.
       </p>
 
-      <div style={{ display: "grid", gap: 12, maxWidth: 900, marginBottom: 24 }}>
+      <div className="grid gap-3 max-w-4xl mb-6">
         <input
           value={runId}
           onChange={(e) => setRunId(e.target.value)}
           placeholder="Run ID (GUID)"
-          style={{ padding: 8 }}
+          className="p-2"
         />
 
         <div>
-          <label htmlFor="graph-mode-select" style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600 }}>
+          <label htmlFor="graph-mode-select" className="block mb-1.5 text-[13px] font-semibold">
             Graph mode
           </label>
           <select
             id="graph-mode-select"
             value={mode}
             onChange={(e) => setMode(e.target.value as GraphMode)}
-            style={{ padding: 8, width: "100%", maxWidth: 420 }}
+            className="p-2 w-full max-w-[420px]"
           >
             <option value="provenance-full">Full provenance graph</option>
             <option value="decision-subgraph">Decision subgraph</option>
@@ -154,7 +151,7 @@ export default function GraphPage() {
             value={decisionId}
             onChange={(e) => setDecisionId(e.target.value)}
             placeholder="Decision ID (node GUID or reference id)"
-            style={{ padding: 8 }}
+            className="p-2"
           />
         )}
 
@@ -164,9 +161,9 @@ export default function GraphPage() {
               value={nodeId}
               onChange={(e) => setNodeId(e.target.value)}
               placeholder="Provenance node ID (GUID)"
-              style={{ padding: 8 }}
+              className="p-2"
             />
-            <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <label className="flex items-center gap-2">
               Depth
               <input
                 type="number"
@@ -174,7 +171,7 @@ export default function GraphPage() {
                 max={10}
                 value={depth}
                 onChange={(e) => setDepth(Number(e.target.value))}
-                style={{ padding: 8, width: 80 }}
+                className="p-2 w-20"
               />
             </label>
           </>
@@ -189,7 +186,7 @@ export default function GraphPage() {
             (mode === "decision-subgraph" && !decisionId) ||
             (mode === "node-neighborhood" && !nodeId)
           }
-          style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
+          className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
         >
           {loading ? "Loading…" : "Load graph"}
         </button>
@@ -198,7 +195,7 @@ export default function GraphPage() {
       {loading && (
         <OperatorLoadingNotice>
           <strong>Loading graph.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          <p className="mt-2 text-sm">
             Requesting the selected view from the API; this may take a few seconds on large runs.
           </p>
         </OperatorLoadingNotice>
@@ -224,8 +221,8 @@ export default function GraphPage() {
         <>
           <OperatorMalformedCallout>
             <strong>Unexpected graph response shape.</strong>
-            <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
-            <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            <p className="mt-2">{malformedMessage}</p>
+            <p className="mt-2 text-sm">
               The call succeeded but the payload did not match the expected GraphViewModel (nodes and
               edges arrays). Check API version alignment.
             </p>
@@ -241,13 +238,13 @@ export default function GraphPage() {
 
       {graph && (
         <>
-          <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="mb-3 flex items-center gap-3">
             <label>
               Filter by type{" "}
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                style={{ marginLeft: 8, padding: 6 }}
+                className="ml-2 p-1.5"
               >
                 <option value="">All types</option>
                 {nodeTypes.map((t) => (
@@ -257,7 +254,7 @@ export default function GraphPage() {
                 ))}
               </select>
             </label>
-            <span style={{ color: "#666", fontSize: 14 }}>
+            <span className="text-neutral-500 dark:text-neutral-400 text-sm">
               {graph.nodes.length} nodes, {graph.edges.length} edges (before filter)
             </span>
           </div>

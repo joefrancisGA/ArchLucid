@@ -1,8 +1,8 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { SimulationRunDiffCard } from "@/components/evolution/SimulationRunDiffCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -16,39 +16,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
-
-const listWrap: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 8,
-  marginBottom: 20,
-};
-
-const listButton: CSSProperties = {
-  textAlign: "left",
-  padding: "10px 12px",
-  borderRadius: 8,
-  border: "1px solid #e2e8f0",
-  background: "#fff",
-  cursor: "pointer",
-  fontSize: 14,
-};
-
-const listButtonSelected: CSSProperties = {
-  ...listButton,
-  borderColor: "#2563eb",
-  boxShadow: "0 0 0 1px #2563eb",
-};
-
-const impactBox: CSSProperties = {
-  padding: "12px 14px",
-  border: "1px solid #e0e7ff",
-  background: "#eef2ff",
-  borderRadius: 8,
-  marginBottom: 18,
-  fontSize: 14,
-  lineHeight: 1.55,
-};
 
 /**
  * 60R simulation review: browse candidate change sets, plan-derived expectations, and per-baseline before/after diffs.
@@ -147,20 +114,20 @@ export default function EvolutionReviewPage() {
   const emptyList = !listLoading && candidates.length === 0 && listFailure === null;
 
   return (
-    <main style={{ maxWidth: 980 }}>
-      <h2 style={{ marginTop: 0 }}>Simulation review</h2>
-      <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.55, maxWidth: 760 }}>
+    <main className="max-w-5xl">
+      <OperatorPageHeader title="Simulation review" />
+      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
         Read-only view of <strong>60R evolution candidates</strong>: plan snapshot (description and expected impact),
         persisted simulation runs, and a side-by-side <strong>before / after</strong> layout per baseline architecture
         run. Create candidates from{" "}
-        <Link href="/planning" style={{ color: "#1d4ed8" }}>
+        <Link href="/planning" className="text-blue-700 dark:text-blue-400">
           Planning
         </Link>{" "}
         via the API; use <strong>Run simulation</strong> when your token has operator access to refresh outcomes and
         scores.
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "16px 0 20px" }}>
+      <div className="flex flex-wrap gap-3 items-center mt-4 mb-5">
         <button type="button" onClick={() => void loadList()} disabled={listLoading}>
           Refresh list
         </button>
@@ -176,12 +143,12 @@ export default function EvolutionReviewPage() {
       {listLoading && candidates.length === 0 ? (
         <OperatorLoadingNotice>
           <strong>Loading candidates.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching evolution candidate change sets…</p>
+          <p className="mt-2 text-sm">Fetching evolution candidate change sets…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {listFailure !== null ? (
-        <div role="alert" style={{ marginBottom: 16 }}>
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={listFailure.problem}
             fallbackMessage={listFailure.message}
@@ -191,7 +158,7 @@ export default function EvolutionReviewPage() {
       ) : null}
 
       {simulateFailure !== null ? (
-        <div role="alert" style={{ marginBottom: 16 }}>
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={simulateFailure.problem}
             fallbackMessage={simulateFailure.message}
@@ -201,15 +168,15 @@ export default function EvolutionReviewPage() {
       ) : null}
 
       {selectedId !== null && selectedId !== "" ? (
-        <section style={{ marginBottom: 22 }} aria-labelledby="evolution-export-heading">
-          <h3 id="evolution-export-heading" style={{ fontSize: 15, margin: "0 0 6px", color: "#334155" }}>
+        <section className="mb-[22px]" aria-labelledby="evolution-export-heading">
+          <h3 id="evolution-export-heading" className="text-[15px] mb-1.5 text-neutral-700 dark:text-neutral-300">
             Export simulation report
           </h3>
-          <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: 760 }}>
+          <p className="m-0 text-[13px] text-neutral-500 dark:text-neutral-400 max-w-3xl">
             Markdown or JSON bundle for the selected candidate: change set description, plan snapshot / expected impact,
             each run&apos;s shadow outcome, evaluation scores, diff summary lines, and raw outcome JSON.
           </p>
-          <p style={{ margin: "10px 0 0", fontSize: 14 }}>
+          <p className="mt-2.5 text-sm">
             <a href={buildEvolutionSimulationReportFileUrl(selectedId, "markdown")} download>
               Download Markdown
             </a>
@@ -231,19 +198,19 @@ export default function EvolutionReviewPage() {
 
       {emptyList ? (
         <OperatorEmptyState title="No candidate change sets">
-          <p style={{ margin: 0, fontSize: 14 }}>
+          <p className="m-0 text-sm">
             When candidates exist for this scope, they appear in the list. Create one with{" "}
-            <code style={{ fontSize: 13 }}>POST /v1/evolution/candidates/from-plan/{"{planId}"}</code>.
+            <code className="text-[13px]">POST /v1/evolution/candidates/from-plan/{"{planId}"}</code>.
           </p>
         </OperatorEmptyState>
       ) : null}
 
       {candidates.length > 0 ? (
         <section aria-labelledby="evolution-candidates-heading">
-          <h3 id="evolution-candidates-heading" style={{ fontSize: 17, marginBottom: 8 }}>
+          <h3 id="evolution-candidates-heading" className="text-[17px] mb-2">
             Candidate change sets
           </h3>
-          <div style={listWrap}>
+          <div className="flex flex-col gap-2 mb-5">
             {candidates.map((c) => {
               const sel = c.candidateChangeSetId === selectedId;
 
@@ -251,11 +218,11 @@ export default function EvolutionReviewPage() {
                 <button
                   key={c.candidateChangeSetId}
                   type="button"
-                  style={sel ? listButtonSelected : listButton}
+                  className={sel ? "text-left px-3 py-2.5 rounded-lg border border-blue-600 bg-white cursor-pointer text-sm shadow-[0_0_0_1px_#2563eb] dark:border-blue-500 dark:bg-neutral-950" : "text-left px-3 py-2.5 rounded-lg border border-neutral-200 bg-white cursor-pointer text-sm dark:border-neutral-700 dark:bg-neutral-950"}
                   onClick={() => setSelectedId(c.candidateChangeSetId)}
                 >
-                  <div style={{ fontWeight: 600 }}>{c.title}</div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+                  <div className="font-semibold">{c.title}</div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
                     {c.status} · {new Date(c.createdUtc).toLocaleString()}
                   </div>
                 </button>
@@ -272,7 +239,7 @@ export default function EvolutionReviewPage() {
       ) : null}
 
       {detailFailure !== null ? (
-        <div role="alert" style={{ marginBottom: 16 }}>
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={detailFailure.problem}
             fallbackMessage={detailFailure.message}
@@ -283,59 +250,59 @@ export default function EvolutionReviewPage() {
 
       {detail !== null ? (
         <section aria-labelledby="evolution-detail-heading">
-          <h3 id="evolution-detail-heading" style={{ fontSize: 17, marginBottom: 8 }}>
+          <h3 id="evolution-detail-heading" className="text-[17px] mb-2">
             Description
           </h3>
-          <p style={{ margin: "0 0 6px", fontSize: 14, lineHeight: 1.55 }}>
+          <p className="mb-1.5 text-sm leading-relaxed">
             <strong>{detail.candidate.title}</strong>
           </p>
-          <p style={{ margin: "0 0 16px", fontSize: 14, lineHeight: 1.55, color: "#334155" }}>{detail.candidate.summary}</p>
-          <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>
+          <p className="mb-4 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{detail.candidate.summary}</p>
+          <p className="mb-5 text-[13px] text-neutral-500 dark:text-neutral-400">
             Status: <strong>{detail.candidate.status}</strong> · Source plan{" "}
-            <Link href={`/planning/plans/${encodeURIComponent(detail.candidate.sourcePlanId)}`} style={{ color: "#1d4ed8" }}>
+            <Link href={`/planning/plans/${encodeURIComponent(detail.candidate.sourcePlanId)}`} className="text-blue-700 dark:text-blue-400">
               {detail.candidate.sourcePlanId}
             </Link>
           </p>
 
-          <h3 style={{ fontSize: 17, marginBottom: 8 }}>Expected impact (plan snapshot)</h3>
+          <h3 className="text-[17px] mb-2">Expected impact (plan snapshot)</h3>
           {planSnapshot !== null ? (
-            <div style={impactBox}>
-              <p style={{ margin: "0 0 8px" }}>
+            <div className="px-3.5 py-3 border border-indigo-200 bg-indigo-50 rounded-lg mb-[18px] text-sm leading-relaxed dark:border-indigo-900 dark:bg-indigo-950/40">
+              <p className="mb-2">
                 <strong>Priority score:</strong> {planSnapshot.priorityScore}
               </p>
               {planSnapshot.priorityExplanation !== null &&
               planSnapshot.priorityExplanation !== undefined &&
               planSnapshot.priorityExplanation !== "" ? (
-                <p style={{ margin: "0 0 8px" }}>
+                <p className="mb-2">
                   <strong>Priority explanation:</strong> {planSnapshot.priorityExplanation}
                 </p>
               ) : (
-                <p style={{ margin: "0 0 8px", color: "#64748b" }}>No priority explanation on the snapshot.</p>
+                <p className="mb-2 text-neutral-500 dark:text-neutral-400">No priority explanation on the snapshot.</p>
               )}
-              <p style={{ margin: "0 0 8px" }}>
+              <p className="mb-2">
                 <strong>Action steps (count):</strong> {planSnapshot.actionStepCount}
               </p>
-              <p style={{ margin: 0, fontSize: 13, color: "#4338ca" }}>
+              <p className="m-0 text-[13px] text-indigo-700 dark:text-indigo-400">
                 Snapshot summary: {planSnapshot.summary}
               </p>
             </div>
           ) : (
-            <p style={{ color: "#b45309", fontSize: 14 }}>Plan snapshot JSON could not be parsed.</p>
+            <p className="text-amber-700 dark:text-amber-400 text-sm">Plan snapshot JSON could not be parsed.</p>
           )}
 
-          <h3 style={{ fontSize: 17, marginBottom: 8 }}>Simulation results</h3>
-          <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px", maxWidth: 720 }}>
-            Each row is a <strong>before / after</strong> diff: <span style={{ background: "#fffbeb", padding: "1px 6px" }}>before</span>{" "}
-            is the plan-linked baseline context; <span style={{ background: "#f0fdf4", padding: "1px 6px" }}>after</span> is the
+          <h3 className="text-[17px] mb-2">Simulation results</h3>
+          <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mb-3 max-w-3xl">
+            Each row is a <strong>before / after</strong> diff: <span className="bg-amber-50 dark:bg-amber-950/40 px-1.5 py-px">before</span>{" "}
+            is the plan-linked baseline context; <span className="bg-green-50 dark:bg-green-950/40 px-1.5 py-px">after</span> is the
             read-only shadow re-analysis and any parsed evaluation scores.
           </p>
           {detailLoading ? (
-            <p style={{ color: "#64748b", fontSize: 13 }} role="status">
+            <p className="text-neutral-500 dark:text-neutral-400 text-[13px]" role="status">
               Updating…
             </p>
           ) : null}
           {(detail.simulationRuns ?? []).length === 0 ? (
-            <p style={{ fontSize: 14, color: "#64748b" }}>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
               No persisted simulation rows. Run shadow evaluation or simulation from the API, or use <strong>Run simulation</strong>{" "}
               above.
             </p>

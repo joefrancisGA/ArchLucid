@@ -33,18 +33,9 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
   }
 
   return (
-    <div style={{ margin: "0 0 12px" }}>
-      <h4 style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 600, color: "#334155" }}>Citations</h4>
-      <ul
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          margin: 0,
-          padding: 0,
-          listStyle: "none",
-        }}
-      >
+    <div className="mb-3">
+      <h4 className="mb-1.5 text-[13px] font-semibold text-neutral-700 dark:text-neutral-300">Citations</h4>
+      <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
         {citations.map((c) => {
           const href = citationHref(c, runId);
           return (

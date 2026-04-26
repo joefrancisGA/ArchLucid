@@ -40,7 +40,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
           Skip to main content
         </a>
         <div className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
-          <header className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95">
+          <header data-testid="app-shell-topbar" className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95">
             <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <MobileNavDrawer />
@@ -88,10 +88,10 @@ export function AppShellClient({ children }: AppShellClientProps) {
           </header>
           <LayerContextFromRoute />
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
-            <aside className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 dark:border-neutral-800 dark:bg-neutral-950/80 lg:block">
+            <aside data-testid="sidebar-nav" className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block">
               <SidebarNav />
             </aside>
-            <div className="min-w-0 flex-1 px-4 py-4 lg:px-6 lg:py-6">
+            <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               <AuthPanel />
               <TrialBanner />
               <KeyboardShortcutProvider

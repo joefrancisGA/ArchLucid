@@ -15,7 +15,9 @@ WORKDIR /app
 
 # Paths are relative to the repo-root build context.
 COPY archlucid-ui/package.json archlucid-ui/package-lock.json ./
-RUN npm ci --ignore-scripts
+# `npm ci --ignore-scripts` skips sharp's install hook; Next then fails `next build` on Alpine with webpack
+# "Module not found" / sharp native resolution (sharp is next's optionalDependency; required for standalone image output).
+RUN npm ci --ignore-scripts && npm rebuild sharp
 
 # ── Stage 2: build ──────────────────────────────────────────────────
 FROM node:22-alpine AS build
@@ -51,6 +53,9 @@ COPY docs/go-to-market/PRICING_PHILOSOPHY.md /pricing-source/docs/go-to-market/P
 # runtime image.  Run the generator then immediately call next build so we
 # do not re-invoke npm run generate:pricing (which assumes the ../scripts/
 # path available in local dev but not inside the container).
+# NEXT_PUBLIC_* is inlined at build time for client bundles — keep in sync with docker-compose `ui.build.args`.
+ARG NEXT_PUBLIC_DOCS_BASE_URL=https://github.com/joefrancisGA/ArchLucid/blob/main
+ENV NEXT_PUBLIC_DOCS_BASE_URL=${NEXT_PUBLIC_DOCS_BASE_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN apk add --no-cache python3 \
     && mkdir -p public \

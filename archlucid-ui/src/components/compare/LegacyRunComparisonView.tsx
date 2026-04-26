@@ -1,24 +1,9 @@
-import type { CSSProperties } from "react";
-
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { sortDiffItems } from "@/lib/compare-display-sort";
 import type { RunComparison } from "@/types/authority";
 
-const tableStyle: CSSProperties = {
-  borderCollapse: "collapse",
-  width: "100%",
-  fontSize: 14,
-  marginTop: 8,
-};
-
-const cellStyle: CSSProperties = {
-  border: "1px solid #e2e8f0",
-  padding: "8px 10px",
-  textAlign: "left",
-  verticalAlign: "top",
-};
-
-const mono: CSSProperties = { fontFamily: "ui-monospace, monospace", fontSize: 13 };
+const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
+const monoCls = "font-mono text-[13px]";
 
 /**
  * Legacy authority comparison: run-level and flat manifest diffs as stable tables.
@@ -32,11 +17,11 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
       : [];
 
   return (
-    <section id="compare-legacy" style={{ marginTop: 28 }}>
-      <h3 style={{ marginBottom: 8 }}>Run record / manifest diff (legacy)</h3>
-      <p style={{ fontSize: 14, color: "#64748b", marginTop: 0 }}>
-        <strong>Left (base):</strong> <code style={mono}>{result.leftRunId}</code> ·{" "}
-        <strong>Right (target):</strong> <code style={mono}>{result.rightRunId}</code>
+    <section id="compare-legacy" className="mt-7">
+      <h3 className="mb-2">Run record / manifest diff (legacy)</h3>
+      <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
+        <strong>Left (base):</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
+        <strong>Right (target):</strong> <code className={monoCls}>{result.rightRunId}</code>
         {result.runLevelDiffCount !== undefined && (
           <>
             {" "}
@@ -45,85 +30,85 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         )}
       </p>
 
-      <h4 style={{ fontSize: 15 }}>Run-level diffs</h4>
+      <h4 className="text-[15px]">Run-level diffs</h4>
       {result.runLevelDiffs.length === 0 ? (
         <OperatorEmptyState title="No run-level diffs">
-          <p style={{ margin: 0, fontSize: 14 }}>
+          <p className="m-0 text-sm">
             The legacy endpoint returned zero row-level differences (valid empty result).
           </p>
         </OperatorEmptyState>
       ) : (
-        <table style={tableStyle}>
+        <table className="mt-2 w-full border-collapse text-sm">
           <thead>
-            <tr style={{ background: "#f8fafc" }}>
-              <th style={cellStyle}>Kind</th>
-              <th style={cellStyle}>Section</th>
-              <th style={cellStyle}>Key</th>
-              <th style={cellStyle}>Before</th>
-              <th style={cellStyle}>After</th>
+            <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+              <th className={cellCls}>Kind</th>
+              <th className={cellCls}>Section</th>
+              <th className={cellCls}>Key</th>
+              <th className={cellCls}>Before</th>
+              <th className={cellCls}>After</th>
             </tr>
           </thead>
           <tbody>
             {runLevelDiffs.map((diff, index) => (
               <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
-                <td style={cellStyle}>{diff.diffKind}</td>
-                <td style={cellStyle}>{diff.section}</td>
-                <td style={cellStyle}>{diff.key}</td>
-                <td style={{ ...cellStyle, ...mono }}>{diff.beforeValue ?? "—"}</td>
-                <td style={{ ...cellStyle, ...mono }}>{diff.afterValue ?? "—"}</td>
+                <td className={cellCls}>{diff.diffKind}</td>
+                <td className={cellCls}>{diff.section}</td>
+                <td className={cellCls}>{diff.key}</td>
+                <td className={`${cellCls} ${monoCls}`}>{diff.beforeValue ?? "—"}</td>
+                <td className={`${cellCls} ${monoCls}`}>{diff.afterValue ?? "—"}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      <h4 style={{ fontSize: 15, marginTop: 24 }}>Manifest differences (flat)</h4>
+      <h4 className="mt-6 text-[15px]">Manifest differences (flat)</h4>
       {!result.manifestComparison ? (
         <OperatorEmptyState title="No manifest comparison block">
-          <p style={{ margin: 0, fontSize: 14 }}>
+          <p className="m-0 text-sm">
             The API did not include a manifest comparison object for this pair (distinct from “zero
             diffs inside a comparison”).
           </p>
         </OperatorEmptyState>
       ) : (
         <>
-          <p style={{ fontSize: 14, marginBottom: 8 }}>
+          <p className="mb-2 text-sm">
             <strong>Manifest IDs:</strong>{" "}
-            <code style={mono}>{result.manifestComparison.leftManifestId}</code> vs{" "}
-            <code style={mono}>{result.manifestComparison.rightManifestId}</code>
+            <code className={monoCls}>{result.manifestComparison.leftManifestId}</code> vs{" "}
+            <code className={monoCls}>{result.manifestComparison.rightManifestId}</code>
             <br />
             <strong>Hashes:</strong>{" "}
-            <span style={mono}>{result.manifestComparison.leftManifestHash}</span> vs{" "}
-            <span style={mono}>{result.manifestComparison.rightManifestHash}</span>
+            <span className={monoCls}>{result.manifestComparison.leftManifestHash}</span> vs{" "}
+            <span className={monoCls}>{result.manifestComparison.rightManifestHash}</span>
             <br />
             <strong>Counts:</strong> added {result.manifestComparison.addedCount}, removed{" "}
             {result.manifestComparison.removedCount}, changed {result.manifestComparison.changedCount}
           </p>
           {manifestDiffs.length === 0 ? (
             <OperatorEmptyState title="Manifest comparison has zero line items">
-              <p style={{ margin: 0, fontSize: 14 }}>Comparison object present but diff list is empty.</p>
+              <p className="m-0 text-sm">Comparison object present but diff list is empty.</p>
             </OperatorEmptyState>
           ) : (
-            <table style={tableStyle}>
+            <table className="mt-2 w-full border-collapse text-sm">
               <thead>
-                <tr style={{ background: "#f8fafc" }}>
-                  <th style={cellStyle}>Kind</th>
-                  <th style={cellStyle}>Section</th>
-                  <th style={cellStyle}>Key</th>
-                  <th style={cellStyle}>Before</th>
-                  <th style={cellStyle}>After</th>
-                  <th style={cellStyle}>Notes</th>
+                <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                  <th className={cellCls}>Kind</th>
+                  <th className={cellCls}>Section</th>
+                  <th className={cellCls}>Key</th>
+                  <th className={cellCls}>Before</th>
+                  <th className={cellCls}>After</th>
+                  <th className={cellCls}>Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {manifestDiffs.map((diff, index) => (
                   <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
-                    <td style={cellStyle}>{diff.diffKind}</td>
-                    <td style={cellStyle}>{diff.section}</td>
-                    <td style={cellStyle}>{diff.key}</td>
-                    <td style={{ ...cellStyle, ...mono }}>{diff.beforeValue ?? "—"}</td>
-                    <td style={{ ...cellStyle, ...mono }}>{diff.afterValue ?? "—"}</td>
-                    <td style={cellStyle}>{diff.notes ?? "—"}</td>
+                    <td className={cellCls}>{diff.diffKind}</td>
+                    <td className={cellCls}>{diff.section}</td>
+                    <td className={cellCls}>{diff.key}</td>
+                    <td className={`${cellCls} ${monoCls}`}>{diff.beforeValue ?? "—"}</td>
+                    <td className={`${cellCls} ${monoCls}`}>{diff.afterValue ?? "—"}</td>
+                    <td className={cellCls}>{diff.notes ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>

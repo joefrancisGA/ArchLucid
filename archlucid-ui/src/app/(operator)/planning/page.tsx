@@ -1,8 +1,8 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
@@ -16,19 +16,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { sortPlansForPlanningDisplay, sortThemesForPlanningDisplay } from "@/lib/planning-display-order";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
-
-const filterBanner: CSSProperties = {
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "center",
-  gap: 12,
-  padding: "10px 12px",
-  marginBottom: 12,
-  background: "#eff6ff",
-  border: "1px solid #bfdbfe",
-  borderRadius: 8,
-  fontSize: 14,
-};
 
 /**
  * 59R planning list: top themes, prioritized plans, and evidence-style counts (read-only browsing).
@@ -104,9 +91,9 @@ export default function PlanningPage() {
   const empty = summary !== null && summary.themeCount === 0 && summary.planCount === 0;
 
   return (
-    <main style={{ maxWidth: 960 }}>
-      <h2 style={{ marginTop: 0 }}>Planning</h2>
-      <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.55, maxWidth: 720 }}>
+    <main className="max-w-5xl">
+      <OperatorPageHeader title="Planning" />
+      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed max-w-3xl">
         Improvement themes and prioritized plans derived from pilot feedback (59R). This is a{" "}
         <strong>read-only</strong> browse view — use{" "}
         <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
@@ -115,7 +102,7 @@ export default function PlanningPage() {
         for rollups and triage export.
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", margin: "16px 0 20px" }}>
+      <div className="flex flex-wrap gap-3 items-center mt-4 mb-5">
         <button type="button" onClick={() => void load()} disabled={loading}>
           Refresh
         </button>
@@ -124,19 +111,19 @@ export default function PlanningPage() {
       {loading && summary === null ? (
         <OperatorLoadingNotice>
           <strong>Loading planning data.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching summary, themes, and plans from the API…</p>
+          <p className="mt-2 text-sm">Fetching summary, themes, and plans from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {loading && summary !== null ? (
         <OperatorLoadingNotice>
           <strong>Refreshing planning data.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Re-fetching summary, themes, and plans from the API…</p>
+          <p className="mt-2 text-sm">Re-fetching summary, themes, and plans from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
       {failure !== null ? (
-        <div role="alert" style={{ marginBottom: 16 }}>
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={failure.problem}
             fallbackMessage={failure.message}
@@ -170,11 +157,11 @@ export default function PlanningPage() {
         <>
           <PlanningSummarySection summary={summary} generatedUtc={generatedUtc} />
 
-          <section style={{ marginBottom: 28 }} aria-labelledby="planning-themes-heading">
-            <h3 id="planning-themes-heading" style={{ fontSize: 17, marginBottom: 4 }}>
+          <section className="mb-7" aria-labelledby="planning-themes-heading">
+            <h3 id="planning-themes-heading" className="text-[17px] mb-1">
               Top improvement themes
             </h3>
-            <p style={{ color: "#64748b", fontSize: 13, marginTop: 0 }}>
+            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
               Ordered by evidence signal count, then distinct runs. Use <strong>Plans</strong> to narrow the plan list
               to one theme.
             </p>
@@ -186,16 +173,16 @@ export default function PlanningPage() {
             />
           </section>
 
-          <section style={{ marginBottom: 24 }} aria-labelledby="planning-plans-heading">
-            <h3 id="planning-plans-heading" style={{ fontSize: 17, marginBottom: 4 }}>
+          <section className="mb-6" aria-labelledby="planning-plans-heading">
+            <h3 id="planning-plans-heading" className="text-[17px] mb-1">
               Prioritized improvement plans
             </h3>
-            <p style={{ color: "#64748b", fontSize: 13, marginTop: 0 }}>
+            <p className="text-neutral-500 dark:text-neutral-400 text-[13px] mt-0">
               Ordered by priority score (highest first). Open a row for action steps and link-level evidence counts.
             </p>
 
             {selectedThemeId !== null ? (
-              <div style={filterBanner} role="status">
+              <div className="flex flex-wrap items-center gap-3 py-2.5 px-3 mb-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg text-sm" role="status">
                 <span>
                   Showing plans for theme: <strong>{selectedThemeTitle}</strong> ({visiblePlans.length} of{" "}
                   {sortedPlans.length})

@@ -98,7 +98,7 @@ export function ColorModeToggle() {
     return (
       <div
         aria-hidden="true"
-        style={{ minWidth: 200, height: 32 }}
+        className="min-w-[200px] h-8"
       />
     );
   }

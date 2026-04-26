@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -49,12 +50,12 @@ export default function GovernanceResolutionPage() {
   }, [load]);
 
   return (
-    <main style={{ maxWidth: 1100 }}>
+    <main className="max-w-6xl">
       <LayerHeader pageKey="governance-resolution" />
-      <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
-      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        {canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
-      </p>
+      <OperatorPageHeader
+        title="Governance resolution"
+        subtitle={canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+      />
       <GovernanceResolutionRankCue className="mb-3" />
       {failure !== null ? (
         <div role="alert">
@@ -66,7 +67,7 @@ export default function GovernanceResolutionPage() {
         </div>
       ) : null}
 
-      <section style={{ marginBottom: 28 }} aria-labelledby="governance-effective-heading">
+      <section className="mb-7" aria-labelledby="governance-effective-heading">
         <h3 id="governance-effective-heading">
           <GlossaryTooltip termKey="effective_governance">
             {canMutateEnterprisePolicySurfaces
@@ -74,83 +75,77 @@ export default function GovernanceResolutionPage() {
               : governanceResolutionEffectivePolicyHeadingReader}
           </GlossaryTooltip>
         </h3>
-        <h4 style={{ marginTop: 8, marginBottom: 8, fontSize: "1rem" }}>Summary notes</h4>
-        <ul style={{ fontSize: 14 }}>
+        <h4 className="mt-2 mb-2 text-base">Summary notes</h4>
+        <ul className="text-sm">
           {(data?.notes ?? []).length === 0 ? (
-            <li style={{ color: "#666" }}>—</li>
+            <li className="text-neutral-500 dark:text-neutral-400">—</li>
           ) : (
             data!.notes.map((n) => <li key={n}>{n}</li>)
           )}
         </ul>
-        <h4 style={{ marginTop: 20, marginBottom: 8, fontSize: "1rem" }}>Effective content</h4>
+        <h4 className="mt-5 mb-2 text-base">Effective content</h4>
         <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 400,
-          }}
+          className="bg-neutral-100 dark:bg-neutral-800 p-3 overflow-auto text-xs max-h-[400px]"
         >
           {data ? JSON.stringify(data.effectiveContent, null, 2) : "—"}
         </pre>
-        <details style={{ marginTop: 20, marginBottom: 0, maxWidth: "52rem" }}>
-          <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
+        <details className="mt-5 mb-0 max-w-3xl">
+          <summary className="cursor-pointer text-neutral-600 dark:text-neutral-400 text-sm font-semibold">
             How packs are ordered (scope, pins, ties)
           </summary>
-          <p style={{ color: "#444", fontSize: 14, marginTop: 8 }}>
+          <p className="text-neutral-600 dark:text-neutral-400 text-sm mt-2">
             <strong>Project</strong> wins over <strong>Workspace</strong> over <strong>Tenant</strong>. Pinned beats
             unpinned at the same tier; newest assignment breaks ties. Conflicts surface when definitions disagree.
           </p>
         </details>
       </section>
 
-      <section style={{ marginBottom: 28 }} aria-labelledby="governance-resolution-details-heading">
+      <section className="mb-7" aria-labelledby="governance-resolution-details-heading">
         <h3 id="governance-resolution-details-heading">
           {canMutateEnterprisePolicySurfaces
             ? governanceResolutionResolutionDetailsHeadingOperator
             : governanceResolutionResolutionDetailsHeadingReader}
         </h3>
-        <h4 style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>Conflicts ({data?.conflicts.length ?? 0})</h4>
+        <h4 className="mt-0 mb-2 text-base">Conflicts ({data?.conflicts.length ?? 0})</h4>
         {(data?.conflicts ?? []).length === 0 ? (
-          <p style={{ color: "#666", fontSize: 14 }}>No conflicts detected.</p>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm">No conflicts detected.</p>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: 12 }}>
+          <ul className="list-none p-0 grid gap-3">
             {data!.conflicts.map((c, i) => (
               <li
                 key={`${c.itemType}-${c.itemKey}-${i}`}
-                style={{ border: "1px solid #e0c4c4", borderRadius: 8, padding: 12, background: "#fff8f8" }}
+                className="border border-red-200 dark:border-red-900 rounded-lg p-3 bg-red-50/60 dark:bg-red-950/20"
               >
                 <div>
                   <strong>{c.conflictType}</strong> — {c.itemType} <code>{c.itemKey}</code>
                 </div>
-                <div style={{ fontSize: 13, color: "#555", marginTop: 6 }}>{c.description}</div>
-                <details style={{ marginTop: 8, fontSize: 12 }}>
+                <div className="text-[13px] text-neutral-600 dark:text-neutral-400 mt-1.5">{c.description}</div>
+                <details className="mt-2 text-xs">
                   <summary>Candidates</summary>
-                  <pre style={{ overflow: "auto", maxHeight: 200 }}>{JSON.stringify(c.candidates, null, 2)}</pre>
+                  <pre className="overflow-auto max-h-[200px]">{JSON.stringify(c.candidates, null, 2)}</pre>
                 </details>
               </li>
             ))}
           </ul>
         )}
-        <h4 style={{ marginTop: 24, marginBottom: 8, fontSize: "1rem" }}>Resolution decisions ({data?.decisions.length ?? 0})</h4>
-        <div style={{ display: "grid", gap: 10 }}>
+        <h4 className="mt-6 mb-2 text-base">Resolution decisions ({data?.decisions.length ?? 0})</h4>
+        <div className="grid gap-2.5">
           {(data?.decisions ?? []).map((d, i) => (
             <article
               key={`${d.itemType}-${d.itemKey}-${i}`}
-              style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fafafa" }}
+              className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-neutral-50 dark:bg-neutral-950"
             >
-              <div style={{ fontSize: 15 }}>
+              <div className="text-[15px]">
                 <strong>{d.itemType}</strong> <code>{d.itemKey}</code>
               </div>
-              <div style={{ fontSize: 13, marginTop: 6 }}>
+              <div className="text-[13px] mt-1.5">
                 Winner: <strong>{d.winningPolicyPackName}</strong> ({d.winningVersion}) — scope{" "}
                 <code>{d.winningScopeLevel}</code>
               </div>
-              <div style={{ fontSize: 13, color: "#333", marginTop: 6 }}>{d.resolutionReason}</div>
-              <details style={{ marginTop: 8, fontSize: 12 }}>
+              <div className="text-[13px] text-neutral-700 dark:text-neutral-300 mt-1.5">{d.resolutionReason}</div>
+              <details className="mt-2 text-xs">
                 <summary>All candidates</summary>
-                <pre style={{ overflow: "auto", maxHeight: 220 }}>{JSON.stringify(d.candidates, null, 2)}</pre>
+                <pre className="overflow-auto max-h-[220px]">{JSON.stringify(d.candidates, null, 2)}</pre>
               </details>
             </article>
           ))}
@@ -165,7 +160,7 @@ export default function GovernanceResolutionPage() {
         )}
       >
         <h3 id="governance-change-controls-heading">Change related controls</h3>
-        <p style={{ color: "#64748b", fontSize: 13, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
+        <p className="text-neutral-500 dark:text-neutral-400 text-[13px] max-w-2xl mt-0 mb-2.5">
           {governanceResolutionChangeRelatedControlsLead}
         </p>
         {!canMutateEnterprisePolicySurfaces ? (

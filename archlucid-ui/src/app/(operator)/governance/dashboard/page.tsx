@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -383,10 +383,7 @@ export default function GovernanceDashboardPage() {
   return (
     <main className="mx-auto max-w-6xl px-1 sm:px-0">
       <LayerHeader pageKey="governance-dashboard" />
-      <div className="mb-0 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
-        <ContextualHelp helpKey="governance-dashboard" />
-      </div>
+      <OperatorPageHeader title="Governance dashboard" helpKey="governance-dashboard" />
       <GovernanceDashboardReaderActionCue />
 
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">

@@ -1,14 +1,13 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import type { LearningPlanListItemResponse } from "@/types/learning";
-import { planningNumericCell, planningTableStyle, planningThTd } from "./planning-table-styles";
+import { planningNumericCellCls, planningTableCls, planningThTdCls } from "./planning-table-styles";
 
 type PlanningPlansTableProps = {
   plans: LearningPlanListItemResponse[];
   themeTitleById: Map<string, string>;
 };
 
-const mutedNote: CSSProperties = { color: "#64748b", fontSize: 13 };
+const mutedNoteCls = "text-[13px] text-neutral-500 dark:text-neutral-400";
 
 /** Prioritized plans with theme context and links into read-only detail. */
 export function PlanningPlansTable(props: PlanningPlansTableProps) {
@@ -16,39 +15,39 @@ export function PlanningPlansTable(props: PlanningPlansTableProps) {
 
   if (plans.length === 0) {
     return (
-      <p style={{ color: "#64748b", fontSize: 14 }} role="status">
+      <p className="text-sm text-neutral-500 dark:text-neutral-400" role="status">
         No plans in this scope.
       </p>
     );
   }
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={planningTableStyle}>
+    <div className="overflow-x-auto">
+      <table className={planningTableCls}>
         <thead>
-          <tr style={{ background: "#f8fafc" }}>
-            <th style={planningNumericCell}>Priority</th>
-            <th style={planningThTd}>Plan</th>
-            <th style={planningThTd}>Theme</th>
-            <th style={planningNumericCell}>Theme evidence</th>
-            <th style={planningThTd}>Status</th>
+          <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+            <th className={planningNumericCellCls}>Priority</th>
+            <th className={planningThTdCls}>Plan</th>
+            <th className={planningThTdCls}>Theme</th>
+            <th className={planningNumericCellCls}>Theme evidence</th>
+            <th className={planningThTdCls}>Status</th>
           </tr>
         </thead>
         <tbody>
           {plans.map((p) => (
             <tr key={p.planId}>
-              <td style={planningNumericCell}>{p.priorityScore}</td>
-              <td style={planningThTd}>
-                <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} style={{ color: "#1d4ed8" }}>
+              <td className={planningNumericCellCls}>{p.priorityScore}</td>
+              <td className={planningThTdCls}>
+                <Link href={`/planning/plans/${encodeURIComponent(p.planId)}`} className="text-blue-700 dark:text-blue-400">
                   {p.title}
                 </Link>
-                <div style={{ fontSize: 13, color: "#475569", marginTop: 6 }}>{p.summary}</div>
+                <div className="mt-1.5 text-[13px] text-neutral-600 dark:text-neutral-400">{p.summary}</div>
               </td>
-              <td style={planningThTd}>
-                <span style={mutedNote}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>
+              <td className={planningThTdCls}>
+                <span className={mutedNoteCls}>{themeTitleById.get(p.themeId) ?? p.themeId}</span>
               </td>
-              <td style={planningNumericCell}>{p.themeEvidenceSignalCount ?? "—"}</td>
-              <td style={planningThTd}>{p.status}</td>
+              <td className={planningNumericCellCls}>{p.themeEvidenceSignalCount ?? "—"}</td>
+              <td className={planningThTdCls}>{p.status}</td>
             </tr>
           ))}
         </tbody>

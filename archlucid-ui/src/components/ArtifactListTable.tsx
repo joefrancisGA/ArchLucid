@@ -47,16 +47,16 @@ export function ArtifactListTable(props: {
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-sm">
         <thead>
-          <tr style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>
-            <th style={{ padding: "10px 8px" }}>Artifact</th>
-            <th style={{ padding: "10px 8px" }}>Type</th>
-            <th style={{ padding: "10px 8px" }}>Format</th>
-            <th style={{ padding: "10px 8px" }}>Created</th>
-            <th style={{ padding: "10px 8px" }}>Hash (short)</th>
-            <th style={{ padding: "10px 8px" }}>Actions</th>
+          <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
+            <th className="px-2 py-2.5">Artifact</th>
+            <th className="px-2 py-2.5">Type</th>
+            <th className="px-2 py-2.5">Format</th>
+            <th className="px-2 py-2.5">Created</th>
+            <th className="px-2 py-2.5">Hash (short)</th>
+            <th className="px-2 py-2.5">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -73,29 +73,26 @@ export function ArtifactListTable(props: {
             return (
               <tr
                 key={artifact.artifactId}
-                style={{
-                  borderBottom: "1px solid #eee",
-                  background: isCurrent ? "#eff6ff" : undefined,
-                }}
+                className={`border-b border-neutral-100 dark:border-neutral-800 ${isCurrent ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
               >
-                <td style={{ padding: "10px 8px", maxWidth: 280 }}>
-                  <strong style={{ fontWeight: 600 }}>{artifact.name}</strong>
+                <td className="max-w-[280px] px-2 py-2.5">
+                  <strong className="font-semibold">{artifact.name}</strong>
                 </td>
-                <td style={{ padding: "10px 8px", color: "#444" }}>
+                <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   {getArtifactTypeLabel(artifact.artifactType)}
                 </td>
-                <td style={{ padding: "10px 8px", fontFamily: "monospace", fontSize: 13 }}>
+                <td className="px-2 py-2.5 font-mono text-[13px]">
                   {artifact.format}
                 </td>
-                <td style={{ padding: "10px 8px", whiteSpace: "nowrap", color: "#555" }}>
+                <td className="whitespace-nowrap px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   {formatDate(artifact.createdUtc)}
                 </td>
-                <td style={{ padding: "10px 8px", fontFamily: "monospace", fontSize: 12 }} title={artifact.contentHash}>
+                <td className="px-2 py-2.5 font-mono text-xs" title={artifact.contentHash}>
                   {hashShort}
                 </td>
-                <td style={{ padding: "10px 8px" }}>
+                <td className="px-2 py-2.5">
                   <Link href={reviewHref}>Review</Link>
-                  <span style={{ margin: "0 8px", color: "#ccc" }}>|</span>
+                  <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
                   <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
                 </td>
               </tr>
