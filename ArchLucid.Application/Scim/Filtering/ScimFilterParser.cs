@@ -14,10 +14,7 @@ public static class ScimFilterParser
         ScimFilterNode node = c.ParseFilter();
         c.SkipWs();
 
-        if (!c.Eof)
-            throw new ScimFilterParseException($"Unexpected trailing input at position {c.Position}.");
-
-        return node;
+        return !c.Eof ? throw new ScimFilterParseException($"Unexpected trailing input at position {c.Position}.") : node;
     }
 
     private ref struct ScimFilterCursor
@@ -31,15 +28,9 @@ public static class ScimFilterParser
             _i = 0;
         }
 
-        public int Position
-        {
-            get => _i;
-        }
+        public int Position => _i;
 
-        public bool Eof
-        {
-            get => _i >= _s.Length;
-        }
+        public bool Eof => _i >= _s.Length;
 
         public ScimFilterNode ParseFilter()
         {
@@ -55,10 +46,7 @@ public static class ScimFilterParser
 
                 ScimFilterNode inner = ParseFilter();
 
-                if (!TryConsume(')'))
-                    throw new ScimFilterParseException("Expected ')' to close 'not'.");
-
-                return new ScimNotNode(inner);
+                return !TryConsume(')') ? throw new ScimFilterParseException("Expected ')' to close 'not'.") : new ScimNotNode(inner);
             }
 
             ScimFilterNode left = ParseTerm();
@@ -98,17 +86,11 @@ public static class ScimFilterParser
         {
             SkipWs();
 
-            if (TryConsume('('))
-            {
-                ScimFilterNode inner = ParseFilter();
+            if (!TryConsume('('))
+                return ParseAttrExpression();
+            ScimFilterNode inner = ParseFilter();
 
-                if (!TryConsume(')'))
-                    throw new ScimFilterParseException("Expected ')'.");
-
-                return inner;
-            }
-
-            return ParseAttrExpression();
+            return !TryConsume(')') ? throw new ScimFilterParseException("Expected ')'.") : inner;
         }
 
         private ScimFilterNode ParseAttrExpression()
@@ -164,12 +146,11 @@ public static class ScimFilterParser
 
             foreach (string op in ops)
             {
-                if (two.Equals(op.AsSpan(), StringComparison.OrdinalIgnoreCase))
-                {
-                    _i += 2;
+                if (!two.Equals(op.AsSpan(), StringComparison.OrdinalIgnoreCase))
+                    continue;
+                _i += 2;
 
-                    return op.ToLowerInvariant();
-                }
+                return op.ToLowerInvariant();
             }
 
             throw new ScimFilterParseException($"Unknown compare operator at {Position}.");

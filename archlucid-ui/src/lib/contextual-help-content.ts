@@ -91,7 +91,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
 /**
  * Resolves a relative in-repo docs path (e.g. `/docs/CORE_PILOT.md#h`) to a `blob` URL for “Learn more”.
  * Override with <code>NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE</code> when the default branch or fork differs;
- * when unset, uses the same public ArchiForge GitHub `main` blob base as `getDocHref` in `help-topics`.
+ * when unset, uses the same public ArchLucid GitHub `main` blob base as `getDocHref` in `help-topics`.
  */
 export function toDocsBlobUrl(learnMoreUrl: string): string {
   const custom = process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE?.trim();

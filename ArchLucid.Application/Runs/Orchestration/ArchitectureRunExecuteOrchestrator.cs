@@ -150,9 +150,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 results,
                 cancellationToken);
 
-            await PersistExecutePhaseAsync(
-                runId,
-                evidence,
+            await PersistExecutePhaseAsync(evidence,
                 results,
                 evaluations,
                 cancellationToken);
@@ -229,7 +227,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<AgentResult> existingResults =
-            await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
+            await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {
@@ -257,27 +255,24 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
 
         // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
-        if (run.Status == ArchitectureRunStatus.TasksGenerated && existingResults.Count > 0)
+        if (run.Status != ArchitectureRunStatus.TasksGenerated || existingResults.Count <= 0)
+            return null;
+        if (_logger.IsEnabled(LogLevel.Information))
+
+            _logger.LogInformation(
+                "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
+                LogSanitizer.Sanitize(runId),
+                run.Status,
+                existingResults.Count);
+
+        await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
+
+        return new ExecuteRunResult
         {
-            if (_logger.IsEnabled(LogLevel.Information))
+            RunId = runId,
+            Results = existingResults.ToList(),
+        };
 
-                _logger.LogInformation(
-                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
-                    LogSanitizer.Sanitize(runId),
-                    run.Status,
-                    existingResults.Count);
-
-
-            await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
-
-            return new ExecuteRunResult
-            {
-                RunId = runId,
-                Results = existingResults.ToList(),
-            };
-        }
-
-        return null;
     }
 
     private static bool HasAllRequiredAgentTypesForCommit(IReadOnlyList<AgentResult> results)
@@ -336,18 +331,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 
     /// <summary>
     /// Persists evidence, results, and evaluations inside one transaction so retries do not duplicate rows.
     /// </summary>
-    private async Task PersistExecutePhaseAsync(
-        string runId,
-        AgentEvidencePackage evidence,
+    private async Task PersistExecutePhaseAsync(AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
@@ -356,9 +346,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         try
         {
-            await PersistExecutePhaseRowsAsync(
-                runId,
-                evidence,
+            await PersistExecutePhaseRowsAsync(evidence,
                 results,
                 evaluations,
                 uow,
@@ -373,9 +361,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
     }
 
-    private async Task PersistExecutePhaseRowsAsync(
-        string runId,
-        AgentEvidencePackage evidence,
+    private async Task PersistExecutePhaseRowsAsync(AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations,
         IArchLucidUnitOfWork uow,

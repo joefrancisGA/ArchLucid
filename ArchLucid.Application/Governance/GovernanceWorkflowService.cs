@@ -676,9 +676,8 @@ public sealed class GovernanceWorkflowService(
     {
         int? slaHours = governanceGateOptions.Value.ApprovalSlaHours;
 
-        if (slaHours is null || slaHours.Value <= 0)
+        if (slaHours is null or <= 0)
             return null;
-
 
         return DateTime.UtcNow.AddHours(slaHours.Value);
     }

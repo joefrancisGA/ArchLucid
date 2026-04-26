@@ -9,15 +9,10 @@ public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
 {
     private static readonly Regex StripTags = new("<[^>]+>", RegexOptions.Compiled);
 
-    private readonly RazorLightEngine _engine;
-
-    public RazorLightEmailTemplateRenderer()
-    {
-        _engine = new RazorLightEngineBuilder()
-            .UseEmbeddedResourcesProject(typeof(EmailTemplateAnchor))
-            .UseMemoryCachingProvider()
-            .Build();
-    }
+    private readonly RazorLightEngine _engine = new RazorLightEngineBuilder()
+        .UseEmbeddedResourcesProject(typeof(EmailTemplateAnchor))
+        .UseMemoryCachingProvider()
+        .Build();
 
     /// <inheritdoc />
     public Task<string> RenderHtmlAsync(string templateId, object model, CancellationToken cancellationToken)

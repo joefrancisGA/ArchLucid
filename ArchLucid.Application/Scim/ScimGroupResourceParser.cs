@@ -22,10 +22,7 @@ public static class ScimGroupResourceParser
 
         string v = el.GetString() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(v))
-            throw new ScimUserResourceParseException("invalidValue", $"'{name}' must be non-empty.");
-
-        return v.Trim();
+        return string.IsNullOrWhiteSpace(v) ? throw new ScimUserResourceParseException("invalidValue", $"'{name}' must be non-empty.") : v.Trim();
     }
 
     private static string? ReadOptionalString(JsonElement resource, string name)
@@ -36,9 +33,6 @@ public static class ScimGroupResourceParser
         if (el.ValueKind == JsonValueKind.Null)
             return null;
 
-        if (el.ValueKind != JsonValueKind.String)
-            throw new ScimUserResourceParseException("invalidValue", $"'{name}' must be a string.");
-
-        return el.GetString();
+        return el.ValueKind != JsonValueKind.String ? throw new ScimUserResourceParseException("invalidValue", $"'{name}' must be a string.") : el.GetString();
     }
 }

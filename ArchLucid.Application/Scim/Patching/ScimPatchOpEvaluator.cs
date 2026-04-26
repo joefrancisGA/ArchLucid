@@ -56,17 +56,12 @@ public static class ScimPatchOpEvaluator
             return;
         }
 
-        if (string.Equals(opName, "add", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(opName, "replace", StringComparison.OrdinalIgnoreCase))
-        {
-            if (value.ValueKind == JsonValueKind.Undefined)
-                throw new ScimPatchException("invalidValue", $"'{opName}' requires 'value'.");
+        if (!string.Equals(opName, "add", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(opName, "replace", StringComparison.OrdinalIgnoreCase))
+            throw new ScimPatchException("invalidSyntax", $"Unsupported op '{opName}'.");
+        if (value.ValueKind == JsonValueKind.Undefined)
+            throw new ScimPatchException("invalidValue", $"'{opName}' requires 'value'.");
 
-            target[key] = value.Clone();
-
-            return;
-        }
-
-        throw new ScimPatchException("invalidSyntax", $"Unsupported op '{opName}'.");
+        target[key] = value.Clone();
     }
 }
