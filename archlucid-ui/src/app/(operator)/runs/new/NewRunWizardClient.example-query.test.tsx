@@ -1,0 +1,84 @@
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => ({
+    get: (key: string) => (key === "example" ? "claims-intake" : null),
+  }),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: import("react").ReactNode;
+    className?: string;
+  }) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+vi.mock("@/lib/api", () => ({
+  createArchitectureRun: vi.fn(),
+  getRunSummary: vi.fn(),
+}));
+
+import { NewRunWizardClient } from "./NewRunWizardClient";
+
+import { OPERATOR_HOME_EXAMPLE_DESCRIPTION } from "@/lib/operator-home-example-request";
+
+describe("NewRunWizardClient (example query)", () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+        if (url.includes("/v1/agent-execution/cost-preview")) {
+          return {
+            ok: true,
+            json: async () => ({
+              mode: "Simulator",
+              maxCompletionTokens: 4096,
+              estimatedCostUsd: null,
+              deploymentName: null,
+            }),
+          };
+        }
+
+        return { ok: false, status: 404, json: async () => ({}) };
+      }),
+    );
+  });
+
+  it("prefills description and system name when example=claims-intake", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    expect(greenfieldCard).toBeTruthy();
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe("ClaimsIntake");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe(
+      OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+});

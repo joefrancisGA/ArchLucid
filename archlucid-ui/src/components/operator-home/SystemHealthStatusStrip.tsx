@@ -25,8 +25,12 @@ function healthReadinessDotClass(status: string): string {
   return "bg-neutral-400";
 }
 
-/** Readiness as inline metadata (no card chrome) above the runs dashboard. */
-export function SystemHealthStatusStrip() {
+type SystemHealthStatusStripProps = {
+  className?: string;
+};
+
+/** Readiness as inline metadata (no card chrome) — home column or global footer. */
+export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripProps) {
   const [phase, setPhase] = useState<"loading" | "ready" | "unavailable">("loading");
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
 
@@ -78,7 +82,7 @@ export function SystemHealthStatusStrip() {
   return (
     <div
       data-testid="command-center-health-card"
-      className="mb-2 flex flex-wrap items-center gap-2 text-xs"
+      className={cn("mb-2 flex flex-wrap items-center gap-2 text-xs", className)}
       aria-label="System health"
     >
       {phase === "loading" ? (

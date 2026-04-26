@@ -14,6 +14,8 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     expect(await screen.findByRole("heading", { name: "First Manifest Checklist" })).toBeInTheDocument();
 
+    expect(screen.getByText("Create → Run → Finalize → Review")).toBeInTheDocument();
+
     expect(screen.getByText("Start here")).toBeInTheDocument();
 
     const wizard = screen.getByRole("link", { name: "Start new request" });
@@ -30,7 +32,6 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
     fireEvent.click(step2Title);
 
-    expect(screen.queryByRole("link", { name: "Start new request" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open runs list" })).toBeVisible();
 
     const step1Title = screen.getByRole("button", { name: /Step 1 —/i });

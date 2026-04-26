@@ -264,7 +264,7 @@ export function WelcomeBanner() {
                 <Link href="/getting-started?source=registration">Onboarding checklist</Link>
               </Button>
             ) : null}
-            <OptInTourLauncher buttonVariant="ghost" className="h-8" />
+            <OptInTourLauncher className="h-10 px-4 text-sm" />
           </div>
         </div>
 

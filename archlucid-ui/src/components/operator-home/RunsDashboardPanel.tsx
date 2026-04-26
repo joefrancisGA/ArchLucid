@@ -10,6 +10,10 @@ import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listRunsByProjectPaged } from "@/lib/api";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+} from "@/lib/operator-home-example-request";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -176,13 +180,10 @@ export function RunsDashboardPanel() {
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/runs/new">Create request</Link>
                     </Button>
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
-                    >
-                      <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>Try an example</Link>
+                    <Button asChild variant="outline" size="sm" className="h-8">
+                      <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
+                        See completed example
+                      </Link>
                     </Button>
                   </div>
                 </div>
@@ -304,6 +305,34 @@ export function RunsDashboardPanel() {
           </Link>
         </CardContent>
       </Card>
+
+      {phase === "ready" && items.length === 0 ? (
+        <Card
+          className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+          data-testid="example-request-panel"
+        >
+          <CardHeader className="space-y-1 px-3 pb-2 pt-3">
+            <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Example request</CardTitle>
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              {OPERATOR_HOME_EXAMPLE_DESCRIPTION}
+            </p>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2 px-3 pb-3">
+            <Button asChild variant="outline" size="sm" className="h-8">
+              <Link
+                href={`/runs/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
+              >
+                Use this example
+              </Link>
+            </Button>
+            <Button asChild variant="primary" size="sm" className="h-8">
+              <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
+                See completed output
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
     </section>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Play } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { OptInTour } from "./OptInTour";
 
 export type OptInTourLauncherProps = {
-  /** Ghost sits beside hero CTAs as a tertiary action; default matches standalone use in a column. */
+  /** Outline reads as a tertiary control beside primary hero CTAs; ghost stays available for dense rows. */
   buttonVariant?: "outline" | "ghost";
   className?: string;
 };
@@ -39,13 +40,17 @@ export function OptInTourLauncher({ buttonVariant = "outline", className }: OptI
         variant={buttonVariant}
         size="sm"
         className={cn(
-          "font-normal",
-          buttonVariant === "ghost" && "text-neutral-500 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-200",
+          "inline-flex items-center gap-1.5 font-medium",
+          buttonVariant === "ghost" &&
+            "text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100",
+          buttonVariant === "outline" &&
+            "border-neutral-300 text-neutral-800 dark:border-neutral-600 dark:text-neutral-200",
           className,
         )}
         onClick={handleOpen}
         data-testid="opt-in-tour-launcher"
       >
+        <Play className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
         Take tour
       </Button>
       <OptInTour isOpen={isOpen} onClose={handleClose} />

@@ -289,10 +289,10 @@ export function OperatorFirstRunWorkflowPanel() {
   if (graduated && allDone) {
     return (
       <section
-        className="w-full rounded-lg border border-teal-200/80 bg-teal-50/80 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/40"
+        className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/80"
         aria-labelledby="whats-next-heading"
       >
-        <h2 id="whats-next-heading" className="m-0 text-base font-semibold text-teal-900 dark:text-teal-100">
+        <h2 id="whats-next-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           What&apos;s next
         </h2>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
@@ -332,27 +332,29 @@ export function OperatorFirstRunWorkflowPanel() {
   return (
     <section
       id="first-run-workflow-panel"
-      className="w-full rounded-lg border border-sky-200/60 bg-sky-50/50 px-3 py-3 dark:border-sky-900 dark:bg-sky-950/40"
+      className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
       aria-labelledby="first-run-workflow-heading"
     >
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-sky-900 dark:text-sky-100">
+          <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
             First Manifest Checklist
           </h2>
-          <p className="m-0 mt-0.5 text-[11px] text-sky-800 dark:text-sky-300">Create · run · finalize · review</p>
+          <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
+            Create → Run → Finalize → Review
+          </p>
         </div>
         <button
           type="button"
           onClick={minimize}
           aria-expanded={true}
           aria-controls="first-run-workflow-panel"
-          className="auth-panel-focus shrink-0 cursor-pointer rounded-md border border-sky-300/80 bg-white px-2.5 py-1 text-xs text-sky-800 dark:border-sky-700 dark:bg-neutral-900 dark:text-sky-200"
+          className="auth-panel-focus shrink-0 cursor-pointer rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200"
         >
           Hide
         </button>
       </div>
-      <p className="m-0 mb-2 text-xs font-medium text-sky-900 dark:text-sky-100" aria-live="polite">
+      <p className="m-0 mb-2 text-xs font-medium text-neutral-800 dark:text-neutral-200" aria-live="polite">
         {doneCount} of {steps.length} steps complete
       </p>
       {allDone ? (
@@ -376,10 +378,10 @@ export function OperatorFirstRunWorkflowPanel() {
             <li
               key={step.title}
               className={cn(
-                "border-b border-sky-200/40 pb-2.5 last:border-b-0 dark:border-sky-800/40",
+                "border-b border-neutral-200/80 pb-2.5 last:border-b-0 dark:border-neutral-800/80",
                 done ? "opacity-60" : "",
                 highlightNext
-                  ? "rounded-md border-l-2 border-l-teal-600 bg-teal-50/50 pl-2 dark:border-l-teal-400 dark:bg-teal-950/30"
+                  ? "rounded-md border-l-2 border-l-teal-600 bg-teal-50/25 pl-2 dark:border-l-teal-400 dark:bg-teal-950/20"
                   : "",
               )}
             >
@@ -444,29 +446,31 @@ export function OperatorFirstRunWorkflowPanel() {
         })}
       </ol>
 
-      <div className="mt-3 border-t border-sky-200/40 pt-2.5 dark:border-sky-800/40">
-        <p className="m-0 mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After finalizing your first manifest</span>
+      <details className="mt-3 border-t border-neutral-200/80 pt-2.5 dark:border-neutral-800/80">
+        <summary className="auth-panel-focus cursor-pointer list-none text-xs font-semibold text-neutral-700 outline-none marker:content-none dark:text-neutral-300 [&::-webkit-details-marker]:hidden">
+          After finalizing your first manifest
+        </summary>
+        <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
             href="/compare"
           >
             Compare
           </Link>
           <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
             href="/replay"
           >
             Replay
           </Link>
           <Link
-            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
             href="/graph"
           >
             Graph
           </Link>
-        </p>
-      </div>
+        </div>
+      </details>
     </section>
   );
 }
