@@ -38,7 +38,7 @@ export default function HomePage() {
             <section aria-labelledby="operational-metrics-heading">
               <h3
                 id="operational-metrics-heading"
-                className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
               >
                 Operational metrics
               </h3>
@@ -53,7 +53,7 @@ export default function HomePage() {
             <section aria-labelledby="maturity-layers-heading">
               <h3
                 id="maturity-layers-heading"
-                className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
               >
                 Explore when ready
               </h3>

@@ -7,7 +7,6 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
-import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
@@ -230,11 +229,11 @@ export function OperatorFirstRunWorkflowPanel() {
         </button>
       </div>
       <p className="m-0 mb-2 text-xs font-medium text-sky-900 dark:text-sky-100" aria-live="polite">
-        Progress: {doneCount} of {steps.length} marked done
+        Progress: {doneCount} of {steps.length} complete
       </p>
       {allDone ? (
         <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
-          Core Pilot complete. Hide this panel or reset checkboxes to revisit steps.
+          Core Pilot complete. You can hide this panel or revisit any step.
         </p>
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
@@ -309,8 +308,7 @@ export function OperatorFirstRunWorkflowPanel() {
       <div className="mt-2 rounded border border-neutral-200/80 bg-white/60 px-2 py-2 text-[11px] dark:border-neutral-700 dark:bg-neutral-900/40">
         <p className="m-0 mb-0.5 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Later (optional)</p>
         <p className="m-0 mb-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-500">
-          After a committed run, use Compare, Replay, Graph (enable {NAV_DISCLOSURE.extended.show} in the sidebar) and
-          run-detail ZIP exports.
+          After committing a run, explore Compare, Replay, and Graph from the sidebar.
         </p>
         <ul className="m-0 list-none space-y-0.5 p-0 text-[11px] text-neutral-600 dark:text-neutral-400">
           <li>
@@ -328,16 +326,6 @@ export function OperatorFirstRunWorkflowPanel() {
           </li>
         </ul>
       </div>
-
-      <p className="mt-2 m-0 text-[11px] text-neutral-700 dark:text-neutral-300">
-        <Link className="workflow-inline-link text-teal-800 dark:text-teal-300" href="/getting-started">
-          Getting started
-        </Link>{" "}
-        ·{" "}
-        <Link className="workflow-inline-link text-teal-800 dark:text-teal-300" href="/">
-          Home
-        </Link>
-      </p>
     </section>
   );
 }

@@ -198,7 +198,11 @@ public sealed class TenantIsolationSmokeTests
         HttpClient client,
         object body)
     {
-        for (int attempt = 0; attempt < 10; attempt++)
+        // POST can stay 503 after GET warm: heavier path (sp_getapplock, insert). Do not return a final 503 to
+        // EnsureSuccessStatusCode; allow a longer wait than the prior 10-attempt loop.
+        const int maxAttempts = 60;
+
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
             HttpResponseMessage response = await client
                 .PostAsJsonAsync("/v1/architecture/request", body);
@@ -206,9 +210,12 @@ public sealed class TenantIsolationSmokeTests
                 return response;
 
             response.Dispose();
-            await Task.Delay(750 * (attempt + 1));
+            await Task.Delay(1000);
         }
 
-        return await client.PostAsJsonAsync("/v1/architecture/request", body);
+        throw new InvalidOperationException(
+            "POST /v1/architecture/request stayed 503 (host/SQL not ready). See "
+            + nameof(WarmListRunsPathAsync) + " and "
+            + nameof(PostArchitectureRequestWithTransientRetryAsync) + ".");
     }
 }

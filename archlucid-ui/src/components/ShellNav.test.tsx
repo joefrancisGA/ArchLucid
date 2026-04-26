@@ -37,7 +37,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows only Pilot essential links by default — Graph, Compare, and Replay require extended disclosure",
+    "shows Pilot extended links by default and can hide them",
     () => {
       render(<ShellNav />);
 
@@ -55,18 +55,6 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
       expect(screen.getByRole("link", { name: "Getting started" })).toHaveAttribute("href", "/getting-started");
 
-      // Graph is now tier="extended" — Core Pilot path does not require graph exploration.
-      // It must NOT be visible in the default (no extended) sidebar.
-      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
-
-      // After enabling extended links, all three become visible.
-      const showMore = screen.queryByRole("button", { name: NAV_DISCLOSURE.extended.show });
-      if (showMore) {
-        fireEvent.click(showMore);
-      }
-
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
         "title",
@@ -74,6 +62,16 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       );
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
+
+      fireEvent.click(screen.getByRole("button", { name: NAV_DISCLOSURE.extended.hide }));
+
+      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: NAV_DISCLOSURE.extended.show }));
+
+      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
 
       const linksWithKeyShortcuts = screen
         .getAllByRole("link")
@@ -87,41 +85,40 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     15_000,
   );
 
-  it("exposes Analysis and Governance group navigations when sections are expanded", () => {
+  it(
+    "exposes Analysis and Governance group navigations when sections are expanded",
+    () => {
+      render(<ShellNav />);
+
+      expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
+
+      fireEvent.click(screen.getByRole("button", { name: "Governance" }));
+
+      expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
+
+      expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
+      expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
+        "title",
+        "Policy, audit, alerts, and trust controls.",
+      );
+      expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
+
+      expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
+      fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+
+      expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
+    },
+    15_000,
+  );
+
+  it("does not show a footer keyboard-shortcut hint in the sidebar", () => {
     render(<ShellNav />);
 
-    expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
-
-    const showMore = screen.queryByRole("button", { name: NAV_DISCLOSURE.extended.show });
-    if (showMore) {
-      fireEvent.click(showMore);
-    }
-
-    fireEvent.click(screen.getByRole("button", { name: "Governance" }));
-
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
-
-    expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
-    expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
-      "title",
-      "Policy, audit, alerts, and trust controls.",
-    );
-    expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
-
-    expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
-
-    expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
-  });
-
-  it("shows a hint for opening help and keyboard shortcuts", () => {
-    render(<ShellNav />);
-
-    expect(screen.getByText("Press Shift+? for help and keyboard shortcuts")).toBeInTheDocument();
+    expect(screen.queryByText("Press Shift+? for help and keyboard shortcuts")).toBeNull();
   });
 });

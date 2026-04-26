@@ -79,7 +79,7 @@ export function RecentRunsHomePanel() {
     <section aria-labelledby="recent-runs-home-heading">
       <h3
         id="recent-runs-home-heading"
-        className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+        className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
       >
         Recent runs
       </h3>
@@ -91,9 +91,7 @@ export function RecentRunsHomePanel() {
       >
         <CardHeader className="space-y-0.5 px-3 pb-2 pt-3">
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Latest in workspace</CardTitle>
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Project <code className="text-[11px]">{DEFAULT_PROJECT_ID}</code> — first {PREVIEW_MAX} on the list.
-          </p>
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">Showing the latest runs for this workspace.</p>
         </CardHeader>
         <CardContent className="space-y-3 px-3 pb-3 text-sm">
           {phase === "loading" ? (
@@ -111,7 +109,9 @@ export function RecentRunsHomePanel() {
           ) : null}
 
           {phase === "ready" && items.length === 0 ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">No runs yet — use Create run to start.</p>
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              No architecture runs yet. Create your first run to generate a manifest, review artifacts, and capture findings.
+            </p>
           ) : null}
 
           {phase === "ready" && items.length > 0 ? (

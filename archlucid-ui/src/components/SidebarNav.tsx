@@ -287,13 +287,6 @@ export function SidebarNav() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <p
-        className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
-        aria-keyshortcuts="Shift+?"
-      >
-        Press Shift+? for help and keyboard shortcuts
-      </p>
     </div>
   );
 }

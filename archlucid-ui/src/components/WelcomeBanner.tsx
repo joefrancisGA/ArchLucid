@@ -119,16 +119,16 @@ export function WelcomeBanner() {
         </span>
       ) : null}
 
-      <h2 className="pr-10 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+      <h2 className="pr-10 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
         Generate your first architecture manifest
       </h2>
-      <p className="mt-1 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="mt-2 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
         Capture an architecture request, run the pipeline, and produce a committed manifest with reviewable artifacts and
         governance findings.
       </p>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2.5">
-        <Button asChild variant="primary" className="h-9 px-5 text-sm font-semibold shadow-sm">
+      <div className="mt-4 flex flex-wrap items-center gap-2.5">
+        <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
           <Link href="/runs/new">Create Run</Link>
         </Button>
         <Button asChild variant="secondary" size="sm" className="h-8">
