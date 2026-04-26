@@ -13,7 +13,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace;
+        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
