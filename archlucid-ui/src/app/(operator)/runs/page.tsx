@@ -85,7 +85,7 @@ export default async function RunsPage({
         </Link>
         {" · "}
         <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
-          New run (wizard)
+          New request (wizard)
         </Link>{" "}
         <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" />
         {" · "}

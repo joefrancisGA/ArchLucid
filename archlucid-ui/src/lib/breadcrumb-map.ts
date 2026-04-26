@@ -7,7 +7,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "getting-started": "Getting started",
   onboarding: "Onboarding",
   runs: "Runs",
-  new: "New run",
+  new: "New request",
   graph: "Graph",
   compare: "Compare",
   replay: "Replay",

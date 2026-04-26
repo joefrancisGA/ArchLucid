@@ -106,10 +106,9 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults);
             SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
-            foreach (string c in item.ExpectedFindingCategories)
+            foreach (var c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
             {
-                if (!string.IsNullOrWhiteSpace(c))
-                    expectedCategories.Add(c.Trim());
+                expectedCategories.Add(c.Trim());
             }
 
             bool categoryMatches = actualCategories.SetEquals(expectedCategories);

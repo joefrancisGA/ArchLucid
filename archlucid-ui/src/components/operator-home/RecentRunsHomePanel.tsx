@@ -110,7 +110,7 @@ export function RecentRunsHomePanel() {
 
           {phase === "ready" && items.length === 0 ? (
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-              No architecture runs yet. Create your first run to generate a manifest, review artifacts, and capture findings.
+              No architecture runs yet. Create a request to generate your first manifest.
             </p>
           ) : null}
 

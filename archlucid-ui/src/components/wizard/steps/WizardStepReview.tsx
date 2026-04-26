@@ -76,7 +76,7 @@ export function WizardStepReview() {
   return (
     <WizardStepPanel
       title="Review & submit"
-      description="Confirm values below. Use Back to edit earlier steps. Create run sends POST /v1/architecture/request."
+      description="Confirm values below. Use Back to edit earlier steps. Create request sends POST /v1/architecture/request."
     >
       <div className="space-y-4">
         <ErrorList errors={formState.errors} />

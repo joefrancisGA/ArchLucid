@@ -17,7 +17,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 {
     private const string ArchLucidPersistenceAllowRlsBypassEnvKey = "ArchLucid__Persistence__AllowRlsBypass";
 
-    private static readonly object RlsBreakGlassEnvLock = new();
+    private static readonly Lock RlsBreakGlassEnvLock = new();
 
     private static int _rlsBreakGlassEnvRefCount;
 
@@ -37,7 +37,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             SqlConnectionStringBuilder builder = new(raw)
             {
                 // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-                MaxPoolSize = 200, ConnectTimeout = 120
+                MaxPoolSize = 200,
+                ConnectTimeout = 120
             };
 
             SqlConnectionString = builder.ConnectionString;
@@ -155,16 +156,9 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             if (--_rlsBreakGlassEnvRefCount != 0)
                 return;
 
-            if (_savedArchLucidAllowRlsBypassEnv is null)
-                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", null);
-            else
-                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", _savedArchLucidAllowRlsBypassEnv);
+            Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", _savedArchLucidAllowRlsBypassEnv ?? null);
 
-            if (_savedArchLucidPersistenceAllowRlsBypassEnv is null)
-                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, null);
-            else
-                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey,
-                    _savedArchLucidPersistenceAllowRlsBypassEnv);
+            Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, _savedArchLucidPersistenceAllowRlsBypassEnv ?? null);
 
             _savedArchLucidAllowRlsBypassEnv = null;
             _savedArchLucidPersistenceAllowRlsBypassEnv = null;

@@ -17,7 +17,7 @@ const PAGES = [
   { name: "Legacy /onboarding/start → getting-started", path: "/onboarding/start" },
   { name: "Legacy /onboarding → getting-started", path: "/onboarding" },
   { name: "Legacy /onboard → getting-started", path: "/onboard" },
-  { name: "New run wizard", path: "/runs/new" },
+  { name: "New request", path: "/runs/new" },
   { name: "Runs", path: "/runs?projectId=default" },
   { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
   { name: "Run provenance", path: `/runs/${FIXTURE_RUN_ID}/provenance` },

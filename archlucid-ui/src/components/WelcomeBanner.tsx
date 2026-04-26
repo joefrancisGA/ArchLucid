@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { AlertCircle, Archive, FileText, History, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -100,7 +100,7 @@ export function WelcomeBanner() {
     : "Generate your first architecture manifest";
   const subheadingText = returningUser
     ? "Monitor active runs, finalize manifests, and review governance findings."
-    : "Turn architecture intent into governed, reviewable output your team can inspect, finalize, and improve.";
+    : "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
   const secondaryCtaLabel = returningUser ? "View runs" : "See a completed example";
 
   return (
@@ -139,24 +139,69 @@ export function WelcomeBanner() {
         </span>
       ) : null}
 
-      <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
-        {headingText}
-      </h2>
-      <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+        <div className="min-w-0 flex-1 pr-8">
+          <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
+            {headingText}
+          </h2>
+          <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2.5">
-        <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
-          <Link href="/runs/new">Create Request</Link>
-        </Button>
-        <Button asChild variant="outline" className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40">
-          <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>
-        </Button>
-        {trialActive ? (
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href="/getting-started?source=registration">Onboarding checklist</Link>
-          </Button>
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+            <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
+              <Link href="/runs/new">Create Request</Link>
+            </Button>
+            {returningUser ? (
+              <Button
+                asChild
+                variant="outline"
+                className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+              >
+                <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>
+              </Button>
+            ) : null}
+            {trialActive ? (
+              <Button asChild variant="outline" size="sm" className="h-8">
+                <Link href="/getting-started?source=registration">Onboarding checklist</Link>
+              </Button>
+            ) : null}
+            <OptInTourLauncher buttonVariant="ghost" className="h-8" />
+          </div>
+        </div>
+
+        {!returningUser ? (
+          <div
+            className="w-full shrink-0 rounded-lg border border-teal-200/80 bg-white/70 px-4 py-3 text-sm shadow-sm dark:border-teal-900/60 dark:bg-neutral-900/50 lg:max-w-[17rem]"
+            aria-label="Sample completed run output"
+          >
+            <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+              Sample output includes
+            </p>
+            <ul className="m-0 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
+              <li className="flex items-center gap-2">
+                <FileText className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+                <span>Architecture manifest</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+                <span>Findings</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Archive className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+                <span>Artifact bundle</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <History className="h-4 w-4 shrink-0 text-teal-700 dark:text-teal-400" aria-hidden />
+                <span>Review trail</span>
+              </li>
+            </ul>
+            <Link
+              href="/runs?projectId=default"
+              className="mt-3 inline-block text-xs font-semibold text-teal-800 underline decoration-teal-300/70 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            >
+              See a completed example
+            </Link>
+          </div>
         ) : null}
-        <OptInTourLauncher buttonVariant="ghost" className="h-8" />
       </div>
     </div>
   );

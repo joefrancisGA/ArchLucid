@@ -96,16 +96,6 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
 
     private static bool HeaderNamesContainsToken(IEnumerable<string> headerValues, string token)
     {
-        foreach (string part in headerValues)
-        {
-            foreach (string name in part.Split(',',
-                         StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
-            {
-                if (name.Equals(token, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-        }
-
-        return false;
+        return headerValues.SelectMany(part => part.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)).Any(name => name.Equals(token, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -128,37 +128,37 @@ public sealed class PolicyPackDryRunIntegrationTests
         public Guid PolicyPackId
         {
             get;
-            set;
+            init;
         }
 
         public int Page
         {
             get;
-            set;
+            init;
         }
 
         public int PageSize
         {
             get;
-            set;
+            init;
         }
 
         public int TotalRequestedRuns
         {
             get;
-            set;
+            init;
         }
 
         public int ReturnedRuns
         {
             get;
-            set;
+            init;
         }
 
         public string ProposedThresholdsRedactedJson
         {
             get;
-            set;
+            init;
         } = string.Empty;
     }
 }

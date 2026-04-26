@@ -252,7 +252,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await page.goto(`/runs/new?sampleRunId=${encodeURIComponent(sampleRunId)}`);
 
-    await expect(page.getByRole("heading", { name: "New run", level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: "New request", level: 2 })).toBeVisible({ timeout: 60_000 });
 
     await page.getByRole("button", { name: "Use defaults" }).click();
 
@@ -266,7 +266,7 @@ test.describe("live-api-trial-end-to-end", () => {
       { timeout: 120_000 },
     );
 
-    await page.getByRole("button", { name: "Create run" }).click();
+    await page.getByRole("button", { name: "Create request" }).click();
 
     const createResp = await createRespPromise;
     const createJson = (await createResp.json()) as { run?: { runId?: string } };

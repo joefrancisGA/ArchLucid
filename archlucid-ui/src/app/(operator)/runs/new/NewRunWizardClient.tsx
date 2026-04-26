@@ -251,7 +251,7 @@ export function NewRunWizardClient() {
               canProceed={canProceed}
               isFirstStep={isFirstStep}
               isLastInputStep={isReviewStep}
-              submitLabel="Create run"
+              submitLabel="Create request"
               submittingLabel="Creating…"
             />
           ) : null}

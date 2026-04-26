@@ -58,7 +58,7 @@ describe("shortcut-registry", () => {
 
   it("findShortcutByKey returns the matching entry regardless of casing", () => {
     const byLower = findShortcutByKey("alt+n");
-    expect(byLower?.label).toBe("New run");
+    expect(byLower?.label).toBe("New request");
 
     const byMixed = findShortcutByKey("Alt+N");
     expect(byMixed?.route).toBe("/runs/new");

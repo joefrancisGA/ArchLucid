@@ -40,7 +40,7 @@ beforeEach(() => {
 });
 
 describe("WelcomeBanner — renders heading and CTAs", () => {
-  it("shows welcome heading and both CTAs when not dismissed", async () => {
+  it("shows welcome heading, primary CTA, sample output preview, and example link when not dismissed", async () => {
     render(<WelcomeBanner />);
 
     await waitFor(() => {
@@ -48,7 +48,14 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(screen.getByRole("heading", { name: "Generate your first architecture manifest" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByLabelText("Sample completed run output")).toBeInTheDocument();
+    expect(screen.getByText("Sample output includes")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "See a completed example" })).toHaveAttribute(
       "href",
       "/runs?projectId=default",

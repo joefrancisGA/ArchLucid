@@ -75,11 +75,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
         List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-
-        foreach (string r in roles)
-        {
-            claims.Add(new Claim("roles", r));
-        }
+        claims.AddRange(roles.Select(r => new Claim("roles", r)));
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(

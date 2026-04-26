@@ -8,9 +8,9 @@ export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No runs in this project yet",
   description:
-    "Create your first architecture run using the wizard, or submit one via the CLI or API. Runs appear here when they exist for the project in the URL.",
+    "Create your first architecture request using the wizard, or submit one via the CLI or API. Runs appear here once a request has been submitted.",
   actions: [
-    { label: "Create your first run", href: "/runs/new" },
+    { label: "Create your first request", href: "/runs/new" },
     { label: "Getting started", href: "/getting-started", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",

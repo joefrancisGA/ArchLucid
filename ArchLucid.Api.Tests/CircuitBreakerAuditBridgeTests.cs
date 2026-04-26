@@ -126,7 +126,7 @@ public sealed class CircuitBreakerAuditBridgeTests
     private static ServiceProvider BuildRootProvider(IAuditService auditService)
     {
         ServiceCollection services = [];
-        services.AddSingleton<IAuditService>(auditService);
+        services.AddSingleton(auditService);
 
         return services.BuildServiceProvider();
     }

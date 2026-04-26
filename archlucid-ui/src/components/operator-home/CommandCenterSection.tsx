@@ -94,7 +94,7 @@ function RunsNeedingAttentionCard() {
           Runs needing attention
         </CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Runs with findings that have not yet been finalized.
+          Runs with findings awaiting a finalized manifest.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -116,7 +116,9 @@ function RunsNeedingAttentionCard() {
           <>
             {attention.length === 0 ? (
               <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                No runs currently need attention. All runs are finalized — create a new run or wait for pipeline results.
+                {items.length === 0
+                  ? "No runs currently need attention. Create a request to start your first run."
+                  : "No runs currently need attention."}
               </p>
             ) : (
               <>

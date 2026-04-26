@@ -26,10 +26,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
             + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace");
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
 
@@ -57,10 +55,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
             + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace");
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
 
@@ -88,10 +84,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
             + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace");
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
 
@@ -119,10 +113,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
             + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
-        {
-            Content = new StringContent(body, Encoding.UTF8, "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace");
+        request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
 
