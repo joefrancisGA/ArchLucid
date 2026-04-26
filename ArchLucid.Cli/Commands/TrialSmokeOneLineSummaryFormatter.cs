@@ -30,7 +30,7 @@ public static class TrialSmokeOneLineSummaryFormatter
         return $"{verdict} host={baseUrl} correlation={correlation} tenant={tenant} welcomeRun={welcomeRun} failed={failedStep}";
     }
 
-    private static string OrNone(string? value) => string.IsNullOrWhiteSpace(value) ? NoneToken : value!;
+    private static string OrNone(string? value) => string.IsNullOrWhiteSpace(value) ? NoneToken : value;
 
     private static string? FirstFailedStepName(TrialSmokeReport report)
     {
