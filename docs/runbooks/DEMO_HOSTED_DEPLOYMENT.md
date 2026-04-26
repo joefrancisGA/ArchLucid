@@ -1,8 +1,8 @@
+> **Scope:** Platform operators shipping a public hosted demo (`demo.archlucid.net` or similar); covers wiring, Contoso seeding, hosting, cost ballpark, and reset. Not a generic Azure tutorial.
+
 # Hosted demo environment (public sandbox)
 
 **Audience:** Platform operators shipping `demo.archlucid.net` (or another public demo host) for buyers and evaluators.
-
-**Scope:** How the demo is wired, what data is pre-seeded, how to host it, cost ballpark, and how to reset on demand. This runbook is implementation-aligned with the repo; it is not a generic Azure tutorial.
 
 ## What the demo is
 
