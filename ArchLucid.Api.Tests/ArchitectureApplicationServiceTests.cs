@@ -10,7 +10,6 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -171,7 +170,9 @@ public sealed class ArchitectureApplicationServiceTests
     {
         return new ArchitectureRunDetail
         {
-            Run = run, Tasks = (tasks ?? []).ToList(), Results = (results ?? []).ToList()
+            Run = run,
+            Tasks = (tasks ?? []).ToList(),
+            Results = (results ?? []).ToList()
         };
     }
 
@@ -507,7 +508,9 @@ public sealed class ArchitectureApplicationServiceTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+            RunId = "run-1",
+            SystemName = "TestSystem",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
         _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(manifest);
@@ -533,7 +536,10 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetManifestAsync_PassesCancellationTokenToRepository()
     {
         CancellationTokenSource cts = new();
-        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+        };
         _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
 
         await _sut.GetManifestAsync("v1", cts.Token);

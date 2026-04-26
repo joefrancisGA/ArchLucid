@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 using ArchLucid.Cli.Real;
 
@@ -98,7 +97,10 @@ internal static class PilotUpCommand
         DateTime deadline = DateTime.UtcNow + ReadyDeadline;
         bool ready = false;
 
-        using HttpClient probe = new() { Timeout = TimeSpan.FromSeconds(8) };
+        using HttpClient probe = new()
+        {
+            Timeout = TimeSpan.FromSeconds(8)
+        };
 
         while (DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
         {

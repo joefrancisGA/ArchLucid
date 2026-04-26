@@ -1,12 +1,10 @@
 using System.Diagnostics;
 using System.Net.Http.Json;
 
-using ArchLucid.Api.Tests;
 using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-using Xunit;
 using Xunit.Abstractions;
 
 namespace ArchLucid.Api.Tests.Performance;

@@ -669,6 +669,8 @@ Do NOT change backend behavior. Do NOT change stored status values.
 Do NOT remove RunStatusBadge — refactor it to delegate.
 ```
 
+**Status: shipped.** **`StatusPill`** (`StatusPill.tsx`) wraps **`Badge`** using **`lib/status-pill-domain-classes.ts`** (`pipeline` | `governance` | `health` | `general`). **`RunStatusBadge`** delegates with **`ariaLabel`** for run lists. **Governance** dashboard + workflow pages use **`StatusPill`**; **`governance-status-badge-class.ts`** re-exports **`governanceDomainBadgeClass`** with **`@deprecated`**. **Admin health** uses **`StatusPill`** for readiness/circuit/overall badges. **Tests:** **`StatusPill.test.tsx`**, **`RunStatusBadge.test.tsx`**, **`governance-status-badge-class.test.ts`**.
+
 ---
 
 ## Prompt 11 — Redesign Run Detail as the flagship screen
@@ -765,6 +767,8 @@ After implementation:
   (findings, manifests, governance approval detail) should follow
   the same card/header/metadata grid structure.
 ```
+
+**Status: shipped.** **`runs/[runId]/page.tsx`** — **`max-w-4xl`**, **`space-y-6`**, breadcrumb **`nav`**, **`RunDetailPageHeader`** (client: **`h1`**, **`RunStatusBadge`**, Run ID **`CopyIdButton`**, **Commit** + governance **ContextualHelp**), **Cards** for Run / Timeline / Chain / Manifest / Actions, **provenance** vertical list with **copy** + manifest **Link**, **`<dl>`** manifest grid, **`<Button variant="outline|secondary">`** for downloads / compare / replay, **no `style={{}}`**. New: **`RunDetailPageHeader.tsx`**, **`CopyIdButton.tsx`**, **`lib/run-summary-from-detail.ts`** (+ **`run-summary-from-detail.test.ts`**). **Scroll:** **`scroll-mt-24`** on section anchors. **Flagship pattern:** card shell + header strip + metadata grid for future detail routes.
 
 ---
 

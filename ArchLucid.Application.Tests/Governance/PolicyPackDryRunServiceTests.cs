@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 
-using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
@@ -226,7 +225,8 @@ public sealed class PolicyPackDryRunServiceTests
     {
         FakeRunDetailQueryService runs = new();
 
-        for (int i = 1; i <= runCount; i++) runs.AddRun($"run-{i:0000}", critical: 0, high: 0, medium: 0);
+        for (int i = 1; i <= runCount; i++)
+            runs.AddRun($"run-{i:0000}", critical: 0, high: 0, medium: 0);
 
         FakeDeltaComputer computer = new();
 
@@ -278,9 +278,12 @@ public sealed class PolicyPackDryRunServiceTests
         {
             List<ArchitectureFinding> findings = [];
 
-            for (int i = 0; i < critical; i++) findings.Add(new ArchitectureFinding { FindingId = $"f-c-{i}", Severity = "Critical" });
-            for (int i = 0; i < high; i++) findings.Add(new ArchitectureFinding { FindingId = $"f-h-{i}", Severity = "High" });
-            for (int i = 0; i < medium; i++) findings.Add(new ArchitectureFinding { FindingId = $"f-m-{i}", Severity = "Medium" });
+            for (int i = 0; i < critical; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-c-{i}", Severity = "Critical" });
+            for (int i = 0; i < high; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-h-{i}", Severity = "High" });
+            for (int i = 0; i < medium; i++)
+                findings.Add(new ArchitectureFinding { FindingId = $"f-m-{i}", Severity = "Medium" });
 
             _byId[runId] = new ArchitectureRunDetail
             {
@@ -304,7 +307,8 @@ public sealed class PolicyPackDryRunServiceTests
     {
         public Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
         {
-            if (detail is null) throw new ArgumentNullException(nameof(detail));
+            if (detail is null)
+                throw new ArgumentNullException(nameof(detail));
 
             List<KeyValuePair<string, int>> bySeverity = detail.Results
                 .SelectMany(r => r.Findings)

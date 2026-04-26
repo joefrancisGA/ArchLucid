@@ -8,8 +8,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
-import { Badge } from "@/components/ui/badge";
+import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,6 +42,7 @@ import {
   rejectRequest,
   submitApprovalRequest,
 } from "@/lib/api";
+import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -97,32 +97,6 @@ const ENV_OPTIONS = [
 type ToastState = { kind: "ok" | "err"; message: string } | null;
 
 type PendingReview = { approvalRequestId: string; mode: "approve" | "reject" };
-
-function statusBadgeClass(status: string): string {
-  switch (status) {
-    case "Submitted":
-      return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
-    case "Approved":
-      return "border-transparent bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:hover:bg-emerald-600/90";
-    case "Rejected":
-      return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
-    case "Promoted":
-      return "border-transparent bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90";
-    case "Activated":
-      return "border-transparent bg-teal-600 text-white hover:bg-teal-600/90 dark:bg-teal-600 dark:hover:bg-teal-600/90";
-    case "Draft":
-    default:
-      return "border-oklch(0.922 0 0) bg-oklch(0.97 0 0) text-oklch(0.205 0 0) dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.269 0 0) dark:text-oklch(0.985 0 0)";
-  }
-}
-
-function GovernanceStatusBadge({ status }: { status: string }) {
-  return (
-    <Badge className={cn("text-xs font-semibold", statusBadgeClass(status))} variant="outline">
-      {status}
-    </Badge>
-  );
-}
 
 function GovernanceWorkflowPageInner() {
   const searchParams = useSearchParams();
@@ -655,7 +629,7 @@ function GovernanceWorkflowPageInner() {
                   </CardTitle>
                   <CardDescription className="font-mono text-xs">{row.approvalRequestId}</CardDescription>
                 </div>
-                <GovernanceStatusBadge status={row.status} />
+                <StatusPill status={row.status} domain="governance" className="text-xs" />
               </CardHeader>
               <CardContent className="grid gap-2 text-sm">
                 <div>

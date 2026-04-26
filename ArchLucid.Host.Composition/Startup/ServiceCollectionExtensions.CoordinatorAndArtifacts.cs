@@ -24,7 +24,6 @@ using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Reads;
 

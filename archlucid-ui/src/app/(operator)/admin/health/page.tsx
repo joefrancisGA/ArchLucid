@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { StatusPill } from "@/components/StatusPill";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,24 +16,6 @@ import {
   type CircuitGateRow,
 } from "@/lib/health-dashboard-types";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-function statusBadgeClass(status: string): string {
-  const s = status.toLowerCase();
-  if (s === "healthy" || s === "closed") {
-    return "border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100";
-  }
-  if (s === "degraded" || s === "halfopen") {
-    return "border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-100";
-  }
-  if (s === "unhealthy" || s === "open") {
-    return "border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100";
-  }
-  return "border-neutral-300 bg-neutral-100 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100";
-}
-
-function largeOverallClass(status: string): string {
-  return `inline-flex items-center rounded-lg border px-4 py-2 text-lg font-semibold ${statusBadgeClass(status)}`;
-}
 
 /**
  * In-app diagnostics: readiness (`/health/ready`), authenticated circuit data (`/health`), build identity (`/version`),
@@ -123,9 +106,14 @@ export default function AdminHealthPage() {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">System health</h1>
           <ContextualHelp helpKey="system-health" />
-          <span className={largeOverallClass(overall)} data-testid="admin-health-overall-badge">
-            {overall}
-          </span>
+          <StatusPill
+            status={overall}
+            domain="health"
+            uppercase={false}
+            className="rounded-lg border px-4 py-2 text-lg font-semibold"
+            data-testid="admin-health-overall-badge"
+            ariaLabel={`Overall readiness: ${overall}`}
+          />
         </div>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">API readiness, circuit breakers, and in-process onboarding counters for this deployment.</p>
         <div className="mt-3">
@@ -176,9 +164,14 @@ export default function AdminHealthPage() {
                       return (
                         <tr key={e.name} className="border-b border-neutral-100 dark:border-neutral-800">
                           <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{e.name}</td>
-                          <td className="py-2 pr-3">
-                            <span className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(e.status)}`}>{e.status}</span>
-                          </td>
+                        <td className="py-2 pr-3">
+                          <StatusPill
+                            status={e.status}
+                            domain="health"
+                            uppercase={false}
+                            className="rounded-md px-2 py-0.5 text-xs font-medium"
+                          />
+                        </td>
                           <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-400">
                             {durationMs !== null ? `${Math.round(durationMs)} ms` : "—"}
                           </td>
@@ -225,9 +218,12 @@ export default function AdminHealthPage() {
                       <tr key={g.name} className="border-b border-neutral-100 dark:border-neutral-800">
                         <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{g.name}</td>
                         <td className="py-2 pr-3">
-                          <span className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(g.state)}`}>
-                            {g.state}
-                          </span>
+                          <StatusPill
+                            status={g.state}
+                            domain="health"
+                            uppercase={false}
+                            className="rounded-md px-2 py-0.5 text-xs font-medium"
+                          />
                         </td>
                         <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">
                           {g.breakDurationSeconds != null && Number.isFinite(g.breakDurationSeconds) ? String(g.breakDurationSeconds) : "—"}

@@ -2,8 +2,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;

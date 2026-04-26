@@ -2,8 +2,6 @@ using System.Text.Json;
 
 using ArchLucid.Application.GoldenCohort;
 
-using Xunit;
-
 namespace ArchLucid.Application.Tests.GoldenCohort;
 
 /// <summary>
