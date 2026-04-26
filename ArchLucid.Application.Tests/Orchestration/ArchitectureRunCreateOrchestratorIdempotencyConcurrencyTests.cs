@@ -133,12 +133,12 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                     Guid tenant,
                     Guid workspace,
                     Guid project,
-                    byte[] _keyHash,
+                    byte[] keyHash,
                     byte[] _fingerprint,
                     string rid,
-                    CancellationToken _ct,
-                    IDbConnection? _conn,
-                    IDbTransaction? _tx) =>
+                    CancellationToken ct,
+                    IDbConnection? conn,
+                    IDbTransaction? tx) =>
                 {
                     Volatile.Write(ref publishedWinnerRunId, rid);
                     return Task.FromResult(true);

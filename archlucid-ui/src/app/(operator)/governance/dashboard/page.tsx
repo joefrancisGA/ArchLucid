@@ -14,9 +14,7 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
@@ -25,6 +23,11 @@ import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import {
+  approvalRequestPrimaryLabel,
+  GovernanceApprovalInspectorPreview,
+} from "@/components/GovernanceApprovalInspectorPreview";
+import { InspectorPanel } from "@/components/InspectorPanel";
 import {
   approveRequest,
   getComplianceDriftTrend,
@@ -53,6 +56,7 @@ import {
   governanceWorkflowRejectButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type {
@@ -62,6 +66,7 @@ import type {
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 import { useNavSurface } from "@/lib/use-nav-surface";
+import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 
 const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
 
@@ -102,6 +107,12 @@ export default function GovernanceDashboardPage() {
   const [selectedApprovalIds, setSelectedApprovalIds] = useState<Set<string>>(() => new Set());
   const [batchDialog, setBatchDialog] = useState<null | { mode: "approve" | "reject" }>(null);
   const [batchBusy, setBatchBusy] = useState(false);
+  const [selectedApproval, setSelectedApproval] = useState<GovernanceApprovalRequest | null>(null);
+  const viewportNarrow = useViewportNarrow();
+
+  const closeApprovalInspector = useCallback(() => {
+    setSelectedApproval(null);
+  }, []);
 
   const loadDashboard = useCallback(async (isInitial: boolean) => {
     if (isInitial) {
@@ -205,6 +216,60 @@ export default function GovernanceDashboardPage() {
     });
   }
 
+  useEffect(() => {
+    if (selectedApproval === null) {
+      return;
+    }
+
+    const exists = pending.some((r) => r.approvalRequestId === selectedApproval.approvalRequestId);
+
+    if (!exists) {
+      setSelectedApproval(null);
+    }
+  }, [pending, selectedApproval]);
+
+  useEffect(() => {
+    if (selectedApproval === null) {
+      return;
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        closeApprovalInspector();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedApproval, closeApprovalInspector]);
+
+  const activatePendingRow = useCallback((row: GovernanceApprovalRequest, e: React.MouseEvent<HTMLTableRowElement>) => {
+    if ((e.target as HTMLElement).closest("a,button,input,label")) {
+      return;
+    }
+
+    setSelectedApproval(row);
+  }, []);
+
+  const activatePendingRowFromKeyboard = useCallback(
+    (e: React.KeyboardEvent<HTMLTableRowElement>, row: GovernanceApprovalRequest) => {
+      if (e.key !== "Enter" && e.key !== " ") {
+        return;
+      }
+
+      if ((e.target as HTMLElement).closest("a,button,input,label")) {
+        return;
+      }
+
+      e.preventDefault();
+      setSelectedApproval(row);
+    },
+    [],
+  );
+
   async function onConfirmDashboardReview() {
     if (reviewDialog === null) {
       return;
@@ -303,8 +368,20 @@ export default function GovernanceDashboardPage() {
     }
   }
 
+  const approvalInspectorTitle =
+    selectedApproval === null ? "Request preview" : approvalRequestPrimaryLabel(selectedApproval);
+
+  const approvalInspectorBody =
+    selectedApproval === null ? (
+      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="gov-approval-inspector-empty">
+        Select a pending approval to preview details here.
+      </p>
+    ) : (
+      <GovernanceApprovalInspectorPreview request={selectedApproval} />
+    );
+
   return (
-    <main className="mx-auto max-w-4xl px-1 sm:px-0">
+    <main className="mx-auto max-w-6xl px-1 sm:px-0">
       <LayerHeader pageKey="governance-dashboard" />
       <div className="mb-0 flex flex-wrap items-center gap-2">
         <h2 className="m-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
@@ -478,109 +555,209 @@ export default function GovernanceDashboardPage() {
                 ) : null}
               </OperatorEmptyState>
             ) : (
-              <div className="grid gap-4">
-                {pending.map((row: GovernanceApprovalRequest) => (
-                  <Card key={row.approvalRequestId} className="border-l-4 border-l-amber-500">
-                    <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-                      <div className="flex min-w-0 flex-1 flex-wrap items-start gap-3">
-                        {(row.status === "Submitted" || row.status === "Draft") ? (
-                          <input
-                            type="checkbox"
-                            className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 dark:border-neutral-600"
-                            checked={selectedApprovalIds.has(row.approvalRequestId)}
-                            onChange={() => {
-                              toggleOne(row.approvalRequestId);
-                            }}
-                            disabled={!canMutateGovernance}
-                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
-                            aria-label={`Select approval request for run ${row.runId}`}
+              <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
+                <div className={cn("min-w-0 flex-1", !viewportNarrow && "lg:min-w-0")}>
+                  <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
+                          <th
+                            className="w-10 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                            aria-label="Selection"
                           />
-                        ) : null}
-                        <div className="min-w-0">
-                        <CardTitle className="text-base font-semibold">
-                          <span className="font-mono text-sm">{row.runId}</span>
-                          <span className="mx-1 text-neutral-400">·</span>
-                          {row.sourceEnvironment} → {row.targetEnvironment}
-                        </CardTitle>
-                        <CardDescription>
-                          Manifest <code className="text-xs">{row.manifestVersion}</code>
-                        </CardDescription>
-                        </div>
-                      </div>
-                      <StatusPill status={row.status} domain="governance" className="text-xs" />
-                    </CardHeader>
-                    <CardContent className="grid gap-2 text-sm">
-                      <div>
-                        <span className="text-neutral-500 dark:text-neutral-400">Requested by</span>{" "}
-                        {row.requestedBy}
-                      </div>
-                      <div>
-                        <span className="text-neutral-500 dark:text-neutral-400">Requested</span>{" "}
-                        {formatIsoUtcForDisplay(row.requestedUtc)}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-wrap gap-2">
-                      <Button type="button" size="sm" variant="outline" asChild>
-                        <Link
-                          href={`/governance/approval-requests/${encodeURIComponent(row.approvalRequestId)}/lineage`}
-                          title={governanceDashboardLineageLinkTitle}
-                        >
-                          Lineage
-                        </Link>
-                      </Button>
-                      {(row.status === "Submitted" || row.status === "Draft") && (
-                        <>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant={canMutateGovernance ? "secondary" : "outline"}
-                            disabled={!canMutateGovernance}
-                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
-                            onClick={() =>
-                              setReviewDialog({
-                                mode: "approve",
-                                approvalRequestId: row.approvalRequestId,
-                                runId: row.runId,
-                              })
-                            }
-                          >
-                            {canMutateGovernance ? "Approve" : governanceWorkflowApproveButtonLabelReaderRank}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            disabled={!canMutateGovernance}
-                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
-                            onClick={() =>
-                              setReviewDialog({
-                                mode: "reject",
-                                approvalRequestId: row.approvalRequestId,
-                                runId: row.runId,
-                              })
-                            }
-                          >
-                            {canMutateGovernance ? "Reject" : governanceWorkflowRejectButtonLabelReaderRank}
-                          </Button>
-                        </>
-                      )}
-                      <Button
-                        type="button"
-                        size="sm"
-                        title={
-                          canMutateGovernance
-                            ? governanceDashboardOpenWorkflowReviewTitleOperator
-                            : governanceDashboardOpenWorkflowReviewTitleReader
-                        }
-                        onClick={() => navigateToWorkflowReview(router, row.runId)}
-                      >
-                        Review
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Request
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Status
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Requested
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                        {pending.map((row: GovernanceApprovalRequest) => {
+                          const requestedFull = formatIsoUtcForDisplay(row.requestedUtc);
+                          const isSelected = selectedApproval?.approvalRequestId === row.approvalRequestId;
+
+                          return (
+                            <tr
+                              key={row.approvalRequestId}
+                              data-testid={`gov-pending-row-${row.approvalRequestId}`}
+                              tabIndex={0}
+                              className={cn(
+                                "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+                                isSelected
+                                  ? "bg-teal-50/80 dark:bg-teal-950/30"
+                                  : "hover:bg-neutral-50 dark:hover:bg-neutral-800",
+                              )}
+                              onClick={(e) => {
+                                activatePendingRow(row, e);
+                              }}
+                              onKeyDown={(e) => {
+                                activatePendingRowFromKeyboard(e, row);
+                              }}
+                            >
+                              <td className="px-3 py-2 align-top">
+                                {row.status === "Submitted" || row.status === "Draft" ? (
+                                  <input
+                                    type="checkbox"
+                                    className="mt-1 h-4 w-4 rounded border-neutral-300 dark:border-neutral-600"
+                                    checked={selectedApprovalIds.has(row.approvalRequestId)}
+                                    onChange={() => {
+                                      toggleOne(row.approvalRequestId);
+                                    }}
+                                    disabled={!canMutateGovernance}
+                                    title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
+                                    aria-label={`Select approval request for run ${row.runId}`}
+                                  />
+                                ) : null}
+                              </td>
+                              <td className="max-w-[min(100vw,22rem)] px-3 py-2 align-top">
+                                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                  <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                                    {approvalRequestPrimaryLabel(row)}
+                                  </span>
+                                </div>
+                                <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                  Manifest <code className="text-xs">{row.manifestVersion}</code>
+                                </p>
+                                <Link
+                                  href={`/runs/${encodeURIComponent(row.runId)}`}
+                                  className="mt-1 inline-block break-all font-mono text-xs text-teal-800 underline dark:text-teal-300"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  {row.runId}
+                                </Link>
+                                <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                  Requested by <span className="text-neutral-700 dark:text-neutral-200">{row.requestedBy}</span>
+                                </p>
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-2 align-top">
+                                <StatusPill status={row.status} domain="governance" className="text-xs" />
+                              </td>
+                              <td
+                                className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
+                                title={requestedFull}
+                              >
+                                {formatRelativeTime(row.requestedUtc)}
+                              </td>
+                              <td className="px-3 py-2 align-top">
+                                <div className="flex max-w-[14rem] flex-wrap gap-2">
+                                  <Button type="button" size="sm" variant="outline" asChild>
+                                    <Link
+                                      href={`/governance/approval-requests/${encodeURIComponent(row.approvalRequestId)}/lineage`}
+                                      title={governanceDashboardLineageLinkTitle}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      Lineage
+                                    </Link>
+                                  </Button>
+                                  {row.status === "Submitted" || row.status === "Draft" ? (
+                                    <>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant={canMutateGovernance ? "secondary" : "outline"}
+                                        disabled={!canMutateGovernance}
+                                        title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setReviewDialog({
+                                            mode: "approve",
+                                            approvalRequestId: row.approvalRequestId,
+                                            runId: row.runId,
+                                          });
+                                        }}
+                                      >
+                                        {canMutateGovernance ? "Approve" : governanceWorkflowApproveButtonLabelReaderRank}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        disabled={!canMutateGovernance}
+                                        title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setReviewDialog({
+                                            mode: "reject",
+                                            approvalRequestId: row.approvalRequestId,
+                                            runId: row.runId,
+                                          });
+                                        }}
+                                      >
+                                        {canMutateGovernance ? "Reject" : governanceWorkflowRejectButtonLabelReaderRank}
+                                      </Button>
+                                    </>
+                                  ) : null}
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    title={
+                                      canMutateGovernance
+                                        ? governanceDashboardOpenWorkflowReviewTitleOperator
+                                        : governanceDashboardOpenWorkflowReviewTitleReader
+                                    }
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigateToWorkflowReview(router, row.runId);
+                                    }}
+                                  >
+                                    Review
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {!viewportNarrow ? (
+                  <InspectorPanel
+                    title={approvalInspectorTitle}
+                    onClose={closeApprovalInspector}
+                    listenEscape={false}
+                    className="mt-4 hidden min-h-[14rem] shrink-0 lg:mt-0 lg:flex"
+                  >
+                    {approvalInspectorBody}
+                  </InspectorPanel>
+                ) : null}
               </div>
             )}
+
+            {viewportNarrow && selectedApproval !== null ? (
+              <div className="fixed inset-0 z-40 flex justify-end" role="presentation">
+                <button
+                  type="button"
+                  className="absolute inset-0 bg-black/40"
+                  aria-label="Dismiss request inspector backdrop"
+                  onClick={closeApprovalInspector}
+                />
+                <div className="animate-in slide-in-from-right relative h-full w-full max-w-sm duration-200 ease-out">
+                  <InspectorPanel
+                    title={approvalInspectorTitle}
+                    onClose={closeApprovalInspector}
+                    listenEscape={false}
+                    className="h-full max-w-sm border-l-0 shadow-xl sm:border-l"
+                    widthClassName="w-full"
+                  >
+                    {approvalInspectorBody}
+                  </InspectorPanel>
+                </div>
+              </div>
+            ) : null}
           </section>
 
           <div className="flex flex-col">
@@ -597,37 +774,75 @@ export default function GovernanceDashboardPage() {
                 <p className="text-sm">Approved, rejected, and promoted rows will appear here.</p>
               </OperatorEmptyState>
             ) : (
-              <div className="relative grid gap-4 border-l-2 border-neutral-200 pl-4 dark:border-neutral-700">
-                {decisions.map((row: GovernanceApprovalRequest) => (
-                  <Card key={row.approvalRequestId} className="relative">
-                    <div
-                      className="absolute -left-[calc(0.5rem+2px)] top-6 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-neutral-200 bg-background dark:border-neutral-600"
-                      aria-hidden
-                    />
-                    <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0 pb-2">
-                      <div>
-                        <CardTitle className="text-base font-semibold">
-                          <span className="font-mono text-sm">{row.runId}</span>
-                        </CardTitle>
-                        <CardDescription>
-                          {row.reviewedUtc ? formatIsoUtcForDisplay(row.reviewedUtc) : "—"}
-                        </CardDescription>
-                      </div>
-                      <StatusPill status={row.status} domain="governance" className="text-xs" />
-                    </CardHeader>
-                    <CardContent className="grid gap-2 text-sm">
-                      <div>
-                        <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span>{" "}
-                        {row.reviewedBy ?? "—"}
-                      </div>
-                      {row.reviewComment ? (
-                        <div>
-                          <span className="text-neutral-500 dark:text-neutral-400">Comment</span> {row.reviewComment}
-                        </div>
-                      ) : null}
-                    </CardContent>
-                  </Card>
-                ))}
+              <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Request
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Status
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Reviewed
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Reviewer
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                    {decisions.map((row: GovernanceApprovalRequest) => {
+                      const reviewedFull =
+                        row.reviewedUtc !== null && row.reviewedUtc.length > 0
+                          ? formatIsoUtcForDisplay(row.reviewedUtc)
+                          : null;
+
+                      return (
+                        <tr
+                          key={row.approvalRequestId}
+                          data-testid={`gov-decision-row-${row.approvalRequestId}`}
+                          className="hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                        >
+                          <td className="max-w-[min(100vw,22rem)] px-3 py-2 align-top">
+                            <div className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                              {approvalRequestPrimaryLabel(row)}
+                            </div>
+                            <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                              Manifest <code className="text-xs">{row.manifestVersion}</code>
+                            </p>
+                            <Link
+                              href={`/runs/${encodeURIComponent(row.runId)}`}
+                              className="mt-1 inline-block break-all font-mono text-xs text-teal-800 underline dark:text-teal-300"
+                            >
+                              {row.runId}
+                            </Link>
+                            {row.reviewComment !== null && row.reviewComment.trim().length > 0 ? (
+                              <p className="m-0 mt-1 line-clamp-2 text-xs text-neutral-600 dark:text-neutral-400">
+                                {row.reviewComment}
+                              </p>
+                            ) : null}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 align-top">
+                            <StatusPill status={row.status} domain="governance" className="text-xs" />
+                          </td>
+                          <td
+                            className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
+                            title={reviewedFull ?? undefined}
+                          >
+                            {row.reviewedUtc !== null && row.reviewedUtc.length > 0
+                              ? formatRelativeTime(row.reviewedUtc)
+                              : "—"}
+                          </td>
+                          <td className="px-3 py-2 align-top text-xs text-neutral-700 dark:text-neutral-300">
+                            {row.reviewedBy ?? "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </section>
@@ -660,26 +875,38 @@ export default function GovernanceDashboardPage() {
               </OperatorEmptyState>
             ) : (
               <div className="grid gap-3">
-                {changes.map((c) => (
-                  <Card key={c.changeLogId}>
-                    <CardHeader className="pb-2">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <CardTitle className="text-base font-medium">{c.changeType}</CardTitle>
-                        <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">
-                          {c.policyPackId}
-                        </span>
-                      </div>
-                      <CardDescription>
-                        {c.changedBy} · {formatIsoUtcForDisplay(c.changedUtc)}
-                      </CardDescription>
-                    </CardHeader>
-                    {c.summaryText ? (
-                      <CardContent className="pt-0 text-sm text-neutral-700 dark:text-neutral-300">
-                        {c.summaryText}
-                      </CardContent>
-                    ) : null}
-                  </Card>
-                ))}
+                {changes.map((c) => {
+                  const changedFull = formatIsoUtcForDisplay(c.changedUtc);
+
+                  return (
+                    <Card key={c.changeLogId} className="border-neutral-200 dark:border-neutral-800">
+                      <CardHeader className="pb-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <StatusPill
+                            status={c.changeType}
+                            domain="general"
+                            uppercase={false}
+                            className="max-w-full text-xs"
+                            ariaLabel={`Change type: ${c.changeType}`}
+                          />
+                          <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">
+                            {c.policyPackId}
+                          </span>
+                        </div>
+                        <CardDescription className="mt-1">
+                          <span title={changedFull}>{formatRelativeTime(c.changedUtc)}</span>
+                          <span className="text-neutral-400"> · </span>
+                          {c.changedBy}
+                        </CardDescription>
+                      </CardHeader>
+                      {c.summaryText ? (
+                        <CardContent className="pt-0 text-sm text-neutral-700 dark:text-neutral-300">
+                          {c.summaryText}
+                        </CardContent>
+                      ) : null}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </section>

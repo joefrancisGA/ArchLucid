@@ -10,6 +10,7 @@ import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { CommandCenterSection } from "@/components/operator-home/CommandCenterSection";
 import { OperatorHomeGlossarySections } from "@/components/operator-home/OperatorHomeGlossarySections";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
@@ -40,6 +41,8 @@ export default function HomePage() {
       <OperatorFirstRunWorkflowPanel />
 
       <AfterCorePilotChecklistHint />
+
+      <CommandCenterSection />
 
       {/* Advanced Analysis — optional maturity; not first-pilot requirements */}
       <section className="mt-6" aria-labelledby="advanced-analysis-heading">

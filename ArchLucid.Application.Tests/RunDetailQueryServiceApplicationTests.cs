@@ -84,7 +84,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
-        detail!.Manifest.Should().BeNull();
+        detail.Manifest.Should().BeNull();
         detail.HasBrokenManifestReference.Should().BeTrue();
         authorityTraceRepo.Verify(
             t => t.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
@@ -163,7 +163,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
-        detail!.HasBrokenManifestReference.Should().BeFalse();
+        detail.HasBrokenManifestReference.Should().BeFalse();
         detail.DecisionTraces.Should().HaveCount(1);
     }
 }

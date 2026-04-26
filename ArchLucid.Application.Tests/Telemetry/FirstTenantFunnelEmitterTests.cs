@@ -25,7 +25,10 @@ public sealed class FirstTenantFunnelEmitterTests
     [Fact]
     public async Task Emit_DefaultFlag_RecordsAggregatedCounterWithoutTenantTagAndDoesNotPersistRow()
     {
-        FirstTenantFunnelOptions options = new() { PerTenantEmission = false };
+        FirstTenantFunnelOptions options = new()
+        {
+            PerTenantEmission = false
+        };
         RecordingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
@@ -46,7 +49,10 @@ public sealed class FirstTenantFunnelEmitterTests
     [Fact]
     public async Task Emit_FlagOn_RecordsTenantTagAndPersistsRow()
     {
-        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
+        FirstTenantFunnelOptions options = new()
+        {
+            PerTenantEmission = true
+        };
         RecordingFirstTenantFunnelEventStore store = new();
         DateTime now = new(2026, 4, 24, 12, 0, 0, DateTimeKind.Utc);
         FakeTimeProvider clock = new(now);
@@ -72,7 +78,10 @@ public sealed class FirstTenantFunnelEmitterTests
     [Fact]
     public async Task Emit_FlagOnButStoreFails_StillRecordsAggregatedCounterAndDoesNotThrow()
     {
-        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
+        FirstTenantFunnelOptions options = new()
+        {
+            PerTenantEmission = true
+        };
         ThrowingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
@@ -99,12 +108,15 @@ public sealed class FirstTenantFunnelEmitterTests
     [Fact]
     public async Task Emit_FlagOnAndCancelled_PropagatesCancellation()
     {
-        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
+        FirstTenantFunnelOptions options = new()
+        {
+            PerTenantEmission = true
+        };
         CancellingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = () => emitter.EmitAsync(
             FirstTenantFunnelEventNames.ThirtyMinuteMilestone,
@@ -211,5 +223,6 @@ public sealed class FirstTenantFunnelEmitterTests
         public void Dispose() => _listener.Dispose();
     }
 
+    // ReSharper disable once NotAccessedPositionalProperty.Local
     private sealed record RecordedMeasurement(long Value, IReadOnlyDictionary<string, string> Tags);
 }
