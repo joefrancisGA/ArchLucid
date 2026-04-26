@@ -26,36 +26,34 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         HttpClient client,
         object body,
         string idempotencyKey,
-        int parallel)
+        int parallel,
+        CancellationToken cancellationToken = default)
     {
-        // Default HttpClient.Timeout is 100s. A parallel burst waits on Task.WhenAll — cold CI SQL + greenfield DbUp +
-        // sp_getapplock contention can exceed that per slot, surfacing as TaskCanceledException during response buffering.
-        TimeSpan savedTimeout = client.Timeout;
+        // Per-operation timeout: cannot assign HttpClient.Timeout after the first request (runtime throws). Cold CI
+        // SQL + DbUp + sp_getapplock can exceed 100s per slot, so use a long linked token for parallel bursts.
+        TimeSpan operationTimeout = parallel > 1 ? TimeSpan.FromMinutes(6) : TimeSpan.FromSeconds(100);
 
-        if (parallel > 1)
-            client.Timeout = TimeSpan.FromMinutes(6);
+        using CancellationTokenSource timeoutCts = new();
+        timeoutCts.CancelAfter(operationTimeout);
 
-        try
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken, timeoutCts.Token);
+        CancellationToken ct = linked.Token;
+
+        Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+
+        for (int i = 0; i < parallel; i++)
         {
-            Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
-
-            for (int i = 0; i < parallel; i++)
+            HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
             {
-                HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-                {
-                    Content = JsonContent(body)
-                };
+                Content = JsonContent(body)
+            };
 
-                request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
-                tasks[i] = client.SendAsync(request);
-            }
+            request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+            tasks[i] = client.SendAsync(request, ct);
+        }
 
-            return await Task.WhenAll(tasks);
-        }
-        finally
-        {
-            client.Timeout = savedTimeout;
-        }
+        return await Task.WhenAll(tasks);
     }
 
     internal static async Task<HttpResponseMessage> PostSingleArchitectureRequestAsync(
@@ -119,7 +117,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     {
         int delayMilliseconds = initialDelayMilliseconds;
         HttpResponseMessage[] responses =
-            await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+            await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel, cancellationToken);
 
         for (int attempt = 0;
              attempt < maxAttempts - 1 && responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable);
@@ -128,7 +126,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             DisposeAll(responses);
             await Task.Delay(delayMilliseconds, cancellationToken);
             delayMilliseconds = Math.Min(delayMilliseconds * 2, 4000);
-            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel, cancellationToken);
         }
 
         return responses;

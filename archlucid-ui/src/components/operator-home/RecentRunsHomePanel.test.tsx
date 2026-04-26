@@ -63,7 +63,7 @@ describe("RecentRunsHomePanel", () => {
     render(<RecentRunsHomePanel />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No runs yet/i)).toBeInTheDocument();
+      expect(screen.getByText(/No architecture runs yet/i)).toBeInTheDocument();
     });
   });
 });

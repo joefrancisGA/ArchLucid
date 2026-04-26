@@ -95,8 +95,7 @@ function RunsNeedingAttentionCard() {
           Runs needing attention
         </CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Ready for commit (findings without manifest) on the first page for project{" "}
-          <code className="text-[11px]">{DEFAULT_PROJECT_ID}</code>.
+          Runs with findings that have not yet been committed.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -116,24 +115,31 @@ function RunsNeedingAttentionCard() {
 
         {phase === "ready" ? (
           <>
-            <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-              {attention.length} on this page snapshot
-            </p>
             {attention.length === 0 ? (
               <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                All runs are committed. Create a new run or wait for pipeline results.
+                No runs currently need attention. All runs are committed — create a new run or wait for pipeline results.
               </p>
             ) : (
-              <ul className="m-0 list-none space-y-2 p-0">
-                {preview.map((run) => (
-                  <li key={run.runId} className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800">
-                    <span className="min-w-0 flex-1 text-xs font-medium text-neutral-900 dark:text-neutral-100">
-                      {runListPrimaryTitle(run)}
-                    </span>
-                    <RunStatusBadge run={run} className="text-[0.6rem]" />
-                  </li>
-                ))}
-              </ul>
+              <>
+                <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                  {attention.length === 1
+                    ? "1 run needs attention."
+                    : `${attention.length} runs need attention.`}
+                </p>
+                <ul className="m-0 list-none space-y-2 p-0">
+                  {preview.map((run) => (
+                    <li
+                      key={run.runId}
+                      className="flex flex-wrap items-start gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                    >
+                      <span className="min-w-0 flex-1 text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                        {runListPrimaryTitle(run)}
+                      </span>
+                      <RunStatusBadge run={run} className="text-[0.6rem]" />
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
             <Link
               href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
@@ -263,7 +269,7 @@ function SystemHealthCommandCard() {
     >
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
         <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">System health</CardTitle>
-        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">Anonymous readiness summary from the API.</p>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">Platform services availability.</p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
         {phase === "loading" ? (
@@ -301,7 +307,7 @@ function SystemHealthCommandCard() {
 export function CommandCenterSection() {
   return (
     <section className="mt-6" aria-labelledby="workspace-status-heading">
-      <h3 id="workspace-status-heading" className="mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 id="workspace-status-heading" className="mb-3 text-base font-bold text-neutral-900 dark:text-neutral-100">
         Workspace status
       </h3>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
