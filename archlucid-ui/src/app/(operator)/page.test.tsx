@@ -5,10 +5,15 @@ vi.mock("next/link", () => ({
   default: ({
     href,
     children,
+    ...rest
   }: {
     href: string;
     children: import("react").ReactNode;
-  }) => <a href={href}>{children}</a>,
+  } & Record<string, unknown>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
@@ -62,5 +67,11 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByText("View Runs")).toBeInTheDocument();
     expect(screen.getByText("Commit Run")).toBeInTheDocument();
     expect(screen.getByText("Review Artifacts")).toBeInTheDocument();
+  });
+
+  it("exposes primary workflow destinations matching shell review paths", () => {
+    render(<HomePage />);
+
+    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
   });
 });
