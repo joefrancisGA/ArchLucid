@@ -8,7 +8,8 @@
 # and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
 # This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
 # Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
-# Container Apps deploy uses `registry/repo@sha256:<digest>` from build-push when available, plus `CD_DEPLOY_RUN`, so ACA always targets the pushed manifest.
+# Container Apps deploy uses `registry/repo@sha256:<digest>` when build-push exports a digest, plus `CD_DEPLOY_RUN` and
+# a unique `--revision-suffix`, so ACA creates a new revision and ingress can pin to that revision (not a stale `show`).
 name: CD staging on merge
 
 on:
@@ -165,33 +166,55 @@ jobs:
             fi
           fi
           DEPLOY_STAMP="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT:-1}"
+          REV_SFX="r${GITHUB_RUN_ID}a${GITHUB_RUN_ATTEMPT:-1}"
           echo "Deploy API image: ${API_IMAGE}"
-          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+          A_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE" \
+            --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+            --query "properties.latestRevisionName" -o tsv)
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
-            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+            W_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE" \
+              --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              --query "properties.latestRevisionName" -o tsv)
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${UI_IMAGE}" ]; then
             echo "Deploy UI image: ${UI_IMAGE}"
-            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP"
+            U_LATEST=$(az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE" \
+              --revision-suffix "$REV_SFX" --set-env-vars "CD_DEPLOY_RUN=$DEPLOY_STAMP" \
+              --query "properties.latestRevisionName" -o tsv)
           fi
-          A_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
           if [ -n "${A_LATEST:-}" ]; then
             az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision-weight "${A_LATEST}=100" \
               || echo "API: ingress traffic set skipped."
           fi
           if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
-            W_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
             if [ -n "${W_LATEST:-}" ]; then
               az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision-weight "${W_LATEST}=100" \
                 || echo "Worker: ingress traffic set skipped."
             fi
           fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
-            U_LATEST=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --query "properties.latestRevisionName" -o tsv)
             if [ -n "${U_LATEST:-}" ]; then
               az containerapp ingress traffic set -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --revision-weight "${U_LATEST}=100" \
                 || echo "UI: ingress traffic set skipped."
             fi
+          fi
+
+          echo ""
+          echo "Post-deploy revision verification (template image resolved for the revision we just updated)"
+          if [ -n "${A_LATEST:-}" ]; then
+            A_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$A_LATEST" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "Post-deploy API: revision=${A_LATEST} image=${A_IMG}"
+          fi
+          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ] && [ -n "${W_LATEST:-}" ]; then
+            W_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$W_LATEST" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "Post-deploy worker: revision=${W_LATEST} image=${W_IMG}"
+          fi
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ] && [ -n "${U_LATEST:-}" ]; then
+            U_IMG=$(az containerapp revision show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --revision "$U_LATEST" \
+              --query "properties.template.containers[0].image" -o tsv)
+            echo "Post-deploy UI: revision=${U_LATEST} image=${U_IMG}"
           fi
 
       - name: Post-deploy validation (health, readiness, OpenAPI, version)
