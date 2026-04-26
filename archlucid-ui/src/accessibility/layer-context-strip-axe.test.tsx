@@ -11,7 +11,8 @@ describe("LayerContextStrip — axe (Vitest)", () => {
     [
       { id: "pilot" as const },
       { id: "operate-analysis" as const },
-      { id: "operate-governance" as const }
+      { id: "operate-governance" as const },
+      { id: "operator-admin" as const }
     ] as const
   )("has no accessibility violations for $id (landmark, contrast heuristics)", async ({ id }) => {
     const { container, unmount } = render(<LayerContextStrip layerId={id} />);

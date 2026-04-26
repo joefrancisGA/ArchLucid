@@ -21,6 +21,12 @@ const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: stri
     question: "How do we govern, audit, and operationalize architecture decisions?",
     strip: "bg-amber-50/80 border-b border-amber-200/60 dark:border-amber-900/40 dark:bg-amber-950/25",
     labelClass: "text-amber-900 dark:text-amber-200"
+  },
+  "operator-admin": {
+    label: "Admin",
+    question: "How do we configure the tenant, cost visibility, and access for this workspace?",
+    strip: "bg-violet-50/80 border-b border-violet-200/60 dark:border-violet-900/40 dark:bg-violet-950/25",
+    labelClass: "text-violet-900 dark:text-violet-200"
   }
 };
 
@@ -35,7 +41,8 @@ export type LayerContextStripProps = {
  */
 export function LayerContextStrip({ layerId, className }: LayerContextStripProps) {
   const copy = LAYER_COPY[layerId];
-  const isOperate = layerId === "operate-analysis" || layerId === "operate-governance";
+  const isOperate =
+    layerId === "operate-analysis" || layerId === "operate-governance" || layerId === "operator-admin";
 
   return (
     <div

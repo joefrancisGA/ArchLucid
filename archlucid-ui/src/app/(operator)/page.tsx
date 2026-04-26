@@ -61,7 +61,7 @@ export default function HomePage() {
                 <LayerCard
                   icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
                   title="Advanced Analysis"
-                  items={["Compare runs", "Replay", "Graph", "Ask", "Advisory"]}
+                  items={["Compare runs", "Replay", "Graph", "Ask", "Architecture advisory"]}
                   href="/compare"
                 />
                 <LayerCard

@@ -204,20 +204,7 @@ export function SidebarNav() {
         );
       })}
 
-      <div className="mt-2 space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        <Button
-          type="button"
-          variant={showExtended ? "secondary" : "outline"}
-          size="sm"
-          className="w-full justify-center text-xs"
-          title={NAV_DISCLOSURE.extended.title}
-          onClick={() => {
-            setShowExtended(!showExtended);
-          }}
-        >
-          {showExtended ? NAV_DISCLOSURE.extended.hide : NAV_DISCLOSURE.extended.show}
-        </Button>
-
+      <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button
           type="button"
           variant="ghost"
@@ -248,8 +235,9 @@ export function SidebarNav() {
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  <strong>Advanced Analysis:</strong> compare, replay, graph, advisory, pilot feedback,
-                  recommendation learning.{" "}
+                  <strong>Advanced Analysis:</strong> compare, replay, graph, architecture advisory, pilot feedback,
+                  recommendation tuning.{" "}
+                  <strong>Admin:</strong> tenant cost, baseline and tenant settings.{" "}
                   <strong>Enterprise Controls:</strong> policy packs, governance dashboard, governance resolution.
                 </p>
               </div>

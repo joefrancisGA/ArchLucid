@@ -92,7 +92,7 @@ export default function ProductLearningPage() {
         Scoped rollups from pilot signals: how outputs are trusted, rejected, or revised; recurring artifact patterns; ranked
         improvement ideas; and a merged triage queue. This view is separate from{" "}
         <Link href="/recommendation-learning" className="text-blue-700 dark:text-blue-400">
-          Recommendation learning
+          Recommendation tuning
         </Link>{" "}
         (advisory acceptance weights).
       </p>

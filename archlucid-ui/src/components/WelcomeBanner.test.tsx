@@ -19,7 +19,10 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
     expect(screen.getByRole("heading", { name: "Generate your first architecture manifest" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Run" })).toHaveAttribute("href", "/runs/new");
-    expect(screen.getByRole("link", { name: "Explore demo data" })).toHaveAttribute("href", "/runs?projectId=default");
+    expect(screen.getByRole("link", { name: "See ArchLucid with real data" })).toHaveAttribute(
+      "href",
+      "/runs?projectId=default",
+    );
     expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
   });
 });

@@ -165,7 +165,7 @@ function RecentActivityCommandCard() {
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
         <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Pilot impact</CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Median findings and time-to-commit across recent runs.
+          Findings surfaced and time-to-commit trends across committed runs.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -198,7 +198,8 @@ function RecentActivityCommandCard() {
 
         {status === "ready" && data !== null && data.returnedCount === 0 ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            No data yet. Complete and commit a run to see pilot impact metrics.
+            After your first committed run, this panel will show median findings surfaced and time-to-commit across recent
+            runs.
           </p>
         ) : null}
 
