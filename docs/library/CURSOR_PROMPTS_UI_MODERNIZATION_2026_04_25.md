@@ -435,6 +435,8 @@ Do NOT change existing API endpoints. Do NOT add backend code. This
 is a UI-only improvement that consumes existing or future APIs.
 ```
 
+**Status: shipped.** **Scope:** **`ScopeSwitcher`** in **`AppShellClient`** (breadcrumb row: trail + switcher; **`localStorage`** + **`getEffectiveBrowserProxyScopeHeaders`** → proxy scope headers; **`GET /v1/tenant/workspaces`** with empty/error notes when missing). **Tenant:** **`/settings/tenant`** — trial, digest prefs (existing API), scope summary, tenant display name stub. **Users:** **`/admin/users`** — directory table + read-only note until admin user APIs exist. **Nav:** **`nav-config.ts`** — **`/settings/tenant`** (**`ExecuteAuthority`**), **`operator-admin`** group **`/admin/users`** (**`AdminAuthority`**). **ContextualHelp** on scope, tenant, admin users. **Tests:** **`ScopeSwitcher.test.tsx`**, **`settings/tenant/page.test.tsx`**, **`admin/users/page.test.tsx`**.
+
 ---
 
 ## Prompt 8 — Add in-app diagnostics/health dashboard for operators
