@@ -96,7 +96,6 @@ def main() -> int:
         "ARCHITECTURE_INDEX.md",
         "TROUBLESHOOTING.md",
         "COVERAGE_GAP_ANALYSIS.md",
-        "COVERAGE_GAP_ANALYSIS_RECENT.md",
         "FIRST_5_DOCS.md",
         "FIRST_FIVE_DOCS.md",
         "FIRST_RUN_WIZARD.md",

@@ -87,15 +87,17 @@ export function WelcomeBanner() {
       role="banner"
       aria-label={trialActive ? "Trial welcome" : "Welcome"}
       className={cn(
-        "relative mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-white p-4 pl-5 shadow-sm dark:border-neutral-700 dark:bg-neutral-900",
-        trialActive ? "border-l-4 border-l-amber-600 dark:border-l-amber-500" : "border-l-4 border-l-teal-700 dark:border-l-teal-500",
+        "relative mb-6 rounded-xl border bg-gradient-to-br px-6 py-6 shadow-sm",
+        trialActive
+          ? "border-amber-200 from-amber-50 to-white dark:border-amber-900 dark:from-amber-950/30 dark:to-neutral-900"
+          : "border-teal-200 from-teal-50 to-white dark:border-teal-900 dark:from-teal-950/30 dark:to-neutral-900",
       )}
     >
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute right-2 top-2 h-8 w-8 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+        className="absolute right-3 top-3 h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
         aria-label="Dismiss welcome banner"
         onClick={() => {
           try {
@@ -109,48 +111,30 @@ export function WelcomeBanner() {
       >
         <X className="h-4 w-4" aria-hidden />
       </Button>
-      <h2 className="pr-10 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-        {trialActive ? "Your trial workspace is ready" : "Welcome to ArchLucid"}
+
+      {trialActive && typeof days === "number" ? (
+        <span className="mb-2 inline-block rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+          {days} day{days === 1 ? "" : "s"} left on trial
+        </span>
+      ) : null}
+
+      <h2 className="pr-10 text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+        {trialActive ? "Start your first pilot run" : "Start your first pilot run"}
       </h2>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        {trialActive ? (
-          <>
-            {typeof days === "number" ? (
-              <>
-                You have <strong>{days}</strong> calendar day{days === 1 ? "" : "s"} left on the self-service trial.
-                Explore the seeded sample run from{" "}
-                <Link href="/getting-started?source=registration" className="text-teal-800 underline dark:text-teal-300">
-                  onboarding
-                </Link>{" "}
-                or start a fresh architecture run.
-              </>
-            ) : (
-              <>
-                Explore the guided{" "}
-                <Link href="/getting-started?source=registration" className="text-teal-800 underline dark:text-teal-300">
-                  onboarding checklist
-                </Link>{" "}
-                or jump into the wizard when you are ready.
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            Start by creating a run with the guided wizard. The pipeline will produce manifests and artifacts you can
-            review on the run detail page. When you are ready, compare runs or explore governance from the sidebar.
-          </>
-        )}
+      <p className="mt-1.5 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">
+        Generate manifests and review artifacts in the guided workflow.
       </p>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Button asChild variant="primary">
-          <Link href="/runs/new">Create your first run</Link>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <Button asChild variant="primary" className="h-10 px-6 text-sm font-semibold shadow-sm">
+          <Link href="/runs/new">Create Run</Link>
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" size="sm">
           <Link href="/runs?projectId=default">Explore demo data</Link>
         </Button>
         {trialActive ? (
-          <Button asChild variant="outline">
-            <Link href="/getting-started?source=registration">Open onboarding</Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/getting-started?source=registration">Onboarding checklist</Link>
           </Button>
         ) : null}
       </div>

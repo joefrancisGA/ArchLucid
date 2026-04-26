@@ -35,12 +35,9 @@ public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
     /// <summary>Visible for template snapshot tests.</summary>
     internal static string TemplateKey(string templateId)
     {
-        if (string.IsNullOrWhiteSpace(templateId))
-            throw new ArgumentException("Template id is required.", nameof(templateId));
-
-
-        // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace (ArchLucid.Application.Notifications.Email).
-        return $"Templates.{templateId.Trim()}.cshtml";
+        return string.IsNullOrWhiteSpace(templateId) ? throw new ArgumentException("Template id is required.", nameof(templateId)) :
+            // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace (ArchLucid.Application.Notifications.Email).
+            $"Templates.{templateId.Trim()}.cshtml";
     }
 
 }

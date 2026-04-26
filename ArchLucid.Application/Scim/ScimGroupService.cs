@@ -80,7 +80,7 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
             if (!string.Equals(opName, "add", StringComparison.OrdinalIgnoreCase))
                 throw new ScimUserResourceParseException("invalidPath", "Only 'add' on members is supported in v1.");
 
-            if (!op.TryGetProperty("path", out JsonElement pathEl) || pathEl.GetString() is not string p ||
+            if (!op.TryGetProperty("path", out JsonElement pathEl) || pathEl.GetString() is not { } p ||
                 !string.Equals(p, "members", StringComparison.OrdinalIgnoreCase))
                 throw new ScimUserResourceParseException("invalidPath", "Only path 'members' is supported.");
 
