@@ -82,7 +82,9 @@ is consolidation, not feature addition.
 
 ## Prompt 2 — Upgrade Search and Ask pages to use design system components
 
-**Why this matters.** `/search` and `/ask` are the only operator pages using raw HTML elements and inline `style={}` — no dark mode, no focus rings, no design system consistency. Estimated weighted lift: **+1.55 points.**
+**Status: shipped.** `/search` and `/ask` use `Input`, `Button`, `Card`, `Label`, `Textarea` (ask), Tailwind neutral/teal shell tokens, `ContextualHelp` (`semantic-search`, `ask-archlucid` in `contextual-help-content.ts`), and `OperatorApiProblem`. Zero-hit search uses **`SEARCH_EMPTY`** from **`archlucid-ui/src/lib/search-empty-preset.ts`**. Empty conversation on Ask uses **`ASK_CONVERSATION_EMPTY`** from **`archlucid-ui/src/lib/ask-conversation-empty-preset.ts`**. Tests: **`archlucid-ui/src/app/(operator)/search-ask-pages-render.test.tsx`** (smoke), **`archlucid-ui/src/accessibility/search-ask-pages-axe.test.tsx`** (axe).
+
+**Why this mattered (historical).** Those pages were the last raw-HTML / inline-style operator surfaces; estimated weighted lift was **+1.55 points.**
 
 ```
 Goal: refactor the /search and /ask operator pages to use the same
@@ -107,8 +109,8 @@ For /search:
    palette (neutral/teal).
 4. Wrap search results in <Card> + <CardContent> instead of inline
    style divs.
-5. Add a zero-results empty state using SEARCH_EMPTY (create a new
-   preset in empty-state-presets.ts if needed, or inline text).
+5. Add a zero-results empty state using SEARCH_EMPTY (preset in
+   archlucid-ui/src/lib/search-empty-preset.ts).
 6. Add dark-mode classes matching the shell palette.
 
 For /ask:
@@ -139,7 +141,9 @@ refactor only.
 
 ## Prompt 3 — Add contextual help entries to high-traffic operator pages
 
-**Why this matters.** `ContextualHelp` (?) popovers exist in only two places. Ten high-traffic pages have no inline help. Estimated weighted lift: **+1.20 points.**
+**Status: shipped.** All listed keys live in **`archlucid-ui/src/lib/contextual-help-content.ts`**. Operator surfaces wire **`<ContextualHelp helpKey="…" />`** next to headings (alerts inbox, governance dashboard, compare, replay, graph, audit, policy-packs, search, ask, advisory scans/schedules, plus wizard/run/settings/admin/scope entries). **Tests:** **`contextual-help-content.test.ts`** asserts every production **`helpKey=`** literal under **`src/`** (excluding `*.test.*`) has an index entry **and** the index has no unused keys — scan helper **`contextual-help-keys-from-source.ts`**.
+
+**Why this mattered (historical).** High-traffic operator pages lacked inline (?); estimated weighted lift was **+1.20 points.**
 
 ```
 Goal: expand the contextual-help-content.ts index and wire ContextualHelp
@@ -209,7 +213,9 @@ entries for marketing pages.
 
 ## Prompt 4 — Add inline validation feedback to the new-run wizard steps
 
-**Why this matters.** The 7-step wizard validates only on submit. Operators discover empty/invalid fields only after clicking Next or Submit. Estimated weighted lift: **+1.05 points.**
+**Status: shipped.** `NewRunWizardClient` runs **`validateWizardStep`** (`archlucid-ui/src/lib/wizard-step-validate.ts` — Zod `pick` per step) on **Next**; failures use RHF **`setError`**; **`WizardFieldError`** renders **`text-red-600` / `text-sm` / `role="alert"`**; step fields clear errors on **`onChange`** / **`Select`** / chip updates (`WizardStepIdentity`, `WizardStepDescription`, …). **`priorManifestVersion`** uses schema **`refine`** (UUID / 32-hex or blank). **`NewRunWizardClient.test.tsx`** covers empty system name, error clear on type, happy-path advance, **invalid prior manifest UUID**, and **description under min length**.
+
+**Why this mattered (historical).** Validation used to surface only on submit; estimated weighted lift was **+1.05 points.**
 
 ```
 Goal: add inline validation to the new-run wizard so operators see
@@ -292,6 +298,8 @@ self-explanatory to a two-year developer (e.g. "run ID", "API",
 "JSON").
 ```
 
+**Status: shipped.** Home uses **`OperatorHomeGlossarySections`** (first body occurrences: **run**, **findings**, **artifact bundle**, **golden manifest** — ≤5, not in headings). Run detail **`runs/[runId]/page.tsx`** wraps **run**, **golden manifest**, **authority pipeline**, **context snapshot**, **decision trace** in body copy. **`/compare`**, **`/governance/dashboard`**, and **`/alerts`** use **`GlossaryTooltip`** for **manifest diff** / **comparison record**, **approval request** / **governance resolution**, and **finding** respectively; keys live in **`glossary-terms.ts`**. **Tests:** **`GlossaryTooltip.test.tsx`**, **`GlossaryTerm.test.tsx`** (pass).
+
 ---
 
 ## Prompt 6 — Wire NEXT_PUBLIC_DOCS_BASE_URL default or fallback for HelpPanel doc links
@@ -333,6 +341,8 @@ public URL before hardcoding a default.
 Do NOT change the HelpPanel component layout. Do NOT change help topic
 content.
 ```
+
+**Status: shipped.** **`getDocHref`** (`help-topics.ts`) uses **`NEXT_PUBLIC_DOCS_BASE_URL`** when non-empty; otherwise **`DEFAULT_GITHUB_BLOB_BASE`** from **`docs-public-base.ts`** (public `main` blob for the canonical repo). **`toDocsBlobUrl`** mirrors this via **`NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE`** or the same default. **HelpPanel** only shows the “unavailable” copy when **`docPath`** is empty (not when the env var is unset). **Tests:** **`help-topics.test.ts`**, **`contextual-help-content.test.ts`** (including **`toDocsBlobUrl`** override / trailing-slash cases).
 
 ---
 

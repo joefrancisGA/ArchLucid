@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import {
   getConversationMessages,
   listConversationThreads,
 } from "@/lib/conversation-api";
+import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
@@ -247,7 +249,7 @@ export default function AskPage() {
               <h3 className="mb-3 m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Conversation</h3>
               <div className="grid gap-3">
                 {messages.length === 0 ? (
-                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-500">No messages yet. Ask a question to start.</p>
+                  <EmptyState {...ASK_CONVERSATION_EMPTY} />
                 ) : null}
                 {messages.map((message) => (
                   <Card

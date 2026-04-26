@@ -165,7 +165,7 @@ Each constraint is skipped when any row would violate the domain (remediate data
 | `dbo.RecommendationRecords` | Three **`Supporting*IdsJson`** checks | |
 | `dbo.BackgroundJobs.WorkUnitJson` | `CK_BackgroundJobs_WorkUnitJson_IsJson` | |
 
-Wide manifest / snapshot JSON (**`GoldenManifests`**, **`ContextSnapshots`**, …) are **not** in this slice — add in a follow-up after catalog validation. Rollback: **`Rollback/R096_CheckJson_CorePayloadColumns.sql`**.
+Wide manifest / snapshot JSON (**`GoldenManifests`**, **`ContextSnapshots`**, …) are **not** in this slice — add in a follow-up after catalog validation. Rollback: **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**.
 
 ## Migration 098 — `IntegrationEventOutbox` dead-letter and pending-with-retry indexes
 

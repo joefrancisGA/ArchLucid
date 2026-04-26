@@ -56,14 +56,14 @@ public static partial class GreenfieldBaselineMigrationRunner
     ///     </para>
     ///     <para>
     ///         If pre-flight detection still misses, replaying <c>001</c> can raise a duplicate-object error for
-    ///         <c>ArchitectureRequests</c> (or <c>017_GovernanceWorkflow</c> for <c>GovernanceApprovalRequests</c> and related
+    ///         <c>ArchitectureRequests</c> (or <c>038_GovernanceWorkflow</c> for <c>GovernanceApprovalRequests</c> and related
     ///         tables);
     ///         that case is caught and repaired with the same stamp / optional <c>017</c>–<c>050</c>
     ///         or <c>035</c>–<c>050</c> replay (depending on <c>dbo.Runs</c>) as the tenant-exists branch.
-    ///         Embedded names sort lexicographically, so <c>017_GovernanceWorkflow</c> runs before
-    ///         <c>017_GraphSnapshots_ParentTables</c>;
-    ///         when governance tables already exist, that file is skipped during replay so the graph parent script can still
-    ///         run.
+    ///         Graph parents run at <c>017_GraphSnapshots_ParentTables</c>; governance workflow runs later at
+    ///         <c>038_GovernanceWorkflow</c>.
+    ///         When governance tables already exist, that script is skipped during replay so the remaining <c>017</c>–<c>050</c>
+    ///         migrations can still apply.
     ///     </para>
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
@@ -81,7 +81,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         Assembly assembly = Assembly.GetExecutingAssembly();
 
-        if (TenantCoreTablesFromInitialMigrationExist(connection) || GovernanceWorkflow017TablesExist(connection))
+        if (TenantCoreTablesFromInitialMigrationExist(connection) || GovernanceWorkflow038TablesExist(connection))
         {
             StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
 
@@ -140,7 +140,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
     /// <summary>
     ///     SQL Server duplicate-object on <c>CREATE TABLE</c> for tables introduced in <c>001</c> or
-    ///     <c>017_GovernanceWorkflow</c>
+    ///     <c>038_GovernanceWorkflow</c>
     ///     (error 2714 / "already an object named …") — repaired like the tenant-present path.
     /// </summary>
     internal static bool IsKnownDuplicateInitialMigrationTable(SqlException? ex)
@@ -278,16 +278,16 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    ///     True when <c>017_GovernanceWorkflow.sql</c> objects already exist (unqualified <c>CREATE TABLE</c>; same drift
+    ///     True when <c>038_GovernanceWorkflow.sql</c> objects already exist (unqualified <c>CREATE TABLE</c>; same drift
     ///     cases as <c>001</c>).
     ///     Any of the three workflow tables blocks a full replay of that script.
     /// </summary>
     /// <remarks>
     ///     CI catalogs can place objects outside <c>dbo</c> or the session default schema; probing only <c>dbo</c> +
     ///     <c>SCHEMA_NAME()</c>
-    ///     misses them and replays <c>017_GovernanceWorkflow</c>, producing duplicate <c>GovernanceApprovalRequests</c>.
+    ///     misses them and replays <c>038_GovernanceWorkflow</c>, producing duplicate <c>GovernanceApprovalRequests</c>.
     /// </remarks>
-    private static bool GovernanceWorkflow017TablesExist(SqlConnection connection)
+    private static bool GovernanceWorkflow038TablesExist(SqlConnection connection)
     {
         const string sql = """
                            SELECT CASE WHEN EXISTS (
@@ -314,14 +314,12 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    ///     Two <c>017_*.sql</c> files sort lexicographically: <c>017_GovernanceWorkflow</c> before
-    ///     <c>017_GraphSnapshots_ParentTables</c>.
     ///     The workflow script is not idempotent; skip it when its tables already exist so replay can still apply graph
-    ///     parents.
+    ///     parents and the rest of the <c>017</c>–<c>050</c> batch.
     /// </summary>
     private static bool ShouldSkipEmbeddedMigrationResourceAlreadyApplied(SqlConnection connection, string resourceName)
     {
-        return resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase) && GovernanceWorkflow017TablesExist(connection);
+        return resourceName.Contains("038_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase) && GovernanceWorkflow038TablesExist(connection);
     }
 
     /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>

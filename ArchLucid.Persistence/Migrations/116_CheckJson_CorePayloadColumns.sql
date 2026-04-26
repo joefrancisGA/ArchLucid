@@ -1,12 +1,14 @@
 /*
-  096: CHECK (ISJSON(...)=1) on core NVARCHAR(MAX) columns that are contractually JSON (API / authority / worker payloads).
+  116: CHECK (ISJSON(...)=1) on core NVARCHAR(MAX) columns that are contractually JSON (API / authority / worker payloads).
 
   Idempotent: each constraint is added only when absent and no row fails ISJSON (invalid or empty string fails; NULL
   passes only on nullable columns via (col IS NULL OR ISJSON(col)=1)).
 
   Skipped when legacy data violates the check — remediate JSON and re-run DbUp or ship a follow-up migration.
 
-  Rollback: Rollback/R096_CheckJson_CorePayloadColumns.sql
+  Renumbered from 096 to avoid a duplicate prefix with 096_RlsTenantIdOnlyTables (DbUp order is lexical only).
+
+  Rollback: Rollback/R116_CheckJson_CorePayloadColumns.sql
 */
 
 IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL

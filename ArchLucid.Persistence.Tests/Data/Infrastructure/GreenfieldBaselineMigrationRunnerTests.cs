@@ -8,20 +8,20 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 public sealed class GreenfieldBaselineMigrationRunnerTests
 {
     [Fact]
-    public void GetOrderedIncrementalMigrationResourceNames_Places017_GovernanceWorkflow_before017_GraphSnapshots()
+    public void GetOrderedIncrementalMigrationResourceNames_Places017_GraphSnapshots_before038_GovernanceWorkflow()
     {
         IReadOnlyList<string> names = GreenfieldBaselineMigrationRunner.GetOrderedIncrementalMigrationResourceNames();
 
-        int governance = names
-            .Select((n, i) => (n, i))
-            .First(t => t.n.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
-            .i;
         int graphSnapshots = names
             .Select((n, i) => (n, i))
             .First(t => t.n.Contains("017_GraphSnapshots", StringComparison.OrdinalIgnoreCase))
             .i;
+        int governance = names
+            .Select((n, i) => (n, i))
+            .First(t => t.n.Contains("038_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
+            .i;
 
-        governance.Should().BeLessThan(graphSnapshots);
+        graphSnapshots.Should().BeLessThan(governance);
     }
 
     [Theory]

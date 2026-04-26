@@ -1,5 +1,5 @@
 /*
-  R096: Roll back 096 — drop ISJSON CHECK constraints on core JSON payload columns.
+  R116: Roll back 116 — drop ISJSON CHECK constraints on core JSON payload columns.
 */
 
 IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_BackgroundJobs_WorkUnitJson_IsJson' AND parent_object_id = OBJECT_ID(N'dbo.BackgroundJobs'))

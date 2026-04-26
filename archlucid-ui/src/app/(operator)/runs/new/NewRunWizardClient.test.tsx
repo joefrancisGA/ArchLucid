@@ -196,6 +196,53 @@ describe("NewRunWizardClient", () => {
     expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
   });
 
+  it("blocks Next on identity when prior manifest version is not a valid UUID", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+
+    fireEvent.change(screen.getByLabelText("Prior manifest version (optional)"), {
+      target: { value: "not-a-uuid" },
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
+  });
+
+  it("blocks Next on description when narrative is shorter than the minimum length", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "short" } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });
