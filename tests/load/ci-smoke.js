@@ -1,6 +1,7 @@
 /**
  * k6 CI smoke — read + write operator API paths (DevelopmentBypass-friendly).
  * Scenarios: health (live+ready), version, create_run, list_runs, audit_search, get_run_detail, client_error_telemetry.
+ * get_run_detail: list runs, create a run, GET that id (avoids 404 list probes that inflate http_req_failed).
  * Run: BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
  */
 import http from "k6/http";
@@ -37,9 +38,9 @@ export function healthFn() {
   check(r, { "health ready 200": (res) => res.status === 200 });
 }
 
-export function createRunFn() {
-  const body = JSON.stringify({
-    requestId: `k6-ci-${__VU}-${__ITER}-${Date.now()}`,
+function createArchitectureRequestBody(requestIdPrefix) {
+  return JSON.stringify({
+    requestId: `${requestIdPrefix}-${__VU}-${__ITER}-${Date.now()}`,
     description: "k6 CI smoke write-path test",
     systemName: "K6CiSmokeSystem",
     environment: "prod",
@@ -49,7 +50,10 @@ export function createRunFn() {
     assumptions: [],
     priorManifestVersion: null,
   });
+}
 
+export function createRunFn() {
+  const body = createArchitectureRequestBody("k6-ci");
   const r = req("create_run", "POST", `${BASE}/v1/architecture/request`, body, { timeout: "120s" });
   check(r, { "create run 2xx": (res) => res.status >= 200 && res.status < 300 });
 }
@@ -73,58 +77,31 @@ export function getRunDetailFn() {
   const list = req("list_for_get_run", "GET", `${BASE}/v1/architecture/runs`);
   check(list, { "list for get run 200": (res) => res.status === 200 });
 
-  let rows;
+  // A single GET by id from the list can be 404 (e.g. manifest version set with no manifest row), and k6 counts every
+  // 4xx toward http_req_failed. Create a run in this VU, then GET that id — one detail call that should 200, no probe 404s.
+  const createBody = createArchitectureRequestBody("k6-ci-gtr");
+  const created = req("create_run", "POST", `${BASE}/v1/architecture/request`, createBody, { timeout: "120s" });
+  check(created, { "get run path create 2xx": (res) => res.status >= 200 && res.status < 300 });
+
+  let runId;
 
   try {
-    rows = JSON.parse(list.body);
+    const j = JSON.parse(created.body);
+    const run = j && (j.run || j.Run);
+    const id = run && (run.runId || run.RunId);
+
+    if (id !== null && id !== undefined) {
+      runId = String(id);
+    }
   } catch {
     return;
   }
 
-  if (!Array.isArray(rows) || rows.length === 0) {
+  if (runId === null || runId === undefined || runId.length === 0) {
     return;
   }
 
-  // GET /run/{id} returns 404 when CurrentManifestVersion is set but the manifest row is missing (stale list rows).
-  // Prefer runs with no committed manifest so we need at most one detail request per iteration (keeps http_req_failed low).
-  const candidates = rows
-    .map((r) => {
-      const id = r && (r.runId || r.RunId);
-      const manifest = r && (r.currentManifestVersion ?? r.CurrentManifestVersion);
-
-      if (id === null || id === undefined || String(id).length === 0) {
-        return null;
-      }
-
-      return { id: String(id), manifest };
-    })
-    .filter((x) => x !== null);
-
-  candidates.sort((a, b) => {
-    const aEmpty = !a.manifest || String(a.manifest).trim() === "";
-    const bEmpty = !b.manifest || String(b.manifest).trim() === "";
-
-    if (aEmpty === bEmpty) {
-      return 0;
-    }
-
-    return aEmpty ? -1 : 1;
-  });
-
-  let detail = null;
-
-  for (const c of candidates.slice(0, 3)) {
-    detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(c.id)}`);
-
-    if (detail.status === 200) {
-      break;
-    }
-  }
-
-  if (detail === null) {
-    return;
-  }
-
+  const detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`);
   check(detail, { "get run detail 200": (res) => res.status === 200 });
 }
 

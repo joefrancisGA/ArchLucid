@@ -79,10 +79,7 @@ public static class StructuredExplanationParser
         if (v < 0m)
             return 0m;
 
-        if (v > 1m)
-            return 1m;
-
-        return v;
+        return v > 1m ? 1m : v;
     }
 
     private static StructuredExplanation MapFromDto(StructuredExplanationDto dto)
@@ -106,37 +103,37 @@ public static class StructuredExplanationParser
         public int SchemaVersion
         {
             get;
-            set;
+            init;
         } = 1;
 
         public string? Reasoning
         {
             get;
-            set;
+            init;
         }
 
         public List<string>? EvidenceRefs
         {
             get;
-            set;
+            init;
         }
 
         public decimal? Confidence
         {
             get;
-            set;
+            init;
         }
 
         public List<string>? AlternativesConsidered
         {
             get;
-            set;
+            init;
         }
 
         public List<string>? Caveats
         {
             get;
-            set;
+            init;
         }
     }
 }
