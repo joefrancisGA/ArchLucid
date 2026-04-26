@@ -180,11 +180,6 @@ export function RunsDashboardPanel() {
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/runs/new">Create request</Link>
                     </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
-                        See completed example
-                      </Link>
-                    </Button>
                   </div>
                 </div>
               ) : null}
