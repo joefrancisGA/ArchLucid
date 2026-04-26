@@ -157,19 +157,19 @@ function RecentActivityCommandCard() {
       data-testid="command-center-activity-card"
     >
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
-        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recent activity</CardTitle>
+        <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Pilot impact</CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Median proof-of-ROI delta across recent committed runs (same source as the runs index banner).
+          Median findings and time-to-commit across recent runs.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
         {status === "loading" ? (
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading activity…</p>
+          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading pilot impact…</p>
         ) : null}
 
         {status === "error" ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Activity snapshot is unavailable right now. Try again later or open the runs list.
+            Pilot impact is unavailable right now. Try again later or open the runs list.
           </p>
         ) : null}
 
@@ -192,7 +192,7 @@ function RecentActivityCommandCard() {
 
         {status === "ready" && data !== null && data.returnedCount === 0 ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            No committed-run medians yet — finish a run through manifest to populate this card.
+            No data yet. Complete and commit a run to see pilot impact metrics.
           </p>
         ) : null}
 
@@ -295,14 +295,14 @@ function SystemHealthCommandCard() {
 }
 
 /**
- * Command center: runs snapshot, recent delta medians, and API readiness — always on home so the page stays an
+ * Workspace status: runs snapshot, pilot impact medians, and API readiness — always on home so the page stays an
  * operator cockpit, not only a first-run checklist.
  */
 export function CommandCenterSection() {
   return (
-    <section className="mt-6" aria-labelledby="command-center-heading">
-      <h3 id="command-center-heading" className="mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-        Command center
+    <section className="mt-6" aria-labelledby="workspace-status-heading">
+      <h3 id="workspace-status-heading" className="mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        Workspace status
       </h3>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RunsNeedingAttentionCard />

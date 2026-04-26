@@ -10,6 +10,7 @@ import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWork
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { CommandCenterSection } from "@/components/operator-home/CommandCenterSection";
+import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { OperatorHomeGlossarySections } from "@/components/operator-home/OperatorHomeGlossarySections";
 import { RecentRunsHomePanel } from "@/components/operator-home/RecentRunsHomePanel";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
@@ -33,49 +34,51 @@ export default function HomePage() {
           <CommandCenterSection />
           <AfterCorePilotChecklistHint />
 
-          <section aria-labelledby="operational-metrics-heading">
-            <h3
-              id="operational-metrics-heading"
-              className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-            >
-              Operational metrics
-            </h3>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <PilotOutcomeCard />
-              <OperatorTaskSuccessTile />
-            </div>
-          </section>
+          <OperationalMetricsGate>
+            <section aria-labelledby="operational-metrics-heading">
+              <h3
+                id="operational-metrics-heading"
+                className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+              >
+                Operational metrics
+              </h3>
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <PilotOutcomeCard />
+                <OperatorTaskSuccessTile />
+              </div>
+            </section>
 
-          <BeforeAfterDeltaPanel />
+            <BeforeAfterDeltaPanel />
 
-          <section aria-labelledby="maturity-layers-heading">
-            <h3
-              id="maturity-layers-heading"
-              className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-            >
-              Explore when ready
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <LayerCard
-                icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
-                title="Advanced Analysis"
-                items={["Compare runs", "Replay", "Graph", "Ask", "Advisory"]}
-                href="/compare"
-              />
-              <LayerCard
-                icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
-                title="Enterprise Controls"
-                items={["Governance", "Policy packs", "Audit log", "Alerts"]}
-                href="/governance/dashboard"
-              />
-              <LayerCard
-                icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}
-                title="Search & Insights"
-                items={["Indexed search", "Planning", "Digests", "Value report"]}
-                href="/search"
-              />
-            </div>
-          </section>
+            <section aria-labelledby="maturity-layers-heading">
+              <h3
+                id="maturity-layers-heading"
+                className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+              >
+                Explore when ready
+              </h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <LayerCard
+                  icon={<BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" aria-hidden />}
+                  title="Advanced Analysis"
+                  items={["Compare runs", "Replay", "Graph", "Ask", "Advisory"]}
+                  href="/compare"
+                />
+                <LayerCard
+                  icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
+                  title="Enterprise Controls"
+                  items={["Governance", "Policy packs", "Audit log", "Alerts"]}
+                  href="/governance/dashboard"
+                />
+                <LayerCard
+                  icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}
+                  title="Search & Insights"
+                  items={["Indexed search", "Planning", "Digests", "Value report"]}
+                  href="/search"
+                />
+              </div>
+            </section>
+          </OperationalMetricsGate>
         </div>
 
         <aside

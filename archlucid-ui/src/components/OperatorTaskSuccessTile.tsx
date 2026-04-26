@@ -11,7 +11,7 @@ type Rates = {
   firstRunCommittedPerSessionRatio: number;
 };
 
-/** Small operator-home tile for onboarding funnel counters (process lifetime; resets on API restart). */
+/** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
 export function OperatorTaskSuccessTile() {
   const [data, setData] = useState<Rates | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export function OperatorTaskSuccessTile() {
         className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
       >
         <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-          Onboarding funnel
+          Pilot adoption
         </h2>
         <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
           No data yet. Metrics appear after your first completed run.
@@ -70,7 +70,7 @@ export function OperatorTaskSuccessTile() {
         className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
       >
         <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-          Onboarding funnel
+          Pilot adoption
         </h2>
         <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
       </section>
@@ -83,7 +83,7 @@ export function OperatorTaskSuccessTile() {
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
       <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-        Onboarding funnel
+        Pilot adoption
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
         <div>

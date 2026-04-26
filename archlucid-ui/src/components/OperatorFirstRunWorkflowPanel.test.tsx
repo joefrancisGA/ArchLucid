@@ -18,6 +18,25 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(wizard).toHaveAttribute("href", "/runs/new");
   });
 
+  it("accordion toggles step body when clicking the step title", async () => {
+    render(<OperatorFirstRunWorkflowPanel />);
+
+    await screen.findByRole("heading", { name: "Core Pilot checklist" });
+
+    expect(screen.getByRole("link", { name: "Start new run wizard" })).toBeVisible();
+
+    const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
+    fireEvent.click(step2Title);
+
+    expect(screen.queryByRole("link", { name: "Start new run wizard" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open runs list" })).toBeVisible();
+
+    const step1Title = screen.getByRole("button", { name: /Step 1 —/i });
+    fireEvent.click(step1Title);
+
+    expect(await screen.findByRole("link", { name: "Start new run wizard" })).toBeVisible();
+  });
+
   it("hide guide persists and show restores panel", async () => {
     render(<OperatorFirstRunWorkflowPanel />);
 
