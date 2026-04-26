@@ -446,10 +446,10 @@ export function OperatorFirstRunWorkflowPanel() {
         })}
       </ol>
 
-      <details className="mt-3 border-t border-neutral-200/80 pt-2.5 dark:border-neutral-800/80">
-        <summary className="auth-panel-focus cursor-pointer list-none text-xs font-semibold text-neutral-700 outline-none marker:content-none dark:text-neutral-300 [&::-webkit-details-marker]:hidden">
+      <div className="mt-3 border-t border-neutral-200/80 pt-2.5 dark:border-neutral-800/80">
+        <p className="m-0 text-xs font-semibold text-neutral-700 dark:text-neutral-300">
           After finalizing your first manifest
-        </summary>
+        </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
             className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
@@ -470,7 +470,7 @@ export function OperatorFirstRunWorkflowPanel() {
             Graph
           </Link>
         </div>
-      </details>
+      </div>
     </section>
   );
 }

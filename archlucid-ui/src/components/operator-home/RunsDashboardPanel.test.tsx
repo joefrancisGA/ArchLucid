@@ -111,10 +111,7 @@ describe("RunsDashboardPanel", () => {
     expect(
       screen.getByText(/Create a request to generate your first architecture manifest, surfaced findings/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See completed example" })).toHaveAttribute(
-      "href",
-      "/runs?projectId=default",
-    );
+    expect(screen.getByRole("link", { name: "Create request" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
       "href",
