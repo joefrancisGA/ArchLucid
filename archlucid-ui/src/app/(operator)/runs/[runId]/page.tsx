@@ -259,7 +259,7 @@ export default async function RunDetailPage({
             <h3 className={sectionHeadingClass}>Run</h3>
             <CardDescription>
               Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this run</GlossaryTooltip>{" "}
-              has a <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> (after finalization).
+              has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
@@ -290,7 +290,7 @@ export default async function RunDetailPage({
             <CardDescription>
               Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the
               run was created outside the{" "}
-              <GlossaryTooltip termKey="authority_pipeline">authority pipeline</GlossaryTooltip>.
+              <GlossaryTooltip termKey="authority_pipeline">run pipeline</GlossaryTooltip>.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -360,7 +360,7 @@ export default async function RunDetailPage({
               </li>
               <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Golden manifest
+                  Reviewed manifest
                 </span>
                 <span className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
                   {manifestId ? (
@@ -371,7 +371,7 @@ export default async function RunDetailPage({
                       >
                         {manifestId}
                       </Link>
-                      <CopyIdButton value={manifestId} aria-label="Copy golden manifest ID" />
+                      <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
                     </>
                   ) : (
                     <span className="font-mono text-xs">—</span>
@@ -412,7 +412,7 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p className="m-0">
-            This run has no golden manifest yet (normal before finalization). After the pipeline
+            This run has no reviewed manifest yet (normal before finalization). After the pipeline
             finishes, finalize through the <strong>API or CLI</strong>, then reload this page for manifest summary,
             artifacts, and ZIP exports.
           </p>

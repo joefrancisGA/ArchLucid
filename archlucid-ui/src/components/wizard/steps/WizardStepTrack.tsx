@@ -19,7 +19,7 @@ function stageDone(flag: boolean | undefined): boolean {
 }
 
 /**
- * Step 7: poll run summary and visualize authority pipeline stages.
+ * Step 7: poll run summary and visualize run pipeline stages.
  */
 export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   const ctx = stageDone(pollSummary?.hasContextSnapshot);
@@ -83,7 +83,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       {manifest ? (
         <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 p-4 dark:border-teal-900 dark:bg-teal-950/40">
-          <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">Golden manifest is available.</p>
+          <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">Reviewed manifest is available.</p>
           <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
             <Link className="text-teal-800 underline dark:text-teal-200" href={`/runs/${runId}`}>
               Open run detail
@@ -101,7 +101,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
         </div>
       ) : (
         <p className="mt-4 text-xs text-neutral-500">
-          Waiting for golden manifest… (updates stream for up to several minutes; you can open run detail anytime.)
+          Waiting for reviewed manifest… (updates stream for up to several minutes; you can open run detail anytime.)
         </p>
       )}
     </WizardStepPanel>

@@ -11,11 +11,11 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { listRunsByProjectPaged } from "@/lib/api";
+import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
-const RUNS_CACHE_KEY = "archlucid_has_existing_runs";
 
 type TrialStatusPayload = {
   status?: string;
@@ -35,26 +35,6 @@ const dotMaskStyle: CSSProperties = {
   maskImage: "linear-gradient(to right, transparent 0%, transparent 35%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.7) 100%)",
 };
 
-function readRunsCache(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  try {
-    return window.localStorage.getItem(RUNS_CACHE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function writeRunsCache(hasRuns: boolean): void {
-  try {
-    window.localStorage.setItem(RUNS_CACHE_KEY, hasRuns ? "1" : "0");
-  } catch {
-    /* private mode */
-  }
-}
-
 export function WelcomeBanner() {
   const patternId = useId().replaceAll(":", "");
   const [dismissed, setDismissed] = useState(true);
@@ -71,7 +51,7 @@ export function WelcomeBanner() {
       } else {
         setDismissed(false);
         setCompact(false);
-        setHasExistingRuns(readRunsCache());
+        setHasExistingRuns(readHasExistingRunsCache());
       }
     } catch {
       setDismissed(false);
@@ -116,11 +96,11 @@ export function WelcomeBanner() {
         }
 
         setHasExistingRuns(next);
-        writeRunsCache(next);
+        writeHasExistingRunsCache(next);
       } catch {
         if (!cancelled) {
           setHasExistingRuns(false);
-          writeRunsCache(false);
+          writeHasExistingRunsCache(false);
         }
       }
     })();
@@ -310,7 +290,7 @@ export function WelcomeBanner() {
               ))}
             </ul>
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              One request produces everything — ready for review.
+              One request produces everything needed for review.
             </p>
           </div>
         ) : null}

@@ -1,9 +1,9 @@
 /** Human-readable labels for authority replay modes (matches API enum names). */
 const REPLAY_MODE_LABELS: Record<string, string> = {
   ReconstructOnly:
-    "Reconstruct only — replay authority steps without rebuilding the golden manifest or artifacts.",
+    "Reconstruct only — replay pipeline steps without rebuilding the reviewed manifest or artifacts.",
   RebuildManifest:
-    "Rebuild manifest — replay and regenerate the golden manifest from stored inputs.",
+    "Rebuild manifest — replay and regenerate the reviewed manifest from stored inputs.",
   RebuildArtifacts:
     "Rebuild artifacts — replay through manifest regeneration and artifact synthesis where applicable.",
 };

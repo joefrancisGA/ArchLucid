@@ -56,7 +56,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByText("Governed manifest")).toBeInTheDocument();
-    expect(screen.getByText(/one request produces everything/i)).toBeInTheDocument();
+    expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What you will receive from a completed run/)).toBeInTheDocument();
     const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
     expect(exampleLinks.length).toBeGreaterThanOrEqual(1);

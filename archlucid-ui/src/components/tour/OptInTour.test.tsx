@@ -92,7 +92,7 @@ describe("OptInTourLauncher (owner Q9 — never auto-launch)", () => {
     expect(screen.queryByTestId("opt-in-tour-dialog")).toBeNull();
   });
 
-  it("renders the tour dialog only after the 'Show me around' button is clicked", () => {
+  it("renders the tour dialog only after the 'Take tour' button is clicked", () => {
     render(<OptInTourLauncher />);
 
     fireEvent.click(screen.getByTestId("opt-in-tour-launcher"));

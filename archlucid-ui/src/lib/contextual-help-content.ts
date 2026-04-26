@@ -19,7 +19,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {
-    text: "Finalizing produces a versioned golden manifest and synthesizes artifacts. This is the primary pilot deliverable.",
+    text: "Finalizing produces a versioned, reviewed manifest and synthesizes artifacts. This is the primary pilot deliverable.",
     learnMoreUrl: "/docs/CORE_PILOT.md#commit",
   },
   "manifest-review": {
@@ -35,7 +35,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/ALERTS.md",
   },
   "governance-dashboard": {
-    text: "Governance dashboard tracks approval requests, promotions, and activations across runs.",
+    text: "Governance tracks approval requests, promotions, and activations across runs.",
     learnMoreUrl: "/docs/API_CONTRACTS.md",
   },
   "compare-runs": {

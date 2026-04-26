@@ -13,7 +13,7 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 
 export type CommitRunButtonProps = {
   runId: string;
-  /** When true, the run already has a golden manifest — commit is not offered. */
+  /** When true, the run already has a reviewed manifest — commit is not offered. */
   disabled: boolean;
 };
 
@@ -61,7 +61,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   if (disabled) {
     return (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        This run is already finalized (golden manifest present).
+        This run is already finalized (reviewed manifest present).
       </p>
     );
   }
@@ -80,7 +80,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
           Finalize manifest
         </Button>
         <p className="mt-1.5 max-w-xl text-sm text-neutral-600 dark:text-neutral-400">
-          Finalizes the golden manifest and decision traces when the run is ready. Requires permission to finalize manifests.
+          Finalizes the reviewed manifest and decision traces when the run is ready. Requires permission to finalize manifests.
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Finalize this manifest?"
-        description="Merges agent results for this run through the decision engine and persists the golden manifest. If the run is not ready, the API returns a conflict — adjust the run and try again."
+        description="Merges agent results for this run through the decision engine and persists the reviewed manifest. If the run is not ready, the API returns a conflict — adjust the run and try again."
         confirmLabel="Finalize manifest"
         cancelLabel="Cancel"
         variant="default"

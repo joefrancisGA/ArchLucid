@@ -261,13 +261,19 @@ export function SidebarNav() {
               <button
                 type="button"
                 className="auth-panel-focus ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-                aria-label={`${hiddenByDisclosure} more tools — open navigation settings`}
+                aria-label={`${hiddenByDisclosure} more in ${group.label} — open navigation settings`}
                 onClick={() => {
                   setSettingsOpen(true);
                 }}
               >
                 <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
-                View all
+                {group.id === "operate-analysis"
+                  ? "View analysis tools"
+                  : group.id === "operate-governance"
+                    ? "View governance tools"
+                    : group.id === "operator-admin"
+                      ? "View admin tools"
+                      : `View more in ${group.label}`}
               </button>
             ) : null}
           </Collapsible>

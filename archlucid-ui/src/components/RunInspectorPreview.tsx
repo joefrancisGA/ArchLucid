@@ -70,7 +70,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </li>
           <li className="flex justify-between gap-2">
             <span>Manifest</span>
-            <span aria-label={run.hasGoldenManifest ? "Golden manifest present" : "Golden manifest missing"}>
+            <span aria-label={run.hasGoldenManifest ? "Reviewed manifest present" : "Reviewed manifest missing"}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>
           </li>

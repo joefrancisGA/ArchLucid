@@ -174,7 +174,7 @@ export function RunsDashboardPanel() {
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/runs/new">Create Request</Link>
+                      <Link href="/runs/new">Create request</Link>
                     </Button>
                     <Button
                       asChild

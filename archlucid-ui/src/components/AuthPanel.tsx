@@ -39,7 +39,12 @@ export function AuthPanel() {
     return () => window.removeEventListener("focus", onFocus);
   }, [refresh]);
 
+  // Demo screenshots: set NEXT_PUBLIC_HIDE_ENV_BADGE=true to hide the amber dev strip.
   if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
+    if (process.env.NEXT_PUBLIC_HIDE_ENV_BADGE === "true") {
+      return null;
+    }
+
     return (
       <div
         role="status"

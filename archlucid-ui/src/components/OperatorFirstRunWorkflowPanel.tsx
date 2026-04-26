@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
@@ -28,20 +30,11 @@ type WorkflowStep = {
 const corePilotSteps: WorkflowStep[] = [
   {
     title: "Create an architecture request",
-    shortBody: "Use the guided wizard to capture system identity, requirements, and constraints.",
+    shortBody: "Capture system identity, requirements, and constraints.",
     detail:
-      "The wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
+      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
     primaryHref: "/runs/new",
     primaryLabel: "Start new request",
-    secondary: (
-      <>
-        Or open the{" "}
-        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/runs?projectId=default">
-          Runs list
-        </Link>
-        .
-      </>
-    ),
   },
   {
     title: "Track run progress",
@@ -88,6 +81,7 @@ export function OperatorFirstRunWorkflowPanel() {
   const [graduated, setGraduated] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => steps.map(() => false));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [hasAnyRun, setHasAnyRun] = useState(false);
 
   useEffect(() => {
     const nextDone: boolean[] = [];
@@ -134,6 +128,33 @@ export function OperatorFirstRunWorkflowPanel() {
 
     setHydrated(true);
     emitCorePilotChecklistChanged();
+  }, []);
+
+  useEffect(() => {
+    setHasAnyRun(readHasExistingRunsCache());
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const page = await listRunsByProjectPaged("default", 1, 1);
+        const next = (page.items?.length ?? 0) > 0;
+
+        if (cancelled) {
+          return;
+        }
+
+        setHasAnyRun(next);
+        writeHasExistingRunsCache(next);
+      } catch {
+        if (!cancelled) {
+          setHasAnyRun(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
@@ -346,8 +367,10 @@ export function OperatorFirstRunWorkflowPanel() {
         {steps.map((step, index) => {
           const done = doneByIndex[index] === true;
           const expanded = expandedIndex === index;
+          const isActiveUndone = index === firstUndoneIndex && firstUndoneIndex >= 0;
+          const showBody = isActiveUndone || expanded;
 
-          const highlightNext = index === 0 && firstUndoneIndex === 0;
+          const highlightNext = isActiveUndone;
 
           return (
             <li
@@ -375,7 +398,7 @@ export function OperatorFirstRunWorkflowPanel() {
                   <button
                     type="button"
                     className="auth-panel-focus m-0 w-full cursor-pointer rounded-sm border-0 bg-transparent p-0 text-left text-xs font-semibold text-neutral-900 hover:text-teal-900 dark:text-neutral-100 dark:hover:text-teal-200"
-                    aria-expanded={expanded}
+                    aria-expanded={showBody}
                     onClick={() => {
                       setExpandedIndex((prev) => (prev === index ? null : index));
                     }}
@@ -388,7 +411,7 @@ export function OperatorFirstRunWorkflowPanel() {
                     ) : null}
                     {done ? <span className="ml-1 text-[10px] font-normal text-teal-700 dark:text-teal-400">(done)</span> : null}
                   </button>
-                  {expanded ? (
+                  {showBody ? (
                     <div className="mt-1.5">
                       <p className="m-0 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
                       <div className="mt-1.5">
@@ -398,6 +421,15 @@ export function OperatorFirstRunWorkflowPanel() {
                           </Link>
                         </Button>
                       </div>
+                      {index === 0 && hasAnyRun ? (
+                        <div className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500 [&_a]:text-teal-700 [&_a]:underline [&_a]:decoration-teal-300/50 dark:[&_a]:text-teal-400">
+                          Or open the{" "}
+                          <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/runs?projectId=default">
+                            Runs list
+                          </Link>
+                          .
+                        </div>
+                      ) : null}
                       {step.secondary ? (
                         <div className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500 [&_a]:text-teal-700 [&_a]:underline [&_a]:decoration-teal-300/50 dark:[&_a]:text-teal-400">
                           {step.secondary}

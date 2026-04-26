@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
  * - Tour NEVER auto-launches (owner Q9). The component is purely controlled — render
  *   it conditionally on `isOpen` and trigger via the parent's button.
  * - Closing the tour persists a dismissal flag in `localStorage`. The flag is a
- *   defensive marker for any future auto-launch path — the "Show me around" button
+ *   defensive marker for any future auto-launch path — the "Take tour" button
  *   itself ignores it, so re-opening the tour by hand always works.
  */
 export const TOUR_DISMISSED_LOCAL_STORAGE_KEY = "archlucid.optInTour.dismissed.v1";
@@ -99,7 +99,7 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
     >
       <div className="w-full max-w-md space-y-4 rounded-lg border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Show me around</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Take tour</h2>
           <button
             type="button"
             className="rounded p-1 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
@@ -157,6 +157,6 @@ function persistDismissal(): void {
     window.localStorage.setItem(TOUR_DISMISSED_LOCAL_STORAGE_KEY, new Date().toISOString());
   } catch {
     // localStorage may be disabled (private mode, embedded contexts) — silently ignore;
-    // the worst case is we'd ask "Show me around" again on next visit, which is harmless.
+    // the worst case is we'd ask "Take tour" again on next visit, which is harmless.
   }
 }

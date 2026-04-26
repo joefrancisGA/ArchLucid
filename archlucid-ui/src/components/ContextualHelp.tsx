@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 
+import { Info } from "lucide-react";
+
 import { contextualHelpByKey, toDocsBlobUrl } from "@/lib/contextual-help-content";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +33,8 @@ const placementClasses: Record<
 };
 
 /**
- * In-context (?) help: click or keyboard toggles; hover does not (avoids clashing with long-press readers).
+ * In-context info (not global Help): click or keyboard toggles; hover does not (avoids clashing with long-press readers).
+ * Uses an info icon so the header’s Help control remains the only question-mark affordance.
  * Dismiss with Escape or pointer outside. Content comes from `contextualHelpByKey` in
  * `src/lib/contextual-help-content.ts`.
  */
@@ -103,11 +106,11 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
       <button
         ref={triggerRef}
         type="button"
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-[10px] font-bold leading-none text-neutral-600 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-teal-500 dark:hover:text-teal-200"
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-neutral-400 bg-white text-neutral-600 shadow-sm hover:border-teal-600 hover:text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-teal-500 dark:hover:text-teal-200"
         aria-expanded={visible}
         aria-controls={visible ? tooltipId : undefined}
         aria-describedby={visible ? tooltipId : undefined}
-        aria-label={`Help: ${helpKey}`}
+        aria-label={`More information: ${helpKey}`}
         onClick={() => {
           setOpen((o) => !o);
         }}
@@ -118,7 +121,7 @@ export function ContextualHelp({ helpKey, placement = "bottom", className }: Con
           }
         }}
       >
-        ?
+        <Info className="h-3 w-3" aria-hidden />
       </button>
 
       {visible && (

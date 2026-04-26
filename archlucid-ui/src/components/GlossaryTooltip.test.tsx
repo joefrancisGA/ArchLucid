@@ -28,18 +28,18 @@ describe("GlossaryTooltip", () => {
   it("renders the visible child label", () => {
     renderWithProvider(
       <GlossaryTooltip termKey="golden_manifest">
-        <span>golden manifest</span>
+        <span>reviewed manifest</span>
       </GlossaryTooltip>,
     );
-    expect(screen.getByText("golden manifest")).toBeInTheDocument();
+    expect(screen.getByText("reviewed manifest")).toBeInTheDocument();
   });
 
   it("shows definition and learn-more link on hover for entries with a doc link", async () => {
     renderWithProvider(
-      <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip>,
+      <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip>,
     );
 
-    fireEvent.pointerMove(screen.getByText("golden manifest"));
+    fireEvent.pointerMove(screen.getByText("reviewed manifest"));
     const termMatches = await screen.findAllByText(GLOSSARY_TERMS.golden_manifest.term, { exact: true });
     expect(termMatches.length).toBeGreaterThan(0);
     const defMatches = await screen.findAllByText(GLOSSARY_TERMS.golden_manifest.definition, { exact: true });

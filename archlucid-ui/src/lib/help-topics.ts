@@ -14,12 +14,16 @@ export type HelpTopic = {
   routes: string[];
 };
 
+/** Topics for the Help drawer “Troubleshooting” tab (ops / auth / support). */
+export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
+
 export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "first-run",
-    title: "First run workflow",
-    keywords: ["wizard", "create", "pipeline", "run"],
-    summary: "Use New request to submit architecture intent, then track the authority pipeline until the golden manifest is ready.",
+    title: "Create your first architecture manifest",
+    keywords: ["wizard", "create", "pipeline", "run", "request"],
+    summary:
+      "Create a request, track progress, finalize the reviewed manifest, and review artifacts, findings, and the review trail.",
     docPath: "docs/FIRST_RUN_WIZARD.md",
     routes: ["/runs/new", "/", "/getting-started"],
   },
@@ -147,6 +151,14 @@ export function getDocHref(docPath: string): string | null {
   const path = relative.replace(/^\//, "");
 
   return `${normalized}/${path}`;
+}
+
+export function helpTopicsForGuidesTab(): HelpTopic[] {
+  return HELP_TOPICS.filter((t) => !TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
+}
+
+export function helpTopicsForTroubleshootingTab(): HelpTopic[] {
+  return HELP_TOPICS.filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
 }
 
 export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {

@@ -86,7 +86,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
     const transport = sseConnected ? "live stream" : "polling";
 
-    return `${completedStages} of 4 authority pipeline stages complete (${transport}).`;
+    return `${completedStages} of 4 run pipeline stages complete (${transport}).`;
   }, [clientPhase, completedStages, runId, sseConnected]);
 
   if (!pollEnabled) {
