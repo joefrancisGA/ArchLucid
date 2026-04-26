@@ -13,7 +13,7 @@ function stagesForRun(run: RunSummary): StageDef[] {
     { key: "context", label: "Context snapshot", present: run.hasContextSnapshot === true },
     { key: "graph", label: "Graph snapshot", present: run.hasGraphSnapshot === true },
     { key: "findings", label: "Findings snapshot", present: run.hasFindingsSnapshot === true },
-    { key: "manifest", label: "Golden manifest", present: run.hasGoldenManifest === true },
+    { key: "manifest", label: "Reviewed manifest", present: run.hasGoldenManifest === true },
   ];
 }
 

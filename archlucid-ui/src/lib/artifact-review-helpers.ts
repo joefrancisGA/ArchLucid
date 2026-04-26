@@ -5,7 +5,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   ReferenceArchitectureMarkdown: {
     label: "Reference architecture (Markdown)",
     description:
-      "Narrative reference architecture derived from the golden manifest—suitable for review and handoff as documentation.",
+      "Narrative reference architecture derived from the reviewed manifest—suitable for review and handoff as documentation.",
   },
   ArchitectureNarrative: {
     label: "Architecture narrative",

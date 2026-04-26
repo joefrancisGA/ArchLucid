@@ -17,7 +17,7 @@ describe("ContextualHelp", () => {
       <ContextualHelp helpKey="new-run-wizard" />,
     );
 
-    const button = getByLabelText(/help: new-run-wizard/i);
+    const button = getByLabelText(/more information: new-run-wizard/i);
     expect(queryByRole("tooltip")).toBeNull();
 
     act(() => {
@@ -40,7 +40,7 @@ describe("ContextualHelp", () => {
     vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE", "https://example.com/prefix");
 
     render(<ContextualHelp helpKey="commit-manifest" />);
-    const button = screen.getByLabelText(/help: commit-manifest/i);
+    const button = screen.getByLabelText(/more information: commit-manifest/i);
 
     act(() => {
       fireEvent.click(button);
@@ -53,7 +53,7 @@ describe("ContextualHelp", () => {
 
   it("associates the trigger with the tooltip for assistive technology when open", () => {
     const { getByLabelText, getByRole } = render(<ContextualHelp helpKey="manifest-review" />);
-    const button = getByLabelText(/help: manifest-review/i);
+    const button = getByLabelText(/more information: manifest-review/i);
 
     act(() => {
       fireEvent.click(button);
@@ -70,7 +70,7 @@ describe("ContextualHelp", () => {
 
   it("is keyboard accessible: Enter and Space toggle", () => {
     const { getByLabelText, queryByRole } = render(<ContextualHelp helpKey="governance-gate" />);
-    const button = getByLabelText(/help: governance-gate/i) as HTMLButtonElement;
+    const button = getByLabelText(/more information: governance-gate/i) as HTMLButtonElement;
 
     act(() => {
       button.focus();

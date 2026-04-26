@@ -78,7 +78,7 @@ export function FindingExplainabilityDialog({
         <DialogHeader>
           <DialogTitle>Finding explainability</DialogTitle>
           <DialogDescription>
-            Deterministic trace from the authority pipeline (no live LLM call in this dialog).
+            Deterministic trace from the run pipeline (no live LLM call in this dialog).
           </DialogDescription>
         </DialogHeader>
 

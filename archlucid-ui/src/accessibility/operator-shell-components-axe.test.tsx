@@ -35,7 +35,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="commit-manifest" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/help: commit-manifest/i));
+      fireEvent.click(getByLabelText(/more information: commit-manifest/i));
     });
 
     expect(await axe(container)).toHaveNoViolations();
@@ -45,7 +45,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="semantic-search" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/help: semantic-search/i));
+      fireEvent.click(getByLabelText(/more information: semantic-search/i));
     });
 
     expect(await axe(container)).toHaveNoViolations();
@@ -55,7 +55,7 @@ describe("operator shell components — axe (Vitest)", () => {
     const { container, getByLabelText } = render(<ContextualHelp helpKey="ask-archlucid" />);
 
     act(() => {
-      fireEvent.click(getByLabelText(/help: ask-archlucid/i));
+      fireEvent.click(getByLabelText(/more information: ask-archlucid/i));
     });
 
     expect(await axe(container)).toHaveNoViolations();

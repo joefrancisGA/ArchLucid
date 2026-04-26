@@ -134,7 +134,7 @@ export function NewRunWizardClient() {
     runId === null
       ? "No run yet."
       : pollSummary
-        ? `Run ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, golden manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        ? `Run ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, reviewed manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Run ${runId} created; loading summary.`;
 
   const goBack = () => {

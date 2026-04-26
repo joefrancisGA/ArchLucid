@@ -38,11 +38,15 @@ export function OptInTourLauncher({ buttonVariant = "outline", className }: OptI
         type="button"
         variant={buttonVariant}
         size="sm"
-        className={cn(buttonVariant === "ghost" && "text-neutral-600 dark:text-neutral-400", className)}
+        className={cn(
+          "font-normal",
+          buttonVariant === "ghost" && "text-neutral-500 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-200",
+          className,
+        )}
         onClick={handleOpen}
         data-testid="opt-in-tour-launcher"
       >
-        Show me around
+        Take tour
       </Button>
       <OptInTour isOpen={isOpen} onClose={handleClose} />
     </>

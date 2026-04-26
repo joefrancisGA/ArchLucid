@@ -116,7 +116,7 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
               <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "—"}</dd>
             </div>
             <div>
-              <dt className="font-semibold">Golden manifest id</dt>
+              <dt className="font-semibold">Reviewed manifest id</dt>
               <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "—"}</dd>
             </div>
           </dl>

@@ -6,11 +6,11 @@ export { SEARCH_EMPTY } from "./search-empty-preset";
 
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
-  title: "No runs in this project yet",
+  title: "No architecture runs yet",
   description:
-    "Create your first architecture request using the wizard, or submit one via the CLI or API. Runs appear here once a request has been submitted.",
+    "Create a request to generate your first architecture manifest, surfaced findings, and exportable artifact bundle. You can also submit via the CLI or API.",
   actions: [
-    { label: "Create your first request", href: "/runs/new" },
+    { label: "Create request", href: "/runs/new" },
     { label: "Getting started", href: "/getting-started", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",

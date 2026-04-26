@@ -57,12 +57,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   compare: {
     layerBadge: "Operate",
     headline: "Answers: what changed between two finalized runs?",
-    useWhen: "Use after you have two runs with golden manifests when you need a structured diff or narrative.",
+    useWhen: "Use after you have two runs with reviewed manifests when you need a structured diff or narrative.",
     firstPilotNote: "Not needed for your first pilot unless you are explicitly comparing two outcomes.",
   },
   replay: {
     layerBadge: "Operate",
-    headline: "Answers: does the stored provenance chain still validate for this run?",
+    headline: "Answers: does stored pipeline output still validate for this run on replay?",
     useWhen: "Use when you need drift or integrity checks on a single run, not a visual diff.",
     firstPilotNote: "Optional until you need to prove or debug chain validation.",
   },

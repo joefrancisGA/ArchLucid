@@ -357,7 +357,7 @@ function CompareForm() {
             The legacy comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both runs have finalized golden manifests in scope. If only legacy diff is needed for now, scroll
+            Verify both runs have finalized reviewed manifests in scope. If only legacy diff is needed for now, scroll
             to <strong>Legacy authority diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
