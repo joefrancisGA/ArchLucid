@@ -27,6 +27,7 @@ export function OperatorHomeGlossarySections() {
           description="List, inspect detail, and track pipeline progress"
           href="/runs?projectId=default"
           shortcut="Alt+R"
+          linkAccessibleName="Runs"
         />
         <ActionCard
           icon={Play}
@@ -51,12 +52,15 @@ type ActionCardProps = {
   description: string;
   href: string;
   shortcut?: string;
+  /** Matches `NAV_GROUPS` shell link name (e.g. Runs) so home quick actions align with sidebar AT. */
+  linkAccessibleName?: string;
 };
 
-function ActionCard({ icon: Icon, label, description, href, shortcut }: ActionCardProps) {
+function ActionCard({ icon: Icon, label, description, href, shortcut, linkAccessibleName }: ActionCardProps) {
   return (
     <Link
       href={href}
+      aria-label={linkAccessibleName}
       className="group flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
     >
       <div className="flex items-center gap-2">
