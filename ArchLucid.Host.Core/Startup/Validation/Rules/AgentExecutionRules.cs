@@ -84,7 +84,7 @@ internal static class AgentExecutionRules
 
         int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
-        if (maxCompletionTokens < 0 || maxCompletionTokens > 262_144)
+        if (maxCompletionTokens is < 0 or > 262_144)
 
             errors.Add(
                 "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");

@@ -574,11 +574,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                      .Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId))
                      .OfType<Finding>())
 
-            if (finding.Severity == FindingSeverity.Critical || finding.Severity == FindingSeverity.Error)
+            if (finding.Severity is FindingSeverity.Critical or FindingSeverity.Error)
 
                 manifest.Constraints.MandatoryConstraints.Add(finding.Title);
 
-            else if (finding.Severity == FindingSeverity.Info || finding.Severity == FindingSeverity.Warning)
+            else if (finding.Severity is FindingSeverity.Info or FindingSeverity.Warning)
 
                 manifest.Constraints.Preferences.Add(finding.Title);
     }

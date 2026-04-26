@@ -45,7 +45,7 @@ internal static class BackgroundJobsRules
 
         int receiveBatch = configuration.GetValue("BackgroundJobs:ProcessorReceiveBatchSize", 16);
 
-        if (receiveBatch < 1 || receiveBatch > 32)
+        if (receiveBatch is < 1 or > 32)
 
             errors.Add(
                 "BackgroundJobs:ProcessorReceiveBatchSize must be between 1 and 32 when BackgroundJobs:Mode is Durable.");

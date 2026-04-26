@@ -101,7 +101,7 @@ public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValida
             errors.Add(
                 $"RunId '{result.RunId}' does not match the merge run '{runId}'; cross-run results must not be merged.");
 
-        if (result.Confidence < 0.0 || result.Confidence > 1.0)
+        if (result.Confidence is < 0.0 or > 1.0)
             errors.Add("Confidence must be between 0 and 1.");
 
         return errors;

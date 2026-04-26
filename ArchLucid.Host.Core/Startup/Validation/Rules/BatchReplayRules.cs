@@ -12,7 +12,7 @@ internal static class BatchReplayRules
         const int min = 1;
         const int max = 500;
 
-        if (batch.MaxComparisonRecordIds < min || batch.MaxComparisonRecordIds > max)
+        if (batch.MaxComparisonRecordIds is < min or > max)
 
             errors.Add(
                 $"ComparisonReplay:Batch:MaxComparisonRecordIds must be between {min} and {max} (inclusive).");

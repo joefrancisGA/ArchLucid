@@ -14,7 +14,7 @@ internal static class LlmCompletionCacheRules
 
         int maxEntries = configuration.GetValue("LlmCompletionCache:MaxEntries", 256);
 
-        if (maxEntries < 1 || maxEntries > 100_000)
+        if (maxEntries is < 1 or > 100_000)
 
             errors.Add(
                 "LlmCompletionCache:MaxEntries must be between 1 and 100000 when LlmCompletionCache:Enabled is true.");
@@ -22,7 +22,7 @@ internal static class LlmCompletionCacheRules
 
         int ttlSeconds = configuration.GetValue("LlmCompletionCache:AbsoluteExpirationSeconds", 600);
 
-        if (ttlSeconds < 1 || ttlSeconds > 604_800)
+        if (ttlSeconds is < 1 or > 604_800)
 
             errors.Add(
                 "LlmCompletionCache:AbsoluteExpirationSeconds must be between 1 and 604800 when LlmCompletionCache:Enabled is true.");

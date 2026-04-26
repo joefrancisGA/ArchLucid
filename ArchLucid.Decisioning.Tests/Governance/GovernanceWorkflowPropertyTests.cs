@@ -40,7 +40,7 @@ public sealed class GovernanceWorkflowPropertyTests
 
         Action act = () => sut.ApproveAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
-        bool legal = sample.Status == GovernanceApprovalStatus.Draft || sample.Status == GovernanceApprovalStatus.Submitted;
+        bool legal = sample.Status is GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted;
 
         if (legal)
         {
@@ -59,7 +59,7 @@ public sealed class GovernanceWorkflowPropertyTests
 
         Action act = () => sut.RejectAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
-        bool legal = sample.Status == GovernanceApprovalStatus.Draft || sample.Status == GovernanceApprovalStatus.Submitted;
+        bool legal = sample.Status is GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted;
 
         if (legal)
         {

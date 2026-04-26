@@ -111,10 +111,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         if (enf.Mode == DataConsistencyEnforcementMode.Off)
             return;
 
-
         int threshold = Math.Max(1, enf.AlertThreshold);
 
-        if (enf.Mode == DataConsistencyEnforcementMode.Alert || enf.Mode == DataConsistencyEnforcementMode.Quarantine)
+        if (enf.Mode is DataConsistencyEnforcementMode.Alert or DataConsistencyEnforcementMode.Quarantine)
         {
             TryRecordAlert(leftCount, threshold, "ComparisonRecords", "LeftRunId");
             TryRecordAlert(rightCount, threshold, "ComparisonRecords", "RightRunId");

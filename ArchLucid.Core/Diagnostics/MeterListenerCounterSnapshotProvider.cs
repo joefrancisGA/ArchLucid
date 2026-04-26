@@ -58,18 +58,20 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
 
     private static bool IsTrackedInstrument(Instrument instrument)
     {
-        if (instrument is null) return false;
-        if (instrument.Meter is null) return false;
-        if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName) return false;
+        if (instrument is null)
+            return false;
+        if (instrument.Meter is null)
+            return false;
+        if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            return false;
 
-        return instrument.Name == RunsCreatedInstrumentName
-               || instrument.Name == FindingsProducedInstrumentName
-               || instrument.Name == OperatorTaskSuccessInstrumentName;
+        return instrument.Name is RunsCreatedInstrumentName or FindingsProducedInstrumentName or OperatorTaskSuccessInstrumentName;
     }
 
     private void OnInstrumentPublished(Instrument instrument, MeterListener listener)
     {
-        if (!IsTrackedInstrument(instrument)) return;
+        if (!IsTrackedInstrument(instrument))
+            return;
 
         listener.EnableMeasurementEvents(instrument);
     }
@@ -118,9 +120,12 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
     {
         foreach (KeyValuePair<string, object?> tag in tags)
         {
-            if (!string.Equals(tag.Key, SeverityTag, StringComparison.Ordinal)) continue;
-            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s)) return s;
-            if (tag.Value is { } o) return o.ToString() ?? UnknownSeverity;
+            if (!string.Equals(tag.Key, SeverityTag, StringComparison.Ordinal))
+                continue;
+            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s))
+                return s;
+            if (tag.Value is { } o)
+                return o.ToString() ?? UnknownSeverity;
         }
 
         return UnknownSeverity;
@@ -130,9 +135,12 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
     {
         foreach (KeyValuePair<string, object?> tag in tags)
         {
-            if (!string.Equals(tag.Key, TaskTag, StringComparison.Ordinal)) continue;
-            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s)) return s;
-            if (tag.Value is { } o) return o.ToString() ?? UnknownTask;
+            if (!string.Equals(tag.Key, TaskTag, StringComparison.Ordinal))
+                continue;
+            if (tag.Value is string s && !string.IsNullOrWhiteSpace(s))
+                return s;
+            if (tag.Value is { } o)
+                return o.ToString() ?? UnknownTask;
         }
 
         return UnknownTask;

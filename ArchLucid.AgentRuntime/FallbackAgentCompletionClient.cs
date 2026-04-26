@@ -83,7 +83,7 @@ public sealed class FallbackAgentCompletionClient(
 
         int code = (int)statusCode;
 
-        return code == 429 || code is >= 500 and < 600;
+        return code is 429 or >= 500 and < 600;
     }
 
     /// <summary>Azure OpenAI SDK path: <see cref="ClientResultException" /> carries the HTTP status.</summary>
@@ -94,6 +94,6 @@ public sealed class FallbackAgentCompletionClient(
 
     private static bool IsFallbackEligibleStatus(int statusCode)
     {
-        return statusCode == 429 || statusCode is >= 500 and < 600;
+        return statusCode is 429 or >= 500 and < 600;
     }
 }

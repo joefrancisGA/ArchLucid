@@ -22,9 +22,7 @@ public sealed class TraceConfidenceLabelsPropertyTests
                 double r = Math.Clamp(f, 0, 1);
                 string label = TraceConfidenceLabels.FromCompletenessRatio(r);
 
-                return label == TraceConfidenceLabels.High
-                       || label == TraceConfidenceLabels.Medium
-                       || label == TraceConfidenceLabels.Low;
+                return label is TraceConfidenceLabels.High or TraceConfidenceLabels.Medium or TraceConfidenceLabels.Low;
             });
     }
 

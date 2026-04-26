@@ -10,12 +10,12 @@ internal static class RetrievalRules
             configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName).Get<RetrievalEmbeddingCapOptions>() ??
             new RetrievalEmbeddingCapOptions();
 
-        if (caps.MaxTextsPerEmbeddingRequest < 1 || caps.MaxTextsPerEmbeddingRequest > 2048)
+        if (caps.MaxTextsPerEmbeddingRequest is < 1 or > 2048)
 
             errors.Add("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest must be between 1 and 2048.");
 
 
-        if (caps.MaxChunksPerIndexOperation < 0 || caps.MaxChunksPerIndexOperation > 1_000_000)
+        if (caps.MaxChunksPerIndexOperation is < 0 or > 1_000_000)
 
             errors.Add("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation must be between 0 and 1000000 (0 = unlimited).");
 
