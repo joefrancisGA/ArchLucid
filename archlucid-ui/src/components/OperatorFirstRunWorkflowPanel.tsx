@@ -347,12 +347,17 @@ export function OperatorFirstRunWorkflowPanel() {
           const done = doneByIndex[index] === true;
           const expanded = expandedIndex === index;
 
+          const highlightNext = index === 0 && firstUndoneIndex === 0;
+
           return (
             <li
               key={step.title}
               className={cn(
                 "border-b border-sky-200/40 pb-2.5 last:border-b-0 dark:border-sky-800/40",
                 done ? "opacity-60" : "",
+                highlightNext
+                  ? "rounded-md border-l-2 border-l-teal-600 bg-teal-50/50 pl-2 dark:border-l-teal-400 dark:bg-teal-950/30"
+                  : "",
               )}
             >
               <div className="flex items-start gap-2">
@@ -376,6 +381,11 @@ export function OperatorFirstRunWorkflowPanel() {
                     }}
                   >
                     Step {index + 1} — {step.title}
+                    {highlightNext ? (
+                      <span className="ml-1.5 inline-flex align-middle rounded-full bg-teal-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-teal-900 dark:bg-teal-900/70 dark:text-teal-100">
+                        Start here
+                      </span>
+                    ) : null}
                     {done ? <span className="ml-1 text-[10px] font-normal text-teal-700 dark:text-teal-400">(done)</span> : null}
                   </button>
                   {expanded ? (

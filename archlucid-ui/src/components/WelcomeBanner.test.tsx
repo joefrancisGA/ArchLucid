@@ -55,22 +55,12 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
-    // Value card: current copy ("What you'll get" + body) or legacy sample-output list.
-    expect(
-      screen.getByText(
-        /one request produces a governed manifest, actionable findings, and exportable artifacts|Sample output includes/i,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        /What you will receive from a completed run|Sample completed run output/,
-      ),
-    ).toBeInTheDocument();
-    // CTA or card may label the runs list "See completed example" or "See a completed example" (keeps one href).
-    expect(screen.getByRole("link", { name: /see (a )?completed example/i })).toHaveAttribute(
-      "href",
-      "/runs?projectId=default",
-    );
+    expect(screen.getByText("Governed manifest")).toBeInTheDocument();
+    expect(screen.getByText(/one request produces everything/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/What you will receive from a completed run/)).toBeInTheDocument();
+    const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
+    expect(exampleLinks.length).toBeGreaterThanOrEqual(1);
+    expect(exampleLinks[0]).toHaveAttribute("href", "/runs?projectId=default");
     expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
   });
 
@@ -101,6 +91,10 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       screen.getByText("Monitor active runs, finalize manifests, and review governance findings."),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View runs" })).toHaveAttribute("href", "/runs?projectId=default");
+    expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
+      "href",
+      "/runs?projectId=default",
+    );
   });
 });
 

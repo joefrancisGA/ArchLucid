@@ -14,6 +14,8 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     expect(await screen.findByRole("heading", { name: "First Manifest Checklist" })).toBeInTheDocument();
 
+    expect(screen.getByText("Start here")).toBeInTheDocument();
+
     const wizard = screen.getByRole("link", { name: "Start new request" });
     expect(wizard).toHaveAttribute("href", "/runs/new");
   });

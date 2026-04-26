@@ -11,7 +11,7 @@ import {
   signOutAndRedirectHome,
 } from "@/lib/oidc/session";
 
-/** Shell header strip: dev bypass notice, or OIDC sign-in / sign-out + display name. */
+/** Inline shell chrome (top bar): dev bypass notice, or OIDC sign-in / sign-out + display name. */
 export function AuthPanel() {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
@@ -44,9 +44,9 @@ export function AuthPanel() {
       <div
         role="status"
         aria-label="Environment mode"
-        className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+        className="inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-2 py-0 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
       >
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
         Development workspace
       </div>
     );
@@ -56,15 +56,15 @@ export function AuthPanel() {
     <div
       role="region"
       aria-label="Authentication status"
-      className="mb-3 flex flex-wrap items-center gap-3 text-xs text-neutral-600 dark:text-neutral-400"
+      className="flex shrink-0 flex-wrap items-center gap-2 text-[11px] text-neutral-600 dark:text-neutral-400"
     >
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
-        <span className={`h-1.5 w-1.5 rounded-full ${signedIn ? "bg-emerald-500" : "bg-neutral-400"}`} aria-hidden />
+      <span className="inline-flex h-6 items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-2 py-0 font-medium text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300">
+        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${signedIn ? "bg-emerald-500" : "bg-neutral-400"}`} aria-hidden />
         {signedIn && displayName ? displayName : signedIn ? "Signed in" : "Not signed in"}
       </span>
       {!signedIn ? (
         <Link
-          className="auth-panel-focus rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white no-underline dark:bg-slate-800"
+          className="auth-panel-focus inline-flex h-6 items-center rounded-md bg-slate-900 px-2.5 py-0 text-[11px] font-medium text-white no-underline dark:bg-slate-800"
           href="/auth/signin"
           aria-label="Sign in with your organization account"
         >
@@ -73,7 +73,7 @@ export function AuthPanel() {
       ) : (
         <button
           type="button"
-          className="auth-panel-focus rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+          className="auth-panel-focus inline-flex h-6 items-center rounded-md border border-neutral-300 bg-white px-2 py-0 text-[11px] font-medium text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
           aria-label="Sign out and return to the operator home page"
           onClick={() => void signOutAndRedirectHome()}
         >
