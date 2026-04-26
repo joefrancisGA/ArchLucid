@@ -26,7 +26,8 @@ internal static class SponsorOnePagerCommand
 
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(120) };
+        using HttpClient http = new();
+        http.Timeout = TimeSpan.FromSeconds(120);
         http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));
 

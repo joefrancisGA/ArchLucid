@@ -173,8 +173,6 @@ internal static class SecondRunCommand
     {
         return code switch
         {
-            SecondRunParseFailureCode.PayloadTooLarge => CliExitCode.UsageError,
-            SecondRunParseFailureCode.BadRequest => CliExitCode.UsageError,
             _ => CliExitCode.UsageError
         };
     }
@@ -187,7 +185,8 @@ internal static class SecondRunCommand
     {
         try
         {
-            using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(60) };
+            using HttpClient http = new();
+            http.Timeout = TimeSpan.FromSeconds(60);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
 

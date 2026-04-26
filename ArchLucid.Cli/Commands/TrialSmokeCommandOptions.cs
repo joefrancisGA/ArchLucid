@@ -77,7 +77,8 @@ public sealed class TrialSmokeCommandOptions
     /// </summary>
     public static TrialSmokeCommandOptions? Parse(string[] args, out string? error)
     {
-        if (args is null) throw new ArgumentNullException(nameof(args));
+        if (args is null)
+            throw new ArgumentNullException(nameof(args));
 
         string? apiBaseUrl = null;
         string? org = null;
@@ -96,7 +97,8 @@ public sealed class TrialSmokeCommandOptions
             switch (arg)
             {
                 case "--api-base-url":
-                    if (!TryReadValue(args, ref i, arg, out string? apiVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? apiVal, out error))
+                        return null;
                     apiBaseUrl = apiVal;
                     break;
 
@@ -110,22 +112,26 @@ public sealed class TrialSmokeCommandOptions
 
                 case "--org":
                 case "--organization":
-                    if (!TryReadValue(args, ref i, arg, out string? orgVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? orgVal, out error))
+                        return null;
                     org = orgVal;
                     break;
 
                 case "--email":
-                    if (!TryReadValue(args, ref i, arg, out string? emailVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? emailVal, out error))
+                        return null;
                     email = emailVal;
                     break;
 
                 case "--display-name":
-                    if (!TryReadValue(args, ref i, arg, out string? dnVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? dnVal, out error))
+                        return null;
                     displayName = dnVal!;
                     break;
 
                 case "--baseline-hours":
-                    if (!TryReadValue(args, ref i, arg, out string? hoursVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? hoursVal, out error))
+                        return null;
                     if (!decimal.TryParse(hoursVal, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal h) ||
                         h <= 0)
                     {
@@ -137,7 +143,8 @@ public sealed class TrialSmokeCommandOptions
                     break;
 
                 case "--baseline-source":
-                    if (!TryReadValue(args, ref i, arg, out string? srcVal, out error)) return null;
+                    if (!TryReadValue(args, ref i, arg, out string? srcVal, out error))
+                        return null;
                     baselineSource = srcVal;
                     break;
 
@@ -170,7 +177,7 @@ public sealed class TrialSmokeCommandOptions
         }
 
         if (targetStaging && !string.IsNullOrWhiteSpace(apiBaseUrl) &&
-            !string.Equals(apiBaseUrl!.Trim().TrimEnd('/'), StagingApiBaseUrl, StringComparison.OrdinalIgnoreCase))
+            !string.Equals(apiBaseUrl.Trim().TrimEnd('/'), StagingApiBaseUrl, StringComparison.OrdinalIgnoreCase))
         {
             error = $"--staging cannot be combined with a different --api-base-url ('{apiBaseUrl}'). Drop one.";
             return null;
@@ -188,8 +195,8 @@ public sealed class TrialSmokeCommandOptions
             ApiBaseUrl = apiBaseUrl,
             TargetStaging = targetStaging,
             OneLineOutput = oneLine || targetStaging,
-            OrganizationName = org!.Trim(),
-            AdminEmail = email!.Trim(),
+            OrganizationName = org.Trim(),
+            AdminEmail = email.Trim(),
             AdminDisplayName = string.IsNullOrWhiteSpace(displayName) ? DefaultDisplayName : displayName.Trim(),
             BaselineReviewCycleHours = baselineHours,
             BaselineReviewCycleSource = baselineSource?.Trim(),

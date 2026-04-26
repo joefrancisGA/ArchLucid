@@ -40,17 +40,17 @@ internal static class SecurityTrustPublishCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new() { BaseAddress = new Uri(normalized + "/") };
+        using HttpClient http = new();
+        http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Remove("Accept");
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
-        if (!string.IsNullOrWhiteSpace(apiKey))
-        {
-            http.DefaultRequestHeaders.Remove("X-Api-Key");
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-        }
+        if (string.IsNullOrWhiteSpace(apiKey))
+            return await ExecutePublicationAsync(http, opts, cancellationToken);
+        http.DefaultRequestHeaders.Remove("X-Api-Key");
+        http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
         return await ExecutePublicationAsync(http, opts, cancellationToken);
     }

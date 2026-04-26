@@ -167,21 +167,20 @@ internal sealed class SecurityTrustPublishCommandOptions
             return null;
         }
 
-        if (string.IsNullOrWhiteSpace(summaryUrl))
-        {
-            error = "--summary-url is required.";
+        if (!string.IsNullOrWhiteSpace(summaryUrl))
+            return new SecurityTrustPublishCommandOptions
+            {
+                Kind = kind,
+                PublishedOn = date,
+                SummaryUrl = summaryUrl,
+                AssessorDisplayName = assessor,
+                AssessmentCode = assessmentCode,
+                UiBaseUrl = uiBaseUrl
+            };
 
-            return null;
-        }
+        error = "--summary-url is required.";
 
-        return new SecurityTrustPublishCommandOptions
-        {
-            Kind = kind,
-            PublishedOn = date,
-            SummaryUrl = summaryUrl,
-            AssessorDisplayName = assessor,
-            AssessmentCode = assessmentCode,
-            UiBaseUrl = uiBaseUrl
-        };
+        return null;
+
     }
 }

@@ -40,10 +40,8 @@ internal static class TrialSmokeCommand
             ? CliCommandShared.GetBaseUrl(config)
             : options.ApiBaseUrl!.Trim().TrimEnd('/');
 
-        using HttpClient http = new()
-        {
-            BaseAddress = new Uri(baseUrl + "/")
-        };
+        using HttpClient http = new();
+        http.BaseAddress = new Uri(baseUrl + "/");
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         TrialSmokeRunner runner = new(http);
