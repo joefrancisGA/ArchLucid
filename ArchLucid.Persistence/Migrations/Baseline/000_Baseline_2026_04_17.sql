@@ -666,54 +666,6 @@ GO
 
 GO
 
-/* ---- 017_GovernanceWorkflow.sql ---- */
-CREATE TABLE GovernanceApprovalRequests (
-    ApprovalRequestId NVARCHAR(64) NOT NULL PRIMARY KEY,
-    RunId NVARCHAR(64) NOT NULL,
-    ManifestVersion NVARCHAR(128) NOT NULL,
-    SourceEnvironment NVARCHAR(32) NOT NULL,
-    TargetEnvironment NVARCHAR(32) NOT NULL,
-    Status NVARCHAR(32) NOT NULL,
-    RequestedBy NVARCHAR(200) NOT NULL,
-    ReviewedBy NVARCHAR(200) NULL,
-    RequestComment NVARCHAR(MAX) NULL,
-    ReviewComment NVARCHAR(MAX) NULL,
-    RequestedUtc DATETIME2 NOT NULL,
-    ReviewedUtc DATETIME2 NULL
-);
-
-CREATE TABLE GovernancePromotionRecords (
-    PromotionRecordId NVARCHAR(64) NOT NULL PRIMARY KEY,
-    RunId NVARCHAR(64) NOT NULL,
-    ManifestVersion NVARCHAR(128) NOT NULL,
-    SourceEnvironment NVARCHAR(32) NOT NULL,
-    TargetEnvironment NVARCHAR(32) NOT NULL,
-    PromotedBy NVARCHAR(200) NOT NULL,
-    PromotedUtc DATETIME2 NOT NULL,
-    ApprovalRequestId NVARCHAR(64) NULL,
-    Notes NVARCHAR(MAX) NULL
-);
-
-CREATE TABLE GovernanceEnvironmentActivations (
-    ActivationId NVARCHAR(64) NOT NULL PRIMARY KEY,
-    RunId NVARCHAR(64) NOT NULL,
-    ManifestVersion NVARCHAR(128) NOT NULL,
-    Environment NVARCHAR(32) NOT NULL,
-    IsActive BIT NOT NULL,
-    ActivatedUtc DATETIME2 NOT NULL
-);
-
-CREATE INDEX IX_GovernanceApprovalRequests_RunId
-ON GovernanceApprovalRequests(RunId);
-
-CREATE INDEX IX_GovernancePromotionRecords_RunId
-ON GovernancePromotionRecords(RunId);
-
-CREATE INDEX IX_GovernanceEnvironmentActivations_Environment_IsActive
-ON GovernanceEnvironmentActivations(Environment, IsActive);
-
-GO
-
 /* ---- 017_GraphSnapshots_ParentTables.sql ---- */
 -- Parent tables for dbo.GraphSnapshotEdges (FK in 018). Authority/decisioning persistence; aligns with SQL/ArchiForge.sql.
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NULL
@@ -2080,9 +2032,7 @@ BEGIN
 END;
 GO
 
-GO
-
-/* ---- 035_HostLeaderLeases.sql ---- */
+/* Formerly 035_HostLeaderLeases.sql — merged under one 035_* prefix (DbUp lexical uniqueness). */
 /* Distributed leader leases for singleton hosted services (advisory scan, archival, retrieval outbox). */
 IF OBJECT_ID(N'dbo.HostLeaderLeases', N'U') IS NULL
 BEGIN
@@ -2205,6 +2155,56 @@ BEGIN
         ON dbo.AuthorityPipelineWorkOutbox (ProcessedUtc, CreatedUtc)
         WHERE ProcessedUtc IS NULL;
 END
+GO
+
+GO
+
+/* ---- 038_GovernanceWorkflow.sql ---- */
+CREATE TABLE GovernanceApprovalRequests (
+    ApprovalRequestId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    ManifestVersion NVARCHAR(128) NOT NULL,
+    SourceEnvironment NVARCHAR(32) NOT NULL,
+    TargetEnvironment NVARCHAR(32) NOT NULL,
+    Status NVARCHAR(32) NOT NULL,
+    RequestedBy NVARCHAR(200) NOT NULL,
+    ReviewedBy NVARCHAR(200) NULL,
+    RequestComment NVARCHAR(MAX) NULL,
+    ReviewComment NVARCHAR(MAX) NULL,
+    RequestedUtc DATETIME2 NOT NULL,
+    ReviewedUtc DATETIME2 NULL
+);
+
+CREATE TABLE GovernancePromotionRecords (
+    PromotionRecordId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    ManifestVersion NVARCHAR(128) NOT NULL,
+    SourceEnvironment NVARCHAR(32) NOT NULL,
+    TargetEnvironment NVARCHAR(32) NOT NULL,
+    PromotedBy NVARCHAR(200) NOT NULL,
+    PromotedUtc DATETIME2 NOT NULL,
+    ApprovalRequestId NVARCHAR(64) NULL,
+    Notes NVARCHAR(MAX) NULL
+);
+
+CREATE TABLE GovernanceEnvironmentActivations (
+    ActivationId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    ManifestVersion NVARCHAR(128) NOT NULL,
+    Environment NVARCHAR(32) NOT NULL,
+    IsActive BIT NOT NULL,
+    ActivatedUtc DATETIME2 NOT NULL
+);
+
+CREATE INDEX IX_GovernanceApprovalRequests_RunId
+ON GovernanceApprovalRequests(RunId);
+
+CREATE INDEX IX_GovernancePromotionRecords_RunId
+ON GovernancePromotionRecords(RunId);
+
+CREATE INDEX IX_GovernanceEnvironmentActivations_Environment_IsActive
+ON GovernanceEnvironmentActivations(Environment, IsActive);
+
 GO
 
 GO

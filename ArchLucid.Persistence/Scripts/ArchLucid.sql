@@ -2728,7 +2728,7 @@ IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
         CHECK (State IN (N'Pending', N'Running', N'Succeeded', N'Failed'));
 GO
 
-/* ---- Host leader leases (singleton hosted services; see Migrations/035_HostLeaderLeases.sql) ---- */
+/* ---- Host leader leases (singleton hosted services; see Migrations/035_AuditProvenanceConversationTables.sql) ---- */
 IF OBJECT_ID(N'dbo.HostLeaderLeases', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.HostLeaderLeases
@@ -4050,7 +4050,7 @@ BEGIN
 END;
 GO
 
-/* 096: ISJSON checks on core payload columns (see Migrations/096_CheckJson_CorePayloadColumns.sql). */
+/* 116: ISJSON checks on core payload columns (see Migrations/116_CheckJson_CorePayloadColumns.sql). */
 IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AuditEvents_DataJson_IsJson')
    AND NOT EXISTS (SELECT 1 FROM dbo.AuditEvents AS t WHERE ISJSON(t.DataJson) <> 1)

@@ -123,7 +123,6 @@ Read the file top-down; major comment banners include:
 | **004_DecisionNodes_And_Evaluations.sql** | `DecisionNodes`, `AgentEvaluations`. |
 | **005–007** | `ArchitectureRuns` snapshot id columns (`ContextSnapshotId`, `GraphSnapshotId`, `ArtifactBundleId`). |
 | **008–016** | Recommendations, advisory, digests, alerts, routing, composite rules, policy packs, scoped assignments. |
-| **017_GovernanceWorkflow.sql** | Governance approval / promotion / environment activation tables. |
 | **017_GraphSnapshots_ParentTables.sql** | Authority **`Runs`**, **`ContextSnapshots`**, **`GraphSnapshots`** (parent of **`GraphSnapshotEdges`** FK). |
 | **018_GraphSnapshotEdges.sql** | Denormalized graph edges table + index. |
 | **019_RetrievalIndexingOutbox.sql** | Post-commit retrieval indexing outbox. |
@@ -132,13 +131,15 @@ Read the file top-down; major comment banners include:
 | **022_GraphSnapshotEdges_IndexKeyLength.sql** | Index shape fix for **`GraphSnapshotEdges`** (1700-byte key limit). |
 | **023–030** | Relational snapshot children, performance indexes, idempotency, retrieval outbox, governance workflow extras, archival flags, RLS pilot on **`dbo.Runs`** (superseded by 036), etc. |
 | **031_ProductLearningPilotSignals.sql** | **58R:** Scoped pilot/product signals (trust / reject / revise / follow-up) with optional **`PatternKey`** for aggregation. |
+| **035_AuditProvenanceConversationTables.sql** | **`AuditEvents`**, **`ProvenanceSnapshots`**, **`ConversationThreads`**, and **`HostLeaderLeases`** (host DDL merged here so **`035_*`** stays unique under DbUp lexical ordering). |
 | **036_RlsArchiforgeTenantScope.sql** | RLS **`rls.ArchiforgeTenantScope`** on all scope-keyed authority tables (replaces pilot **`RunsScopeFilter`**). See **`docs/security/MULTI_TENANT_RLS.md`**. |
+| **038_GovernanceWorkflow.sql** | Governance approval / promotion / environment activation tables (renumbered from 017 to avoid duplicate **`017_*`** prefix with graph parents). |
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 | **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
 | **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations) plus RLS predicate when **`ArchiforgeTenantScope`** exists. |
 | **051_AuditEvents_DenyUpdateDelete.sql** | When database role **`ArchLucidApp`** exists: **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** (append-only enforcement). Skips if role absent. See **`docs/AUDIT_COVERAGE_MATRIX.md`**. |
-| **096_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R096_CheckJson_CorePayloadColumns.sql`**. |
+| **116_CheckJson_CorePayloadColumns.sql** | **`CHECK (ISJSON(…) = 1)`** on selected **`NVARCHAR(MAX)`** JSON contract columns when no row violates the predicate. Rollback: **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**. |
 | **096_RlsTenantIdOnlyTables.sql** | Adds **`rls.archiforge_tenant_predicate(@TenantId)`** and attaches **FILTER + BLOCK** predicates on **`dbo.SentEmails`**, **`dbo.TenantLifecycleTransitions`**, **`dbo.TenantTrialSeatOccupants`** to existing **`rls.ArchiforgeTenantScope`** (idempotent). Rollback: **`Rollback/R096_RlsTenantIdOnlyTables.sql`**. |
 | **097_TenantOnboardingState.sql** | **`dbo.TenantOnboardingState`** (`TenantId` PK, **`FirstSessionCompletedUtc`**) + tenant-only RLS when **`096`** predicate exists. Rollback: **`Rollback/R097_*.sql`**. |
 
