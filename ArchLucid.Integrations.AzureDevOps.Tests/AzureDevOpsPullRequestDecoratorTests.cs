@@ -41,19 +41,16 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             CancellationToken.None);
 
         Assert.Equal(2, captured.Count);
-        Assert.All(
-            captured,
-            r =>
-            {
-                Assert.NotNull(r.Headers.Authorization);
-                Assert.Equal("Basic", r.Headers.Authorization?.Scheme);
-            });
 
         HttpRequestMessage statusReq = captured[0];
+        Assert.NotNull(statusReq.Headers.Authorization);
+        Assert.Equal("Basic", statusReq.Headers.Authorization.Scheme);
         Assert.Equal(HttpMethod.Post, statusReq.Method);
         Assert.Contains("/pullrequests/42/statuses", statusReq.RequestUri?.ToString(), StringComparison.Ordinal);
 
         HttpRequestMessage threadReq = captured[1];
+        Assert.NotNull(threadReq.Headers.Authorization);
+        Assert.Equal("Basic", threadReq.Headers.Authorization.Scheme);
         Assert.Equal(HttpMethod.Post, threadReq.Method);
         Assert.Contains("/pullrequests/42/threads", threadReq.RequestUri?.ToString(), StringComparison.Ordinal);
     }
