@@ -85,16 +85,36 @@ export function getRunDetailFn() {
     return;
   }
 
-  // First list row can be a seed run whose manifest row is missing; GET run then returns 404. Scan for a loadable run.
-  const runIds = rows
-    .map((r) => (r && (r.runId || r.RunId)) || null)
-    .filter((id) => id !== null && id !== undefined && String(id).length > 0)
-    .map((id) => String(id));
+  // GET /run/{id} returns 404 when CurrentManifestVersion is set but the manifest row is missing (stale list rows).
+  // Prefer runs with no committed manifest so we need at most one detail request per iteration (keeps http_req_failed low).
+  const candidates = rows
+    .map((r) => {
+      const id = r && (r.runId || r.RunId);
+      const manifest = r && (r.currentManifestVersion ?? r.CurrentManifestVersion);
+
+      if (id === null || id === undefined || String(id).length === 0) {
+        return null;
+      }
+
+      return { id: String(id), manifest };
+    })
+    .filter((x) => x !== null);
+
+  candidates.sort((a, b) => {
+    const aEmpty = !a.manifest || String(a.manifest).trim() === "";
+    const bEmpty = !b.manifest || String(b.manifest).trim() === "";
+
+    if (aEmpty === bEmpty) {
+      return 0;
+    }
+
+    return aEmpty ? -1 : 1;
+  });
 
   let detail = null;
 
-  for (const runId of runIds.slice(0, 40)) {
-    detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`);
+  for (const c of candidates.slice(0, 3)) {
+    detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(c.id)}`);
 
     if (detail.status === 200) {
       break;
