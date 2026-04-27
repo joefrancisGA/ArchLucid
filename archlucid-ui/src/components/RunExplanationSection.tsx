@@ -208,6 +208,14 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
                   : ""}
+                {row.missingTraceFields !== null &&
+                row.missingTraceFields !== undefined &&
+                row.missingTraceFields.length > 0 ? (
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    {" "}
+                    — missing: {row.missingTraceFields.join(", ")}
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>

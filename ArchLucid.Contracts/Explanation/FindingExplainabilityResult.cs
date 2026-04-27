@@ -35,6 +35,13 @@ public sealed class FindingExplainabilityResult
         set;
     }
 
+    /// <summary>Trace dimensions that were empty when completeness was scored.</summary>
+    public List<string> MissingTraceFields
+    {
+        get;
+        set;
+    } = [];
+
     public List<string> GraphNodeIdsExamined
     {
         get;

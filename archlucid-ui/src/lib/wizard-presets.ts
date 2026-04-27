@@ -46,6 +46,32 @@ export const wizardPresets: WizardPreset[] = [
     },
   },
   {
+    id: "event-driven-integration",
+    label: "Event-driven integration",
+    description: "Queues, topics, and async boundaries between services on Azure.",
+    values: {
+      systemName: "EventDrivenPlatform",
+      description:
+        "Event-driven architecture integrating multiple bounded contexts via a message bus (Azure Service Bus or Event Hubs), idempotent consumers, dead-letter handling, observability for end-to-end traces, and clear ownership of schemas.",
+      constraints: ["Azure-native messaging", "At-least-once delivery acceptable with idempotent handlers"],
+      requiredCapabilities: ["Service Bus or Event Hubs", "Schema registry or versioned contracts", "Distributed tracing"],
+      topologyHints: ["Prefer outbox or transactional inbox for consistency", "Define poison-message and DLQ runbooks"],
+    },
+  },
+  {
+    id: "data-lake-analytics",
+    label: "Data lake & analytics",
+    description: "Ingestion, storage tiers, and curated layers for batch and near-real-time analytics.",
+    values: {
+      systemName: "AnalyticsDataLake",
+      description:
+        "Enterprise analytics platform landing raw and curated datasets in Azure Data Lake Storage, orchestrated pipelines (ADF or Synapse), Spark or SQL pools for transformation, and governed access for BI tools with row-level security expectations.",
+      constraints: ["Data residency and encryption at rest", "PII classification and retention policies"],
+      requiredCapabilities: ["ADLS Gen2", "Metadata catalog", "Lineage from ingestion to consumption"],
+      securityBaselineHints: ["Private endpoints for storage and SQL", "Managed identities for pipeline principals"],
+    },
+  },
+  {
     id: "blank-advanced",
     label: "Blank (advanced)",
     description: "Minimal defaults only — fill every field manually.",

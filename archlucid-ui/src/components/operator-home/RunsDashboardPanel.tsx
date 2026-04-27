@@ -168,17 +168,24 @@ export function RunsDashboardPanel() {
               ) : null}
 
               {phase === "ready" && items.length === 0 ? (
-                <div className="space-y-2">
-                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    No architecture runs yet
-                  </p>
+                <div
+                  className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
+                  data-testid="operator-home-getting-started"
+                >
+                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Create a request to generate your first architecture manifest, surfaced findings, and exportable
-                    artifact bundle.
+                    You have no runs in this workspace yet. Create an architecture request to produce a manifest,
+                    findings, and exportable artifacts — or walk the pilot checklist first.
                   </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button asChild variant="primary" size="sm" className="h-8">
+                      <Link href="/runs/new">Create your first request</Link>
+                    </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/runs/new">Create request</Link>
+                      <Link href="/getting-started">Pilot checklist</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="h-8">
+                      <Link href="/help">Operator help</Link>
                     </Button>
                   </div>
                 </div>

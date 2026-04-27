@@ -7,9 +7,15 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
-## 2026-04-27 — Stripe chargeback, refund, and dunning policy text approved
+## 2026-04-27 — Azure Marketplace publisher identity and landing page URL approved
 
-**Outcome.** The owner reviewed and approved the drafted Stripe chargeback, refund, and dunning policy text. The "pending legal sign-off" markers were removed from `docs/go-to-market/ORDER_FORM_TEMPLATE.md` and `docs/go-to-market/TRUST_CENTER.md`. `docs/PENDING_QUESTIONS.md` item 9 was updated to reflect this approval.
+**Outcome.** The owner confirmed the legal entity for the Partner Center publisher/seller identity as Joseph Francis (Sole Proprietorship) and the production landing page URL as `https://archlucid.net/signup`. `docs/PENDING_QUESTIONS.md` item 8 and `docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md` were updated to reflect these decisions.
+
+---
+
+## 2026-04-27 — Stripe statement descriptor, policy text, and webhook owner approved
+
+**Outcome.** The owner reviewed and approved the drafted Stripe chargeback, refund, and dunning policy text. The "pending legal sign-off" markers were removed from `docs/go-to-market/ORDER_FORM_TEMPLATE.md` and `docs/go-to-market/TRUST_CENTER.md`. The owner also confirmed the Stripe statement descriptor as `ARCHLUCID PLATFORM` and designated Joseph Francis as the owner for webhook rotation and incident response. `docs/PENDING_QUESTIONS.md` item 9 was updated to reflect these approvals.
 
 ---
 
