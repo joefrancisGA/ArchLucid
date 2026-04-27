@@ -33,11 +33,6 @@ public sealed class DemoViewerDataHealthCheck(
 
         RunRecord? run = await _demoSeedRunResolver.ResolveLatestCommittedDemoRunAsync(cancellationToken);
 
-        if (run is null)
-        {
-            return HealthCheckResult.Degraded("Anonymous demo viewer enabled but no committed Contoso demo run exists.");
-        }
-
-        return HealthCheckResult.Healthy("Anonymous demo viewer has committed demo data.");
+        return run is null ? HealthCheckResult.Degraded("Anonymous demo viewer enabled but no committed Contoso demo run exists.") : HealthCheckResult.Healthy("Anonymous demo viewer has committed demo data.");
     }
 }

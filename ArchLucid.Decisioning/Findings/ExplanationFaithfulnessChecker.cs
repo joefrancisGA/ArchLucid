@@ -117,7 +117,6 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
         "issues",
         "need",
         "needs",
-        "must",
         "recommend",
         "summary"
     };
