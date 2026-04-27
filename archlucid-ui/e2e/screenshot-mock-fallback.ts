@@ -343,7 +343,7 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return { runId: "r1", sections: [] as unknown[] };
   }
 
-  if (pathname.includes("/pipeline/timeline")) {
+  if (pathname.includes("/pipeline-timeline")) {
     return [] as unknown[];
   }
 
