@@ -1,12 +1,24 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-04-27:** Resolved two long-standing deferred items:
+> 1. Authentication Strategy for SaaS/On-Prem default: Require Entra ID or explicit API keys (Resolved).
+> 2. Unified Error Responses for Hidden UI Features: 404 Not Found (Resolved).
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions across improvements **1**–**10** — see *Resolved 2026-04-24* below; closes SCIM / first-real-value / Confluence / rebrand PR-2 / tour copy / sponsor badge / contributor index / audit-count guard / cost-preview sub-decisions; surfaces no new pending items). **Addendum 2026-04-24:** All Atlassian suite connectors (Jira, Confluence) explicitly deferred to V1.1 — see Improvement 3 and item 11.
+**Last updated:** 2026-04-27 (Post-assessment Q&A resolution of authentication and error obfuscation).
 
-**Earlier owner batches (2026-04-21 → 2026-04-23):** sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
+**Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-04-27 (Post-Assessment Q&A)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Default Authentication Strategy for SaaS vs. On-Prem** | **Require Entra ID configuration or a static API key.** The open `DevelopmentBypassAll` default must not be the production posture. | `ArchLucid.Api/Auth/Models/ArchLucidAuthOptions.cs`, `docs/library/` |
+| **Unify Error Responses for Hidden UI Features** | **404 Not Found.** Restricted API routes will return 404 instead of 403 to prevent feature and resource enumeration by unauthorized tiers/roles. | `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`, `ArchLucid.Api.Tests/`, Operator UI interpretation logic. |
 
 ---
 
@@ -31,7 +43,7 @@ These decisions came out of a structured owner Q&A on the ten improvement opport
 
 ### Improvement 3 — Confluence Cloud connector
 
-> **DEFERRED TO V1.1 — owner decision 2026-04-24.** All Atlassian suite connectors (Jira, Confluence) are explicitly out of scope for V1. The sub-decisions below are preserved as V1.1 design intent but **no implementation merges in V1**. See [`docs/library/V1_DEFERRED.md` §6](library/V1_DEFERRED.md) and [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md). For V1, operators integrate via **CloudEvents webhooks** or **REST API**.
+> **DEFERRED TO V1.1 — owner decision 2026-04-24.** All Atlassian suite connectors (Jira, Confluence) are explicitly out of scope for V1. The sub-decisions below are preserved as V1.1 design intent but **no implementation merges in V1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6 and [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md). For V1, operators integrate via **CloudEvents webhooks** or **REST API**.
 
 | Sub-decision | Decision | Affects (V1.1) |
 |---|---|---|
