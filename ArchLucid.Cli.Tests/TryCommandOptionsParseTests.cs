@@ -6,7 +6,7 @@ namespace ArchLucid.Cli.Tests;
 
 public sealed class TryCommandOptionsParseTests
 {
-    private static readonly object RealAoaiEnvLock = new();
+    private static readonly Lock RealAoaiEnvLock = new();
 
     [Fact]
     public void Parse_WhenReal_setsRealModeAndLongerDefaultCommitDeadline()
@@ -15,7 +15,7 @@ public sealed class TryCommandOptionsParseTests
 
         error.Should().BeNull();
         options.Should().NotBeNull();
-        options!.RealMode.Should().BeTrue();
+        options.RealMode.Should().BeTrue();
         options.StrictReal.Should().BeFalse();
         options.CommitDeadline.Should().Be(TryCommandOptions.RealModeDefaultCommitDeadline);
     }
@@ -27,7 +27,7 @@ public sealed class TryCommandOptionsParseTests
 
         error.Should().BeNull();
         options.Should().NotBeNull();
-        options!.StrictReal.Should().BeTrue();
+        options.StrictReal.Should().BeTrue();
     }
 
     [Fact]
@@ -37,7 +37,7 @@ public sealed class TryCommandOptionsParseTests
 
         error.Should().BeNull();
         options.Should().NotBeNull();
-        options!.CommitDeadline.Should().Be(TimeSpan.FromSeconds(90));
+        options.CommitDeadline.Should().Be(TimeSpan.FromSeconds(90));
     }
 
     [Fact]
@@ -53,14 +53,11 @@ public sealed class TryCommandOptionsParseTests
 
                 TryCommandOptions? options = TryCommandOptions.Parse(["--real"], out _);
                 options.Should().NotBeNull();
-                options!.IsPilotRealAzureOpenAiAttempt.Should().BeFalse();
+                options.IsPilotRealAzureOpenAiAttempt.Should().BeFalse();
             }
             finally
             {
-                if (saved is null)
-                    Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, null);
-                else
-                    Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, saved);
+                Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, saved ?? null);
             }
         }
     }
@@ -78,14 +75,11 @@ public sealed class TryCommandOptionsParseTests
 
                 TryCommandOptions? options = TryCommandOptions.Parse(["--real"], out _);
                 options.Should().NotBeNull();
-                options!.IsPilotRealAzureOpenAiAttempt.Should().BeTrue();
+                options.IsPilotRealAzureOpenAiAttempt.Should().BeTrue();
             }
             finally
             {
-                if (saved is null)
-                    Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, null);
-                else
-                    Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, saved);
+                Environment.SetEnvironmentVariable(TryCommandOptions.ArchLucidRealAoaiEnv, saved ?? null);
             }
         }
     }

@@ -33,7 +33,7 @@ public sealed class IngestionGoldenCorpusRegressionTests
     {
         IngestionGoldenCaseFile? file = await ReadCaseFileAsync(caseName);
         file.Should().NotBeNull();
-        file!.InfrastructureDeclaration.Should().NotBeNull();
+        file.InfrastructureDeclaration.Should().NotBeNull();
 
         InfrastructureDeclarationReference decl = IngestionGoldenCaseInputDtos.ToDeclaration(file.InfrastructureDeclaration!);
         IReadOnlyList<CanonicalObject> objects = await _terraform.ParseAsync(decl, CancellationToken.None);
@@ -46,7 +46,7 @@ public sealed class IngestionGoldenCorpusRegressionTests
     {
         IngestionGoldenCaseFile? file = await ReadCaseFileAsync("case-03");
         file.Should().NotBeNull();
-        file!.Document.Should().NotBeNull();
+        file.Document.Should().NotBeNull();
 
         ContextDocumentReference doc = IngestionGoldenCaseInputDtos.ToDocument(file.Document!);
         IReadOnlyList<CanonicalObject> objects = await _documents.ParseAsync(doc, CancellationToken.None);

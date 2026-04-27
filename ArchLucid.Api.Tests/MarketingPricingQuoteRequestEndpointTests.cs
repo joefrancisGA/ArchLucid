@@ -83,8 +83,6 @@ public sealed class MarketingPricingQuoteRequestEndpointTests
     private sealed class SeededQuoteRepository(MarketingPricingQuoteRequestInsertResult insert)
         : IMarketingPricingQuoteRequestRepository
     {
-        private readonly MarketingPricingQuoteRequestInsertResult _insert = insert;
-
         public Task<MarketingPricingQuoteRequestInsertResult?> AppendAsync(
             string workEmail,
             string companyName,
@@ -92,6 +90,6 @@ public sealed class MarketingPricingQuoteRequestEndpointTests
             string message,
             byte[]? clientIpSha256,
             CancellationToken cancellationToken) =>
-            Task.FromResult<MarketingPricingQuoteRequestInsertResult?>(_insert);
+            Task.FromResult<MarketingPricingQuoteRequestInsertResult?>(insert);
     }
 }

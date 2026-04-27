@@ -35,7 +35,7 @@ public sealed class TrialSmokeCommandOptionsTests
 
         error.Should().BeNull();
         opts.Should().NotBeNull();
-        opts!.OrganizationName.Should().Be("Acme");
+        opts.OrganizationName.Should().Be("Acme");
         opts.AdminEmail.Should().Be("ops@example.com");
         opts.AdminDisplayName.Should().Be(TrialSmokeCommandOptions.DefaultDisplayName);
         opts.BaselineReviewCycleHours.Should().BeNull();

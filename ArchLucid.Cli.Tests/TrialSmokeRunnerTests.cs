@@ -226,7 +226,7 @@ public sealed class TrialSmokeRunnerTests
     [Fact]
     public async Task RunAsync_HappyPath_PropagatesXCorrelationIdFromRegisterResponse()
     {
-        const string CorrelationId = "abcd-1234-correlation";
+        const string correlationId = "abcd-1234-correlation";
         StubHandler handler = new();
         handler.OnRequest = req =>
         {
@@ -241,7 +241,7 @@ public sealed class TrialSmokeRunnerTests
                         defaultWorkspaceId = WorkspaceId,
                         defaultProjectId = ProjectId
                     });
-                created.Headers.Add("X-Correlation-ID", CorrelationId);
+                created.Headers.Add("X-Correlation-ID", correlationId);
                 return Task.FromResult(created);
             }
 
@@ -260,13 +260,13 @@ public sealed class TrialSmokeRunnerTests
             new TrialSmokeCommandOptions { OrganizationName = "Acme", AdminEmail = "ops@example.com" });
 
         report.AllPassed.Should().BeTrue();
-        report.RegistrationCorrelationId.Should().Be(CorrelationId);
+        report.RegistrationCorrelationId.Should().Be(correlationId);
     }
 
     [Fact]
     public async Task RunAsync_RegisterFailsWithCorrelationHeader_StillReportsCorrelationId()
     {
-        const string CorrelationId = "fail-trace-9999";
+        const string correlationId = "fail-trace-9999";
         StubHandler handler = new()
         {
             OnRequest = _ =>
@@ -275,7 +275,7 @@ public sealed class TrialSmokeRunnerTests
                 {
                     error = "duplicate_slug"
                 });
-                conflict.Headers.Add("X-Correlation-ID", CorrelationId);
+                conflict.Headers.Add("X-Correlation-ID", correlationId);
                 return Task.FromResult(conflict);
             }
         };
@@ -284,7 +284,7 @@ public sealed class TrialSmokeRunnerTests
             new TrialSmokeCommandOptions { OrganizationName = "Acme", AdminEmail = "ops@example.com" });
 
         report.AllPassed.Should().BeFalse();
-        report.RegistrationCorrelationId.Should().Be(CorrelationId);
+        report.RegistrationCorrelationId.Should().Be(correlationId);
     }
 
     [Fact]
@@ -306,10 +306,8 @@ public sealed class TrialSmokeRunnerTests
 
     private static async Task<TrialSmokeReport> RunAsync(StubHandler handler, TrialSmokeCommandOptions options)
     {
-        using HttpClient http = new(handler)
-        {
-            BaseAddress = new Uri(BaseUrl + "/")
-        };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri(BaseUrl + "/");
         TrialSmokeRunner runner = new(http);
 
         return await runner.RunAsync(options);
