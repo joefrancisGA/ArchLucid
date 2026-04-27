@@ -135,6 +135,6 @@ describe("operator client pages — render gate", () => {
   it("GettingStartedPage renders primary heading", async () => {
     const page = await GettingStartedPage({ searchParams: Promise.resolve({}) });
     render(page);
-    expect(screen.getByRole("heading", { level: 2, name: "Getting started" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Getting started" })).toBeInTheDocument();
   });
 });

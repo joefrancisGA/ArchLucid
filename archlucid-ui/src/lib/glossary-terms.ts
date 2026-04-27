@@ -17,7 +17,7 @@ export const GLOSSARY_TERMS = {
   },
   golden_manifest: {
     term: "Reviewed manifest",
-    definition: "The versioned, finalized design record for a run—the source of truth for governance, comparison, and artifacts. (Internal model name: golden manifest.)",
+    definition: "The versioned, finalized design record for a run—the source of truth for governance, comparison, and artifacts.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   findings: {

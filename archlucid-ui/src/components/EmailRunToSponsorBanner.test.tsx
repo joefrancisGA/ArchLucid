@@ -40,7 +40,7 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-banner")).toBeInTheDocument();
     expect(screen.getByText(/time to value/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /email this run to your sponsor/i }),
+      screen.getByRole("button", { name: /prepare sponsor summary/i }),
     ).toBeInTheDocument();
 
     await waitFor(() => {

@@ -91,7 +91,7 @@ describe("DemoExplainPage (proof page snapshot)", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("demo-explain-not-available")).toHaveTextContent(
-        "No committed demo-seed run is available on this host",
+        "The example analysis is not available in this environment",
       );
     });
 

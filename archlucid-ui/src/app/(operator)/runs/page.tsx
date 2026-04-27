@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { Button } from "@/components/ui/button";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -75,28 +76,23 @@ export default async function RunsPage({
         metadata={<span>Project {projectId}</span>}
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Open a run for manifest summary, artifact review, compare and replay links, and exports. Results are paged
-        server-side (default 20 per page; use <code>?page=</code> and <code>?pageSize=</code>, or legacy{" "}
-        <code>?take=</code> as page size).
+        Open a run to review its manifest, artifacts, findings, and exports.
       </p>
-      <p className="mt-2">
-        <Link href="/" className="text-teal-800 underline dark:text-teal-300">
-          Home
-        </Link>
-        {" · "}
-        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
-          New request (wizard)
-        </Link>{" "}
-        <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" />
-        {" · "}
-        <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
-          Graph
-        </Link>
-        {" · "}
-        <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
-          Compare two runs
-        </Link>
-      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="inline-flex items-center gap-1.5">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/runs/new" className="no-underline">
+              New request
+            </Link>
+          </Button>
+          <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/compare" className="no-underline">
+            Compare two runs
+          </Link>
+        </Button>
+      </div>
 
       {loadFailure === null && malformedMessage === null ? (
         <BeforeAfterDeltaPanel variant="top" />
@@ -114,10 +110,7 @@ export default async function RunsPage({
             correlationId={loadFailure.correlationId}
           />
           <OperatorTryNext>
-            Confirm the API is up (<code>GET /health/live</code>), <code>.env.local</code> has{" "}
-            <code>ARCHLUCID_API_BASE_URL</code> (and API key if required), then reload. If you use a non-default
-            project, add <code>?projectId=…</code> to the URL. Use the correlation ID above in API logs if support
-            asks.
+            The run list could not be loaded. Check your connection and try reloading.
           </OperatorTryNext>
         </>
       )}
@@ -133,8 +126,7 @@ export default async function RunsPage({
             </p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Deployed UI and API versions may be out of sync—compare release tags. Open <code>GET /version</code> on
-            the API and the operator shell build you are running.
+            The server response was unexpected. If this persists, contact support.
           </OperatorTryNext>
         </>
       )}

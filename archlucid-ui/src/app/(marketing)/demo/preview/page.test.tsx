@@ -87,12 +87,12 @@ describe("Demo preview marketing body", () => {
 
     expect(screen.getByTestId("demo-preview-status-banner")).toHaveTextContent("demo tenant — replace before publishing");
     expect(screen.getByTestId("demo-preview-run")).toHaveTextContent("Fixture");
-    expect(screen.getByTestId("demo-preview-authority-chain")).toHaveTextContent("Golden Manifest:");
+    expect(screen.getByTestId("demo-preview-authority-chain")).toHaveTextContent("Reviewed manifest:");
     expect(screen.getByTestId("demo-preview-manifest-summary")).toHaveTextContent("Finalized");
     expect(screen.getByTestId("demo-preview-aggregate-explanation")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Commit");
     expect(screen.getByTestId("demo-preview-artifacts")).toHaveTextContent("Architecture brief");
-    expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent("GET /v1/demo/preview");
+    expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent("Powered by ArchLucid");
   });
 
   it("renders the not-available notice", () => {

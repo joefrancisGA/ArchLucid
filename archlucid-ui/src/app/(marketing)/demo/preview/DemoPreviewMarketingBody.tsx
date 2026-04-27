@@ -75,12 +75,12 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       </section>
 
       <section data-testid="demo-preview-authority-chain">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Provenance chain</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
         <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>Context Snapshot: {payload.authorityChain.contextSnapshotId ?? "—"}</li>
           <li>Graph Snapshot: {payload.authorityChain.graphSnapshotId ?? "—"}</li>
           <li>Findings Snapshot: {payload.authorityChain.findingsSnapshotId ?? "—"}</li>
-          <li>Golden Manifest: {payload.authorityChain.goldenManifestId ?? "—"}</li>
+          <li>Reviewed manifest: {payload.authorityChain.goldenManifestId ?? "—"}</li>
           <li>Decision Trace: {payload.authorityChain.decisionTraceId ?? "—"}</li>
           <li>Artifact Bundle: {payload.authorityChain.artifactBundleId ?? "—"}</li>
         </ul>
@@ -173,12 +173,12 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
         </div>
       </section>
 
-      <footer
+      <p
         data-testid="demo-preview-footer"
         className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
       >
-        Source: <code>GET /v1/demo/preview</code> · This page is a real ArchLucid manifest detail view sourced from the demo seed.
-      </footer>
+        Powered by ArchLucid.
+      </p>
     </div>
   );
 }

@@ -86,9 +86,6 @@ export default async function RunDetailPage({
           fallbackMessage={fallback}
           correlationId={loadFailure?.correlationId ?? null}
         />
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          This indicates a failed request or missing run (HTTP / transport), not a JSON shape issue.
-        </p>
         <p>
           <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
             ← Back to runs
@@ -108,8 +105,7 @@ export default async function RunDetailPage({
           <strong>Run detail response was not usable.</strong>
           <p className="mt-2">{envelope.message}</p>
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            The API returned a body, but it did not match the expected run envelope. Compare UI and
-            API versions.
+            The run data could not be displayed. Try reloading.
           </p>
         </OperatorMalformedCallout>
         <p>
@@ -198,8 +194,8 @@ export default async function RunDetailPage({
   const runDetailNavSections: RunDetailSection[] = [
     { id: "run-metadata", label: "Run", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
-    { id: "agent-forensics", label: "Forensics", available: true },
-    { id: "authority-chain", label: "Chain", available: true },
+    { id: "agent-forensics", label: "Agent trace", available: true },
+    { id: "authority-chain", label: "Review trail", available: true },
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
     { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
@@ -288,9 +284,7 @@ export default async function RunDetailPage({
               <ContextualHelp helpKey="run-pipeline-status" placement="right" />
             </div>
             <CardDescription>
-              Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the
-              run was created outside the{" "}
-              <GlossaryTooltip termKey="authority_pipeline">run pipeline</GlossaryTooltip>.
+              Audit events for this run, oldest first.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -314,8 +308,8 @@ export default async function RunDetailPage({
       <section id="authority-chain" className="scroll-mt-24">
         <Card>
           <CardHeader>
-            <h3 className={sectionHeadingClass}>Provenance chain</h3>
-            <CardDescription>Snapshot and manifest identifiers for this run.</CardDescription>
+            <h3 className={sectionHeadingClass}>Review trail</h3>
+            <CardDescription>Snapshot, manifest, and trace identifiers for this run.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-0">
             <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
@@ -412,15 +406,9 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p className="m-0">
-            This run has no reviewed manifest yet (normal before finalization). After the pipeline
-            finishes, finalize through the <strong>API or CLI</strong>, then reload this page for manifest summary,
-            artifacts, and ZIP exports.
+            This run has not been finalized yet. Once the pipeline completes and the run is finalized, the
+            manifest, artifacts, and exports will appear here.
           </p>
-          <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            <li>Confirm provenance chain items above are populated (snapshots processing).</li>
-            <li>Finalize when ready — examples in <code>docs/OPERATOR_QUICKSTART.md</code>.</li>
-            <li>Reload run detail; the manifest link and Artifacts section will appear.</li>
-          </ol>
         </OperatorEmptyState>
       )}
 

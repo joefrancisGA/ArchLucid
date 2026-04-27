@@ -47,8 +47,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          Configure <code>NEXT_PUBLIC_DEMO_PREVIEW_API_BASE</code> (or server <code>ARCHLUCID_API_BASE_URL</code>) so this
-          marketing host can reach the ArchLucid API anonymously.
+          This example isn&apos;t available in the current environment.
         </p>
       </main>
     );
@@ -72,8 +71,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
-        <p className="mt-3 text-sm text-red-700 dark:text-red-300">
-          The showcase API returned HTTP {response.status}. Confirm the API is reachable at <code>{url}</code>.
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          This showcase could not be loaded right now. Please try again later.
         </p>
       </main>
     );
@@ -85,7 +84,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Read-only marketing view of run <code>{runId}</code> — same projection as the demo commit page preview.
+        A read-only view of a completed architecture analysis.
       </p>
       <div className="mt-6">
         <DemoPreviewMarketingBody payload={payload} />
