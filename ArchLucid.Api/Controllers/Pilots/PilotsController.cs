@@ -1,11 +1,16 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
@@ -36,7 +41,10 @@ public sealed class PilotsController(
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
-    IRecentPilotRunDeltasService recentPilotRunDeltasService) : ControllerBase
+    IRecentPilotRunDeltasService recentPilotRunDeltasService,
+    IAuditService auditService,
+    IActorContext actorContext,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
     ///     Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
@@ -68,7 +76,7 @@ public sealed class PilotsController(
         return Ok(PilotInProductScorecardMapper.ToResponse(result));
     }
 
-    /// <summary>Operator-entered pilot ROI baselines (tenant-scoped, durable audit).</summary>
+    /// <summary>Operator-entered pilot ROI baselines (tenant-scoped, durable audit on success).</summary>
     [HttpPut("scorecard/baselines")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Produces("application/json")]
@@ -77,10 +85,34 @@ public sealed class PilotsController(
         [FromBody] PilotScorecardBaselinesPutRequest? body,
         CancellationToken cancellationToken)
     {
-        await pilotInProductScorecardService.UpsertBaselinesAsync(
-            body?.BaselineHoursPerReview,
-            body?.BaselineReviewsPerQuarter,
-            body?.BaselineArchitectHourlyCost,
+        decimal? h = body?.BaselineHoursPerReview;
+        int? q = body?.BaselineReviewsPerQuarter;
+        decimal? c = body?.BaselineArchitectHourlyCost;
+
+        await pilotInProductScorecardService.UpsertBaselinesAsync(h, q, c, cancellationToken);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        string payload = JsonSerializer.Serialize(
+            new
+            {
+                baselineHoursPerReview = h,
+                baselineReviewsPerQuarter = q,
+                baselineArchitectHourlyCost = c
+            });
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PilotScorecardBaselinesUpdated,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = payload,
+                CorrelationId = "pilot-scorecard-baselines"
+            },
             cancellationToken);
 
         return NoContent();

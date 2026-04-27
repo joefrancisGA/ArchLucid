@@ -3,10 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ContextualHelp } from "./ContextualHelp";
 
-function resetEnv() {
-  return process.env.NEXT_PUBLIC_ARCHLUCID_DOCS_BLOB_BASE;
-}
-
 describe("ContextualHelp", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
