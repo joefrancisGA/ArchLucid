@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
-    "generate:pricing": "python3 ../scripts/ci/generate_pricing_json.py",
+    "generate:pricing": "node ./scripts/invoke-generate-pricing.mjs",
     "build": "npm run generate:pricing && next build",
     "start": "next start -p 3000",
     "lint": "next lint",
@@ -16,6 +16,7 @@
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "screenshots": "playwright test -c playwright.mock.config.ts capture-marketing-screenshots.spec.ts",
     "screenshots:all": "playwright test -c playwright.mock.config.ts capture-all-screenshots.spec.ts",
+    "screenshots:all:prebuilt": "node ./scripts/run-screenshots-all-prebuilt.mjs",
     "test:e2e:live": "playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
     "generate:api-types": "openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/lib/api-types.generated.ts",

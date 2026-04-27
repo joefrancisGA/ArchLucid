@@ -6,6 +6,8 @@ import { defineConfig, devices } from "@playwright/test";
  * Merge-blocking live journeys use the default `playwright.config.ts` in CI (`ui-e2e-live`).
  *
  * If `MOCK_E2E_SKIP_NEXT_BUILD=1`, the webServer only runs `start-e2e-with-mock` (assumes `npm run build` already ran).
+ * After a one-time `npm run build`, prefer `npm run screenshots:all:prebuilt` to avoid the webServer re-running
+ * a full build (faster, clearer failures). PNGs for `capture-all` land under `public/screenshots/all-routes/`.
  */
 const mockE2eSkipNextBuild = process.env.MOCK_E2E_SKIP_NEXT_BUILD === "1";
 const mockWebServerCommand = mockE2eSkipNextBuild
