@@ -1,4 +1,5 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid on **2026-04-27** (assessor material). Re-scored after owner context on **archlucid.net** (live), **quote-request recipient** (`sales@archlucid.net`), and **first-pilot** timing (**~2026-05-15**). Does not reference any prior assessment scores. Items explicitly deferred in `V1_SCOPE.md` / `V1_DEFERRED.md` (V1.1+ / V2) are out of scope for readiness penalties. **Note:** the published quality weight set sums to **102**; weighted readiness = **Σ(score × weight) / 102** (not ÷ 100).
+> **Updated 2026-04-27 (Post-Assessment Q&A):** The owner provided inputs resolving two previously deferred improvement opportunities: Default Authentication Strategy ("require entra id configuration or a static API key") and Unify Error Responses ("403 unless the general convention these days is to use a 404").
 
 # ArchLucid Assessment – Weighted Readiness 66.74%
 
@@ -159,7 +160,7 @@ For each quality (concise): **deficiency signal** = high when score low and weig
 
 ---
 
-## 8. Top Improvement Opportunities (8+ actionable; 1 DEFERRED)
+## 8. Top Improvement Opportunities (9 actionable; 1 DEFERRED)
 
 | # | Title | Why | Expected impact (qualitative) | DEFERRED? |
 |---|--------|-----|---------------------------------|-----------|
@@ -171,6 +172,8 @@ For each quality (concise): **deficiency signal** = high when score low and weig
 | 6 | **Healthcare brief + policy pack starters** (e.g. Medicare integration patterns, minimum HIPAA **program** control mapping — **not** a legal attestation) | Your vertical | Template richness, procurement narrative | No |
 | 7 | **Default-on agent quality gate** in shipped **Production**-safe config (with simulator pass) | Real briefs on **May 15** | Correctness, trust | No |
 | 8 | **Trust center: healthcare paragraph** — no PHI in product scope; BAA/contract path; where data lives | Payer/procurement | Trust, compliance, procurement | No |
+| 9 | **Unify Error Responses to 404 (Obfuscation) for Hidden Features** | Information Disclosure | Cognitive load, Security | No |
+| 10 | **Enforce Secure Default Auth Posture** | Security Defaults | Security, Trustworthiness | No |
 
 **DEFERRED (title, reason, input needed)**
 
@@ -217,6 +220,35 @@ Add a concise "Healthcare and PHI" subsection to docs/trust-center.md (and link 
 
 ## Acceptance
 - Wording is consistent with PENDING_QUESTIONS and V1_SCOPE; no new compliance certification claims.
+```
+
+**D — Unify Error Responses (404 Obfuscation)**
+
+```text
+Update the `CommercialTenantTierFilter` and any related Authorization filters/middleware in `ArchLucid.Api` to return an HTTP 404 (using `ProblemTypes.ResourceNotFound`) instead of HTTP 403 for routes the user's tier or role cannot access, aligning with security best practices to prevent feature/resource enumeration.
+
+## Scope
+- Ensure the ProblemDetails type returned is explicitly set to a 404 variant.
+- Update relevant Api integration tests (e.g. `PackagingTierProblemDetailsFactoryTests.cs` and `CommercialTenantTierFilter` tests) to expect 404s.
+- Ensure the UI correctly interprets the 404 in these scenarios as a "feature not found or unavailable" state, not a hard crash.
+
+## Acceptance
+- Restricted API routes return 404 when accessed by an unauthorized tier.
+- Tests pass.
+```
+
+**E — Secure Default Auth Posture**
+
+```text
+Update the default startup auth posture to favor robust security for SaaS/On-Prem deployments by requiring Entra ID (`JwtBearer`) or explicit API keys, effectively disallowing completely open defaults in production.
+
+## Scope
+- Verify `ArchLucidAuth:Mode` defaults correctly in non-dev environments to require configuration.
+- Ensure `Authentication:ApiKey:DevelopmentBypassAll` is strictly rejected in production environments via `AuthSafetyGuard.cs` (this should already be the case, but verify the guard).
+- Update the documentation in `docs/library/` to reflect that Entra ID or explicitly configured API keys are required for non-dev deployments.
+
+## Acceptance
+- Production startup fails if no secure authentication method is configured.
 ```
 
 ---
