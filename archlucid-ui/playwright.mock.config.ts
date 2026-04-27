@@ -16,11 +16,8 @@ const mockWebServerCommand = mockE2eSkipNextBuild
 const mockE2ePort = process.env.MOCK_E2E_PORT ?? process.env.PORT ?? "3000";
 const mockBaseUrl = `http://127.0.0.1:${mockE2ePort}`;
 
-/**
- * Full build + start: allow 30m (slow CI / cold disk).
- * Skip-build path: copy `.next/static` + `public` into standalone + mock + node can exceed 2m on slow disks/AV.
- */
-const mockWebServerStartupTimeoutMs = mockE2eSkipNextBuild ? 10 * 60 * 1_000 : 30 * 60 * 1_000;
+/** Time until `webServer` URL responds. Large copies + cold Node + AV can exceed 10m even without `npm run build`. */
+const mockWebServerStartupTimeoutMs = 30 * 60 * 1_000;
 
 export default defineConfig({
   testDir: "e2e",

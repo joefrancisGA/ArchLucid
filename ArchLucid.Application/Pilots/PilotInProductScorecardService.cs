@@ -1,7 +1,4 @@
-using System.Text.Json;
-
 using ArchLucid.Application.Common;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Pilots;
 
@@ -10,9 +7,7 @@ namespace ArchLucid.Application.Pilots;
 public sealed class PilotInProductScorecardService(
     IScopeContextProvider scopeContextProvider,
     IPilotScorecardMetricsReader scorecardMetricsReader,
-    IPilotBaselineRepository pilotBaselineRepository,
-    IAuditService auditService,
-    IActorContext actorContext) : IPilotInProductScorecardService
+    IPilotBaselineRepository pilotBaselineRepository) : IPilotInProductScorecardService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -22,10 +17,6 @@ public sealed class PilotInProductScorecardService(
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     public async Task<PilotInProductScorecardResult> GetAsync(CancellationToken cancellationToken)
     {
@@ -83,28 +74,6 @@ public sealed class PilotInProductScorecardService(
         };
 
         await _pilotBaselineRepository.UpsertAsync(record, cancellationToken);
-        string actor = _actorContext.GetActor();
-        string payload = JsonSerializer.Serialize(
-            new
-            {
-                baselineHoursPerReview,
-                baselineReviewsPerQuarter,
-                baselineArchitectHourlyCost
-            });
-
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.PilotScorecardBaselinesUpdated,
-            ActorUserId = actor,
-            ActorUserName = actor,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            DataJson = payload,
-            CorrelationId = "pilot-scorecard-baselines"
-        };
-
-        await _auditService.LogAsync(auditEvent, cancellationToken);
     }
 
     private static PilotInProductRoiEstimate? TryBuildRoi(PilotBaselineRecord? row)
