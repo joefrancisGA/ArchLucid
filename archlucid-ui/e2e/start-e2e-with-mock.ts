@@ -45,6 +45,22 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
     fs.mkdirSync(publicDest, { recursive: true });
   }
 
+  /**
+   * Trust + privacy SSR read `go-to-market-samples/*.md` when `cwd` is `.next/standalone`
+   * (see `readPrivacyPolicyMarkdown` / `readTrustCenterMarkdown`). Copy from monorepo `docs/`.
+   */
+  const gtmDest = path.join(standaloneRoot, "go-to-market-samples");
+  fs.mkdirSync(gtmDest, { recursive: true });
+  const monorepoDocs = path.join(projectRoot, "..", "docs");
+  const privacySrc = path.join(monorepoDocs, "go-to-market", "PRIVACY_POLICY.md");
+  const trustSrc = path.join(monorepoDocs, "trust-center.md");
+  if (fs.existsSync(privacySrc)) {
+    fs.copyFileSync(privacySrc, path.join(gtmDest, "PRIVACY_POLICY.md"));
+  }
+  if (fs.existsSync(trustSrc)) {
+    fs.copyFileSync(trustSrc, path.join(gtmDest, "trust-center.md"));
+  }
+
   return standaloneRoot;
 }
 

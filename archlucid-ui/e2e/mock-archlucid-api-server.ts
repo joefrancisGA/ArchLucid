@@ -91,6 +91,11 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
       const pathname = decodeURIComponent(u.pathname);
 
+      if (req.method === "GET" && pathname === "/v1/public/demo/sample-run") {
+        sendJson(res, 404, { detail: "Not available in E2E mock" });
+        return;
+      }
+
       if (req.method === "GET" && pathname === "/v1/policy-packs") {
         sendJson(res, 200, listMockPacks());
         return;

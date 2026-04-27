@@ -22,7 +22,7 @@ const FINDING_ID = "e2e-finding-001";
 const APPROVAL_ID = "e2e-approval-001";
 const POLICY_PACK_ID = "e2e-policy-pack-001";
 
-/** One href per `page.tsx` (66 routes); dynamics use stable E2E fixture ids. */
+/** One href per `page.tsx` (63 routes); dynamics use stable E2E fixture ids. Legacy `/onboarding*` aliases omitted — they redirect to `/getting-started`. */
 const HREFS: string[] = [
   "/",
   "/accessibility",
@@ -57,9 +57,6 @@ const HREFS: string[] = [
   "/get-started",
   "/live-demo",
   `/manifests/${encodeURIComponent(FIXTURE_MANIFEST_ID)}`,
-  "/onboard",
-  "/onboarding",
-  "/onboarding/start",
   "/planning",
   `/planning/plans/${encodeURIComponent(PLAN_ID)}`,
   "/policy-packs",
