@@ -26,17 +26,29 @@ vi.mock("next/link", () => ({
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
+  listRunsByProjectPaged: vi.fn().mockResolvedValue({
+    items: [
+      {
+        runId: "prior-run",
+        projectId: "default",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        hasGoldenManifest: true,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  }),
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 describe("NewRunWizardClient (sampleRunId query)", () => {
-  it("shows trial sample callout on step 1 when sampleRunId is present", () => {
+  it("shows trial sample callout on step 1 when sampleRunId is present", async () => {
     render(<NewRunWizardClient />);
 
-    expect(screen.getByTestId("wizard-open-trial-sample-run")).toHaveAttribute(
-      "href",
-      "/runs/6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
-    );
+    const link = await screen.findByTestId("wizard-open-trial-sample-run");
+    expect(link).toHaveAttribute("href", "/runs/6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
   });
 });
