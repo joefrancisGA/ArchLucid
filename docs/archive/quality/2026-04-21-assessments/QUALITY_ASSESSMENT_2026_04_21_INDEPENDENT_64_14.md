@@ -1,4 +1,4 @@
-> **ARCHIVED 2026-04-22 — Superseded by** [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../../../QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Historical score preserved for traceability only.
+> **ARCHIVED 2026-04-22 — Superseded by** [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Historical score preserved for traceability only.
 
 > **Scope:** Independent weighted quality assessment of ArchLucid as it stands on **2026-04-21**. Scored from first principles against the repository's current state — code, infra, docs, tests, and go-to-market assets — without reference to prior assessments.
 

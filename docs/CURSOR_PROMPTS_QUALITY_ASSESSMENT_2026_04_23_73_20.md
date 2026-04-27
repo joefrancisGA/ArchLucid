@@ -40,7 +40,7 @@ Read first:
 - docs/EXECUTIVE_SPONSOR_BRIEF.md  (sponsor-facing voice reference)
 - archlucid-ui/src/app/(marketing)/get-started/  (existing route stub if any)
 - templates/briefs/  (folder slugs are the picker labels — list them; do NOT rename)
-- docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  §0.1  (SaaS-framing addendum — read carefully)
+- docs/archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  §0.1  (SaaS-framing addendum — read carefully)
 
 Do this:
 1. Create docs/BUYER_FIRST_30_MINUTES.md (≤ 80 lines). Audience banner
