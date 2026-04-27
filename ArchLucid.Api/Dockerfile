@@ -13,7 +13,7 @@
 # Use 10.0-alpine3.23 (not 10.0-alpine): same Alpine band as the SDK image; the short 10.0-alpine manifest has hit
 # MCR 403 on HEAD in some buildx/CI registries, and pinning OS aligns libc/musl expectations with publish -r linux-musl-x64.
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
-FROM mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23 AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0.203-alpine3.23 AS restore
 
 WORKDIR /src
 
