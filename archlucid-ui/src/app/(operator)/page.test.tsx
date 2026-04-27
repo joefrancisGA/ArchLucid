@@ -80,7 +80,7 @@ describe("HomePage (55R smoke — landing)", () => {
     });
   });
 
-  it("exposes Create Request from runs empty state and layer card links", async () => {
+  it("exposes create-first-request CTA from runs empty state and layer card links", async () => {
     render(<HomePage />);
 
     const runsLinks = screen
@@ -89,7 +89,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(runsLinks.length).toBeGreaterThan(0);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Create request" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Create your first request" })).toBeInTheDocument();
     });
   });
 

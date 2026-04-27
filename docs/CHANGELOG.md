@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-27 — Independent weighted quality assessment (snapshot)
+
+**Outcome.** Added [`docs/library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_66_74.md`](library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_66_74.md): first-principles weighted readiness **66.74%** (**Σ(score × weight) / 102**; the 46 quality weights sum to **102**). Owner context recorded: production site at **`https://archlucid.net`**, quote-request destination **`sales@archlucid.net`**, first pilot **~2026-05-15**, initial vertical **Medicare/Medicaid–adjacent healthcare**, GTM via professional network. One **DEFERRED** improvement (V1.1 commerce un-hold); eight actionable items with Cursor prompts (onboarding consolidation, quote notification, trust-center healthcare paragraph, coverage, scorecard, templates, quality gate).
+
+---
+
 ## 2026-04-27 — Azure Marketplace publisher identity and landing page URL approved
 
 **Outcome.** The owner confirmed the legal entity for the Partner Center publisher/seller identity as Joseph Francis (Sole Proprietorship) and the production landing page URL as `https://archlucid.net/signup`. `docs/PENDING_QUESTIONS.md` item 8 and `docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md` were updated to reflect these decisions.

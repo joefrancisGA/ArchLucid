@@ -106,12 +106,14 @@ describe("RunsDashboardPanel", () => {
     render(<RunsDashboardPanel />);
 
     await waitFor(() => {
-      expect(screen.getByText(/No architecture runs yet/i)).toBeInTheDocument();
+      expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
     });
     expect(
-      screen.getByText(/Create a request to generate your first architecture manifest, surfaced findings/i),
+      screen.getByText(
+        /You have no runs in this workspace yet\. Create an architecture request to produce a manifest/i,
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create request" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
       "href",
