@@ -33,7 +33,7 @@ describe("MarketingSecurityTrustView", () => {
     render(<MarketingSecurityTrustView />);
 
     expect(screen.getAllByText(/NDA[- ]only/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/security@archlucid\.com/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/security@archlucid\.net/i).length).toBeGreaterThan(0);
   });
 
   it("flags the staging-chaos row as production-out-of-scope", () => {

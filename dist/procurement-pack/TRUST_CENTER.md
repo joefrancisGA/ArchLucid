@@ -120,8 +120,6 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 ## Commercial terms
 
-**Drafted 2026-04-22; pending legal sign-off before any commerce un-hold.**
-
 **Chargebacks:** bank-initiated disputes; Vendor responds via Stripe with contract + delivery evidence; outcome follows card-network rules.
 
 **Refunds:** no Customer early-cancellation refund unless agreed in writing (aligned with order form **§5** / **§9**).
