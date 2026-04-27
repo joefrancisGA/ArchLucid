@@ -9,4 +9,6 @@ Recipes and offline validation helpers for outbound integration events.
 
 **Event catalog (schemas):** [schemas/integration-events/catalog.json](../../schemas/integration-events/catalog.json)
 
+**Event delivery & webhooks (operator):** [docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+
 Run both scripts from the repository root (PowerShell 7+). They only assert payload and HMAC construction — **no** calls to Jira, ServiceNow, or ArchLucid SaaS endpoints.

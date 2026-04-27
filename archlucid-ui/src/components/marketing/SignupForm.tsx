@@ -422,8 +422,11 @@ export function SignupForm() {
         </div>
 
         <p className="text-xs text-neutral-600 dark:text-neutral-400">
-          By continuing you agree to use ArchLucid in accordance with your organization&apos;s policies. The API applies
-          rate limits on registration to protect shared infrastructure.
+          By continuing you agree to use ArchLucid in accordance with your organization&apos;s policies and our{" "}
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/privacy">
+            privacy policy
+          </Link>
+          . The API applies rate limits on registration to protect shared infrastructure.
         </p>
       </form>
     </FormProvider>
