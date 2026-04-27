@@ -47,7 +47,8 @@ public sealed class SupportBundleTests
     public async Task CollectAsync_with_mock_http_produces_all_sections()
     {
         using HttpMessageHandler handler = new StubApiHandler();
-        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("http://stub.local");
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -62,7 +63,8 @@ public sealed class SupportBundleTests
             {
                 Terraform = new ArchLucidProjectScaffolder.TerraformSection
                 {
-                    Enabled = false, Path = "infra/terraform"
+                    Enabled = false,
+                    Path = "infra/terraform"
                 }
             }
         };

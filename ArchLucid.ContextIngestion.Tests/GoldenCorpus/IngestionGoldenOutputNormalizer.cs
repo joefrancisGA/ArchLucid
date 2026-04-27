@@ -11,21 +11,19 @@ internal static class IngestionGoldenOutputNormalizer
     {
         JsonNode? root = JsonNode.Parse(json);
         Assert.NotNull(root);
-        if (root is JsonArray array)
+        if (root is not JsonArray array)
+            return root.ToJsonString(GoldenCorpusJson.SerializerOptions);
+        JsonArray sorted = [];
+        foreach (JsonNode? item in array)
         {
-            JsonArray sorted = [];
-            foreach (JsonNode? item in array)
-            {
-                if (item is not JsonObject obj)
-                    continue;
+            if (item is not JsonObject obj)
+                continue;
 
-                sorted.Add(SortObjectAndProps(obj));
-            }
-
-            return sorted.ToJsonString(GoldenCorpusJson.SerializerOptions);
+            sorted.Add(SortObjectAndProps(obj));
         }
 
-        return root.ToJsonString(GoldenCorpusJson.SerializerOptions);
+        return sorted.ToJsonString(GoldenCorpusJson.SerializerOptions);
+
     }
 
     private static JsonObject SortObjectAndProps(JsonObject o)
@@ -33,7 +31,7 @@ internal static class IngestionGoldenOutputNormalizer
         JsonObject copy = new();
         foreach (KeyValuePair<string, JsonNode?> kv in o.OrderBy(static x => x.Key, StringComparer.Ordinal))
         {
-            if (kv.Key is "properties" && kv.Value is JsonObject p)
+            if (kv is { Key: "properties", Value: JsonObject p })
             {
                 JsonObject sortedProps = new();
                 foreach (KeyValuePair<string, JsonNode?> pkv in p.OrderBy(static x => x.Key, StringComparer.Ordinal))
@@ -53,9 +51,6 @@ internal static class IngestionGoldenOutputNormalizer
 
     private static JsonNode? DeepCopy(JsonNode? node)
     {
-        if (node is null)
-            return null;
-
-        return JsonNode.Parse(node.ToJsonString())!;
+        return node is null ? null : JsonNode.Parse(node.ToJsonString())!;
     }
 }
