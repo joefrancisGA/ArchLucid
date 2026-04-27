@@ -34,7 +34,21 @@ public sealed class CircuitBreakingAgentCompletionClient(
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
-        _gate.ThrowIfBroken();
+        try
+        {
+            _gate.ThrowIfBroken();
+        }
+        catch (CircuitBreakerOpenException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "LLM circuit gate {GateName} rejected call (state {State}, retry after {RetryAfter}).",
+                _gate.GateName,
+                _gate.CurrentState,
+                ex.RetryAfterUtc);
+
+            throw;
+        }
 
         try
         {

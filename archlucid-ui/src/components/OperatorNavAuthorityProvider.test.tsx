@@ -9,13 +9,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { normalizeAuthMeResponse, type CurrentPrincipal } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
-const pathnameRef = vi.hoisted(() => ({ current: "/" }));
 const loadCurrentPrincipalMock = vi.hoisted(() => vi.fn());
 let fetchCount = 0;
-
-vi.mock("next/navigation", () => ({
-  usePathname: (): string => pathnameRef.current,
-}));
 
 vi.mock("@/lib/oidc/config", () => ({
   isJwtAuthMode: (): boolean => true,
@@ -48,7 +43,6 @@ function RankProbe() {
 describe("OperatorNavAuthorityProvider", () => {
   beforeEach(() => {
     fetchCount = 0;
-    pathnameRef.current = "/";
     loadCurrentPrincipalMock.mockReset();
     loadCurrentPrincipalMock.mockImplementation(async () => {
       fetchCount += 1;
@@ -58,13 +52,13 @@ describe("OperatorNavAuthorityProvider", () => {
       }
 
       return new Promise<CurrentPrincipal>(() => {
-        /* hang: simulates slow /me during route change while prior rank was already Execute */
+        /* hang: simulates slow /me on a subsequent refresh while prior rank was already Execute */
       });
     });
   });
 
   it("useNavCallerAuthorityRank stays Read during JWT /me refetch after rank had reached Execute", async () => {
-    const { rerender } = render(
+    render(
       <OperatorNavAuthorityProvider>
         <RankProbe />
       </OperatorNavAuthorityProvider>,
@@ -74,13 +68,15 @@ describe("OperatorNavAuthorityProvider", () => {
       expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ExecuteAuthority));
     });
 
-    pathnameRef.current = "/compare";
+    loadCurrentPrincipalMock.mockImplementation(async () => {
+      fetchCount += 1;
 
-    rerender(
-      <OperatorNavAuthorityProvider>
-        <RankProbe />
-      </OperatorNavAuthorityProvider>,
-    );
+      return new Promise<CurrentPrincipal>(() => {
+        /* hang: simulates slow /me during focus-driven refresh while prior rank was already Execute */
+      });
+    });
+
+    window.dispatchEvent(new Event("focus"));
 
     await waitFor(() => {
       expect(screen.getByTestId("nav-caller-rank")).toHaveTextContent(String(AUTHORITY_RANK.ReadAuthority));

@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
@@ -30,8 +29,10 @@ const OperatorNavAuthorityContext = createContext<OperatorNavAuthorityContextVal
 const DEFAULT_RANK_FULL_ACCESS = AUTHORITY_RANK.AdminAuthority;
 
 /**
- * Resolves the operator principal via `GET /api/proxy/api/auth/me` (and on route changes + window focus)
+ * Resolves the operator principal via `GET /api/proxy/api/auth/me` on mount and on window focus
  * so sidebar, mobile nav, and command palette share one structural authority rank.
+ * Intentionally does **not** refetch on client-side route changes — principal rarely changes per navigation;
+ * repeating `/me` on every `pathname` update was a major latency source (proxy + token refresh + API).
  *
  * **UI shaping only — API authoritative:** rank and principal drive **nav** (`nav-shell-visibility.ts`) and **soft**
  * affordances (`useNavCallerAuthorityRank` consumers); they do not replace **ArchLucid.Api** policies. Packaging map:
@@ -42,7 +43,6 @@ const DEFAULT_RANK_FULL_ACCESS = AUTHORITY_RANK.AdminAuthority;
  * - **JWT + signed in:** bearer + `/me` for role claims.
  */
 export function OperatorNavAuthorityProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
   const [callerAuthorityRank, setCallerAuthorityRank] = useState(AUTHORITY_RANK.ReadAuthority);
   const [currentPrincipal, setCurrentPrincipal] = useState<CurrentPrincipal>(shellBootstrapReadPrincipal);
   const [isAuthorityLoading, setIsAuthorityLoading] = useState(true);
@@ -65,7 +65,7 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
 
   useEffect(() => {
     void refreshCallerAuthority();
-  }, [pathname, refreshCallerAuthority]);
+  }, [refreshCallerAuthority]);
 
   useEffect(() => {
     const onFocus = (): void => {

@@ -42,4 +42,18 @@ public sealed class FindingTraceConfidenceDto
         get;
         init;
     }
+
+    /// <summary>Plain-language finding title for list views (full text may be long).</summary>
+    public string FindingTitle
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    /// <summary>Trace dimensions that were empty when completeness was scored.</summary>
+    public List<string> MissingTraceFields
+    {
+        get;
+        init;
+    } = [];
 }

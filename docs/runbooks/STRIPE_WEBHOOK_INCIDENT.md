@@ -31,11 +31,11 @@ The Stripe **statement descriptor prefix** is locked to **`ARCHLUCID PLATFORM`**
      - `traces | where customDimensions.SourceContext startswith "ArchLucid.Application.Billing.Stripe"`
      - Look for `StripeWebhookSignatureInvalid`, `StripeWebhookIdempotencyConflict`, `StripeWebhookSubscriptionLookupMissing`.
 3. **Check the GA flag.** `GET /v1/admin/configuration/billing` — confirm `stripe.gaEnabled`. If `false`, this is the documented rollback path; do not flip without product approval.
-4. **Check signing-secret hygiene.** Rotation cadence = **owner self**, **quarterly + on-incident**. **On-incident** triggers: any **failed webhook delivery sequence after deploy**; any **suspected secret leak**. If either trigger fires, rotate immediately per § Rotation below. Owner must record each rotation in **`Billing:Stripe:WebhookSigningSecretRotatedUtc`** and in **`docs/CHANGELOG.md`** under `## YYYY-MM-DD — Stripe webhook secret rotated` (append-only audit).
+4. **Check signing-secret hygiene.** Rotation cadence = **owner self (Joseph Francis)**, **quarterly + on-incident**. **On-incident** triggers: any **failed webhook delivery sequence after deploy**; any **suspected secret leak**. If either trigger fires, rotate immediately per § Rotation below. Owner must record each rotation in **`Billing:Stripe:WebhookSigningSecretRotatedUtc`** and in **`docs/CHANGELOG.md`** under `## YYYY-MM-DD — Stripe webhook secret rotated` (append-only audit).
 
 ## Rotation (signing secret)
 
-**Cadence reminder:** same as triage — owner self, quarterly + on-incident; record `Billing:Stripe:WebhookSigningSecretRotatedUtc` + `CHANGELOG` heading on every rotation.
+**Cadence reminder:** same as triage — owner self (Joseph Francis), quarterly + on-incident; record `Billing:Stripe:WebhookSigningSecretRotatedUtc` + `CHANGELOG` heading on every rotation.
 
 1. In Stripe dashboard, **Roll** the endpoint signing secret. Stripe accepts both old and new for 24 hours.
 2. Update `Billing:Stripe:WebhookSigningSecret` in Key Vault (do **not** commit).

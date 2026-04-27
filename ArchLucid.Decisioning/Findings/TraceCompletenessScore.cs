@@ -58,4 +58,11 @@ public sealed class TraceCompletenessScore
         get;
         init;
     }
+
+    /// <summary>Human-readable labels for trace dimensions that are empty or whitespace-only.</summary>
+    public IReadOnlyList<string> MissingTraceFields
+    {
+        get;
+        init;
+    } = [];
 }

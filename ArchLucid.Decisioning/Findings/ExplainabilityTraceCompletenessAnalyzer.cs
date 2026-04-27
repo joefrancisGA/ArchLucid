@@ -13,7 +13,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace;
+        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);
@@ -44,6 +44,23 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         if (hasNotes)
             populated++;
 
+        List<string> missing = [];
+
+        if (!hasGraph)
+            missing.Add("Graph nodes examined");
+
+        if (!hasRules)
+            missing.Add("Rules applied");
+
+        if (!hasDecisions)
+            missing.Add("Decisions taken");
+
+        if (!hasAlt)
+            missing.Add("Alternative paths considered");
+
+        if (!hasNotes)
+            missing.Add("Notes");
+
         return new TraceCompletenessScore
         {
             FindingId = finding.FindingId,
@@ -54,7 +71,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             HasAlternativePaths = hasAlt,
             HasNotes = hasNotes,
             PopulatedFieldCount = populated,
-            CompletenessRatio = populated / 5.0
+            CompletenessRatio = populated / 5.0,
+            MissingTraceFields = missing,
         };
     }
 

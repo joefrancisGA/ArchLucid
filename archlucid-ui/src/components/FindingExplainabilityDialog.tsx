@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { getFindingExplainability } from "@/lib/api";
+import { truncateForList } from "@/lib/truncate-for-list";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { FindingExplainability } from "@/types/explanation";
@@ -72,12 +73,18 @@ export function FindingExplainabilityDialog({
       ? Math.round(Math.min(1, Math.max(0, data.traceCompletenessRatio)) * 100)
       : 0;
 
+  const missingFields = data?.missingTraceFields?.filter((s) => s.trim().length > 0) ?? [];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent
+        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        aria-labelledby="finding-explainability-dialog-title"
+        aria-describedby="finding-explainability-dialog-desc"
+      >
         <DialogHeader>
-          <DialogTitle>Finding explainability</DialogTitle>
-          <DialogDescription>
+          <DialogTitle id="finding-explainability-dialog-title">Finding explainability</DialogTitle>
+          <DialogDescription id="finding-explainability-dialog-desc">
             Deterministic trace from the run pipeline (no live LLM call in this dialog).
           </DialogDescription>
         </DialogHeader>
@@ -105,7 +112,9 @@ export function FindingExplainabilityDialog({
               <Badge variant="secondary">{data.severity}</Badge>
               <span className="text-neutral-500 dark:text-neutral-400">{data.engineType}</span>
             </div>
-            <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">{data.title}</p>
+            <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100" title={data.title}>
+              {truncateForList(data.title, 280)}
+            </p>
             {data.evidence ? (
               <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-sky-200 bg-sky-50/80 p-3 dark:border-sky-900 dark:bg-sky-950/30">
                 <h3 id="finding-evidence-heading" className="mb-2 text-sm font-semibold text-sky-950 dark:text-sky-100">
@@ -156,8 +165,25 @@ export function FindingExplainabilityDialog({
                 <span>Trace completeness</span>
                 <span>{ratioPct}%</span>
               </div>
-              <Progress value={ratioPct} className="h-2" />
+              <Progress
+                value={ratioPct}
+                className="h-2"
+                aria-label={`Trace completeness ${ratioPct} percent`}
+              />
             </div>
+            {missingFields.length > 0 ? (
+              <section
+                aria-label="Missing trace fields"
+                className="rounded-md border border-amber-200 bg-amber-50/90 p-3 text-xs text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-50"
+              >
+                <p className="m-0 font-semibold">Not populated in trace</p>
+                <ul className="m-0 mt-1 list-disc space-y-0.5 pl-5">
+                  {missingFields.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
             {data.narrativeText.trim().length > 0 ? (
               <section aria-labelledby="finding-narrative-heading">
                 <h3 id="finding-narrative-heading" className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">

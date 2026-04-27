@@ -58,4 +58,10 @@ public sealed class FindingTraceCompletenessScore
         get;
         set;
     }
+
+    public List<string> MissingTraceFields
+    {
+        get;
+        set;
+    } = [];
 }

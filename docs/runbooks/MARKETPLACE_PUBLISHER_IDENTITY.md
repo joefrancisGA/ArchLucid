@@ -29,7 +29,7 @@ Tier naming for publication docs is guarded by **`python scripts/ci/assert_marke
 
 ## Footnote (legal entity vs display name)
 
-If a separate legal entity (for example **`ArchLucid Inc.`**) is incorporated later, **Partner Center tax + payout profiles** will require the **legal entity name** on tax and banking records while the **publisher display name** on the listing card may remain **`ArchLucid`** per branding decision.
+The legal entity for Partner Center tax and payout profiles is **Joseph Francis (Sole Proprietorship)** (owner decision 2026-04-27). This name will appear on tax and banking records, while the **publisher display name** on the listing card remains **`ArchLucid`** per the branding decision.
 
 ## Related
 

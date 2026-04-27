@@ -243,6 +243,7 @@ public sealed class RunRationaleService(
             HasNotes = s.HasNotes,
             PopulatedFieldCount = s.PopulatedFieldCount,
             CompletenessRatio = s.CompletenessRatio,
+            MissingTraceFields = [..s.MissingTraceFields],
         };
     }
 

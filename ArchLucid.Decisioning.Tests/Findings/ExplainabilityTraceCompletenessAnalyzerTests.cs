@@ -35,6 +35,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
         score.HasDecisionsTaken.Should().BeTrue();
         score.HasAlternativePaths.Should().BeTrue();
         score.HasNotes.Should().BeTrue();
+        score.MissingTraceFields.Should().BeEmpty();
     }
 
     [Fact]
@@ -72,6 +73,9 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
 
         score.PopulatedFieldCount.Should().Be(3);
         score.CompletenessRatio.Should().BeApproximately(0.6, 0.0001);
+        score.MissingTraceFields.Should().BeEquivalentTo(
+            ["Alternative paths considered", "Notes"],
+            opts => opts.WithoutStrictOrdering());
     }
 
     [Fact]
@@ -88,6 +92,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
 
         score.PopulatedFieldCount.Should().Be(0);
         score.CompletenessRatio.Should().Be(0.0);
+        score.MissingTraceFields.Should().HaveCount(5);
     }
 
     [Fact]
@@ -109,6 +114,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
         score.HasGraphNodeIds.Should().BeFalse();
         score.HasRulesApplied.Should().BeTrue();
         score.PopulatedFieldCount.Should().Be(1);
+        score.MissingTraceFields.Should().Contain("Graph nodes examined");
     }
 
     [Fact]

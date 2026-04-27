@@ -21,7 +21,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             return score.CompletenessRatio == expected
-                   && score.PopulatedFieldCount is >= 0 and <= 5;
+                   && score.PopulatedFieldCount is >= 0 and <= 5
+                   && score.MissingTraceFields.Count + score.PopulatedFieldCount == 5;
         });
     }
 

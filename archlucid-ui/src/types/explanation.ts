@@ -36,6 +36,10 @@ export type FindingTraceConfidenceDto = {
   ruleId?: string | null;
   /** Count of deterministic evidence references backing the finding. */
   evidenceRefCount?: number | null;
+  /** Plain-language title; may be long — truncate in dense tables. */
+  findingTitle?: string | null;
+  /** Trace dimensions that were empty when completeness was scored. */
+  missingTraceFields?: string[] | null;
 };
 
 /** Full explanation payload returned inside `RunExplanationSummary`. */
@@ -129,6 +133,8 @@ export type FindingExplainability = {
   engineType: string;
   severity: string;
   traceCompletenessRatio: number;
+  /** Trace dimensions that were empty when completeness was scored. */
+  missingTraceFields?: string[] | null;
   graphNodeIdsExamined: string[];
   rulesApplied: string[];
   decisionsTaken: string[];

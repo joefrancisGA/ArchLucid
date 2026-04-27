@@ -146,6 +146,7 @@ public sealed class ExplanationController(
             EngineType = match.EngineType,
             Severity = match.Severity.ToString(),
             TraceCompletenessRatio = score.CompletenessRatio,
+            MissingTraceFields = [..score.MissingTraceFields],
             GraphNodeIdsExamined = t.GraphNodeIdsExamined,
             RulesApplied = t.RulesApplied,
             DecisionsTaken = t.DecisionsTaken,
