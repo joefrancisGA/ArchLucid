@@ -23,7 +23,7 @@ Create the environment at **Settings → Environments → New environment → `s
 | Secret name | Description | Source |
 |-------------|-------------|--------|
 | `AZURE_CLIENT_ID` | Service principal / federated identity client ID for the DEV subscription OIDC login | Entra app registration for staging |
-| `AZURE_TENANT_ID` | Azure AD tenant ID | Entra admin center |
+| `AZURE_TENANT_ID` | Microsoft Entra ID tenant ID | Entra admin center |
 | `AZURE_SUBSCRIPTION_ID` | DEV subscription ID (see [AZURE_SUBSCRIPTIONS.md](../library/AZURE_SUBSCRIPTIONS.md) §4) | Azure Portal |
 | `ACR_LOGIN_SERVER` | Azure Container Registry login server (e.g., `archluciddev.azurecr.io`) | `az acr show --name <registry> --query loginServer -o tsv` |
 | `AZURE_RESOURCE_GROUP` | Resource group containing Container Apps, SQL, and supporting resources | Azure Portal |

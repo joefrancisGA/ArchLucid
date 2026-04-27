@@ -264,7 +264,7 @@ Verify the response includes:
 
 ### 5.5 `401 Unauthorized` — `MultiTenantEntra` left enabled
 
-**Symptom:** All Auth0 tokens rejected with `Issuer is not a valid Azure AD v2.0 issuer`.
+**Symptom:** All Auth0 tokens rejected with `Issuer is not a valid Microsoft Entra ID v2.0 issuer`.
 
 **Cause:** `ArchLucidAuth:MultiTenantEntra` is `true`. The `EntraMultiTenantJwtBearerConfigurator` installs a custom issuer validator that **only** accepts `https://login.microsoftonline.com/{tid}/v2.0` issuers.
 
