@@ -29,7 +29,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 3));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger));
 
         SqlConnection result = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 

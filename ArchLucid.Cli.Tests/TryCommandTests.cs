@@ -25,7 +25,7 @@ public sealed class TryCommandTests
 
         error.Should().BeNull();
         opts.Should().NotBeNull();
-        opts!.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
+        opts.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
         opts.UiBaseUrl.Should().Be(TryCommandOptions.DefaultUiBaseUrl);
         opts.OpenArtifacts.Should().BeTrue();
         opts.ReadinessDeadline.Should().Be(TryCommandOptions.DefaultReadinessDeadline);
@@ -162,7 +162,7 @@ public sealed class TryCommandTests
         int callCount = 0;
 
         ArchitectureRunStatus result = await TryCommand.PollForCommittableStatusAsync(
-            ct =>
+            _ =>
             {
                 callCount++;
                 return Task.FromResult<ArchitectureRunStatus?>(ArchitectureRunStatus.WaitingForResults);
@@ -181,7 +181,7 @@ public sealed class TryCommandTests
         int callCount = 0;
 
         ArchitectureRunStatus result = await TryCommand.PollForCommittableStatusAsync(
-            ct =>
+            _ =>
             {
                 callCount++;
                 ArchitectureRunStatus s = callCount switch
@@ -204,7 +204,7 @@ public sealed class TryCommandTests
     public async Task PollForCommittableStatusAsync_NullProbeResults_DoNotShortCircuitDeadline()
     {
         ArchitectureRunStatus result = await TryCommand.PollForCommittableStatusAsync(
-            ct => Task.FromResult<ArchitectureRunStatus?>(null),
+            _ => Task.FromResult<ArchitectureRunStatus?>(null),
             TimeSpan.FromMilliseconds(120),
             TimeSpan.FromMilliseconds(30),
             CancellationToken.None);
@@ -217,7 +217,7 @@ public sealed class TryCommandTests
     public void PollForCommittableStatusAsync_RejectsNonPositiveDeadline()
     {
         Func<Task> act = () => TryCommand.PollForCommittableStatusAsync(
-            ct => Task.FromResult<ArchitectureRunStatus?>(ArchitectureRunStatus.Committed),
+            _ => Task.FromResult<ArchitectureRunStatus?>(ArchitectureRunStatus.Committed),
             TimeSpan.Zero,
             TimeSpan.FromMilliseconds(10),
             CancellationToken.None);
@@ -242,16 +242,16 @@ public sealed class TryCommandTests
                 pilotUp ?? ((_, _) => Task.FromResult(CliExitCode.Success)),
             ValidateRealModeEnv = () => new RealModePreflightResult(true, [], null),
             ResolveComposeOverlays = _ => ["docker-compose.demo.yml"],
-            DemoSeed = (_, __) => throw new InvalidOperationException("DemoSeed should not have been invoked."),
-            CreateRun = (_, __) => throw new InvalidOperationException("CreateRun should not have been invoked."),
-            ExecuteRun = (_, __, ___, ____) =>
+            DemoSeed = (_, _) => throw new InvalidOperationException("DemoSeed should not have been invoked."),
+            CreateRun = (_, _) => throw new InvalidOperationException("CreateRun should not have been invoked."),
+            ExecuteRun = (_, _, _, _) =>
                 throw new InvalidOperationException("ExecuteRun should not have been invoked."),
-            GetRun = (_, __, ___) => throw new InvalidOperationException("GetRun should not have been invoked."),
-            SeedFakeResults = (_, __, ___, ____) =>
+            GetRun = (_, _, _) => throw new InvalidOperationException("GetRun should not have been invoked."),
+            SeedFakeResults = (_, _, _, _) =>
                 throw new InvalidOperationException("SeedFakeResults should not have been invoked."),
-            CommitRun = (_, __, ___) =>
+            CommitRun = (_, _, _) =>
                 throw new InvalidOperationException("CommitRun should not have been invoked."),
-            DownloadFirstValueReport = (_, __, ___, ____) =>
+            DownloadFirstValueReport = (_, _, _, _) =>
                 throw new InvalidOperationException("DownloadFirstValueReport should not have been invoked."),
             OpenFile = _ => throw new InvalidOperationException("OpenFile should not have been invoked."),
             OpenUrl = _ => throw new InvalidOperationException("OpenUrl should not have been invoked."),

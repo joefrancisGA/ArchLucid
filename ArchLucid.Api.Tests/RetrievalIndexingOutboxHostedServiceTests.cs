@@ -50,12 +50,7 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
             {
                 callCount++;
 
-                if (callCount == 1)
-
-                    throw new InvalidOperationException("simulated failure");
-
-
-                return Task.CompletedTask;
+                return callCount == 1 ? throw new InvalidOperationException("simulated failure") : Task.CompletedTask;
             });
 
         RetrievalIndexingOutboxHostedService sut = new(

@@ -38,7 +38,12 @@ public sealed class TrialSmokeRunnerTests
                 doc.RootElement.GetProperty("baselineReviewCycleHours").GetDecimal().Should().Be(16m);
 
                 return JsonResponse(HttpStatusCode.Created,
-                    new { tenantId = TenantId, defaultWorkspaceId = WorkspaceId, defaultProjectId = ProjectId });
+                    new
+                    {
+                        tenantId = TenantId,
+                        defaultWorkspaceId = WorkspaceId,
+                        defaultProjectId = ProjectId
+                    });
             }
 
             if (req.Method == HttpMethod.Get && path == "/v1/tenant/trial-status")
@@ -58,10 +63,15 @@ public sealed class TrialSmokeRunnerTests
 
             if (req.Method == HttpMethod.Get && path == $"/v1/pilots/runs/{WelcomeRunId}/pilot-run-deltas")
             {
-                return JsonResponse(HttpStatusCode.OK, new { timeToCommittedManifestTotalSeconds = 14_400.0 });
+                return JsonResponse(HttpStatusCode.OK, new
+                {
+                    timeToCommittedManifestTotalSeconds = 14_400.0
+                });
             }
 
-            return JsonResponse(HttpStatusCode.NotFound, new { });
+            return JsonResponse(HttpStatusCode.NotFound, new
+            {
+            });
         };
 
         TrialSmokeReport report = await RunAsync(handler, new TrialSmokeCommandOptions
@@ -85,8 +95,11 @@ public sealed class TrialSmokeRunnerTests
     {
         StubHandler handler = new()
         {
-            OnRequest = req =>
-                Task.FromResult(JsonResponse(HttpStatusCode.Conflict, new { error = "duplicate_slug" }))
+            OnRequest = _ =>
+                Task.FromResult(JsonResponse(HttpStatusCode.Conflict, new
+                {
+                    error = "duplicate_slug"
+                }))
         };
 
         TrialSmokeReport report = await RunAsync(handler,
@@ -109,9 +122,17 @@ public sealed class TrialSmokeRunnerTests
 
             if (req.Method == HttpMethod.Post && path == "/v1/register")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Created,
-                    new { tenantId = TenantId, defaultWorkspaceId = WorkspaceId, defaultProjectId = ProjectId }));
+                    new
+                    {
+                        tenantId = TenantId,
+                        defaultWorkspaceId = WorkspaceId,
+                        defaultProjectId = ProjectId
+                    }));
 
-            return Task.FromResult(JsonResponse(HttpStatusCode.InternalServerError, new { error = "boom" }));
+            return Task.FromResult(JsonResponse(HttpStatusCode.InternalServerError, new
+            {
+                error = "boom"
+            }));
         };
 
         TrialSmokeReport report = await RunAsync(handler,
@@ -135,11 +156,20 @@ public sealed class TrialSmokeRunnerTests
 
             if (req.Method == HttpMethod.Post && path == "/v1/register")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Created,
-                    new { tenantId = TenantId, defaultWorkspaceId = WorkspaceId, defaultProjectId = ProjectId }));
+                    new
+                    {
+                        tenantId = TenantId,
+                        defaultWorkspaceId = WorkspaceId,
+                        defaultProjectId = ProjectId
+                    }));
 
             if (req.Method == HttpMethod.Get && path == "/v1/tenant/trial-status")
                 return Task.FromResult(JsonResponse(HttpStatusCode.OK,
-                    new { status = "Active", trialWelcomeRunId = WelcomeRunId }));
+                    new
+                    {
+                        status = "Active",
+                        trialWelcomeRunId = WelcomeRunId
+                    }));
 
             throw new InvalidOperationException($"Unexpected request to {path} after --skip-pilot-run-deltas.");
         };
@@ -147,7 +177,9 @@ public sealed class TrialSmokeRunnerTests
         TrialSmokeReport report = await RunAsync(handler,
             new TrialSmokeCommandOptions
             {
-                OrganizationName = "Acme", AdminEmail = "ops@example.com", SkipPilotRunDeltas = true
+                OrganizationName = "Acme",
+                AdminEmail = "ops@example.com",
+                SkipPilotRunDeltas = true
             });
 
         report.AllPassed.Should().BeTrue();
@@ -165,11 +197,20 @@ public sealed class TrialSmokeRunnerTests
 
             if (req.Method == HttpMethod.Post && path == "/v1/register")
                 return Task.FromResult(JsonResponse(HttpStatusCode.Created,
-                    new { tenantId = TenantId, defaultWorkspaceId = WorkspaceId, defaultProjectId = ProjectId }));
+                    new
+                    {
+                        tenantId = TenantId,
+                        defaultWorkspaceId = WorkspaceId,
+                        defaultProjectId = ProjectId
+                    }));
 
             if (req.Method == HttpMethod.Get && path == "/v1/tenant/trial-status")
                 return Task.FromResult(JsonResponse(HttpStatusCode.OK,
-                    new { status = "Active", trialWelcomeRunId = (string?)null }));
+                    new
+                    {
+                        status = "Active",
+                        trialWelcomeRunId = (string?)null
+                    }));
 
             throw new InvalidOperationException($"Unexpected request to {path} when no welcome run is set.");
         };
@@ -194,14 +235,23 @@ public sealed class TrialSmokeRunnerTests
             if (req.Method == HttpMethod.Post && path == "/v1/register")
             {
                 HttpResponseMessage created = JsonResponse(HttpStatusCode.Created,
-                    new { tenantId = TenantId, defaultWorkspaceId = WorkspaceId, defaultProjectId = ProjectId });
+                    new
+                    {
+                        tenantId = TenantId,
+                        defaultWorkspaceId = WorkspaceId,
+                        defaultProjectId = ProjectId
+                    });
                 created.Headers.Add("X-Correlation-ID", CorrelationId);
                 return Task.FromResult(created);
             }
 
             if (req.Method == HttpMethod.Get && path == "/v1/tenant/trial-status")
                 return Task.FromResult(JsonResponse(HttpStatusCode.OK,
-                    new { status = "Active", trialWelcomeRunId = (string?)null }));
+                    new
+                    {
+                        status = "Active",
+                        trialWelcomeRunId = (string?)null
+                    }));
 
             throw new InvalidOperationException($"Unexpected request to {path}.");
         };
@@ -219,9 +269,12 @@ public sealed class TrialSmokeRunnerTests
         const string CorrelationId = "fail-trace-9999";
         StubHandler handler = new()
         {
-            OnRequest = req =>
+            OnRequest = _ =>
             {
-                HttpResponseMessage conflict = JsonResponse(HttpStatusCode.Conflict, new { error = "duplicate_slug" });
+                HttpResponseMessage conflict = JsonResponse(HttpStatusCode.Conflict, new
+                {
+                    error = "duplicate_slug"
+                });
                 conflict.Headers.Add("X-Correlation-ID", CorrelationId);
                 return Task.FromResult(conflict);
             }
@@ -237,7 +290,10 @@ public sealed class TrialSmokeRunnerTests
     [Fact]
     public async Task RunAsync_RegisterThrows_RecordsFailureWithoutCrashing()
     {
-        StubHandler handler = new() { OnRequest = _ => throw new HttpRequestException("connection refused") };
+        StubHandler handler = new()
+        {
+            OnRequest = _ => throw new HttpRequestException("connection refused")
+        };
 
         TrialSmokeReport report = await RunAsync(handler,
             new TrialSmokeCommandOptions { OrganizationName = "Acme", AdminEmail = "ops@example.com" });
@@ -250,14 +306,20 @@ public sealed class TrialSmokeRunnerTests
 
     private static async Task<TrialSmokeReport> RunAsync(StubHandler handler, TrialSmokeCommandOptions options)
     {
-        using HttpClient http = new(handler) { BaseAddress = new Uri(BaseUrl + "/") };
+        using HttpClient http = new(handler)
+        {
+            BaseAddress = new Uri(BaseUrl + "/")
+        };
         TrialSmokeRunner runner = new(http);
 
         return await runner.RunAsync(options);
     }
 
     private static HttpResponseMessage JsonResponse(HttpStatusCode status, object body) =>
-        new(status) { Content = JsonContent.Create(body, options: JsonCamel) };
+        new(status)
+        {
+            Content = JsonContent.Create(body, options: JsonCamel)
+        };
 
     private static async Task<JsonDocument> ReadJsonAsync(HttpRequestMessage req)
     {

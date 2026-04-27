@@ -54,7 +54,7 @@ public sealed class GoldenCorpusRegressionTests
                 JsonSerializer.Deserialize<GoldenCorpusInputDocument>(inputJson, GoldenCorpusJson.SerializerOptions);
 
             input.Should().NotBeNull();
-            GraphSnapshot graph = input!.GraphSnapshot;
+            GraphSnapshot graph = input.GraphSnapshot;
 
             CollectingAuditService audit = new();
             GoldenCorpusMergeInput? merge = input.Merge?.ToModel();

@@ -20,7 +20,8 @@ public sealed class SupportBundleHealthProbePathsTests
     {
         ConcurrentBag<string> paths = [];
         using PathRecordingHandler handler = new(paths);
-        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("http://stub.local");
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -35,7 +36,8 @@ public sealed class SupportBundleHealthProbePathsTests
             {
                 Terraform = new ArchLucidProjectScaffolder.TerraformSection
                 {
-                    Enabled = false, Path = "infra/terraform"
+                    Enabled = false,
+                    Path = "infra/terraform"
                 }
             }
         };
