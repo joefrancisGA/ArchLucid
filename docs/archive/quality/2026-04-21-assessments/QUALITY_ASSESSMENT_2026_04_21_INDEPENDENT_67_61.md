@@ -1,4 +1,4 @@
-> **ARCHIVED 2026-04-22 — Superseded by** [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../../../QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) **and** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](../../../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). This file is preserved for historical traceability only.
+> **ARCHIVED 2026-04-22 — Superseded by** [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) **and** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md). This file is preserved for historical traceability only.
 
 > **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **67.61%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md).
 
