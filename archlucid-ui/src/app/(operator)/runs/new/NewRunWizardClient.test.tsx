@@ -29,12 +29,37 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: (...args: unknown[]) => createArchitectureRunMock(...args),
   getRunSummary: (...args: unknown[]) => getRunSummaryMock(...args),
+  listRunsByProjectPaged: vi.fn().mockResolvedValue({
+    items: [
+      {
+        runId: "prior-run",
+        projectId: "default",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        hasGoldenManifest: true,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  }),
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 function progressLine(): HTMLElement {
   return screen.getByTestId("new-run-wizard-step-line");
+}
+
+async function renderNewRunWizard() {
+  render(<NewRunWizardClient />);
+
+  await waitFor(
+    () => {
+      expect(screen.queryByText("Loading wizard…")).not.toBeInTheDocument();
+    },
+    { timeout: 15_000 },
+  );
 }
 
 async function clickPrimaryForward() {
@@ -81,7 +106,7 @@ describe("NewRunWizardClient", () => {
   it(
     "walks preset → review, creates a run, lands on pipeline tracking with polling",
     async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     expect(progressLine()).toHaveTextContent(/Step 1: Choose starting point/);
     expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 3 — Request brief/);
@@ -119,7 +144,7 @@ describe("NewRunWizardClient", () => {
   );
 
   it("navigates backward when Back is pressed", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     await clickPrimaryForward();
     expect(progressLine()).toHaveTextContent(/Step 2:/);
@@ -132,7 +157,7 @@ describe("NewRunWizardClient", () => {
   });
 
   it("blocks Next and shows an inline system name error when required field is empty", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
@@ -151,7 +176,7 @@ describe("NewRunWizardClient", () => {
   });
 
   it("clears the system name error when the user types", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
@@ -168,7 +193,7 @@ describe("NewRunWizardClient", () => {
   });
 
   it("advances from identity when fields satisfy validation", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
@@ -182,7 +207,7 @@ describe("NewRunWizardClient", () => {
   });
 
   it("blocks Next on identity when prior manifest version is not a valid UUID", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
@@ -201,7 +226,7 @@ describe("NewRunWizardClient", () => {
   });
 
   it("blocks Next on description when narrative is shorter than the minimum length", async () => {
-    render(<NewRunWizardClient />);
+    await renderNewRunWizard();
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));

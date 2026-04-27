@@ -41,11 +41,8 @@ public sealed class TenantIsolationSmokeTests
                 Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(
-                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
-            return true;
-
-        return false;
+        return !string.IsNullOrWhiteSpace(
+            Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable));
     }
 
     /// <summary>Fast probe so we skip before <see cref="GreenfieldSqlApiFactory" /> when SQL is down (avoids long hangs).</summary>
@@ -57,7 +54,10 @@ public sealed class TenantIsolationSmokeTests
         try
         {
             string connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
+            SqlConnectionStringBuilder builder = new(connectionString)
+            {
+                ConnectTimeout = 4
+            };
             using SqlConnection connection = new(builder.ConnectionString);
             connection.Open();
             return true;

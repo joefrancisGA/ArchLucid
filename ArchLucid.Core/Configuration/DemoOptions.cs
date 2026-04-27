@@ -32,6 +32,13 @@ public sealed class DemoOptions
         set;
     } = 300;
 
+    /// <summary>Optional read-only HTTP surface for anonymous demo browsing (Contoso seed scope).</summary>
+    public DemoAnonymousViewerOptions AnonymousViewer
+    {
+        get;
+        set;
+    } = new();
+
     /// <summary>
     ///     Authority demo seed density per ADR 0030 owner Decision B (2026-04-23): <c>quickstart</c>
     ///     (one-of-each minimum — single finding, empty graph) vs <c>vertical</c> (production-realistic

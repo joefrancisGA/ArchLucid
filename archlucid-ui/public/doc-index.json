@@ -1,0 +1,314 @@
+[
+  {
+    "title": "README",
+    "summary": "Repository entry and high-level product orientation. Start here for clone and build instructions.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/README.md"
+  },
+  {
+    "title": "FIRST_5_DOCS",
+    "summary": "Spine onboarding sequence for new operators. Links the minimum reading path before deep dives.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/FIRST_5_DOCS.md"
+  },
+  {
+    "title": "BUILD",
+    "summary": "How to build the API, UI, and run integration tests against SQL Server or LocalDB.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/BUILD.md"
+  },
+  {
+    "title": "NAVIGATOR",
+    "summary": "Doc map and cross-links for architecture, operations, and go-to-market materials.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/NAVIGATOR.md"
+  },
+  {
+    "title": "CORE_PILOT",
+    "summary": "Default pilot journey: request, execute, commit, and review artifacts.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/CORE_PILOT.md"
+  },
+  {
+    "title": "ARCHITECTURE_INDEX",
+    "summary": "Index of system architecture documents, ADRs, and runtime boundaries.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/ARCHITECTURE_INDEX.md"
+  },
+  {
+    "title": "ADR directory",
+    "summary": "Architecture decision records describing major structural choices.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/tree/main/docs/adr"
+  },
+  {
+    "title": "Trusted baseline (Contoso Retail)",
+    "summary": "Demo-seeded trusted baseline narrative for reproducible sponsor reviews.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/TRUSTED_BASELINE.md"
+  },
+  {
+    "title": "Operator decision guide",
+    "summary": "Packaging, tiers, and when to use Pilot vs Operate surfaces.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/library/OPERATOR_DECISION_GUIDE.md"
+  },
+  {
+    "title": "Product packaging",
+    "summary": "Buyer layers, authority seams, and UI shaping rules versus API enforcement.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/go-to-market/PRODUCT_PACKAGING.md"
+  },
+  {
+    "title": "PILOT_ROI_MODEL",
+    "summary": "Measurement framework for pilot value: cycle time, artifacts, and governance evidence.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/library/PILOT_ROI_MODEL.md"
+  },
+  {
+    "title": "Synthetic Contoso case study",
+    "summary": "Illustrative (non-production) ROI narrative aligned with demo seed data.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/go-to-market/SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md"
+  },
+  {
+    "title": "Executive sponsor brief",
+    "summary": "Buyer-facing headline narrative for architecture and governance leaders.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/EXECUTIVE_SPONSOR_BRIEF.md"
+  },
+  {
+    "title": "Security — Azure baseline alignment",
+    "summary": "Security defaults and port alignment notes for hosted deployments.",
+    "category": "Security",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/security/README.md"
+  },
+  {
+    "title": "Integration events catalog",
+    "summary": "Machine-readable index of outbound integration JSON event types.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/schemas/integration-events/catalog.json"
+  },
+  {
+    "title": "Manual QA checklist",
+    "summary": "Release readiness checklist for operator UI and API surfaces.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/quality/MANUAL_QA_CHECKLIST.md"
+  },
+  {
+    "title": "START_HERE",
+    "summary": "Canonical buyer and evaluator spine with Day-0 orientation.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/START_HERE.md"
+  },
+  {
+    "title": "ARCHITECTURE_ON_ONE_PAGE",
+    "summary": "C4 poster, ownership, and happy path on a single page.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/ARCHITECTURE_ON_ONE_PAGE.md"
+  },
+  {
+    "title": "OPERATOR_ATLAS",
+    "summary": "Route × API × policy map for operator surfaces.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/OPERATOR_ATLAS.md"
+  },
+  {
+    "title": "V1_SCOPE",
+    "summary": "Product boundary for pilots: in-scope capabilities and release criteria.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/V1_SCOPE.md"
+  },
+  {
+    "title": "V1_RELEASE_CHECKLIST",
+    "summary": "Actionable gates before shipping a V1 pilot slice.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/V1_RELEASE_CHECKLIST.md"
+  },
+  {
+    "title": "SYSTEM_MAP",
+    "summary": "Mermaid system map with entry points and trust boundaries.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/SYSTEM_MAP.md"
+  },
+  {
+    "title": "API_VERSIONING",
+    "summary": "Url-segment versioning, defaults, and client expectations for v1.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/API_VERSIONING.md"
+  },
+  {
+    "title": "CONTROLLER_AREA_MAP",
+    "summary": "Logical grouping of ArchLucid.Api controllers for navigation and review.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/CONTROLLER_AREA_MAP.md"
+  },
+  {
+    "title": "CANONICAL_PIPELINE",
+    "summary": "Authority vs legacy coordinator path; when to use each ingestion mode.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/CANONICAL_PIPELINE.md"
+  },
+  {
+    "title": "OBSERVABILITY",
+    "summary": "Meters, histograms, and tracing conventions for ArchLucid services.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/OBSERVABILITY.md"
+  },
+  {
+    "title": "INTEGRATION_EVENTS_AND_WEBHOOKS",
+    "summary": "Outbound events, CloudEvents envelopes, and webhook fan-out posture.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md"
+  },
+  {
+    "title": "Day-one developer",
+    "summary": "Week-one developer checklist: toolchain, SQL, and Core tests.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/onboarding/day-one-developer.md"
+  },
+  {
+    "title": "Day-one SRE",
+    "summary": "Platform checklist for health endpoints and Terraform validation.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/onboarding/day-one-sre.md"
+  },
+  {
+    "title": "Day-one security",
+    "summary": "Security onboarding: trust boundaries, authZ, and supply chain.",
+    "category": "Security",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/onboarding/day-one-security.md"
+  },
+  {
+    "title": "OPERATOR_QUICKSTART",
+    "summary": "Commands for curl, health checks, and smoke tests against a running stack.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/OPERATOR_QUICKSTART.md"
+  },
+  {
+    "title": "PROJECT_MAP",
+    "summary": "Solution projects mapped to bounded contexts and dependencies.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/PROJECT_MAP.md"
+  },
+  {
+    "title": "ARCHITECTURE_FLOWS",
+    "summary": "Sequence-level flows for run, export, compare, and replay.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/ARCHITECTURE_FLOWS.md"
+  },
+  {
+    "title": "DATA_CONSISTENCY_ENFORCEMENT",
+    "summary": "Orphan probes and optional quarantine for persistence hygiene.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md"
+  },
+  {
+    "title": "CITATION_BOUND_RENDERING",
+    "summary": "How explanation citations render in the operator UI and exports.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/explainability/CITATION_BOUND_RENDERING.md"
+  },
+  {
+    "title": "PILOT_GUIDE",
+    "summary": "Extended pilot guidance for sponsors and operators during evaluation.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/library/PILOT_GUIDE.md"
+  },
+  {
+    "title": "Sample aggregate ROI bulletin (synthetic)",
+    "summary": "Illustrative bulletin table shape before N≥5 paying tenants.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md"
+  },
+  {
+    "title": "Quality assessment (cursor prompts)",
+    "summary": "Actionable improvement prompts from independent quality review.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/quality/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_26.md"
+  },
+  {
+    "title": "Scim and directory integration",
+    "summary": "SCIM surface notes and admin token patterns (see API controllers).",
+    "category": "Security",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/CONTROLLER_AREA_MAP.md"
+  },
+  {
+    "title": "Terraform SaaS stack order",
+    "summary": "Reference ordering for Azure SaaS roots during bring-up.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/REFERENCE_SAAS_STACK_ORDER.md"
+  },
+  {
+    "title": "DI_REGISTRATION_MAP",
+    "summary": "Composition root ordering for ArchLucid.Host.Composition registrations.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/DI_REGISTRATION_MAP.md"
+  },
+  {
+    "title": "ARCHITECTURE_CONSTRAINTS",
+    "summary": "NetArchTest rules and forbidden dependency direction.",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/ARCHITECTURE_CONSTRAINTS.md"
+  },
+  {
+    "title": "CODE_MAP",
+    "summary": "Where to open first when changing agents, persistence, or API layers.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/CODE_MAP.md"
+  },
+  {
+    "title": "RUNBOOK support tier-1",
+    "summary": "Support posture and Grafana starters for on-call.",
+    "category": "Operations",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/runbooks/README.md"
+  },
+  {
+    "title": "V1_DEFERRED",
+    "summary": "Intentional deferrals and exploratory scope for future releases.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/V1_DEFERRED.md"
+  },
+  {
+    "title": "PostgreSQL vs SQL notes",
+    "summary": "When SQL Server is required versus auxiliary stores (inventory doc).",
+    "category": "Architecture",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/ARCHITECTURE_INDEX.md"
+  },
+  {
+    "title": "API contracts snapshot",
+    "summary": "High-level REST contracts and OpenAPI pointers for clients.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/library/API_CONTRACTS.md"
+  },
+  {
+    "title": "Security TXT and disclosure",
+    "summary": "Coordinated disclosure pointers packaged for trust center exports.",
+    "category": "Security",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/archlucid-ui/public/.well-known/security.txt"
+  },
+  {
+    "title": "Marketing showcase notes",
+    "summary": "Read-only public showcase routes and demo manifest pointers.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/go-to-market/PRODUCT_PACKAGING.md"
+  },
+  {
+    "title": "Compare and diff authority",
+    "summary": "CompareController policies and ReadAuthority expectations for deltas.",
+    "category": "API",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/OPERATOR_ATLAS.md"
+  },
+  {
+    "title": "First-value Markdown report",
+    "summary": "Pilot value report narrative generated from measured and baseline metrics.",
+    "category": "Go-to-Market",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/library/PILOT_ROI_MODEL.md"
+  },
+  {
+    "title": "Onboarding README",
+    "summary": "Role-based onboarding tickets for dev, SRE, and security.",
+    "category": "Getting Started",
+    "url": "https://github.com/ArchiForge/ArchiForge/blob/main/docs/onboarding/README.md"
+  }
+]

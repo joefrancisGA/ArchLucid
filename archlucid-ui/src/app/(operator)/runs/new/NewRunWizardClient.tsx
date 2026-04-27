@@ -16,7 +16,7 @@ import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
-import { createArchitectureRun } from "@/lib/api";
+import { createArchitectureRun, listRunsByProjectPaged } from "@/lib/api";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
@@ -28,6 +28,10 @@ import {
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
 } from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
+
+import { QuickStartWizard } from "./QuickStartWizard";
+
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS = [
   { label: "Choose starting point", description: "Template, import, or blank" },
   { label: "Identity", description: "System & environment" },
@@ -101,9 +105,12 @@ export function NewRunWizardClient() {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
+  const [wizardMode, setWizardMode] = useState<"quick" | "full">("quick");
+  const [wizardModeReady, setWizardModeReady] = useState(false);
   const liveRef = useRef<HTMLDivElement>(null);
   const { summary: pollSummary } = useRunSummaryStream(runId, {
-    enabled: runId !== null && stepIndex === 6,
+    enabled:
+      runId !== null && (wizardMode === "quick" ? true : stepIndex === 6),
   });
 
   const form = useForm<WizardFormValues>({
@@ -123,6 +130,44 @@ export function NewRunWizardClient() {
 
     return null;
   }, [searchParams]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const stored =
+          typeof window !== "undefined" ? window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY) : null;
+
+        if (stored === "quick" || stored === "full") {
+          if (!cancelled) {
+            setWizardMode(stored);
+          }
+
+          return;
+        }
+
+        const page = await listRunsByProjectPaged("default", 1, 50);
+        const anyCommitted = page.items.some((r) => r.hasGoldenManifest === true);
+
+        if (!cancelled) {
+          setWizardMode(anyCommitted ? "full" : "quick");
+        }
+      } catch {
+        if (!cancelled) {
+          setWizardMode("quick");
+        }
+      } finally {
+        if (!cancelled) {
+          setWizardModeReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (operatorHomeExampleKey !== OPERATOR_HOME_EXAMPLE_QUERY_VALUE) {
@@ -177,6 +222,16 @@ export function NewRunWizardClient() {
       : pollSummary
         ? `Run ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, reviewed manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Run ${runId} created; loading summary.`;
+
+  const persistWizardMode = useCallback((mode: "quick" | "full") => {
+    setWizardMode(mode);
+
+    try {
+      window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, mode);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const goBack = () => {
     setStepIndex((current) => Math.max(0, current - 1));
@@ -248,10 +303,65 @@ export function NewRunWizardClient() {
   const showNav = stepIndex < 6;
   const isFirstStep = stepIndex === 0;
   const isReviewStep = stepIndex === 5;
+  const showQuickTrack = wizardMode === "quick" && runId !== null;
+  const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
 
   return (
     <FormProvider {...form}>
       <div className="mx-auto w-full max-w-4xl space-y-4">
+          {!wizardModeReady ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
+          ) : null}
+          {wizardModeReady ? (
+            <div
+              className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200/80 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+              role="group"
+              aria-label="Wizard mode"
+              data-testid="new-run-wizard-mode-toggle"
+            >
+              <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Mode</span>
+              <button
+                type="button"
+                className={
+                  wizardMode === "quick"
+                    ? "rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white"
+                    : "rounded-md px-3 py-1.5 text-sm text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                }
+                aria-pressed={wizardMode === "quick"}
+                onClick={() => persistWizardMode("quick")}
+              >
+                Quick Start (3 steps)
+              </button>
+              <button
+                type="button"
+                className={
+                  wizardMode === "full"
+                    ? "rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white"
+                    : "rounded-md px-3 py-1.5 text-sm text-neutral-700 ring-1 ring-neutral-300 hover:bg-neutral-100 dark:text-neutral-200 dark:ring-neutral-700 dark:hover:bg-neutral-800"
+                }
+                aria-pressed={wizardMode === "full"}
+                onClick={() => persistWizardMode("full")}
+              >
+                Full Wizard (7 steps)
+              </button>
+            </div>
+          ) : null}
+
+          {wizardModeReady && wizardMode === "quick" && showQuickTrack && runId ? (
+            <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+          ) : null}
+
+          {wizardModeReady && wizardMode === "quick" && !showQuickTrack ? (
+            <QuickStartWizard
+              key={wizardMode}
+              onRunCreated={(id) => {
+                setRunId(id);
+              }}
+            />
+          ) : null}
+
+          {wizardModeReady && showFullWizardShell ? (
+            <>
           <div className="space-y-1" data-testid="new-run-wizard-progress">
             <p
               className="m-0 font-medium text-neutral-900 dark:text-neutral-100"
@@ -313,9 +423,14 @@ export function NewRunWizardClient() {
             <p className="text-sm text-red-600">Run id missing; cannot track pipeline.</p>
           ) : null}
 
-          <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
-            {liveMessage}
-          </div>
+            </>
+          ) : null}
+
+          {wizardModeReady ? (
+            <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
+              {liveMessage}
+            </div>
+          ) : null}
         </div>
       </FormProvider>
   );
