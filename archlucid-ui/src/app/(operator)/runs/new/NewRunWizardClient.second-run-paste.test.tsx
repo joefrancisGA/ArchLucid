@@ -24,6 +24,21 @@ vi.mock("next/link", () => ({
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
+  // Align with NewRunWizardClient mode bootstrap: a prior committed run → full 7-step wizard (import lives on step 0).
+  listRunsByProjectPaged: vi.fn().mockResolvedValue({
+    items: [
+      {
+        runId: "prior-run",
+        projectId: "default",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        hasGoldenManifest: true,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  }),
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
@@ -31,6 +46,10 @@ import { NewRunWizardClient } from "./NewRunWizardClient";
 describe("NewRunWizardClient (SECOND_RUN paste)", () => {
   it("step 1 exposes paste path and applying TOML pre-fills system name on identity step", async () => {
     render(<NewRunWizardClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Loading wizard…")).not.toBeInTheDocument();
+    });
 
     await act(async () => {
       fireEvent.click(screen.getByTestId("wizard-import-request-toggle"));

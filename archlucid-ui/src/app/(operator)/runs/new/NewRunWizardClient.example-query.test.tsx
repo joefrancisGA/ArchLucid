@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -26,6 +26,20 @@ vi.mock("next/link", () => ({
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: vi.fn(),
   getRunSummary: vi.fn(),
+  listRunsByProjectPaged: vi.fn().mockResolvedValue({
+    items: [
+      {
+        runId: "prior-run",
+        projectId: "default",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+        hasGoldenManifest: true,
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 50,
+    hasMore: false,
+  }),
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
@@ -61,6 +75,10 @@ describe("NewRunWizardClient (example query)", () => {
 
   it("prefills description and system name when example=environmental-report-audit", async () => {
     render(<NewRunWizardClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByText("Loading wizard…")).not.toBeInTheDocument();
+    });
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
