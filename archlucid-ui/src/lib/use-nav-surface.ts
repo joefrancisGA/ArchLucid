@@ -16,7 +16,6 @@ import {
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
   layerHeaderEnterpriseOperatorRankLine,
-  layerHeaderEnterpriseReaderRankLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
 import {
