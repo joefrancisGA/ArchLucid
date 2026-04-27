@@ -14,8 +14,9 @@ import {
 } from "./fixtures";
 import { comparePairSearchParams } from "./helpers/operator-journey";
 import { FIXTURE_EMPTY_ZIP_BYTES, registerOperatorJourneyApiRoutes } from "./helpers/register-operator-api-routes";
+import { publicDirUnderUi } from "./screenshot-output-helpers";
 
-const OUT = "public/screenshots/all-routes";
+const OUT = publicDirUnderUi("screenshots", "all-routes");
 
 /** Per-test cap for visiting every route: default Playwright would time out; 30m for slow cold builds or CI. */
 const ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS = 30 * 60 * 1_000;

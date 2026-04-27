@@ -2,8 +2,9 @@ import { expect, test } from "@playwright/test";
 
 import { registerOperatorJourneyApiRoutes } from "./helpers/register-operator-api-routes";
 import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID, fixtureRunDetail, fixtureManifestSummary } from "./fixtures";
+import { publicDirUnderUi } from "./screenshot-output-helpers";
 
-const OUT = "public/marketing/screenshots";
+const OUT = publicDirUnderUi("marketing", "screenshots");
 
 test.describe("marketing screenshots (mock API)", () => {
   test.beforeEach(async ({ page }) => {
@@ -11,6 +12,7 @@ test.describe("marketing screenshots (mock API)", () => {
   });
 
   test("writes PNGs under public/marketing/screenshots", async ({ page }) => {
+    test.setTimeout(20 * 60 * 1_000);
     await registerOperatorJourneyApiRoutes(page, {
       runDetail: { runId: FIXTURE_RUN_ID, body: fixtureRunDetail() },
       manifestSummary: { manifestId: FIXTURE_MANIFEST_ID, body: fixtureManifestSummary() },
