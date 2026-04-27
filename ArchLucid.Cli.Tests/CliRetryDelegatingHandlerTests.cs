@@ -19,12 +19,7 @@ public sealed class CliRetryDelegatingHandlerTests
         {
             attempt++;
 
-            if (attempt == 1)
-            {
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
-            }
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+            return Task.FromResult(attempt == 1 ? new HttpResponseMessage(HttpStatusCode.InternalServerError) : new HttpResponseMessage(HttpStatusCode.OK));
         });
 
         using HttpClient http = new(new CliRetryDelegatingHandler { InnerHandler = inner }, true);
@@ -46,7 +41,10 @@ public sealed class CliRetryDelegatingHandlerTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         });
 
-        CliResilienceOptions options = new() { MaxRetryAttempts = 0 };
+        CliResilienceOptions options = new()
+        {
+            MaxRetryAttempts = 0
+        };
         using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, true);
 
         HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
