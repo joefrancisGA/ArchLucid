@@ -15,6 +15,19 @@ function FormValuesProbe() {
 }
 
 describe("WizardStepPreset", () => {
+  it("calls onStartingPointCommitted when Start from scratch is clicked", () => {
+    const onStartingPointCommitted = vi.fn();
+
+    render(
+      <WizardFormTestHarness>
+        <WizardStepPreset onStartingPointCommitted={onStartingPointCommitted} />
+      </WizardFormTestHarness>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Start from scratch" }));
+    expect(onStartingPointCommitted).toHaveBeenCalledTimes(1);
+  });
+
   it("renders start-from-scratch, industry starters, quick shapes, and import toggle", () => {
     render(
       <WizardFormTestHarness>

@@ -277,6 +277,7 @@ export function NewRunWizardClient() {
           {stepIndex === 0 ? (
             <WizardStepPreset
               featuredSampleRunId={featuredSampleRunId}
+              onStartingPointCommitted={() => setStepIndex(1)}
               onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
             />
           ) : null}

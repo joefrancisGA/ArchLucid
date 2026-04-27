@@ -49,10 +49,6 @@ components = ["api"]
       fireEvent.click(screen.getByTestId("second-run-apply-paste"));
     });
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    });
-
     await waitFor(() => {
       expect(screen.getByLabelText("System name")).toHaveValue("Pasted.Service");
     });

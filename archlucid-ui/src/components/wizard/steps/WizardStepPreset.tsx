@@ -29,13 +29,19 @@ export type WizardStepPresetProps = {
   featuredSampleRunId?: string | null;
   /** Optional toast / inline notice when import paste succeeds or fails. */
   onWizardNotice?: (kind: "ok" | "err", message: string) => void;
+  /**
+   * Called after the user picks a starting point (blank, industry/quick preset, or successful import). The parent
+   * wizard should move off step 0; otherwise the in-place form reset has no visible effect when values were already
+   * defaults.
+   */
+  onStartingPointCommitted?: () => void;
 };
 
 /**
  * Step 1: pick a preset or start from scratch (`reset` with defaults).
  */
 export function WizardStepPreset(props: WizardStepPresetProps = {}) {
-  const { onPresetSelect, featuredSampleRunId, onWizardNotice } = props;
+  const { onPresetSelect, featuredSampleRunId, onWizardNotice, onStartingPointCommitted } = props;
   const { reset, getValues } = useFormContext<WizardFormValues>();
   const [secondRunPaste, setSecondRunPaste] = useState("");
   const [importOpen, setImportOpen] = useState(false);
@@ -67,6 +73,10 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
     return { heroVerticals: hero, otherVerticals: rest };
   }, []);
 
+  const applyStartingPointChoice = () => {
+    onStartingPointCommitted?.();
+  };
+
   const applySecondRunPaste = () => {
     const current = getValues();
     const outcome = applySecondRunPasteToWizard(secondRunPaste, current);
@@ -79,16 +89,19 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
 
     reset(outcome.values);
     onWizardNotice?.("ok", "Request imported — continue to the next step to confirm details.");
+    applyStartingPointChoice();
   };
 
   const selectPreset = (presetId: string, values: Partial<WizardFormValues>) => {
     onPresetSelect?.(presetId);
     const merged = applyWizardPreset(buildDefaultWizardValues(), values);
     reset(merged);
+    applyStartingPointChoice();
   };
 
   const startScratch = () => {
     reset(buildDefaultWizardValues());
+    applyStartingPointChoice();
   };
 
   return (

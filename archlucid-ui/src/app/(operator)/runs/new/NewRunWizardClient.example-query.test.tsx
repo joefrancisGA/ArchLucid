@@ -66,10 +66,6 @@ describe("NewRunWizardClient (example query)", () => {
     expect(greenfieldCard).toBeTruthy();
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    });
-
     expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
 
     await act(async () => {
