@@ -177,6 +177,13 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: ListOrdered,
         tier: "essential",
       },
+      {
+        href: "/help",
+        label: "Help",
+        title: "Help — searchable documentation index",
+        icon: LifeBuoy,
+        tier: "essential",
+      },
     ],
   },
   {

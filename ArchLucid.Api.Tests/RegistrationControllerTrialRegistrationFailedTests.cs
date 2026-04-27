@@ -8,6 +8,7 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 namespace ArchLucid.Api.Tests;
@@ -21,10 +22,12 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<IAuditService> audit = new();
         Mock<ITenantProvisioningService> prov = new();
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object);
-        controller.ControllerContext = new ControllerContext
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            HttpContext = new DefaultHttpContext()
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
         };
         controller.HttpContext.Request.Path = "/v1/register";
         controller.HttpContext.Response.Headers["X-Correlation-Id"] = "test-corr-1";
@@ -36,7 +39,6 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialRegistrationFailed
                                        && e.ActorUserId == "anonymous@request"
-                                       && e.DataJson != null
                                        && e.DataJson.Contains("body_required", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -56,7 +58,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<ITenantProvisioningService> prov = new();
         _ = prov
             .Setup(
-                p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
+                provisioningService => provisioningService.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new TenantProvisioningResult
                 {
@@ -66,16 +68,20 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
                     WasAlreadyProvisioned = true
                 });
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object);
-        controller.ControllerContext = new ControllerContext
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            HttpContext = new DefaultHttpContext()
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
         };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
         {
-            OrganizationName = "Dup " + Guid.NewGuid().ToString("N"), AdminEmail = "a@b.com", AdminDisplayName = "A"
+            OrganizationName = "Dup " + Guid.NewGuid().ToString("N"),
+            AdminEmail = "a@b.com",
+            AdminDisplayName = "A"
         };
         IActionResult result = await controller.RegisterAsync(body, CancellationToken.None);
 
@@ -85,7 +91,6 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialRegistrationFailed
-                                       && e.DataJson != null
                                        && e.DataJson.Contains("duplicate_slug", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -101,16 +106,20 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
                 p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated"));
         Mock<ITrialTenantBootstrapService> boot = new();
-        RegistrationController controller = new(prov.Object, audit.Object, boot.Object);
-        controller.ControllerContext = new ControllerContext
+        RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            HttpContext = new DefaultHttpContext()
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
         };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
         {
-            OrganizationName = "O " + Guid.NewGuid().ToString("N"), AdminEmail = "a@b.com", AdminDisplayName = "A"
+            OrganizationName = "O " + Guid.NewGuid().ToString("N"),
+            AdminEmail = "a@b.com",
+            AdminDisplayName = "A"
         };
         IActionResult result = await controller.RegisterAsync(body, CancellationToken.None);
         ObjectResult or = (ObjectResult)result;
@@ -118,7 +127,6 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialRegistrationFailed
-                                       && e.DataJson != null
                                        && e.DataJson.Contains("InvalidOperationException", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);

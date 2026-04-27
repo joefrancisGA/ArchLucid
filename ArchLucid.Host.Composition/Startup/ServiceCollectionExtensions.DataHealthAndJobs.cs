@@ -43,7 +43,11 @@ public static partial class ServiceCollectionExtensions
             .AddCheck<CircuitBreakerHealthCheck>(
                 "circuit_breakers",
                 failureStatus: HealthStatus.Degraded,
-                tags: []);
+                tags: [])
+            .AddCheck<DemoViewerDataHealthCheck>(
+                "demo_viewer_data",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready]);
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
 

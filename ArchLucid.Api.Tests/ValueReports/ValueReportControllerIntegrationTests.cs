@@ -122,8 +122,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
             new("project_id", projectId.ToString("D"))
         ];
 
-        foreach (string r in roles)
-            claims.Add(new Claim("roles", r));
+        claims.AddRange(roles.Select(r => new Claim("roles", r)));
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(

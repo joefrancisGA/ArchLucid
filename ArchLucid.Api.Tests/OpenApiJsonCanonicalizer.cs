@@ -12,10 +12,7 @@ internal static class OpenApiJsonCanonicalizer
 {
     internal static JsonNode Canonicalize(JsonNode? node)
     {
-        if (node is null)
-            throw new ArgumentNullException(nameof(node));
-
-        return CanonicalizeCore(node, null);
+        return node is null ? throw new ArgumentNullException(nameof(node)) : CanonicalizeCore(node, null);
     }
 
     private static JsonNode CanonicalizeCore(JsonNode node, string? parentPropertyName)

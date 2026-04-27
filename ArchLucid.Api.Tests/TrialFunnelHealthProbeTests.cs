@@ -92,11 +92,13 @@ public sealed class TrialFunnelHealthProbeTests
 
     private sealed class ImmediateApplicationLifetime : IHostApplicationLifetime
     {
-        public CancellationToken ApplicationStarted { get; } = new CancellationToken(canceled: true);
+        public CancellationToken ApplicationStarted { get; } = new(canceled: true);
         public CancellationToken ApplicationStopped { get; } = CancellationToken.None;
         public CancellationToken ApplicationStopping { get; } = CancellationToken.None;
 
-        public void StopApplication() { }
+        public void StopApplication()
+        {
+        }
     }
 
     private sealed class TestHttpMessageHandler : HttpMessageHandler

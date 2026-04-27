@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
@@ -66,11 +67,7 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
         List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
-
-        foreach (string r in roles)
-        {
-            claims.Add(new Claim("roles", r));
-        }
+        claims.AddRange(roles.Select(r => new Claim("roles", r)));
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(

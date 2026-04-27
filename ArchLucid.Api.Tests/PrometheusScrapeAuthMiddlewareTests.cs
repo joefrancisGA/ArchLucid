@@ -1,5 +1,3 @@
-using System.Text;
-
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Middleware;
 
@@ -61,7 +59,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
             Request = { Method = "GET", Path = "/metrics" },
             Response = { Body = new MemoryStream() }
         };
-        string basic = Convert.ToBase64String(Encoding.UTF8.GetBytes("scraper:secret"));
+        string basic = Convert.ToBase64String("scraper:secret"u8.ToArray());
         http.Request.Headers.Authorization = $"Basic {basic}";
 
         await middleware.InvokeAsync(http);
