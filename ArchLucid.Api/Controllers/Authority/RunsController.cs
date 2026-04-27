@@ -331,14 +331,14 @@ public sealed partial class RunsController(
                 user,
                 correlationId);
 
-            if (request?.NotifySponsor == true)
-            {
-                Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+            if (request?.NotifySponsor != true)
+                return Ok(response);
 
-                await commitSponsorEmailNotifier
-                    .NotifyAfterCommitAsync(tenantId, runId, cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+
+            await commitSponsorEmailNotifier
+                .NotifyAfterCommitAsync(tenantId, runId, cancellationToken)
+                .ConfigureAwait(false);
 
             return Ok(response);
         }
