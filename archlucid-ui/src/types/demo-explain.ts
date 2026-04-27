@@ -1,4 +1,4 @@
-import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
+import type { RunExplanationSummary } from "@/types/explanation";
 
 /** One node in the UI-shaped provenance graph rendered by the operator-shell `/demo/explain` proof route. */
 export type DemoProvenanceGraphNode = {

@@ -101,8 +101,14 @@ export function ScopeSwitcher() {
   const [listError, setListError] = useState<string | null>(null);
   const [workspaces, setWorkspaces] = useState<WorkspaceOption[] | null>(null);
 
-  const effective = useMemo(() => getEffectiveBrowserProxyScopeHeaders(), [tick]);
-  const stored = useMemo(() => readOperatorScopeFromStorage(), [tick]);
+  const effective = useMemo(() => {
+    void tick;
+    return getEffectiveBrowserProxyScopeHeaders();
+  }, [tick]);
+  const stored = useMemo(() => {
+    void tick;
+    return readOperatorScopeFromStorage();
+  }, [tick]);
   const tenantId = effective["x-tenant-id"] ?? "";
   const workspaceId = effective["x-workspace-id"] ?? "";
   const projectId = effective["x-project-id"] ?? "";

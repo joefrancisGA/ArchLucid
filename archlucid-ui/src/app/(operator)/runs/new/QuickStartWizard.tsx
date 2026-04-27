@@ -9,7 +9,6 @@ import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescr
 import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createArchitectureRun } from "@/lib/api";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
