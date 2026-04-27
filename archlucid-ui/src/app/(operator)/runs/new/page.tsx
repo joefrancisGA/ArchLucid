@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 export const metadata: Metadata = {
-  title: "New request",
+  title: "New architecture request",
 };
 
 function NewRunWizardFallback() {
@@ -17,20 +16,12 @@ export default function NewRunPage() {
   return (
     <main>
       <div className="mb-1 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">New request</h2>
+        <h2 className="m-0">New architecture request</h2>
         <ContextualHelp helpKey="new-run-wizard" />
       </div>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        Guided end-to-end wizard — from system description to pipeline tracking.
-      </p>
-      <p className="mt-2 text-sm">
-        <Link href="/runs" className="text-teal-700 underline">
-          Runs list
-        </Link>
-        {" · "}
-        <Link href="/" className="text-teal-700 underline">
-          Home
-        </Link>
+      <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Create a request from scratch, choose a vertical starter, or import a prepared file — then confirm details and
+        track the pipeline.
       </p>
       <Suspense fallback={<NewRunWizardFallback />}>
         <NewRunWizardClient />

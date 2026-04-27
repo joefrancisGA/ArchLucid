@@ -16,6 +16,7 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -29,6 +30,11 @@ export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
+    pathname,
+    showExtended,
+    showAdvanced,
+  );
 
   return (
     <>
@@ -52,8 +58,8 @@ export function MobileNavDrawer() {
           <div className="flex flex-col gap-4 px-3 py-3">
             {listNavGroupsVisibleInOperatorShell(
               NAV_GROUPS,
-              showExtended,
-              showAdvanced,
+              shellShowExtended,
+              shellShowAdvanced,
               callerAuthorityRank,
             ).map(({ group, visibleLinks }) => (
               <div key={group.id}>

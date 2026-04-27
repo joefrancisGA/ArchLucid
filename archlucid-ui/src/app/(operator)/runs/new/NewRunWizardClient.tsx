@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FieldPath } from "react-hook-form";
@@ -30,7 +29,7 @@ import {
 } from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 const WIZARD_STEP_DEFINITIONS = [
-  { label: "Starting point", description: "Preset or scratch" },
+  { label: "Choose starting point", description: "Template, import, or blank" },
   { label: "Identity", description: "System & environment" },
   { label: "Description", description: "Goals & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
@@ -41,10 +40,12 @@ const WIZARD_STEP_DEFINITIONS = [
 
 /** High-level phases shown in the stepper (maps the seven internal steps to three sponsor-friendly phases). */
 const MACRO_WIZARD_STEP_DEFINITIONS = [
-  { label: "Brief & starting point", description: "Preset, identity, goals" },
-  { label: "Constraints & advanced", description: "Limits, optional context" },
-  { label: "Review & pipeline", description: "Confirm, create, track" },
+  { label: "Request brief", description: "Identity, goals, starting point" },
+  { label: "Constraints", description: "Requirements, policies, context" },
+  { label: "Review and run", description: "Confirm, create, track" },
 ] as const;
+
+const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
 
 const STEP_INDEX_MAX = WIZARD_STEP_DEFINITIONS.length - 1;
 
@@ -157,7 +158,18 @@ export function NewRunWizardClient() {
     }
   }, []);
 
+  const saveWizardDraft = useCallback(() => {
+    try {
+      const payload = JSON.stringify({ v: 1, stepIndex, values: getValues() });
+      window.localStorage.setItem(WIZARD_DRAFT_STORAGE_KEY, payload);
+      showSuccess("Draft saved in this browser.");
+    } catch {
+      showError("Wizard", "Could not save draft.");
+    }
+  }, [getValues, stepIndex]);
+
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
+  const macroStep = macroWizardStepIndex(stepIndex);
 
   const liveMessage =
     runId === null
@@ -240,21 +252,25 @@ export function NewRunWizardClient() {
   return (
     <FormProvider {...form}>
       <div className="mx-auto w-full max-w-4xl space-y-6">
-          <p
-            className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
-            data-testid="new-run-wizard-step-line"
-          >
-            Step {stepIndex + 1} of {WIZARD_STEP_DEFINITIONS.length} — guided create for{" "}
-            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">/v1/architecture/request</code>
-            .{" "}
-            <Link href="/runs" className="text-teal-700 underline">
-              Runs list
-            </Link>
-          </p>
+          <div className="space-y-1" data-testid="new-run-wizard-progress">
+            <p
+              className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
+              data-testid="new-run-wizard-step-line"
+            >
+              Step {stepIndex + 1} of {WIZARD_STEP_DEFINITIONS.length} — {WIZARD_STEP_DEFINITIONS[stepIndex].label}
+            </p>
+            <p
+              className="m-0 text-xs text-neutral-500 dark:text-neutral-400"
+              data-testid="new-run-wizard-stage-line"
+            >
+              Stage {macroStep + 1} of {MACRO_WIZARD_STEP_DEFINITIONS.length}:{" "}
+              {MACRO_WIZARD_STEP_DEFINITIONS[macroStep].label}
+            </p>
+          </div>
 
           <WizardStepper
             steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
-            currentStep={macroWizardStepIndex(stepIndex)}
+            currentStep={macroStep}
             completedSteps={completedMacroSteps}
           />
 
@@ -272,17 +288,24 @@ export function NewRunWizardClient() {
           {stepIndex === 6 && runId ? <WizardStepTrack runId={runId} pollSummary={pollSummary} /> : null}
 
           {showNav ? (
-            <WizardNavButtons
-              onBack={goBack}
-              onNext={isReviewStep ? undefined : goNext}
-              onSubmit={isReviewStep ? submitRun : undefined}
-              submitting={submitting}
-              canProceed={canProceed}
-              isFirstStep={isFirstStep}
-              isLastInputStep={isReviewStep}
-              submitLabel="Create request"
-              submittingLabel="Creating…"
-            />
+            <div
+              className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-neutral-200 bg-neutral-50/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-950/95 dark:supports-[backdrop-filter]:bg-neutral-950/80 lg:-mx-6 lg:px-6"
+              data-testid="new-run-wizard-footer"
+            >
+              <WizardNavButtons
+                onBack={goBack}
+                onNext={isReviewStep ? undefined : goNext}
+                onSubmit={isReviewStep ? submitRun : undefined}
+                onSaveDraft={saveWizardDraft}
+                submitting={submitting}
+                canProceed={canProceed}
+                isFirstStep={isFirstStep}
+                isLastInputStep={isReviewStep}
+                nextLabel={stepIndex === 0 ? "Continue" : "Next"}
+                submitLabel="Create request"
+                submittingLabel="Creating…"
+              />
+            </div>
           ) : null}
 
           {stepIndex === 6 && !runId ? (

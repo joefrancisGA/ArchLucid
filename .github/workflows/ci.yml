@@ -29,12 +29,11 @@ on:
 # setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner ≥ v2.327.1). Other third-party
 # actions may still declare node20 until republished. Tier-0 secret scan uses
 # gacts/gitleaks (node24-native) instead of gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
-# Trivy: pin `aquasecurity/trivy-action` to a **commit** (not tag `v0.35.0`) so the composite bundles
-# `setup-trivy@v0.2.6` (install.sh `-c setup-trivy`). Tag v0.35.0 still references setup-trivy@e6c2c5e, whose
-# install path fails for some newer Trivy tags right after "found version … Linux/64bit". Ref: trivy-action master
-# action.yaml vs tag v0.35.0. Set `cache: false` on each step to skip nested actions/cache noise where needed.
-# Pin `version` on each step to a release `setup-trivy` can install. Match `trivy-action@876cf04` default
-# (v0.69.3) until a newer tag is known-good with `setup-trivy@3fb12ec` (v0.70.0 failed: `unable to find 'v0.70.0'`).
+# Trivy: pin `aquasecurity/trivy-action` to a **commit** (org allow-lists). Prefer **v0.36.0+** so the embedded
+# default Trivy matches a current GitHub release (v0.70.0). Older pins (v0.35.0 / trivy-action@876cf04 + v0.69.3)
+# can fail in setup-trivy: `install.sh` resolves tags via `GET /releases/<tag>` JSON; post-incident release
+# churn broke pinned older tags for some runners. Ref: aquasecurity/trivy discussions #10265, #10276, #10330.
+# Composite still bundles `setup-trivy@3fb12ec` (v0.2.6). Set `cache: false` where we skip nested cache noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -392,9 +391,9 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
         with:
-          version: v0.69.3
+          version: v0.70.0
           scan-type: config
           scan-ref: infra/terraform-private
           severity: HIGH,CRITICAL
@@ -430,9 +429,9 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
         with:
-          version: v0.69.3
+          version: v0.70.0
           scan-type: config
           scan-ref: ${{ matrix.directory }}
           severity: HIGH,CRITICAL
@@ -1173,9 +1172,9 @@ jobs:
           cache-from: type=gha,scope=ui-docker-smoke
 
       - name: Trivy scan API image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
         with:
-          version: v0.69.3
+          version: v0.70.0
           scan-type: image
           image-ref: archlucid-api:ci
           severity: CRITICAL,HIGH
@@ -1183,9 +1182,9 @@ jobs:
           cache: false
 
       - name: Trivy scan Operator UI image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0; setup-trivy@3fb12ec
         with:
-          version: v0.69.3
+          version: v0.70.0
           scan-type: image
           image-ref: archlucid-ui:ci
           severity: CRITICAL,HIGH

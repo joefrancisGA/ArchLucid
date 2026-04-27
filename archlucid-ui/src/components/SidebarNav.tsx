@@ -22,6 +22,7 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { countLinksHiddenByProgressiveDisclosure, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -118,6 +119,11 @@ export function SidebarNav() {
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
+    pathname,
+    showExtended,
+    showAdvanced,
+  );
 
   useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -154,15 +160,15 @@ export function SidebarNav() {
       <SidebarRecentActivityCard />
       {listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        showExtended,
-        showAdvanced,
+        shellShowExtended,
+        shellShowAdvanced,
         callerAuthorityRank,
       ).map(({ group, visibleLinks }) => {
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
-          showExtended,
-          showAdvanced,
+          shellShowExtended,
+          shellShowAdvanced,
           callerAuthorityRank,
         );
 
