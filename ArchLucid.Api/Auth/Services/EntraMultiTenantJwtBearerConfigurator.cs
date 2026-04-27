@@ -70,7 +70,7 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         string trimmed = issuer.Trim();
 
         return !AzureAdIssuerV2.IsMatch(trimmed)
-            ? throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Azure AD v2.0 issuer.")
+            ? throw new SecurityTokenInvalidIssuerException("Issuer is not a valid Microsoft Entra ID v2.0 issuer.")
             : trimmed;
     }
 
