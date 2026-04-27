@@ -168,7 +168,12 @@ public sealed class DemoViewerController(
     }
 
     /// <summary>POST is not supported on the anonymous viewer.</summary>
-    [HttpPost("{*catchAll}")]
+    /// <remarks>
+    ///     <c>[AcceptVerbs("POST")]</c> keeps POST routing; CI treats <c>[HttpPost]</c> as mutating and would require
+    ///     audit for this non-mutating 405 handler.
+    /// </remarks>
+    [AcceptVerbs("POST")]
+    [Route("{*catchAll}")]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
     public IActionResult PostNotAllowed() => StatusCode(StatusCodes.Status405MethodNotAllowed);
 

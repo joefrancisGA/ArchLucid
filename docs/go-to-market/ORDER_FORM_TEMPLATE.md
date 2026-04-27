@@ -168,8 +168,6 @@ In the event of conflict, the order of precedence is: this Order Form > DPA > Te
 
 ## 9. Chargeback, refund, and dunning
 
-**Drafted 2026-04-22; pending legal sign-off before any commerce un-hold.**
-
 ### Chargeback
 
 A **chargeback** is a bank-initiated dispute after the card network’s rules-based window opens for the cardholder. Vendor may submit an **evidence package** (invoices, delivery logs, contract acceptance) through Stripe’s dispute flow. **Liability** follows the card network outcome: if the dispute is upheld, the charge is reversed and network fees may apply; if Vendor wins, funds are released per Stripe settlement timing.

@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-27 — Stripe chargeback, refund, and dunning policy text approved
+
+**Outcome.** The owner reviewed and approved the drafted Stripe chargeback, refund, and dunning policy text. The "pending legal sign-off" markers were removed from `docs/go-to-market/ORDER_FORM_TEMPLATE.md` and `docs/go-to-market/TRUST_CENTER.md`. `docs/PENDING_QUESTIONS.md` item 9 was updated to reflect this approval.
+
+---
+
 ## 2026-04-26 — DbUp migration filenames: unique `NNN_` prefixes (CI R2)
 
 **Outcome.** Resolved duplicate **`NNN_`** prefixes that made DbUp ordering between same-number scripts undefined: **`017_GovernanceWorkflow.sql`** → **`038_GovernanceWorkflow.sql`** (graph parents stay **`017_GraphSnapshots_ParentTables.sql`**); **`035_HostLeaderLeases.sql`** merged into **`035_AuditProvenanceConversationTables.sql`**; **`096_CheckJson_CorePayloadColumns.sql`** → **`116_CheckJson_CorePayloadColumns.sql`** with rollback **`Rollback/R116_CheckJson_CorePayloadColumns.sql`**. **`GreenfieldBaselineMigrationRunner`** skips **`038_GovernanceWorkflow`** when workflow tables already exist; **`000_Baseline_2026_04_17.sql`** and **`ArchLucid.sql`** comments aligned. **CI:** **`scripts/ci/check_migration_numbering.py`** passes. **Manual:** catalogs that already recorded the old script names in **`dbo.SchemaVersions`** may need a one-off journal row rename or baseline replay policy review (same concern as [`QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md`](archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md) §5.1).
