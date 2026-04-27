@@ -6,7 +6,7 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/runs/new")).toBe("New request");
+    expect(getRouteTitle("/runs/new")).toBe("New architecture request");
   });
 });
 

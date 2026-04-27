@@ -64,10 +64,10 @@ describe("NewRunWizardClient (example query)", () => {
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     });
 
     expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);

@@ -12,6 +12,11 @@ export type WizardNavButtonsProps = {
   isFirstStep?: boolean;
   /** When true, primary action is Submit instead of Next. */
   isLastInputStep?: boolean;
+  /** Label for forward navigation when not submitting (default: Next). */
+  nextLabel?: string;
+  /** Optional local persistence (e.g. localStorage) — shown between Back and Next. */
+  onSaveDraft?: () => void;
+  saveDraftLabel?: string;
   /** Label for the primary submit action (default: Submit). */
   submitLabel?: string;
   /** Loading label while `submitting` (default: Submitting…). */
@@ -29,6 +34,9 @@ export function WizardNavButtons({
   canProceed = true,
   isFirstStep = false,
   isLastInputStep = false,
+  nextLabel = "Next",
+  onSaveDraft,
+  saveDraftLabel = "Save draft",
   submitLabel = "Submit",
   submittingLabel = "Submitting…",
 }: WizardNavButtonsProps) {
@@ -36,6 +44,7 @@ export function WizardNavButtons({
   const primaryDisabled = !canProceed || submitting;
   const showSubmit = Boolean(onSubmit) && isLastInputStep;
   const showNext = Boolean(onNext) && !isLastInputStep;
+  const showSaveDraft = Boolean(onSaveDraft);
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -46,7 +55,12 @@ export function WizardNavButtons({
           </Button>
         ) : null}
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
+        {showSaveDraft ? (
+          <Button type="button" variant="outline" disabled={submitting} onClick={onSaveDraft}>
+            {saveDraftLabel}
+          </Button>
+        ) : null}
         {showSubmit ? (
           <Button type="button" variant="default" disabled={primaryDisabled} onClick={onSubmit}>
             {submitting ? submittingLabel : submitLabel}
@@ -54,7 +68,7 @@ export function WizardNavButtons({
         ) : null}
         {showNext ? (
           <Button type="button" variant="default" disabled={primaryDisabled} onClick={onNext}>
-            Next
+            {nextLabel}
           </Button>
         ) : null}
       </div>

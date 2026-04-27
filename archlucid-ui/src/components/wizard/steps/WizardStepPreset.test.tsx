@@ -15,28 +15,29 @@ function FormValuesProbe() {
 }
 
 describe("WizardStepPreset", () => {
-  it("renders three preset cards plus start-from-scratch with labels and descriptions", () => {
+  it("renders start-from-scratch, industry starters, quick shapes, and import toggle", () => {
     render(
       <WizardFormTestHarness>
         <WizardStepPreset />
       </WizardFormTestHarness>,
     );
 
-    expect(screen.getByRole("heading", { name: "Choose a starting point" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Start your architecture request" })).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: "Start blank request" })).toBeInTheDocument();
 
     for (const preset of wizardPresets) {
       expect(screen.getByText(preset.label)).toBeInTheDocument();
       expect(screen.getByText(preset.description)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: `Use ${preset.label.toLowerCase()}` }),
+      ).toBeInTheDocument();
     }
 
-    expect(screen.getByText("Start from scratch")).toBeInTheDocument();
-    expect(screen.getByText("Reset the form to empty lists and placeholder text only.")).toBeInTheDocument();
-
-    expect(screen.getAllByRole("button", { name: "Select" })).toHaveLength(3);
-    expect(screen.getByRole("button", { name: "Use defaults" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Import a request file/i })).toBeInTheDocument();
   });
 
-  it("calls onPresetSelect with the correct preset id when a preset Select is clicked", () => {
+  it("calls onPresetSelect with the correct preset id when a quick-shape button is clicked", () => {
     const onPresetSelect = vi.fn();
 
     render(
@@ -47,14 +48,14 @@ describe("WizardStepPreset", () => {
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
-    const selectBtn = within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" });
-    fireEvent.click(selectBtn);
+    const useBtn = within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" });
+    fireEvent.click(useBtn);
 
     expect(onPresetSelect).toHaveBeenCalledTimes(1);
     expect(onPresetSelect).toHaveBeenCalledWith("greenfield-web-app");
   });
 
-  it("merges preset values into the form when a preset is selected", () => {
+  it("merges preset values into the form when a quick shape is selected", () => {
     render(
       <WizardFormTestHarness>
         <WizardStepPreset />
@@ -64,12 +65,12 @@ describe("WizardStepPreset", () => {
 
     const modernizeCard = screen.getByText("Modernize legacy system").closest('[class*="rounded-xl"]');
     expect(modernizeCard).toBeTruthy();
-    fireEvent.click(within(modernizeCard as HTMLElement).getByRole("button", { name: "Select" }));
+    fireEvent.click(within(modernizeCard as HTMLElement).getByRole("button", { name: "Use modernize legacy system" }));
 
     expect(screen.getByTestId("probe-system")).toHaveTextContent("LegacyModernization");
   });
 
-  it("Use defaults resets to buildDefaultWizardValues system name", () => {
+  it("Start blank request resets to buildDefaultWizardValues system name", () => {
     render(
       <WizardFormTestHarness
         values={{
@@ -83,7 +84,7 @@ describe("WizardStepPreset", () => {
 
     expect(screen.getByTestId("probe-system")).toHaveTextContent("CustomBefore");
 
-    fireEvent.click(screen.getByRole("button", { name: "Use defaults" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start blank request" }));
 
     expect(screen.getByTestId("probe-system")).toHaveTextContent("TargetSystem");
   });

@@ -1,7 +1,7 @@
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Home",
   "/runs": "Runs",
-  "/runs/new": "New request",
+  "/runs/new": "New architecture request",
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",

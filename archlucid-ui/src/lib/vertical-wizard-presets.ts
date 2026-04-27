@@ -9,13 +9,15 @@ export const verticalBriefWizardPresets: WizardPreset[] = [
   {
     id: "vertical-financial-services",
     label: "Financial services",
-    description: "GLBA + SOX starter — core banking read APIs, mainframe bridge, segregation of duties.",
+    description:
+      "GLBA and SOX starter for regulated APIs, mainframe integration, and segregation of duties.",
     values: financialVerticalValues(),
   },
   {
     id: "vertical-healthcare",
     label: "Healthcare",
-    description: "HIPAA starter — FHIR hub, minimum necessary, PHI residency and break-glass audit.",
+    description:
+      "HIPAA starter for claims, eligibility, care management, PHI minimization, auditability, and break-glass access.",
     values: healthcareVerticalValues(),
   },
   {

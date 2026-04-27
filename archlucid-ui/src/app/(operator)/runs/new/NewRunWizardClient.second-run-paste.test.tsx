@@ -32,6 +32,10 @@ describe("NewRunWizardClient (SECOND_RUN paste)", () => {
   it("step 1 exposes paste path and applying TOML pre-fills system name on identity step", async () => {
     render(<NewRunWizardClient />);
 
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("wizard-import-request-toggle"));
+    });
+
     expect(screen.getByTestId("second-run-paste-textarea")).toBeInTheDocument();
 
     const toml = `
@@ -46,7 +50,7 @@ components = ["api"]
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     });
 
     await waitFor(() => {

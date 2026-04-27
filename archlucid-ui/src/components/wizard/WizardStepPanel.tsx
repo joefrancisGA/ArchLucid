@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 
 export type WizardStepPanelProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
   children: ReactNode;
 };
 

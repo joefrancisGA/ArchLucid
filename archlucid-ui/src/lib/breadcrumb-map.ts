@@ -54,6 +54,14 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     return [{ label: "Home" }];
   }
 
+  // Product path: skip the intermediate "Runs" crumb so first workflow reads Home / New request.
+  if (normalized === "/runs/new") {
+    return [
+      { label: "Home", href: "/" },
+      { label: "New request" },
+    ];
+  }
+
   const items: BreadcrumbItem[] = [{ label: "Home", href: "/" }];
   const rawSegments = normalized.split("/").filter(Boolean);
 

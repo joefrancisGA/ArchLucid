@@ -1,7 +1,7 @@
 "use client";
 
 import { useCommandState } from "cmdk";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -52,8 +53,14 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
+    pathname,
+    showExtended,
+    showAdvanced,
+  );
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -99,8 +106,8 @@ export function CommandPalette() {
           <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>
           {listNavGroupsVisibleInOperatorShell(
             NAV_GROUPS,
-            showExtended,
-            showAdvanced,
+            shellShowExtended,
+            shellShowAdvanced,
             callerAuthorityRank,
           ).map(({ group, visibleLinks }) => (
             <CommandGroup key={group.id} heading={group.label}>

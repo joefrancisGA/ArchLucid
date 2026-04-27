@@ -7,10 +7,9 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: "Home" }]);
   });
 
-  it("builds a chain for nested routes", () => {
+  it("shortens the new-run path to Home / New request", () => {
     expect(getBreadcrumbs("/runs/new")).toEqual([
       { label: "Home", href: "/" },
-      { label: "Runs", href: "/runs" },
       { label: "New request" },
     ]);
   });

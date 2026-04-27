@@ -11,7 +11,8 @@ export function LayerContextFromRoute() {
   const pathname = usePathname() ?? "/";
 
   // Home already carries pilot context in the hero; avoid a second mission strip that reads like a weak breadcrumb.
-  if (pathname === "/") {
+  // New request is the primary create flow — keep the header uncluttered like home.
+  if (pathname === "/" || pathname === "/runs/new") {
     return null;
   }
 
