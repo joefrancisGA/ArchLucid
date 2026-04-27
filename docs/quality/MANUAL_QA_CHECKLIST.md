@@ -1,3 +1,5 @@
+> **Scope:** Manual QA and pilot operators validating scenarios that automated tests cannot cover; it is not a substitute for unit, integration, or Playwright coverage.
+
 # ArchLucid Comprehensive Manual QA Checklist
 
 This checklist focuses **exclusively** on scenarios that are either impossible, extremely brittle, or computationally infeasible to automate. These tests rely on human judgment, subjective evaluation, empathy, and complex out-of-band interactions. Everything else (API contracts, state mutations, RBAC enforcement, standard UI flows) should be handled by automated tests (e.g., unit, integration, Playwright).
