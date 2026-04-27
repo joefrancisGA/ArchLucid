@@ -42,7 +42,6 @@ public sealed class RunDetailQueryServiceTests
         ProjectId = Guid.NewGuid()
     };
 
-    private readonly Mock<IScopeContextProvider> _scopeProvider;
     private readonly RunDetailQueryService _sut;
     private readonly Mock<IAgentTaskRepository> _taskRepo;
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader;
@@ -50,17 +49,17 @@ public sealed class RunDetailQueryServiceTests
     public RunDetailQueryServiceTests()
     {
         _runRepo = new Mock<IRunRepository>();
-        _scopeProvider = new Mock<IScopeContextProvider>();
+        Mock<IScopeContextProvider> scopeProvider = new();
         _taskRepo = new Mock<IAgentTaskRepository>();
         _resultRepo = new Mock<IAgentResultRepository>();
         _unifiedManifestReader = new Mock<IUnifiedGoldenManifestReader>();
         _authorityTraceRepo = new Mock<IDecisionTraceRepository>();
 
-        _scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
 
         _sut = new RunDetailQueryService(
             _runRepo.Object,
-            _scopeProvider.Object,
+            scopeProvider.Object,
             _taskRepo.Object,
             _resultRepo.Object,
             _unifiedManifestReader.Object,

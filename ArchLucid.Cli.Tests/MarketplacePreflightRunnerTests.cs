@@ -61,9 +61,6 @@ public sealed class MarketplacePreflightRunnerTests
     {
         string? root = CliRepositoryRootResolver.TryResolveRepositoryRoot();
 
-        if (root is null)
-            throw new InvalidOperationException("Run tests from within the ArchLucid repository.");
-
-        return root;
+        return root ?? throw new InvalidOperationException("Run tests from within the ArchLucid repository.");
     }
 }
