@@ -29,7 +29,7 @@ type SystemHealthStatusStripProps = {
   className?: string;
 };
 
-/** Readiness as inline metadata (no card chrome) — home column or global footer. */
+/** Readiness as inline metadata (no card chrome) — only shown when a real status is available. */
 export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripProps) {
   const [phase, setPhase] = useState<"loading" | "ready" | "unavailable">("loading");
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
@@ -79,39 +79,23 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
 
   const overall = ready?.status?.trim() ?? "";
 
+  if (phase !== "ready" || overall.length === 0) {
+    return null;
+  }
+
   return (
     <div
       data-testid="command-center-health-card"
       className={cn("mb-2 flex flex-wrap items-center gap-2 text-xs", className)}
       aria-label="System health"
     >
-      {phase === "loading" ? (
-        <span className="text-neutral-500 dark:text-neutral-400">Checking readiness…</span>
-      ) : null}
-
-      {phase === "unavailable" ? (
-        <>
-          <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
-          <span className="text-neutral-600 dark:text-neutral-400">Health dashboard not configured yet.</span>
-        </>
-      ) : null}
-
-      {phase === "ready" && overall.length > 0 ? (
-        <>
-          <span
-            className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
-            aria-hidden
-          />
-          <span className="text-neutral-800 dark:text-neutral-200">
-            Platform services: <span className="font-medium">{overall}</span>
-          </span>
-        </>
-      ) : null}
-
-      {phase === "ready" && overall.length === 0 ? (
-        <span className="text-neutral-600 dark:text-neutral-400">Readiness payload had no overall status.</span>
-      ) : null}
-
+      <span
+        className={cn("h-2 w-2 shrink-0 rounded-full", healthReadinessDotClass(overall))}
+        aria-hidden
+      />
+      <span className="text-neutral-800 dark:text-neutral-200">
+        Platform services: <span className="font-medium">{overall}</span>
+      </span>
       <Link
         href="/admin/health"
         className="ml-auto inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"

@@ -12,20 +12,12 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
     <h1
       class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
     >
-      Demo · Provenance + citations
+      Example analysis — provenance and explanation
     </h1>
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      The full 
-      <code>
-        ProvenanceGraph
-      </code>
-       for the latest committed demo-seed run, rendered side-by-side with the citations-bound aggregate explanation. Both panels come from one server-side 
-      <code>
-        DemoReadModelClient
-      </code>
-       call against the demo tenant — this route never exposes production data.
+      Provenance graph and citations-bound explanation for the example analysis run.
     </p>
     <div
       class="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
@@ -302,26 +294,5 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       </div>
     </section>
   </section>
-  <footer
-    class="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
-  >
-    Source: 
-    <code>
-      GET /v1/demo/explain
-    </code>
-     (server-side 
-    <code>
-      DemoReadModelClient
-    </code>
-    , hard-pinned to the demo tenant; same application services as
-    <code>
-       /v1/explain
-    </code>
-     and 
-    <code>
-      /v1/provenance
-    </code>
-    ).
-  </footer>
 </main>
 `;

@@ -34,8 +34,8 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
 }
 
 /**
- * Non-modal post-commit CTA: downloads a sponsor-shareable PDF projection of the canonical first-value-report
- * Markdown for this run, and prompts the operator to email it. Only rendered when the run has a golden manifest.
+ * Non-modal post-finalization CTA: downloads a sponsor-shareable PDF projection of the canonical first-value-report
+ * Markdown for this run. Only rendered when the run has a finalized manifest.
  *
  * The primary action calls `POST /v1/pilots/runs/{runId}/first-value-report.pdf` (Read access on the API; mirrors
  * the auth surface of the existing Markdown sibling so click-to-download is one-shot).
@@ -145,7 +145,7 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
     <aside
       data-testid="email-run-to-sponsor-banner"
       role="region"
-      aria-label="Email this run to your sponsor"
+      aria-label="Prepare sponsor summary"
       className="mb-6 max-w-3xl rounded-md border border-teal-300 bg-teal-50 px-4 py-3 dark:border-teal-700 dark:bg-teal-950/40"
     >
       <p className="m-0 flex flex-wrap items-center text-[11px] font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
@@ -153,8 +153,8 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
-            title="UTC days since your tenant's first finalized golden manifest"
-            aria-label={`Day ${badgeDayN} since your tenant's first finalized golden manifest`}
+            title="UTC days since your tenant's first finalized manifest"
+            aria-label={`Day ${badgeDayN} since your tenant's first finalized manifest`}
             className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
           >
             Day {badgeDayN} since first finalization
@@ -173,7 +173,7 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
           onClick={() => void onDownload()}
           data-testid="email-run-to-sponsor-primary-action"
         >
-          {busy ? "Preparing PDF…" : "Email this run to your sponsor"}
+          {busy ? "Preparing PDF…" : "Prepare sponsor summary"}
         </Button>
         <span className="text-xs text-neutral-600 dark:text-neutral-400">
           Downloads <code>first-value-report-{runId}.pdf</code> — attach to your email of choice.

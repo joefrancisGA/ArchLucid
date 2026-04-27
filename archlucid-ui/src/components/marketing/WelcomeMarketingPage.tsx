@@ -12,7 +12,7 @@ const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You describe a s
 const PILLARS: { title: string; body: string }[] = [
   {
     title: "AI-native architecture analysis",
-    body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a versioned golden manifest with structured findings, not a chat conversation that disappears.",
+    body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
   },
   {
     title: "Auditable decision trail",

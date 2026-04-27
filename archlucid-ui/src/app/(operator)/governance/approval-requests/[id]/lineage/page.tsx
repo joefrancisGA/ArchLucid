@@ -182,8 +182,8 @@ export default function GovernanceApprovalLineagePage() {
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle>Golden manifest</CardTitle>
-            <CardDescription>When the run id maps to a golden manifest in scope</CardDescription>
+            <CardTitle>Reviewed manifest</CardTitle>
+            <CardDescription>When the run id maps to a finalized manifest in scope</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>

@@ -100,13 +100,10 @@ export default function DemoExplainPage() {
     >
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Demo · Provenance + citations
+          Example analysis — provenance and explanation
         </h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          The full <code>ProvenanceGraph</code> for the latest committed demo-seed run, rendered
-          side-by-side with the citations-bound aggregate explanation. Both panels come from one
-          server-side <code>DemoReadModelClient</code> call against the demo tenant — this route
-          never exposes production data.
+          Provenance graph and citations-bound explanation for the example analysis run.
         </p>
         {state.payload ? <DemoStatusBanner payload={state.payload} /> : null}
       </header>
@@ -132,12 +129,6 @@ export default function DemoExplainPage() {
       ) : !state.error && !state.notFound && state.loading ? (
         <p className="text-sm text-neutral-500">Loading demo explain payload…</p>
       ) : null}
-
-      <footer className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-        Source: <code>GET /v1/demo/explain</code> (server-side <code>DemoReadModelClient</code>,
-        hard-pinned to the demo tenant; same application services as
-        <code> /v1/explain</code> and <code>/v1/provenance</code>).
-      </footer>
     </main>
   );
 }
@@ -168,20 +159,7 @@ function DemoNotAvailableNotice() {
       role="status"
       className="rounded border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
     >
-      <p className="font-medium">No committed demo-seed run is available on this host.</p>
-      <p className="mt-1 text-neutral-600 dark:text-neutral-400">
-        This usually means one of two things:
-      </p>
-      <ul className="mt-1 list-disc pl-5 text-neutral-600 dark:text-neutral-400">
-        <li>
-          The demo seed has not been applied yet on this host. Run <code>archlucid try</code> or
-          <code> POST /v1/demo/seed</code>, then refresh.
-        </li>
-        <li>
-          This deployment is not configured with <code>Demo:Enabled=true</code> — the demo surface
-          is intentionally hidden on production-like hosts.
-        </li>
-      </ul>
+      <p className="m-0 font-medium">The example analysis is not available in this environment.</p>
     </div>
   );
 }
