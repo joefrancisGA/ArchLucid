@@ -19,6 +19,11 @@ function isSkippableSourceFile(filePath: string): boolean {
     return true;
   }
 
+  // Never scrape this helper for `helpKey=` patterns (regex definition contains `helpKey=["']`).
+  if (base.endsWith("/contextual-help-keys-from-source.ts")) {
+    return true;
+  }
+
   return false;
 }
 
