@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -10,6 +11,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
@@ -38,6 +40,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/docx")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class DocxExportController(
     IAuthorityQueryService authorityQueryService,
     IArtifactQueryService artifactQueryService,

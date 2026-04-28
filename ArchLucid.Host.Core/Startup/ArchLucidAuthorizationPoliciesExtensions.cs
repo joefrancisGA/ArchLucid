@@ -25,6 +25,9 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.RequireRole(
                     ArchLucidRoles.Reader,
                     ArchLucidRoles.Operator,
+                    ArchLucidRoles.Architect,
+                    ArchLucidRoles.Reviewer,
+                    ArchLucidRoles.WorkspaceAdmin,
                     ArchLucidRoles.Admin,
                     ArchLucidRoles.Auditor);
             })
@@ -33,13 +36,16 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
                     ArchLucidRoles.Operator,
+                    ArchLucidRoles.Architect,
+                    ArchLucidRoles.Reviewer,
+                    ArchLucidRoles.WorkspaceAdmin,
                     ArchLucidRoles.Admin);
                 policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.AdminAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(ArchLucidRoles.Admin);
+                policy.RequireRole(ArchLucidRoles.Admin, ArchLucidRoles.WorkspaceAdmin);
                 policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.RequireAuditor, policy =>
@@ -47,7 +53,8 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
                     ArchLucidRoles.Auditor,
-                    ArchLucidRoles.Admin);
+                    ArchLucidRoles.Admin,
+                    ArchLucidRoles.WorkspaceAdmin);
             })
             .AddPolicy(ArchLucidPolicies.CanCommitRuns, policy =>
                 policy.RequireClaim("permission", "commit:run"))

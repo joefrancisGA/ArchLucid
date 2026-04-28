@@ -14,7 +14,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         ArgumentNullException.ThrowIfNull(finding);
 
         // Tests and deserialized payloads may set Trace to null despite the DTO default.
-        ExplainabilityTrace trace = finding.Trace;
+        ExplainabilityTrace trace = finding.Trace ?? new();
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);

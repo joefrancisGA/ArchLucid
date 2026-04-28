@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
@@ -111,6 +112,148 @@ public sealed class TenantIsolationSmokeTests
 
         HttpResponseMessage getOwn = await clientA.GetAsync($"/v1/architecture/run/{runId}");
         getOwn.EnsureSuccessStatusCode();
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_access_tenant_a_run_roi_sql_rls()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using SqlRlsTenantIsolationApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            primer.Timeout = TimeSpan.FromMinutes(2);
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await WarmListRunsPathAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientA = factory.CreateClient();
+        clientA.Timeout = TimeSpan.FromMinutes(2);
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        string requestId = "REQ-TNTROI-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage create = await PostArchitectureRequestWithTransientRetryAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(requestId));
+        create.EnsureSuccessStatusCode();
+        CreateRunResponseDto? created = await create.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runId = created!.Run.RunId;
+
+        using HttpClient clientB = factory.CreateClient();
+        clientB.Timeout = TimeSpan.FromMinutes(2);
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage roi = await clientB.GetAsync($"/v1/architecture/run/{runId}/roi");
+        roi.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task Tenant_b_cannot_read_tenant_a_artifact_manifest_list_sql_rls()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using SqlRlsTenantIsolationApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            primer.Timeout = TimeSpan.FromMinutes(2);
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await WarmListRunsPathAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        Guid? manifestId =
+            await TryGetAnyGoldenManifestIdForTenantAsync(factory.SqlConnectionString, ScopeIds.DefaultTenant);
+
+        Skip.If(!manifestId.HasValue, "Greenfield catalog has no GoldenManifest row for the default tenant yet.");
+
+        using HttpClient clientB = factory.CreateClient();
+        clientB.Timeout = TimeSpan.FromMinutes(2);
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        HttpResponseMessage art = await clientB.GetAsync($"/v1/artifacts/manifests/{manifestId:D}");
+        art.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [SkippableFact]
+    public async Task Admin_archive_batch_with_tenant_a_headers_does_not_archive_tenant_b_runs()
+    {
+        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+
+        await using SqlRlsTenantIsolationApiFactory factory = new();
+        using (HttpClient primer = factory.CreateClient())
+        {
+            primer.Timeout = TimeSpan.FromMinutes(2);
+            IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
+            await WarmListRunsPathAsync(primer);
+        }
+
+        await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
+
+        using HttpClient clientA = factory.CreateClient();
+        clientA.Timeout = TimeSpan.FromMinutes(2);
+        WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
+
+        using HttpClient clientB = factory.CreateClient();
+        clientB.Timeout = TimeSpan.FromMinutes(2);
+        WireScope(clientB, TenantB, WorkspaceB, ProjectB);
+
+        string reqA = "REQ-ADMARCH-A-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage createA = await PostArchitectureRequestWithTransientRetryAsync(
+            clientA,
+            TestRequestFactory.CreateArchitectureRequest(reqA));
+        createA.EnsureSuccessStatusCode();
+        CreateRunResponseDto? createdA = await createA.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runIdA = createdA!.Run.RunId;
+
+        string reqB = "REQ-ADMARCH-B-" + Guid.NewGuid().ToString("N")[..12];
+        HttpResponseMessage createB = await PostArchitectureRequestWithTransientRetryAsync(
+            clientB,
+            TestRequestFactory.CreateArchitectureRequest(reqB));
+        createB.EnsureSuccessStatusCode();
+        CreateRunResponseDto? createdB = await createB.Content.ReadFromJsonAsync<CreateRunResponseDto>();
+        string runIdB = createdB!.Run.RunId;
+
+        HttpResponseMessage archive = await clientA.PostAsJsonAsync(
+            "/v1/admin/runs/archive-batch",
+            new AdminArchiveRunsBatchRequest { CreatedBeforeUtc = DateTimeOffset.UtcNow.AddYears(1) });
+
+        archive.EnsureSuccessStatusCode();
+
+        HttpResponseMessage getB = await clientB.GetAsync($"/v1/architecture/run/{runIdB}");
+        getB.EnsureSuccessStatusCode();
+
+        HttpResponseMessage getA = await clientA.GetAsync($"/v1/architecture/run/{runIdA}");
+        getA.StatusCode.Should().Be(HttpStatusCode.NotFound, "tenant A admin batch should archive only tenant A runs.");
+    }
+
+    private static async Task<Guid?> TryGetAnyGoldenManifestIdForTenantAsync(string connectionString, Guid tenantId)
+    {
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync();
+        await using (SqlCommand bypass = connection.CreateCommand())
+        {
+            bypass.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
+            bypass.Parameters.AddWithValue("@k", "al_rls_bypass");
+            bypass.Parameters.AddWithValue("@v", 1);
+            bypass.Parameters.AddWithValue("@read_only", 0);
+            await bypass.ExecuteNonQueryAsync();
+        }
+
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT TOP (1) ManifestId
+            FROM dbo.GoldenManifests
+            WHERE TenantId = @Tid AND ArchivedUtc IS NULL
+            ORDER BY CreatedUtc DESC;
+            """;
+        cmd.Parameters.AddWithValue("@Tid", tenantId);
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        return scalar is Guid g ? g : null;
     }
 
     private static void WireScope(HttpClient client, Guid tenantId, Guid workspaceId, Guid projectId)

@@ -8,10 +8,8 @@ namespace ArchLucid.Persistence.BlobStore;
 public static class ArtifactBlobTenantPaths
 {
     /// <summary>Folder prefix under each container: <c>{tenantId:D}/</c> (GUID with hyphens).</summary>
-    public static string TenantPrefixDirectorySegment(Guid tenantId)
-    {
-        return tenantId.ToString("D") + "/";
-    }
+    public static string TenantPrefixDirectorySegment(Guid tenantId) =>
+        tenantId.ToString("D") + "/";
 
     /// <summary>Rejects path traversal and absolute-style blob names before they reach storage.</summary>
     public static void ThrowIfBlobRelativePathUnsafe(string blobName)
@@ -27,9 +25,37 @@ public static class ArtifactBlobTenantPaths
     }
 
     /// <summary>
+    ///     Builds the workspace/project/artifact segment of a blob path (no tenant prefix): three scope GUIDs, then
+    ///     <c>artifacts/{manifestId}/{artifactId}/{fileName}</c>. Used for large artifact payload offload so paths are
+    ///     not guessable from manifest or artifact id alone without also knowing workspace and project.
+    /// </summary>
+    public static string FormatArtifactContentRelativePath(
+        Guid workspaceId,
+        Guid projectId,
+        Guid manifestId,
+        Guid artifactId,
+        string fileName)
+    {
+        if (fileName is null)
+            throw new ArgumentNullException(nameof(fileName));
+
+        ThrowIfBlobRelativePathUnsafe(fileName);
+
+        if (fileName.Contains('/', StringComparison.Ordinal) || fileName.Contains('\\', StringComparison.Ordinal))
+            throw new InvalidOperationException("Artifact blob file name must be a single path segment.");
+
+        return $"{workspaceId:D}/{projectId:D}/artifacts/{manifestId:D}/{artifactId:D}/{fileName}";
+    }
+
+    /// <summary>
     ///     Prefixes <paramref name="blobName" /> with the current tenant directory. Callers must pass a logical path
     ///     without an embedded tenant prefix (that would double-prefix or confuse audits).
     /// </summary>
+    /// <remarks>
+    ///     Logical paths may start with <see cref="Guid" /> segments (workspace, project keys) when using
+    ///     <see cref="FormatArtifactContentRelativePath" />; only a leading segment equal to the current tenant id is
+    ///     rejected.
+    /// </remarks>
     public static string PrefixWithTenant(IScopeContextProvider scopeProvider, string blobName)
     {
         if (scopeProvider is null)
@@ -41,14 +67,12 @@ public static class ArtifactBlobTenantPaths
         string normalized = blobName.Replace("\\", "/", StringComparison.Ordinal).TrimStart('/');
         string[] topSegments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-        if (topSegments.Length <= 0 || !Guid.TryParse(topSegments[0], out Guid leadingFolder))
-            return prefix + normalized;
-
-        if (leadingFolder == tenantId)
+        if (topSegments.Length > 0 && Guid.TryParse(topSegments[0], out Guid leadingFolder) &&
+            leadingFolder == tenantId)
             throw new InvalidOperationException(
                 "Blob name must not include a tenant prefix; it is applied automatically.");
 
-        throw new InvalidOperationException("Blob name must not start with another tenant folder segment.");
+        return prefix + normalized;
     }
 
     /// <summary>
@@ -67,10 +91,8 @@ public static class ArtifactBlobTenantPaths
         string prefix = TenantPrefixDirectorySegment(tenantId);
 
         if (!blobName.StartsWith(prefix, StringComparison.Ordinal))
-
             throw new InvalidOperationException(
                 "Blob path is outside the current tenant scope; it must start with the tenant folder segment.");
-
 
         string remainder = blobName.Length > prefix.Length ? blobName[prefix.Length..] : string.Empty;
         ThrowIfBlobRelativePathUnsafe(remainder);

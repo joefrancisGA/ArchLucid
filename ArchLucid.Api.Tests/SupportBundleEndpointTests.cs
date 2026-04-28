@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 ///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> — the in-product
 ///     support-bundle download (PENDING_QUESTIONS.md item 37, owner decisions F + G,
 ///     2026-04-23). Asserts the policy guard (
-///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />)
+///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.AdminAuthority" />)
 ///     and that the happy path returns a non-empty ZIP with the expected entries.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -21,7 +21,7 @@ public sealed class SupportBundleEndpointTests
     private const string EndpointPath = "/v1/admin/support-bundle";
 
     [Fact]
-    public async Task Post_WithReaderRole_Returns403_BecauseExecuteAuthorityIsRequired()
+    public async Task Post_WithReaderRole_Returns403_BecauseAdminAuthorityIsRequired()
     {
         await using ReaderRoleArchLucidApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -30,7 +30,20 @@ public sealed class SupportBundleEndpointTests
         using HttpResponseMessage response = await client.PostAsync(EndpointPath, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden,
-            "owner decision F gates /admin/support-bundle on ExecuteAuthority; Reader role lacks it.");
+            "support-bundle is gated on AdminAuthority; Reader role lacks it.");
+    }
+
+    [Fact]
+    public async Task Post_WithOperatorRole_Returns403_BecauseAdminAuthorityIsRequired()
+    {
+        await using OperatorRoleArchLucidApiFactory factory = new();
+        using HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        using HttpResponseMessage response = await client.PostAsync(EndpointPath, null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden,
+            "support-bundle is gated on AdminAuthority; Operator role lacks it.");
     }
 
     [Fact]

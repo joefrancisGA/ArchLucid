@@ -18,6 +18,7 @@ public sealed class TenantScopedTableDdlTests
             { "AuditEvents", "ProjectId" },
             { "IntegrationEventOutbox", "ProjectId" },
             { "GoldenManifests", "ProjectId" },
+            { "ContextSnapshots", "ScopeProjectId" },
         };
 
     [Fact]
@@ -30,6 +31,40 @@ public sealed class TenantScopedTableDdlTests
         header.Should().MatchRegex(@"(?<!\w)WorkspaceId(?!\w)", because: "Runs is workspace-scoped");
         header.Should().MatchRegex(@"(?<!\w)ProjectId(?!\w)", because: "Runs carries project key (NVARCHAR line-of-business id)");
         header.Should().MatchRegex(@"(?<!\w)ScopeProjectId(?!\w)", because: "Runs carries RLS scope surrogate key");
+    }
+
+    [Fact]
+    public void ArchLucid_sql_GoldenManifests_create_table_includes_ManifestPayloadBlobUri_for_large_payload_pointers()
+    {
+        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string header = ExtractCreateTableHeader(sql, "GoldenManifests");
+
+        header.Should().MatchRegex(
+            @"(?<!\w)ManifestPayloadBlobUri(?!\w)",
+            because: "large manifest payloads may offload to blob storage (tenant-prefixed paths in code)");
+    }
+
+    /// <summary>
+    ///     Execution traces are keyed by tasks/runs; tenant isolation relies on joins to <c>dbo.Runs</c> and RLS on
+    ///     related tables — no denormalized triple-scope columns on this table yet.
+    /// </summary>
+    [Fact]
+    public void ArchLucid_sql_AgentExecutionTraces_create_table_has_no_denormalized_tenant_scope_columns()
+    {
+        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string header = ExtractCreateTableHeader(sql, "AgentExecutionTraces");
+
+        header.Should().NotMatchRegex(@"(?<!\w)TenantId(?!\w)", because: "trace rows are scoped via RunId → Runs");
+    }
+
+    /// <summary>SCIM directory rows are tenant-scoped (IdP provisioning); workspace/project are not modeled on SCIM users.</summary>
+    [Fact]
+    public void ArchLucid_sql_ScimUsers_create_table_includes_TenantId()
+    {
+        string sql = File.ReadAllText(ResolveArchLucidSqlPath());
+        string header = ExtractCreateTableHeader(sql, "ScimUsers");
+
+        header.Should().MatchRegex(@"(?<!\w)TenantId(?!\w)");
     }
 
     [Theory]

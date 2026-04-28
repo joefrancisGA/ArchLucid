@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -27,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/graph")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class GraphController(
     IAuthorityQueryService authorityQueryService,
     IScopeContextProvider scopeProvider)

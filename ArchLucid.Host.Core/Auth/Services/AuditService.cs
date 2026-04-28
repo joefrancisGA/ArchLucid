@@ -36,9 +36,14 @@ public sealed class AuditService(
             auditEvent.ActorUserName =
                 user?.Identity?.Name ?? "unknown";
 
-            auditEvent.TenantId = scope.TenantId;
-            auditEvent.WorkspaceId = scope.WorkspaceId;
-            auditEvent.ProjectId = scope.ProjectId;
+            if (auditEvent.TenantId == Guid.Empty)
+                auditEvent.TenantId = scope.TenantId;
+
+            if (auditEvent.WorkspaceId == Guid.Empty)
+                auditEvent.WorkspaceId = scope.WorkspaceId;
+
+            if (auditEvent.ProjectId == Guid.Empty)
+                auditEvent.ProjectId = scope.ProjectId;
 
             if (string.IsNullOrWhiteSpace(auditEvent.DataJson))
 

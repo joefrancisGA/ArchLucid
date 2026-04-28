@@ -14,17 +14,15 @@ namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
 ///     In-product support-bundle download endpoint — gated on
-///     <see cref="ArchLucidPolicies.ExecuteAuthority" /> per owner decision F
-///     (PENDING_QUESTIONS.md item 37, 2026-04-23). Reuses the shared
+///     <see cref="ArchLucidPolicies.AdminAuthority" /> (tenant administrators and workspace administrators).
+///     Reuses the shared
 ///     <see cref="ISupportBundleAssembler" /> service so the artefact shape stays
 ///     in lock-step with the CLI's <c>archlucid support-bundle</c> command.
 /// </summary>
 /// <remarks>
 ///     <b>Why a separate controller (not <c>AdminController</c>)?</b> <c>AdminController</c>
-///     is class-attributed with <see cref="ArchLucidPolicies.AdminAuthority" />, which is
-///     stricter than the policy decision F prescribed for this endpoint. Hosting it here
-///     keeps the policy correct without adding a per-action override that contradicts the
-///     class-level guard.
+///     mixes diagnostics routes with the same class-level <see cref="ArchLucidPolicies.AdminAuthority" />; this
+///     controller keeps the support-bundle action isolated for documentation and contract tests.
 ///
 ///     <b>Streaming.</b> The assembler returns the full ZIP in memory because the bundle
 ///     is small (a handful of JSON sections + a README). When future redaction work
@@ -49,7 +47,7 @@ public sealed class SupportBundleController(
     /// <summary>Downloads a freshly-assembled, redacted support bundle ZIP.</summary>
     /// <returns>200 OK with <c>application/zip</c> body and a content-disposition file name.</returns>
     [HttpPost("support-bundle")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
