@@ -50,7 +50,6 @@ public sealed class LearningController(
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int take, out string? maxError))
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
-
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
         LearningThemesListResponse body = await learningReadService.GetThemesAsync(scope, take, cancellationToken);
 
@@ -68,7 +67,6 @@ public sealed class LearningController(
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int take, out string? maxError))
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
-
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
         LearningPlansListResponse body = await learningReadService.GetPlansAsync(scope, take, cancellationToken);
 
@@ -85,10 +83,8 @@ public sealed class LearningController(
         if (string.IsNullOrWhiteSpace(id))
             return this.BadRequestProblem("Path parameter 'id' is required.", ProblemTypes.ValidationFailed);
 
-
         if (!Guid.TryParse(id.Trim(), out Guid planId))
             return this.BadRequestProblem("Path parameter 'id' must be a valid GUID.", ProblemTypes.ValidationFailed);
-
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
         LearningPlanDetailResponse? plan =
@@ -98,7 +94,6 @@ public sealed class LearningController(
             return this.NotFoundProblem(
                 $"Improvement plan '{planId}' was not found in the current scope.",
                 ProblemTypes.LearningImprovementPlanNotFound);
-
 
         return Ok(plan);
     }
@@ -116,11 +111,9 @@ public sealed class LearningController(
                 out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
-
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
                 out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
-
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
         LearningSummaryResponse body =
@@ -150,36 +143,28 @@ public sealed class LearningController(
                 out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
-
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
                 out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
-
         if (!LearningPlanningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportSignalLinksPerPlan(
                 maxReportSignalLinks,
                 out int maxSig,
                 out string? sigError))
-
             return this.BadRequestProblem(sigError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportArtifactLinksPerPlan(
                 maxReportArtifactLinks,
                 out int maxArt,
                 out string? artError))
-
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun,
                 out string? runError))
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
-
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
@@ -198,13 +183,14 @@ public sealed class LearningController(
         if (formatNorm == "json")
             return Ok(document);
 
-
         string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
 
         return Ok(
             new LearningPlanningReportExportResponse
             {
-                Format = "markdown", FileName = "learning-planning-report-59r.md", Content = markdown
+                Format = "markdown",
+                FileName = "learning-planning-report-59r.md",
+                Content = markdown
             });
     }
 
@@ -225,36 +211,28 @@ public sealed class LearningController(
                 out string? themeError))
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
-
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake,
                 out string? planError))
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
-
         if (!LearningPlanningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportSignalLinksPerPlan(
                 maxReportSignalLinks,
                 out int maxSig,
                 out string? sigError))
-
             return this.BadRequestProblem(sigError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportArtifactLinksPerPlan(
                 maxReportArtifactLinks,
                 out int maxArt,
                 out string? artError))
-
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
-
 
         if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun,
                 out string? runError))
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
-
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
@@ -284,15 +262,13 @@ public sealed class LearningController(
 
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
-        if (scopeContext is null)
-            throw new ArgumentNullException(nameof(scopeContext));
-
-
-        return new ProductLearningScope
-        {
-            TenantId = scopeContext.TenantId,
-            WorkspaceId = scopeContext.WorkspaceId,
-            ProjectId = scopeContext.ProjectId
-        };
+        return scopeContext is null
+            ? throw new ArgumentNullException(nameof(scopeContext))
+            : new ProductLearningScope
+            {
+                TenantId = scopeContext.TenantId,
+                WorkspaceId = scopeContext.WorkspaceId,
+                ProjectId = scopeContext.ProjectId
+            };
     }
 }
