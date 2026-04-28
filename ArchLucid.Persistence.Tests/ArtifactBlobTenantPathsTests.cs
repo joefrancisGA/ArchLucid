@@ -1,7 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.BlobStore;
-
-using FluentAssertions;
 
 using Moq;
 
