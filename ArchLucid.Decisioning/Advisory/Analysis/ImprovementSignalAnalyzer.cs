@@ -19,7 +19,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
     ///     manifest and comparison only.
     /// </remarks>
     public IReadOnlyList<ImprovementSignal> Analyze(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult? comparison = null)
     {
@@ -42,7 +42,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         return signals;
     }
 
-    private static void AnalyzeRequirementSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeRequirementSignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (RequirementCoverageItem uncovered in manifest.Requirements.Uncovered)
 
@@ -59,7 +59,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             });
     }
 
-    private static void AnalyzeSecuritySignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeSecuritySignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (string gap in manifest.Security.Gaps)
 
@@ -73,7 +73,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             });
     }
 
-    private static void AnalyzeComplianceSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeComplianceSignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (string gap in manifest.Compliance.Gaps)
 
@@ -87,7 +87,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             });
     }
 
-    private static void AnalyzePolicyViolationSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzePolicyViolationSignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         signals.AddRange(manifest.Policy.Violations.Select(violation => new ImprovementSignal
         {
@@ -103,7 +103,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         }));
     }
 
-    private static void AnalyzeTopologySignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeTopologySignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (string gap in manifest.Topology.Gaps)
 
@@ -117,7 +117,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             });
     }
 
-    private static void AnalyzeCostSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeCostSignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (string risk in manifest.Cost.CostRisks)
 
@@ -131,7 +131,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             });
     }
 
-    private static void AnalyzeUnresolvedIssueSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    private static void AnalyzeUnresolvedIssueSignals(ManifestDocument manifest, List<ImprovementSignal> signals)
     {
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {

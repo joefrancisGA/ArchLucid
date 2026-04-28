@@ -17,7 +17,7 @@ public sealed class ImprovementAdvisorService(
 
     /// <inheritdoc />
     public async Task<ImprovementPlan> GeneratePlanAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public sealed class ImprovementAdvisorService(
 
     /// <inheritdoc />
     public async Task<ImprovementPlan> GeneratePlanAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult comparison,
         CancellationToken ct)

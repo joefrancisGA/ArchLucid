@@ -5,7 +5,7 @@ using Cm = ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Decisioning.Interfaces;
 
 /// <summary>
-///     Maps an Authority pipeline <see cref="Models.GoldenManifest" /> to the operator / API
+///     Maps an Authority pipeline <see cref="Models.ManifestDocument" /> to the operator / API
 ///     <see cref="Cm.GoldenManifest" /> shape (Coordinator contract).
 /// </summary>
 public interface IAuthorityCommitProjectionBuilder
@@ -17,7 +17,7 @@ public interface IAuthorityCommitProjectionBuilder
     ///     to keep <c>ArchLucid.Decisioning</c> free of persistence references.
     /// </summary>
     Task<Cm.GoldenManifest> BuildAsync(
-        GoldenManifest source,
+        ManifestDocument source,
         AuthorityCommitProjectionInput input,
         CancellationToken cancellationToken = default);
 }

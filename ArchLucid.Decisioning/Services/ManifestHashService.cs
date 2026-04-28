@@ -8,7 +8,7 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
-///     Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="GoldenManifest" />.
+///     Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="ManifestDocument" />.
 /// </summary>
 /// <remarks>
 ///     The canonical projection includes all structural manifest fields (topology, decisions, requirements,
@@ -19,7 +19,7 @@ namespace ArchLucid.Decisioning.Services;
 public sealed class ManifestHashService : IManifestHashService
 {
     /// <inheritdoc />
-    public string ComputeHash(GoldenManifest manifest)
+    public string ComputeHash(ManifestDocument manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 

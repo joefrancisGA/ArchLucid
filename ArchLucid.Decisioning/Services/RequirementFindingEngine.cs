@@ -44,7 +44,7 @@ public class RequirementFindingEngine : IFindingEngine
                 true,
                 relatedNodeIds);
 
-            finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
+            finding.RecommendedActions.Add("Carry this requirement into the ManifestDocument.");
             string text = requirementText ?? string.Empty;
 
             finding.Trace = new ExplainabilityTrace

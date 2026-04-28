@@ -22,7 +22,7 @@ public interface IImprovementAdvisorService
     /// <param name="findingsSnapshot">Findings aligned with the manifest’s snapshot ids.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<ImprovementPlan> GeneratePlanAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct);
 
@@ -32,7 +32,7 @@ public interface IImprovementAdvisorService
     /// <param name="comparison">Result of comparing base vs target manifests; drives regression/gap style signals.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<ImprovementPlan> GeneratePlanAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult comparison,
         CancellationToken ct);

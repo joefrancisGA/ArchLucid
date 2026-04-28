@@ -9,11 +9,11 @@ namespace ArchLucid.Decisioning.Manifest.Mapping;
 
 /// <summary>
 ///     Maps a coordinator-shaped <see cref="Cm.GoldenManifest" /> into an authority
-///     <see cref="Models.GoldenManifest" /> for persistence.
+///     <see cref="Models.ManifestDocument" /> for persistence.
 /// </summary>
 public static class ContractGoldenManifestMapper
 {
-    public static GoldenManifest ToAuthorityModel(
+    public static ManifestDocument ToAuthorityModel(
         Cm.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying)
@@ -27,7 +27,7 @@ public static class ContractGoldenManifestMapper
         if (keying is null)
             throw new ArgumentNullException(nameof(keying));
 
-        GoldenManifest model = new()
+        ManifestDocument model = new()
         {
             SchemaVersion = 1,
             TenantId = scope.TenantId,

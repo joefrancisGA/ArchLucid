@@ -1,47 +1,47 @@
 {
-  "generated_utc": "2026-04-23T02:35:03.248231+00:00",
+  "generated_utc": "2026-04-28T08:13:00.119254+00:00",
   "files": [
     {
       "pack_path": "SECURITY.md",
-      "source_repo_path": "docs/SECURITY.md",
-      "bytes": 13620,
-      "sha256": "0933f436c3c2a6440cca74984e41e6990701f9e2e78bf9b34b519dfe4ebcc6c7"
+      "source_repo_path": "docs/library/SECURITY.md",
+      "bytes": 13741,
+      "sha256": "31278a813d107179c05e04cca9569b36a59c367bbd8ded5d4ce3bc11782f08a5"
     },
     {
       "pack_path": "README.md",
       "source_repo_path": "README.md",
-      "bytes": 32851,
-      "sha256": "0451e1358b4c46688414655defd22a09f4737b73438106ccc5bdba330b948463"
+      "bytes": 33188,
+      "sha256": "93e12113e5286132cf84d384cd9411c4a06b7d8320ed46db01322a5af22dbc3a"
     },
     {
       "pack_path": "TRUST_CENTER.md",
       "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
-      "bytes": 14257,
-      "sha256": "ef7b352449dd430aad2d0ae5107cb059e68939e9aae04627f6b5892e6f25e0c7"
+      "bytes": 14598,
+      "sha256": "10d5c53007d2e7e7fdd746c9f2ce16dca59d83c3750906fd4126dac1f48b956a"
     },
     {
       "pack_path": "DATA_SUBPROCESSORS.md",
       "source_repo_path": "docs/go-to-market/SUBPROCESSORS.md",
-      "bytes": 3973,
-      "sha256": "547c5c2dfa1ec03f8e522989e171e8eae9c3765fcd0b340217bceea644b5d90c"
+      "bytes": 4042,
+      "sha256": "252fd5b5b25301181cc3c655f022897fd917d0a59404bf1fb73c05ee13ae9bdb"
     },
     {
       "pack_path": "DPA_TEMPLATE.md",
       "source_repo_path": "docs/go-to-market/DPA_TEMPLATE.md",
-      "bytes": 7741,
-      "sha256": "84e100fd151d855d7916e79505814a4a09b9c3fd7aba54a7def7a06579a2f760"
+      "bytes": 7902,
+      "sha256": "a54adfefb6e8cf0926116fae4381eb4c9bdcb3ee37d3cf870fa27a365fd7fac2"
     },
     {
       "pack_path": "INTEGRATION_CATALOG.md",
       "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
-      "bytes": 5670,
-      "sha256": "b04882c63d07cfb0489c1f54244c98a571866d1fc1661b06c8146df056ac1f4a"
+      "bytes": 10018,
+      "sha256": "004d72a3f427bf5b3b75d098e4e3ae922d97b7183595fb03898679b6556ac0f3"
     },
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
-      "source_repo_path": "docs/AUDIT_COVERAGE_MATRIX.md",
-      "bytes": 33657,
-      "sha256": "260b52c9a0d3871770ca9783db9260a715ed4305f17534749b24780586065702"
+      "source_repo_path": "docs/library/AUDIT_COVERAGE_MATRIX.md",
+      "bytes": 40909,
+      "sha256": "257b42f8ebb483b86970935afdf0083350a634857dd8f1db10a9888132e00c25"
     },
     {
       "pack_path": "MULTI_TENANT_RLS.md",
@@ -51,9 +51,9 @@
     },
     {
       "pack_path": "ACCESSIBILITY.md",
-      "source_repo_path": "docs/ACCESSIBILITY.md",
-      "bytes": 2286,
-      "sha256": "076cb6e949f10f10bf567cb106516f5fab62a822d315621fd489296ec22fb8a2"
+      "source_repo_path": "docs/library/ACCESSIBILITY.md",
+      "bytes": 2330,
+      "sha256": "ace58b8452582c83f0cb208e5ff498f99b4935efaceea0202bd5a12062a9135a"
     },
     {
       "pack_path": "SECURITY.txt",
@@ -64,8 +64,8 @@
     {
       "pack_path": "OWNER_SECURITY_ASSESSMENT_REDACTED.md",
       "source_repo_path": "docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md",
-      "bytes": 1927,
-      "sha256": "9ac0c66bc929cc9776366a6dfdc8801ba961d5ddf770167883977abd2dc3c0c1"
+      "bytes": 1965,
+      "sha256": "e87ebfd50bf9bf43f0945e4d90f3d21dc82dcba76a6551fe84b34dec4fdc9eb8"
     },
     {
       "pack_path": "PEN_TEST_SUMMARY.md",
@@ -81,27 +81,27 @@
     },
     {
       "pack_path": "API_CONTRACTS.md",
-      "source_repo_path": "docs/API_CONTRACTS.md",
-      "bytes": 29064,
-      "sha256": "4a4c577f929efafc59c3248dd5676b4412f09bcf6b9fee167b43cebf1737edd6"
+      "source_repo_path": "docs/library/API_CONTRACTS.md",
+      "bytes": 29397,
+      "sha256": "1a15fc91e39f6e8aa163612b3dcaeb0d13e061720c043d7f4db6eb2409ca7b19"
     },
     {
       "pack_path": "INTEGRATION_EVENTS_AND_WEBHOOKS.md",
-      "source_repo_path": "docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
-      "bytes": 10940,
-      "sha256": "db4a3eabf1073049e721fa194eb362eab72d318a35e7915cb443046cbacabbaa"
+      "source_repo_path": "docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
+      "bytes": 11059,
+      "sha256": "1aa11db4ce747c28178f039e5035ec1b1e534e94b012c67f302e5da1b8a816e9"
     },
     {
       "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
-      "source_repo_path": "docs/CUSTOMER_TRUST_AND_ACCESS.md",
-      "bytes": 5232,
-      "sha256": "652e3b4cfb9b87d683cf913ff7da6ac894d1df4aa108a54f73a55701900fc309"
+      "source_repo_path": "docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
+      "bytes": 5326,
+      "sha256": "ff4e36f31c73176f96e59c2c98b24e92d31cc13f54caa649198014b2b89d1703"
     },
     {
       "pack_path": "V1_SCOPE.md",
-      "source_repo_path": "docs/V1_SCOPE.md",
-      "bytes": 14951,
-      "sha256": "a5721e7aceeeeaa6dca3d2fc5c823828bd965d5ab33e354f64bb2c07810d8f63"
+      "source_repo_path": "docs/library/V1_SCOPE.md",
+      "bytes": 21904,
+      "sha256": "5069db3b7cef9f4141271e433b68c68f897622ff4e7c268e2117522e973e58bd"
     },
     {
       "pack_path": "BREAKING_CHANGES.md",
@@ -118,8 +118,20 @@
     {
       "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
-      "bytes": 1396,
-      "sha256": "673bfd8ee75d3db6ad97dc8669554624412205d6d21dd017824a2115c33e3473"
+      "bytes": 1537,
+      "sha256": "e1bcc2038767a84e5db33c59c25c811e981ad102d041f79de08a30e3d8f211c0"
+    },
+    {
+      "pack_path": "DSAR_PROCESS.md",
+      "source_repo_path": "docs/security/DSAR_PROCESS.md",
+      "bytes": 9831,
+      "sha256": "910653495153baa17fe9e9f64412a4db8916252b840ae4244c1c8e033a14a84f"
+    },
+    {
+      "pack_path": "CURRENT_ASSURANCE_POSTURE.md",
+      "source_repo_path": "docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md",
+      "bytes": 8119,
+      "sha256": "2b4bf13caa47f26e2299fc47eca0a34b170867b321a398802e614f99d6958704"
     }
   ]
 }

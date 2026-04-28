@@ -2,7 +2,7 @@ using ArchLucid.Decisioning.Manifest.Sections;
 
 namespace ArchLucid.Decisioning.Models;
 
-public class GoldenManifest
+public class ManifestDocument
 {
     /// <summary>JSON contract version for persisted authority manifests (default <c>1</c>).</summary>
     public int SchemaVersion

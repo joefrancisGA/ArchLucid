@@ -17,7 +17,7 @@ namespace ArchLucid.Decisioning.Manifest.Builders;
 
 public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 {
-    public GoldenManifest Build(
+    public ManifestDocument Build(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
@@ -27,7 +27,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     {
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             ManifestId = Guid.NewGuid(),
             RunId = runId,
@@ -70,7 +70,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         return manifest;
     }
 
-    private static void NormalizeManifestOrdering(GoldenManifest manifest)
+    private static void NormalizeManifestOrdering(ManifestDocument manifest)
     {
         manifest.Requirements.Covered = manifest.Requirements.Covered
             .OrderBy(x => x.RequirementName, StringComparer.OrdinalIgnoreCase)
@@ -165,7 +165,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .ToList();
     }
 
-    private static void PopulateRequirements(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateRequirements(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementFinding))
         {
@@ -195,7 +195,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulateTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
+    private static void PopulateTopologyFromGraph(ManifestDocument manifest, GraphSnapshot graphSnapshot)
     {
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
@@ -209,7 +209,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     ///     PR A0.5 / owner 35f — <see cref="GraphNode.Properties" /> carry optional
     ///     <c>serviceType</c>, <c>runtimePlatform</c>, <c>datastoreType</c> keys (enum names, case-insensitive).
     /// </summary>
-    private static void PopulateTypedTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
+    private static void PopulateTypedTopologyFromGraph(ManifestDocument manifest, GraphSnapshot graphSnapshot)
     {
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
@@ -269,7 +269,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         return Enum.TryParse(raw, true, out TEnum e) ? e : default;
     }
 
-    private static void PopulateTopology(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateTopology(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyGap))
         {
@@ -290,7 +290,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulateSecurity(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateSecurity(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityControlFinding))
         {
@@ -332,7 +332,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     }
 
     private static void PopulateCompliance(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.ComplianceFinding))
@@ -366,7 +366,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulateCost(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulateCost(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.CostConstraintFinding))
         {
@@ -390,7 +390,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulatePolicyApplicability(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulatePolicyApplicability(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
@@ -417,7 +417,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
-    private static void PopulatePolicySection(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    private static void PopulatePolicySection(ManifestDocument manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
@@ -484,7 +484,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     }
 
     private static void PopulateCoverageWarnings(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot)
     {
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyCoverageFinding))
@@ -563,7 +563,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     }
 
     private static void PopulateConstraints(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         RuleAuditTracePayload trace)
     {
@@ -581,7 +581,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     }
 
     private static void PopulateProvenance(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         RuleAuditTracePayload trace)
     {
