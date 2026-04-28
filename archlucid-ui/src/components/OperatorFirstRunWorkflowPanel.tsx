@@ -272,7 +272,7 @@ export function OperatorFirstRunWorkflowPanel() {
 
   if (minimized) {
     return (
-      <div>
+      <div data-onboarding="tour-core-pilot">
         <button
           type="button"
           onClick={expand}
@@ -289,6 +289,7 @@ export function OperatorFirstRunWorkflowPanel() {
   if (graduated && allDone) {
     return (
       <section
+        data-onboarding="tour-core-pilot"
         className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-900/80"
         aria-labelledby="whats-next-heading"
       >
@@ -332,6 +333,7 @@ export function OperatorFirstRunWorkflowPanel() {
   return (
     <section
       id="first-run-workflow-panel"
+      data-onboarding="tour-core-pilot"
       className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
       aria-labelledby="first-run-workflow-heading"
     >

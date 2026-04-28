@@ -103,7 +103,7 @@ export function RunsDashboardPanel() {
   const runListError = phase === "error" && failure !== null;
 
   return (
-    <section aria-labelledby="runs-dashboard-heading">
+    <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
       <h3
         id="runs-dashboard-heading"
         className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"

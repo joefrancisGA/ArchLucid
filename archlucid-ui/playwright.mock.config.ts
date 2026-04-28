@@ -43,6 +43,7 @@ export default defineConfig({
     timeout: mockWebServerStartupTimeoutMs,
     env: {
       ...process.env,
+      NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
       /** Client bundle: hide dev-only chrome in mock E2E/screenshot runs when set at build time via local env. */
       NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "",
       /** Operator `/runs` / `/manifests` static fallback for demo parity with showcase when API is down. */
