@@ -123,6 +123,12 @@ export function NewRunWizardClient() {
   });
   const [wizardModeReady] = useState(true);
   const liveRef = useRef<HTMLDivElement>(null);
+  const wizardReadyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    wizardReadyRef.current?.setAttribute("data-wizard-ready", "true");
+  }, []);
+
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled:
       runId !== null && (wizardMode === "quick" ? true : stepIndex === 6),
@@ -315,7 +321,7 @@ export function NewRunWizardClient() {
 
   return (
     <FormProvider {...form}>
-      <div className="mx-auto w-full max-w-4xl space-y-4">
+      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
           ) : null}

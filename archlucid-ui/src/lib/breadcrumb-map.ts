@@ -96,13 +96,26 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-manifest-001": "Sample finalized manifest",
   "e2e-fixture-manifest-empty-artifacts": "Manifest (artifacts pending)",
   "claims-intake-modernization": "Claims Intake Modernization",
+  "e2e-plan-001": "Demonstration plan",
+  "e2e-finding-001": "Demonstration finding",
+  "e2e-approval-001": "Demonstration approval",
+  "e2e-policy-pack-001": "Demonstration policy pack",
 };
 
 function labelForSegment(segment: string, allSegments: string[], index: number): string {
   const prev = index > 0 ? allSegments[index - 1] : "";
   const demoTitle = DEMO_PATH_SEGMENT_TITLES[segment];
 
-  if (demoTitle != null && (prev === "runs" || prev === "manifests" || prev === "showcase")) {
+  if (
+    demoTitle !== undefined &&
+    (prev === "runs" ||
+      prev === "manifests" ||
+      prev === "showcase" ||
+      prev === "findings" ||
+      prev === "plans" ||
+      prev === "approval-requests" ||
+      prev === "policy-packs")
+  ) {
     return demoTitle;
   }
 

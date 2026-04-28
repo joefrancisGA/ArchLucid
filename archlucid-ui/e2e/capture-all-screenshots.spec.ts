@@ -143,9 +143,8 @@ test.describe("all routes screenshots (mock API)", () => {
       else if (href === "/settings/exec-digest")
         await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
 
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 500);
-      });
+      /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
+      await page.locator("[data-app-ready=\"true\"]").waitFor({ state: "attached", timeout: 20_000 });
 
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
       await page.screenshot({ path: filePathForHref(href), fullPage: true });

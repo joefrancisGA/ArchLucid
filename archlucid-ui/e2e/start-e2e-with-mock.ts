@@ -76,6 +76,8 @@ async function main(): Promise<void> {
     env: {
       ...process.env,
       ARCHLUCID_API_BASE_URL: MOCK_BASE,
+      /** RSC `/showcase` uses SSR fetch; force static curated demo rather than unresolved marketing upstream. */
+      SHOWCASE_STATIC_ONLY: "1",
       NODE_ENV: "production",
       PORT: process.env.PORT ?? "3000",
       // Bind all interfaces so Playwright can reach 127.0.0.1:3000 (do not inherit shell HOSTNAME).
