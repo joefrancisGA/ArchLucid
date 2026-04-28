@@ -14,7 +14,7 @@ export function fixtureLegacyRunComparison(): RunComparison {
         diffKind: "Changed",
         beforeValue: "3",
         afterValue: "4",
-        notes: "E2E fixture diff row.",
+        notes: "Increased service footprint in target topology.",
       },
     ],
     manifestComparison: {

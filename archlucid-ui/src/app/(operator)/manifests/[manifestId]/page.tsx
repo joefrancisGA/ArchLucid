@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -186,6 +187,11 @@ export default async function ManifestDetailPage({
         Finalized architecture manifest
       </h1>
 
+      <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        A finalized manifest is the reviewed, versioned architecture record for this run. It captures decisions, findings,
+        and the downloadable artifact bundle linked from run detail.
+      </p>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold">Summary</CardTitle>
@@ -198,11 +204,6 @@ export default async function ManifestDetailPage({
             </p>
           ) : null}
           <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
-            <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-              <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
-              <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
-            </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100">
@@ -222,19 +223,31 @@ export default async function ManifestDetailPage({
               {summary.unresolvedIssueCount}
             </dd>
           </dl>
-          {summary.manifestHash ? (
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              <span className="font-medium text-neutral-600 dark:text-neutral-300">Hash:</span>{" "}
-              <span className="font-mono text-[12px]">{summary.manifestHash}</span>
-            </p>
-          ) : null}
+
+          <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
+            <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
+              <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
+              <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+                <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
+                <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
+              </dd>
+              {summary.manifestHash ? (
+                <>
+                  <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Hash</dt>
+                  <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    <span className="font-mono text-[12px]">{summary.manifestHash}</span>
+                  </dd>
+                </>
+              ) : null}
+            </dl>
+          </CollapsibleSection>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Artifacts</CardTitle>
-          <CardDescription>Generated files for review and download.</CardDescription>
+          <CardTitle className="text-base font-semibold">Generated artifacts</CardTitle>
+          <CardDescription>Outputs produced during this run — available for preview and download.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

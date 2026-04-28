@@ -115,13 +115,21 @@ export function getEffectiveBrowserProxyScopeHeaders(): Record<string, string> {
   return getScopeHeaders();
 }
 
-/** Display strings for the header when labels are missing. */
+/** Display strings for the header when labels are missing. In production builds, dev-default UUIDs use neutral copy for screenshots and demos. */
 export function defaultLabelsForScopeIds(
   workspaceId: string,
   projectId: string,
 ): { workspace: string; project: string } {
-  const ws = workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID ? "Development workspace" : workspaceId.slice(0, 8) + "…";
-  const pr = projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Default project" : projectId.slice(0, 8) + "…";
+  const production = process.env.NODE_ENV === "production";
+
+  const ws =
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
+      ? production
+        ? "Workspace"
+        : "Development workspace"
+      : workspaceId.slice(0, 8) + "…";
+  const pr =
+    projectId.trim() === DEV_SCOPE_PROJECT_ID ? "Default project" : projectId.slice(0, 8) + "…";
   return { workspace: ws, project: pr };
 }
 

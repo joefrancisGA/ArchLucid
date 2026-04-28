@@ -41,5 +41,10 @@ export default defineConfig({
     reuseExistingServer: process.env.MOCK_E2E_REUSE_SERVER === "1",
     /** Build + standalone sync can be slow; with skip-build, only the mock + Next need to start. */
     timeout: mockWebServerStartupTimeoutMs,
+    env: {
+      ...process.env,
+      /** Client bundle: hide dev-only chrome in mock E2E/screenshot runs when set at build time via local env. */
+      NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "",
+    },
   },
 });

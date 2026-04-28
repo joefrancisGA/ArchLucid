@@ -8,6 +8,8 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
+import { ShowcaseWhatThisProves } from "./ShowcaseWhatThisProves";
+
 export const revalidate = 300;
 
 type PageProps = {
@@ -55,6 +57,30 @@ function ShowcaseLead({ children }: { readonly children: ReactNode }) {
   return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
 }
 
+/** One-line teaser under the hero — caps length for marketing hero layout. */
+function trimLeadDescription(desc: string | undefined | null): string {
+  const t = (desc ?? "").trim();
+
+  if (t.length === 0) {
+    return "Read-only preview of a finalized architecture analysis — manifest, artifacts, and review trail.";
+  }
+
+  return t.length <= 80 ? t : `${t.slice(0, 77)}…`;
+}
+
+function keyDriversFromPayload(payload: DemoCommitPagePreviewResponse): string[] {
+  const raw = payload.runExplanation?.explanation?.keyDrivers;
+
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw
+    .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+    .map((s) => s.trim())
+    .slice(0, 4);
+}
+
 /** Served when preview API responds with an error — still renders curated demo data. */
 function ShowcaseApiUnavailableBanner(): ReactElement {
   return (
@@ -95,8 +121,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { runId } = await props.params;
 
   return {
-    title: `ArchLucid · Showcase (${showcaseTitleForRunId(runId)})`,
-    description: "Read-only public showcase of a committed healthcare-style architecture run.",
+    title: `ArchLucid · Completed example (${showcaseTitleForRunId(runId)})`,
+    description: "Read-only completed example — manifest, findings, artifacts, and review trail for a healthcare-style run.",
     robots: { index: true, follow: true },
   };
 }
@@ -141,11 +167,15 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+
+        <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
+
+        <div className="mt-6">
+          <ShowcaseWhatThisProves bullets={keyDriversFromPayload(payload)} />
+        </div>
 
         <ShowcaseStaticDemoBanner />
-
-        <ShowcaseLead>A read-only view of a completed architecture analysis.</ShowcaseLead>
 
         <div className="mt-6">
           <DemoPreviewMarketingBody payload={payload} />
@@ -162,7 +192,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "not_found": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
@@ -174,9 +204,13 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "ok":
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
 
-          <ShowcaseLead>A read-only view of a completed architecture analysis.</ShowcaseLead>
+          <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
+
+          <div className="mt-6">
+            <ShowcaseWhatThisProves bullets={keyDriversFromPayload(bundle.payload)} />
+          </div>
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={bundle.payload} />
@@ -187,7 +221,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "bad_json": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
 
           <ShowcaseLoadFailed />
 
@@ -201,7 +235,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "invalid": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
@@ -216,11 +250,15 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+
+          <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
+
+          <div className="mt-6">
+            <ShowcaseWhatThisProves bullets={keyDriversFromPayload(fallbackPayload)} />
+          </div>
 
           <ShowcaseApiUnavailableBanner />
-
-          <ShowcaseLead>A read-only view of a completed architecture analysis.</ShowcaseLead>
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={fallbackPayload} />

@@ -1,19 +1,18 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  fixtureArtifactDescriptorsNonEmpty,
+  fixtureArtifactDescriptorsScreenshot,
   fixtureComparisonExplanation,
-  fixtureGoldenManifestComparison,
-  fixtureLegacyRunComparison,
-  fixtureManifestSummary,
-  fixtureRunDetail,
-  FIXTURE_LEFT_RUN_ID,
-  FIXTURE_MANIFEST_ID,
-  FIXTURE_RIGHT_RUN_ID,
-  FIXTURE_RUN_ID,
+  fixtureGoldenManifestComparisonScreenshot,
+  fixtureLegacyRunComparisonScreenshot,
+  fixtureManifestSummaryScreenshot,
+  fixtureRunDetailScreenshot,
+  SCREENSHOT_LEFT_RUN_ID,
+  SCREENSHOT_MANIFEST_ID,
+  SCREENSHOT_RIGHT_RUN_ID,
+  SCREENSHOT_RUN_ID,
   SHOWCASE_DEMO_RUN_ID,
 } from "./fixtures";
-import { comparePairSearchParams } from "./helpers/operator-journey";
 import {
   FIXTURE_EMPTY_ZIP_BYTES,
   registerOperatorJourneyApiRoutes,
@@ -31,7 +30,7 @@ const FINDING_ID = "e2e-finding-001";
 const APPROVAL_ID = "e2e-approval-001";
 const POLICY_PACK_ID = "e2e-policy-pack-001";
 
-/** One href per `page.tsx` (63 routes); dynamics use stable E2E fixture ids. Legacy `/onboarding*` aliases omitted — they redirect to `/getting-started`. */
+/** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/onboarding*` aliases omitted — they redirect to `/getting-started`. */
 const HREFS: string[] = [
   "/",
   "/accessibility",
@@ -45,7 +44,7 @@ const HREFS: string[] = [
   "/audit",
   "/auth/callback",
   "/auth/signin",
-  `/compare?${comparePairSearchParams()}`,
+  `/compare?${new URLSearchParams({ leftRunId: SCREENSHOT_LEFT_RUN_ID, rightRunId: SCREENSHOT_RIGHT_RUN_ID }).toString()}`,
   "/compliance-journey",
   "/demo/explain",
   "/demo/preview",
@@ -65,7 +64,7 @@ const HREFS: string[] = [
   "/integrations/teams",
   "/get-started",
   "/live-demo",
-  `/manifests/${encodeURIComponent(FIXTURE_MANIFEST_ID)}`,
+  `/manifests/${encodeURIComponent(SCREENSHOT_MANIFEST_ID)}`,
   "/planning",
   `/planning/plans/${encodeURIComponent(PLAN_ID)}`,
   "/policy-packs",
@@ -76,10 +75,10 @@ const HREFS: string[] = [
   "/replay",
   "/runs?projectId=default",
   "/runs/new",
-  `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`,
-  `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}`,
-  `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}/inspect`,
-  `/runs/${encodeURIComponent(FIXTURE_RUN_ID)}/provenance`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}/inspect`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/provenance`,
   "/search",
   "/security-trust",
   "/see-it",
@@ -108,23 +107,23 @@ test.describe("all routes screenshots (mock API)", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await registerOperatorJourneyApiRoutes(page, {
-      runDetail: { runId: FIXTURE_RUN_ID, body: fixtureRunDetail() },
-      manifestSummary: { manifestId: FIXTURE_MANIFEST_ID, body: fixtureManifestSummary() },
-      artifactList: { manifestId: FIXTURE_MANIFEST_ID, body: fixtureArtifactDescriptorsNonEmpty() },
-      artifactBundle: { manifestId: FIXTURE_MANIFEST_ID, body: FIXTURE_EMPTY_ZIP_BYTES, headOk: true },
+      runDetail: { runId: SCREENSHOT_RUN_ID, body: fixtureRunDetailScreenshot() },
+      manifestSummary: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureManifestSummaryScreenshot() },
+      artifactList: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureArtifactDescriptorsNonEmpty() },
+      artifactBundle: { manifestId: SCREENSHOT_MANIFEST_ID, body: FIXTURE_EMPTY_ZIP_BYTES, headOk: true },
       legacyCompare: {
-        leftRunId: FIXTURE_LEFT_RUN_ID,
-        rightRunId: FIXTURE_RIGHT_RUN_ID,
-        body: fixtureLegacyRunComparison(),
+        leftRunId: SCREENSHOT_LEFT_RUN_ID,
+        rightRunId: SCREENSHOT_RIGHT_RUN_ID,
+        body: fixtureLegacyRunComparisonScreenshot(),
       },
       structuredCompare: {
-        baseRunId: FIXTURE_LEFT_RUN_ID,
-        targetRunId: FIXTURE_RIGHT_RUN_ID,
-        body: fixtureGoldenManifestComparison(),
+        baseRunId: SCREENSHOT_LEFT_RUN_ID,
+        targetRunId: SCREENSHOT_RIGHT_RUN_ID,
+        body: fixtureGoldenManifestComparisonScreenshot(),
       },
       compareExplanation: {
-        baseRunId: FIXTURE_LEFT_RUN_ID,
-        targetRunId: FIXTURE_RIGHT_RUN_ID,
+        baseRunId: SCREENSHOT_LEFT_RUN_ID,
+        targetRunId: SCREENSHOT_RIGHT_RUN_ID,
         body: fixtureComparisonExplanation(),
       },
     });

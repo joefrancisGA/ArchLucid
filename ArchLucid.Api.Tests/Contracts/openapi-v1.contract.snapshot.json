@@ -2872,6 +2872,40 @@
         },
         "type": "object"
       },
+      "CompliancePostureItem": {
+        "properties": {
+          "appliesToCategory": {
+            "type": "string"
+          },
+          "controlId": {
+            "type": "string"
+          },
+          "controlName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ComplianceSection": {
+        "properties": {
+          "controls": {
+            "items": {
+              "$ref": "#/components/schemas/CompliancePostureItem"
+            },
+            "type": "array"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "CompositeAlertRule": {
         "properties": {
           "compositeRuleId": {
@@ -2947,6 +2981,23 @@
           },
           "isSet": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ConstraintSection": {
+        "properties": {
+          "mandatoryConstraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "preferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -3301,6 +3352,32 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "CostSection": {
+        "properties": {
+          "costRisks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "maxMonthlyCost": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -7442,6 +7519,115 @@
         },
         "type": "object"
       },
+      "ManifestDocument": {
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "compliance": {
+            "$ref": "#/components/schemas/ComplianceSection"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/ConstraintSection"
+          },
+          "contextSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "cost": {
+            "$ref": "#/components/schemas/CostSection"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "decisionTraceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/ResolvedArchitectureDecision"
+            },
+            "type": "array"
+          },
+          "findingsSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "graphSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "manifestHash": {
+            "type": "string"
+          },
+          "manifestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ManifestMetadata"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PolicySection"
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/ManifestProvenance"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/RequirementsCoverageSection"
+          },
+          "ruleSetHash": {
+            "type": "string"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "security": {
+            "$ref": "#/components/schemas/SecuritySection"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "topology": {
+            "$ref": "#/components/schemas/TopologySection"
+          },
+          "unresolvedIssues": {
+            "$ref": "#/components/schemas/UnresolvedIssuesSection"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ManifestExportContentResponse": {
         "properties": {
           "content": {
@@ -7485,6 +7671,29 @@
         },
         "type": "object"
       },
+      "ManifestIssue": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "issueType": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "supportingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ManifestMetadata": {
         "properties": {
           "changeDescription": {
@@ -7508,6 +7717,29 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "ManifestProvenance": {
+        "properties": {
+          "appliedRuleIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceGraphNodeIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -7961,6 +8193,139 @@
         },
         "type": "object"
       },
+      "PilotInProductBaselinesResponse": {
+        "properties": {
+          "baselineArchitectHourlyCost": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineHoursPerReview": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewsPerQuarter": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PilotInProductRoiEstimateResponse": {
+        "properties": {
+          "annualReviewCostStatusQuoUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "annualReviewSavingsFromReviewTimeLeverUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "modelReference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PilotInProductScorecardResponse": {
+        "properties": {
+          "averageTimeToManifestMinutes": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselines": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotInProductBaselinesResponse"
+              }
+            ]
+          },
+          "daysSinceFirstCommit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "firstCommitUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "roiEstimate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotInProductRoiEstimateResponse"
+              }
+            ]
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "totalAuditEventsGenerated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalFindingsResolved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalGovernanceApprovalsCompleted": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalManifestsCreated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRunsCommitted": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PilotRunDeltaSeverityCountResponse": {
         "properties": {
           "count": {
@@ -8040,6 +8405,36 @@
         },
         "type": "object"
       },
+      "PilotScorecardBaselinesPutRequest": {
+        "properties": {
+          "baselineArchitectHourlyCost": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineHoursPerReview": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselineReviewsPerQuarter": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PilotScorecardPostRequest": {
         "properties": {
           "periodEnd": {
@@ -8084,6 +8479,23 @@
         },
         "type": "object"
       },
+      "PolicyControlItem": {
+        "properties": {
+          "controlId": {
+            "type": "string"
+          },
+          "controlName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "policyPack": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PolicyEvidence": {
         "properties": {
           "policyId": {
@@ -8105,6 +8517,24 @@
             "type": "array"
           },
           "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyExemption": {
+        "properties": {
+          "controlId": {
+            "type": "string"
+          },
+          "expiresUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "justification": {
             "type": "string"
           }
         },
@@ -8478,6 +8908,35 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicySection": {
+        "properties": {
+          "exemptions": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyExemption"
+            },
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "satisfiedControls": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyControlItem"
+            },
+            "type": "array"
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyControlItem"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -9637,12 +10096,90 @@
         },
         "type": "object"
       },
+      "RequirementCoverageItem": {
+        "properties": {
+          "coverageStatus": {
+            "type": "string"
+          },
+          "isMandatory": {
+            "type": "boolean"
+          },
+          "requirementName": {
+            "type": "string"
+          },
+          "requirementText": {
+            "type": "string"
+          },
+          "supportingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "RequirementDelta": {
         "properties": {
           "changeType": {
             "type": "string"
           },
           "requirementName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RequirementsCoverageSection": {
+        "properties": {
+          "covered": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementCoverageItem"
+            },
+            "type": "array"
+          },
+          "uncovered": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementCoverageItem"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ResolvedArchitectureDecision": {
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "decisionId": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "rawDecisionJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "relatedNodeIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "selectedOption": {
+            "type": "string"
+          },
+          "supportingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
             "type": "string"
           }
         },
@@ -10085,7 +10622,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/GoldenManifest"
+                "$ref": "#/components/schemas/ManifestDocument"
               }
             ]
           },
@@ -10610,6 +11147,49 @@
         },
         "type": "object"
       },
+      "RunRoiScorecardDto": {
+        "properties": {
+          "agentFindingTotalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "completedAgentResultCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "computationNotes": {
+            "type": "string"
+          },
+          "decisionTraceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "estimatedManualHoursSaved": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "estimatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "manifestModeledElementApproxCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId",
+          "computationNotes"
+        ],
+        "type": "object"
+      },
       "RunSummaryResponse": {
         "properties": {
           "artifactBundleId": {
@@ -10751,6 +11331,40 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityPostureItem": {
+        "properties": {
+          "controlId": {
+            "type": "string"
+          },
+          "controlName": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecuritySection": {
+        "properties": {
+          "controls": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityPostureItem"
+            },
+            "type": "array"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -11878,6 +12492,47 @@
         },
         "type": "object"
       },
+      "TopologySection": {
+        "properties": {
+          "datastores": {
+            "items": {
+              "$ref": "#/components/schemas/ManifestDatastore"
+            },
+            "type": "array"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/ManifestRelationship"
+            },
+            "type": "array"
+          },
+          "resources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "selectedPatterns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/ManifestService"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "TriageQueueItem": {
         "properties": {
           "affectedArtifactTypeOrWorkflowArea": {
@@ -12029,6 +12684,17 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "UnresolvedIssuesSection": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ManifestIssue"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -17095,26 +17761,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17179,26 +17825,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -17265,26 +17891,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17350,26 +17956,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17428,26 +18014,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -17508,26 +18074,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17586,26 +18132,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -17718,26 +18244,6 @@
             },
             "description": "Bad Request"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17797,26 +18303,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -17875,26 +18361,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -18007,26 +18473,6 @@
             },
             "description": "OK"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -18085,26 +18531,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -22331,6 +22757,105 @@
         ]
       }
     },
+    "/v1/architecture/run/{runId}/roi": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRoiScorecardDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRoiScorecardDto"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRoiScorecardDto"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/run/{runId}/seed-fake-results": {
       "post": {
         "parameters": [
@@ -23502,7 +24027,7 @@
             },
             "description": "Bad Request"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -23515,7 +24040,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -27774,7 +28299,7 @@
             },
             "description": "Bad Request"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -27792,7 +28317,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -27883,26 +28408,6 @@
             },
             "description": "Bad Request"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -27972,26 +28477,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -28011,6 +28496,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -28120,26 +28625,6 @@
               }
             },
             "description": "Unauthorized"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "403": {
             "content": {
@@ -28300,26 +28785,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -28469,26 +28934,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -28508,6 +28953,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -28628,26 +29093,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -28667,6 +29112,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "409": {
             "content": {
@@ -28746,26 +29211,6 @@
               }
             },
             "description": "Unauthorized"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "403": {
             "content": {
@@ -28865,26 +29310,6 @@
               }
             },
             "description": "Unauthorized"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "403": {
             "content": {
@@ -29045,26 +29470,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29084,6 +29489,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "409": {
             "content": {
@@ -29214,26 +29639,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29253,6 +29658,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29344,26 +29769,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29383,6 +29788,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29498,16 +29923,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29517,6 +29932,16 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29637,26 +30062,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29676,6 +30081,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29745,26 +30170,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29784,6 +30189,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29853,26 +30278,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -29892,6 +30297,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -29961,26 +30386,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -30000,6 +30405,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -31713,16 +32138,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/pdf": {
@@ -31732,6 +32147,16 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32041,16 +32466,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/pdf": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/pdf": {
@@ -32078,6 +32493,43 @@
       }
     },
     "/v1/pilots/scorecard": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotInProductScorecardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      },
       "post": {
         "requestBody": {
           "content": {
@@ -32139,6 +32591,81 @@
               }
             },
             "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/scorecard/baselines": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PilotScorecardBaselinesPutRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PilotScorecardBaselinesPutRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PilotScorecardBaselinesPutRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "No Content"
           },
           "401": {
             "content": {
@@ -32237,7 +32764,7 @@
             },
             "description": "OK"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -32255,7 +32782,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32344,7 +32871,7 @@
             },
             "description": "Bad Request"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -32362,7 +32889,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32386,26 +32913,6 @@
         "responses": {
           "204": {
             "description": "No Content"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -32456,7 +32963,7 @@
             },
             "description": "OK"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -32474,7 +32981,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32505,7 +33012,7 @@
             },
             "description": "OK"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -32523,7 +33030,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32604,26 +33111,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -32745,7 +33232,7 @@
             },
             "description": "Bad Request"
           },
-          "402": {
+          "404": {
             "content": {
               "application/json": {
                 "schema": {
@@ -32763,7 +33250,7 @@
                 }
               }
             },
-            "description": "Payment Required"
+            "description": "Not Found"
           }
         },
         "tags": [
@@ -32813,26 +33300,6 @@
               }
             },
             "description": "OK"
-          },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
           },
           "404": {
             "content": {
@@ -34533,26 +35000,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -34692,26 +35139,6 @@
             },
             "description": "Unauthorized"
           },
-          "402": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            },
-            "description": "Payment Required"
-          },
           "403": {
             "content": {
               "application/json": {
@@ -34731,6 +35158,26 @@
               }
             },
             "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [

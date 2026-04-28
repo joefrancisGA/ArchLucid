@@ -12,7 +12,8 @@ export function fixtureRunDetail(): RunDetail {
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,
-      description: "Claims Intake Modernization — sample completed run (demo).",
+      description:
+        "Claims Intake Modernization — integration boundaries, PHI handling posture, and sponsor-facing KPIs.",
       createdUtc: "2025-06-01T12:00:00.000Z",
       contextSnapshotId: "ctx-snap-fixture",
       graphSnapshotId: "graph-snap-fixture",

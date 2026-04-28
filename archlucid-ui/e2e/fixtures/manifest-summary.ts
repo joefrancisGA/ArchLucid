@@ -8,16 +8,18 @@ export function fixtureManifestSummary(): ManifestSummary {
     manifestId: FIXTURE_MANIFEST_ID,
     runId: FIXTURE_RUN_ID,
     createdUtc: "2025-06-01T12:05:00.000Z",
-    manifestHash: "sha256:e2e_fixture_manifest_hash_0000000000000001",
-    ruleSetId: "fixture-rules",
-    ruleSetVersion: "1.0.0",
+    manifestHash: "sha256:claims_intake_manifest_demo_000000000000000001",
+    ruleSetId: "healthcare-claims-v3",
+    ruleSetVersion: "3.4.1",
     decisionCount: 3,
     warningCount: 0,
     unresolvedIssueCount: 0,
-    status: "Accepted",
+    status: "Committed",
     hasWarnings: false,
     hasUnresolvedIssues: false,
-    operatorSummary: "E2E fixture manifest: 3 decisions, 0 warnings, status Accepted.",
+    operatorSummary:
+      "Finalized reviewed manifest for Claims Intake Modernization — integration boundaries, PHI handling posture, " +
+      "and sponsor-facing KPIs.",
   };
 }
 
