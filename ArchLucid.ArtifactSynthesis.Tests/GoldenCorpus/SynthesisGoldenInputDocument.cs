@@ -96,7 +96,7 @@ internal sealed class SynthesisGoldenIssue
 
 internal static class SynthesisGoldenManifestBuilder
 {
-    public static ArchLucid.Decisioning.Models.GoldenManifest Build(SynthesisGoldenInputDocument input)
+    public static ArchLucid.Decisioning.Models.ManifestDocument Build(SynthesisGoldenInputDocument input)
     {
         List<RequirementCoverageItem> covered = input.CoveredRequirementNames
             .Select(
@@ -131,7 +131,7 @@ internal static class SynthesisGoldenManifestBuilder
                 })
             .ToList();
 
-        return new ArchLucid.Decisioning.Models.GoldenManifest
+        return new ArchLucid.Decisioning.Models.ManifestDocument
         {
             RunId = input.RunId,
             ManifestId = input.ManifestId,

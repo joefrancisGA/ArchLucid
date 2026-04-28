@@ -30,7 +30,7 @@ public sealed class DocxExportService(
     /// <inheritdoc />
     public async Task<DocxExportResult> ExportAsync(
         DocxExportRequest request,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         CancellationToken ct)
     {
@@ -82,7 +82,7 @@ public sealed class DocxExportService(
     }
 
     /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
-    private static FindingsSnapshot CreateFallbackFindings(GoldenManifest manifest)
+    private static FindingsSnapshot CreateFallbackFindings(ManifestDocument manifest)
     {
         return new FindingsSnapshot
         {
@@ -100,7 +100,7 @@ public sealed class DocxExportService(
         WordprocessingDocument doc,
         Body body,
         DocxExportRequest request,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         ImprovementPlan improvementPlan,
         CancellationToken ct)
@@ -316,7 +316,7 @@ public sealed class DocxExportService(
     private async Task AppendArchitectureDiagramSectionAsync(
         WordprocessingDocument doc,
         Body body,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         CancellationToken ct)
     {
@@ -441,7 +441,7 @@ public sealed class DocxExportService(
         return null;
     }
 
-    private static void AppendManifestTopologySummaryForDiagramFallback(Body body, GoldenManifest manifest)
+    private static void AppendManifestTopologySummaryForDiagramFallback(Body body, ManifestDocument manifest)
     {
         int resourceCount = manifest.Topology.Resources.Count;
         int patternCount = manifest.Topology.SelectedPatterns.Count;

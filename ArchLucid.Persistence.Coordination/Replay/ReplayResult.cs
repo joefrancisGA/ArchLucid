@@ -39,7 +39,7 @@ public class ReplayResult
     } = null!;
 
     /// <summary>New manifest when rebuild path ran; otherwise <see langword="null" />.</summary>
-    public GoldenManifest? RebuiltManifest
+    public ManifestDocument? RebuiltManifest
     {
         get;
         set;

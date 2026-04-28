@@ -63,7 +63,7 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_no_unresolved_issues_is_Low()
     {
-        GoldenManifest manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
+        ManifestDocument manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Low");
     }
@@ -71,7 +71,7 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_critical_issue_is_Critical()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection { Items = [Issue("Critical")] }
         };
@@ -82,7 +82,7 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_medium_issue_is_Medium()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection { Items = [Issue("Medium")] }
         };
@@ -93,7 +93,7 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_mixed_severities_picks_highest()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection
             {
@@ -134,7 +134,7 @@ public sealed class RunExplanationSummaryServiceTests
 
         result.Should().BeNull();
         explanation.Verify(
-            e => e.ExplainRunAsync(It.IsAny<GoldenManifest>(), It.IsAny<DecisionProvenanceGraph?>(),
+            e => e.ExplainRunAsync(It.IsAny<ManifestDocument>(), It.IsAny<DecisionProvenanceGraph?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -143,7 +143,7 @@ public sealed class RunExplanationSummaryServiceTests
     public async Task GetSummaryAsync_surfaces_explanation_confidence_and_counts()
     {
         Guid runId = Guid.NewGuid();
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             RunId = runId,
             ManifestId = Guid.NewGuid(),
@@ -259,7 +259,7 @@ public sealed class RunExplanationSummaryServiceTests
     public async Task GetSummaryAsync_swaps_to_deterministic_when_faithfulness_support_ratio_is_low()
     {
         Guid runId = Guid.NewGuid();
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             RunId = runId,
             ManifestId = Guid.NewGuid(),

@@ -13,7 +13,7 @@ public sealed class AuthorityManifestRiskPostureTests
     [Fact]
     public void Derive_When_no_unresolved_issues_Returns_Low()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection()
         };
@@ -24,7 +24,7 @@ public sealed class AuthorityManifestRiskPostureTests
     [Fact]
     public void Derive_When_critical_issue_Returns_Critical()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             UnresolvedIssues = new UnresolvedIssuesSection
             {

@@ -65,7 +65,7 @@ public sealed class ExplanationService(
 
     /// <inheritdoc />
     public async Task<ExplanationResult> ExplainRunAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         DecisionProvenanceGraph? provenance,
         CancellationToken ct)
     {

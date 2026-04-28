@@ -79,7 +79,7 @@ public sealed class DocxExportController(
             return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.",
                 ProblemTypes.ManifestNotFound);
 
-        GoldenManifest? manifest = runDetail.GoldenManifest;
+        ManifestDocument? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
             manifest.ManifestId,

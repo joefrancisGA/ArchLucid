@@ -50,7 +50,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -174,7 +174,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -321,7 +321,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -493,7 +493,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -609,7 +609,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,

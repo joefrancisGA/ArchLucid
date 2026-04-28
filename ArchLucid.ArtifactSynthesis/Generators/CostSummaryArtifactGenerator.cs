@@ -12,7 +12,7 @@ public class CostSummaryArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.CostSummary;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

@@ -13,7 +13,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.Inventory;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

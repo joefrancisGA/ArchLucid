@@ -28,8 +28,8 @@ internal static class AuthorityRunMapper
         };
     }
 
-    /// <summary>Projects a <see cref="GoldenManifest" /> to a <see cref="ManifestSummaryDto" />.</summary>
-    internal static ManifestSummaryDto MapManifestSummary(GoldenManifest manifest)
+    /// <summary>Projects a <see cref="ManifestDocument" /> to a <see cref="ManifestSummaryDto" />.</summary>
+    internal static ManifestSummaryDto MapManifestSummary(ManifestDocument manifest)
     {
         return new ManifestSummaryDto
         {

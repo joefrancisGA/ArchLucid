@@ -54,7 +54,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
 
         ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -104,7 +104,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await repository.SaveAsync(manifest, CancellationToken.None);
 
-        GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
+        ManifestDocument? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Assumptions.Should().Equal("assume-a");
         loaded.Warnings.Should().Equal("warn-w");
@@ -146,7 +146,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             "proj-gm",
             CancellationToken.None);
 
-        GoldenManifest original = new()
+        ManifestDocument original = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -251,7 +251,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
 
         SqlGoldenManifestRepository
             repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
-        GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
+        ManifestDocument? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Assumptions.Should().Equal("from-json");
@@ -369,7 +369,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
 
         SqlGoldenManifestRepository
             repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
-        GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
+        ManifestDocument? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.ManifestId.Should().Be(manifestId);

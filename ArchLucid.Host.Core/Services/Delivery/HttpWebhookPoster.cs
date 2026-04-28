@@ -7,8 +7,6 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Decisioning.Advisory.Delivery;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Services.Delivery;
 
 /// <summary>POSTs JSON to external webhook URLs (Teams, Slack, on-call receivers).</summary>
@@ -119,7 +117,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
     /// <remarks>Retries are conservative: timeouts, explicit rate-limiting, or server faults.</remarks>
     private static bool IsTransientHttpStatus(HttpStatusCode code)
     {
-        if (code == HttpStatusCode.RequestTimeout || code == HttpStatusCode.TooManyRequests)
+        if (code is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests)
             return true;
 
         return (int)code >= 500;

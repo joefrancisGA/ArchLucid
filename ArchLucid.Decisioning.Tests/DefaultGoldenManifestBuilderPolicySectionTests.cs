@@ -20,7 +20,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
     [Fact]
     public async Task Build_PolicyApplicabilityInfo_AddsSatisfiedControl()
     {
-        GoldenManifest manifest = await BuildWithFindingsAsync(
+        ManifestDocument manifest = await BuildWithFindingsAsync(
         [
             new Finding
             {
@@ -46,7 +46,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
     [Fact]
     public async Task Build_PolicyApplicabilityWarning_AddsViolation()
     {
-        GoldenManifest manifest = await BuildWithFindingsAsync(
+        ManifestDocument manifest = await BuildWithFindingsAsync(
         [
             new Finding
             {
@@ -66,7 +66,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
     [Fact]
     public async Task Build_PolicyCoverageUncoveredResources_AddsViolationsPerResource()
     {
-        GoldenManifest manifest = await BuildWithFindingsAsync(
+        ManifestDocument manifest = await BuildWithFindingsAsync(
         [
             new Finding
             {
@@ -90,7 +90,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
     [Fact]
     public async Task Build_PolicyCoverageEmptyResources_AddsGenericViolation()
     {
-        GoldenManifest manifest = await BuildWithFindingsAsync(
+        ManifestDocument manifest = await BuildWithFindingsAsync(
         [
             new Finding
             {
@@ -107,7 +107,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
         manifest.Policy.Violations.Should().ContainSingle(v => v.ControlId == "policy-coverage");
     }
 
-    private static async Task<GoldenManifest> BuildWithFindingsAsync(List<Finding> findings)
+    private static async Task<ManifestDocument> BuildWithFindingsAsync(List<Finding> findings)
     {
         Guid runId = Guid.NewGuid();
         Guid ctxId = Guid.NewGuid();

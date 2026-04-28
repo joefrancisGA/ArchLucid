@@ -173,7 +173,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
         return new RunDetailDto
         {
             Run = new RunRecord { RunId = runId, RowVersion = rowVersion },
-            GoldenManifest = new GoldenManifest
+            GoldenManifest = new ManifestDocument
             {
                 ManifestHash = "h", RuleSetId = "r", RuleSetVersion = "v", RuleSetHash = "rh"
             }

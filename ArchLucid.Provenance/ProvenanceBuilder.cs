@@ -11,7 +11,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         Guid runId,
         FindingsSnapshot findings,
         GraphSnapshot graph,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         DecisionTrace decisionTrace,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
@@ -100,7 +100,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             {
                 Type = ProvenanceNodeType.Manifest,
                 ReferenceId = manifest.ManifestId.ToString("N"),
-                Name = "GoldenManifest",
+                Name = "ManifestDocument",
                 Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     ["manifestHash"] = manifest.ManifestHash

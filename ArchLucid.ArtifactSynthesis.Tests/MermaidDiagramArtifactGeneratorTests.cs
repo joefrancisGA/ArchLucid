@@ -21,7 +21,7 @@ public sealed class MermaidDiagramArtifactGeneratorTests
         renderer.Setup(x => x.Render(It.IsAny<Models.DiagramAst>()))
             .Returns("rendered-mermaid");
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             RunId = Guid.NewGuid(),
             ManifestId = Guid.NewGuid(),

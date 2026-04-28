@@ -117,7 +117,7 @@ public sealed class DocxExportControllerAuditTests
         Guid manifestId = Guid.NewGuid();
         Guid? compareWith = Guid.NewGuid();
 
-        Decisioning.Models.GoldenManifest manifest = new()
+        Decisioning.Models.ManifestDocument manifest = new()
         {
             ManifestId = manifestId,
             RuleSetId = "rs",
@@ -152,8 +152,8 @@ public sealed class DocxExportControllerAuditTests
 
         Mock<IComparisonService> comparison = new();
         comparison.Setup(c => c.Compare(
-                It.IsAny<Decisioning.Models.GoldenManifest>(),
-                It.IsAny<Decisioning.Models.GoldenManifest>()))
+                It.IsAny<Decisioning.Models.ManifestDocument>(),
+                It.IsAny<Decisioning.Models.ManifestDocument>()))
             .Returns(new ComparisonResult());
 
         byte[] payload = [1, 2, 3, 4];

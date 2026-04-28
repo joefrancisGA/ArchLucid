@@ -18,7 +18,7 @@ public abstract class GoldenManifestRepositoryContractTests
 
     protected abstract IGoldenManifestRepository CreateRepository();
 
-    private static GoldenManifest NewMinimalManifest(
+    private static ManifestDocument NewMinimalManifest(
         ScopeContext scope,
         Guid runId,
         Guid contextId,
@@ -27,7 +27,7 @@ public abstract class GoldenManifestRepositoryContractTests
         Guid traceId,
         Guid manifestId)
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -86,10 +86,10 @@ public abstract class GoldenManifestRepositoryContractTests
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
+        ManifestDocument manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
         await repo.SaveAsync(manifest, CancellationToken.None);
 
-        GoldenManifest? loaded = await repo.GetByIdAsync(scope, manifestId, CancellationToken.None);
+        ManifestDocument? loaded = await repo.GetByIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.ManifestId.Should().Be(manifestId);
         loaded.RunId.Should().Be(runId);
@@ -125,7 +125,7 @@ public abstract class GoldenManifestRepositoryContractTests
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
+        ManifestDocument manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
         await repo.SaveAsync(manifest, CancellationToken.None);
 
         ScopeContext otherTenant = new()
@@ -133,7 +133,7 @@ public abstract class GoldenManifestRepositoryContractTests
             TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
         };
 
-        GoldenManifest? loaded = await repo.GetByIdAsync(otherTenant, manifestId, CancellationToken.None);
+        ManifestDocument? loaded = await repo.GetByIdAsync(otherTenant, manifestId, CancellationToken.None);
         loaded.Should().BeNull();
     }
 
@@ -165,11 +165,11 @@ public abstract class GoldenManifestRepositoryContractTests
             traceId,
             CancellationToken.None);
 
-        GoldenManifest manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
+        ManifestDocument manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
         manifest.Metadata.Version = "ver-contract-lookup-42";
         await repo.SaveAsync(manifest, CancellationToken.None);
 
-        GoldenManifest? byVersion =
+        ManifestDocument? byVersion =
             await repo.GetByContractManifestVersionAsync(scope, "ver-contract-lookup-42", CancellationToken.None);
 
         byVersion.Should().NotBeNull();

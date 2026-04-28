@@ -110,7 +110,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.AppliedRuleIds.Should().Equal("rule-rel-1");
@@ -198,7 +198,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().ContainSingle().Which.Should().Be("f-json");
@@ -282,7 +282,7 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("from-json-assumption");

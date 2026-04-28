@@ -13,7 +13,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.ComplianceMatrix;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

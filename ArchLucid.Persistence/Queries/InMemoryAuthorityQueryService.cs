@@ -77,9 +77,9 @@ public sealed class InMemoryAuthorityQueryService(
         Task<DecisionTrace?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
             : Task.FromResult<DecisionTrace?>(null);
-        Task<GoldenManifest?> manifestTask = run.GoldenManifestId.HasValue
+        Task<ManifestDocument?> manifestTask = run.GoldenManifestId.HasValue
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
-            : Task.FromResult<GoldenManifest?>(null);
+            : Task.FromResult<ManifestDocument?>(null);
         Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ArtifactBundle?>(null);
@@ -102,7 +102,7 @@ public sealed class InMemoryAuthorityQueryService(
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId,
         CancellationToken ct)
     {
-        GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
+        ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 

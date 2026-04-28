@@ -274,7 +274,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
-        Dm.GoldenManifest manifestModel;
+        Dm.ManifestDocument manifestModel;
         DecisionTrace trace;
         Cm.GoldenManifest contract;
 
@@ -343,7 +343,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
-        Dm.GoldenManifest persisted;
+        Dm.ManifestDocument persisted;
 
         try
         {
@@ -398,8 +398,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         };
     }
 
-    private async Task<Dm.GoldenManifest> PersistAuthorityAsync(
-        Dm.GoldenManifest manifestModel,
+    private async Task<Dm.ManifestDocument> PersistAuthorityAsync(
+        Dm.ManifestDocument manifestModel,
         Cm.GoldenManifest contract,
         DecisionTrace trace,
         CancellationToken cancellationToken)
@@ -419,7 +419,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     uow.Connection,
                     uow.Transaction);
 
-                Dm.GoldenManifest persisted = await _goldenManifestRepository.SaveAsync(
+                Dm.ManifestDocument persisted = await _goldenManifestRepository.SaveAsync(
                     contract,
                     scope,
                     keying,
@@ -435,7 +435,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             }
 
             await _decisionTraceRepository.SaveAsync(trace, cancellationToken);
-            Dm.GoldenManifest persistedNoTx = await _goldenManifestRepository.SaveAsync(
+            Dm.ManifestDocument persistedNoTx = await _goldenManifestRepository.SaveAsync(
                 contract,
                 scope,
                 keying,
@@ -455,7 +455,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     }
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(
-        Dm.GoldenManifest manifestModel,
+        Dm.ManifestDocument manifestModel,
         DecisionTrace trace)
     {
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
@@ -491,7 +491,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 $"Run '{runId}' is already committed (authority) but DecisionTraceId is missing on the run record.");
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Dm.GoldenManifest? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
+        Dm.ManifestDocument? manifestModel = await _goldenManifestRepository.GetByIdAsync(scope, goldenId, cancellationToken);
 
         if (manifestModel is null)
             throw new ConflictException(
@@ -601,7 +601,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         audit.ProjectId = scope.ProjectId;
     }
 
-    private static void ApplyAuthorityManifestScope(Dm.GoldenManifest manifest, ScopeContext scope)
+    private static void ApplyAuthorityManifestScope(Dm.ManifestDocument manifest, ScopeContext scope)
     {
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;
@@ -618,7 +618,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ///     never match the version the client just received → 404. Copying the contract version onto
     ///     the authority row before persistence keeps the read path round-tripping.
     /// </summary>
-    private static void AlignAuthorityVersionToContract(Dm.GoldenManifest manifestModel, Cm.GoldenManifest contract)
+    private static void AlignAuthorityVersionToContract(Dm.ManifestDocument manifestModel, Cm.GoldenManifest contract)
     {
         if (manifestModel is null)
             throw new ArgumentNullException(nameof(manifestModel));

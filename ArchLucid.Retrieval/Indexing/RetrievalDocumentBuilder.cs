@@ -20,7 +20,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     };
 
     /// <inheritdoc />
-    public IReadOnlyList<RetrievalDocument> BuildForManifest(GoldenManifest manifest)
+    public IReadOnlyList<RetrievalDocument> BuildForManifest(ManifestDocument manifest)
     {
         return
         [

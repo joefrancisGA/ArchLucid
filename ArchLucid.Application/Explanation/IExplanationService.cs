@@ -18,7 +18,7 @@ public interface IExplanationService
     ///     provenance stats.
     /// </summary>
     Task<ExplanationResult> ExplainRunAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         DecisionProvenanceGraph? provenance,
         CancellationToken ct);
 

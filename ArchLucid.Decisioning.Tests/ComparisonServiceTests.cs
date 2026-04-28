@@ -20,8 +20,8 @@ public sealed class ComparisonServiceTests
     {
         Guid baseRun = Guid.NewGuid();
         Guid targetRun = Guid.NewGuid();
-        GoldenManifest baseM = EmptyManifest(baseRun);
-        GoldenManifest targetM = EmptyManifest(targetRun);
+        ManifestDocument baseM = EmptyManifest(baseRun);
+        ManifestDocument targetM = EmptyManifest(targetRun);
 
         ComparisonResult result = _sut.Compare(baseM, targetM);
 
@@ -33,7 +33,7 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Decisions_EmitsAddedRemovedModified()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Decisions.Add(
             new ResolvedArchitectureDecision
             {
@@ -53,7 +53,7 @@ public sealed class ComparisonServiceTests
                 Rationale = "r"
             });
 
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Decisions.Add(
             new ResolvedArchitectureDecision
             {
@@ -94,7 +94,7 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Decisions_UsesCategoryTitleKey_WhenDecisionIdIsWhitespace()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Decisions.Add(
             new ResolvedArchitectureDecision
             {
@@ -105,7 +105,7 @@ public sealed class ComparisonServiceTests
                 Rationale = "r"
             });
 
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Decisions.Add(
             new ResolvedArchitectureDecision
             {
@@ -126,8 +126,8 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Requirements_EmitsCovered_WhenNewlyAppearsInTarget()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Requirements.Covered.Add(
             new RequirementCoverageItem
             {
@@ -147,7 +147,7 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Requirements_EmitsRemoved_WhenOnlyInBase()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Requirements.Covered.Add(
             new RequirementCoverageItem
             {
@@ -155,7 +155,7 @@ public sealed class ComparisonServiceTests
                 RequirementText = "t",
                 CoverageStatus = "ok"
             });
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
 
         ComparisonResult result = _sut.Compare(baseM, targetM);
 
@@ -166,7 +166,7 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Requirements_EmitsChanged_WhenCoverageStatusDiffers_SameBucket()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Requirements.Covered.Add(
             new RequirementCoverageItem
             {
@@ -175,7 +175,7 @@ public sealed class ComparisonServiceTests
                 IsMandatory = false,
                 CoverageStatus = "partial"
             });
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Requirements.Covered.Add(
             new RequirementCoverageItem
             {
@@ -193,7 +193,7 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Security_EmitsDelta_OnStatusChange_UsingControlIdKey()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Security.Controls.Add(
             new SecurityPostureItem
             {
@@ -202,7 +202,7 @@ public sealed class ComparisonServiceTests
                 Status = "Planned",
                 Impact = "high"
             });
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Security.Controls.Add(
             new SecurityPostureItem
             {
@@ -223,8 +223,8 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Security_EmitsAdded_WhenControlOnlyInTarget()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Security.Controls.Add(
             new SecurityPostureItem
             {
@@ -244,10 +244,10 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Topology_EmitsAddedAndRemoved_Resources()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Topology.Resources.Add("res-a");
         baseM.Topology.Resources.Add("res-b");
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Topology.Resources.Add("res-b");
         targetM.Topology.Resources.Add("res-c");
 
@@ -261,9 +261,9 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_Cost_EmitsDelta_WhenMaxMonthlyCostDiffers()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
         baseM.Cost.MaxMonthlyCost = 100m;
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         targetM.Cost.MaxMonthlyCost = 250m;
 
         ComparisonResult result = _sut.Compare(baseM, targetM);
@@ -276,8 +276,8 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_WhenNoSectionDiffers_SummarySaysNoMaterialDifferences()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
 
         ComparisonResult result = _sut.Compare(baseM, targetM);
 
@@ -287,8 +287,8 @@ public sealed class ComparisonServiceTests
     [Fact]
     public void Compare_BuildsSummaryHighlights_PerNonEmptySection()
     {
-        GoldenManifest baseM = EmptyManifest(Guid.NewGuid());
-        GoldenManifest targetM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument baseM = EmptyManifest(Guid.NewGuid());
+        ManifestDocument targetM = EmptyManifest(Guid.NewGuid());
         baseM.Decisions.Add(
             new ResolvedArchitectureDecision
             {
@@ -317,9 +317,9 @@ public sealed class ComparisonServiceTests
         result.SummaryHighlights.Should().Contain(s => s.Contains("cost", StringComparison.OrdinalIgnoreCase));
     }
 
-    private static GoldenManifest EmptyManifest(Guid runId)
+    private static ManifestDocument EmptyManifest(Guid runId)
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),

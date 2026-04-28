@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.GoldenManifests;
 /// <summary>Phase-1 relational hydration for slice tables (assumptions, warnings, decisions, provenance).</summary>
 internal static class GoldenManifestPhase1RelationalRead
 {
-    internal static async Task<GoldenManifest> HydrateAsync(
+    internal static async Task<ManifestDocument> HydrateAsync(
         SqlConnection connection,
         GoldenManifestStorageRow row,
         CancellationToken ct)
@@ -145,7 +145,7 @@ internal static class GoldenManifestPhase1RelationalRead
             ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
             : FallbackDeserializeDecisions(row.DecisionsJson);
 
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,

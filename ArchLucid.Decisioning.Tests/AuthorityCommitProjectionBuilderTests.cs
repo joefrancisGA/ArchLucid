@@ -15,7 +15,7 @@ public sealed class AuthorityCommitProjectionBuilderTests
     public async Task Build_projects_topology_services_datastores_and_relationships()
     {
         IAuthorityCommitProjectionBuilder sut = new AuthorityCommitProjectionBuilder();
-        Dm.GoldenManifest model = new()
+        Dm.ManifestDocument model = new()
         {
             RunId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),

@@ -88,7 +88,7 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
-        (GoldenManifest manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
+        (ManifestDocument manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
@@ -169,7 +169,7 @@ public sealed class AuthorityReplayService(
         audit.ProjectId = scope.ProjectId;
     }
 
-    private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)
+    private static void ApplyScope(ManifestDocument manifest, ScopeContext scope)
     {
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;

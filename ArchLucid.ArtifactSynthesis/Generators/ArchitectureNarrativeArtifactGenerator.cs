@@ -13,7 +13,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.ArchitectureNarrative;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

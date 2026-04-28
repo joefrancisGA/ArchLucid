@@ -27,7 +27,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    private static GoldenManifest EmptyTemplate(
+    private static ManifestDocument EmptyTemplate(
         Guid manifestId,
         Guid runId,
         Guid contextId,
@@ -36,7 +36,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
         Guid traceId,
         DateTime createdUtc)
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -110,7 +110,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
             "proj-gm-branch-mx-" + branch,
             CancellationToken.None);
 
-        GoldenManifest template = EmptyTemplate(manifestId, runId, contextId, graphId, findingsId, traceId, createdUtc);
+        ManifestDocument template = EmptyTemplate(manifestId, runId, contextId, graphId, findingsId, traceId, createdUtc);
 
         string metadataJson = JsonEntitySerializer.Serialize(template.Metadata);
         string requirementsJson = JsonEntitySerializer.Serialize(template.Requirements);
@@ -285,7 +285,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         switch (branch)

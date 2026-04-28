@@ -49,7 +49,7 @@ public class ReplayValidationResult
 
     /// <summary>
     ///     When a manifest exists, <see langword="true" /> if recomputed hash matches
-    ///     <see cref="ArchLucid.Decisioning.Models.GoldenManifest.ManifestHash" /> on the stored manifest.
+    ///     <see cref="ArchLucid.Decisioning.Models.ManifestDocument.ManifestHash" /> on the stored manifest.
     /// </summary>
     public bool ManifestHashMatches
     {

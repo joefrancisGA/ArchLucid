@@ -11,7 +11,7 @@ public static class ContextBuilder
     private const int MaxGraphEdges = 200;
 
     public static object BuildContext(
-        GoldenManifest? manifest,
+        ManifestDocument? manifest,
         GraphViewModel? provenance,
         ComparisonResult? comparison)
     {
@@ -21,7 +21,7 @@ public static class ContextBuilder
             {
                 ManifestAvailable = false,
                 Note =
-                    "No GoldenManifest is anchored for this turn. Rely on conversation history; " +
+                    "No ManifestDocument is anchored for this turn. Rely on conversation history; " +
                     "if the user asks for specifics not in history, say the manifest context is unavailable.",
                 ComparisonSummary = BuildComparisonSummary(comparison),
                 Changes = comparison?.DecisionChanges.Select(c => new

@@ -72,7 +72,7 @@ public sealed class AuthorityReplayServiceTests
             .ReturnsAsync(returnedDto);
 
         hashSvc
-            .Setup(x => x.ComputeHash(It.IsAny<GoldenManifest>()))
+            .Setup(x => x.ComputeHash(It.IsAny<ManifestDocument>()))
             .Returns("abc123");
 
         decisionEngine
@@ -83,7 +83,7 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((
-                new GoldenManifest { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() },
+                new ManifestDocument { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() },
                 RuleAuditTrace.From(new RuleAuditTracePayload { DecisionTraceId = Guid.NewGuid() })));
 
         traceRepo
@@ -91,11 +91,11 @@ public sealed class AuthorityReplayServiceTests
             .Returns(Task.CompletedTask);
 
         manifestRepo
-            .Setup(x => x.SaveAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         artifactSvc
-            .Setup(x => x.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArtifactBundle { BundleId = Guid.NewGuid() });
 
         artifactRepo
@@ -153,7 +153,7 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Never);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -179,7 +179,7 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Once);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -205,7 +205,7 @@ public sealed class AuthorityReplayServiceTests
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
             Times.Once);
         artifactSvc.Verify(
-            x => x.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()),
+            x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

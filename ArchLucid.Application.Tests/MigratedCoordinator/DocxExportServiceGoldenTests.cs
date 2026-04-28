@@ -29,7 +29,7 @@ public sealed class DocxExportServiceGoldenTests
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),
@@ -57,7 +57,7 @@ public sealed class DocxExportServiceGoldenTests
         Mock<IImprovementAdvisorService> advisor = new();
         advisor
             .Setup(x => x.GeneratePlanAsync(
-                It.IsAny<GoldenManifest>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -106,7 +106,7 @@ public sealed class DocxExportServiceGoldenTests
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),
@@ -134,7 +134,7 @@ public sealed class DocxExportServiceGoldenTests
         Mock<IImprovementAdvisorService> advisor = new();
         advisor
             .Setup(x => x.GeneratePlanAsync(
-                It.IsAny<GoldenManifest>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
@@ -186,7 +186,7 @@ public sealed class DocxExportServiceGoldenTests
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),
@@ -214,7 +214,7 @@ public sealed class DocxExportServiceGoldenTests
         Mock<IImprovementAdvisorService> advisor = new();
         advisor
             .Setup(x => x.GeneratePlanAsync(
-                It.IsAny<GoldenManifest>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });

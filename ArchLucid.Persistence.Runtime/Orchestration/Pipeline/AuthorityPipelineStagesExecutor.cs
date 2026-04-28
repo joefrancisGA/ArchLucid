@@ -163,7 +163,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         await ExecuteStageAsync(ctx, "authority.decisioning", "decisioning", async (_, token) =>
         {
-            (GoldenManifest manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
+            (ManifestDocument manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
@@ -328,7 +328,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _decisionTraceRepository.SaveAsync(trace, ct);
     }
 
-    private async Task SaveManifestAsync(GoldenManifest manifest, IArchLucidUnitOfWork uow, CancellationToken ct)
+    private async Task SaveManifestAsync(ManifestDocument manifest, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction);
@@ -365,7 +365,7 @@ public sealed class AuthorityPipelineStagesExecutor(
         audit.ProjectId = scope.ProjectId;
     }
 
-    private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)
+    private static void ApplyScope(ManifestDocument manifest, ScopeContext scope)
     {
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;

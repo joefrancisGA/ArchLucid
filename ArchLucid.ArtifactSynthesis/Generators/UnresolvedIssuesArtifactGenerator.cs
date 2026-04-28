@@ -12,7 +12,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.UnresolvedIssuesReport;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

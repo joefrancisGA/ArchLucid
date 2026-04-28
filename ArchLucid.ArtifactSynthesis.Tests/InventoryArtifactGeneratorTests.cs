@@ -16,7 +16,7 @@ public sealed class InventoryArtifactGeneratorTests
     [Fact]
     public async Task GenerateAsync_serializes_requirements_security_compliance_and_issues()
     {
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             RunId = Guid.NewGuid(),
             ManifestId = Guid.NewGuid(),

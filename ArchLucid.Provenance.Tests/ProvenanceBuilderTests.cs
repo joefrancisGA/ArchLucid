@@ -26,7 +26,7 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
+            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
             RuleAuditTrace.From(
                 new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
@@ -85,7 +85,7 @@ public sealed class ProvenanceBuilderTests
             SupportingFindingIds = [findingId]
         };
 
-        GoldenManifest manifest = new() { ManifestId = ManifestId, ManifestHash = "mh", Decisions = [decision] };
+        ManifestDocument manifest = new() { ManifestId = ManifestId, ManifestHash = "mh", Decisions = [decision] };
 
         RuleAuditTracePayload audit = new() { AppliedRuleIds = [ruleId, ruleId, ruleId.ToUpperInvariant()] };
 
@@ -145,7 +145,7 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
+            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
             RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
 
@@ -172,7 +172,7 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [f, f] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
             RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
 

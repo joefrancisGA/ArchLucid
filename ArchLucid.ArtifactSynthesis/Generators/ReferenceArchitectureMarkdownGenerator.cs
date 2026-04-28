@@ -13,7 +13,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.ReferenceArchitectureMarkdown;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

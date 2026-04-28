@@ -33,7 +33,7 @@ public sealed class RunExplanationSummaryService(
         if (detail?.GoldenManifest is null)
             return null;
 
-        GoldenManifest manifest = detail.GoldenManifest;
+        ManifestDocument manifest = detail.GoldenManifest;
         DecisionProvenanceGraph? graph = await TryLoadProvenanceGraphAsync(scope, runId, ct);
         ExplanationResult explanation = await explanationService.ExplainRunAsync(manifest, graph, ct);
 
@@ -232,12 +232,12 @@ public sealed class RunExplanationSummaryService(
         return category.Length > 0;
     }
 
-    internal static string DeriveRiskPosture(GoldenManifest manifest)
+    internal static string DeriveRiskPosture(ManifestDocument manifest)
     {
         return AuthorityManifestRiskPosture.Derive(manifest);
     }
 
-    internal static string BuildOverallAssessment(ExplanationResult explanation, GoldenManifest manifest,
+    internal static string BuildOverallAssessment(ExplanationResult explanation, ManifestDocument manifest,
         string riskPosture)
     {
         int issues = manifest.UnresolvedIssues.Items.Count;

@@ -167,7 +167,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().HaveCount(2);

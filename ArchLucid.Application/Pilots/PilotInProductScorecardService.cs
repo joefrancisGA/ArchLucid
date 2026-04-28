@@ -1,4 +1,3 @@
-using ArchLucid.Application.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Pilots;
 
@@ -17,7 +16,6 @@ public sealed class PilotInProductScorecardService(
 
     private readonly IPilotBaselineRepository _pilotBaselineRepository =
         pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
-
     public async Task<PilotInProductScorecardResult> GetAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

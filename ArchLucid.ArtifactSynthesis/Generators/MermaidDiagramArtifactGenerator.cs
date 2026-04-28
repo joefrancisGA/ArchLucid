@@ -10,7 +10,7 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
     public string ArtifactType => Models.ArtifactType.MermaidDiagram;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

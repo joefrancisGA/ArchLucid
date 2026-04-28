@@ -2,7 +2,7 @@ namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 ///     Compact golden-manifest projection (counts and rule-set metadata) for dashboards without loading full
-///     <see cref="ArchLucid.Decisioning.Models.GoldenManifest" /> JSON.
+///     <see cref="ArchLucid.Decisioning.Models.ManifestDocument" /> JSON.
 /// </summary>
 /// <remarks>HTTP mapping: <c>ArchLucid.Api.Contracts.ManifestSummaryResponse</c>.</remarks>
 public class ManifestSummaryDto

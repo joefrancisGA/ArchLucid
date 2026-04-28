@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.ArtifactSynthesis.Services;
 
 /// <summary>
-///     Synthesizes an <see cref="ArtifactBundle" /> from a committed <see cref="GoldenManifest" /> by invoking
+///     Synthesizes an <see cref="ArtifactBundle" /> from a committed <see cref="ManifestDocument" /> by invoking
 ///     all registered <see cref="IArtifactGenerator" /> implementations and validating the resulting bundle.
 /// </summary>
 /// <remarks>
@@ -23,7 +23,7 @@ public class ArtifactSynthesisService(
     private const string NoArtifactsNote = "No artifacts were generated.";
 
     public async Task<ArtifactBundle> SynthesizeAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(manifest);

@@ -12,7 +12,7 @@ public interface IProvenanceBuilder
         Guid runId,
         FindingsSnapshot findings,
         GraphSnapshot graph,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         DecisionTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts);
 }
