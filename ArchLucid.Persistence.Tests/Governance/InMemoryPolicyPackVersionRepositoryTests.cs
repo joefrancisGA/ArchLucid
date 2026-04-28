@@ -33,7 +33,7 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         PolicyPackVersion? found = await sut.GetByPackAndVersionAsync(packId, "1.0.0", CancellationToken.None);
 
         found.Should().NotBeNull();
-        found!.ContentJson.Should().Be("{}");
+        found.ContentJson.Should().Be("{}");
     }
 
     [Fact]

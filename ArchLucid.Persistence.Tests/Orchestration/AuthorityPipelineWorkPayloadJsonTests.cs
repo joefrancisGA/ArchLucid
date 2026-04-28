@@ -47,7 +47,7 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
 
         back.Should().NotBeNull();
-        back!.EvidenceBundleId.Should().Be("bundle-1");
+        back.EvidenceBundleId.Should().Be("bundle-1");
         back.ContextIngestionRequest.ProjectId.Should().Be("default");
         back.ContextIngestionRequest.RunId.Should().Be(payload.ContextIngestionRequest.RunId);
     }

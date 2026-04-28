@@ -49,14 +49,9 @@ public interface IGovernanceApprovalRequestRepository
 
     /// <summary>
     ///     Returns all approval requests in <see cref="GovernanceApprovalStatus.Submitted" /> or
-    ///     <see cref="GovernanceApprovalStatus.Draft" /> status,
-    ///     ordered by <see cref="GovernanceApprovalRequest.RequestedUtc" /> descending, limited to <paramref name="maxRows" />
-    ///     .
+    ///     <see cref="GovernanceApprovalStatus.Draft" /> status within the current scope (when the tenant is non-empty),
+    ///     ordered by <see cref="GovernanceApprovalRequest.RequestedUtc" /> descending, limited to <paramref name="maxRows" />.
     /// </summary>
-    /// <remarks>
-    ///     <c>GovernanceApprovalRequests</c> is keyed by run, not tenant; this query is not tenant-scoped. Use run-level APIs
-    ///     or a future join when tenant isolation is required.
-    /// </remarks>
     Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingAsync(
         int maxRows = 50,
         CancellationToken cancellationToken = default);

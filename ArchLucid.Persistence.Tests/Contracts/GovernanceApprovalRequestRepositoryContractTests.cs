@@ -246,6 +246,9 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         {
             ApprovalRequestId = approvalId,
             RunId = runId,
+            TenantId = GovernanceRepositoryContractScope.TenantId,
+            WorkspaceId = GovernanceRepositoryContractScope.WorkspaceId,
+            ProjectId = GovernanceRepositoryContractScope.ProjectId,
             ManifestVersion = "v1",
             SourceEnvironment = GovernanceEnvironment.Dev,
             TargetEnvironment = GovernanceEnvironment.Test,

@@ -353,8 +353,10 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
     [Fact]
     public void EnsureActionSteps_throws_when_step_null()
     {
-        List<ProductLearningImprovementPlanActionStep> steps = [];
-        steps.Add(null!);
+        List<ProductLearningImprovementPlanActionStep> steps =
+        [
+            null!
+        ];
 
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureActionSteps(steps);
 

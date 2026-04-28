@@ -14,6 +14,8 @@ public sealed class DapperGovernanceEnvironmentActivationRepositoryContractTests
 
     protected override IGovernanceEnvironmentActivationRepository CreateRepository()
     {
-        return new GovernanceEnvironmentActivationRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        return new GovernanceEnvironmentActivationRepository(
+            new TestSqlDbConnectionFactory(fixture.ConnectionString),
+            new FixedTestScopeContextProvider(GovernanceRepositoryContractScope.AsScopeContext()));
     }
 }

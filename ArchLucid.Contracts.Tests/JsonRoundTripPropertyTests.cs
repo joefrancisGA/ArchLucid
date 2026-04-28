@@ -115,8 +115,14 @@ public static class ContractJsonRoundTripArbitraries
             let requestedUtc = new DateTime(requested.Ticks, DateTimeKind.Utc)
             from reviewer in Arb.Default.String().Generator
             from requestComment in Arb.Default.String().Generator
+            from tenantId in Arb.Default.Guid().Generator
+            from workspaceId in Arb.Default.Guid().Generator
+            from projectId in Arb.Default.Guid().Generator
             select new GovernanceApprovalRequest
             {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
                 ApprovalRequestId = Guid.NewGuid().ToString("N"),
                 RunId = Guid.NewGuid().ToString("N"),
                 ManifestVersion = "v1",

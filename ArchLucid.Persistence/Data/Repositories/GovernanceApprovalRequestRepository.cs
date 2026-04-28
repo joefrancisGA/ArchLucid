@@ -2,6 +2,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -9,18 +10,25 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory connectionFactory)
+public sealed class GovernanceApprovalRequestRepository(
+    IDbConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IGovernanceApprovalRequestRepository
 {
     public async Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        ApplyScopeToNewRow(item);
+
         const string sql = """
                            INSERT INTO GovernanceApprovalRequests
                            (
                                ApprovalRequestId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -38,6 +46,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                            (
                                @ApprovalRequestId,
                                @RunId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
                                @ManifestVersion,
                                @SourceEnvironment,
                                @TargetEnvironment,
@@ -61,6 +72,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             {
                 item.ApprovalRequestId,
                 item.RunId,
+                item.TenantId,
+                item.WorkspaceId,
+                item.ProjectId,
                 item.ManifestVersion,
                 item.SourceEnvironment,
                 item.TargetEnvironment,
@@ -90,16 +104,17 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        // Serializable + UPDLOCK: concurrent HTTP approvers each open their own connection; taking the row lock
-        // before UPDATE serializes them on this key so only one transition from Draft/Submitted can commit.
-        const string lockReviewableRowSql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string lockReviewableRowSql = $"""
                                             SELECT 1
                                             FROM dbo.GovernanceApprovalRequests WITH (UPDLOCK, ROWLOCK)
                                             WHERE ApprovalRequestId = @ApprovalRequestId
-                                              AND (Status = @Draft OR Status = @Submitted);
+                                              AND (Status = @Draft OR Status = @Submitted){scopeSql};
                                             """;
 
-        const string updateSql = """
+        string updateSql = $"""
                                  UPDATE dbo.GovernanceApprovalRequests
                                  SET
                                      Status = @NewStatus,
@@ -107,34 +122,34 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                                      ReviewComment = @ReviewComment,
                                      ReviewedUtc = @ReviewedUtc
                                  WHERE ApprovalRequestId = @ApprovalRequestId
-                                   AND (Status = @Draft OR Status = @Submitted);
+                                   AND (Status = @Draft OR Status = @Submitted){scopeSql};
                                  """;
 
-        object transitionParams = new
-        {
-            ApprovalRequestId = approvalRequestId,
-            NewStatus = newStatus,
-            ReviewedBy = reviewedBy,
-            ReviewComment = reviewComment,
-            ReviewedUtc = reviewedUtc,
-            GovernanceApprovalStatus.Draft,
-            GovernanceApprovalStatus.Submitted
-        };
+        DynamicParameters transitionParams = new();
+        transitionParams.Add("ApprovalRequestId", approvalRequestId);
+        transitionParams.Add("NewStatus", newStatus);
+        transitionParams.Add("ReviewedBy", reviewedBy);
+        transitionParams.Add("ReviewComment", reviewComment);
+        transitionParams.Add("ReviewedUtc", reviewedUtc);
+        transitionParams.Add("Draft", GovernanceApprovalStatus.Draft);
+        transitionParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(transitionParams, scope);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
 
         try
         {
+            DynamicParameters lockParams = new();
+            lockParams.Add("ApprovalRequestId", approvalRequestId);
+            lockParams.Add("Draft", GovernanceApprovalStatus.Draft);
+            lockParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
+            RepositoryScopePredicate.AddScopeTripleIfNeeded(lockParams, scope);
+
             int? lockHeld = await connection.ExecuteScalarAsync<int?>(
                 new CommandDefinition(
                     lockReviewableRowSql,
-                    new
-                    {
-                        ApprovalRequestId = approvalRequestId,
-                        GovernanceApprovalStatus.Draft,
-                        GovernanceApprovalStatus.Submitted
-                    },
+                    lockParams,
                     transaction,
                     cancellationToken: cancellationToken));
 
@@ -161,7 +176,10 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            UPDATE GovernanceApprovalRequests
                            SET
                                Status = @Status,
@@ -170,34 +188,38 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                                ReviewedUtc = @ReviewedUtc,
                                SlaDeadlineUtc = @SlaDeadlineUtc,
                                SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                item.ApprovalRequestId,
-                item.Status,
-                item.ReviewedBy,
-                item.ReviewComment,
-                item.ReviewedUtc,
-                item.SlaDeadlineUtc,
-                item.SlaBreachNotifiedUtc
-            },
-            cancellationToken: cancellationToken));
+        DynamicParameters p = new();
+        p.Add("ApprovalRequestId", item.ApprovalRequestId);
+        p.Add("Status", item.Status);
+        p.Add("ReviewedBy", item.ReviewedBy);
+        p.Add("ReviewComment", item.ReviewComment);
+        p.Add("ReviewedUtc", item.ReviewedUtc);
+        p.Add("SlaDeadlineUtc", item.SlaDeadlineUtc);
+        p.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
     }
 
     public async Task<GovernanceApprovalRequest?> GetByIdAsync(
         string approvalRequestId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            SELECT
                                ApprovalRequestId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -211,14 +233,18 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                                SlaDeadlineUtc,
                                SlaBreachNotifiedUtc
                            FROM GovernanceApprovalRequests
-                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        DynamicParameters p = new DynamicParameters();
+        p.Add("ApprovalRequestId", approvalRequestId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
-            new { ApprovalRequestId = approvalRequestId },
+            p,
             cancellationToken: cancellationToken));
     }
 
@@ -228,10 +254,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
     {
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
         string sql = $"""
                       SELECT
                           ApprovalRequestId,
                           RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
                           ManifestVersion,
                           SourceEnvironment,
                           TargetEnvironment,
@@ -245,15 +277,19 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                           SlaDeadlineUtc,
                           SlaBreachNotifiedUtc
                       FROM GovernanceApprovalRequests
-                      WHERE RunId = @RunId
+                      WHERE RunId = @RunId{scopeSql}
                       ORDER BY RequestedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
+        DynamicParameters p = new();
+        p.Add("RunId", runId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
                 sql,
-                new { RunId = runId },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -267,10 +303,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            SELECT TOP (@MaxRows)
                                ApprovalRequestId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -284,16 +326,22 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                                SlaDeadlineUtc,
                                SlaBreachNotifiedUtc
                            FROM GovernanceApprovalRequests
-                           WHERE Status IN (@Draft, @Submitted)
+                           WHERE Status IN (@Draft, @Submitted){scopeSql}
                            ORDER BY RequestedUtc DESC;
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        DynamicParameters p = new();
+        p.Add("MaxRows", maxRows);
+        p.Add("Draft", GovernanceApprovalStatus.Draft);
+        p.Add("Submitted", GovernanceApprovalStatus.Submitted);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
                 sql,
-                new { MaxRows = maxRows, GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -307,10 +355,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            SELECT TOP (@MaxRows)
                                ApprovalRequestId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -325,22 +379,23 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                                SlaBreachNotifiedUtc
                            FROM GovernanceApprovalRequests
                            WHERE Status IN (@Approved, @Rejected, @Promoted)
-                             AND ReviewedUtc IS NOT NULL
+                             AND ReviewedUtc IS NOT NULL{scopeSql}
                            ORDER BY ReviewedUtc DESC;
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        DynamicParameters p = new();
+        p.Add("MaxRows", maxRows);
+        p.Add("Approved", GovernanceApprovalStatus.Approved);
+        p.Add("Rejected", GovernanceApprovalStatus.Rejected);
+        p.Add("Promoted", GovernanceApprovalStatus.Promoted);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    MaxRows = maxRows,
-                    GovernanceApprovalStatus.Approved,
-                    GovernanceApprovalStatus.Rejected,
-                    GovernanceApprovalStatus.Promoted
-                },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -350,10 +405,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         DateTime utcNow,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            SELECT TOP 200
                                ApprovalRequestId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -370,16 +431,22 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                            WHERE Status IN (@Draft, @Submitted)
                              AND SlaDeadlineUtc IS NOT NULL
                              AND SlaDeadlineUtc <= @UtcNow
-                             AND SlaBreachNotifiedUtc IS NULL
+                             AND SlaBreachNotifiedUtc IS NULL{scopeSql}
                            ORDER BY SlaDeadlineUtc ASC;
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        DynamicParameters p = new();
+        p.Add("UtcNow", utcNow);
+        p.Add("Draft", GovernanceApprovalStatus.Draft);
+        p.Add("Submitted", GovernanceApprovalStatus.Submitted);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
             new CommandDefinition(
                 sql,
-                new { UtcNow = utcNow, GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -392,17 +459,35 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            UPDATE GovernanceApprovalRequests
                            SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           WHERE ApprovalRequestId = @ApprovalRequestId{scopeSql};
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new { ApprovalRequestId = approvalRequestId, SlaBreachNotifiedUtc = slaBreachNotifiedUtc },
-            cancellationToken: cancellationToken));
+        DynamicParameters p = new();
+        p.Add("ApprovalRequestId", approvalRequestId);
+        p.Add("SlaBreachNotifiedUtc", slaBreachNotifiedUtc);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
+    }
+
+    private void ApplyScopeToNewRow(GovernanceApprovalRequest item)
+    {
+        ScopeContext ctx = scopeContextProvider.GetCurrentScope();
+
+        if (ctx.TenantId == Guid.Empty)
+            return;
+
+
+        item.TenantId = ctx.TenantId;
+        item.WorkspaceId = ctx.WorkspaceId;
+        item.ProjectId = ctx.ProjectId;
     }
 }

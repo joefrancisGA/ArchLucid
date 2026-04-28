@@ -63,7 +63,9 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IRunRepository> runs = new();
@@ -90,7 +92,9 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -139,7 +143,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Cm.GoldenManifest? manifest = await sut.ReadByRunIdAsync(scope, runId);
 
         manifest.Should().NotBeNull();
-        manifest!.RunId.Should().Be(runId.ToString("D"));
+        manifest.RunId.Should().Be(runId.ToString("D"));
     }
 
     [Fact]
@@ -148,7 +152,9 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -187,7 +193,9 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -237,7 +245,9 @@ public sealed class UnifiedGoldenManifestReaderTests
             .ReturnsAsync(
                 new ArchitectureRequest
                 {
-                    RequestId = "req-z", SystemName = "SysZ", Description = "1234567890 description here"
+                    RequestId = "req-z",
+                    SystemName = "SysZ",
+                    Description = "1234567890 description here"
                 });
 
         UnifiedGoldenManifestReader sut = CreateSut(runs, authority, projection, requests);

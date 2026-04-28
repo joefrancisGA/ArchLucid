@@ -20,12 +20,10 @@ public sealed class DataArchivalCoordinatorCorrelationTests
     public async Task RunOnceAsync_starts_activity_with_correlation_tag()
     {
         List<Activity> stopped = [];
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == "ArchLucid.DataArchival",
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = a => stopped.Add(a)
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == "ArchLucid.DataArchival";
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);
 
         Mock<IRunRepository> runs = new();
@@ -100,7 +98,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, _) =>
-                    v != null && v.ToString()!.Contains("cascade counts", StringComparison.Ordinal)),
+                    v.ToString()!.Contains("cascade counts", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

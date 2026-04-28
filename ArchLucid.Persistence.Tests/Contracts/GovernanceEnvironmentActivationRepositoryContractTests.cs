@@ -100,6 +100,9 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         {
             ActivationId = activationId,
             RunId = runId,
+            TenantId = GovernanceRepositoryContractScope.TenantId,
+            WorkspaceId = GovernanceRepositoryContractScope.WorkspaceId,
+            ProjectId = GovernanceRepositoryContractScope.ProjectId,
             ManifestVersion = "v1",
             Environment = environment,
             IsActive = isActive,
