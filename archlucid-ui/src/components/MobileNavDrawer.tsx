@@ -16,6 +16,7 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
@@ -81,6 +82,7 @@ export function MobileNavDrawer() {
                       <Link
                         key={link.href}
                         href={link.href}
+                        data-onboarding={onboardingTourAnchorForHref(link.href)}
                         className={cn(
                           "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                           active

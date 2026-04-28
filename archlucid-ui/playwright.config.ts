@@ -35,6 +35,7 @@ export default defineConfig({
     env: {
       LIVE_API_URL: process.env.LIVE_API_URL ?? "http://127.0.0.1:5128",
       ARCHLUCID_PROXY_BEARER_TOKEN: process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? "",
+      NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: "1",
     },
   },
 });

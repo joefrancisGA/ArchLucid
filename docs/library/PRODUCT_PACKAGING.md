@@ -19,6 +19,12 @@
 
 ---
 
+## Hosted SaaS reliability (packaging)
+
+Buyer-facing materials for **Professional** and **Enterprise** tiers cite a **99.9% monthly availability target** for the **hosted API and operator UI** (pre-contractual target, not a guarantee until a customer-specific SLA is signed). Full definitions, exclusions, and measurement notes: **[SLA_TARGETS.md](SLA_TARGETS.md)**.
+
+---
+
 ## Why two buyer layers?
 
 1. **Explainability.** A buyer only needs to hold **Pilot** (first useful outcome) vs **Operate** (everything after proof — analysis and governance/trust in one mental bucket).

@@ -99,6 +99,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [../SECURITY.md](../library/SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
 | [../API_SLOS.md](../library/API_SLOS.md) | Customer-visible HTTP SLOs (e.g. availability **99.5%** / 30 days) and measurement. |
+| [../SLA_TARGETS.md](../library/SLA_TARGETS.md) | Hosted SaaS **API + operator UI** monthly availability **target** (**99.9%**, pre-contractual; measurement + exclusions). |
 | [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII framing and retention considerations for conversation / Ask data. |
 | [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints. |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer-facing SLO targets (availability 99.5%, latency, maintenance). |
