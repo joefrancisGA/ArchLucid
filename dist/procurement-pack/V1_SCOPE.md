@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid V1 — scope contract - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # ArchLucid V1 — scope contract
@@ -15,11 +15,11 @@ This scope document lists in-scope capabilities, explicit out-of-scope items, th
 
 ## Related
 
-- **[README.md](../README.md)** — repo overview and install spine
+- **[README.md](../../README.md)** — repo overview and install spine
 - **[GLOSSARY.md](GLOSSARY.md)** — terms and naming
-- **[BREAKING_CHANGES.md](../BREAKING_CHANGES.md)** — breaking change trail
-- **[ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
-- **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
+- **[BREAKING_CHANGES.md](../../BREAKING_CHANGES.md)** — breaking change trail
+- **[ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
+- **[ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
 - **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — operator atlas
 
 ---
@@ -38,11 +38,11 @@ For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)
 
 ## 2. In scope for V1 — organized by product layer
 
-V1 capabilities map to three product layers. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full inventory, [CORE_PILOT.md](CORE_PILOT.md) for the first-pilot walkthrough, and [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for when to stay in Core Pilot versus move to Advanced Analysis or Enterprise Controls.
+V1 capabilities map to **two** product layers (**Pilot** and **Operate**). See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full inventory, [CORE_PILOT.md](../CORE_PILOT.md) for the first-pilot walkthrough, and [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for when to stay in **Pilot** versus expand into **Operate**.
 
 ---
 
-### Layer 1 — Core Pilot
+### Layer 1 — Pilot
 
 The minimum set every pilot must complete. Delivered by default; no additional configuration beyond API + SQL.
 
@@ -70,14 +70,14 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 - **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
 - **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
 - **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
-- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../README.md)).
+- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../../README.md)).
 - **Infrastructure-as-code** examples (Terraform modules under `infra/`).
 
 ---
 
-### Layer 2 — Advanced Analysis
+### Layer 2 — Operate
 
-Deeper investigation and comparison tools. Available once you have at least one committed run. In the operator UI, enable via **Show more links** in the sidebar.
+**Operate** is the second buyer-facing layer. It includes deeper investigation and comparison tools (available once you have at least one committed run; in the operator UI, enable via **Show more links** in the sidebar) **and** governance, auditability, and compliance tooling (configuration-driven; most features require explicit enablement; full surface visible after enabling extended/advanced links in the sidebar).
 
 #### 2.5 Compare
 
@@ -101,13 +101,7 @@ Deeper investigation and comparison tools. Available once you have at least one 
 - **Recommendation learning** — learning profiles per run.
 - **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 
-Use this layer when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two runs differ.
-
----
-
-### Layer 3 — Enterprise Controls
-
-Governance, auditability, and compliance tooling. Configuration-driven; most features require explicit enablement per environment. Full surface visible after enabling extended/advanced links in the sidebar.
+Use these surfaces when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two runs differ.
 
 #### 2.9 Governance workflows
 
@@ -120,7 +114,7 @@ Governance, auditability, and compliance tooling. Configuration-driven; most fea
 
 - **78 typed audit events** in an append-only SQL store with CSV export ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
 - **Audit log** — filter by event type, actor, run ID, correlation ID, time window.
-- **Row-level security (RLS)** — SQL `SESSION_CONTEXT` tenant isolation ([security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md)).
+- **Row-level security (RLS)** — SQL `SESSION_CONTEXT` tenant isolation ([security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)).
 - **Compliance drift trend** — tracking and operator UI chart.
 
 #### 2.11 Alerts
@@ -132,10 +126,11 @@ Governance, auditability, and compliance tooling. Configuration-driven; most fea
 #### 2.12 Trust and access
 
 - **Entra ID / JWT bearer, API key, RBAC roles** (Admin / Operator / Reader / Auditor).
+- **SCIM 2.0 inbound provisioning** — dedicated `ScimBearer` automation surface (`/scim/v2/*`) with per-tenant bearer tokens, group→role mapping, and enterprise seat accounting ([`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md), ADR [`0032`](../adr/0032-scim-v2-service-provider.md)).
 - **Private endpoints** and WAF Terraform modules; no SMB/445 public exposure.
-- **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](go-to-market/TRUST_CENTER.md)).
+- **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md)).
 
-Use this layer when the next question is governance or trust: approvals, policy enforcement, audit evidence, compliance drift, alerts, or operational control.
+Use these surfaces when the next question is governance or trust: approvals, policy enforcement, audit evidence, compliance drift, alerts, or operational control.
 
 ---
 
@@ -147,17 +142,24 @@ Use this layer when the next question is governance or trust: approvals, policy 
 | **Broad event-bus integrations** | Optional publish/consume paths exist; V1 does **not** include a guaranteed catalog of enterprise integrations, mapping tools, or "any message bus" adapters. Custom consumers are customer-owned. |
 | **VS Code (or IDE) shell integration** | No committed product surface for a VS Code–native operator experience; CLI and HTTP remain the primary integration points outside the web UI. |
 | **Multi-region active/active product guarantees** | Documentation may describe **tier targets** and failover runbooks ([RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md)); V1 does not promise a fully specified multi-region SaaS topology out of the box. |
-| **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. |
+| **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. **MCP** is **not** V1; it is explicitly a **V1.1** membrane surface — see the MCP row at the end of this table and [V1_DEFERRED.md §6d](V1_DEFERRED.md). |
 | **Full UI E2E against every live API configuration** | Playwright operator smoke may use **deterministic mocks**; passing it does not replace SQL-backed API validation ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
-| **Net-new public HTTP routes that extend only the Coordinator repository family** | After [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) acceptance, new externally-visible surfaces must converge on Authority semantics (or go through the unified read façade) — do not add coordinator-only endpoints without an explicit superseding ADR. |
+| **Net-new public HTTP routes that extend only the Coordinator repository family** | After [ADR 0021](../adr/0021-coordinator-pipeline-strangler-plan.md) acceptance, new externally-visible surfaces must converge on Authority semantics (or go through the unified read façade) — do not add coordinator-only endpoints without an explicit superseding ADR. |
+| **Jira connectors (ITSM bridge — issue create + bi-directional status sync)** | **V1.1 candidate** (Resolved 2026-04-23). Not in V1: no first-party Jira issue creation from findings, no Jira → ArchLucid status reflection, no Atlassian-app marketplace listing. V1 customers consume **CloudEvents webhooks** + **REST API** + (where Atlassian-side automation exists) **Azure DevOps Work Items** as the supported ITSM-adjacent path. Tracked under V1.1 in [V1_DEFERRED.md §6](V1_DEFERRED.md) and [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md). |
+| **ServiceNow connectors (ITSM bridge — incident create + optional CMDB CI mapping)** | **V1.1 candidate** (Resolved 2026-04-23). Not in V1: no first-party ServiceNow incident creation from findings, no `cmdb_ci` mapping, no ServiceNow Store listing. V1 customers consume **CloudEvents webhooks** + **REST API** as the supported ITSM-adjacent path. Default V1.1 target table (`incident` vs additional `cmdb_ci`) is an open V1.1-planning question — see [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) "Resolved 2026-04-23 (ServiceNow + Slack connector scope)". Tracked under V1.1 in [V1_DEFERRED.md §6](V1_DEFERRED.md) and [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md). |
+| **Slack connectors (chat-ops bridge — outbound notification sink with action affordances)** | **V2 candidate** (Resolved 2026-04-23). Not in V1 and not in V1.1: no first-party Slack notification sink, no Slack-app marketplace listing, no in-Slack action affordances (acknowledge / approve). V1 and V1.1 customers consume **CloudEvents webhooks** + **REST API** if Slack delivery is required during that window — and **Microsoft Teams** is the supported first-party chat-ops surface today (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Tracked under V2 in [V1_DEFERRED.md §6a](V1_DEFERRED.md) and [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md). |
+| **Commerce un-hold (Stripe live keys flipped + Marketplace listing published + `signup.archlucid.net` DNS cutover)** | **V1.1 candidate** (Resolved 2026-04-23). Not in V1: no live Stripe keys in production, no `Published` Marketplace SaaS offer, no production DNS cutover for `signup.archlucid.net`. **What is in V1:** all wiring (`BillingStripeWebhookController`, `BillingMarketplaceWebhookController`, `BillingCheckoutController`, `BillingProductionSafetyRules`, `[RequiresCommercialTenantTier]` 402 filter, Marketplace alignment doc, `/pricing` page) plus the trial funnel TEST-mode end-to-end on staging (Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §3). The V1 commercial motion is **sales-led**: `/pricing` displays numbers, `ORDER_FORM_TEMPLATE.md` drives quote-to-cash. The Stripe-live-keys flip and the Marketplace `Published` state are both **owner-only** (Partner Center seller verification, tax profile, and payout account cannot be filed by the assistant). Tracked under V1.1 in [V1_DEFERRED.md §6b](V1_DEFERRED.md). |
+| **Pen-test summary publication (Aeronova redacted summary on the public Trust Center)** | **V1.1 candidate** (Resolved 2026-04-23, sixth pass). Not in V1: no executed pen test, no redacted summary on the public Trust Center "Recent assurance activity" row, no public-facing assessment date. **What is in V1:** pen-test SoW template at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md), redacted summary template at [`2026-Q2-REDACTED-SUMMARY.md`](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md), Trust Center scaffolding pointing at "redacted summary available under NDA", owner-conducted security self-assessment. The execution + publication are **owner-only** (Aeronova engagement scheduling and SoW funding cannot be filed by the assistant). When the V1.1 publication PR ships, the Trust Center row may name finding categories (e.g. authn surface, RAG threat surface) per owner Q11. Tracked under V1.1 in [V1_DEFERRED.md §6c](V1_DEFERRED.md). |
+| **PGP key drop for `security@archlucid.net` (coordinated-disclosure key)** | **V1.1 candidate** (Resolved 2026-04-23, sixth pass). Not in V1: no public PGP key block at `archlucid-ui/public/.well-known/pgp-key.txt`, no marketing `/security` page key reference, no `SECURITY.md` key-fingerprint update. **What is in V1:** the recipe at [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) and CI guard that turns green automatically when the key file appears. Key generation, custodian naming, and the same-day single PR that drops the key + updates `SECURITY.md` + updates the marketing `/security` page are all **V1.1**, gated on `archlucid.net` domain acquisition + `security@archlucid.net` mailbox provisioning. Tracked under V1.1 in [V1_DEFERRED.md §6c](V1_DEFERRED.md). |
+| **Model Context Protocol (MCP) server — tenant-scoped agent tool surface** | **V1.1 candidate** (scope documentation 2026-04-24). Not in V1: no first-party MCP host in the shipping solution, no MCP SDK as a dependency of core libraries (`ArchLucid.Application` and below). **What is in V1:** REST API, CLI, and operator UI remain the supported integration paths for humans and automation. **In scope for V1.1:** a **thin MCP membrane** (dedicated façade project) exposing **read-mostly**, **tenant-scoped** tools that map **1:1** to existing application services — same **RLS / `SESSION_CONTEXT`** guarantees as HTTP reads, typed **audit** events for MCP tool classes, **quota / circuit-breaker / observability** parity with the existing LLM completion pipeline, and **no SMB/445** transport. Product intent, tool inventory, and non-goals (e.g. outbound ArchLucid-as-MCP-client to arbitrary third-party servers deferred past V1.1 unless separately promoted) are in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) and summarized in [V1_DEFERRED.md §6d](V1_DEFERRED.md). |
 
 ---
 
 ## 4. Core operator happy path (V1)
 
-### 4.1 Core Pilot path — start here
+### 4.1 Pilot path — start here
 
-The **Core Pilot path** is the minimum journey every pilot must complete. It maps 1:1 to the **Core Pilot checklist** on the operator UI Home page and to the four steps in [CORE_PILOT.md](CORE_PILOT.md):
+The **Pilot** path is the minimum journey every pilot must complete. It maps 1:1 to the **Core Pilot checklist** on the operator UI Home page and to the four steps in [CORE_PILOT.md](../CORE_PILOT.md):
 
 1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
@@ -168,7 +170,11 @@ The **Core Pilot path** is the minimum journey every pilot must complete. It map
 
 This is the complete first-pilot deliverable. Nothing beyond step 6 is required to call a pilot successful.
 
-### 4.2 Advanced Analysis (available but not required for the Core Pilot)
+### 4.2 Operate (available but not required after Pilot)
+
+**Operate** is optional until the team has a real analytical or governance question beyond the Pilot deliverable.
+
+#### Analysis (Show more links)
 
 Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar.
 
@@ -179,9 +185,9 @@ Enable these once you have at least one committed run. In the operator UI, click
 
 Use these when the next question is analytical rather than operational: what changed, why it changed, or how to inspect the result more deeply.
 
-### 4.3 Enterprise Controls (available but not required for the Core Pilot)
+#### Governance (extended and advanced links)
 
-Enable extended and advanced links in the sidebar to surface the full Enterprise Controls surface.
+Enable extended and advanced links in the sidebar to surface governance, audit, and alerts.
 
 - **Governance** — approval workflows, policy packs, pre-commit gate, governance dashboard.
 - **Audit** — append-only audit log, CSV export, compliance drift tracking.
@@ -201,9 +207,9 @@ These are **practical gates** already encoded or described in-repo—not an exha
 |-----------|------------------|
 | **Solution builds** in Release | CI and [BUILD.md](BUILD.md) |
 | **Core-tier tests** pass for the agreed filter (e.g. fast core / `Suite=Core` conventions) | [TEST_STRUCTURE.md](TEST_STRUCTURE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
-| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
+| **API starts** against Sql configuration; **health/live** and **health/ready** succeed when dependencies are up | [README.md](../../README.md), [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | **One scripted end-to-end run** produces a committed manifest and **at least one** artifact descriptor | `release-smoke.ps1` expectations ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)) |
-| **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../archlucid-ui/README.md) |
+| **Operator UI** builds when Node is in use; Vitest/build steps as per readiness scripts | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [archlucid-ui/README.md](../../archlucid-ui/README.md) |
 | **Version and diagnostics** available for handoff (`GET /version`, CLI `doctor`, support bundle discipline) | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 
 **Not required** for every internal build: Playwright E2E, full integration matrix, performance benchmarks, or full Terraform apply to a live subscription—unless your program explicitly adds them as release gates.
@@ -214,8 +220,8 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 | Doc | Use |
 |-----|-----|
-| [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) | **Three-layer capability inventory:** Core Pilot · Advanced Analysis · Enterprise Controls |
-| [CORE_PILOT.md](CORE_PILOT.md) | First-pilot walkthrough (4 steps) |
+| [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) | **Two-layer capability inventory:** Pilot · Operate |
+| [CORE_PILOT.md](../CORE_PILOT.md) | First-pilot walkthrough (4 steps) |
 | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) | Practical guide for which layer to use next and what can be ignored for now |
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
@@ -227,8 +233,8 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) | Scripted smoke scope and limits |
 | [V1_RC_DRILL.md](V1_RC_DRILL.md) | RC drill: full operator path against a running API (`v1-rc-drill.ps1`) |
 | [V1_READINESS_SUMMARY.md](V1_READINESS_SUMMARY.md) | Short honest snapshot: done, deferred, risks, pilot bar, post-V1 priorities |
-| [V1_REQUIREMENTS_TEST_TRACEABILITY.md](V1_REQUIREMENTS_TEST_TRACEABILITY.md) | Lightweight map from this scope doc to tests, scripts, and data-consistency runbooks |
+| [V1_REQUIREMENTS_TEST_TRACEABILITY.md](../V1_REQUIREMENTS_TEST_TRACEABILITY.md) | Lightweight map from this scope doc to tests, scripts, and data-consistency runbooks |
 
 ---
 
-**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../README.md) so pilots do not see conflicting messages.
+**Change control:** When V1 boundaries shift, update **this file** first, then align [PILOT_GUIDE.md](PILOT_GUIDE.md) and [README.md](../../README.md) so pilots do not see conflicting messages.

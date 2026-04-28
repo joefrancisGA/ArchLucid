@@ -1,6 +1,6 @@
 > **Scope:** Security overview (ArchLucid) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # Security overview (ArchLucid)
@@ -12,19 +12,19 @@ This document points to security-relevant behavior and gates. It is not a full t
 The **OWASP ZAP baseline** scan runs against the **ArchLucid API Docker image** in CI (`.github/workflows/ci.yml`, job `security-zap-api-baseline`) and on a **weekly schedule** (`.github/workflows/zap-baseline-strict-scheduled.yml`). Both use `zap-baseline.py` **without** `-I`, so **warnings and failures from the scan fail the workflow** (merge gate in CI; regression catch on the schedule).
 
 - **Configuration:** `infra/zap/baseline-pr.tsv` (mounted into the scanner container as `config/baseline-pr.tsv`).
-- **Triage and rule maintenance:** [docs/security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md).
-- **Operational layout:** [infra/zap/README.md](../infra/zap/README.md).
+- **Triage and rule maintenance:** [docs/security/ZAP_BASELINE_RULES.md](../security/ZAP_BASELINE_RULES.md).
+- **Operational layout:** [infra/zap/README.md](../../infra/zap/README.md).
 
 Other layers (authentication, RLS, rate limiting, CORS, security headers) are described in `docs/DEPLOYMENT.md`, `docs/security/MULTI_TENANT_RLS.md`, and product code under `ArchLucid.Api` / `ArchLucid.Host.Core`.
 
-- **API key rotation (comma-separated overlap):** [docs/runbooks/API_KEY_ROTATION.md](runbooks/API_KEY_ROTATION.md)
-- **RLS residual risk acceptance (template):** [docs/security/RLS_RISK_ACCEPTANCE.md](security/RLS_RISK_ACCEPTANCE.md)
+- **API key rotation (comma-separated overlap):** [docs/runbooks/API_KEY_ROTATION.md](../runbooks/API_KEY_ROTATION.md)
+- **RLS residual risk acceptance (template):** [docs/security/RLS_RISK_ACCEPTANCE.md](../security/RLS_RISK_ACCEPTANCE.md)
 
-**System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](security/SYSTEM_THREAT_MODEL.md).
+**System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
 
 ## OpenAPI-driven fuzzing (Schemathesis, PR + schedule)
 
-Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](API_FUZZ_TESTING.md)**.
+Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`(../../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](API_FUZZ_TESTING.md)**.
 
 ## Shipped auth defaults (`appsettings.json` / `appsettings.Development.json`)
 

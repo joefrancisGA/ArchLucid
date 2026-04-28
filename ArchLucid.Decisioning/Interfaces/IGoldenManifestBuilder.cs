@@ -6,7 +6,7 @@ namespace ArchLucid.Decisioning.Interfaces;
 
 public interface IGoldenManifestBuilder
 {
-    GoldenManifest Build(
+    ManifestDocument Build(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,

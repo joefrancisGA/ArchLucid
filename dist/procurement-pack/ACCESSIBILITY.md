@@ -1,11 +1,11 @@
 > **Scope:** Accessibility — operator UI patterns (supplement) - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # Accessibility — operator UI patterns (supplement)
 
-**Purpose:** Operator-shell patterns that complement the repo-wide accessibility baseline in **[`ACCESSIBILITY.md`](../ACCESSIBILITY.md)** (WCAG 2.1 AA target, axe Playwright gates, eslint-plugin-jsx-a11y).
+**Purpose:** Operator-shell patterns that complement the repo-wide accessibility baseline in **[`ACCESSIBILITY.md`](../../ACCESSIBILITY.md)** (WCAG 2.1 AA target, axe Playwright gates, eslint-plugin-jsx-a11y).
 
 ---
 
@@ -31,5 +31,5 @@ Details of intervals, stop conditions, and props: **[`docs/UI_COMPONENTS.md`](UI
 
 ## Related documents
 
-- [`ACCESSIBILITY.md`](../ACCESSIBILITY.md) — baseline policy, scanned routes, and expansion checklist.
+- [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) — baseline policy, scanned routes, and expansion checklist.
 - [`UI_COMPONENTS.md`](UI_COMPONENTS.md) — **`ConfirmationDialog`** and **`RunProgressTracker`** reference.

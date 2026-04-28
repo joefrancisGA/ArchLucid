@@ -17,7 +17,7 @@ namespace ArchLucid.Decisioning.Comparison;
 public sealed class ComparisonService : IComparisonService
 {
     /// <inheritdoc />
-    public ComparisonResult Compare(GoldenManifest baseM, GoldenManifest targetM)
+    public ComparisonResult Compare(ManifestDocument baseM, ManifestDocument targetM)
     {
         ArgumentNullException.ThrowIfNull(baseM);
         ArgumentNullException.ThrowIfNull(targetM);
@@ -44,7 +44,7 @@ public sealed class ComparisonService : IComparisonService
         return !string.IsNullOrWhiteSpace(d.DecisionId) ? d.DecisionId : $"{d.Category}::{d.Title}";
     }
 
-    private static void CompareDecisions(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
+    private static void CompareDecisions(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         Dictionary<string, ResolvedArchitectureDecision> baseMap =
             baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
@@ -82,7 +82,7 @@ public sealed class ComparisonService : IComparisonService
         }
     }
 
-    private static void CompareRequirements(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
+    private static void CompareRequirements(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         Dictionary<string, RequirementState> baseStates = RequirementStates(baseM.Requirements);
         Dictionary<string, RequirementState> targetStates = RequirementStates(targetM.Requirements);
@@ -143,7 +143,7 @@ public sealed class ComparisonService : IComparisonService
         return map;
     }
 
-    private static void CompareSecurity(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
+    private static void CompareSecurity(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         Dictionary<string, SecurityPostureItem> baseMap =
             baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
@@ -192,7 +192,7 @@ public sealed class ComparisonService : IComparisonService
         }
     }
 
-    private static void CompareTopology(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
+    private static void CompareTopology(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         HashSet<string> baseSet = new(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
         HashSet<string> targetSet = new(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
@@ -207,7 +207,7 @@ public sealed class ComparisonService : IComparisonService
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
     }
 
-    private static void CompareCost(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
+    private static void CompareCost(ManifestDocument baseM, ManifestDocument targetM, ComparisonResult result)
     {
         decimal? b = baseM.Cost.MaxMonthlyCost;
         decimal? t = targetM.Cost.MaxMonthlyCost;

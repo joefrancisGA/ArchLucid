@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Services;
 
 public class GoldenManifestValidator : IGoldenManifestValidator
 {
-    public void Validate(GoldenManifest manifest)
+    public void Validate(ManifestDocument manifest)
     {
         if (manifest.ManifestId == Guid.Empty)
             throw new InvalidOperationException("ManifestId is required.");

@@ -4,7 +4,7 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Comparison;
 
 /// <summary>
-///     Pure domain comparison of two <see cref="GoldenManifest" /> snapshots into a structured
+///     Pure domain comparison of two <see cref="ManifestDocument" /> snapshots into a structured
 ///     <see cref="ComparisonResult" /> (decisions, requirements, security, topology, cost).
 /// </summary>
 /// <remarks>
@@ -20,11 +20,11 @@ public interface IComparisonService
     ///     <see cref="ComparisonResult.SummaryHighlights" />.
     /// </summary>
     /// <param name="baseManifest">
-    ///     Earlier or baseline manifest (its <see cref="GoldenManifest.RunId" /> becomes
+    ///     Earlier or baseline manifest (its <see cref="ManifestDocument.RunId" /> becomes
     ///     <see cref="ComparisonResult.BaseRunId" />).
     /// </param>
     /// <param name="targetManifest">
-    ///     Later or candidate manifest (<see cref="GoldenManifest.RunId" /> →
+    ///     Later or candidate manifest (<see cref="ManifestDocument.RunId" /> →
     ///     <see cref="ComparisonResult.TargetRunId" />).
     /// </param>
     /// <returns>Non-null result; empty delta lists mean no changes in the compared sections.</returns>
@@ -32,5 +32,5 @@ public interface IComparisonService
     ///     Does not persist; safe to call on in-memory manifests. Not scope-aware—callers must enforce
     ///     tenant/workspace/project if needed.
     /// </remarks>
-    ComparisonResult Compare(GoldenManifest baseManifest, GoldenManifest targetManifest);
+    ComparisonResult Compare(ManifestDocument baseManifest, ManifestDocument targetManifest);
 }

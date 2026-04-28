@@ -24,7 +24,7 @@ public interface IImprovementSignalAnalyzer
     /// <param name="comparison">When set, adds regression/cost/decision-delta style signals.</param>
     /// <returns>Zero or more signals (not deduplicated across calls).</returns>
     IReadOnlyList<ImprovementSignal> Analyze(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult? comparison = null);
 }

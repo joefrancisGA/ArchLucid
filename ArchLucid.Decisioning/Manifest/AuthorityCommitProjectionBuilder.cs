@@ -10,7 +10,7 @@ namespace ArchLucid.Decisioning.Manifest;
 public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectionBuilder
 {
     public Task<Cm.GoldenManifest> BuildAsync(
-        GoldenManifest source,
+        ManifestDocument source,
         AuthorityCommitProjectionInput input,
         CancellationToken cancellationToken = default)
     {
@@ -38,7 +38,7 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         return Task.FromResult(result);
     }
 
-    private static Cm.ManifestGovernance MapGovernance(GoldenManifest source)
+    private static Cm.ManifestGovernance MapGovernance(ManifestDocument source)
     {
         List<string> complianceTags = source.Compliance.Controls
             .Select(c => c.ControlName)
@@ -76,7 +76,7 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         };
     }
 
-    private static Cm.ManifestMetadata MapMetadata(GoldenManifest source)
+    private static Cm.ManifestMetadata MapMetadata(ManifestDocument source)
     {
         DmSec.ManifestMetadata meta = source.Metadata;
 

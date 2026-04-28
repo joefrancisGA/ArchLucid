@@ -10,14 +10,14 @@ namespace ArchLucid.Decisioning.Manifest.Mapping;
 public static class ContractGoldenManifestPersistence
 {
     /// <summary>
-    ///     Builds the authority <see cref="GoldenManifest" /> row for insert: either from the coordinator projection mapper
+    ///     Builds the authority <see cref="ManifestDocument" /> row for insert: either from the coordinator projection mapper
     ///     or by validating and scoping a caller-supplied engine body (PR A2 authority commit).
     /// </summary>
-    public static GoldenManifest ResolveGoldenManifestForContractSave(
+    public static ManifestDocument ResolveGoldenManifestForContractSave(
         Cm.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying,
-        GoldenManifest? authorityPersistBody)
+        ManifestDocument? authorityPersistBody)
     {
         if (authorityPersistBody is null)
             return ContractGoldenManifestMapper.ToAuthorityModel(contract, scope, keying);

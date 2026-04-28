@@ -6,7 +6,7 @@ namespace ArchLucid.Decisioning.Interfaces;
 
 public interface IDecisionEngine
 {
-    Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
+    Task<(ManifestDocument Manifest, DecisionTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,

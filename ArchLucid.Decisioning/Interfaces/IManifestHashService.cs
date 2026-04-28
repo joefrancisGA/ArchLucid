@@ -7,5 +7,5 @@ namespace ArchLucid.Decisioning.Interfaces;
 /// </summary>
 public interface IManifestHashService
 {
-    string ComputeHash(GoldenManifest manifest);
+    string ComputeHash(ManifestDocument manifest);
 }

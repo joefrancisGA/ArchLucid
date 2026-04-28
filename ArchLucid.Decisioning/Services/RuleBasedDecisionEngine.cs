@@ -27,7 +27,7 @@ public class RuleBasedDecisionEngine(
     : IDecisionEngine
 {
     /// <inheritdoc />
-    public async Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
+    public async Task<(ManifestDocument Manifest, DecisionTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
@@ -90,7 +90,7 @@ public class RuleBasedDecisionEngine(
 
         DecisionTrace trace = RuleAuditTrace.From(audit);
 
-        GoldenManifest manifest = manifestBuilder.Build(
+        ManifestDocument manifest = manifestBuilder.Build(
             runId,
             contextSnapshotId,
             graphSnapshot,

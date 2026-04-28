@@ -18,10 +18,10 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     private const int MaxEntries = 500;
     private readonly Lock _lock = new();
 
-    private readonly List<GoldenManifest> _store = [];
+    private readonly List<ManifestDocument> _store = [];
 
     public Task SaveAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -41,7 +41,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest> SaveAsync(
+    public Task<ManifestDocument> SaveAsync(
         Cm.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying,
@@ -49,7 +49,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null,
-        GoldenManifest? authorityPersistBody = null)
+        ManifestDocument? authorityPersistBody = null)
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
@@ -61,7 +61,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             throw new ArgumentNullException(nameof(manifestHashService));
         _ = connection;
         _ = transaction;
-        GoldenManifest model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
+        ManifestDocument model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             contract,
             scope,
             keying,
@@ -77,11 +77,11 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         return Task.FromResult(model);
     }
 
-    public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    public Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         lock (_lock)
         {
-            GoldenManifest? result = _store.FirstOrDefault(x =>
+            ManifestDocument? result = _store.FirstOrDefault(x =>
                 x.ManifestId == manifestId &&
                 x.TenantId == scope.TenantId &&
                 x.WorkspaceId == scope.WorkspaceId &&
@@ -91,7 +91,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
+    public Task<ManifestDocument?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
         CancellationToken ct)
     {
         if (scope is null)
@@ -104,7 +104,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 
         lock (_lock)
         {
-            GoldenManifest? match = _store
+            ManifestDocument? match = _store
                 .Where(x =>
                     x.TenantId == scope.TenantId &&
                     x.WorkspaceId == scope.WorkspaceId &&
