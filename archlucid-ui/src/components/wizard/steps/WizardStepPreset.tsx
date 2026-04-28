@@ -14,6 +14,7 @@ import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-architecture-request-presets";
 import { getDocHref } from "@/lib/help-topics";
+import { TRIAL_ONBOARDING_SAMPLE_RUN_ID } from "@/lib/trial-sample-run";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
@@ -124,6 +125,16 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             Start from scratch, use an industry starter, Quick shapes or documentation-aligned templates, or import a
             prepared request file.
           </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button asChild variant="outline" size="sm" type="button">
+              <Link
+                href={`/runs/new?sampleRunId=${TRIAL_ONBOARDING_SAMPLE_RUN_ID}`}
+                data-testid="wizard-use-canonical-sample"
+              >
+                Use a sample (preset deep link)
+              </Link>
+            </Button>
+          </div>
         </div>
       }
     >

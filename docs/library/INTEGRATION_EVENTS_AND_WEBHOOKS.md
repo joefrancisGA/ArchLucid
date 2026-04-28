@@ -98,6 +98,30 @@ Individual event payload schemas are published as [JSON Schema Draft 2020-12](ht
 
 External consumers can validate inbound Service Bus message bodies against these schemas. Each schema sets `additionalProperties: true` so new fields may appear in payloads without a schema-version bump (same additive contract as `IntegrationEventPayloadContractTests`).
 
+### Bridge receivers — Jira Cloud / ServiceNow (HTTP automation rules)
+
+Some enterprises expose incident/issue workflows behind SaaS automation URLs (`POST`, minimal validation beyond bearer/API-key gates). ArchLucid’s outbound webhook envelope (`WebhookDelivery:UseCloudEventsEnvelope` when enabled) matches CloudEvents JSON — automation layers typically unwrap `data` or route on `type`.
+
+**Jira Cloud Automation — inbound webhook rule**
+
+| Step | Action |
+|------|--------|
+| 1 | Automation → Create rule → Incoming webhook trigger — copy the webhook URL (HTTPS). |
+| 2 | Optional: add header secret — paste into ArchLucid **tenant outbound webhook secret** only when your rule verifies static headers (otherwise rely on private URL). |
+| 3 | Action: Create issue / transition — map CloudEvents fields via smart values (`{{webhookData.body.type}}`, JSON parsing on `data`). |
+| 4 | Smoke locally with `archlucid webhooks test --url <incoming-webhook-url> [--secret …]` then archive the captured JSON under evidence. |
+
+**ServiceNow — scripted REST / Flow Designer inbound**
+
+| Step | Action |
+|------|--------|
+| 1 | Scripted REST API or Flow Designer **Inbound REST** step — fixed path + ACL restricted to automation IPs / OAuth client. |
+| 2 | Parse body as JSON — branch on `event_type` Service Bus property **or** CloudEvents `type` after unwrap. |
+| 3 | Insert/update `sn_si_incident` / CMDB per mapping table owned by platform — avoid executing arbitrary scripts from payload strings. |
+| 4 | Validate using CLI probe (`archlucid webhooks test`) before enabling production subscriptions. |
+
+**Security:** Treat inbound URLs as secrets; TLS only; pin automation identities; redact tokens in logs (same posture as digest/alert webhook receivers).
+
 ### Event catalog (canonical types)
 
 Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archlucid-asyncapi-2.6.yaml`** for structured schemas (aligned with the JSON Schema files above).

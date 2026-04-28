@@ -71,7 +71,7 @@ async function renderNewRunWizard() {
   );
 
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Full Wizard (7 steps)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Full Wizard (6 steps)" }));
   });
 
   await waitFor(

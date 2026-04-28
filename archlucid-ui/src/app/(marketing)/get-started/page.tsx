@@ -34,18 +34,13 @@ const STEPS: readonly Step[] = [
   },
   {
     n: 3,
-    title: "Run a sample",
-    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline. No upload required for the first run. Within a few seconds the pipeline runs topology, cost, and compliance analysis against the sample request and produces a finalized manifest with structured findings and downloadable artifacts. You do not need to prepare any inputs or upload any files for this first pass — the goal is to see the shape of the output before investing your own data.",
+    title: "Run a sample & read your first finding",
+    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline — no upload required for the first pass. Within a few seconds you get a finalized manifest with structured findings. Open the run and read your first typed finding — what was flagged, why it was flagged, what evidence backs it — the smallest unit of value the product produces.",
   },
   {
     n: 4,
-    title: "Read your first finding",
-    body: "Open the finalized run and read the first typed finding — what was flagged, why it was flagged, what evidence backs it. This is the smallest unit of value the product produces. Each finding carries a category (topology, cost, compliance, or quality), a severity level, a plain-language explanation of why it matters, and the evidence the analysis used to reach the conclusion. This is how ArchLucid communicates reviewable, defensible architecture observations — structured enough to act on, transparent enough to challenge.",
-  },
-  {
-    n: 5,
     title: "Decide what to do next",
-    body: "Either invite a colleague and run a second sample, or hand off to a guided pilot. If you want a second opinion, invite a colleague to sign in and run the same sample or a different vertical — no configuration is needed, and they will see results in their own workspace within minutes. If you are ready to move beyond the sample, the guided pilot path walks through creating a request with your own inputs, committing a manifest, and reviewing the artifacts that a real pilot would produce.",
+    body: "Either invite a colleague and run a second sample, or hand off to a guided pilot. Invite a colleague to sign in and run the same sample or a different vertical — no configuration is needed. When you are ready for real inputs, the guided pilot path walks through committing a manifest and reviewing artifacts you would ship in production.",
   },
 ] as const;
 
@@ -80,7 +75,14 @@ export default function GetStartedPage(): ReactNode {
         or a CLI.
       </p>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Five steps. Roughly thirty minutes end-to-end on a normal connection.
+        Four milestones. Roughly thirty minutes end-to-end on a normal connection.
+      </p>
+      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+        Want proof without signing in first?{" "}
+        <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/explain">
+          See a live run — citations &amp; provenance
+        </Link>{" "}
+        (same seeded demo surface as <Link href="/demo/preview">/demo/preview</Link>, interactive explainability view).
       </p>
 
       {liveDemoUrl ? (

@@ -21,7 +21,7 @@
 
 | Theme | Response | Evidence |
 |-------|----------|----------|
-| Security awareness | Partial — internal process; not customer-auditable here | TBD HR system |
+| Security awareness | Yes — annual engineering briefing tracked internally (calendar + attendance roster); policy refs [`SECURITY.md`](../library/SECURITY.md), [`INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md) | HRIS exports available under NDA for enterprise diligence |
 
 ## Information management (IMC)
 

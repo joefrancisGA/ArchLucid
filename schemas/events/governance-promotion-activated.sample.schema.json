@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.net/schemas/events/governance-promotion-activated.sample.schema.json",
+  "title": "GovernancePromotionActivated CloudEvent-shaped sample",
+  "type": "object",
+  "required": ["specversion", "type", "source", "id", "datacontenttype", "data"],
+  "properties": {
+    "specversion": { "type": "string", "const": "1.0" },
+    "type": { "type": "string", "const": "com.archlucid.governance.promotion.activated" },
+    "source": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "format": "uuid" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "type": "string", "const": "application/json" },
+    "data": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "schemaVersion": { "type": "string" },
+        "tenantId": { "type": "string", "format": "uuid" },
+        "activationId": { "type": "string", "format": "uuid" },
+        "runId": { "type": "string", "format": "uuid" },
+        "manifestVersion": { "type": "string" },
+        "environment": { "type": "string" },
+        "activatedBy": { "type": "string", "format": "uuid" },
+        "activatedUtc": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

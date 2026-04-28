@@ -3,6 +3,7 @@ using System.Reflection;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Advisory;
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Core.Tenancy;
 
@@ -20,6 +21,7 @@ public sealed class CommercialPackagingMetadataTests
     [InlineData(typeof(ComparisonController))]
     [InlineData(typeof(DocxExportController))]
     [InlineData(typeof(GraphController))]
+    [InlineData(typeof(GovernanceController))]
     public void Controller_has_requires_commercial_tier_standard(Type controllerType)
     {
         RequiresCommercialTenantTierAttribute? attr =

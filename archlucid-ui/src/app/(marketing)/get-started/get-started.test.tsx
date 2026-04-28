@@ -24,10 +24,10 @@ describe("BUYER_GET_STARTED_VERTICAL_SLUGS", () => {
 });
 
 describe("GetStartedPage", () => {
-  it("renders all five steps with step indicators", () => {
+  it("renders all four steps with step indicators", () => {
     render(<GetStartedPage />);
 
-    for (let n = 1; n <= 5; n++) {
+    for (let n = 1; n <= 4; n++) {
       expect(screen.getByTestId(`get-started-step-${n}`)).toBeInTheDocument();
       const indicator = screen.getByTestId(`get-started-step-${n}-indicator`);
       expect(indicator.textContent).toBe(String(n));

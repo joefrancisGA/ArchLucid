@@ -61,7 +61,11 @@ export function WelcomeMarketingPage() {
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
               /demo/preview
             </Link>{" "}
-            — full page, no signup.
+            — full page, no signup.{" "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">
+              See a live run (explain + provenance)
+            </Link>
+            .
           </p>
           <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/WORKED_EXAMPLE_ROI.pdf">

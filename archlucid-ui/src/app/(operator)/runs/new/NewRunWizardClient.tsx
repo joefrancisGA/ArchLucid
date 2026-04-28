@@ -34,19 +34,19 @@ import { QuickStartWizard } from "./QuickStartWizard";
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 const WIZARD_STEP_DEFINITIONS = [
   { label: "Choose starting point", description: "Template, import, or blank" },
-  { label: "Identity", description: "System & environment" },
-  { label: "Description", description: "Goals & requirements" },
+  { label: "Identity & goals", description: "System, environment & requirements" },
   { label: "Constraints", description: "Limits & capabilities" },
   { label: "Advanced", description: "Optional context" },
   { label: "Review", description: "Confirm & create" },
   { label: "Pipeline", description: "Track progress" },
 ] as const;
 
-/** High-level phases shown in the stepper (maps the seven internal steps to three sponsor-friendly phases). */
+/** High-level phases (four sponsor-visible milestones across internal wizard slides). */
 const MACRO_WIZARD_STEP_DEFINITIONS = [
-  { label: "Request brief", description: "Identity, goals, starting point" },
-  { label: "Constraints", description: "Requirements, policies, context" },
-  { label: "Review and run", description: "Confirm, create, track" },
+  { label: "Request brief", description: "Starting point through architecture brief" },
+  { label: "Depth & evidence", description: "Constraints and advanced inputs" },
+  { label: "Review & submit", description: "Confirm before creation" },
+  { label: "Pipeline", description: "Execution visibility" },
 ] as const;
 
 const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
@@ -54,15 +54,19 @@ const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
 const STEP_INDEX_MAX = WIZARD_STEP_DEFINITIONS.length - 1;
 
 function macroWizardStepIndex(stepIndex: number): number {
-  if (stepIndex <= 2) {
+  if (stepIndex <= 1) {
     return 0;
   }
 
-  if (stepIndex <= 4) {
+  if (stepIndex <= 3) {
     return 1;
   }
 
-  return 2;
+  if (stepIndex === 4) {
+    return 2;
+  }
+
+  return 3;
 }
 
 function macroCompletedSteps(stepIndex: number): number[] {
@@ -94,7 +98,7 @@ function tryParseSampleRunQuery(raw: string | null): string | null {
   return `${n.slice(0, 8)}-${n.slice(8, 12)}-${n.slice(12, 16)}-${n.slice(16, 20)}-${n.slice(20, 32)}`;
 }
 
-/** Seven-step client wizard: react-hook-form + zod, create run, poll summary with live region + toast. */
+/** Full wizard client: react-hook-form + zod, create run, poll summary with live region + toast. */
 export function NewRunWizardClient() {
   const searchParams = useSearchParams();
   const featuredSampleRunId = useMemo(() => {
@@ -131,7 +135,7 @@ export function NewRunWizardClient() {
 
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled:
-      runId !== null && (wizardMode === "quick" ? true : stepIndex === 6),
+      runId !== null && (wizardMode === "quick" ? true : stepIndex === 5),
   });
 
   const form = useForm<WizardFormValues>({
@@ -189,9 +193,6 @@ export function NewRunWizardClient() {
 
     if (stepIndex >= 1) {
       setValue("systemName", OPERATOR_HOME_EXAMPLE_SYSTEM_NAME, { shouldValidate: true, shouldDirty: true });
-    }
-
-    if (stepIndex >= 2) {
       setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
     }
   }, [operatorHomeExampleKey, setValue, stepIndex]);
@@ -199,14 +200,14 @@ export function NewRunWizardClient() {
   const watchedValues = useWatch({ control });
 
   const stepHasValidationErrors = useMemo(() => {
-    if (stepIndex < 1 || stepIndex > 4) {
+    if (stepIndex < 1 || stepIndex > 3) {
       return false;
     }
 
     return validateWizardStep(stepIndex, watchedValues as WizardFormValues).length > 0;
   }, [stepIndex, watchedValues]);
 
-  const canProceed = !submitting && (stepIndex === 0 || stepIndex === 5 || !stepHasValidationErrors);
+  const canProceed = !submitting && (stepIndex === 0 || stepIndex === 4 || !stepHasValidationErrors);
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
@@ -299,7 +300,7 @@ export function NewRunWizardClient() {
       }
 
       setRunId(id);
-      setStepIndex(6);
+      setStepIndex(5);
       recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Run ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
@@ -313,9 +314,9 @@ export function NewRunWizardClient() {
     }
   };
 
-  const showNav = stepIndex < 6;
+  const showNav = stepIndex < 5;
   const isFirstStep = stepIndex === 0;
-  const isReviewStep = stepIndex === 5;
+  const isReviewStep = stepIndex === 4;
   const showQuickTrack = wizardMode === "quick" && runId !== null;
   const showFullWizardShell = wizardMode === "full" && !showQuickTrack;
 
@@ -355,7 +356,7 @@ export function NewRunWizardClient() {
                 aria-pressed={wizardMode === "full"}
                 onClick={() => persistWizardMode("full")}
               >
-                Full Wizard (7 steps)
+                Full Wizard (6 steps)
               </button>
             </div>
           ) : null}
@@ -404,12 +405,16 @@ export function NewRunWizardClient() {
               onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
             />
           ) : null}
-          {stepIndex === 1 ? <WizardStepIdentity /> : null}
-          {stepIndex === 2 ? <WizardStepDescription /> : null}
-          {stepIndex === 3 ? <WizardStepConstraints /> : null}
-          {stepIndex === 4 ? <WizardStepAdvanced /> : null}
-          {stepIndex === 5 ? <WizardStepReview /> : null}
-          {stepIndex === 6 && runId ? <WizardStepTrack runId={runId} pollSummary={pollSummary} /> : null}
+          {stepIndex === 1 ? (
+            <div className="space-y-8">
+              <WizardStepIdentity />
+              <WizardStepDescription />
+            </div>
+          ) : null}
+          {stepIndex === 2 ? <WizardStepConstraints /> : null}
+          {stepIndex === 3 ? <WizardStepAdvanced /> : null}
+          {stepIndex === 4 ? <WizardStepReview /> : null}
+          {stepIndex === 5 && runId ? <WizardStepTrack runId={runId} pollSummary={pollSummary} /> : null}
 
           {showNav ? (
             <div
@@ -432,7 +437,7 @@ export function NewRunWizardClient() {
             </div>
           ) : null}
 
-          {stepIndex === 6 && !runId ? (
+          {stepIndex === 5 && !runId ? (
             <p className="text-sm text-red-600">Run id missing; cannot track pipeline.</p>
           ) : null}
 
