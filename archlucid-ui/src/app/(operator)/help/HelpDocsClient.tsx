@@ -105,7 +105,8 @@ export function HelpDocsClient() {
     };
   }, []);
 
-  const mergedEntries = entries ?? [...HELP_DOCS_STATIC_ENTRIES];
+  /** Same reference while `entries` is null — avoids a new array reference every render before fetch settles. */
+  const mergedEntries = useMemo(() => entries ?? [...HELP_DOCS_STATIC_ENTRIES], [entries]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

@@ -476,7 +476,7 @@ public sealed class AdvisoryScanRunner(
             ct);
     }
 
-    private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest) =>
+    private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest) =>
         new()
         {
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,

@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Reads;
 ///     interface itself — the underlying SQL table <c>dbo.GoldenManifestVersions</c> had already
 ///     been dropped in PR A4 (migration 111), so the fallback was inert dead code that would
 ///     have thrown at runtime. The reader continues to project authority-shape
-///     <see cref="Decisioning.Models.GoldenManifest" /> rows into the public
+///     <see cref="Decisioning.Models.ManifestDocument" /> rows into the public
 ///     <see cref="GoldenManifest" /> contract via <see cref="IAuthorityCommitProjectionBuilder" />.
 /// </remarks>
 public sealed class UnifiedGoldenManifestReader(
@@ -45,7 +45,7 @@ public sealed class UnifiedGoldenManifestReader(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        Decisioning.Models.GoldenManifest? authorityModel =
+        Decisioning.Models.ManifestDocument? authorityModel =
             await _authorityGoldenManifests
                 .GetByContractManifestVersionAsync(scope, manifestVersion, cancellationToken)
                 .ConfigureAwait(false);
@@ -79,7 +79,7 @@ public sealed class UnifiedGoldenManifestReader(
 
         if (run.GoldenManifestId is { } goldenId)
         {
-            Decisioning.Models.GoldenManifest? authorityModel =
+            Decisioning.Models.ManifestDocument? authorityModel =
                 await _authorityGoldenManifests.GetByIdAsync(scope, goldenId, cancellationToken);
 
             if (authorityModel is not null)
@@ -98,7 +98,7 @@ public sealed class UnifiedGoldenManifestReader(
             ? $"v1-{runKey}"
             : run.CurrentManifestVersion!;
 
-        Decisioning.Models.GoldenManifest? authorityByVersion =
+        Decisioning.Models.ManifestDocument? authorityByVersion =
             await _authorityGoldenManifests
                 .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);

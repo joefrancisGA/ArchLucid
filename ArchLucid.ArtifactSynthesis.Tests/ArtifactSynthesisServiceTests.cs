@@ -23,9 +23,9 @@ public sealed class ArtifactSynthesisServiceTests
         Mock<IArtifactGenerator> genZ = new();
         genZ.Setup(x => x.ArtifactType).Returns("Zeta");
         genZ
-            .Setup(x => x.GenerateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GenerateAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .Returns(
-                (GoldenManifest _, CancellationToken _) =>
+                (ManifestDocument _, CancellationToken _) =>
                 {
                     order.Add("Zeta");
 
@@ -35,16 +35,16 @@ public sealed class ArtifactSynthesisServiceTests
         Mock<IArtifactGenerator> genA = new();
         genA.Setup(x => x.ArtifactType).Returns("Alpha");
         genA
-            .Setup(x => x.GenerateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GenerateAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .Returns(
-                (GoldenManifest _, CancellationToken _) =>
+                (ManifestDocument _, CancellationToken _) =>
                 {
                     order.Add("Alpha");
 
                     return Task.FromResult(NewArtifact("Alpha", "a.txt", "a"));
                 });
 
-        GoldenManifest manifest = NewManifest();
+        ManifestDocument manifest = NewManifest();
         ArtifactSynthesisService sut = new(
             [genZ.Object, genA.Object],
             new ArtifactBundleValidator(),
@@ -60,7 +60,7 @@ public sealed class ArtifactSynthesisServiceTests
     [Fact]
     public async Task SynthesizeAsync_when_no_generators_adds_trace_note_and_validator_throws()
     {
-        GoldenManifest manifest = NewManifest();
+        ManifestDocument manifest = NewManifest();
         ArtifactSynthesisService sut = new(
             [],
             new ArtifactBundleValidator(),
@@ -88,12 +88,12 @@ public sealed class ArtifactSynthesisServiceTests
         };
     }
 
-    private static GoldenManifest NewManifest()
+    private static ManifestDocument NewManifest()
     {
         Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid manifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),

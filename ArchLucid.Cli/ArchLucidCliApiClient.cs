@@ -24,14 +24,14 @@ namespace ArchLucid.Cli;
 public sealed class ArchLucidApiClient
 {
     /// <summary>
-    ///     Bridges ArchLucid.Contracts models to NSwag <c>Gen.*</c> DTOs when the OpenAPI snapshot uses string enums
-    ///     (aligned with the API JSON enum wire format).
+    ///     Contracts → NSwag <c>Gen.*</c> round-trip: generated request DTOs use numeric enums (
+    ///     <see cref="Gen.ArchitectureRequest.CloudProvider" />, <see cref="Gen.AgentResult.AgentType" />), so bridging
+    ///     JSON must not emit string enum tokens.
     /// </summary>
-    private static readonly JsonSerializerOptions GenDtoJson = new()
+    private static readonly JsonSerializerOptions GenNumericEnumBridgeJson = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
     };
 
     /// <summary>
@@ -841,16 +841,16 @@ public sealed class ArchLucidApiClient
 
     private Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
     {
-        string json = JsonSerializer.Serialize(request, GenDtoJson);
+        string json = JsonSerializer.Serialize(request, GenNumericEnumBridgeJson);
 
-        return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, GenDtoJson);
+        return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, GenNumericEnumBridgeJson);
     }
 
     private Gen.AgentResult? MapToGenerated(AgentResult result)
     {
-        string json = JsonSerializer.Serialize(result, GenDtoJson);
+        string json = JsonSerializer.Serialize(result, GenNumericEnumBridgeJson);
 
-        return JsonSerializer.Deserialize<Gen.AgentResult>(json, GenDtoJson);
+        return JsonSerializer.Deserialize<Gen.AgentResult>(json, GenNumericEnumBridgeJson);
     }
 
     /// <summary>

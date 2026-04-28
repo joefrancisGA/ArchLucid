@@ -72,7 +72,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     continue;
                 }
 
-                GoldenManifest manifest = detail.GoldenManifest;
+                ManifestDocument manifest = detail.GoldenManifest;
                 GraphSnapshot graphSnapshot = detail.GraphSnapshot;
                 FindingsSnapshot findings = detail.FindingsSnapshot;
                 IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];

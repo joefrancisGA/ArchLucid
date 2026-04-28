@@ -21,7 +21,7 @@ public sealed class RetrievalRunCompletionIndexer(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct)

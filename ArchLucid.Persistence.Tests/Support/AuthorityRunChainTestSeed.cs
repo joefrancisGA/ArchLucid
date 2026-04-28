@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
 ///     Seeds the minimal Runs / ContextSnapshots / GraphSnapshots / FindingsSnapshots / DecisioningTraces chain
-///     required before persisting a <see cref="ArchLucid.Decisioning.Models.GoldenManifest" /> under FK constraints.
+///     required before persisting a <see cref="ArchLucid.Decisioning.Models.ManifestDocument" /> under FK constraints.
 /// </summary>
 public static class AuthorityRunChainTestSeed
 {

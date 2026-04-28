@@ -324,7 +324,7 @@ public sealed class AuthorityRunOrchestrator(
         RunRecord run,
         ContextSnapshot contextSnapshot,
         FindingsSnapshot findingsSnapshot,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         DecisionTrace trace,
         ScopeContext scope,
         IArchLucidUnitOfWork uow,

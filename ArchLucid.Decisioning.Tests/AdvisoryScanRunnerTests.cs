@@ -112,7 +112,7 @@ public sealed class AdvisoryScanRunnerTests
         Guid runId = Guid.NewGuid();
         Guid digestId = Guid.NewGuid();
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -157,7 +157,7 @@ public sealed class AdvisoryScanRunnerTests
 
         Mock<IImprovementAdvisorService> advisor = new();
         advisor
-            .Setup(x => x.GeneratePlanAsync(It.IsAny<GoldenManifest>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GeneratePlanAsync(It.IsAny<ManifestDocument>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [] });
 
         Mock<IRecommendationRepository> recommendations = new();

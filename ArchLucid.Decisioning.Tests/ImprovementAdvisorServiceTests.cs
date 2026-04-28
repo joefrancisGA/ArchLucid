@@ -20,7 +20,7 @@ public sealed class ImprovementAdvisorServiceTests
     [Fact]
     public async Task GeneratePlanAsync_WithoutComparison_CallsAnalyzerWithNullComparison_AndMapsRunId()
     {
-        GoldenManifest manifest = CreateManifest();
+        ManifestDocument manifest = CreateManifest();
         FindingsSnapshot findings = CreateFindings(manifest.RunId);
 
         Mock<IImprovementSignalAnalyzer> analyzer = new();
@@ -53,7 +53,7 @@ public sealed class ImprovementAdvisorServiceTests
     [Fact]
     public async Task GeneratePlanAsync_WithComparison_CallsAnalyzerWithComparison_AndMapsComparedToRunId()
     {
-        GoldenManifest manifest = CreateManifest();
+        ManifestDocument manifest = CreateManifest();
         FindingsSnapshot findings = CreateFindings(manifest.RunId);
         Guid baseRunId = Guid.NewGuid();
         ComparisonResult comparison = new()
@@ -89,7 +89,7 @@ public sealed class ImprovementAdvisorServiceTests
     [Fact]
     public async Task GeneratePlanAsync_WhenNoRecommendations_SummarySaysNoneIdentified()
     {
-        GoldenManifest manifest = CreateManifest();
+        ManifestDocument manifest = CreateManifest();
         FindingsSnapshot findings = CreateFindings(manifest.RunId);
 
         Mock<IImprovementSignalAnalyzer> analyzer = new();
@@ -113,7 +113,7 @@ public sealed class ImprovementAdvisorServiceTests
     [Fact]
     public async Task GeneratePlanAsync_WhenProfileExists_SummaryMentionsAdaptivePrioritization()
     {
-        GoldenManifest manifest = CreateManifest();
+        ManifestDocument manifest = CreateManifest();
         FindingsSnapshot findings = CreateFindings(manifest.RunId);
         RecommendationLearningProfile profile = new()
         {
@@ -157,7 +157,7 @@ public sealed class ImprovementAdvisorServiceTests
     [Fact]
     public async Task GeneratePlanAsync_WhenNoProfile_SummaryMentionsBasePrioritization()
     {
-        GoldenManifest manifest = CreateManifest();
+        ManifestDocument manifest = CreateManifest();
         FindingsSnapshot findings = CreateFindings(manifest.RunId);
 
         List<ImprovementRecommendation> recs =
@@ -193,9 +193,9 @@ public sealed class ImprovementAdvisorServiceTests
         plan.SummaryNotes.Should().Contain("Cost: 1");
     }
 
-    private static GoldenManifest CreateManifest()
+    private static ManifestDocument CreateManifest()
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = Guid.NewGuid(),
             WorkspaceId = Guid.NewGuid(),

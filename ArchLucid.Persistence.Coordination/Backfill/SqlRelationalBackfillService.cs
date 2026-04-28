@@ -226,7 +226,7 @@ public sealed class SqlRelationalBackfillService(
             {
                 ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
-                GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
+                ManifestDocument? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
                 if (manifest is null)
                     continue;
 

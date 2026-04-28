@@ -906,7 +906,7 @@ public sealed class AuthorityRunOrchestratorTests
         return mock;
     }
 
-    private static GoldenManifest NewMinimalManifest(
+    private static ManifestDocument NewMinimalManifest(
         ScopeContext scope,
         Guid runId,
         Guid contextId,
@@ -915,7 +915,7 @@ public sealed class AuthorityRunOrchestratorTests
         Guid traceId,
         Guid manifestId)
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,

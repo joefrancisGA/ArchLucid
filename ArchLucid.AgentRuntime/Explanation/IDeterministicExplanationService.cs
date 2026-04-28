@@ -18,7 +18,7 @@ public interface IDeterministicExplanationService
 
     /// <summary>Parses LLM JSON (or prose) into a run <see cref="ExplanationResult" /> with heuristic fallbacks.</summary>
     ExplanationResult BuildRunExplanationFromLlmPayload(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         List<string> keyDrivers,
         List<string> risks,
         List<string> costs,
@@ -41,16 +41,16 @@ public interface IDeterministicExplanationService
     string FormatCostChanges(ComparisonResult comparison);
 
     /// <summary>Key manifest drivers for prompts.</summary>
-    List<string> ExtractRunKeyDrivers(GoldenManifest manifest, DecisionProvenanceGraph? provenance);
+    List<string> ExtractRunKeyDrivers(ManifestDocument manifest, DecisionProvenanceGraph? provenance);
 
     /// <summary>Risk/issue lines for prompts.</summary>
-    List<string> ExtractRiskImplications(GoldenManifest manifest);
+    List<string> ExtractRiskImplications(ManifestDocument manifest);
 
     /// <summary>Cost lines for prompts.</summary>
-    List<string> ExtractCostImplications(GoldenManifest manifest);
+    List<string> ExtractCostImplications(ManifestDocument manifest);
 
     /// <summary>Compliance lines for prompts.</summary>
-    List<string> ExtractComplianceImplications(GoldenManifest manifest);
+    List<string> ExtractComplianceImplications(ManifestDocument manifest);
 
     /// <summary>Short provenance summary for prompts.</summary>
     string FormatProvenanceSummary(DecisionProvenanceGraph? graph);

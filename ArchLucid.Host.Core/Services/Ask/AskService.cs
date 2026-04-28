@@ -108,10 +108,10 @@ public sealed class AskService(
         if (detail?.GoldenManifest is null)
 
             throw new InvalidOperationException(
-                "Run not found or has no GoldenManifest for the current scope.");
+                "Run not found or has no ManifestDocument for the current scope.");
 
 
-        GoldenManifest? manifest = detail.GoldenManifest;
+        ManifestDocument? manifest = detail.GoldenManifest;
         GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
 
         ComparisonResult? comparisonResult = null;

@@ -88,7 +88,7 @@ public sealed class GovernanceLineageService(
 
         if (authorityDetail?.GoldenManifest is not null)
         {
-            GoldenManifest gm = authorityDetail.GoldenManifest;
+            ManifestDocument gm = authorityDetail.GoldenManifest;
             manifestSummary = new GovernanceLineageManifestSummary
             {
                 ManifestVersion = gm.Metadata.Version,

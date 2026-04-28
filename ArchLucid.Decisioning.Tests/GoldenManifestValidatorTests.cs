@@ -19,7 +19,7 @@ public sealed class GoldenManifestValidatorTests
     /// Returns a manifest with all required fields populated so individual tests
     /// can null out exactly one section at a time.
     /// </summary>
-    private static GoldenManifest ValidManifest() => new()
+    private static ManifestDocument ValidManifest() => new()
     {
         ManifestId = Guid.NewGuid(),
         RunId = Guid.NewGuid(),
@@ -44,7 +44,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_EmptyManifestId_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.ManifestId = Guid.Empty;
 
         Action act = () => _sut.Validate(manifest);
@@ -56,7 +56,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_EmptyRunId_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.RunId = Guid.Empty;
 
         Action act = () => _sut.Validate(manifest);
@@ -68,7 +68,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_MissingRuleSetId_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.RuleSetId = "  ";
 
         Action act = () => _sut.Validate(manifest);
@@ -80,7 +80,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullRequirements_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Requirements = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -92,7 +92,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullTopology_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Topology = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -104,7 +104,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullSecurity_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Security = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -116,7 +116,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullCompliance_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Compliance = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -128,7 +128,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullCost_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Cost = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -140,7 +140,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullProvenance_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Provenance = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -152,7 +152,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullPolicy_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Policy = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -164,7 +164,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullPolicySatisfiedControls_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Policy.SatisfiedControls = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -176,7 +176,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullPolicyViolations_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Policy.Violations = null!;
 
         Action act = () => _sut.Validate(manifest);
@@ -188,7 +188,7 @@ public sealed class GoldenManifestValidatorTests
     [Fact]
     public void Validate_NullPolicyExemptions_Throws()
     {
-        GoldenManifest manifest = ValidManifest();
+        ManifestDocument manifest = ValidManifest();
         manifest.Policy.Exemptions = null!;
 
         Action act = () => _sut.Validate(manifest);

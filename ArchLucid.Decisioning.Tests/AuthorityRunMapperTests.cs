@@ -65,7 +65,7 @@ public sealed class AuthorityRunMapperTests
         Guid runId = Guid.NewGuid();
         DateTime created = new(2026, 4, 2, 8, 30, 0, DateTimeKind.Utc);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             ManifestId = manifestId,
             RunId = runId,

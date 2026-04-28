@@ -159,7 +159,7 @@ public sealed class TypedFindingsGoldenPathTests
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        (GoldenManifest manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
+        (ManifestDocument manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
 
         manifest.Cost.MaxMonthlyCost.Should().Be(5000m);
         manifest.Security.Controls.Should().Contain(c => c.ControlId == "AC-2" && c.Status == "missing");

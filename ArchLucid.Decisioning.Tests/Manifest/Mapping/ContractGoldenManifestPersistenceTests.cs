@@ -28,7 +28,7 @@ public sealed class ContractGoldenManifestPersistenceTests
             ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
         };
 
-        Dm.GoldenManifest body = new()
+        Dm.ManifestDocument body = new()
         {
             ManifestId = manifestId,
             RunId = runId,
@@ -55,7 +55,7 @@ public sealed class ContractGoldenManifestPersistenceTests
             RuleSetHash = "rh",
         };
 
-        Dm.GoldenManifest resolved = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
+        Dm.ManifestDocument resolved = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             new Cm.GoldenManifest
             {
                 RunId = runId.ToString("D"),
@@ -96,7 +96,7 @@ public sealed class ContractGoldenManifestPersistenceTests
             RuleSetHash = "h",
         };
 
-        Dm.GoldenManifest body = new()
+        Dm.ManifestDocument body = new()
         {
             ManifestId = Guid.NewGuid(),
             RunId = keying.RunId,

@@ -6,6 +6,6 @@ namespace ArchLucid.ArtifactSynthesis.Interfaces;
 public interface IArtifactSynthesisService
 {
     Task<ArtifactBundle> SynthesizeAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct);
 }

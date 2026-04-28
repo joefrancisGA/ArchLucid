@@ -16,10 +16,10 @@ namespace ArchLucid.Retrieval.Indexing;
 /// </remarks>
 public interface IRetrievalDocumentBuilder
 {
-    /// <summary>One document: full <see cref="GoldenManifest" /> JSON as content.</summary>
+    /// <summary>One document: full <see cref="ManifestDocument" /> JSON as content.</summary>
     /// <param name="manifest">Golden manifest to index (scope ids are taken from the manifest).</param>
     /// <returns>Single-element list containing the manifest document.</returns>
-    IReadOnlyList<RetrievalDocument> BuildForManifest(GoldenManifest manifest);
+    IReadOnlyList<RetrievalDocument> BuildForManifest(ManifestDocument manifest);
 
     /// <summary>One document per synthesized artifact (content = artifact body).</summary>
     /// <param name="tenantId">Scope tenant.</param>

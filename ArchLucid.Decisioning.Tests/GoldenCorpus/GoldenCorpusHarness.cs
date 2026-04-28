@@ -67,7 +67,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        (GoldenManifest manifest, DecisionTrace trace) =
+        (ManifestDocument manifest, DecisionTrace trace) =
             await decisionEngine.DecideAsync(runId, contextSnapshotId, graph, findings, ct);
 
         await audit.LogAsync(
@@ -208,7 +208,7 @@ public static class GoldenCorpusNormalization
         return JsonSerializer.Serialize(rows, WriteOptions);
     }
 
-    public static string SerializeDecisions(GoldenManifest manifest, GoldenCorpusMergeSummary? merge)
+    public static string SerializeDecisions(ManifestDocument manifest, GoldenCorpusMergeSummary? merge)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 

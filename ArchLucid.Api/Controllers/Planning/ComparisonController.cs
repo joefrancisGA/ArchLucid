@@ -32,7 +32,7 @@ public sealed class ComparisonController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
-    /// <summary>Structured <see cref="GoldenManifest" /> delta between two runs (base → target).</summary>
+    /// <summary>Structured <see cref="ManifestDocument" /> delta between two runs (base → target).</summary>
     /// <param name="baseRunId">Earlier or baseline run.</param>
     /// <param name="targetRunId">Later or candidate run.</param>
     /// <param name="ct">Cancellation token.</param>

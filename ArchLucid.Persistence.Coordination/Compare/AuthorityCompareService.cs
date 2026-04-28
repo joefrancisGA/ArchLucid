@@ -27,8 +27,8 @@ public sealed class AuthorityCompareService(
         Guid rightManifestId,
         CancellationToken ct)
     {
-        GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
-        GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
+        ManifestDocument? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        ManifestDocument? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
         if (left is null || right is null)
             return null;
@@ -121,8 +121,8 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareRequirements(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         Dictionary<string, RequirementCoverageItem> leftMap = ToFirstWins(left.Requirements.Covered,
@@ -142,8 +142,8 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareTopology(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         CompareStringLists(result, "Topology.Gaps", left.Topology.Gaps, right.Topology.Gaps);
@@ -153,8 +153,8 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareSecurity(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         Dictionary<string, SecurityPostureItem> leftMap = ToFirstWins(left.Security.Controls, x => x.ControlName);
@@ -174,8 +174,8 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareCost(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         AddDiff(
@@ -190,8 +190,8 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareIssues(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         Dictionary<string, ManifestIssue> leftMap = ToFirstWins(left.UnresolvedIssues.Items, x => x.Title);
@@ -209,24 +209,24 @@ public sealed class AuthorityCompareService(
     }
 
     private static void CompareAssumptions(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         CompareStringLists(result, "Assumptions", left.Assumptions, right.Assumptions);
     }
 
     private static void CompareWarnings(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         CompareStringLists(result, "Warnings", left.Warnings, right.Warnings);
     }
 
     private static void CompareDecisions(
-        GoldenManifest left,
-        GoldenManifest right,
+        ManifestDocument left,
+        ManifestDocument right,
         ManifestComparisonResult result)
     {
         Dictionary<string, ResolvedArchitectureDecision> leftMap = ToFirstWins(left.Decisions,

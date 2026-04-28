@@ -366,7 +366,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(r => r.SaveAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             ManifestId = manifestId,
             RunId = Guid.Empty,
@@ -401,11 +401,11 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         Mock<IGoldenManifestRepository> manifestRepo = new();
         manifestRepo
-            .Setup(r => r.SaveAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>(), null, null))
+            .Setup(r => r.SaveAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
         Mock<IManifestHashService> hash = new();
-        hash.Setup(h => h.ComputeHash(It.IsAny<GoldenManifest>())).Returns("computed");
+        hash.Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>())).Returns("computed");
 
         SynthesizedArtifact oneArtifact = new()
         {
@@ -419,7 +419,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         Mock<IArtifactSynthesisService> synth = new();
         synth
-            .Setup(s => s.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ArtifactBundle
                 {

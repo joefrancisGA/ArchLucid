@@ -54,7 +54,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
             "proj-gm-assumptions-order",
             CancellationToken.None);
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -190,7 +190,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("first-by-sort-order", "second-by-sort-order");

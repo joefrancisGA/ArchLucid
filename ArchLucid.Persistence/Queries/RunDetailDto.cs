@@ -60,7 +60,7 @@ public class RunDetailDto
     }
 
     /// <summary>Golden manifest when <see cref="RunRecord.GoldenManifestId" /> resolves.</summary>
-    public GoldenManifest? GoldenManifest
+    public ManifestDocument? GoldenManifest
     {
         get;
         set;

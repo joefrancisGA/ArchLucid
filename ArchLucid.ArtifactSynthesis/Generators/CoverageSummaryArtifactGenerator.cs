@@ -12,7 +12,7 @@ public class CoverageSummaryArtifactGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.CoverageSummary;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

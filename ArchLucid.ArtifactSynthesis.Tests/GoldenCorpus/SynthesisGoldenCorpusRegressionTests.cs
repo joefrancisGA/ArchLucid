@@ -35,7 +35,7 @@ public sealed class SynthesisGoldenCorpusRegressionTests
             JsonSerializer.Deserialize<SynthesisGoldenInputDocument>(inputJson, JsonOptions);
         doc.Should().NotBeNull();
 
-        GoldenManifest manifest = SynthesisGoldenManifestBuilder.Build(doc);
+        ManifestDocument manifest = SynthesisGoldenManifestBuilder.Build(doc);
         SynthesizedArtifact artifact = await _generator.GenerateAsync(manifest, CancellationToken.None);
 
         string expected = (await File.ReadAllTextAsync(expectedPath)).TrimEnd();

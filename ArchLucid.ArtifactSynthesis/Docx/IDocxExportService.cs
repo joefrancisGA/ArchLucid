@@ -25,7 +25,7 @@ public interface IDocxExportService
     /// <returns>File name, content type, and byte content.</returns>
     Task<DocxExportResult> ExportAsync(
         DocxExportRequest request,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         CancellationToken ct);
 }

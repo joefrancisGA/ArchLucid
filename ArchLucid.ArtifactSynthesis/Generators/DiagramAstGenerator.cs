@@ -13,7 +13,7 @@ public class DiagramAstGenerator : IArtifactGenerator
     public string ArtifactType => Models.ArtifactType.DiagramAst;
 
     public Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct)
     {
         _ = ct;

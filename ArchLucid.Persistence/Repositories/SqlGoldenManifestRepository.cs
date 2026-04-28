@@ -33,7 +33,7 @@ public sealed class SqlGoldenManifestRepository(
     IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IGoldenManifestRepository
 {
     public async Task SaveAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -61,7 +61,7 @@ public sealed class SqlGoldenManifestRepository(
         }
     }
 
-    public async Task<GoldenManifest> SaveAsync(
+    public async Task<ManifestDocument> SaveAsync(
         Cm.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying,
@@ -69,7 +69,7 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null,
-        GoldenManifest? authorityPersistBody = null)
+        ManifestDocument? authorityPersistBody = null)
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
@@ -79,7 +79,7 @@ public sealed class SqlGoldenManifestRepository(
             throw new ArgumentNullException(nameof(keying));
         if (contractHash is null)
             throw new ArgumentNullException(nameof(contractHash));
-        GoldenManifest model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
+        ManifestDocument model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
             contract,
             scope,
             keying,
@@ -89,7 +89,7 @@ public sealed class SqlGoldenManifestRepository(
         return model;
     }
 
-    public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    public async Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -124,7 +124,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     /// <inheritdoc />
-    public async Task<GoldenManifest?> GetByContractManifestVersionAsync(
+    public async Task<ManifestDocument?> GetByContractManifestVersionAsync(
         ScopeContext scope,
         string manifestVersion,
         CancellationToken ct)
@@ -166,7 +166,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private async Task SaveCoreAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -281,7 +281,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertRelationalPhase1Async(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -295,7 +295,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestAssumptionsRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -330,7 +330,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestWarningsRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -353,7 +353,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestProvSourceFindingsRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -377,7 +377,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestProvSourceGraphNodesRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -401,7 +401,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestProvAppliedRulesRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -425,7 +425,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     private static async Task InsertGoldenManifestDecisionsRelationalAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
@@ -531,7 +531,7 @@ public sealed class SqlGoldenManifestRepository(
     ///     Inserts phase-1 relational slices that are still empty while JSON columns contain data (idempotent per slice).
     /// </summary>
     internal static async Task BackfillPhase1RelationalSlicesAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)

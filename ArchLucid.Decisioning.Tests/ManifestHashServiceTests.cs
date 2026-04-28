@@ -15,7 +15,7 @@ public sealed class ManifestHashServiceTests
 {
     private readonly ManifestHashService _sut = new();
 
-    private static GoldenManifest BaseManifest() => new()
+    private static ManifestDocument BaseManifest() => new()
     {
         ManifestId = new Guid("aaaaaaaa-0000-0000-0000-000000000001"),
         RunId = new Guid("bbbbbbbb-0000-0000-0000-000000000002"),
@@ -32,8 +32,8 @@ public sealed class ManifestHashServiceTests
     [Fact]
     public void ComputeHash_SameManifest_ReturnsSameHash()
     {
-        GoldenManifest a = BaseManifest();
-        GoldenManifest b = BaseManifest();
+        ManifestDocument a = BaseManifest();
+        ManifestDocument b = BaseManifest();
 
         string hashA = _sut.ComputeHash(a);
         string hashB = _sut.ComputeHash(b);
@@ -44,8 +44,8 @@ public sealed class ManifestHashServiceTests
     [Fact]
     public void ComputeHash_DifferentManifestId_ReturnsDifferentHash()
     {
-        GoldenManifest a = BaseManifest();
-        GoldenManifest b = BaseManifest();
+        ManifestDocument a = BaseManifest();
+        ManifestDocument b = BaseManifest();
         b.ManifestId = Guid.NewGuid();
 
         _sut.ComputeHash(a).Should().NotBe(_sut.ComputeHash(b));
@@ -54,8 +54,8 @@ public sealed class ManifestHashServiceTests
     [Fact]
     public void ComputeHash_PolicySectionAffectsHash()
     {
-        GoldenManifest withEmptyPolicy = BaseManifest();
-        GoldenManifest withViolation = BaseManifest();
+        ManifestDocument withEmptyPolicy = BaseManifest();
+        ManifestDocument withViolation = BaseManifest();
         withViolation.Policy.Violations.Add(new PolicyControlItem
         {
             ControlId = "CTRL-001",
@@ -71,8 +71,8 @@ public sealed class ManifestHashServiceTests
     [Fact]
     public void ComputeHash_PolicySatisfiedControlAffectsHash()
     {
-        GoldenManifest withoutControl = BaseManifest();
-        GoldenManifest withControl = BaseManifest();
+        ManifestDocument withoutControl = BaseManifest();
+        ManifestDocument withControl = BaseManifest();
         withControl.Policy.SatisfiedControls.Add(new PolicyControlItem
         {
             ControlId = "CTRL-002",

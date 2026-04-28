@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Determinism;
 
 using FluentAssertions;

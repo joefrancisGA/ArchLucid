@@ -66,13 +66,13 @@ public sealed class AlertSimulationContextProviderTests
         contexts.Should().BeEmpty();
         advisor.Verify(
             a => a.GeneratePlanAsync(
-                It.IsAny<GoldenManifest>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
         advisor.Verify(
             a => a.GeneratePlanAsync(
-                It.IsAny<GoldenManifest>(),
+                It.IsAny<ManifestDocument>(),
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<ComparisonResult>(),
                 It.IsAny<CancellationToken>()),

@@ -137,7 +137,7 @@ public sealed class GoldenManifestPhase1RelationalReadComplianceWhitespaceDirect
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Compliance.Should().NotBeNull();

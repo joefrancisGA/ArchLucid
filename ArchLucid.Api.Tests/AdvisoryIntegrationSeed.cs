@@ -30,7 +30,7 @@ public static class AdvisoryIntegrationSeed
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
 
-        GoldenManifest manifest = new()
+        ManifestDocument manifest = new()
         {
             TenantId = ScopeIds.DefaultTenant,
             WorkspaceId = ScopeIds.DefaultWorkspace,

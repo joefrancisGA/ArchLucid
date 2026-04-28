@@ -53,7 +53,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             "proj-gm-phase1-direct",
             CancellationToken.None);
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -175,7 +175,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("relational-assumption-wins");
@@ -208,7 +208,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             "proj-gm-phase1-warnings",
             CancellationToken.None);
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -322,7 +322,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Warnings.Should().Equal("relational-warning-wins");
@@ -362,7 +362,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             AppliedRuleIds = ["r-json"]
         };
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -476,7 +476,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().Equal("relational-provenance-finding");
@@ -523,7 +523,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             }
         ];
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -682,7 +682,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
@@ -736,7 +736,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             }
         ];
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -861,7 +861,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
@@ -905,7 +905,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             AppliedRuleIds = ["json-r-should-not-win"]
         };
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -1019,7 +1019,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
@@ -1059,7 +1059,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             SourceFindingIds = ["json-f"], SourceGraphNodeIds = ["json-n"], AppliedRuleIds = ["json-r"]
         };
 
-        GoldenManifest template = new()
+        ManifestDocument template = new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -1184,7 +1184,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
@@ -1219,7 +1219,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             "proj-gm-phase1-assumptions-json-fallback",
             CancellationToken.None);
 
-        GoldenManifest template = CreateEmptySliceTemplate(
+        ManifestDocument template = CreateEmptySliceTemplate(
             manifestId,
             runId,
             contextId,
@@ -1235,7 +1235,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("json-assumption-a", "json-assumption-b");
@@ -1268,7 +1268,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             "proj-gm-phase1-provenance-json-fallback",
             CancellationToken.None);
 
-        GoldenManifest template = CreateEmptySliceTemplate(
+        ManifestDocument template = CreateEmptySliceTemplate(
             manifestId,
             runId,
             contextId,
@@ -1289,7 +1289,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().Equal("json-prov-f1");
@@ -1336,7 +1336,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             RawDecisionJson = "{\"source\":\"json\"}"
         };
 
-        GoldenManifest template = CreateEmptySliceTemplate(
+        ManifestDocument template = CreateEmptySliceTemplate(
             manifestId,
             runId,
             contextId,
@@ -1352,7 +1352,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated =
+        ManifestDocument hydrated =
             await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
@@ -1367,7 +1367,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         d.RawDecisionJson.Should().Be("{\"source\":\"json\"}");
     }
 
-    private static GoldenManifest CreateEmptySliceTemplate(
+    private static ManifestDocument CreateEmptySliceTemplate(
         Guid manifestId,
         Guid runId,
         Guid contextId,
@@ -1376,7 +1376,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         Guid traceId,
         DateTime createdUtc)
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -1407,7 +1407,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         };
     }
 
-    private static async Task InsertGoldenManifestRowAsync(SqlConnection connection, GoldenManifest template)
+    private static async Task InsertGoldenManifestRowAsync(SqlConnection connection, ManifestDocument template)
     {
         const string insertManifest = """
                                       INSERT INTO dbo.GoldenManifests

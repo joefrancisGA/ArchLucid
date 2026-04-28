@@ -3,8 +3,6 @@ using ArchLucid.Contracts.Marketing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 

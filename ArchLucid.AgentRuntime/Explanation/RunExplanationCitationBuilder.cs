@@ -19,7 +19,7 @@ public static class RunExplanationCitationBuilder
             return [];
 
 
-        GoldenManifest m = detail.GoldenManifest;
+        ManifestDocument m = detail.GoldenManifest;
         Guid runId = m.RunId;
         List<CitationReference> list =
         [

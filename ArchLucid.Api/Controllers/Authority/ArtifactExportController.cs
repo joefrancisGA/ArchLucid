@@ -215,7 +215,7 @@ public sealed class ArtifactExportController(
             ? null
             : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
 
-        GoldenManifest golden = runDetail.GoldenManifest;
+        ManifestDocument golden = runDetail.GoldenManifest;
         string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
         RunExportReadmeContext readmeContext = new()
         {

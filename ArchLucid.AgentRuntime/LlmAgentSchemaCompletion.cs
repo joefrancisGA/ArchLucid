@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagnostics;

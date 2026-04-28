@@ -15,7 +15,7 @@ namespace ArchLucid.Retrieval.Indexing;
 public interface IRetrievalRunCompletionIndexer
 {
     /// <summary>
-    ///     Indexes manifest JSON, per-artifact bodies, and serialized provenance for <see cref="GoldenManifest.RunId" />.
+    ///     Indexes manifest JSON, per-artifact bodies, and serialized provenance for <see cref="ManifestDocument.RunId" />.
     /// </summary>
     /// <param name="tenantId">Scope tenant.</param>
     /// <param name="workspaceId">Scope workspace.</param>
@@ -28,7 +28,7 @@ public interface IRetrievalRunCompletionIndexer
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct);

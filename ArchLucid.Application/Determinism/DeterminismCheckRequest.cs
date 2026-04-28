@@ -1,5 +1,3 @@
-using ArchLucid.Application;
-
 namespace ArchLucid.Application.Determinism;
 
 /// <summary>

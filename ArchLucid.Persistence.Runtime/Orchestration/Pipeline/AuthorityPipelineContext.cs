@@ -77,7 +77,7 @@ public sealed class AuthorityPipelineContext
         set;
     }
 
-    public GoldenManifest? Manifest
+    public ManifestDocument? Manifest
     {
         get;
         set;

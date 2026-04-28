@@ -11,6 +11,6 @@ public interface IArtifactGenerator
     }
 
     Task<SynthesizedArtifact> GenerateAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct);
 }

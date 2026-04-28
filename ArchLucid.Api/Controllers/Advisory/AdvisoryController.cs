@@ -222,7 +222,7 @@ public sealed class AdvisoryController(
             or RecommendationActionType.MarkImplemented;
     }
 
-    private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest)
+    private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest)
     {
         return new FindingsSnapshot
         {

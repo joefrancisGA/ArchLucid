@@ -18,9 +18,9 @@ namespace ArchLucid.AgentRuntime.Tests.Explanation;
 [Trait("Category", "Unit")]
 public sealed class ExplanationServiceRunTests
 {
-    private static GoldenManifest MinimalManifest()
+    private static ManifestDocument MinimalManifest()
     {
-        return new GoldenManifest
+        return new ManifestDocument
         {
             RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             ManifestId = Guid.NewGuid(),
@@ -141,7 +141,7 @@ public sealed class ExplanationServiceRunTests
         SchemaValidationOptions schemaOpts = new()
         {
             AgentResultSchemaPath = "schemas/agentresult.schema.json",
-            GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
+            GoldenManifestSchemaPath = "schemas/ManifestDocument.schema.json",
             ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
             ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json"
         };

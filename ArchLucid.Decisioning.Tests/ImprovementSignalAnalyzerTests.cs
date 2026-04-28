@@ -16,7 +16,7 @@ public sealed class ImprovementSignalAnalyzerTests
 {
     private readonly ImprovementSignalAnalyzer _sut = new();
 
-    private static GoldenManifest EmptyManifest() => new()
+    private static ManifestDocument EmptyManifest() => new()
     {
         ManifestId = Guid.NewGuid(),
         RunId = Guid.NewGuid(),
@@ -56,7 +56,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_UncoveredRequirement_ProducesRequirementSignal()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
         {
             RequirementName = "REQ-001",
@@ -77,7 +77,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_SecurityGap_ProducesSecuritySignal()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Security.Gaps.Add("Storage account not encrypted");
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
@@ -91,7 +91,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_ComplianceGap_ProducesComplianceSignal()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Compliance.Gaps.Add("PCI-DSS control 6.1 not addressed");
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
@@ -104,7 +104,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_TopologyGap_ProducesTopologySignalWithMediumSeverity()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Topology.Gaps.Add("Missing category: identity");
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
@@ -117,7 +117,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_CostRisk_ProducesCostSignal()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Cost.CostRisks.Add("Premium tier chosen without justification");
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
@@ -128,7 +128,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_UnresolvedIssue_ProducesRiskSignal()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.UnresolvedIssues.Items.Add(new ManifestIssue
         {
             IssueType = "DataRetention",
@@ -204,7 +204,7 @@ public sealed class ImprovementSignalAnalyzerTests
     [Fact]
     public void Analyze_PolicyViolations_ProducesPolicyViolationSignals()
     {
-        GoldenManifest manifest = EmptyManifest();
+        ManifestDocument manifest = EmptyManifest();
         manifest.Policy.Violations.Add(new PolicyControlItem
         {
             ControlId = "c1",

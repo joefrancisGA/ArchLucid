@@ -22,7 +22,7 @@ public sealed class CachingGoldenManifestRepository(
 
     /// <inheritdoc />
     public async Task SaveAsync(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -34,7 +34,7 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
-    public async Task<GoldenManifest> SaveAsync(
+    public async Task<ManifestDocument> SaveAsync(
         Contracts.Manifest.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying,
@@ -42,9 +42,9 @@ public sealed class CachingGoldenManifestRepository(
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null,
-        GoldenManifest? authorityPersistBody = null)
+        ManifestDocument? authorityPersistBody = null)
     {
-        GoldenManifest result = await _inner.SaveAsync(
+        ManifestDocument result = await _inner.SaveAsync(
             contract,
             scope,
             keying,
@@ -58,7 +58,7 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    public Task<ManifestDocument?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -72,13 +72,13 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
+    public Task<ManifestDocument?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
         CancellationToken ct)
     {
         return _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
     }
 
-    private static ScopeContext AmbientScope(GoldenManifest manifest)
+    private static ScopeContext AmbientScope(ManifestDocument manifest)
     {
         return new ScopeContext
         {

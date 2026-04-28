@@ -46,7 +46,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
     /// <inheritdoc />
     public ExplanationResult BuildRunExplanationFromLlmPayload(
-        GoldenManifest manifest,
+        ManifestDocument manifest,
         List<string> keyDrivers,
         List<string> risks,
         List<string> costs,
@@ -195,7 +195,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public List<string> ExtractRunKeyDrivers(GoldenManifest m, DecisionProvenanceGraph? g)
+    public List<string> ExtractRunKeyDrivers(ManifestDocument m, DecisionProvenanceGraph? g)
     {
         List<string> list = m.Decisions.Take(25).Select(d => $"{d.Category}: {d.Title} → {d.SelectedOption}").ToList();
 
@@ -218,7 +218,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public List<string> ExtractRiskImplications(GoldenManifest m)
+    public List<string> ExtractRiskImplications(ManifestDocument m)
     {
         List<string> list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}")
             .ToList();
@@ -231,7 +231,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public List<string> ExtractCostImplications(GoldenManifest m)
+    public List<string> ExtractCostImplications(ManifestDocument m)
     {
         List<string> list =
         [
@@ -246,7 +246,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     /// <inheritdoc />
-    public List<string> ExtractComplianceImplications(GoldenManifest m)
+    public List<string> ExtractComplianceImplications(ManifestDocument m)
     {
         List<string> list = m.Compliance.Gaps.Take(15).Select(g => $"Compliance gap: {g}").ToList();
 
@@ -299,7 +299,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         }
     }
 
-    private static string HeuristicRunSummary(GoldenManifest manifest)
+    private static string HeuristicRunSummary(ManifestDocument manifest)
     {
         return string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
             ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
@@ -362,7 +362,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     }
 
     private static string BuildRunNarrativeFallback(
-        GoldenManifest m,
+        ManifestDocument m,
         List<string> drivers,
         List<string> risks)
     {
