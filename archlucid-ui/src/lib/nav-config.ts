@@ -255,7 +255,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         label: "Recommendation tuning",
         title: "Recommendation tuning — profiles and ranking signals",
         icon: Sparkles,
-        tier: "extended",
+        tier: "advanced",
         requiredAuthority: "ReadAuthority",
       },
       {
@@ -263,7 +263,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         label: "Pilot feedback",
         title: "Pilot feedback — rollups and triage (58R)",
         icon: ClipboardList,
-        tier: "extended",
+        tier: "advanced",
         requiredAuthority: "ReadAuthority",
       },
       {

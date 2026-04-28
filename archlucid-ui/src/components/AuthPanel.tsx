@@ -41,7 +41,11 @@ export function AuthPanel() {
 
   // Amber strip is dev-local only — hide in production screenshots and omit from customer builds.
   if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
-    if (process.env.NODE_ENV !== "development" || process.env.NEXT_PUBLIC_HIDE_ENV_BADGE === "true") {
+    if (
+      process.env.NODE_ENV !== "development" ||
+      process.env.NEXT_PUBLIC_HIDE_ENV_BADGE === "true" ||
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true"
+    ) {
       return null;
     }
 

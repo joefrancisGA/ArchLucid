@@ -9,7 +9,7 @@ export function fixtureGoldenManifestComparison(): GoldenManifestComparison {
     targetRunId: FIXTURE_RIGHT_RUN_ID,
     decisionChanges: [
       {
-        decisionKey: "fixture.decision.alpha",
+        decisionKey: "claims.intake.boundary",
         baseValue: "v1",
         targetValue: "v2",
         changeType: "Modified",
@@ -20,8 +20,8 @@ export function fixtureGoldenManifestComparison(): GoldenManifestComparison {
     topologyChanges: [],
     costChanges: [{ baseCost: 100, targetCost: 120 }],
     summaryHighlights: [
-      "Fixture highlight alpha: cost increased from 100 to 120.",
-      "Fixture highlight beta: one decision modified.",
+      "Cost increased from 100 to 120 with higher isolation in the target run.",
+      "One decision updated between base and target manifests.",
     ],
     totalDeltaCount: 2,
   };

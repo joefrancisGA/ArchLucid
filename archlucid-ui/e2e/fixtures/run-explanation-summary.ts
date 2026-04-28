@@ -7,7 +7,7 @@ export function fixtureRunExplanationSummary(): RunExplanationSummary {
       rawText: "{}",
       structured: {
         schemaVersion: 1,
-        reasoning: "Fixture narrative.",
+        reasoning: "Scenario narrative.",
         evidenceRefs: [],
         confidence: 0.85,
       },
@@ -19,15 +19,19 @@ export function fixtureRunExplanationSummary(): RunExplanationSummary {
         promptTemplateVersion: "v1",
         promptContentHash: null,
       },
-      summary: "Fixture executive summary for the run.",
-      keyDrivers: ["Cost: Fixture SKU → A"],
+      summary: "Executive summary for Claims Intake Modernization — modernization path with bounded risks.",
+      keyDrivers: ["Member experience parity across channels", "Auditability of intake flows", "Throughput under peak loads"],
       riskImplications: ["No unresolved issues recorded."],
       costImplications: ["Max monthly cost not specified."],
       complianceImplications: ["No compliance gaps listed."],
-      detailedNarrative: "Fixture narrative body.",
+      detailedNarrative:
+        "Architecture review narrative: stable modernization path with explicit decisions, surfaced risks, " +
+        "and evidence-backed recommendations aligned to claims intake.",
     },
-    themeSummaries: ["Cost: 1 key driver(s) — Fixture SKU → A"],
-    overallAssessment: "Overall assessment (Low risk posture): no unresolved issues or compliance gaps on the manifest; Fixture executive summary for the run.",
+    themeSummaries: ["Intake experience", "Platform integration", "Compliance posture"],
+
+    overallAssessment:
+      "Modernization preserves core intake guarantees while improving throughput and downstream traceability.",
     riskPosture: "Low",
     findingCount: 0,
     decisionCount: 1,

@@ -18,6 +18,8 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -41,69 +43,61 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         List<Activity> stopped = [];
 
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == AuthorityRunSourceName,
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = stopped.Add
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == AuthorityRunSourceName;
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = stopped.Add;
 
         ActivitySource.AddActivityListener(listener);
 
-        try
-        {
-            using Activity? parent = ArchLucidInstrumentation.AuthorityRun.StartActivity(
-                "authority.run.test");
+        using Activity? parent = ArchLucidInstrumentation.AuthorityRun.StartActivity(
+            "authority.run.test");
 
-            parent.Should().NotBeNull();
+        parent.Should().NotBeNull();
 
-            AuthorityPipelineStagesExecutor sut = CreateExecutor();
-            AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = CreateExecutor();
+        AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
 
-            await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+        await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
-            string[] expectedOps =
-            [
-                "authority.context_ingestion",
+        string[] expectedOps =
+        [
+            "authority.context_ingestion",
                 "authority.graph",
                 "authority.findings",
                 "authority.decisioning",
                 "authority.artifacts"
-            ];
+        ];
 
-            string[] expectedStages =
-            [
-                "context_ingestion",
+        string[] expectedStages =
+        [
+            "context_ingestion",
                 "graph",
                 "findings",
                 "decisioning",
                 "artifacts"
-            ];
+        ];
 
-            foreach (string op in expectedOps)
-            {
-                stopped.Should().Contain(a => a.OperationName == op);
-            }
-
-            List<Activity> stages = stopped
-                .Where(a => expectedOps.Contains(a.OperationName))
-                .OrderBy(a => Array.IndexOf(expectedOps, a.OperationName))
-                .ToList();
-
-            stages.Should().HaveCount(expectedStages.Length);
-
-            for (int i = 0; i < stages.Count; i++)
-            {
-                Activity child = stages[i];
-                child.ParentId.Should().Be(parent.Id);
-                child.GetTagItem("archlucid.run_id").Should().Be(ctx.Run.RunId.ToString("D"));
-                child.GetTagItem("archlucid.stage.name").Should().Be(expectedStages[i]);
-            }
-        }
-        finally
+        foreach (string op in expectedOps)
         {
-            listener.Dispose();
+            stopped.Should().Contain(a => a.OperationName == op);
         }
+
+        List<Activity> stages = stopped
+            .Where(a => expectedOps.Contains(a.OperationName))
+            .OrderBy(a => Array.IndexOf(expectedOps, a.OperationName))
+            .ToList();
+
+        stages.Should().HaveCount(expectedStages.Length);
+
+        for (int i = 0; i < stages.Count; i++)
+        {
+            Activity child = stages[i];
+            child.ParentId.Should().Be(parent.Id);
+            child.GetTagItem("archlucid.run_id").Should().Be(ctx.Run.RunId.ToString("D"));
+            child.GetTagItem("archlucid.stage.name").Should().Be(expectedStages[i]);
+        }
+
     }
 
     [Fact]
@@ -147,17 +141,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         meterListener.Start();
 
-        try
-        {
-            AuthorityPipelineStagesExecutor sut = CreateExecutor();
-            AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = CreateExecutor();
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
-            await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
-        }
-        finally
-        {
-            meterListener.Dispose();
-        }
+        await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
         histograms.Should().HaveCount(5);
 
@@ -178,12 +165,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         List<Activity> stopped = [];
 
-        using ActivityListener activityListener = new()
-        {
-            ShouldListenTo = s => s.Name == AuthorityRunSourceName,
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = stopped.Add
-        };
+        using ActivityListener activityListener = new();
+        activityListener.ShouldListenTo = s => s.Name == AuthorityRunSourceName;
+        activityListener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        activityListener.ActivityStopped = stopped.Add;
 
         ActivitySource.AddActivityListener(activityListener);
 
@@ -212,35 +197,28 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         meterListener.Start();
 
-        try
-        {
-            Mock<IContextIngestionService> ingest = new();
-            ingest
-                .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InvalidOperationException("ingest failed"));
+        Mock<IContextIngestionService> ingest = new();
+        ingest
+            .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("ingest failed"));
 
-            AuthorityPipelineStagesExecutor sut = CreateExecutor(ingest);
-            AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingest);
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
-            Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
-            await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("ingest failed");
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("ingest failed");
 
-            Activity? failed = stopped.LastOrDefault(a => a.OperationName == "authority.context_ingestion");
-            failed.Should().NotBeNull();
-            failed.Status.Should().Be(ActivityStatusCode.Error);
-            failed.StatusDescription.Should().Contain("ingest failed");
-            failed.GetTagItem("error.type").Should().Be("InvalidOperationException");
+        Activity? failed = stopped.LastOrDefault(a => a.OperationName == "authority.context_ingestion");
+        failed.Should().NotBeNull();
+        failed.Status.Should().Be(ActivityStatusCode.Error);
+        failed.StatusDescription.Should().Contain("ingest failed");
+        failed.GetTagItem("error.type").Should().Be("InvalidOperationException");
 
-            histograms.Should().ContainSingle(h =>
-                h.Tags.Any(t => t.Key == "stage" && Equals(t.Value, "context_ingestion"))
-                && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, "error")));
-        }
-        finally
-        {
-            meterListener.Dispose();
-            activityListener.Dispose();
-        }
+        histograms.Should().ContainSingle(h =>
+            h.Tags.Any(t => t.Key == "stage" && Equals(t.Value, "context_ingestion"))
+            && h.Tags.Any(t => t.Key == "outcome" && Equals(t.Value, "error")));
+
     }
 
     [Fact]
@@ -460,5 +438,5 @@ public sealed class AuthorityPipelineStagesExecutorTests
             NullLogger<AuthorityPipelineStagesExecutor>.Instance);
     }
 
-    private sealed record HistogramMeasurement(double Value, List<KeyValuePair<string, object?>> Tags);
+    private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);
 }
