@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;

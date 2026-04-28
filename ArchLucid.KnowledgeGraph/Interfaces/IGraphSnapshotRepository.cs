@@ -37,9 +37,4 @@ public interface IGraphSnapshotRepository
     ///     Used for incremental reuse when canonical objects are unchanged.
     /// </summary>
     Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct);
-
-    /// <summary>
-    ///     Returns denormalized edges from <c>GraphSnapshotEdges</c> when the index exists; otherwise empty.
-    /// </summary>
-    Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct);
 }

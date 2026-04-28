@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
@@ -60,7 +59,9 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+            RunId = "run-1",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
         ArchitectureRunDetail detail = new()
         {
@@ -104,7 +105,9 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
+            RunId = "run-1",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
         };
         ArchitectureRunDetail detail = new()
         {

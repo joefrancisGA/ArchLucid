@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;

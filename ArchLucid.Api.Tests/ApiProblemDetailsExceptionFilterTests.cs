@@ -1,7 +1,6 @@
 using System.Data.Common;
 
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Resilience;
 using ArchLucid.TestSupport;
