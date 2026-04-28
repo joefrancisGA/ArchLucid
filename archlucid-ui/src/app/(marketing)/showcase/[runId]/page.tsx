@@ -14,7 +14,18 @@ type PageProps = {
   params: Promise<{ runId: string }>;
 };
 
+function shouldServeShowcaseStaticOnly(): boolean {
+  const a = process.env.SHOWCASE_STATIC_ONLY?.trim().toLowerCase();
+  const b = process.env.NEXT_PUBLIC_SHOWCASE_STATIC_ONLY?.trim().toLowerCase();
+
+  return a === "true" || a === "1" || b === "true" || b === "1";
+}
+
 function resolveShowcaseApiBase(): string {
+  if (shouldServeShowcaseStaticOnly()) {
+    return "";
+  }
+
   const explicit = process.env.NEXT_PUBLIC_DEMO_PREVIEW_API_BASE?.trim();
 
   if (explicit)
@@ -42,6 +53,20 @@ function showcaseTitleForRunId(runId: string): string {
 
 function ShowcaseLead({ children }: { readonly children: ReactNode }) {
   return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
+}
+
+/** Served when preview API responds with an error — still renders curated demo data. */
+function ShowcaseApiUnavailableBanner(): ReactElement {
+  return (
+    <div
+      className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100"
+      role="status"
+      data-testid="showcase-api-unavailable-banner"
+    >
+      <span className="font-semibold">Live preview unavailable.</span> Showing curated sample results instead — connect an
+      API with marketing showcase enabled for live data.
+    </div>
+  );
 }
 
 function ShowcaseLoadFailed(): ReactElement {
@@ -187,11 +212,19 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
     case "http_error":
     case "missing": {
+      const fallbackPayload = getShowcaseStaticDemoPayload(decodedRunId);
+
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
           <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
 
-          <ShowcaseLoadFailed />
+          <ShowcaseApiUnavailableBanner />
+
+          <ShowcaseLead>A read-only view of a completed architecture analysis.</ShowcaseLead>
+
+          <div className="mt-6">
+            <DemoPreviewMarketingBody payload={fallbackPayload} />
+          </div>
         </main>
       );
     }

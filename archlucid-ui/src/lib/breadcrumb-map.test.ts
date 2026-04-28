@@ -38,4 +38,16 @@ describe("getBreadcrumbs", () => {
       { label: "Claims Intake Modernization" },
     ]);
   });
+
+  it("labels E2E demo finding segment under Runs", () => {
+    expect(
+      getBreadcrumbs("/runs/e2e-fixture-run-001/findings/e2e-finding-001"),
+    ).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Runs", href: "/runs" },
+      { label: "Claims Intake Modernization", href: "/runs/e2e-fixture-run-001" },
+      { label: "Findings", href: "/runs/e2e-fixture-run-001/findings" },
+      { label: "Demonstration finding" },
+    ]);
+  });
 });

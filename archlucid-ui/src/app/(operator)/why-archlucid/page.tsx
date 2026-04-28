@@ -196,7 +196,11 @@ function SnapshotSection({ state }: { readonly state: WhyArchLucidPageState }) {
       {state.snapshot ? (
         <CounterGrid snapshot={state.snapshot} />
       ) : state.loading ? (
-        <p className="text-sm text-neutral-500">Loading telemetry…</p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" aria-busy aria-label="Loading counters">
+          <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+          <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+          <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+        </div>
       ) : null}
     </section>
   );
@@ -343,7 +347,10 @@ function FirstValueReportSection({ state }: { readonly state: WhyArchLucidPageSt
           {state.reportMarkdown}
         </pre>
       ) : !state.reportError && !state.reportMissing && state.loading ? (
-        <p className="text-sm text-neutral-500">Loading first-value report…</p>
+        <div className="space-y-2 rounded border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
+          <div className="h-3 max-w-xl animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div className="mt-4 h-[200px] max-h-[480px] animate-pulse rounded bg-neutral-200/80 dark:bg-neutral-700/70" aria-busy aria-label="Loading first-value report" />
+        </div>
       ) : null}
     </section>
   );
@@ -378,7 +385,15 @@ function RunExplanationSection({ state }: { readonly state: WhyArchLucidPageStat
       {state.explanation ? (
         <ExplanationPanel summary={state.explanation} />
       ) : !state.explanationError && state.loading ? (
-        <p className="text-sm text-neutral-500">Loading run explanation…</p>
+        <div className="space-y-3" aria-busy aria-label="Loading run explanation">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+            <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+          </div>
+          <div className="h-24 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
+        </div>
       ) : null}
     </section>
   );

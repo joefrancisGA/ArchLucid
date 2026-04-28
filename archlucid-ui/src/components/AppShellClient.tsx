@@ -1,7 +1,7 @@
 "use client";
 
 import { HelpCircle } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
@@ -33,7 +33,12 @@ type AppShellClientProps = {
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
+
+  useEffect(() => {
+    shellRootRef.current?.setAttribute("data-app-ready", "true");
+  }, []);
 
   return (
     <OperatorNavAuthorityProvider>
@@ -41,7 +46,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         <a href="#main-content" className="skip-to-main">
           Skip to main content
         </a>
-        <div className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
+        <div ref={shellRootRef} className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
           <header data-testid="app-shell-topbar" className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95">
             <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
               <div className="flex min-w-0 flex-1 items-center gap-3">

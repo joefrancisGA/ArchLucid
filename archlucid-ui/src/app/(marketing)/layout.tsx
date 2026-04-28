@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
  */
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+    <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
@@ -62,6 +63,6 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
       {children}
-    </div>
+    </ShellReadySurface>
   );
 }

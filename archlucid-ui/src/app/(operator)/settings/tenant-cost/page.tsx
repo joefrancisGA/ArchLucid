@@ -52,7 +52,15 @@ export default function TenantCostSettingsPage() {
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
+        <div className="space-y-3" aria-busy aria-label="Loading cost estimate">
+          <div className="h-4 w-56 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div className="space-y-2 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+            <div className="h-3 w-full max-w-md animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+            <div className="mt-4 h-3 w-[90%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div className="h-3 w-[85%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
+            <div className="h-3 w-[72%] animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
+          </div>
+        </div>
       ) : estimate === null ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400">No estimate loaded.</p>
       ) : (

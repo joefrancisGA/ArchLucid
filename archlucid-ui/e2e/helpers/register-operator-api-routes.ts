@@ -7,10 +7,12 @@ import type { ArtifactDescriptor, ManifestSummary, RunComparison, RunDetail } fr
 import {
   fixtureArtifactDescriptorsNonEmpty,
   fixtureComparisonExplanation,
+  fixtureConversationThreads,
   fixtureGoldenManifestComparison,
   fixtureLegacyRunComparison,
   fixtureManifestSummary,
   fixtureRunDetail,
+  fixtureTenantCostEstimate,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RIGHT_RUN_ID,
@@ -285,6 +287,36 @@ export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<vo
         firstRunCommittedTotal: 1,
         firstSessionCompletedTotal: 2,
         firstRunCommittedPerSessionRatio: 0.5,
+      });
+
+      return;
+    }
+
+    if (apiPath === "/v1/tenant/cost-estimate") {
+      await fulfillJson(route, 200, fixtureTenantCostEstimate());
+      return;
+    }
+
+    /** Ask + New Run wizard: browser calls these through `/api/proxy`. */
+    if (apiPath === "/v1/conversations" && url.searchParams.has("take")) {
+      await fulfillJson(route, 200, fixtureConversationThreads());
+
+      return;
+    }
+
+    if (/^\/v1\/conversations\/[^/]+\/messages$/u.test(apiPath) && url.searchParams.has("take")) {
+      await fulfillJson(route, 200, []);
+
+      return;
+    }
+
+    if (apiPath === "/v1/authority/projects/default/runs") {
+      await fulfillJson(route, 200, {
+        items: [],
+        totalCount: 0,
+        page: Number(url.searchParams.get("page") ?? "1"),
+        pageSize: Number(url.searchParams.get("pageSize") ?? "50"),
+        hasMore: false,
       });
 
       return;

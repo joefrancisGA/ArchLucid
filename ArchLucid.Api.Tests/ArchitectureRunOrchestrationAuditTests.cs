@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
@@ -5,8 +6,6 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Concurrency;
-using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -15,7 +14,6 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
