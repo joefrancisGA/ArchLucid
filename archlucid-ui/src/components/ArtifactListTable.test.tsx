@@ -42,24 +42,24 @@ describe("ArtifactListTable", () => {
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[]} />);
 
     expect(screen.getByRole("columnheader", { name: "Artifact" })).toBeInTheDocument();
-    expect(screen.queryAllByRole("link", { name: "Review" })).toHaveLength(0);
+    expect(screen.queryAllByRole("link", { name: "Preview" })).toHaveLength(0);
   });
 
-  it("uses manifest-scoped Review href when runId is omitted", () => {
+  it("uses manifest-scoped Preview href when runId is omitted", () => {
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[sample]} />);
 
-    const review = screen.getByRole("link", { name: "Review" });
-    expect(review.getAttribute("href")).toBe(
+    const preview = screen.getByRole("link", { name: "Preview" });
+    expect(preview.getAttribute("href")).toBe(
       "/manifests/manifest-1/artifacts/artifact-guid-1",
     );
   });
 
-  it("uses run-scoped Review href when runId is set", () => {
+  it("uses run-scoped Preview href when runId is set", () => {
     render(
       <ArtifactListTable manifestId="manifest-1" artifacts={[sample]} runId="run-guid-1" />,
     );
 
-    const review = screen.getByRole("link", { name: "Review" });
-    expect(review.getAttribute("href")).toBe("/runs/run-guid-1/artifacts/artifact-guid-1");
+    const preview = screen.getByRole("link", { name: "Preview" });
+    expect(preview.getAttribute("href")).toBe("/runs/run-guid-1/artifacts/artifact-guid-1");
   });
 });

@@ -47,6 +47,21 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
     description:
       "JSON report listing unresolved issues or warnings that operators should triage before sign-off.",
   },
+  JsonBundle: {
+    label: "JSON Bundle",
+    description:
+      "Structured JSON bundle of architecture decisions or exports linked to the manifest — open in a JSON viewer or download.",
+  },
+  MarkdownReport: {
+    label: "Markdown report",
+    description:
+      "Human-readable Markdown artifact derived from the reviewed manifest or synthesis pipeline.",
+  },
+  Diagram: {
+    label: "Diagram",
+    description:
+      "Diagram source (for example Mermaid) for a context or architecture view tied to this run.",
+  },
 };
 
 export type ArtifactViewKind = "markdown" | "json" | "mermaid" | "plain";
@@ -83,7 +98,7 @@ export function getArtifactTypeLabel(artifactType: string): string {
   return artifactType.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
 }
 
-/** Returns a one-line description of what an artifact type represents, for the review panel header. */
+/** Returns a one-line description of what an artifact type represents, for the preview panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];
 

@@ -13,7 +13,8 @@ import { ShowcaseWhatThisProves } from "./ShowcaseWhatThisProves";
 
 export const revalidate = 300;
 
-const SHOWCASE_HERO_SUBTITLE = "Sample completed output";
+const SHOWCASE_HERO_SUBTITLE =
+  "Reviewed architecture output — manifest, findings, and audit trail";
 
 type PageProps = {
   params: Promise<{ runId: string }>;
@@ -152,21 +153,10 @@ function ShowcaseLoadFailed(): ReactElement {
   );
 }
 
-/** Shared banner when browsing static baked-in demo preview (API not reachable). */
-function ShowcaseStaticDemoBanner(): ReactElement {
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
-  if (demoMode) {
-    return (
-      <div
-        className="mt-4 rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
-        role="status"
-        data-testid="showcase-static-demo-banner"
-      >
-        <span className="font-semibold">Sample data preview.</span> Curated results for this scenario —{" "}
-        <span className="font-medium">sample output generated from curated demo data.</span>
-      </div>
-    );
+/** Shared banner when browsing static baked-in demo preview (API not reachable). Hidden in demo mode — body shows DemoStatusBanner. */
+function ShowcaseStaticDemoBanner(): ReactElement | null {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+    return null;
   }
 
   return (

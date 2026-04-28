@@ -47,29 +47,29 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Provenance snapshot
+          Output readiness
         </p>
         <ul className="m-0 mt-1.5 list-none space-y-1 p-0 text-xs">
           <li className="flex justify-between gap-2">
-            <span>Context</span>
+            <span>Context captured</span>
             <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
               {snapshotLabel(run.hasContextSnapshot)}
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Graph</span>
+            <span>Graph generated</span>
             <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
               {snapshotLabel(run.hasGraphSnapshot)}
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Findings</span>
+            <span>Findings reviewed</span>
             <span aria-label={run.hasFindingsSnapshot ? "Findings snapshot present" : "Findings snapshot missing"}>
               {snapshotLabel(run.hasFindingsSnapshot)}
             </span>
           </li>
           <li className="flex justify-between gap-2">
-            <span>Manifest</span>
+            <span>Manifest finalized</span>
             <span aria-label={run.hasGoldenManifest ? "Reviewed manifest present" : "Reviewed manifest missing"}>
               {snapshotLabel(run.hasGoldenManifest)}
             </span>

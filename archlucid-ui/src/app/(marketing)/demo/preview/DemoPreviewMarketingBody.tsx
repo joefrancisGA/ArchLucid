@@ -1,7 +1,10 @@
 import Link from "next/link";
 
+import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import type { PipelineTimelineItem } from "@/types/authority";
+import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 
 export function DemoPreviewNotAvailable() {
@@ -59,6 +62,24 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreview
   );
 }
 
+/** Maps marketing preview timeline rows to operator pipeline timeline shape for shared timeline UI. */
+function toAuthorityPipelineItems(
+  timeline: DemoCommitPagePreviewResponse["pipelineTimeline"],
+): PipelineTimelineItem[] {
+  if (!Array.isArray(timeline)) {
+    return [];
+  }
+
+  return timeline.map((e, index) => ({
+    eventId:
+      typeof e.eventId === "string" && e.eventId.trim().length > 0 ? e.eventId.trim() : `timeline-row-${index}`,
+    occurredUtc: typeof e.occurredUtc === "string" ? e.occurredUtc : "",
+    eventType: typeof e.eventType === "string" ? e.eventType : "",
+    actorUserName: typeof e.actorUserName === "string" ? e.actorUserName : "",
+    correlationId: e.correlationId ?? null,
+  }));
+}
+
 /** Marketing-only commit page projection (no operator CTAs). */
 export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
   const chain = payload.authorityChain ?? {};
@@ -69,6 +90,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
   const citationCount =
     Array.isArray(runEx?.citations) && runEx.citations !== null ? runEx.citations.length : 0;
   const pipelineTimeline = Array.isArray(payload.pipelineTimeline) ? payload.pipelineTimeline : [];
+  const pipelineItems = toAuthorityPipelineItems(pipelineTimeline);
   const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
   const manifest = payload.manifest ?? null;
 
@@ -102,14 +124,37 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
 
       <section data-testid="demo-preview-authority-chain">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
-        <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>Context Snapshot: {chain.contextSnapshotId ?? "—"}</li>
-          <li>Graph Snapshot: {chain.graphSnapshotId ?? "—"}</li>
-          <li>Findings Snapshot: {chain.findingsSnapshotId ?? "—"}</li>
-          <li>Reviewed manifest: {chain.goldenManifestId ?? "—"}</li>
-          <li>Decision Trace: {chain.decisionTraceId ?? "—"}</li>
-          <li>Artifact Bundle: {chain.artifactBundleId ?? "—"}</li>
-        </ul>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          Human-readable checkpoints for this completed output (IDs stay under technical details).
+        </p>
+        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+          <li>Context snapshot captured</li>
+          <li>Architecture graph generated</li>
+          <li>Findings reviewed</li>
+          <li>Reviewed manifest linked</li>
+          <li>Decision trace recorded</li>
+          <li>Artifacts bundled for export</li>
+        </ol>
+
+        <details className="mt-4 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
+          <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
+            Technical details
+          </summary>
+          <dl className="m-0 mt-3 grid gap-2 text-xs text-neutral-700 dark:text-neutral-300 sm:grid-cols-[minmax(10rem,auto)_1fr] sm:gap-x-4">
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Context snapshot ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.contextSnapshotId ?? "—"}</dd>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Graph snapshot ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.graphSnapshotId ?? "—"}</dd>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Findings snapshot ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.findingsSnapshotId ?? "—"}</dd>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Reviewed manifest ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.goldenManifestId ?? "—"}</dd>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Decision trace ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.decisionTraceId ?? "—"}</dd>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Artifact bundle ID</dt>
+            <dd className="m-0 font-mono break-all">{chain.artifactBundleId ?? "—"}</dd>
+          </dl>
+        </details>
       </section>
 
       <section data-testid="demo-preview-manifest-summary">
@@ -145,7 +190,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       </section>
 
       <section data-testid="demo-preview-aggregate-explanation">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Aggregate explanation</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Architecture review explanation</h2>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Overall assessment:</strong> {runEx?.overallAssessment ?? "—"}
         </p>
@@ -163,32 +208,11 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       <section data-testid="demo-preview-pipeline-timeline">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Pipeline timeline</h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          First {pipelineTimeline.length} events (oldest first).
+          {pipelineTimeline.length} audit events (oldest first) — same timeline component as workspace run detail.
         </p>
-        <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          {pipelineTimeline.map((e, index) => {
-            const key =
-              typeof e.eventId === "string" && e.eventId.trim().length > 0 ? e.eventId : `timeline-${index}`;
-
-            const eventType =
-              typeof e.eventType === "string" ? e.eventType : e.eventType !== undefined ? String(e.eventType) : "—";
-
-            const occurred = typeof e.occurredUtc === "string" ? e.occurredUtc : "—";
-
-            const actor =
-              typeof e.actorUserName === "string"
-                ? e.actorUserName
-                : e.actorUserName !== undefined && e.actorUserName !== null
-                  ? String(e.actorUserName)
-                  : "—";
-
-            return (
-              <li key={key}>
-                <code>{eventType}</code> · {occurred} · {actor}
-              </li>
-            );
-          })}
-        </ul>
+        <div className="mt-3">
+          <AuthorityPipelineTimeline items={pipelineItems} />
+        </div>
         <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
           Show the full timeline after{" "}
           <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
@@ -208,7 +232,6 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
                 <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Format</th>
                 <th className="px-3 py-2">Created (UTC)</th>
-                <th className="px-3 py-2">Hash</th>
               </tr>
             </thead>
             <tbody>
@@ -218,13 +241,21 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
                     ? a.artifactId
                     : `artifact-${index}-${a.name ?? index}`;
 
+                const typeLabel =
+                  typeof a.artifactType === "string" && a.artifactType.trim().length > 0
+                    ? getArtifactTypeLabel(a.artifactType)
+                    : "—";
+
                 return (
-                  <tr key={artifactKey} className="border-t border-neutral-200 dark:border-neutral-800">
+                  <tr
+                    key={artifactKey}
+                    className="border-t border-neutral-200 dark:border-neutral-800"
+                    title={typeof a.contentHash === "string" ? `Content hash: ${a.contentHash}` : undefined}
+                  >
                     <td className="px-3 py-2">{a.name ?? "—"}</td>
-                    <td className="px-3 py-2">{a.artifactType ?? "—"}</td>
+                    <td className="px-3 py-2">{typeLabel}</td>
                     <td className="px-3 py-2">{a.format ?? "—"}</td>
                     <td className="px-3 py-2">{typeof a.createdUtc === "string" ? a.createdUtc : "—"}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{a.contentHash ?? "—"}</td>
                   </tr>
                 );
               })}
