@@ -1,3 +1,5 @@
+> **Scope:** For leadership and architecture readers: independent weighted quality/readiness assessment dated 2026-04-28; not a product spec, commit checklist, or substitute for formal audit.
+
 # ArchLucid Assessment – Weighted Readiness 80.56%
 
 ## 2. Executive Summary

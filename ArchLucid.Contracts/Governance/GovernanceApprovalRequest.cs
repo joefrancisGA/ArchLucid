@@ -6,6 +6,27 @@ namespace ArchLucid.Contracts.Governance;
 /// </summary>
 public sealed class GovernanceApprovalRequest
 {
+    /// <summary>Tenant owning this record (aligns with <c>dbo.Runs.TenantId</c>).</summary>
+    public Guid TenantId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Workspace within the tenant (aligns with <c>dbo.Runs.WorkspaceId</c>).</summary>
+    public Guid WorkspaceId
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Scoped project for RLS (aligns with <c>dbo.Runs.ScopeProjectId</c>).</summary>
+    public Guid ProjectId
+    {
+        get;
+        set;
+    }
+
     /// <summary>Unique identifier for this approval request.</summary>
     public string ApprovalRequestId
     {

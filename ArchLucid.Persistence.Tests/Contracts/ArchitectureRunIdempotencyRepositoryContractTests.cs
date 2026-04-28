@@ -65,7 +65,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IArchitectureRunIdempotencyRepository repo = CreateRepository();
-        byte[] keyHash = [9, 9, 9, 9];
+        byte[] keyHash = "\t\t\t\t"u8.ToArray();
         byte[] fp1 = [1];
         byte[] fp2 = [2];
         string runA = Guid.NewGuid().ToString("N");
