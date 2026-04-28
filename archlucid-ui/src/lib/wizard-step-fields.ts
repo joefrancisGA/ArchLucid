@@ -2,21 +2,20 @@ import type { WizardFormValues } from "@/lib/wizard-schema";
 
 import { validateWizardStep } from "@/lib/wizard-step-validate";
 
-/** RHF field groups validated before leaving each step (0 = preset, 5/6 = N/A for Next). */
+/** RHF field groups validated before leaving each step (0 = preset; 5 = pipeline — N/A for Next). */
 export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[] | null> = {
   0: null,
-  1: ["systemName", "environment", "cloudProvider", "priorManifestVersion"],
-  2: ["description", "inlineRequirements"],
-  3: ["constraints", "requiredCapabilities", "assumptions"],
-  4: [
+  1: ["systemName", "environment", "cloudProvider", "priorManifestVersion", "description", "inlineRequirements"],
+  2: ["constraints", "requiredCapabilities", "assumptions"],
+  3: [
     "policyReferences",
     "topologyHints",
     "securityBaselineHints",
     "documents",
     "infrastructureDeclarations",
   ],
+  4: null,
   5: null,
-  6: null,
 };
 
 /**
@@ -24,7 +23,7 @@ export const WIZARD_STEP_FIELD_GROUPS: Record<number, (keyof WizardFormValues)[]
  * (aligned with Next / Submit gating in NewRunWizardClient).
  */
 export function stepHasBlockingFormErrors(stepIndex: number, values: WizardFormValues): boolean {
-  if (stepIndex < 1 || stepIndex > 4) {
+  if (stepIndex < 1 || stepIndex > 3) {
     return false;
   }
 

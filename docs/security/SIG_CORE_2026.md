@@ -24,7 +24,7 @@
 
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
-| Personnel security | Partial | HR artifacts out of repo |
+| Personnel security | Partial — hiring checks + termination access revocation tracked in HRIS (summaries under NDA); repo carries engineering references only | HRIS evidence pack on request |
 
 ## Control family D — Information security
 

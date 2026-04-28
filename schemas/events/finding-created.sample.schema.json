@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.net/schemas/events/finding-created.sample.schema.json",
+  "title": "FindingCreated CloudEvent-shaped sample",
+  "type": "object",
+  "required": ["specversion", "type", "source", "id", "datacontenttype", "data"],
+  "properties": {
+    "specversion": { "type": "string", "const": "1.0" },
+    "type": { "type": "string", "description": "e.g. com.archlucid.finding.created", "pattern": "^com\\.archlucid\\..+" },
+    "source": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "format": "uuid" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "type": "string", "const": "application/json" },
+    "data": {
+      "type": "object",
+      "description": "Tenant-scoped envelope; shapes vary by emitter version.",
+      "additionalProperties": true,
+      "properties": {
+        "tenantId": { "type": "string", "format": "uuid" },
+        "findingId": { "type": "string", "format": "uuid" },
+        "runId": { "type": "string", "format": "uuid" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

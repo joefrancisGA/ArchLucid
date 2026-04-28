@@ -29,6 +29,25 @@ public sealed class CommandLineTests
     }
 
     [Fact]
+    public async Task WebhooksTest_without_url_returns_usage_error()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["webhooks", "test"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string combined = outWriter + errWriter.ToString();
+            combined.Should().Contain("webhooks test");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
     public async Task UnknownCommand_Returns1_AndPrintsUnknown()
     {
         RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,

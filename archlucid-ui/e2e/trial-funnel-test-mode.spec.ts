@@ -16,7 +16,7 @@
  *  2. `/signup/verify?email=...` page renders.
  *  3. (Optional) email-verification dev-harness endpoint flips the user verified.
  *  4. Sign-in → operator UI deep-links to the trial welcome run.
- *  5. Wizard step 1 is visible → step 7 reachable → commit succeeds.
+ *  5. Wizard step 1 is visible → finalize manifest controls reachable → commit succeeds.
  *  6. Sponsor banner / value report renders Day-N badge after commit.
  *  7. Every API response carries an `X-Correlation-ID`; the spec records it on
  *     test failure so the on-call attachment includes a single grep token.
@@ -67,7 +67,7 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
       "Set STRIPE_TEST_KEY (and STAGING_BASE_URL if not the default) to enable.",
   );
 
-  test("signup → verify → operator wizard step 1 → step 7 → commit → value report", async ({ page }) => {
+  test("signup → verify → operator wizard step 1 → finalize manifest → commit → value report", async ({ page }) => {
     test.setTimeout(180_000);
 
     const correlation = attachCorrelationListener(page);
@@ -121,10 +121,8 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
         .or(page.getByRole("heading", { name: /first run/i }));
       await expect(wizardStep1).toBeVisible({ timeout: 60_000 });
 
-      const wizardStep7 = page
-        .getByTestId("operator-first-run-wizard-step-7")
-        .or(page.getByRole("button", { name: /finalize manifest/i }));
-      await expect(wizardStep7).toBeVisible({ timeout: 60_000 });
+      const finalizeManifestCue = page.getByRole("button", { name: /finalize manifest/i });
+      await expect(finalizeManifestCue).toBeVisible({ timeout: 60_000 });
 
       const commitResPromise = page.waitForResponse(
         (res) => res.url().includes("/architecture/run/") && res.url().endsWith("/commit"),

@@ -15,7 +15,7 @@
 
 | TSC theme | ArchLucid evidence (examples) | Maturity |
 |-----------|-------------------------------|----------|
-| Security — logical access | Entra / JWT roles, API keys, RBAC policies; `AuthSafetyGuard` | Partial |
+| Security — logical access | Entra / JWT roles, API keys, RBAC policies; `AuthSafetyGuard`; privileged operations audited per [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) | Partial |
 | Security — data protection | SQL RLS + `SESSION_CONTEXT`; private endpoint posture (Terraform) | Partial |
 | Security — secure SDLC | OWASP ZAP, Schemathesis, CodeQL **security-extended**, unit/integration tiers | Strong |
 | Availability | `/health/*`, SLO docs, synthetic probes, runbooks | Partial |
