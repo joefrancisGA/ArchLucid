@@ -1,3 +1,5 @@
+> **Scope:** For operators and doc maintainers: snapshot of staging trial funnel HTTP reachability from a dev network; not a live monitoring dashboard or runbook substitute.
+
 # Staging trial funnel — reachability status
 
 **Recorded (UTC):** 2026-04-28  

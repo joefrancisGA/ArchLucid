@@ -128,7 +128,9 @@ public abstract class GoldenManifestRepositoryContractTests
 
         ScopeContext otherTenant = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId
         };
 
         ManifestDocument? loaded = await repo.GetByIdAsync(otherTenant, manifestId, CancellationToken.None);
@@ -171,7 +173,7 @@ public abstract class GoldenManifestRepositoryContractTests
             await repo.GetByContractManifestVersionAsync(scope, "ver-contract-lookup-42", CancellationToken.None);
 
         byVersion.Should().NotBeNull();
-        byVersion!.ManifestId.Should().Be(manifestId);
+        byVersion.ManifestId.Should().Be(manifestId);
     }
 
     /// <summary>

@@ -1,7 +1,8 @@
+> **Scope:** For engineers and reviewers: documents current commercial-tier API enforcement behavior; not an entitlement matrix, SKU roadmap, or policy for changing 404 vs 402 semantics.
+
 # Commercial tier enforcement (`[RequiresCommercialTenantTier]`) — as-built
 
-**Date:** 2026-04-28  
-**Scope:** Document what the API does today — no entitlement matrix expansion.
+**Date:** 2026-04-28
 
 ## Behavior
 
