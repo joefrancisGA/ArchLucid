@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Contracts.Metadata;
 
 using JetBrains.Annotations;
 

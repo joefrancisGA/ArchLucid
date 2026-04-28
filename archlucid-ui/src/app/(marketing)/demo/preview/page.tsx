@@ -46,7 +46,20 @@ export default async function DemoPreviewMarketingPage() {
   }
 
   const url = `${base}/v1/demo/preview`;
-  const response = await fetch(url, { next: { revalidate: 300 } });
+  let response: Response;
+
+  try {
+    response = await fetch(url, { next: { revalidate: 300 } });
+  } catch {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
+        <p className="mt-3 text-sm text-red-700 dark:text-red-300">
+          The preview could not be reached. Confirm the API is running and reachable at <code>{url}</code>.
+        </p>
+      </main>
+    );
+  }
 
   if (response.status === 404)
     return (

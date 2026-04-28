@@ -45,7 +45,20 @@ export default async function LiveDemoMarketingPage() {
   }
 
   const url = `${base}/v1/public/demo/sample-run`;
-  const response = await fetch(url, { next: { revalidate: 300 } });
+  let response: Response;
+
+  try {
+    response = await fetch(url, { next: { revalidate: 300 } });
+  } catch {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          The live demo could not be loaded right now. Please try again later.
+        </p>
+      </main>
+    );
+  }
 
   if (response.status === 404)
     return (
