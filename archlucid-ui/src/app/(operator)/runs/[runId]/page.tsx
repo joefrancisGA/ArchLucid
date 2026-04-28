@@ -51,6 +51,7 @@ import {
 } from "@/lib/api";
 import {
   tryStaticDemoArtifacts,
+  tryStaticDemoExplanationSummary,
   tryStaticDemoManifestSummary,
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
@@ -270,17 +271,23 @@ export default async function RunDetailPage({
       explanationSummary = await getRunExplanationSummary(runId);
     } catch (e) {
       explanationFailure = toApiLoadFailure(e);
+      const staticExplanation = tryStaticDemoExplanationSummary(runId);
+
+      if (staticExplanation !== null) {
+        explanationSummary = staticExplanation;
+        explanationFailure = null;
+      }
     }
   }
 
   const runDetailNavSections: RunDetailSection[] = [
+    { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-metadata", label: "Run", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
     { id: "authority-chain", label: "Review trail", available: true },
-    { id: "agent-forensics", label: "Diagnostics", available: true },
-    { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
     { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+    { id: "agent-forensics", label: "Diagnostics", available: true },
     { id: "run-actions", label: "Actions", available: true },
   ];
 
@@ -492,8 +499,6 @@ export default async function RunDetailPage({
         </Card>
       </section>
 
-      <RunAgentForensicsSection runId={runId} />
-
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p className="m-0">
@@ -532,7 +537,7 @@ export default async function RunDetailPage({
 
       {manifestId && (
         <section id="run-explanation" className="scroll-mt-24">
-          <CollapsibleSection title="Explanation (aggregate)" defaultOpen={false}>
+          <CollapsibleSection title="Architecture review explanation" defaultOpen={false}>
             {explanationFailure && (
               <>
                 <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
@@ -636,6 +641,8 @@ export default async function RunDetailPage({
           </div>
         </section>
       )}
+
+      <RunAgentForensicsSection runId={runId} />
 
       <section id="run-actions" className="scroll-mt-24">
         <Card>

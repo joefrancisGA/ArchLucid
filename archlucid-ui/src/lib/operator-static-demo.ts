@@ -4,6 +4,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail } from "@/types/authority";
+import type { RunExplanationSummary } from "@/types/explanation";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -142,4 +143,17 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
   }
 
   return buildStaticDemoArtifactsFromShowcase(runIdForPayload);
+}
+
+/** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */
+export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSummary | null {
+  if (!isOperatorDemoStaticMode()) {
+    return null;
+  }
+
+  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+    return null;
+  }
+
+  return getShowcaseStaticDemoPayload(runId).runExplanation;
 }
