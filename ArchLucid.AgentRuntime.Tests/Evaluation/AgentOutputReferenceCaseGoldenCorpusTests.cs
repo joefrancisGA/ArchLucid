@@ -3,16 +3,14 @@ using System.Text.Json.Nodes;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
-
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-
-using ArchLucid.Persistence.Data.Repositories;
 
 using Moq;
 
@@ -33,13 +31,16 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         File.Exists(file).Should().BeTrue($"Copy tests/golden-corpus to output (see .csproj): {file}");
 
         string json = File.ReadAllText(file);
-        JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+        JsonSerializerOptions options = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
         options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         List<AgentOutputReferenceCaseDefinition>? list =
             JsonSerializer.Deserialize<List<AgentOutputReferenceCaseDefinition>>(json, options);
 
         list.Should().NotBeNull();
-        list!.Count.Should().Be(4);
+        list.Count.Should().Be(4);
         list.Select(c => c.AgentType).Distinct().Count().Should().Be(4);
         list.Should().OnlyContain(c => !string.IsNullOrWhiteSpace(c.CaseId));
     }

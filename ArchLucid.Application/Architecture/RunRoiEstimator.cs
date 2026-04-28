@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Configuration;
@@ -9,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Architecture;
 
 /// <inheritdoc cref="IRunRoiEstimator" />
-public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions> optionsMonitor)
+public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMonitor)
     : IRunRoiEstimator
 {
     private readonly RunRoiEstimatorOptions _opts =
