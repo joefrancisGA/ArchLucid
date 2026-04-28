@@ -119,10 +119,7 @@ public sealed class DemoViewerController(
         ArchitectureRunProvenanceGraph? graph =
             await _architectureRunProvenanceService.GetProvenanceAsync(runId, cancellationToken);
 
-        if (graph is null)
-            return this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        return Ok(graph);
+        return graph is null ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(graph);
     }
 
     /// <summary>

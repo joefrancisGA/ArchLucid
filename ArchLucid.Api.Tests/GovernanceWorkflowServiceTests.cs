@@ -1,6 +1,5 @@
 using System.Data;
 
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;

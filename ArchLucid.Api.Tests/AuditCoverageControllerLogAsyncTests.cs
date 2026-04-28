@@ -1,10 +1,9 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using ArchLucid.Application.Explanation;
 using ArchLucid.Api.Controllers.Authority;
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;

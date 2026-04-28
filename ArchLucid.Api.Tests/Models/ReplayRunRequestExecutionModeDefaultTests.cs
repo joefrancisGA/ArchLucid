@@ -1,5 +1,4 @@
 using ArchLucid.Api.Models;
-using ArchLucid.Application;
 
 using FluentAssertions;
 

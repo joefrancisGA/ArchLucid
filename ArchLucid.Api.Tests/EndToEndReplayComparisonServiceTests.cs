@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
@@ -53,7 +52,9 @@ public sealed class EndToEndReplayComparisonServiceTests
     {
         return new GoldenManifest
         {
-            RunId = runId, SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = version }
+            RunId = runId,
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = version }
         };
     }
 
@@ -68,7 +69,9 @@ public sealed class EndToEndReplayComparisonServiceTests
         };
         ArchitectureRunDetail right = new()
         {
-            Run = Run("right", "vR"), Results = [], Manifest = Manifest("right", "vR")
+            Run = Run("right", "vR"),
+            Results = [],
+            Manifest = Manifest("right", "vR")
         };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>()))

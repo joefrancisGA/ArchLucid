@@ -10,23 +10,19 @@ public interface IIntegrationEventPublisher
     ///     aliases from <see cref="IntegrationEventTypes" />).
     /// </param>
     /// <param name="utf8JsonPayload">UTF-8 JSON body for the message.</param>
+    /// <param name="cancellationToken"></param>
     Task PublishAsync(string eventType, ReadOnlyMemory<byte> utf8JsonPayload,
         CancellationToken cancellationToken = default);
 
-    /// <param name="messageId">
-    ///     Optional Service Bus message id (duplicate detection / idempotency). When null, the transport may assign an id.
-    /// </param>
-    Task PublishAsync(
-        string eventType,
-        ReadOnlyMemory<byte> utf8JsonPayload,
-        string? messageId,
-        CancellationToken cancellationToken);
-
+    /// <param name="messageId"></param>
     /// <param name="applicationProperties">
     ///     Optional user properties merged with <c>event_type</c> (e.g.
     ///     <see cref="IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName" /> for SQL
     ///     subscription filters).
     /// </param>
+    /// <param name="eventType"></param>
+    /// <param name="utf8JsonPayload"></param>
+    /// <param name="cancellationToken"></param>
     Task PublishAsync(
         string eventType,
         ReadOnlyMemory<byte> utf8JsonPayload,
