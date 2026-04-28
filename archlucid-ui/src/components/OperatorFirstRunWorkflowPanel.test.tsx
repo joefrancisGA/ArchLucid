@@ -12,9 +12,12 @@ describe("OperatorFirstRunWorkflowPanel", () => {
   it("after hydrate shows workflow heading and primary wizard link", async () => {
     render(<OperatorFirstRunWorkflowPanel />);
 
-    expect(await screen.findByRole("heading", { name: "First Manifest Checklist" })).toBeInTheDocument();
+    const heading = await screen.findByRole("heading", { name: "First Manifest Checklist" });
+    expect(heading).toBeInTheDocument();
 
-    expect(screen.getByText("Create → Run → Finalize → Review")).toBeInTheDocument();
+    const workflowSummary = heading.nextElementSibling;
+    expect(workflowSummary?.tagName.toLowerCase()).toBe("p");
+    expect(workflowSummary).toHaveTextContent("Create → Run → Finalize → Review");
 
     expect(screen.getByText("Start here")).toBeInTheDocument();
 

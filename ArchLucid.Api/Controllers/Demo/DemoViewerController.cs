@@ -1,6 +1,7 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Bootstrap;
@@ -77,7 +78,7 @@ public sealed class DemoViewerController(
     [HttpGet("runs/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(string runId, CancellationToken cancellationToken)
     {
         if (!IsViewerAllowed())
@@ -88,10 +89,10 @@ public sealed class DemoViewerController(
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
         if (detail is null)
-            return NotFound();
+            return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);
 
         if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
-            return NotFound();
+            return this.NotFoundProblem($"Manifest for run '{runId}' was not found.", ProblemTypes.ManifestNotFound);
 
         RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
             detail.Run,
@@ -107,7 +108,7 @@ public sealed class DemoViewerController(
     [HttpGet("runs/{runId}/graph")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetGraph(string runId, CancellationToken cancellationToken)
     {
         if (!IsViewerAllowed())
@@ -119,7 +120,7 @@ public sealed class DemoViewerController(
             await _architectureRunProvenanceService.GetProvenanceAsync(runId, cancellationToken);
 
         if (graph is null)
-            return NotFound();
+            return this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(graph);
     }
@@ -131,7 +132,7 @@ public sealed class DemoViewerController(
     [HttpGet("compare")]
     [ProducesResponseType(typeof(RunComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareRuns(
         [FromQuery] Guid? leftRunId,
         [FromQuery] Guid? rightRunId,
@@ -153,7 +154,9 @@ public sealed class DemoViewerController(
                 cancellationToken);
 
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"One or both runs ('{left}', '{right}') were not found in the demo scope.",
+                ProblemTypes.RunNotFound);
 
         return Ok(
             new RunComparisonResponse
