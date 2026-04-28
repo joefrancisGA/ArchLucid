@@ -249,9 +249,6 @@ public sealed class ProductLearningPlanningRepositoryTests
     [Fact]
     public void Action_step_validation_rejects_duplicates_and_overflow()
     {
-        InMemoryProductLearningPlanningRepository repo = new();
-        ProductLearningScope scope = Scope();
-
         List<ProductLearningImprovementPlanActionStep> dupOrd =
         [
             new() { Ordinal = 1, ActionType = "A", Description = "d" },

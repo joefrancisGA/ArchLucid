@@ -84,6 +84,8 @@ public sealed class GovernanceWorkflowService(
             SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
         };
 
+        StampGovernanceScope(request);
+
         if (dryRun)
             return request;
 
@@ -406,6 +408,8 @@ public sealed class GovernanceWorkflowService(
             Notes = notes
         };
 
+        StampGovernanceScope(record);
+
         if (dryRun)
             return record;
 
@@ -485,6 +489,8 @@ public sealed class GovernanceWorkflowService(
             IsActive = true,
             ActivatedUtc = DateTime.UtcNow
         };
+
+        StampGovernanceScope(activation);
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
@@ -724,5 +730,44 @@ public sealed class GovernanceWorkflowService(
             connection,
             transaction,
             cancellationToken);
+    }
+
+    private void StampGovernanceScope(GovernanceApprovalRequest request)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        request.TenantId = scope.TenantId;
+        request.WorkspaceId = scope.WorkspaceId;
+        request.ProjectId = scope.ProjectId;
+    }
+
+    private void StampGovernanceScope(GovernancePromotionRecord record)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        record.TenantId = scope.TenantId;
+        record.WorkspaceId = scope.WorkspaceId;
+        record.ProjectId = scope.ProjectId;
+    }
+
+    private void StampGovernanceScope(GovernanceEnvironmentActivation activation)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        activation.TenantId = scope.TenantId;
+        activation.WorkspaceId = scope.WorkspaceId;
+        activation.ProjectId = scope.ProjectId;
     }
 }

@@ -2,6 +2,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -9,18 +10,25 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory connectionFactory)
+public sealed class GovernancePromotionRecordRepository(
+    IDbConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IGovernancePromotionRecordRepository
 {
     public async Task CreateAsync(GovernancePromotionRecord item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        ApplyScopeToNewRow(item);
+
         const string sql = """
                            INSERT INTO GovernancePromotionRecords
                            (
                                PromotionRecordId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                SourceEnvironment,
                                TargetEnvironment,
@@ -33,6 +41,9 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
                            (
                                @PromotionRecordId,
                                @RunId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
                                @ManifestVersion,
                                @SourceEnvironment,
                                @TargetEnvironment,
@@ -51,6 +62,9 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             {
                 item.PromotionRecordId,
                 item.RunId,
+                item.TenantId,
+                item.WorkspaceId,
+                item.ProjectId,
                 item.ManifestVersion,
                 item.SourceEnvironment,
                 item.TargetEnvironment,
@@ -68,10 +82,16 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
     {
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
         string sql = $"""
                       SELECT
                           PromotionRecordId,
                           RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
                           ManifestVersion,
                           SourceEnvironment,
                           TargetEnvironment,
@@ -80,17 +100,34 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
                           ApprovalRequestId,
                           Notes
                       FROM GovernancePromotionRecords
-                      WHERE RunId = @RunId
+                      WHERE RunId = @RunId{scopeSql}
                       ORDER BY PromotedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
+        DynamicParameters p = new();
+        p.Add("RunId", runId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(
             new CommandDefinition(
                 sql,
-                new { RunId = runId },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
+    }
+
+    private void ApplyScopeToNewRow(GovernancePromotionRecord item)
+    {
+        ScopeContext ctx = scopeContextProvider.GetCurrentScope();
+
+        if (ctx.TenantId == Guid.Empty)
+            return;
+
+
+        item.TenantId = ctx.TenantId;
+        item.WorkspaceId = ctx.WorkspaceId;
+        item.ProjectId = ctx.ProjectId;
     }
 }

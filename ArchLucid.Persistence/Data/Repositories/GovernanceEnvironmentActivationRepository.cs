@@ -2,6 +2,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -9,7 +10,9 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFactory connectionFactory)
+public sealed class GovernanceEnvironmentActivationRepository(
+    IDbConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider)
     : IGovernanceEnvironmentActivationRepository
 {
     public async Task CreateAsync(
@@ -20,11 +23,16 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        ApplyScopeToNewRow(item);
+
         const string sql = """
                            INSERT INTO GovernanceEnvironmentActivations
                            (
                                ActivationId,
                                RunId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
                                ManifestVersion,
                                Environment,
                                IsActive,
@@ -34,6 +42,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
                            (
                                @ActivationId,
                                @RunId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
                                @ManifestVersion,
                                @Environment,
                                @IsActive,
@@ -52,6 +63,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
                 {
                     item.ActivationId,
                     item.RunId,
+                    item.TenantId,
+                    item.WorkspaceId,
+                    item.ProjectId,
                     item.ManifestVersion,
                     item.Environment,
                     item.IsActive,
@@ -74,10 +88,13 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        const string sql = """
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
+        string sql = $"""
                            UPDATE GovernanceEnvironmentActivations
                            SET IsActive = @IsActive
-                           WHERE ActivationId = @ActivationId;
+                           WHERE ActivationId = @ActivationId{scopeSql};
                            """;
 
         (IDbConnection conn, bool ownsConnection) =
@@ -85,9 +102,14 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
 
         try
         {
+            DynamicParameters p = new();
+            p.Add("ActivationId", item.ActivationId);
+            p.Add("IsActive", item.IsActive);
+            RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
             await conn.ExecuteAsync(new CommandDefinition(
                 sql,
-                new { item.ActivationId, item.IsActive },
+                p,
                 transaction,
                 cancellationToken: cancellationToken));
         }
@@ -103,24 +125,34 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
     {
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
         string sql = $"""
                       SELECT
                           ActivationId,
                           RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
                           ManifestVersion,
                           Environment,
                           IsActive,
                           ActivatedUtc
                       FROM GovernanceEnvironmentActivations
-                      WHERE Environment = @Environment
+                      WHERE Environment = @Environment{scopeSql}
                       ORDER BY ActivatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
+        DynamicParameters p = new();
+        p.Add("Environment", environment);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceEnvironmentActivation> rows =
             await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
                 sql,
-                new { Environment = environment },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
@@ -132,26 +164,49 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
     {
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
+
         string sql = $"""
                       SELECT
                           ActivationId,
                           RunId,
+                          TenantId,
+                          WorkspaceId,
+                          ProjectId,
                           ManifestVersion,
                           Environment,
                           IsActive,
                           ActivatedUtc
                       FROM GovernanceEnvironmentActivations
-                      WHERE RunId = @RunId
+                      WHERE RunId = @RunId{scopeSql}
                       ORDER BY ActivatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
+        DynamicParameters p = new();
+        p.Add("RunId", runId);
+        RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
+
         IEnumerable<GovernanceEnvironmentActivation> rows =
             await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
                 sql,
-                new { RunId = runId },
+                p,
                 cancellationToken: cancellationToken));
 
         return [.. rows];
+    }
+
+    private void ApplyScopeToNewRow(GovernanceEnvironmentActivation item)
+    {
+        ScopeContext ctx = scopeContextProvider.GetCurrentScope();
+
+        if (ctx.TenantId == Guid.Empty)
+            return;
+
+
+        item.TenantId = ctx.TenantId;
+        item.WorkspaceId = ctx.WorkspaceId;
+        item.ProjectId = ctx.ProjectId;
     }
 }

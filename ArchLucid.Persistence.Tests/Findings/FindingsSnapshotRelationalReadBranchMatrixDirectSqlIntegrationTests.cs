@@ -213,7 +213,12 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                      Category, EngineType, Severity, Title, Rationale, PayloadType, PayloadJson)
                     VALUES (@Id, @Fs, 0, N'fid', 1, N't', N'c', N'e', @Sev, N'title', N'rat', NULL, NULL);
                     """,
-                    new { Id = recordId, Fs = findingsId, Sev = severity },
+                    new
+                    {
+                        Id = recordId,
+                        Fs = findingsId,
+                        Sev = severity
+                    },
                     cancellationToken: CancellationToken.None));
 
             if (branch == 7)
@@ -224,7 +229,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
                         VALUES (@Id, 0, N'n1');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -236,7 +244,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
                         VALUES (@Id, 0, N'act');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -248,7 +259,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
                         VALUES (@Id, 0, N'k', N'v');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -260,7 +274,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
                         VALUES (@Id, 0, N'tn');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -272,7 +289,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
                         VALUES (@Id, 0, N'rule');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -284,7 +304,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
                         VALUES (@Id, 0, N'dec');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -296,7 +319,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
                         VALUES (@Id, 0, N'path');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -308,7 +334,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
                         VALUES (@Id, 0, N'note');
                         """,
-                        new { Id = recordId },
+                        new
+                        {
+                            Id = recordId
+                        },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -318,7 +347,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     CancellationToken.None);
             Finding f = snap2.Findings.Should().ContainSingle().Subject;
 
-            if (branch >= 2 && branch <= 6)
+            if (branch is >= 2 and <= 6)
             {
                 FindingSeverity expected = branch switch
                 {
@@ -326,7 +355,6 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     3 => FindingSeverity.Warning,
                     4 => FindingSeverity.Error,
                     5 => FindingSeverity.Critical,
-                    6 => FindingSeverity.Info,
                     _ => FindingSeverity.Info
                 };
 
@@ -391,7 +419,10 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
                 FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @Id;
                 """,
-                new { Id = findingsId },
+                new
+                {
+                    Id = findingsId
+                },
                 cancellationToken: CancellationToken.None));
     }
 }

@@ -14,6 +14,8 @@ public sealed class DapperGovernanceApprovalRequestRepositoryContractTests(SqlSe
 
     protected override IGovernanceApprovalRequestRepository CreateRepository()
     {
-        return new GovernanceApprovalRequestRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+        return new GovernanceApprovalRequestRepository(
+            new TestSqlDbConnectionFactory(fixture.ConnectionString),
+            new FixedTestScopeContextProvider(GovernanceRepositoryContractScope.AsScopeContext()));
     }
 }

@@ -10,9 +10,9 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
     /// <summary>Rollups above the default <c>MaxImprovementOpportunities</c> cap so ranking honors the limit.</summary>
     private const int SeededFeedbackRollupCountAboveOpportunityCap = 5;
 
-    private static readonly DateTime TEarly = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime Early = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-    private static readonly DateTime TLate = new(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime Late = new(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc);
 
     [Fact]
     public async Task BuildRankedOpportunitiesAsync_orders_by_bad_score_desc_then_last_seen_then_sort_key()
@@ -35,8 +35,8 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             RejectedCount = 0,
             RevisedCount = 2,
             NeedsFollowUpCount = 0,
-            FirstSignalRecordedUtc = TLate,
-            LastSignalRecordedUtc = TLate
+            FirstSignalRecordedUtc = Late,
+            LastSignalRecordedUtc = Late
         };
 
         FeedbackAggregate stronger = new()
@@ -50,8 +50,8 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             RejectedCount = 2,
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
-            FirstSignalRecordedUtc = TEarly,
-            LastSignalRecordedUtc = TEarly
+            FirstSignalRecordedUtc = Early,
+            LastSignalRecordedUtc = Early
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
@@ -109,8 +109,8 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
                     RejectedCount = 2,
                     RevisedCount = 0,
                     NeedsFollowUpCount = 0,
-                    FirstSignalRecordedUtc = TEarly,
-                    LastSignalRecordedUtc = TEarly
+                    FirstSignalRecordedUtc = Early,
+                    LastSignalRecordedUtc = Early
                 });
         }
 

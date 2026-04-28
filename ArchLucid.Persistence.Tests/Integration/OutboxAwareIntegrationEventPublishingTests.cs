@@ -20,8 +20,15 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         Mock<IIntegrationEventPublisher> publisher = new();
         Mock<IDbConnection> connection = new();
         Mock<IDbTransaction> transaction = new();
-        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = true };
-        object payload = new { schemaVersion = 1, x = 1 };
+        IntegrationEventsOptions options = new()
+        {
+            TransactionalOutboxEnabled = true
+        };
+        object payload = new
+        {
+            schemaVersion = 1,
+            x = 1
+        };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -64,7 +71,10 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
         Mock<IIntegrationEventPublisher> publisher = new();
-        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = true };
+        IntegrationEventsOptions options = new()
+        {
+            TransactionalOutboxEnabled = true
+        };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -72,7 +82,10 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             options,
             NullLogger.Instance,
             IntegrationEventTypes.AlertResolvedV1,
-            new { a = 1 },
+            new
+            {
+                a = 1
+            },
             null,
             null,
             Guid.NewGuid(),
@@ -109,7 +122,10 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(),
                 It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = false };
+        IntegrationEventsOptions options = new()
+        {
+            TransactionalOutboxEnabled = false
+        };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -117,7 +133,10 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             options,
             NullLogger.Instance,
             IntegrationEventTypes.AdvisoryScanCompletedV1,
-            new { schemaVersion = 1 },
+            new
+            {
+                schemaVersion = 1
+            },
             "z",
             null,
             Guid.NewGuid(),
@@ -173,7 +192,10 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             new IntegrationEventsOptions { TransactionalOutboxEnabled = true },
             NullLogger.Instance,
             IntegrationEventTypes.GovernanceApprovalSubmittedV1,
-            new { schemaVersion = 1 },
+            new
+            {
+                schemaVersion = 1
+            },
             null,
             null,
             Guid.NewGuid(),
@@ -195,7 +217,6 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
 
         CyclePayload payload = new();
-        payload.Self = payload;
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -237,10 +258,5 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
 
     private sealed class CyclePayload
     {
-        public CyclePayload? Self
-        {
-            get;
-            set;
-        }
     }
 }

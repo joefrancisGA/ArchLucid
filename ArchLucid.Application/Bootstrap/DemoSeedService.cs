@@ -394,6 +394,8 @@ public sealed class DemoSeedService(
 
     private async Task EnsureGovernanceAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
         if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
@@ -411,6 +413,8 @@ public sealed class DemoSeedService(
                 RequestedUtc = DemoUtc,
                 ReviewedUtc = DemoUtc.AddHours(2)
             };
+
+            StampGovernanceScope(scope, approval);
 
             await approvalRepository.CreateAsync(approval, cancellationToken);
         }
@@ -433,10 +437,13 @@ public sealed class DemoSeedService(
                 Notes = "Demo promotion after approval (trusted baseline seed)."
             };
 
+            StampGovernanceScope(scope, promotion);
+
             await promotionRepository.CreateAsync(promotion, cancellationToken);
         }
 
         await EnsureActivationAsync(
+                scope,
                 demo.ActivationDev,
                 demo.RunBaseline,
                 demo.ManifestBaseline,
@@ -445,6 +452,7 @@ public sealed class DemoSeedService(
             ;
 
         await EnsureActivationAsync(
+                scope,
                 demo.ActivationTest,
                 demo.RunHardened,
                 demo.ManifestHardened,
@@ -454,6 +462,7 @@ public sealed class DemoSeedService(
     }
 
     private async Task EnsureActivationAsync(
+        ScopeContext scope,
         string activationId,
         string runId,
         string manifestVersion,
@@ -477,7 +486,42 @@ public sealed class DemoSeedService(
             ActivatedUtc = DemoUtc
         };
 
+        StampGovernanceScope(scope, activation);
+
         await activationRepository.CreateAsync(activation, cancellationToken);
+    }
+
+    private static void StampGovernanceScope(ScopeContext scope, GovernanceApprovalRequest row)
+    {
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        row.TenantId = scope.TenantId;
+        row.WorkspaceId = scope.WorkspaceId;
+        row.ProjectId = scope.ProjectId;
+    }
+
+    private static void StampGovernanceScope(ScopeContext scope, GovernancePromotionRecord row)
+    {
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        row.TenantId = scope.TenantId;
+        row.WorkspaceId = scope.WorkspaceId;
+        row.ProjectId = scope.ProjectId;
+    }
+
+    private static void StampGovernanceScope(ScopeContext scope, GovernanceEnvironmentActivation row)
+    {
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+
+        row.TenantId = scope.TenantId;
+        row.WorkspaceId = scope.WorkspaceId;
+        row.ProjectId = scope.ProjectId;
     }
 
     /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>

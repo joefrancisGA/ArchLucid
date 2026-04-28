@@ -31,7 +31,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
             CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.RecipientEmails.Should().ContainInOrder("a@x.test", "b@y.test");
+        row.RecipientEmails.Should().ContainInOrder("a@x.test", "b@y.test");
         row.IanaTimeZoneId.Should().Be("UTC");
     }
 

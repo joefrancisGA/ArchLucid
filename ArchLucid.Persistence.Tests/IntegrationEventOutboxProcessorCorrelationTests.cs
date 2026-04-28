@@ -18,12 +18,10 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
     public async Task ProcessPendingBatchAsync_starts_activity_with_run_correlation_when_run_id_present()
     {
         List<Activity> stopped = [];
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox",
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = a => stopped.Add(a)
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox";
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);
 
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -78,12 +76,10 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
     public async Task ProcessPendingBatchAsync_starts_activity_with_outbox_correlation_when_run_id_absent()
     {
         List<Activity> stopped = [];
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox",
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = a => stopped.Add(a)
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == "ArchLucid.IntegrationEvent.Outbox";
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);
 
         Mock<IIntegrationEventPublisher> publisher = new();
