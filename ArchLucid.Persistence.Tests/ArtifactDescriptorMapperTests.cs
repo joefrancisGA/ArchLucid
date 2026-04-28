@@ -2,8 +2,6 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Persistence.Queries;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
