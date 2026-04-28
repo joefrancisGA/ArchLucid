@@ -109,7 +109,7 @@ test.describe("all routes screenshots (mock API)", () => {
     await registerOperatorJourneyApiRoutes(page, {
       runDetail: { runId: SCREENSHOT_RUN_ID, body: fixtureRunDetailScreenshot() },
       manifestSummary: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureManifestSummaryScreenshot() },
-      artifactList: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureArtifactDescriptorsNonEmpty() },
+      artifactList: { manifestId: SCREENSHOT_MANIFEST_ID, body: fixtureArtifactDescriptorsScreenshot() },
       artifactBundle: { manifestId: SCREENSHOT_MANIFEST_ID, body: FIXTURE_EMPTY_ZIP_BYTES, headOk: true },
       legacyCompare: {
         leftRunId: SCREENSHOT_LEFT_RUN_ID,
