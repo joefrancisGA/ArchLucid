@@ -190,9 +190,15 @@ public sealed class SqlArtifactBundleRepository(
             if (persistContext is { } ctx
                 && LargePayloadOffloadEvaluator.ShouldOffloadArtifactContent(ctx.Options, content.Length))
             {
+                string logicalPath = ArtifactBlobTenantPaths.FormatArtifactContentRelativePath(
+                    bundle.WorkspaceId,
+                    bundle.ProjectId,
+                    bundle.ManifestId,
+                    a.ArtifactId,
+                    "content.txt");
                 contentBlobUri = await ctx.BlobStore.WriteAsync(
                     "artifact-contents",
-                    $"{bundleId:D}/{a.ArtifactId:D}.txt",
+                    logicalPath,
                     content,
                     ct);
                 content = string.Empty;

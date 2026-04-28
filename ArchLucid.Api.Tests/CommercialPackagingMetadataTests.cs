@@ -3,6 +3,7 @@ using System.Reflection;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Advisory;
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
@@ -16,7 +17,9 @@ public sealed class CommercialPackagingMetadataTests
     [InlineData(typeof(AdvisoryController))]
     [InlineData(typeof(AdvisorySchedulingController))]
     [InlineData(typeof(AuthorityCompareController))]
-    [InlineData(typeof(AuthorityReplayController))]
+    [InlineData(typeof(ComparisonController))]
+    [InlineData(typeof(DocxExportController))]
+    [InlineData(typeof(GraphController))]
     public void Controller_has_requires_commercial_tier_standard(Type controllerType)
     {
         RequiresCommercialTenantTierAttribute? attr =

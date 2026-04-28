@@ -31,6 +31,14 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
         "replay:diagnostics"
     ];
 
+    private static readonly string[] ReviewerPermissions =
+    [
+        "seed:results",
+        "export:consulting-docx",
+        "replay:comparisons",
+        "replay:diagnostics"
+    ];
+
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity?.IsAuthenticated != true)
@@ -50,8 +58,17 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
         if (roles.Contains(ArchLucidRoles.Admin))
             foreach (string p in AdminPermissions)
                 AddPermission(p);
+        else if (roles.Contains(ArchLucidRoles.WorkspaceAdmin))
+            foreach (string p in AdminPermissions)
+                AddPermission(p);
+        else if (roles.Contains(ArchLucidRoles.Architect))
+            foreach (string p in OperatorPermissions)
+                AddPermission(p);
         else if (roles.Contains(ArchLucidRoles.Operator))
             foreach (string p in OperatorPermissions)
+                AddPermission(p);
+        else if (roles.Contains(ArchLucidRoles.Reviewer))
+            foreach (string p in ReviewerPermissions)
                 AddPermission(p);
         else if (roles.Contains(ArchLucidRoles.Reader))
             AddPermission("metrics:read");

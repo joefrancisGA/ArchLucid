@@ -4,6 +4,7 @@ using System.Security.Claims;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
@@ -212,5 +213,105 @@ public sealed class AuditServiceCorrelationEnrichmentTests
 
         captured.Should().NotBeNull();
         captured!.CorrelationId.Should().Be("breaker-corr-99");
+    }
+
+    [Fact]
+    public async Task LogAsync_fills_Tenant_scope_from_ambient_scope_when_ids_are_empty()
+    {
+        Mock<IAuditRepository> repo = new();
+        AuditEvent? captured = null;
+        repo
+            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IHttpContextAccessor> httpAccessor = new();
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, "u-scope"),
+                    new Claim(ClaimTypes.Name, "Scope User")
+                ]))
+        };
+
+        httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
+        AuditEvent auditEvent = new()
+        {
+            EventType = "Test"
+        };
+
+        await sut.LogAsync(auditEvent, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.TenantId.Should().Be(scope.TenantId);
+        captured.WorkspaceId.Should().Be(scope.WorkspaceId);
+        captured.ProjectId.Should().Be(scope.ProjectId);
+    }
+
+    [Fact]
+    public async Task LogAsync_preserves_explicit_tenant_scope_when_already_non_empty()
+    {
+        Mock<IAuditRepository> repo = new();
+        AuditEvent? captured = null;
+        repo
+            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        Guid explicitTenant = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid explicitWs = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid explicitProj = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+            });
+
+        Mock<IHttpContextAccessor> httpAccessor = new();
+        httpAccessor.Setup(a => a.HttpContext).Returns(
+            new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                    [
+                        new Claim(ClaimTypes.NameIdentifier, "u-keep"),
+                        new Claim(ClaimTypes.Name, "Keep User")
+                    ]))
+            });
+
+        AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
+        AuditEvent auditEvent = new()
+        {
+            EventType = "Test",
+            TenantId = explicitTenant,
+            WorkspaceId = explicitWs,
+            ProjectId = explicitProj
+        };
+
+        await sut.LogAsync(auditEvent, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.TenantId.Should().Be(explicitTenant);
+        captured.WorkspaceId.Should().Be(explicitWs);
+        captured.ProjectId.Should().Be(explicitProj);
     }
 }

@@ -77,6 +77,19 @@ internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaims
             foreach (string p in AdminPermissions)
                 AddPermission(p);
         }
+        else if (roles.Contains(ArchLucidRoles.WorkspaceAdmin))
+        {
+            foreach (string p in AdminPermissions)
+                AddPermission(p);
+        }
+        else if (roles.Contains(ArchLucidRoles.Architect))
+        {
+            foreach (string p in OperatorPermissions)
+            {
+                if (!string.Equals(p, _omitPermission, StringComparison.Ordinal))
+                    AddPermission(p);
+            }
+        }
         else if (roles.Contains(ArchLucidRoles.Operator))
         {
             foreach (string p in OperatorPermissions)
@@ -116,6 +129,16 @@ public abstract class OperatorWithoutOnePermissionArchLucidApiFactory : ArchLuci
             services.AddScoped<IClaimsTransformation>(_ =>
                 new OmitOnePermissionForOperatorClaimsTransformation(OmitPermission));
         });
+    }
+}
+
+public sealed class OperatorRoleArchLucidApiFactory : ArchLucidApiFactory
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Operator }));
     }
 }
 
