@@ -56,8 +56,19 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
 
         RunRecord? loaded = await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        RunRecord stale = loaded;
-        stale.RowVersion = [1, 2, 3, 4, 5, 6, 7, 8];
+
+        // Detached copy: GetById returns the live store row; mutating it would change RowVersion in-place and defeat the check.
+        RunRecord stale = new RunRecord
+        {
+            TenantId = loaded!.TenantId,
+            WorkspaceId = loaded.WorkspaceId,
+            ScopeProjectId = loaded.ScopeProjectId,
+            RunId = loaded.RunId,
+            ProjectId = loaded.ProjectId,
+            Description = loaded.Description,
+            CreatedUtc = loaded.CreatedUtc,
+            RowVersion = [1, 2, 3, 4, 5, 6, 7, 8]
+        };
 
         Func<Task> act = async () => await repo.UpdateAsync(stale, CancellationToken.None);
 

@@ -28,6 +28,9 @@ const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this run.",
   "What should the sponsor review before sign-off?",
   "Explain the finalized manifest in plain language.",
+  "Explain the PHI minimization risk.",
+  "Summarize the finalized manifest for a sponsor.",
+  "What evidence supports this finding?",
 ];
 
 export default function AskPage() {
@@ -130,6 +133,10 @@ export default function AskPage() {
         helpKey="ask-archlucid"
         subtitle="Multi-turn conversations stay in your workspace. Pick a run for a new thread; follow-ups stay on the same thread without picking the run again."
       />
+      <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+        Answers use the run context you select (finalized manifest and findings when available; in-progress runs may
+        omit late-stage outputs until the pipeline completes).
+      </p>
 
       {listFailure !== null ? (
         <div role="alert" className="mb-4">
@@ -166,7 +173,9 @@ export default function AskPage() {
                     variant="ghost"
                     className={cn(
                       "h-auto w-full justify-start whitespace-normal py-2 text-left text-sm",
-                      selectedThreadId === thread.threadId ? "font-semibold" : "font-normal",
+                      selectedThreadId === thread.threadId &&
+                        "border border-teal-300 bg-teal-50/80 font-semibold dark:border-teal-700 dark:bg-teal-950/40",
+                      selectedThreadId !== thread.threadId && "font-normal",
                     )}
                     onClick={() => void onSelectThread(thread.threadId)}
                   >

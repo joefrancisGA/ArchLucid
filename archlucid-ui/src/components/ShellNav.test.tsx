@@ -65,7 +65,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
         "title",
-        "Provenance or architecture graph for one run ID (Alt+Y)",
+        "Review-trail or architecture graph for one run (Alt+Y)",
       );
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");

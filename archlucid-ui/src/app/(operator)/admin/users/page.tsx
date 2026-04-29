@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import Link from "next/link";
+
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
@@ -110,6 +113,17 @@ export default function AdminUsersPage() {
           {!loading && note !== null ? (
             <div data-testid="admin-users-api-note">
               <OperatorEmptyState title={emptyStateTitle(note)} description={emptyStateDescription(note)} />
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" disabled title="Coming soon — use your IdP admin console to invite users.">
+                  Invite user
+                </Button>
+                <Button type="button" variant="outline" size="sm" asChild>
+                  <Link href="/settings/tenant">Connect identity provider</Link>
+                </Button>
+                <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
+                  Refresh directory
+                </Button>
+              </div>
             </div>
           ) : null}
           {!loading && rows.length > 0 ? (

@@ -201,7 +201,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/graph",
         label: "Graph",
-        title: navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+y"),
+        title: navTitleWithShortcut("Review-trail or architecture graph for one run", "alt+y"),
         keyShortcut: "alt+y",
         icon: GitGraph,
         tier: "extended",

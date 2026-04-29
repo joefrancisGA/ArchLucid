@@ -94,3 +94,4 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     }
 
     private sealed record ConversationThreadDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ProjectId);
+}
