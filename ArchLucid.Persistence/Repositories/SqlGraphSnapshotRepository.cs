@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -22,8 +23,13 @@ namespace ArchLucid.Persistence.Repositories;
 ///     <see cref="IGraphSnapshotRepository.ListIndexedEdgesAsync" /> (same query and ordering).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionFactory) : IGraphSnapshotRepository
+public sealed class SqlGraphSnapshotRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider) : IGraphSnapshotRepository
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     public async Task SaveAsync(
         GraphSnapshot snapshot,
         CancellationToken ct,
@@ -105,21 +111,25 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             .ToList();
     }
 
-    private static async Task SaveCoreAsync(
+    private async Task SaveCoreAsync(
         GraphSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         const string headerSql = """
                                  INSERT INTO dbo.GraphSnapshots
                                  (
                                      GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                     TenantId, WorkspaceId, ScopeProjectId,
                                      NodesJson, EdgesJson, WarningsJson
                                  )
                                  VALUES
                                  (
                                      @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                     @TenantId, @WorkspaceId, @ScopeProjectId,
                                      @NodesJson, @EdgesJson, @WarningsJson
                                  );
                                  """;
@@ -130,6 +140,9 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             snapshot.ContextSnapshotId,
             snapshot.RunId,
             snapshot.CreatedUtc,
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
             NodesJson = JsonEntitySerializer.Serialize(snapshot.Nodes),
             EdgesJson = JsonEntitySerializer.Serialize(snapshot.Edges),
             WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings)
@@ -138,35 +151,38 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
             ;
 
-        await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, ct);
-        await InsertWarningsAsync(snapshot, connection, transaction, ct);
-        await InsertIndexedEdgesAsync(connection, transaction, snapshot, ct);
-        await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
+        await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, scope, ct);
+        await InsertWarningsAsync(snapshot, connection, transaction, scope, ct);
+        await InsertIndexedEdgesAsync(connection, transaction, snapshot, scope, ct);
+        await InsertEdgePropertiesAsync(snapshot, connection, transaction, scope, ct);
     }
 
     private static async Task InsertNodesAndPropertiesAsync(
         GraphSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
+        ScopeContext scope,
         CancellationToken ct)
     {
         const string insertNodeSql = """
                                      INSERT INTO dbo.GraphSnapshotNodes
                                      (
                                          GraphNodeRowId, GraphSnapshotId, SortOrder,
+                                         TenantId, WorkspaceId, ScopeProjectId,
                                          NodeId, NodeType, Label, Category, SourceType, SourceId
                                      )
                                      VALUES
                                      (
                                          @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
+                                         @TenantId, @WorkspaceId, @ScopeProjectId,
                                          @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
                                      );
                                      """;
 
         const string insertPropertySql = """
                                          INSERT INTO dbo.GraphSnapshotNodeProperties
-                                         (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
-                                         VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                         (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ScopeProjectId)
+                                         VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue, @TenantId, @WorkspaceId, @ScopeProjectId);
                                          """;
 
         for (int i = 0; i < snapshot.Nodes.Count; i++)
@@ -182,6 +198,9 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         GraphNodeRowId = rowId,
                         snapshot.GraphSnapshotId,
                         SortOrder = i,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
                         node.NodeId,
                         node.NodeType,
                         node.Label,
@@ -208,7 +227,10 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             GraphNodeRowId = rowId,
                             PropertySortOrder = p,
                             PropertyKey = kv.Key,
-                            PropertyValue = kv.Value
+                            PropertyValue = kv.Value,
+                            scope.TenantId,
+                            scope.WorkspaceId,
+                            ScopeProjectId = scope.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -220,11 +242,13 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         GraphSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
+        ScopeContext scope,
         CancellationToken ct)
     {
         const string insertWarningSql = """
-                                        INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-                                        VALUES (@GraphSnapshotId, @SortOrder, @WarningText);
+                                        INSERT INTO dbo.GraphSnapshotWarnings (
+                                            GraphSnapshotId, SortOrder, WarningText, TenantId, WorkspaceId, ScopeProjectId)
+                                        VALUES (@GraphSnapshotId, @SortOrder, @WarningText, @TenantId, @WorkspaceId, @ScopeProjectId);
                                         """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
@@ -232,7 +256,15 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
-                    new { snapshot.GraphSnapshotId, SortOrder = w, WarningText = snapshot.Warnings[w] },
+                    new
+                    {
+                        snapshot.GraphSnapshotId,
+                        SortOrder = w,
+                        WarningText = snapshot.Warnings[w],
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
     }
@@ -241,6 +273,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         IDbConnection connection,
         IDbTransaction? transaction,
         GraphSnapshot snapshot,
+        ScopeContext scope,
         CancellationToken ct)
     {
         IReadOnlyList<GraphSnapshotEdgeRow> rows = GraphSnapshotEdgeIndexer.BuildRows(snapshot);
@@ -249,8 +282,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             return;
 
         const string edgeSql = """
-                               INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-                               VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                               INSERT INTO dbo.GraphSnapshotEdges (
+                                   GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight,
+                                   TenantId, WorkspaceId, ScopeProjectId)
+                               VALUES (
+                                   @GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight,
+                                   @TenantId, @WorkspaceId, @ScopeProjectId);
                                """;
 
         await connection.ExecuteAsync(
@@ -263,7 +300,10 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     r.FromNodeId,
                     r.ToNodeId,
                     r.EdgeType,
-                    r.Weight
+                    r.Weight,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
                 }),
                 transaction,
                 cancellationToken: ct));
@@ -273,12 +313,16 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         GraphSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
+        ScopeContext scope,
         CancellationToken ct)
     {
         const string insertEdgePropSql = """
                                          INSERT INTO dbo.GraphSnapshotEdgeProperties
-                                         (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-                                         VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                         (
+                                             GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue,
+                                             TenantId, WorkspaceId, ScopeProjectId)
+                                         VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue,
+                                                 @TenantId, @WorkspaceId, @ScopeProjectId);
                                          """;
 
         foreach (GraphEdge edge in snapshot.Edges)
@@ -296,7 +340,10 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             edge.EdgeId,
                             PropertySortOrder = sort++,
                             PropertyKey = GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
-                            PropertyValue = edge.Label
+                            PropertyValue = edge.Label,
+                            scope.TenantId,
+                            scope.WorkspaceId,
+                            ScopeProjectId = scope.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -319,7 +366,10 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             edge.EdgeId,
                             PropertySortOrder = sort++,
                             PropertyKey = kv.Key,
-                            PropertyValue = kv.Value
+                            PropertyValue = kv.Value,
+                            scope.TenantId,
+                            scope.WorkspaceId,
+                            ScopeProjectId = scope.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -396,20 +446,58 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             new { GraphSnapshotId = graphSnapshotId },
             ct);
 
+        bool needsRelationalSlices = (nodesCount == 0 && snapshot.Nodes.Count > 0)
+            || (warningsCount == 0 && snapshot.Warnings.Count > 0)
+            || (edgesCount == 0 && snapshot.Edges.Count > 0)
+            || (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0);
+
+        if (!needsRelationalSlices)
+            return;
+
+        const string scopeSql = """
+                                SELECT
+                                    COALESCE(gs.TenantId, cs.TenantId) AS TenantId,
+                                    COALESCE(gs.WorkspaceId, cs.WorkspaceId) AS WorkspaceId,
+                                    COALESCE(gs.ScopeProjectId, cs.ScopeProjectId) AS ScopeProjectId
+                                FROM dbo.GraphSnapshots AS gs
+                                LEFT JOIN dbo.ContextSnapshots AS cs ON gs.ContextSnapshotId = cs.SnapshotId
+                                WHERE gs.GraphSnapshotId = @GraphSnapshotId;
+                                """;
+
+        GraphSnapshotDenormScopeRow? scopeHdr =
+            await connection.QuerySingleOrDefaultAsync<GraphSnapshotDenormScopeRow>(
+                new CommandDefinition(scopeSql, new { GraphSnapshotId = graphSnapshotId }, transaction,
+                    cancellationToken: ct));
+
+        if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ScopeProjectId is null)
+            throw new InvalidOperationException(
+                $"dbo.GraphSnapshots row {graphSnapshotId} (and ContextSnapshots join fallback) lacks denormalized RLS scope "
+                + "(tenant/workspace/scope-project); cannot backfill graph relational tables.");
+
+        ScopeContext scopeFill = new()
+        {
+            TenantId = scopeHdr.TenantId!.Value,
+            WorkspaceId = scopeHdr.WorkspaceId!.Value,
+            ProjectId = scopeHdr.ScopeProjectId!.Value
+        };
+
         if (nodesCount == 0 && snapshot.Nodes.Count > 0)
-            await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, ct);
+            await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
 
         if (warningsCount == 0 && snapshot.Warnings.Count > 0)
-            await InsertWarningsAsync(snapshot, connection, transaction, ct);
+            await InsertWarningsAsync(snapshot, connection, transaction, scopeFill, ct);
 
         if (edgesCount == 0 && snapshot.Edges.Count > 0)
         {
-            await InsertIndexedEdgesAsync(connection, transaction, snapshot, ct);
-            await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
+            await InsertIndexedEdgesAsync(connection, transaction, snapshot, scopeFill, ct);
+            await InsertEdgePropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
         }
         else if (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0)
-            await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
+            await InsertEdgePropertiesAsync(snapshot, connection, transaction, scopeFill, ct);
     }
+
+    /// <summary>Nullable row for COALESCE-loaded graph snapshot RLS scope during JSON→relational backfill.</summary>
+    private sealed record GraphSnapshotDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ScopeProjectId);
 
     private sealed class IndexedEdgeRow
     {

@@ -91,7 +91,8 @@ describe("Demo preview marketing body", () => {
 
     expect(screen.getByTestId("demo-preview-status-banner")).toHaveTextContent("demo tenant — replace before publishing");
     expect(screen.getByTestId("demo-preview-run")).toHaveTextContent("Fixture");
-    expect(screen.getByTestId("demo-preview-authority-chain")).toHaveTextContent("Context snapshot captured");
+    expect(screen.getByTestId("demo-preview-review-trail")).toHaveTextContent("Review trail");
+    expect(screen.getByTestId("demo-preview-review-trail")).toHaveTextContent("Changes committed");
     expect(screen.getByTestId("demo-preview-manifest-summary")).toHaveTextContent("Finalized");
     expect(screen.getByTestId("demo-preview-aggregate-explanation")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Changes committed");

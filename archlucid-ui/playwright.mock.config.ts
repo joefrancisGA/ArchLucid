@@ -47,7 +47,7 @@ export default defineConfig({
       /** Client bundle: hide dev-only chrome in mock E2E/screenshot runs when set at build time via local env. */
       NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
       /** Operator `/runs` / `/manifests` static fallback for demo parity with showcase when API is down. */
-      NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "",
+      NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
     },
   },
 });

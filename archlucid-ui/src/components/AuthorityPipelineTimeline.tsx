@@ -1,12 +1,15 @@
 import { CheckCircle2, Circle } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import type { PipelineTimelineItem } from "@/types/authority";
 
 type AuthorityPipelineTimelineProps = {
   items: PipelineTimelineItem[] | null;
   /** When set, show a short operator-facing message instead of the table. */
   loadErrorMessage?: string | null;
+  /** When true, omit per-event technical `<details>` (event id / raw type) — public marketing surfaces. */
+  omitEventTechnicalDetails?: boolean;
 };
 
 function isTimelineMilestoneEvent(eventType: string): boolean {
@@ -18,6 +21,8 @@ function isTimelineMilestoneEvent(eventType: string): boolean {
     "run.finalized",
     "manifest.committed",
     "artifact.bundle.created",
+    "com.archlucid.authority.run.completed",
+    "com.archlucid.manifest.finalized.v1",
   ]);
 
   return milestones.has(key);
@@ -56,6 +61,7 @@ function actorLabel(name: string): string {
 export function AuthorityPipelineTimeline({
   items,
   loadErrorMessage,
+  omitEventTechnicalDetails = false,
 }: AuthorityPipelineTimelineProps) {
   if (loadErrorMessage) {
     return (
@@ -107,6 +113,7 @@ export function AuthorityPipelineTimeline({
                 <span className="sr-only">Actor: </span>
                 {actorLabel(row.actorUserName)}
               </span>
+              {omitEventTechnicalDetails ? null : (
               <details className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 <summary className="cursor-pointer select-none text-teal-800 underline dark:text-teal-300">
                   Technical details
@@ -128,6 +135,7 @@ export function AuthorityPipelineTimeline({
                   ) : null}
                 </div>
               </details>
+              )}
             </div>
           </div>
         </li>
@@ -136,26 +144,3 @@ export function AuthorityPipelineTimeline({
   );
 }
 
-/** Maps API timeline event codes to reviewer-facing labels (falls back to the raw code). */
-export function pipelineEventTypeFriendlyLabel(eventType: string): string {
-  const key = eventType.trim();
-
-  const map: Record<string, string> = {
-    RunStarted: "Run started",
-    RunCompleted: "Run completed",
-    "finalize.run": "Manifest finalized",
-    "run.finalized": "Run finalized",
-    "context.snapshot.created": "Context captured",
-    "graph.snapshot.created": "Architecture graph created",
-    "findings.snapshot.created": "Findings generated",
-    "manifest.committed": "Governed manifest committed",
-    "artifact.bundle.created": "Artifacts bundled",
-    "audit.pipeline.step": "Pipeline step recorded",
-    Commit: "Changes committed",
-    context_snapshot: "Context captured",
-    graph_snapshot: "Architecture graph created",
-    findings_snapshot: "Findings generated",
-  };
-
-  return map[key] ?? key;
-}

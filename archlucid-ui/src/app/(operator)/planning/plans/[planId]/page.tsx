@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { fetchLearningPlanDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import type { LearningPlanDetailResponse } from "@/types/learning";
 
 /**
@@ -16,6 +17,7 @@ import type { LearningPlanDetailResponse } from "@/types/learning";
  */
 export default function PlanningPlanDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const planIdRaw = params.planId;
   const planId = typeof planIdRaw === "string" ? planIdRaw : Array.isArray(planIdRaw) ? planIdRaw[0] : "";
 
@@ -23,8 +25,20 @@ export default function PlanningPlanDetailPage() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
+  useEffect(() => {
+    if (!isInvalidDynamicRouteToken(planId)) {
+      return;
+    }
+
+    router.replace("/planning");
+  }, [planId, router]);
+
   const load = useCallback(async () => {
     if (!planId.trim()) {
+      return;
+    }
+
+    if (isInvalidDynamicRouteToken(planId)) {
       return;
     }
 
@@ -62,14 +76,14 @@ export default function PlanningPlanDetailPage() {
         </p>
       ) : null}
 
-      {loading && plan === null ? (
+      {loading && plan === null && !isInvalidDynamicRouteToken(planId) ? (
         <OperatorLoadingNotice>
           <strong>Loading plan.</strong>
           <p className="mt-2 text-sm">Fetching plan detail from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
-      {failure !== null ? (
+      {failure !== null && !isInvalidDynamicRouteToken(planId) ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={failure.problem}

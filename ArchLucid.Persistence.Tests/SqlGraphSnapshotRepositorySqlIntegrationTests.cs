@@ -6,6 +6,8 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;
@@ -23,7 +25,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
@@ -88,7 +90,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         GraphSnapshot snapshot = new()
         {
@@ -133,7 +135,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
@@ -229,7 +231,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
@@ -306,7 +308,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -371,7 +373,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlGraphSnapshotRepository repository = new(factory);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
         GraphSnapshot snapshot = new()

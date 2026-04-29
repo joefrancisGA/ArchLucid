@@ -16,6 +16,12 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
 {
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
+        const string scopeSql = """
+                                SELECT TenantId, WorkspaceId, ProjectId
+                                FROM dbo.EvolutionCandidateChangeSets
+                                WHERE CandidateChangeSetId = @CandidateChangeSetId;
+                                """;
+
         const string sql = """
                            INSERT INTO dbo.EvolutionSimulationRuns
                            (
@@ -26,7 +32,10 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                                OutcomeJson,
                                WarningsJson,
                                CompletedUtc,
-                               IsShadowOnly
+                               IsShadowOnly,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId
                            )
                            VALUES
                            (
@@ -37,11 +46,24 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                                @OutcomeJson,
                                @WarningsJson,
                                @CompletedUtc,
-                               @IsShadowOnly
+                               @IsShadowOnly,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId
                            );
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        EvolutionSimulationScopeRow? scopeHdr =
+            await connection.QuerySingleOrDefaultAsync<EvolutionSimulationScopeRow>(
+                new CommandDefinition(scopeSql, new { record.CandidateChangeSetId }, cancellationToken: cancellationToken));
+
+        if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
+            throw new InvalidOperationException(
+                "dbo.EvolutionCandidateChangeSets row for CandidateChangeSetId=" + record.CandidateChangeSetId
+                + " lacks denormalized RLS scope; cannot persist EvolutionSimulationRuns.");
+
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -54,7 +76,10 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                     record.OutcomeJson,
                     record.WarningsJson,
                     record.CompletedUtc,
-                    record.IsShadowOnly
+                    record.IsShadowOnly,
+                    TenantId = scopeHdr.TenantId!.Value,
+                    WorkspaceId = scopeHdr.WorkspaceId!.Value,
+                    ProjectId = scopeHdr.ProjectId!.Value
                 },
                 cancellationToken: cancellationToken));
     }
@@ -103,4 +128,6 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                 new { CandidateChangeSetId = candidateChangeSetId },
                 cancellationToken: cancellationToken));
     }
+
+    private sealed record EvolutionSimulationScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ProjectId);
 }

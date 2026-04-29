@@ -100,7 +100,7 @@ export function ShowcaseOutcomeCards({ snapshot }: { readonly snapshot: Showcase
 
         {
 
-          label: "Artifacts",
+          label: "Artifacts exported",
 
           value: String(snapshot.artifactCount),
 
@@ -108,7 +108,7 @@ export function ShowcaseOutcomeCards({ snapshot }: { readonly snapshot: Showcase
 
         {
 
-          label: "Pipeline events recorded",
+          label: "Review trail recorded",
 
           value: String(snapshot.pipelineEventCount),
 

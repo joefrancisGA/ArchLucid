@@ -64,7 +64,9 @@ function describeTrigger(eventType: string): { label: string; helpText: string }
 
 export default function TeamsNotificationsIntegrationPage() {
   const canMutate = useEnterpriseMutationCapability();
-  const [loading, setLoading] = useState(false);
+  // Start true so first paint shows Loading; paired with `loading && !conn` below so API failures
+  // (loading=false, conn=null) do not keep rendering "Loading…" under the error callout.
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [conn, setConn] = useState<TeamsIncomingWebhookConnectionResponse | null>(null);
@@ -181,9 +183,9 @@ export default function TeamsNotificationsIntegrationPage() {
         </div>
       ) : null}
 
-      {loading || !conn ? (
+      {loading && !conn ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
-      ) : (
+      ) : conn ? (
         <div className="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
           <p className="text-sm text-neutral-700 dark:text-neutral-300">
             Status:{" "}
@@ -281,7 +283,7 @@ export default function TeamsNotificationsIntegrationPage() {
             </p>
           ) : null}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

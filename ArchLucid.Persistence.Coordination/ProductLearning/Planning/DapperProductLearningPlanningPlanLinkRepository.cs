@@ -21,19 +21,20 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        _ = await RequirePlanScopeAsync(connection, link.PlanId, cancellationToken);
+        ProductLearningScope scope = await RequirePlanScopeAsync(connection, link.PlanId, cancellationToken);
 
         await RequireArchitectureRunExistsAsync(connection, link.ArchitectureRunId, cancellationToken);
 
         const string sql = """
-                           INSERT INTO dbo.ProductLearningImprovementPlanArchitectureRuns (PlanId, ArchitectureRunId)
-                           VALUES (@PlanId, @ArchitectureRunId);
+                           INSERT INTO dbo.ProductLearningImprovementPlanArchitectureRuns (
+                               PlanId, ArchitectureRunId, TenantId, WorkspaceId, ProjectId)
+                           VALUES (@PlanId, @ArchitectureRunId, @TenantId, @WorkspaceId, @ProjectId);
                            """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { link.PlanId, link.ArchitectureRunId },
+                new { link.PlanId, link.ArchitectureRunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                 cancellationToken: cancellationToken));
     }
 
@@ -50,14 +51,23 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         await RequirePilotSignalInScopeAsync(connection, link.SignalId, scope, cancellationToken);
 
         const string sql = """
-                           INSERT INTO dbo.ProductLearningImprovementPlanSignalLinks (PlanId, SignalId, TriageStatusSnapshot)
-                           VALUES (@PlanId, @SignalId, @TriageStatusSnapshot);
+                           INSERT INTO dbo.ProductLearningImprovementPlanSignalLinks (
+                               PlanId, SignalId, TriageStatusSnapshot, TenantId, WorkspaceId, ProjectId)
+                           VALUES (@PlanId, @SignalId, @TriageStatusSnapshot, @TenantId, @WorkspaceId, @ProjectId);
                            """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { link.PlanId, link.SignalId, link.TriageStatusSnapshot },
+                new
+                {
+                    link.PlanId,
+                    link.SignalId,
+                    link.TriageStatusSnapshot,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -90,7 +100,10 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                                PlanId,
                                AuthorityBundleId,
                                AuthorityArtifactSortOrder,
-                               PilotArtifactHint
+                               PilotArtifactHint,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId
                            )
                            VALUES
                            (
@@ -98,7 +111,10 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                                @PlanId,
                                @AuthorityBundleId,
                                @AuthorityArtifactSortOrder,
-                               @PilotArtifactHint
+                               @PilotArtifactHint,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId
                            );
                            """;
 
@@ -111,7 +127,10 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                     link.PlanId,
                     link.AuthorityBundleId,
                     link.AuthorityArtifactSortOrder,
-                    link.PilotArtifactHint
+                    link.PilotArtifactHint,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId
                 },
                 cancellationToken: cancellationToken));
     }

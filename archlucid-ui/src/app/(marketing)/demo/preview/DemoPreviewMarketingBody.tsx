@@ -6,6 +6,10 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import {
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 
 /**
  * Customer-safe fallback when the demo preview route cannot load (no API routing, network error, or HTTP error).
@@ -68,7 +72,8 @@ export function DemoPreviewNotAvailable() {
 function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
   const runIdLabel = typeof payload.run?.runId === "string" ? payload.run.runId : "—";
   const generatedUtc = typeof payload.generatedUtc === "string" ? payload.generatedUtc : "—";
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const demoMode =
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
   if (demoMode) {
     return (
@@ -77,10 +82,10 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreview
         className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
         role="status"
       >
-        <span className="font-semibold">Sample data preview</span>
+        <span className="font-semibold">Demo data</span>
         {" · "}
         <span className="text-neutral-600 dark:text-neutral-400">
-          Scenario: {payload.demoStatusMessage ?? "Demonstration"} — generated {generatedUtc}
+          Claims Intake sample scenario · generated {generatedUtc}
         </span>
       </div>
     );
@@ -115,8 +120,19 @@ function toAuthorityPipelineItems(
   }));
 }
 
+export type DemoPreviewMarketingBodyProps = {
+  readonly payload: DemoCommitPagePreviewResponse;
+  /** Parent surfaces its own demo banner — omit duplicate banner noise on `/showcase`. */
+  readonly suppressStatusBanner?: boolean;
+};
+
 /** Marketing-only commit page projection (no operator CTAs). */
-export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
+export function DemoPreviewMarketingBody({
+  payload,
+  suppressStatusBanner = false,
+}: DemoPreviewMarketingBodyProps) {
+  const demoMode =
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
   const chain = payload.authorityChain ?? {};
   const runEx = payload.runExplanation ?? null;
   const themeRaw = Array.isArray(runEx?.themeSummaries) ? runEx.themeSummaries : [];
@@ -134,18 +150,29 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       <ShowcaseOutcomeStrip
         runId={typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
         manifestId={manifest?.manifestId}
+        primaryFindingId={
+          typeof payload.run?.runId === "string" && payload.run.runId === SHOWCASE_STATIC_DEMO_RUN_ID
+            ? SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID
+            : undefined
+        }
       />
 
-      <DemoStatusBanner payload={payload} />
+      {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} />}
 
       <section data-testid="demo-preview-run">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Run</h2>
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Run ID:</strong>{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
-            {typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
-          </code>
-        </p>
+        {demoMode ? (
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <strong>Run:</strong> Claims Intake Modernization Run
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <strong>Run ID:</strong>{" "}
+            <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
+              {typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
+            </code>
+          </p>
+        )}
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Project:</strong> {payload.run?.projectId ?? "—"}
         </p>
@@ -157,19 +184,24 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
         </p>
       </section>
 
-      <section data-testid="demo-preview-authority-chain">
+      <section data-testid="demo-preview-review-trail">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Human-readable checkpoints for this completed output (IDs stay under technical details).
+          Audit milestones for this completed output — same vertical timeline as workspace run detail (oldest first).
         </p>
-        <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
-          <li>Context snapshot captured</li>
-          <li>Architecture graph generated</li>
-          <li>Findings reviewed</li>
-          <li>Reviewed manifest linked</li>
-          <li>Decision trace recorded</li>
-          <li>Artifacts bundled for export</li>
-        </ol>
+        <div className="mt-3" data-testid="demo-preview-pipeline-timeline">
+          <AuthorityPipelineTimeline items={pipelineItems} omitEventTechnicalDetails={demoMode} />
+        </div>
+
+        {!demoMode ? (
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+            Show the full timeline after{" "}
+            <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+              opening in workspace
+            </Link>
+            .
+          </p>
+        ) : null}
 
         <details className="mt-4 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
           <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
@@ -237,23 +269,6 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Citation count:</strong> {citationCount}
-        </p>
-      </section>
-
-      <section data-testid="demo-preview-pipeline-timeline">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Pipeline timeline</h2>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          {pipelineTimeline.length} audit events (oldest first) — same timeline component as workspace run detail.
-        </p>
-        <div className="mt-3">
-          <AuthorityPipelineTimeline items={pipelineItems} />
-        </div>
-        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-          Show the full timeline after{" "}
-          <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
-            opening in workspace
-          </Link>
-          .
         </p>
       </section>
 

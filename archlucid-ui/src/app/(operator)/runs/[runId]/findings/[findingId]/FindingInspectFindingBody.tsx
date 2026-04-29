@@ -62,15 +62,6 @@ export function FindingInspectFindingBody({
 
   return (
     <>
-      {variant === "detail" ? (
-        <section className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
-          <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
-          <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
-            {recommendedActionParagraph.trim()}
-          </p>
-        </section>
-      ) : null}
-
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Why this matters</h2>
         {whyThisMattersNarrative ? (
@@ -101,6 +92,15 @@ export function FindingInspectFindingBody({
           </div>
         ) : null}
       </section>
+
+      {variant === "detail" ? (
+        <section className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
+          <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
+          <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
+            {recommendedActionParagraph.trim()}
+          </p>
+        </section>
+      ) : null}
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence</h2>

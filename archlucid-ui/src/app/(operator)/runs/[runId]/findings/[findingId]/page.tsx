@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { redirect } from "next/navigation";
+
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -17,6 +19,8 @@ import {
   findingInspectPrimaryLabels,
 } from "@/lib/finding-display-from-inspect";
 
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
 /**
@@ -28,6 +32,15 @@ export default async function RunFindingExplainPage({
   params: Promise<{ runId: string; findingId: string }>;
 }) {
   const { runId, findingId } = await params;
+
+  if (isInvalidDynamicRouteToken(runId)) {
+    redirect("/runs?projectId=default");
+  }
+
+  if (isInvalidDynamicRouteToken(findingId)) {
+    redirect(`/runs/${encodeURIComponent(runId)}`);
+  }
+
   const decodedFindingId = decodeURIComponent(findingId);
 
   let inspectPayload: FindingInspectPayload | null = null;
@@ -147,7 +160,7 @@ export default async function RunFindingExplainPage({
         />
       ) : null}
 
-      <CollapsibleSection title="AI audit (technical details)" defaultOpen={false}>
+      <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
         <FindingExplainPanel runId={runId} findingId={findingId} />
       </CollapsibleSection>
     </main>

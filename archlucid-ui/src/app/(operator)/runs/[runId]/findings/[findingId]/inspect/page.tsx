@@ -1,6 +1,9 @@
+import { redirect } from "next/navigation";
+
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import { FindingInspectView } from "../FindingInspectView";
@@ -15,6 +18,15 @@ export default async function FindingInspectPage({
   params: Promise<{ runId: string; findingId: string }>;
 }) {
   const { runId, findingId } = await params;
+
+  if (isInvalidDynamicRouteToken(runId)) {
+    redirect("/runs?projectId=default");
+  }
+
+  if (isInvalidDynamicRouteToken(findingId)) {
+    redirect(`/runs/${encodeURIComponent(runId)}`);
+  }
+
   const decodedFindingId = decodeURIComponent(findingId);
 
   let payload: FindingInspectPayload | null = null;

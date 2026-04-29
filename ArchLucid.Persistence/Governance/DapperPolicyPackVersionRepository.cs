@@ -35,9 +35,12 @@ public sealed class DapperPolicyPackVersionRepository(
 
         const string sql = """
                            INSERT INTO dbo.PolicyPackVersions
-                           (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
+                           (
+                               PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished,
+                               TenantId, WorkspaceId, ProjectId)
                            VALUES
-                           (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
+                           (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished,
+                            @TenantId, @WorkspaceId, @ProjectId);
                            """;
 
         (SqlConnection conn, bool ownsConnection) =
@@ -45,7 +48,36 @@ public sealed class DapperPolicyPackVersionRepository(
 
         try
         {
-            await conn.ExecuteAsync(new CommandDefinition(sql, version, transaction, cancellationToken: ct));
+            const string scopeSql = """
+                                    SELECT TenantId, WorkspaceId, ProjectId
+                                    FROM dbo.PolicyPacks
+                                    WHERE PolicyPackId = @PolicyPackId;
+                                    """;
+
+            PolicyPackScopeTriple? hdr = await conn.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
+                new CommandDefinition(scopeSql, new { version.PolicyPackId }, transaction,
+                    cancellationToken: ct));
+
+            if (hdr is null)
+                throw new InvalidOperationException("dbo.PolicyPacks.PolicyPackId was not found: " + version.PolicyPackId + ".");
+
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        version.PolicyPackVersionId,
+                        version.PolicyPackId,
+                        version.Version,
+                        version.ContentJson,
+                        version.CreatedUtc,
+                        version.IsPublished,
+                        hdr.TenantId,
+                        hdr.WorkspaceId,
+                        hdr.ProjectId
+                    },
+                    transaction,
+                    cancellationToken: ct));
         }
         finally
         {
@@ -114,9 +146,12 @@ public sealed class DapperPolicyPackVersionRepository(
 
         const string insertSql = """
                                  INSERT INTO dbo.PolicyPackVersions
-                                 (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
+                                 (
+                                     PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished,
+                                     TenantId, WorkspaceId, ProjectId)
                                  VALUES
-                                 (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
+                                 (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished,
+                                  @TenantId, @WorkspaceId, @ProjectId);
                                  """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -125,6 +160,19 @@ public sealed class DapperPolicyPackVersionRepository(
 
         try
         {
+            const string packScopeSql = """
+                                        SELECT TenantId, WorkspaceId, ProjectId
+                                        FROM dbo.PolicyPacks
+                                        WHERE PolicyPackId = @PolicyPackId;
+                                        """;
+
+            PolicyPackScopeTriple? packScope = await connection.QuerySingleOrDefaultAsync<PolicyPackScopeTriple>(
+                new CommandDefinition(packScopeSql, new { PolicyPackId = policyPackId }, transaction,
+                    cancellationToken: ct));
+
+            if (packScope is null)
+                throw new InvalidOperationException("dbo.PolicyPacks.PolicyPackId was not found: " + policyPackId + ".");
+
             PolicyPackVersion? existing = await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
                 new CommandDefinition(
                     selectSql,
@@ -157,7 +205,22 @@ public sealed class DapperPolicyPackVersionRepository(
             };
 
             await connection.ExecuteAsync(
-                new CommandDefinition(insertSql, inserted, transaction, cancellationToken: ct));
+                new CommandDefinition(
+                    insertSql,
+                    new
+                    {
+                        inserted.PolicyPackVersionId,
+                        inserted.PolicyPackId,
+                        inserted.Version,
+                        inserted.ContentJson,
+                        inserted.CreatedUtc,
+                        inserted.IsPublished,
+                        packScope.TenantId,
+                        packScope.WorkspaceId,
+                        packScope.ProjectId
+                    },
+                    transaction,
+                    cancellationToken: ct));
 
             await transaction.CommitAsync(ct);
 
@@ -186,4 +249,7 @@ public sealed class DapperPolicyPackVersionRepository(
             new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
         return rows.ToList();
     }
+
+    /// <summary>Authoring scope duplicated onto <see cref="PolicyPackVersion"/> rows for SQL Server RLS.</summary>
+    private sealed record PolicyPackScopeTriple(Guid TenantId, Guid WorkspaceId, Guid ProjectId);
 }

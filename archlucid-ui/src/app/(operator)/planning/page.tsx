@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
@@ -14,6 +15,7 @@ import { PLANNING_EMPTY } from "@/lib/empty-state-presets";
 import { fetchLearningPlanningListBundle } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { getPlanningStaticDemoBundle, isPlanningDemoStaticFallbackEnabled } from "@/lib/planning-static-demo";
 import { sortPlansForPlanningDisplay, sortThemesForPlanningDisplay } from "@/lib/planning-display-order";
 import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/types/learning";
 
@@ -27,8 +29,9 @@ export default function PlanningPage() {
   const [themes, setThemes] = useState<LearningThemeResponse[]>([]);
   const [plans, setPlans] = useState<LearningPlanListItemResponse[]>([]);
   const [generatedUtc, setGeneratedUtc] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [usedPlanningDemoFallback, setUsedPlanningDemoFallback] = useState(false);
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -36,6 +39,7 @@ export default function PlanningPage() {
     setFailure(null);
 
     try {
+      setUsedPlanningDemoFallback(false);
       const bundle = await fetchLearningPlanningListBundle({ maxThemes: 50, maxPlans: 50 });
       setSummary(bundle.summary);
       setThemes(bundle.themes.themes);
@@ -51,11 +55,22 @@ export default function PlanningPage() {
         return stillThere ? prev : null;
       });
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
-      setSummary(null);
-      setThemes([]);
-      setPlans([]);
-      setGeneratedUtc(null);
+      const fb = isPlanningDemoStaticFallbackEnabled() ? getPlanningStaticDemoBundle() : null;
+
+      if (fb !== null) {
+        setFailure(null);
+        setSummary(fb.summary);
+        setThemes(fb.themes);
+        setPlans(fb.plans);
+        setGeneratedUtc(fb.generatedUtc);
+        setUsedPlanningDemoFallback(true);
+      } else {
+        setFailure(toApiLoadFailure(e));
+        setSummary(null);
+        setThemes([]);
+        setPlans([]);
+        setGeneratedUtc(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -101,6 +116,12 @@ export default function PlanningPage() {
         </Link>{" "}
         for rollups and triage export.
       </p>
+
+      {usedPlanningDemoFallback ? (
+        <div className="mt-4 max-w-3xl">
+          <OperatorDemoStaticBanner />
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-3 items-center mt-4 mb-5">
         <button type="button" onClick={() => void load()} disabled={loading}>

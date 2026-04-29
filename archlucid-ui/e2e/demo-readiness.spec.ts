@@ -14,6 +14,12 @@ const claimsShowcasePath = "/showcase/claims-intake-modernization";
  * or `npx playwright test --grep @demo-readiness`.
  */
 test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", () => {
+  test("policy pack rejects literal undefined token route @demo-readiness", async ({ page }) => {
+    await page.goto("/governance/policy-packs/undefined");
+    await expect(page).not.toHaveURL(/policy-packs\/undefined/);
+    await expect(page).toHaveURL(/\/governance\/?$/);
+  });
+
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
     await page.goto("/runs?projectId=default");
     await expect(page.getByRole("heading", { name: /architecture runs/i })).toBeVisible();

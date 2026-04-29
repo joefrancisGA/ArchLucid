@@ -203,6 +203,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Screenshot and mock E2E (`playwright.mock.config.ts`)
+
+For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screenshots:all:prebuilt`**, and **`npm run e2e:mock`**, the Playwright **`webServer`** sets **`NEXT_PUBLIC_DEMO_MODE=true`** (unless overridden) so the Runs list can use **`tryStaticDemoRunSummariesPaged`** when the mock API returns no usable paged runs. It also sets **`NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true`** by default so run detail/manifest surfaces match Showcase static payloads when an API call fails. Override either in the shell if you need non-demo parity.
+
 ## Tests
 
 - **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
