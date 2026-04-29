@@ -711,7 +711,8 @@ export async function searchAudit(
 
     await throwIfNotOk(res, "GET /v1/audit/search");
 
-    return res.json() as Promise<AuditEventJson[]>;
+    const body = (await res.json()) as { items: AuditEventJson[] };
+    return body.items;
   }
 
   throw new Error("searchAudit: retry loop exhausted");
@@ -729,7 +730,9 @@ export async function listRecentAudit(
 
   await throwIfNotOk(res, "GET /v1/audit");
 
-  return res.json() as Promise<AuditEventJson[]>;
+  const body = (await res.json()) as { items: AuditEventJson[] };
+
+  return body.items;
 }
 
 export type AuditEventJson = {

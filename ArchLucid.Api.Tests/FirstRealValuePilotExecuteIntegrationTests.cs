@@ -26,6 +26,11 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
+    private sealed class AuditEventCursorPage
+    {
+        public List<AuditEvent> Items { get; init; } = [];
+    }
+
     private static StringContent JsonContent(object value)
     {
         string json = JsonSerializer.Serialize(value, JsonOptions);
@@ -61,16 +66,18 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
             $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunStarted)}&runId={runGuid}&take=10");
 
         auditStarted.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<AuditEvent>? startedEvents = await auditStarted.Content.ReadFromJsonAsync<List<AuditEvent>>(JsonOptions);
-        startedEvents.Should().NotBeNull();
-        startedEvents.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
+        AuditEventCursorPage? startedPage = await auditStarted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
+            JsonOptions);
+        startedPage.Should().NotBeNull();
+        startedPage!.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
 
         HttpResponseMessage auditCompleted = await client.GetAsync(
             $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");
 
         auditCompleted.StatusCode.Should().Be(HttpStatusCode.OK);
-        List<AuditEvent>? completedEvents = await auditCompleted.Content.ReadFromJsonAsync<List<AuditEvent>>(JsonOptions);
-        completedEvents.Should().NotBeNull();
-        completedEvents.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
+        AuditEventCursorPage? completedPage = await auditCompleted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
+            JsonOptions);
+        completedPage.Should().NotBeNull();
+        completedPage!.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
     }
 }

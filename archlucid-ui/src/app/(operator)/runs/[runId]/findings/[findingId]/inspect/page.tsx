@@ -6,7 +6,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { FindingInspectView } from "../FindingInspectView";
 
 /**
- * First-class "Why this finding?" inspector: persisted payload, rule linkage, evidence citations, and audit correlation.
+ * First-class technical inspection: persisted payload, rule linkage, evidence citations, and audit correlation.
  * ReadAuthority only; no writes. `useOperateCapability` applies when future write affordances are added.
  */
 export default async function FindingInspectPage({

@@ -39,4 +39,11 @@ public interface IBackgroundJobRepository
         CancellationToken cancellationToken = default);
 
     Task<int> CountNonTerminalAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Reclaims stale <see cref="BackgroundJobRow.State"/> = <c>Running</c> rows missed when a worker vanished.
+    ///     Sets them back to <c>Pending</c>, increments retries, clears <see cref="BackgroundJobRow.StartedUtc"/>.
+    /// </summary>
+    Task<int> ResetStaleRunningJobsOlderThanAsync(TimeSpan maxRunningAge, CancellationToken cancellationToken = default);
+
 }

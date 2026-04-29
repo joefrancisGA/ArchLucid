@@ -55,86 +55,23 @@ internal static class FindingsSnapshotRelationalRead
 
         List<Guid> recordIds = records.Select(r => r.FindingRecordId).ToList();
 
-        Dictionary<Guid, List<string>> relatedByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, NodeId AS Item
-            FROM dbo.FindingRelatedNodes
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        ChildRelationalSlices slices = await LoadChildRelationalSlicesAsync(connection, recordIds, ct);
 
-        Dictionary<Guid, List<string>> actionsByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, ActionText AS Item
-            FROM dbo.FindingRecommendedActions
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, List<string>> relatedByRecord = slices.RelatedNodes;
 
-        Dictionary<Guid, Dictionary<string, string>> propsByRecord =
-            await LoadPropertiesAsync(connection, recordIds, ct);
+        Dictionary<Guid, List<string>> actionsByRecord = slices.RecommendedActions;
 
-        Dictionary<Guid, List<string>> traceNodesByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, NodeId AS Item
-            FROM dbo.FindingTraceGraphNodesExamined
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, Dictionary<string, string>> propsByRecord = slices.Properties;
 
-        Dictionary<Guid, List<string>> traceRulesByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, RuleText AS Item
-            FROM dbo.FindingTraceRulesApplied
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, List<string>> traceNodesByRecord = slices.TraceGraphNodesExamined;
 
-        Dictionary<Guid, List<string>> traceDecisionsByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, DecisionText AS Item
-            FROM dbo.FindingTraceDecisionsTaken
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, List<string>> traceRulesByRecord = slices.TraceRulesApplied;
 
-        Dictionary<Guid, List<string>> tracePathsByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, PathText AS Item
-            FROM dbo.FindingTraceAlternativePaths
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, List<string>> traceDecisionsByRecord = slices.TraceDecisionsTaken;
 
-        Dictionary<Guid, List<string>> traceNotesByRecord = await LoadOrderedPairsAsync(
-            connection,
-            """
-            SELECT FindingRecordId, SortOrder, NoteText AS Item
-            FROM dbo.FindingTraceNotes
-            WHERE FindingRecordId IN @Ids
-            ORDER BY FindingRecordId, SortOrder;
-            """,
-            recordIds,
-            ct);
+        Dictionary<Guid, List<string>> tracePathsByRecord = slices.TraceAlternativePaths;
 
+        Dictionary<Guid, List<string>> traceNotesByRecord = slices.TraceNotes;
         List<Finding> findings = [];
         foreach (FindingRecordRow rec in records)
         {
@@ -203,22 +140,116 @@ internal static class FindingsSnapshotRelationalRead
         return FindingHumanReviewStatus.NotRequired;
     }
 
-    private static async Task<Dictionary<Guid, List<string>>> LoadOrderedPairsAsync(
+
+    private sealed record ChildRelationalSlices(
+        Dictionary<Guid, List<string>> RelatedNodes,
+        Dictionary<Guid, List<string>> RecommendedActions,
+        Dictionary<Guid, Dictionary<string, string>> Properties,
+        Dictionary<Guid, List<string>> TraceGraphNodesExamined,
+        Dictionary<Guid, List<string>> TraceRulesApplied,
+        Dictionary<Guid, List<string>> TraceDecisionsTaken,
+        Dictionary<Guid, List<string>> TraceAlternativePaths,
+        Dictionary<Guid, List<string>> TraceNotes);
+
+    private static async Task<ChildRelationalSlices> LoadChildRelationalSlicesAsync(
         SqlConnection connection,
-        string sql,
         List<Guid> recordIds,
         CancellationToken ct)
     {
-        Dictionary<Guid, List<string>> result = new();
-
         if (recordIds.Count == 0)
-            return result;
+            return new ChildRelationalSlices(
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, Dictionary<string, string>>(),
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, List<string>>(),
+                new Dictionary<Guid, List<string>>());
 
-        IEnumerable<FindingChildStringRow> rows = await connection.QueryAsync<FindingChildStringRow>(
-            new CommandDefinition(
-                sql,
-                new { Ids = recordIds },
-                cancellationToken: ct));
+        const string batchedSql = """
+                                   SELECT FindingRecordId, SortOrder, NodeId AS Item
+                                   FROM dbo.FindingRelatedNodes
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, ActionText AS Item
+                                   FROM dbo.FindingRecommendedActions
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue
+                                   FROM dbo.FindingProperties
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, PropertySortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, NodeId AS Item
+                                   FROM dbo.FindingTraceGraphNodesExamined
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, RuleText AS Item
+                                   FROM dbo.FindingTraceRulesApplied
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, DecisionText AS Item
+                                   FROM dbo.FindingTraceDecisionsTaken
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, PathText AS Item
+                                   FROM dbo.FindingTraceAlternativePaths
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+
+                                   SELECT FindingRecordId, SortOrder, NoteText AS Item
+                                   FROM dbo.FindingTraceNotes
+                                   WHERE FindingRecordId IN @Ids
+                                   ORDER BY FindingRecordId, SortOrder;
+                                   """;
+
+        await using SqlMapper.GridReader reader = await connection.QueryMultipleAsync(
+            new CommandDefinition(batchedSql, new { Ids = recordIds }, cancellationToken: ct));
+
+        Dictionary<Guid, List<string>> related =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, List<string>> actions =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, Dictionary<string, string>> props =
+            FoldFindingProperties(reader.Read<FindingPropertyRow>().ToList());
+
+        Dictionary<Guid, List<string>> traceNodes =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, List<string>> traceRules =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, List<string>> traceDecisions =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, List<string>> tracePaths =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        Dictionary<Guid, List<string>> traceNotes =
+            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+
+        return new ChildRelationalSlices(
+            related,
+            actions,
+            props,
+            traceNodes,
+            traceRules,
+            traceDecisions,
+            tracePaths,
+            traceNotes);
+    }
+
+    private static Dictionary<Guid, List<string>> FoldFindingChildStrings(IReadOnlyList<FindingChildStringRow> rows)
+    {
+        Dictionary<Guid, List<string>> result = new();
 
         foreach (FindingChildStringRow row in rows)
         {
@@ -234,28 +265,10 @@ internal static class FindingsSnapshotRelationalRead
         return result;
     }
 
-    private static async Task<Dictionary<Guid, Dictionary<string, string>>> LoadPropertiesAsync(
-        SqlConnection connection,
-        List<Guid> recordIds,
-        CancellationToken ct)
+    private static Dictionary<Guid, Dictionary<string, string>> FoldFindingProperties(
+        IReadOnlyList<FindingPropertyRow> rows)
     {
         Dictionary<Guid, Dictionary<string, string>> result = new();
-
-        if (recordIds.Count == 0)
-            return result;
-
-        const string sql = """
-                           SELECT FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue
-                           FROM dbo.FindingProperties
-                           WHERE FindingRecordId IN @Ids
-                           ORDER BY FindingRecordId, PropertySortOrder;
-                           """;
-
-        IEnumerable<FindingPropertyRow> rows = await connection.QueryAsync<FindingPropertyRow>(
-            new CommandDefinition(
-                sql,
-                new { Ids = recordIds },
-                cancellationToken: ct));
 
         foreach (FindingPropertyRow row in rows)
         {

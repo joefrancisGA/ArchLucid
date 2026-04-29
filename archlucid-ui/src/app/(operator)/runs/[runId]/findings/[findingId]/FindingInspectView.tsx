@@ -37,7 +37,7 @@ export function FindingInspectView({
         <Link href={`/runs/${encodeURIComponent(runId)}`} className="text-sm text-sky-700 underline dark:text-sky-300">
           ← Back to run
         </Link>
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Why this finding?</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
         <OperatorApiProblem
           problem={failure?.problem ?? null}
           fallbackMessage={failure?.message ?? "Finding inspector unavailable."}
@@ -66,23 +66,24 @@ export function FindingInspectView({
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link href={`/runs/${encodeURIComponent(runId)}`} className="text-sky-700 underline dark:text-sky-300">
-          ← Back to run
-        </Link>
-        <span aria-hidden="true">·</span>
         <Link
           href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
-          className="text-sky-700 underline dark:text-sky-300"
+          className="text-base font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
         >
-          Finding detail
+          ← Finding detail
+        </Link>
+        <span aria-hidden="true">·</span>
+        <Link href={`/runs/${encodeURIComponent(runId)}`} className="text-sky-700 underline dark:text-sky-300">
+          Back to run
         </Link>
       </div>
 
       <header className="space-y-3">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Why this finding?</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
         <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          This view surfaces decision-rule linkage, citations, typed payload, and audit correlation for reviewers who need
-          full traceability. Use Finding detail first for summaries and narrative; come here for structured inspection.
+          This view shows audit and explainability details for the finding: decision-rule linkage, citations, typed
+          payload, and audit correlation. Use Finding detail (link above) for the product summary; come here when you
+          need full traceability.
         </p>
         <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}

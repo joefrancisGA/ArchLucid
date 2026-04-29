@@ -315,7 +315,12 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       }
 
       if (req.method === "GET" && pathname === "/v1/audit/search") {
-        sendJson(res, 200, []);
+        sendJson(res, 200, {
+          items: [],
+          nextCursor: null,
+          hasMore: false,
+          requestedTake: 200,
+        });
         return;
       }
 

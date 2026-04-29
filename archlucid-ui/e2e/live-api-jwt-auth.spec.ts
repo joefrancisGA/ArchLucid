@@ -107,7 +107,8 @@ test.describe("live-api-jwt-auth", () => {
     });
 
     expect(search.ok()).toBeTruthy();
-    const rows = (await search.json()) as { actorUserName?: string }[];
+    const envelope = (await search.json()) as { items?: { actorUserName?: string }[] };
+    const rows = envelope.items ?? [];
 
     const match = rows.some(
       (r) =>

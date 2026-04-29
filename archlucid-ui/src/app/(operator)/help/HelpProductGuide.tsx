@@ -16,8 +16,9 @@ export function HelpProductGuide() {
         Using ArchLucid
       </h2>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Guides for architects: request, run, manifest, findings, and artifacts. Terminology below matches the product
-        (finalize, not commit, for the reviewed manifest).
+        Guides for architects: request, run, manifest, findings, and artifacts. Terminology matches the product: you{" "}
+        <strong>finalize</strong> the reviewed manifest (the API may still reference legacy &quot;commit&quot; in
+        technical traces).
       </p>
       <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
         <li>

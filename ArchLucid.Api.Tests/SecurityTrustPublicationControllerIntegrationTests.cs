@@ -40,10 +40,12 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         string raw = await search.Content.ReadAsStringAsync();
         using JsonDocument doc = JsonDocument.Parse(raw);
 
-        doc.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
-        doc.RootElement.GetArrayLength().Should().BeGreaterThan(0);
+        JsonElement root = doc.RootElement;
+        JsonElement items = root.GetProperty("items");
+        items.ValueKind.Should().Be(JsonValueKind.Array);
+        items.GetArrayLength().Should().BeGreaterThan(0);
 
-        JsonElement first = doc.RootElement[0];
+        JsonElement first = items[0];
         first.GetProperty("eventType").GetString().Should().Be("SecurityAssessmentPublished");
         first.GetProperty("dataJson").GetString().Should().Contain("2026-Q2");
         first.GetProperty("dataJson").GetString().Should().Contain("2026-07-29");

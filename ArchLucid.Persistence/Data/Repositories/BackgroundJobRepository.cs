@@ -341,6 +341,37 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         return count > int.MaxValue ? int.MaxValue : (int)count;
     }
 
+    /// <inheritdoc />
+    public async Task<int> ResetStaleRunningJobsOlderThanAsync(
+        TimeSpan maxRunningAge,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRunningAge <= TimeSpan.Zero)
+            return 0;
+
+        const string sql = """
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Pending',
+                               StartedUtc = NULL,
+                               RetryCount = RetryCount + 1,
+                               Error = COALESCE(Error, N'')
+                           WHERE State = N'Running'
+                             AND StartedUtc IS NOT NULL
+                             AND StartedUtc < @StaleBeforeUtc
+                             AND RetryCount < MaxRetries;
+                           """;
+
+        DateTime staleBeforeUtc = DateTime.UtcNow.Subtract(maxRunningAge);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { StaleBeforeUtc = staleBeforeUtc },
+                cancellationToken: cancellationToken));
+    }
+
     private static bool IsTerminalJobState(string state)
     {
         return string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase) || string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase);

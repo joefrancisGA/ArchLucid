@@ -62,8 +62,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
     run: {
       runId,
       projectId: "contoso-health-pilot",
-      description:
-        "Claims Intake Modernization — streamline intake workflows, adjudication handoffs, and audit-ready evidence.",
+      description: "Claims Intake Modernization Run",
       createdUtc: "2026-01-10T09:15:22.000Z",
     },
     manifest: {

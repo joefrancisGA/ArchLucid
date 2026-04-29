@@ -73,26 +73,22 @@ export function GenerateSponsorValueReportButton() {
     }
   }
 
+  if (!canMutate) {
+    return null;
+  }
+
   return (
-    <div className="space-y-2">
+    <div className="max-w-xl space-y-2">
+      <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Sponsor collateral</p>
       <Button
         type="button"
         variant="outline"
-        disabled={!canMutate || busy}
-        title={
-          canMutate
-            ? "Generate a sponsor-ready DOCX for the current scope."
-            : "Sign in as an operator with artifact export access to generate the sponsor DOCX."
-        }
+        disabled={busy}
+        title="Generate a sponsor-ready DOCX for the current scope."
         onClick={() => void onClick()}
       >
         {busy ? "Generating…" : "Generate sponsor report"}
       </Button>
-      {!canMutate ? (
-        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Available to operators with artifact export access. Sign in to enable.
-        </p>
-      ) : null}
       {error ? (
         <OperatorApiProblem
           problem={error.problem}
