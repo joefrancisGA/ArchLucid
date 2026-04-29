@@ -44,6 +44,13 @@ public class ArtifactBundle
         set;
     }
 
+    /// <summary>Bundle lifecycle at rest (defaults to <see cref="ArtifactBundleStatus.Available" />).</summary>
+    public ArtifactBundleStatus Status
+    {
+        get;
+        set;
+    } = ArtifactBundleStatus.Available;
+
     public List<SynthesizedArtifact> Artifacts
     {
         get;

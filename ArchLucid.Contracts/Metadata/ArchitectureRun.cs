@@ -10,7 +10,7 @@ namespace ArchLucid.Contracts.Metadata;
 /// </summary>
 /// <remarks>
 ///     HTTP/API layers call create, execute, and commit orchestrators; status transitions follow
-///     <c>Created → ReadyForCommit → Committed</c> (or <c>Failed</c> on error).
+///     <c>Created → ReadyForCommit → Committed</c> (or <c>Failed</c> / <c>Retrying</c> on error/retry paths).
 /// </remarks>
 public sealed class ArchitectureRun
 {

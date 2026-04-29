@@ -147,6 +147,20 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Count of user/API-initiated retries after <see cref="LegacyRunStatus" /> <c>Failed</c>.</summary>
+    public int RetryCount
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional durable reason for the last transition to <c>Failed</c>.</summary>
+    public string? LastFailureReason
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null" /> before first
     ///     read/insert round-trip.

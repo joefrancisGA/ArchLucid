@@ -71,7 +71,7 @@ public sealed class SqlFindingsSnapshotRepository(
         const string sql = """
                            SELECT
                                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                               SchemaVersion, FindingsJson
+                               SchemaVersion, GenerationStatus, FindingsJson
                            FROM dbo.FindingsSnapshots
                            WHERE FindingsSnapshotId = @FindingsSnapshotId;
                            """;
@@ -105,6 +105,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     GraphSnapshotId = row.GraphSnapshotId,
                     CreatedUtc = row.CreatedUtc,
                     SchemaVersion = row.SchemaVersion,
+                    GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
                     Findings = []
                 };
 
@@ -237,13 +238,13 @@ public sealed class SqlFindingsSnapshotRepository(
                                  (
                                      FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
                                      TenantId, WorkspaceId, ProjectId,
-                                     CreatedUtc, SchemaVersion, FindingsJson
+                                     CreatedUtc, SchemaVersion, GenerationStatus, FindingsJson
                                  )
                                  VALUES
                                  (
                                      @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
                                      @TenantId, @WorkspaceId, @ProjectId,
-                                     @CreatedUtc, @SchemaVersion, @FindingsJson
+                                     @CreatedUtc, @SchemaVersion, @GenerationStatus, @FindingsJson
                                  );
                                  """;
 
@@ -258,6 +259,7 @@ public sealed class SqlFindingsSnapshotRepository(
             scope.ProjectId,
             snapshot.CreatedUtc,
             snapshot.SchemaVersion,
+            GenerationStatus = snapshot.GenerationStatus.ToString(),
             FindingsJson = JsonEntitySerializer.Serialize(snapshot)
         };
 

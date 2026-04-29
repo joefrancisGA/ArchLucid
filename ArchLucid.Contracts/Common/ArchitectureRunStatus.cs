@@ -19,5 +19,8 @@ public enum ArchitectureRunStatus
     Committed = 5,
 
     /// <summary>Run failed during task execution or commit; see run error details.</summary>
-    Failed = 6
+    Failed = 6,
+
+    /// <summary>User initiated retry; coordinator is rebuilding tasks for the same run id.</summary>
+    Retrying = 7
 }

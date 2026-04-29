@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Decisioning.Models;
 
 public class FindingsSnapshot
@@ -38,6 +40,13 @@ public class FindingsSnapshot
         get;
         set;
     }
+
+    /// <summary>Whether the snapshot is sealed for manifest finalization (defaults to <see cref="FindingsSnapshotGenerationStatus.Complete" /> for legacy rows).</summary>
+    public FindingsSnapshotGenerationStatus GenerationStatus
+    {
+        get;
+        set;
+    } = FindingsSnapshotGenerationStatus.Complete;
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
     public List<FindingEngineFailure> EngineFailures

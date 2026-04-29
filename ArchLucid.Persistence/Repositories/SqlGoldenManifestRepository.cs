@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Mapping;
@@ -179,7 +180,7 @@ public sealed class SqlGoldenManifestRepository(
                                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri, LifecycleStatus
                            )
                            VALUES
                            (
@@ -188,7 +189,7 @@ public sealed class SqlGoldenManifestRepository(
                                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
                                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
                                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                               @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri
+                               @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri, @LifecycleStatus
                            );
                            """;
 
@@ -272,7 +273,8 @@ public sealed class SqlGoldenManifestRepository(
             AssumptionsJson = assumptionsJson,
             WarningsJson = warningsJson,
             ProvenanceJson = provenanceJson,
-            ManifestPayloadBlobUri = manifestBlobUri
+            ManifestPayloadBlobUri = manifestBlobUri,
+            LifecycleStatus = GoldenManifestLifecycleStatus.Active.ToString()
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));

@@ -56,6 +56,13 @@ public class SynthesizedArtifact
         set;
     } = null!;
 
+    /// <summary>Row-level synthesis outcome for this artifact slice.</summary>
+    public SynthesizedArtifactGenerationStatus Status
+    {
+        get;
+        set;
+    } = SynthesizedArtifactGenerationStatus.Generated;
+
     public Dictionary<string, string> Metadata
     {
         get;

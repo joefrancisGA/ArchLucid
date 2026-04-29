@@ -13,8 +13,9 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Each test uses a new <see cref="ArchLucidApiFactory" /> so the per-test SQL Server database is isolated (see
 ///     <c>docs/BUILD.md</c> for connection resolution).
-///     Shared state would collide on <c>GoldenManifestVersions</c> (PK = ManifestVersion; production uses run-scoped first
-///     versions, e.g. <c>v1-</c> plus run id).
+///     Shared state could collide when multiple tests reuse one factory database for the same <c>RunId</c> —
+///     <c>dbo.GoldenManifests</c> enforces at most one active manifest per run (filtered unique index
+///     <c>UQ_GoldenManifests_RunId_Active</c>; see <c>dbo.sp_FinalizeManifest</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]

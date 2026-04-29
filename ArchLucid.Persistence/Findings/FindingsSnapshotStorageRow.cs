@@ -47,4 +47,11 @@ internal sealed class FindingsSnapshotStorageRow
         get;
         init;
     } = null!;
+
+    /// <summary>Matches <see cref="ArchLucid.Contracts.Findings.FindingsSnapshotGenerationStatus" /> name persisted on SQL header.</summary>
+    public string? GenerationStatus
+    {
+        get;
+        init;
+    }
 }

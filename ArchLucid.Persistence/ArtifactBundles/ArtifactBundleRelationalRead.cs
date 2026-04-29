@@ -122,6 +122,7 @@ internal static class ArtifactBundleRelationalRead
             RunId = row.RunId,
             ManifestId = row.ManifestId,
             CreatedUtc = row.CreatedUtc,
+            Status = ArtifactBundleStatusParser.Parse(row.Status),
             Artifacts = artifacts,
             Trace = trace
         };
@@ -137,7 +138,7 @@ internal static class ArtifactBundleRelationalRead
             ? """
 
               SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                     ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
+                     ArtifactType, Name, Format, Content, ContentHash, GenerationStatus, ContentBlobUri
 
               FROM dbo.ArtifactBundleArtifacts
 
@@ -152,7 +153,7 @@ internal static class ArtifactBundleRelationalRead
 
                      ArtifactType, Name, Format, CAST(NULL AS NVARCHAR(MAX)) AS Content,
 
-                     ContentHash, ContentBlobUri
+                     ContentHash, GenerationStatus, ContentBlobUri
 
               FROM dbo.ArtifactBundleArtifacts
 
@@ -255,6 +256,7 @@ internal static class ArtifactBundleRelationalRead
                     Format = ar.Format,
                     Content = ar.Content ?? string.Empty,
                     ContentHash = ar.ContentHash,
+                    Status = SynthesizedArtifactSliceStatusParser.Parse(ar.GenerationStatus),
                     Metadata = meta,
                     ContributingDecisionIds = decIds
                 });
@@ -342,6 +344,12 @@ internal static class ArtifactBundleRelationalRead
             get;
             init;
         } = null!;
+
+        public string? GenerationStatus
+        {
+            get;
+            init;
+        }
 
         public string? ContentBlobUri
         {

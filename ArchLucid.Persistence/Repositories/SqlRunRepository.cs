@@ -44,7 +44,8 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason
                            )
                            OUTPUT inserted.RowVersionStamp
                            VALUES
@@ -53,7 +54,8 @@ public sealed class SqlRunRepository(
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot
+                               @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot,
+                               @RetryCount, @LastFailureReason
                            );
                            """;
 
@@ -98,6 +100,7 @@ public sealed class SqlRunRepository(
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason,
                                RowVersionStamp AS RowVersion
                            FROM dbo.Runs
                            WHERE RunId = @RunId
@@ -130,7 +133,8 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE ProjectId = @ProjectSlug
                              AND TenantId = @TenantId
@@ -178,7 +182,8 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE ProjectId = @ProjectSlug
                              AND TenantId = @TenantId
@@ -234,7 +239,8 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -279,7 +285,8 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                               RetryCount, LastFailureReason
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -348,7 +355,9 @@ public sealed class SqlRunRepository(
                                CurrentManifestVersion = @CurrentManifestVersion,
                                IsPublicShowcase = @IsPublicShowcase,
                                RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
-                               PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot
+                               PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot,
+                               RetryCount = @RetryCount,
+                               LastFailureReason = @LastFailureReason
                            OUTPUT inserted.RowVersionStamp
                            WHERE RunId = @RunId
                              AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
