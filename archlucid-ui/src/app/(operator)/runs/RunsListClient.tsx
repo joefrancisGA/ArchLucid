@@ -22,6 +22,8 @@ export type RunsListClientProps = {
   page: number;
   pageSize: number;
   totalCount: number;
+  /** From keyset `GET .../runs`; required on Next for page 2+ when the API uses cursor paging. */
+  nextCursor?: string | null;
 };
 
 type SortOrder = "createdDesc" | "createdAsc";
@@ -111,6 +113,7 @@ export function RunsListClient({
   page,
   pageSize,
   totalCount,
+  nextCursor = null,
 }: RunsListClientProps) {
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
@@ -183,6 +186,11 @@ export function RunsListClient({
 
   const pages = totalPages(totalCount, pageSize);
   const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
+  const previousHref = `/runs?${baseQuery}&page=1`;
+  const nextHref =
+    nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
+      ? `/runs?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
+      : `/runs?${baseQuery}&page=${page + 1}`;
 
   const onRowActivate = useCallback((run: RunSummary, e: React.MouseEvent<HTMLTableRowElement>) => {
     if ((e.target as HTMLElement).closest("a")) {
@@ -386,9 +394,10 @@ export function RunsListClient({
             {page > 1 ? (
               <Link
                 className="font-semibold text-teal-800 underline dark:text-teal-300"
-                href={`/runs?${baseQuery}&page=${page - 1}`}
+                href={previousHref}
+                aria-label={page === 2 ? "Previous page" : "First page (keyset pagination)"}
               >
-                Previous
+                {page === 2 ? "Previous" : "First page"}
               </Link>
             ) : (
               <button
@@ -404,7 +413,7 @@ export function RunsListClient({
             {page < pages ? (
               <Link
                 className="font-semibold text-teal-800 underline dark:text-teal-300"
-                href={`/runs?${baseQuery}&page=${page + 1}`}
+                href={nextHref}
               >
                 Next
               </Link>

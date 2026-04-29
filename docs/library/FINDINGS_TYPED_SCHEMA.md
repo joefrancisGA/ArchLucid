@@ -29,3 +29,4 @@
 ## Tests
 
 - **`ArchLucid.Decisioning.Tests`** — factory, converter, migrator, serialization round-trip, and end-to-end graph → findings → manifest.
+- **Golden corpus** — **`tests/golden-corpus/decisioning/case-31`** deterministically combines **`ComplianceFinding`**, **`SecurityCoverageFinding`**, and **`TopologyCoverageFinding`** on one **storage**-only graph (see **[DECISIONING_GOLDEN_CORPUS.md](./DECISIONING_GOLDEN_CORPUS.md)**).

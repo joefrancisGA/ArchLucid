@@ -11,10 +11,10 @@ namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 [Trait("Suite", "Core")]
 public sealed class GoldenCorpusRegressionTests
 {
-    private const int ExpectedCaseCount = 30;
+    private const int ExpectedCaseCount = 31;
 
     [Fact]
-    public void Corpus_contains_thirty_case_directories()
+    public void Corpus_contains_expected_case_directories()
     {
         string root = GoldenCorpusRepoPaths.CorpusOutputDirectory;
         Directory.Exists(root).Should().BeTrue($"missing corpus directory: {root}");

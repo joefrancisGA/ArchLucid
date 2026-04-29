@@ -57,7 +57,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         parent.Should().NotBeNull();
 
-        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -143,7 +143,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         meterListener.Start();
 
-        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -204,7 +204,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("ingest failed"));
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingest).Executor;
+        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingestMock: ingest).Executor;
         AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -228,7 +228,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(null, Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -242,7 +242,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = DateTime.UtcNow;
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.Failed;
@@ -280,7 +280,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = DateTime.UtcNow;
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
@@ -329,7 +329,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         DateTime utc = DateTime.UtcNow;
-        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision, _) = CreateExecutor(
             configureFindings: s =>
             {
                 s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
@@ -370,6 +370,32 @@ public sealed class AuthorityPipelineStagesExecutorTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_when_artifact_synthesis_throws_logs_ArtifactSynthesisFailed_and_rethrows()
+    {
+        Guid runGuid = Guid.NewGuid();
+        (AuthorityPipelineStagesExecutor sut, _, Mock<IAuditService> audit) = CreateExecutor(
+            configureSynthesis: s =>
+                s.Setup(x => x.SynthesizeAsync(It.IsAny<ManifestDocument>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new InvalidOperationException("synthesis failed")));
+
+        AuthorityPipelineContext ctx = CreateContext(runId: runGuid);
+
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("synthesis failed");
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.ArtifactSynthesisFailed
+                    && e.RunId == runGuid
+                    && e.ManifestId.HasValue
+                    && e.ManifestId.Value != Guid.Empty),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static AuthorityPipelineContext CreateContext(Activity? runActivity = null, Guid? runId = null)
     {
         Guid rid = runId ?? Guid.NewGuid();
@@ -401,10 +427,12 @@ public sealed class AuthorityPipelineStagesExecutorTests
         };
     }
 
-    private static (AuthorityPipelineStagesExecutor Executor, Mock<IDecisionEngine> Decision) CreateExecutor(
+    private static (AuthorityPipelineStagesExecutor Executor, Mock<IDecisionEngine> Decision, Mock<IAuditService> Audit)
+        CreateExecutor(
         Mock<IContextIngestionService>? ingestMock = null,
         Action<FindingsSnapshot>? configureFindings = null,
-        AuthorityPipelineOptions? authorityPipelineOptions = null)
+        AuthorityPipelineOptions? authorityPipelineOptions = null,
+        Action<Mock<IArtifactSynthesisService>>? configureSynthesis = null)
     {
         Guid snapshotId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
@@ -549,6 +577,8 @@ public sealed class AuthorityPipelineStagesExecutorTests
                     Trace = new SynthesisTrace { TraceId = Guid.NewGuid() }
                 });
 
+        configureSynthesis?.Invoke(synth);
+
         Mock<IArtifactBundleRepository> bundleRepo = new();
         bundleRepo
             .Setup(r => r.SaveAsync(It.IsAny<ArtifactBundle>(), It.IsAny<CancellationToken>(), null, null))
@@ -581,7 +611,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             audit.Object,
             cosmosDb.Object,
             apPipeline.Object,
-            NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision);
+            NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
     }
 
     private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);

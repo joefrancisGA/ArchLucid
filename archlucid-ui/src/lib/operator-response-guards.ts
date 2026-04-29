@@ -41,25 +41,30 @@ export function coerceRunSummaryList(
   return { ok: true, items };
 }
 
-/**
- * Ensures a paged runs response has numeric paging fields and an items array of run summaries.
- */
-export function coerceRunSummaryPaged(
-  data: unknown,
-):
-  | { ok: true; value: PagedResponse<RunSummary> }
-  | { ok: false; message: string } {
-  if (!isRecord(data)) {
-    return { ok: false, message: "Expected a JSON object for paged runs." };
-  }
+function isLegacyOffsetPagedRunEnvelope(data: Record<string, unknown>): boolean {
+  return (
+    typeof data.totalCount === "number" &&
+    Number.isFinite(data.totalCount) &&
+    typeof data.page === "number" &&
+    Number.isFinite(data.page) &&
+    typeof data.pageSize === "number" &&
+    Number.isFinite(data.pageSize) &&
+    typeof data.hasMore === "boolean"
+  );
+}
 
-  if (!Array.isArray(data.items)) {
+function isCursorPagedRunEnvelope(data: Record<string, unknown>): boolean {
+  return typeof data.requestedTake === "number" && Number.isFinite(data.requestedTake) && typeof data.hasMore === "boolean";
+}
+
+function normalizeRunSummaryItems(rawItems: unknown): { ok: true; items: RunSummary[] } | { ok: false; message: string } {
+  if (!Array.isArray(rawItems)) {
     return { ok: false, message: 'Paged runs response is missing an "items" array.' };
   }
 
   const items: RunSummary[] = [];
 
-  for (const row of data.items) {
+  for (const row of rawItems) {
     if (!isRecord(row) || typeof row.runId !== "string") {
       return {
         ok: false,
@@ -70,31 +75,87 @@ export function coerceRunSummaryPaged(
     items.push(row as RunSummary);
   }
 
-  if (typeof data.totalCount !== "number" || !Number.isFinite(data.totalCount)) {
-    return { ok: false, message: "Paged runs response has invalid totalCount." };
+  return { ok: true, items };
+}
+
+/** Lower bound on total rows so offset-style pagination UI can enable Next when the API uses keyset paging only. */
+function keysetTotalCountLowerBound(page: number, pageSize: number, itemCount: number, hasMore: boolean): number {
+  const prefixCount = (page - 1) * pageSize + itemCount;
+
+  if (!hasMore) {
+    return prefixCount;
   }
 
-  if (typeof data.page !== "number" || !Number.isFinite(data.page)) {
-    return { ok: false, message: "Paged runs response has invalid page." };
+  return Math.max(prefixCount + 1, page * pageSize + 1);
+}
+
+/**
+ * Ensures a paged runs response has an items array of run summaries and paging metadata.
+ *
+ * Accepts legacy offset pages (`totalCount`, `page`, `pageSize`) or keyset pages (`requestedTake`, `nextCursor`).
+ */
+export function coerceRunSummaryPaged(
+  data: unknown,
+  context?: { readonly page?: number },
+):
+  | { ok: true; value: PagedResponse<RunSummary> }
+  | { ok: false; message: string } {
+  if (!isRecord(data)) {
+    return { ok: false, message: "Expected a JSON object for paged runs." };
   }
 
-  if (typeof data.pageSize !== "number" || !Number.isFinite(data.pageSize)) {
-    return { ok: false, message: "Paged runs response has invalid pageSize." };
+  const normalizedItems = normalizeRunSummaryItems(data.items);
+
+  if (!normalizedItems.ok) {
+    return normalizedItems;
   }
 
-  if (typeof data.hasMore !== "boolean") {
-    return { ok: false, message: "Paged runs response has invalid hasMore." };
+  const items = normalizedItems.items;
+
+  if (isLegacyOffsetPagedRunEnvelope(data)) {
+    return {
+      ok: true,
+      value: {
+        items,
+        totalCount: data.totalCount,
+        page: data.page,
+        pageSize: data.pageSize,
+        hasMore: data.hasMore,
+      },
+    };
+  }
+
+  if (isCursorPagedRunEnvelope(data)) {
+    if (data.nextCursor !== undefined && data.nextCursor !== null && typeof data.nextCursor !== "string") {
+      return { ok: false, message: "Paged runs response has invalid nextCursor." };
+    }
+
+    const page = context?.page ?? 1;
+
+    if (!Number.isFinite(page) || page < 1) {
+      return { ok: false, message: "Paged runs context has invalid page." };
+    }
+
+    const pageSize = data.requestedTake;
+
+    return {
+      ok: true,
+      value: {
+        items,
+        totalCount: keysetTotalCountLowerBound(page, pageSize, items.length, data.hasMore),
+        page,
+        pageSize,
+        hasMore: data.hasMore,
+        nextCursor:
+          typeof data.nextCursor === "string" && data.nextCursor.length > 0 ? data.nextCursor : null,
+      },
+    };
   }
 
   return {
-    ok: true,
-    value: {
-      items,
-      totalCount: data.totalCount,
-      page: data.page,
-      pageSize: data.pageSize,
-      hasMore: data.hasMore,
-    },
+    ok: false,
+    message:
+      "Paged runs response is missing offset fields (totalCount, page, pageSize) or keyset fields (requestedTake).",
   };
 }
 

@@ -4,6 +4,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.ProblemDetails;
+using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -13,6 +15,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Planning;
 
@@ -32,7 +35,8 @@ namespace ArchLucid.Api.Controllers.Planning;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class GraphController(
     IAuthorityQueryService authorityQueryService,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IOptions<KnowledgeGraphLimitsOptions> knowledgeGraphLimits)
     : ControllerBase
 {
     /// <summary>
@@ -42,6 +46,7 @@ public sealed class GraphController(
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -51,6 +56,18 @@ public sealed class GraphController(
         if (detail.GraphSnapshot is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
                 ProblemTypes.ResourceNotFound);
+
+        KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
+
+        if (limits.FullGraphResponseMaxNodes > 0 &&
+            detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+        {
+            return this.PayloadTooLargeProblem(
+                $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
+                + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/graph/runs/{runId}/nodes with page and pageSize "
+                + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
+                ProblemTypes.GraphTooLargeForFullResponse);
+        }
 
         GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
         return Ok(vm);

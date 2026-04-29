@@ -35,6 +35,7 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 | 2026-Q2 penetration test (Aeronova Red Team LLC) | Engagement in flight | [2026-Q2-SOW.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-SOW.md) | 2026-04-24 |
 | SOC 2 Type II attestation (CPA) — procurement status | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/SOC2_STATUS_PROCUREMENT.md) (states **not yet issued**; interim evidence is the self-assessment above) | 2026-04-24 |
 | Durable audit catalog (append-only design) | Self-asserted | [AUDIT_COVERAGE_MATRIX.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/AUDIT_COVERAGE_MATRIX.md) | 2026-04-24 |
+| V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/BUYER_SCALABILITY_FAQ.md) | 2026-04-29 |
 | Penetration test remediation tracking (process) | Self-asserted | [REMEDIATION_TRACKER.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/REMEDIATION_TRACKER.md) | 2026-04-24 |
 
 ---

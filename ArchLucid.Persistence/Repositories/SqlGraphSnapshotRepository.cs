@@ -19,8 +19,8 @@ namespace ArchLucid.Persistence.Repositories;
 ///     SQL Server-backed implementation of <see cref="IGraphSnapshotRepository" />.
 ///     Dual-writes legacy JSON on <c>dbo.GraphSnapshots</c> plus relational children; reads prefer child rows per
 ///     collection.
-///     <c>dbo.GraphSnapshotEdges</c> remains authoritative for
-///     <see cref="IGraphSnapshotRepository.ListIndexedEdgesAsync" /> (same query and ordering).
+///     <c>dbo.GraphSnapshotEdges</c> remains authoritative for indexed edge listing in repository helpers
+///     (same query and ordering).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGraphSnapshotRepository(
@@ -69,24 +69,24 @@ public sealed class SqlGraphSnapshotRepository(
     {
         const string sql = """
                            SELECT TOP 1
-                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                               NodesJson, EdgesJson, WarningsJson
+                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                            FROM dbo.GraphSnapshots
                            WHERE ContextSnapshotId = @ContextSnapshotId
                            ORDER BY CreatedUtc DESC;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(
-                sql,
-                new { ContextSnapshotId = contextSnapshotId },
-                cancellationToken: ct));
+        GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
+            await connection.QuerySingleOrDefaultAsync<GraphSnapshotRelationalRead.GraphSnapshotHeaderRow>(
+                new CommandDefinition(
+                    sql,
+                    new { ContextSnapshotId = contextSnapshotId },
+                    cancellationToken: ct));
 
-        if (row is null)
+        if (header is null)
             return null;
 
-        return await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, ct);
+        return await GraphSnapshotRelationalRead.HydrateAsync(connection, null, header, jsonRowForMerge: null, ct);
     }
 
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
@@ -164,78 +164,22 @@ public sealed class SqlGraphSnapshotRepository(
         ScopeContext scope,
         CancellationToken ct)
     {
-        const string insertNodeSql = """
-                                     INSERT INTO dbo.GraphSnapshotNodes
-                                     (
-                                         GraphNodeRowId, GraphSnapshotId, SortOrder,
-                                         TenantId, WorkspaceId, ScopeProjectId,
-                                         NodeId, NodeType, Label, Category, SourceType, SourceId
-                                     )
-                                     VALUES
-                                     (
-                                         @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
-                                         @TenantId, @WorkspaceId, @ScopeProjectId,
-                                         @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
-                                     );
-                                     """;
+        List<(Guid RowId, GraphNode Node, int SortOrder)> planned =
+            GraphSnapshotSqlBulkInsert.PlanNodeRows(snapshot);
 
-        const string insertPropertySql = """
-                                         INSERT INTO dbo.GraphSnapshotNodeProperties
-                                         (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ScopeProjectId)
-                                         VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue, @TenantId, @WorkspaceId, @ScopeProjectId);
-                                         """;
-
-        for (int i = 0; i < snapshot.Nodes.Count; i++)
-        {
-            GraphNode node = snapshot.Nodes[i];
-            Guid rowId = Guid.NewGuid();
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertNodeSql,
-                    new
-                    {
-                        GraphNodeRowId = rowId,
-                        snapshot.GraphSnapshotId,
-                        SortOrder = i,
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId,
-                        node.NodeId,
-                        node.NodeType,
-                        node.Label,
-                        node.Category,
-                        node.SourceType,
-                        node.SourceId
-                    },
-                    transaction,
-                    cancellationToken: ct));
-
-            List<KeyValuePair<string, string>> orderedProps = node.Properties
-                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
-                .ToList();
-
-            for (int p = 0; p < orderedProps.Count; p++)
-            {
-                KeyValuePair<string, string> kv = orderedProps[p];
-
-                await connection.ExecuteAsync(
-                    new CommandDefinition(
-                        insertPropertySql,
-                        new
-                        {
-                            GraphNodeRowId = rowId,
-                            PropertySortOrder = p,
-                            PropertyKey = kv.Key,
-                            PropertyValue = kv.Value,
-                            scope.TenantId,
-                            scope.WorkspaceId,
-                            ScopeProjectId = scope.ProjectId
-                        },
-                        transaction,
-                        cancellationToken: ct));
-            }
-        }
+        await GraphSnapshotSqlBulkInsert.InsertNodeRowsAsync(
+            snapshot,
+            connection,
+            transaction,
+            scope,
+            planned,
+            ct);
+        await GraphSnapshotSqlBulkInsert.InsertNodePropertyRowsAsync(
+            connection,
+            transaction,
+            scope,
+            planned,
+            ct);
     }
 
     private static async Task InsertWarningsAsync(
@@ -309,72 +253,13 @@ public sealed class SqlGraphSnapshotRepository(
                 cancellationToken: ct));
     }
 
-    private static async Task InsertEdgePropertiesAsync(
+    private static Task InsertEdgePropertiesAsync(
         GraphSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
         ScopeContext scope,
-        CancellationToken ct)
-    {
-        const string insertEdgePropSql = """
-                                         INSERT INTO dbo.GraphSnapshotEdgeProperties
-                                         (
-                                             GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue,
-                                             TenantId, WorkspaceId, ScopeProjectId)
-                                         VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue,
-                                                 @TenantId, @WorkspaceId, @ScopeProjectId);
-                                         """;
-
-        foreach (GraphEdge edge in snapshot.Edges)
-        {
-            int sort = 0;
-
-            if (!string.IsNullOrEmpty(edge.Label))
-
-                await connection.ExecuteAsync(
-                    new CommandDefinition(
-                        insertEdgePropSql,
-                        new
-                        {
-                            snapshot.GraphSnapshotId,
-                            edge.EdgeId,
-                            PropertySortOrder = sort++,
-                            PropertyKey = GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
-                            PropertyValue = edge.Label,
-                            scope.TenantId,
-                            scope.WorkspaceId,
-                            ScopeProjectId = scope.ProjectId
-                        },
-                        transaction,
-                        cancellationToken: ct));
-
-
-            List<KeyValuePair<string, string>> orderedProps = edge.Properties
-                .Where(kv => !string.Equals(kv.Key, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
-                    StringComparison.Ordinal))
-                .OrderBy(kv => kv.Key, StringComparer.Ordinal)
-                .ToList();
-
-            foreach (KeyValuePair<string, string> kv in orderedProps)
-
-                await connection.ExecuteAsync(
-                    new CommandDefinition(
-                        insertEdgePropSql,
-                        new
-                        {
-                            snapshot.GraphSnapshotId,
-                            edge.EdgeId,
-                            PropertySortOrder = sort++,
-                            PropertyKey = kv.Key,
-                            PropertyValue = kv.Value,
-                            scope.TenantId,
-                            scope.WorkspaceId,
-                            ScopeProjectId = scope.ProjectId
-                        },
-                        transaction,
-                        cancellationToken: ct));
-        }
-    }
+        CancellationToken ct) =>
+        GraphSnapshotSqlBulkInsert.InsertEdgePropertyRowsAsync(snapshot, connection, transaction, scope, ct);
 
     /// <inheritdoc cref="GetByIdAsync(System.Guid,System.Threading.CancellationToken)" />
     public async Task<GraphSnapshot?> GetByIdAsync(
@@ -385,23 +270,28 @@ public sealed class SqlGraphSnapshotRepository(
     {
         const string sql = """
                            SELECT
-                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                               NodesJson, EdgesJson, WarningsJson
+                               GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc
                            FROM dbo.GraphSnapshots
                            WHERE GraphSnapshotId = @GraphSnapshotId;
                            """;
 
-        GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(
-                sql,
-                new { GraphSnapshotId = graphSnapshotId },
-                transaction,
-                cancellationToken: ct));
+        GraphSnapshotRelationalRead.GraphSnapshotHeaderRow? header =
+            await connection.QuerySingleOrDefaultAsync<GraphSnapshotRelationalRead.GraphSnapshotHeaderRow>(
+                new CommandDefinition(
+                    sql,
+                    new { GraphSnapshotId = graphSnapshotId },
+                    transaction,
+                    cancellationToken: ct));
 
-        if (row is null)
+        if (header is null)
             return null;
 
-        return await GraphSnapshotRelationalRead.HydrateAsync(connection, transaction, row, ct);
+        return await GraphSnapshotRelationalRead.HydrateAsync(
+            connection,
+            transaction,
+            header,
+            jsonRowForMerge: null,
+            ct);
     }
 
     /// <summary>

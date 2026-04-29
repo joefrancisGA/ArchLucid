@@ -7,7 +7,13 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
-## 2026-04-29 — Docs: `TENANT_TIER_AND_ROUTE_ENUMERATION.md` — buyer/integrator playbook for tier-gated **404** (anti-enumeration), linked from **`ARCHITECTURE_INDEX.md`**.
+## 2026-04-29 — Tests: golden decisioning **case-31** (compliance storage rule + security coverage + topology pillar gap)
+
+**Outcome.** New hand-authored corpus under **`tests/golden-corpus/decisioning/case-31`** (`input.json` + expected finding/decision/audit JSON). **`GoldenCorpusRegressionTests`** expects **31** case directories. Docs: **`DECISIONING_GOLDEN_CORPUS.md`**, **`DECISIONING_TYPED_FINDINGS.md`**, **`FINDINGS_TYPED_SCHEMA.md`**.
+
+---
+
+## 2026-04-29 — Docs: reference-customers **`PUBLICATION_CHECKLIST.md`** + README **DRAFT** template row (placeholders only; **Published** gated per §4.1).
 
 ---
 

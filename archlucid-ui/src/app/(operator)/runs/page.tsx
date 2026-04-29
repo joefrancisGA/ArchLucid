@@ -29,13 +29,23 @@ export const metadata: Metadata = {
 export default async function RunsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ projectId?: string; page?: string; pageSize?: string; take?: string }>;
+  searchParams: Promise<{ projectId?: string; page?: string; pageSize?: string; take?: string; cursor?: string }>;
 }) {
   const resolved = await searchParams;
   const projectId = resolved.projectId ?? "default";
   const page = Math.max(1, Number.parseInt(resolved.page ?? "1", 10) || 1);
   const sizeRaw = resolved.pageSize ?? resolved.take ?? "20";
   const pageSize = Math.min(200, Math.max(1, Number.parseInt(sizeRaw, 10) || 20));
+
+  const cursorParam = resolved.cursor?.trim();
+
+  let cursor: string | undefined;
+
+  if (cursorParam) {
+    cursor = cursorParam;
+  }
+
+  let nextCursorForClient: string | null = null;
 
   let runs: RunSummary[] = [];
   let totalCount = 0;
@@ -45,8 +55,8 @@ export default async function RunsPage({
   let usedStaticRunsFallback = false;
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize);
-    const coerced = coerceRunSummaryPaged(raw);
+    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, { cursor });
+    const coerced = coerceRunSummaryPaged(raw, { page });
 
     if (!coerced.ok) {
       malformedMessage = coerced.message;
@@ -55,6 +65,12 @@ export default async function RunsPage({
     } else {
       runs = coerced.value.items;
       totalCount = coerced.value.totalCount;
+
+      const maybeNext = coerced.value.nextCursor;
+
+      if (typeof maybeNext === "string" && maybeNext.length > 0) {
+        nextCursorForClient = maybeNext;
+      }
     }
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
@@ -163,6 +179,7 @@ export default async function RunsPage({
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
+          nextCursor={nextCursorForClient}
         />
       ) : null}
     </main>

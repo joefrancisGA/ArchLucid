@@ -60,6 +60,8 @@
 
 ## 3. Build your own
 
+**End-to-end recipe hub (Azure DevOps PR decoration, CloudEvents consumer outline, Power Automate / Logic Apps):** see **[ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md)** — three consolidated walkthroughs with exact doc and repo paths; **V1.1** first-party Jira / ServiceNow / Confluence connectors remain out of scope for **V1** per [V1_SCOPE.md §3](../library/V1_SCOPE.md).
+
 ArchLucid's architecture is designed for extensibility:
 
 - **Context connectors:** Implement `IContextConnector` to bring new data sources into the analysis pipeline. See the finding engine template: `dotnet new archlucid-finding-engine`.

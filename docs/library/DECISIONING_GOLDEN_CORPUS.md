@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index, 30 cases total).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **31** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** is a **hand-authored** scenario (see that folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,9 +32,15 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (30 cases)
+## Coverage map (`case-01` … `case-31`)
 
-Cases are `case-01` … `case-30`, built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
+Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
+
+| Case | What it stresses |
+|------|------------------|
+| **`case-31`** (hand-authored) | **Compliance** (`storage-must-have-policy-applicability` on a **storage** topology node **without** policy coverage) **+** **security coverage** (no **PROTECTS**) **+** **topology pillar gap** (network/compute/data missing) in one deterministic graph. See `tests/golden-corpus/decisioning/case-31/README.md`. |
+
+### Archetypes (`case-01` … `case-30` only)
 
 | Archetype | What it stresses |
 |-----------|------------------|
@@ -66,7 +72,7 @@ Cases are `case-01` … `case-30`, built by cycling **six archetypes** (`index %
 
 ## How to refresh or add cases
 
-1. **Add or edit definitions** in `GoldenCorpusGraphFactory` (and related DTOs) so new scenarios are generated with stable semantics.
+1. **Add or edit definitions** in `GoldenCorpusGraphFactory` (and related DTOs) so new scenarios are generated with stable semantics, **or** add a new hand-authored `case-NN` directory (next index only; see **`case-31`**) with `input.json`, `expected-*.json`, and `README.md`.
 2. **Record** (local only): set `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1` and run:
    - `dotnet test ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj --filter "FullyQualifiedName~GoldenCorpusMaterializerTests"`
 3. **Commit** the updated `tests/golden-corpus/decisioning/**` tree and case `README.md` files.
