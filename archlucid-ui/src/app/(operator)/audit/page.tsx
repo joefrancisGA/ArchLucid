@@ -114,7 +114,6 @@ export default function AuditPage() {
   }, [loadTypes]);
 
   const executeSearch = useCallback(
-    async (
     async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
       setFailure(null);
 

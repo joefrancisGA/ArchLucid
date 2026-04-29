@@ -1,6 +1,7 @@
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -73,6 +74,57 @@ public sealed class ManifestFinalizationServiceTests
         Func<Task> act = async () => await sut.FinalizeAsync(request, CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Findings*");
+    }
+
+    [Fact]
+    public async Task FinalizeAsync_legacy_path_throws_when_findings_generation_not_sealed()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            FindingsSnapshotId = findingsId
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
+
+        Mock<IFindingsSnapshotRepository> findings = new();
+        findings.Setup(f => f.GetByIdAsync(findingsId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingsSnapshot
+                {
+                    FindingsSnapshotId = findingsId,
+                    GenerationStatus = FindingsSnapshotGenerationStatus.Generating,
+                    Findings = []
+                });
+
+        ManifestFinalizationService sut = CreateSut(
+            scopeProvider: scopeProvider.Object,
+            runRepository: runs.Object,
+            findingsSnapshotRepository: findings.Object);
+
+        ManifestFinalizationRequest request = CreateMinimalRequest(runId, findingsId);
+
+        Func<Task> act = async () => await sut.FinalizeAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not eligible*");
     }
 
     [Fact]
@@ -347,7 +399,8 @@ public sealed class ManifestFinalizationServiceTests
         IGoldenManifestRepository? goldenManifestRepository = null,
         IManifestHashService? manifestHashService = null,
         IAuditService? auditService = null,
-        IIntegrationEventOutboxRepository? integrationEventOutbox = null)
+        IIntegrationEventOutboxRepository? integrationEventOutbox = null,
+        IFindingsSnapshotRepository? findingsSnapshotRepository = null)
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(
@@ -362,10 +415,26 @@ public sealed class ManifestFinalizationServiceTests
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             scopeProvider ?? scope.Object,
             runRepository ?? Mock.Of<IRunRepository>(),
+            findingsSnapshotRepository ?? CreateDefaultFindingsSnapshotRepository(),
             decisionTraceRepository ?? Mock.Of<IDecisionTraceRepository>(),
             goldenManifestRepository ?? Mock.Of<IGoldenManifestRepository>(),
             manifestHashService ?? Mock.Of<IManifestHashService>(),
             auditService ?? Mock.Of<IAuditService>(),
             integrationEventOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>());
+    }
+
+    private static IFindingsSnapshotRepository CreateDefaultFindingsSnapshotRepository()
+    {
+        Mock<IFindingsSnapshotRepository> mock = new();
+        mock.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (Guid id, CancellationToken _) => new FindingsSnapshot
+                {
+                    FindingsSnapshotId = id,
+                    GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+                    Findings = []
+                });
+
+        return mock.Object;
     }
 }

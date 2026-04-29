@@ -20,7 +20,7 @@ public sealed class ArchitectureRunStatusTransitionPropertyTests
         ArchitectureRunStatus status = (ArchitectureRunStatus)raw;
         int v = (int)status;
 
-        v.Should().BeInRange(1, 6);
+        v.Should().BeInRange(1, 7);
     }
 
     [Fact]

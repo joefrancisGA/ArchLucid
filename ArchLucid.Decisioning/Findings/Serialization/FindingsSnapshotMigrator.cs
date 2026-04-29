@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 
@@ -12,6 +13,9 @@ public static class FindingsSnapshotMigrator
     {
         foreach (Finding finding in snapshot.Findings)
             MigrateFinding(finding);
+
+        if (!Enum.IsDefined(typeof(FindingsSnapshotGenerationStatus), snapshot.GenerationStatus))
+            snapshot.GenerationStatus = FindingsSnapshotGenerationStatus.Complete;
 
         if (snapshot.SchemaVersion < FindingsSchema.CurrentSnapshotVersion)
             snapshot.SchemaVersion = FindingsSchema.CurrentSnapshotVersion;

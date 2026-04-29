@@ -49,6 +49,7 @@ internal static class FindingsSnapshotRelationalRead
                 GraphSnapshotId = row.GraphSnapshotId,
                 CreatedUtc = row.CreatedUtc,
                 SchemaVersion = row.SchemaVersion,
+                GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
                 Findings = legacyFindings
             };
         }
@@ -128,6 +129,7 @@ internal static class FindingsSnapshotRelationalRead
             GraphSnapshotId = row.GraphSnapshotId,
             CreatedUtc = row.CreatedUtc,
             SchemaVersion = row.SchemaVersion,
+            GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = findings
         };
     }

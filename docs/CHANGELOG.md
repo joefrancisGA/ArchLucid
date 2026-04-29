@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-29 — ADR 0030 PR A4: drop `dbo.GoldenManifestVersions` (migration 111)
+
+**Outcome.** **Shipped PR A4** of [ADR 0030 — Coordinator → Authority pipeline unification](adr/0030-coordinator-authority-pipeline-unification.md): **`ArchLucid.Persistence/Migrations/111_DropGoldenManifestVersions_Legacy.sql`** hard-drops legacy **`dbo.GoldenManifestVersions`** (owner **`docs/PENDING_QUESTIONS.md`** item **35d** — no historical Coordinator-shape rows preserved; merge-time **no-rollback** acknowledgement). **`ArchLucid.sql`** already documented removal (ADR § Lifecycle § PR A4); rollback **`Rollback/R111_DropGoldenManifestVersions_Legacy.sql`** recreates an empty shell only. **`docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`** updated post PR A3/A4; ADR 0030 **§ Component breakdown** + **§ Lifecycle** mark PR A4 **DONE 2026-04-29**.
+
+---
+
 ## 2026-04-28 — Quality plan: sponsor PDF, glossary surface, data-consistency alert default, TOGAF pack
 
 **Outcome.** **`GET /v1/marketing/sponsor-brief.pdf`** serves a QuestPDF rendering of **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (`ExecutiveSponsorBriefPdfBuilder`, `SponsorBriefMarketingController`); **`RepositoryDocsMarkdownPath`** walks parents from **`IWebHostEnvironment.ContentRootPath`** so **`docs/…`** resolves in integration tests (`WebApplicationFactory`) and **`dotnet run`**. **`GET /v1/marketing/enterprise-comparison.pdf`** uses the same resolver. **`OpenApiContractSnapshotTests`** snapshot refreshed after **`sponsor-brief.pdf`** route. **`archlucid-ui`** adds **`src/lib/glossary.ts`** re-export and in-product glossary tooltips (checklist, runs list, governance dashboard shell, alerts hub, policy packs lead). **`ArchLucid.Api/appsettings.json`** keeps **`DataConsistency:Enforcement:Mode=Alert`** with **`ArchLucidDataConsistencyAlertsRaised`** Prometheus rule and **`OBSERVABILITY.md`** note; **`ConfigurationKeyCatalog`** documents Api vs host default. **`GET /v1/audit/search`** rejects **`beforeEventId`** without **`beforeUtc`**. Sample **`templates/policy-packs/togaf-adm-gates/`** (ADM gate mapping README + JSON). **`docs/go-to-market/SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`** adds throughput/FTE illustration. **`docs/library/V1_DEFERRED.md`** audit-row updated for composite keyset.

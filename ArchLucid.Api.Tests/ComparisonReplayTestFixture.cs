@@ -61,8 +61,8 @@ public static class ComparisonReplayTestFixture
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        // GoldenManifestVersions.ManifestVersion is globally unique (PK). A fixed override collides when
-        // multiple tests share one WebApplicationFactory database (same test class).
+        // dbo.GoldenManifests: at most one active manifest per RunId (UQ_GoldenManifests_RunId_Active). A fixed
+        // manifestVersionOverride collides when multiple tests share one WebApplicationFactory database (same test class).
         string replayManifestVersion = $"v1r{Guid.NewGuid():N}";
 
         HttpResponseMessage replayResponse = await client.PostAsync(

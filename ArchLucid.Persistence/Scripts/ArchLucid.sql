@@ -434,6 +434,77 @@ BEGIN
 END;
 GO
 
+/* Brownfield: run retry counters + failure reason (DbUp 128 parity). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'RetryCount') IS NULL
+    ALTER TABLE dbo.Runs ADD RetryCount INT NOT NULL CONSTRAINT DF_Runs_RetryCount_Master DEFAULT (0);
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'LastFailureReason') IS NULL
+    ALTER TABLE dbo.Runs ADD LastFailureReason NVARCHAR(2000) NULL;
+GO
+
+/* Brownfield: normalize terminal Runs rows before state CHECKs (DbUp 127 parity). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    UPDATE dbo.Runs
+    SET CompletedUtc = COALESCE(CompletedUtc, CreatedUtc, SYSUTCDATETIME())
+    WHERE LegacyRunStatus IN (N'Committed', N'Failed')
+      AND CompletedUtc IS NULL;
+
+    UPDATE dbo.Runs
+    SET GoldenManifestId = NULL
+    WHERE LegacyRunStatus = N'Failed'
+      AND GoldenManifestId IS NOT NULL;
+
+    UPDATE dbo.Runs
+    SET ArtifactBundleId = NULL
+    WHERE LegacyRunStatus = N'Failed'
+      AND ArtifactBundleId IS NOT NULL;
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Runs_LegacyRunStatus')
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+    ALTER TABLE dbo.Runs ADD CONSTRAINT CK_Runs_LegacyRunStatus
+        CHECK (LegacyRunStatus IN (
+            N'Created', N'TasksGenerated', N'WaitingForResults',
+            N'ReadyForCommit', N'Committed', N'Failed', N'Retrying')
+              OR LegacyRunStatus IS NULL);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Runs_CommittedHasManifest')
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1 FROM dbo.Runs WHERE LegacyRunStatus = N'Committed' AND GoldenManifestId IS NULL)
+    ALTER TABLE dbo.Runs ADD CONSTRAINT CK_Runs_CommittedHasManifest
+        CHECK (LegacyRunStatus <> N'Committed' OR GoldenManifestId IS NOT NULL);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Runs_CommittedHasCompletedUtc')
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.Runs
+        WHERE LegacyRunStatus IN (N'Committed', N'Failed')
+          AND CompletedUtc IS NULL)
+    ALTER TABLE dbo.Runs ADD CONSTRAINT CK_Runs_CommittedHasCompletedUtc
+        CHECK (LegacyRunStatus NOT IN (N'Committed', N'Failed') OR CompletedUtc IS NOT NULL);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Runs_FailedNoManifest')
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+    ALTER TABLE dbo.Runs ADD CONSTRAINT CK_Runs_FailedNoManifest
+        CHECK (LegacyRunStatus <> N'Failed' OR GoldenManifestId IS NULL);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_Runs_FailedNoArtifact')
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+    ALTER TABLE dbo.Runs ADD CONSTRAINT CK_Runs_FailedNoArtifact
+        CHECK (LegacyRunStatus <> N'Failed' OR ArtifactBundleId IS NULL);
+GO
+
 IF OBJECT_ID('dbo.ContextSnapshots', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ContextSnapshots
@@ -780,6 +851,19 @@ IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
     ALTER TABLE dbo.FindingsSnapshots ADD ArchivedUtc DATETIME2 NULL;
 GO
 
+/* Brownfield: findings snapshot generation status (DbUp 127 parity). */
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingsSnapshots', N'GenerationStatus') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD GenerationStatus NVARCHAR(32) NOT NULL
+        CONSTRAINT DF_FindingsSnapshots_GenerationStatus_Master DEFAULT (N'Complete');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingsSnapshots_GenerationStatus')
+   AND OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD CONSTRAINT CK_FindingsSnapshots_GenerationStatus
+        CHECK (GenerationStatus IN (N'Generating', N'Complete', N'PartiallyComplete', N'Failed'));
+GO
+
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN
@@ -996,6 +1080,34 @@ IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Findi
     ALTER TABLE dbo.FindingRecords ADD ReviewNotes NVARCHAR(MAX) NULL;
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_ReviewedByWhenReviewed')
+   AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.FindingRecords
+        WHERE HumanReviewStatus IN (N'Approved', N'Rejected', N'Overridden')
+          AND ReviewedByUserId IS NULL)
+    ALTER TABLE dbo.FindingRecords ADD CONSTRAINT CK_FindingRecords_ReviewedByWhenReviewed
+        CHECK (
+            HumanReviewStatus NOT IN (N'Approved', N'Rejected', N'Overridden')
+            OR ReviewedByUserId IS NOT NULL
+        );
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_FindingRecords_ReviewedAtWhenReviewed')
+   AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.FindingRecords
+        WHERE HumanReviewStatus IN (N'Approved', N'Rejected', N'Overridden')
+          AND ReviewedAtUtc IS NULL)
+    ALTER TABLE dbo.FindingRecords ADD CONSTRAINT CK_FindingRecords_ReviewedAtWhenReviewed
+        CHECK (
+            HumanReviewStatus NOT IN (N'Approved', N'Rejected', N'Overridden')
+            OR ReviewedAtUtc IS NOT NULL
+        );
+GO
+
 IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.FindingReviewEvents
@@ -1110,6 +1222,19 @@ GO
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NULL
     ALTER TABLE dbo.GoldenManifests ADD ArchivedUtc DATETIME2 NULL;
+GO
+
+/* Brownfield: golden manifest lifecycle column (DbUp 127 parity). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'LifecycleStatus') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD LifecycleStatus NVARCHAR(32) NOT NULL
+        CONSTRAINT DF_GoldenManifests_LifecycleStatus_Master DEFAULT (N'Active');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_GoldenManifests_LifecycleStatus')
+   AND OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+    ALTER TABLE dbo.GoldenManifests ADD CONSTRAINT CK_GoldenManifests_LifecycleStatus
+        CHECK (LifecycleStatus IN (N'Active', N'Superseded', N'Archived'));
 GO
 
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
@@ -1323,6 +1448,19 @@ GO
 IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NULL
     ALTER TABLE dbo.ArtifactBundles ADD ArchivedUtc DATETIME2 NULL;
+GO
+
+/* Brownfield: artifact bundle synthesis status (DbUp 127 parity). */
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArtifactBundles', N'Status') IS NULL
+    ALTER TABLE dbo.ArtifactBundles ADD Status NVARCHAR(32) NOT NULL
+        CONSTRAINT DF_ArtifactBundles_Status_Master DEFAULT (N'Available');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ArtifactBundles_Status')
+   AND OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+    ALTER TABLE dbo.ArtifactBundles ADD CONSTRAINT CK_ArtifactBundles_Status
+        CHECK (Status IN (N'Pending', N'Available', N'Partial', N'Failed', N'Archived'));
 GO
 
 -- Relational artifact bundle slices (dual-write with ArtifactsJson / TraceJson on dbo.ArtifactBundles).
@@ -2802,6 +2940,19 @@ GO
 IF OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArtifactBundleArtifacts', N'ContentBlobUri') IS NULL
     ALTER TABLE dbo.ArtifactBundleArtifacts ADD ContentBlobUri NVARCHAR(2000) NULL;
+GO
+
+/* Brownfield: per-artifact generation status (DbUp 127 parity). */
+IF OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArtifactBundleArtifacts', N'GenerationStatus') IS NULL
+    ALTER TABLE dbo.ArtifactBundleArtifacts ADD GenerationStatus NVARCHAR(32) NOT NULL
+        CONSTRAINT DF_ArtifactBundleArtifacts_GenerationStatus_Master DEFAULT (N'Generated');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ArtifactBundleArtifacts_GenerationStatus')
+   AND OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
+    ALTER TABLE dbo.ArtifactBundleArtifacts ADD CONSTRAINT CK_ArtifactBundleArtifacts_GenerationStatus
+        CHECK (GenerationStatus IN (N'Pending', N'Generated', N'Failed'));
 GO
 
 /* ---- Durable background export jobs (queue + worker) ---- */

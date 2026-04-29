@@ -4,6 +4,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Contracts.Findings;
+
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -152,6 +154,13 @@ public partial class FindingsOrchestrator(
         FindingHumanReviewInitializer.Apply(snapshot.Findings, _humanReviewOptions.Value);
 
         FindingsSnapshotMigrator.Apply(snapshot);
+
+        snapshot.GenerationStatus = engineFailures.Count switch
+        {
+            0 => FindingsSnapshotGenerationStatus.Complete,
+            _ when dedupedFindings.Count > 0 => FindingsSnapshotGenerationStatus.PartiallyComplete,
+            _ => FindingsSnapshotGenerationStatus.Failed
+        };
 
         if (engineFailures.Count > 0 && successfulEngineInvocations > 0)
             LogPartialEngineFailures(runId, engineFailures.Count);

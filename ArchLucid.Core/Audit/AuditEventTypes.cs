@@ -28,6 +28,40 @@ public static class AuditEventTypes
     /// <summary>Governance approval request created (<c>POST /v1/governance/approval-requests</c>).</summary>
     public const string GovernanceApprovalRequested = "GovernanceApprovalRequested";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
+
+    /// <summary>Artifact synthesis ended in hard failure (no usable bundle).</summary>
+    public const string ArtifactSynthesisFailed = "ArtifactSynthesisFailed";
+
+    /// <summary>Artifact synthesis produced a degraded bundle (see payload for missing artifact kinds).</summary>
+    public const string ArtifactSynthesisPartial = "ArtifactSynthesisPartial";
+
+    /// <summary>Architecture request draft or import persisted (namespaced <c>Request.*</c> durable type).</summary>
+    public const string RequestCreated = "Request.Created";
+
+    /// <summary>Request locked because a non-terminal run references it.</summary>
+    public const string RequestLocked = "Request.Locked";
+
+    /// <summary>Request released after all referencing runs reached a terminal state.</summary>
+    public const string RequestReleased = "Request.Released";
+
+    /// <summary>Golden manifest superseded by a newer authority row in the same scope (policy- or admin-driven).</summary>
+    public const string ManifestSuperseded = "ManifestSuperseded";
+
+    /// <summary>Golden manifest soft-archived (<c>ArchivedUtc</c> set).</summary>
+    public const string ManifestArchived = "ManifestArchived";
+
+    /// <summary>Findings snapshot generation reached a sealed terminal generation status.</summary>
+    public const string FindingsSnapshotSealed = "FindingsSnapshotSealed";
+
+    /// <summary>Human reviewer approved a finding.</summary>
+    public const string FindingReviewApproved = "FindingReviewApproved";
+
+    /// <summary>Human reviewer rejected a finding.</summary>
+    public const string FindingReviewRejected = "FindingReviewRejected";
+
+    /// <summary>Privileged override applied after rejection.</summary>
+    public const string FindingReviewOverridden = "FindingReviewOverridden";
+
     public const string ReplayExecuted = "ReplayExecuted";
 
     /// <summary>Internal QA: POST <c>…/internal/architecture/runs/{{runId}}/determinism-check</c> completed.</summary>
@@ -341,6 +375,9 @@ public static class AuditEventTypes
         public const string CommitCompleted = "Run.CommitCompleted";
 
         public const string Failed = "Run.Failed";
+
+        /// <summary>Operator or API requested retry of a failed run (same <c>RunId</c>).</summary>
+        public const string RetryRequested = "Run.RetryRequested";
     }
 
     /// <summary>

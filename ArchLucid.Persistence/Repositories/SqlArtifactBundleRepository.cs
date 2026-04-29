@@ -69,7 +69,7 @@ public sealed class SqlArtifactBundleRepository(
         const string sql = """
                            SELECT TOP 1
                                TenantId, WorkspaceId, ProjectId,
-                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
+                               BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
                            FROM dbo.ArtifactBundles
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -112,12 +112,12 @@ public sealed class SqlArtifactBundleRepository(
         const string sql = """
                            INSERT INTO dbo.ArtifactBundles
                            (
-                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                               BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson,
                                TenantId, WorkspaceId, ProjectId, BundlePayloadBlobUri
                            )
                            VALUES
                            (
-                               @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                               @BundleId, @RunId, @ManifestId, @CreatedUtc, @Status, @ArtifactsJson, @TraceJson,
                                @TenantId, @WorkspaceId, @ProjectId, @BundlePayloadBlobUri
                            );
                            """;
@@ -147,6 +147,7 @@ public sealed class SqlArtifactBundleRepository(
             bundle.RunId,
             bundle.ManifestId,
             bundle.CreatedUtc,
+            Status = bundle.Status.ToString(),
             ArtifactsJson = artifactsJson,
             TraceJson = traceJson,
             bundle.TenantId,
@@ -176,12 +177,12 @@ public sealed class SqlArtifactBundleRepository(
                                          INSERT INTO dbo.ArtifactBundleArtifacts
                                          (
                                              BundleId, SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                                             ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
+                                             ArtifactType, Name, Format, Content, ContentHash, GenerationStatus, ContentBlobUri
                                          )
                                          VALUES
                                          (
                                              @BundleId, @SortOrder, @ArtifactId, @RunId, @ManifestId, @CreatedUtc,
-                                             @ArtifactType, @Name, @Format, @Content, @ContentHash, @ContentBlobUri
+                                             @ArtifactType, @Name, @Format, @Content, @ContentHash, @GenerationStatus, @ContentBlobUri
                                          );
                                          """;
 
@@ -225,6 +226,7 @@ public sealed class SqlArtifactBundleRepository(
                         a.Format,
                         Content = content,
                         a.ContentHash,
+                        GenerationStatus = a.Status.ToString(),
                         ContentBlobUri = contentBlobUri
                     },
                     transaction,
@@ -386,7 +388,7 @@ public sealed class SqlArtifactBundleRepository(
         const string sql = """
                            SELECT
                                TenantId, WorkspaceId, ProjectId,
-                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
+                               BundleId, RunId, ManifestId, CreatedUtc, Status, ArtifactsJson, TraceJson, BundlePayloadBlobUri
                            FROM dbo.ArtifactBundles
                            WHERE BundleId = @BundleId;
                            """;

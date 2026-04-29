@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -25,6 +26,7 @@ public sealed class ManifestFinalizationService(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
     IManifestHashService manifestHashService,
@@ -137,6 +139,8 @@ public sealed class ManifestFinalizationService(
         if (locked.FindingsSnapshotId is null || locked.FindingsSnapshotId.Value != request.ExpectedFindingsSnapshotId)
             throw new InvalidOperationException(
                 "Findings snapshot on the run record does not match the expected findings for finalization.");
+
+        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
 
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
@@ -274,6 +278,8 @@ public sealed class ManifestFinalizationService(
             throw new InvalidOperationException(
                 "Findings snapshot on the run record does not match the expected findings for finalization.");
 
+        await EnsureFindingsSnapshotFinalizableAsync(request.ExpectedFindingsSnapshotId, cancellationToken);
+
         if (request.ExpectedArtifactBundleId is { } expectedBundle)
         {
             if (header.ArtifactBundleId is null || header.ArtifactBundleId.Value != expectedBundle)
@@ -382,6 +388,17 @@ public sealed class ManifestFinalizationService(
             return true;
 
         return false;
+    }
+
+    private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)
+    {
+        Dm.FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, cancellationToken);
+        if (snapshot is null)
+            throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
+
+        if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)
+            throw new InvalidOperationException(
+                $"Findings snapshot '{findingsSnapshotId:D}' is not eligible for finalization (GenerationStatus={snapshot.GenerationStatus}).");
     }
 
     private sealed class LockedRunRow
