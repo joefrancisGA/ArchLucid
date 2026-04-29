@@ -1,3 +1,5 @@
+> **Scope:** Canonical product-facing HTTP paths under v1 for implementers and client authors; not auth configuration, OpenAPI bundles, or non-HTTP contracts.
+
 # ArchLucid Product REST API — Canonical Routes
 
 Version prefix: **`v1`** (Asp.Versioning `1.0`). New product-facing routes live **alongside** legacy `v1/architecture/…` paths until clients migrate.

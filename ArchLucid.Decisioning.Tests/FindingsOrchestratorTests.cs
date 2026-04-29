@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -6,6 +7,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -30,7 +32,11 @@ public sealed class FindingsOrchestratorTests
     {
         Mock<IFindingEngine> engine = new(MockBehavior.Strict);
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new([engine.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [engine.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), null!, CancellationToken.None));
@@ -46,7 +52,11 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new([e1.Object, e2.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object, e2.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -65,7 +75,11 @@ public sealed class FindingsOrchestratorTests
             .ThrowsAsync(new InvalidOperationException("boom"));
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         AggregateException ax = await Assert.ThrowsAsync<AggregateException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -99,7 +113,11 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new([bad.Object, good.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [bad.Object, good.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -119,7 +137,11 @@ public sealed class FindingsOrchestratorTests
             .ThrowsAsync(new OperationCanceledException());
 
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
-        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         await Assert.ThrowsAsync<OperationCanceledException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -143,7 +165,11 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
@@ -176,7 +202,11 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -201,7 +231,11 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new();
         validator.Setup(v => v.Validate(It.IsAny<Finding>()));
 
-        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            [e1.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
@@ -228,6 +262,7 @@ public sealed class FindingsOrchestratorTests
             [bad.Object, good.Object],
             validator.Object,
             NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
             clock);
 
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);

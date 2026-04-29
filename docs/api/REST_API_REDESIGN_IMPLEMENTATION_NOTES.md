@@ -1,3 +1,5 @@
+> **Scope:** What shipped in code for the REST redesign versus legacy route aliases; not a full API reference, changelog, or deprecation calendar.
+
 # REST API redesign — implementation notes (2026-04)
 
 This complements [`API_V2_ROUTES.md`](API_V2_ROUTES.md) and [`API_REDESIGN_CRITIQUE.md`](API_REDESIGN_CRITIQUE.md). It records **what shipped in code** versus **still duplicated for backward compatibility**.

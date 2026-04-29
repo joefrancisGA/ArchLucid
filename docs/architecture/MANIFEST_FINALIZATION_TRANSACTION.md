@@ -1,3 +1,5 @@
+> **Scope:** Transactional manifest commit path (SQL stored procedure, audit row, outbox) for backend engineers; not general run troubleshooting or user-facing product copy.
+
 # Manifest finalization transaction (authority commit)
 
 ## Objective
