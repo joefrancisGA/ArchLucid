@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { redirect } from "next/navigation";
+
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -17,7 +19,12 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import {
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
@@ -42,6 +49,10 @@ export default async function ManifestDetailPage({
   params: Promise<{ manifestId: string }>;
 }) {
   const { manifestId } = await params;
+
+  if (isInvalidDynamicRouteToken(manifestId)) {
+    redirect("/runs?projectId=default");
+  }
 
   let summary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];

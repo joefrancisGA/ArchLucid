@@ -266,13 +266,23 @@ public sealed class SqlFindingsSnapshotRepository(
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
             ;
 
-        await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);
+        await InsertFindingsRelationalFromSnapshotAsync(
+            snapshot,
+            connection,
+            transaction,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ct);
     }
 
     internal static async Task InsertFindingsRelationalFromSnapshotAsync(
         FindingsSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         CancellationToken ct)
     {
         for (int i = 0; i < snapshot.Findings.Count; i++)
@@ -287,9 +297,20 @@ public sealed class SqlFindingsSnapshotRepository(
                 recordId,
                 i,
                 finding,
+                tenantId,
+                workspaceId,
+                projectId,
                 ct);
 
-            await InsertFindingChildrenAsync(connection, transaction, recordId, finding, ct);
+            await InsertFindingChildrenAsync(
+                connection,
+                transaction,
+                recordId,
+                finding,
+                tenantId,
+                workspaceId,
+                projectId,
+                ct);
         }
     }
 
@@ -300,12 +321,16 @@ public sealed class SqlFindingsSnapshotRepository(
         Guid findingRecordId,
         int sortOrder,
         Finding finding,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         CancellationToken ct)
     {
         const string sql = """
                            INSERT INTO dbo.FindingRecords
                            (
                                FindingRecordId, FindingsSnapshotId, SortOrder,
+                               TenantId, WorkspaceId, ProjectId,
                                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
                                Severity, Title, Rationale, PayloadType, PayloadJson,
                                RequestInputRef, RunIdRef, AgentExecutionTraceId,
@@ -316,6 +341,7 @@ public sealed class SqlFindingsSnapshotRepository(
                            VALUES
                            (
                                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
+                               @TenantId, @WorkspaceId, @ProjectId,
                                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
                                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson,
                                @RequestInputRef, @RunIdRef, @AgentExecutionTraceId,
@@ -330,6 +356,9 @@ public sealed class SqlFindingsSnapshotRepository(
             FindingRecordId = findingRecordId,
             FindingsSnapshotId = findingsSnapshotId,
             SortOrder = sortOrder,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
             finding.FindingId,
             finding.FindingSchemaVersion,
             finding.FindingType,
@@ -363,89 +392,121 @@ public sealed class SqlFindingsSnapshotRepository(
         IDbTransaction? transaction,
         Guid findingRecordId,
         Finding finding,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         CancellationToken ct)
     {
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
+            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.RelatedNodeIds,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
+            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.RecommendedActions,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         List<KeyValuePair<string, string>> orderedProps = finding.Properties
             .OrderBy(kv => kv.Key, StringComparer.Ordinal)
             .ToList();
 
-        await InsertFindingPropertiesChunksAsync(connection, transaction, findingRecordId, orderedProps, ct);
+        await InsertFindingPropertiesChunksAsync(
+            connection,
+            transaction,
+            findingRecordId,
+            orderedProps,
+            tenantId,
+            workspaceId,
+            projectId,
+            ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
+            INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.Trace.GraphNodeIdsExamined,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
+            INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.Trace.RulesApplied,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
+            INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.Trace.DecisionsTaken,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
+            INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.Trace.AlternativePathsConsidered,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
 
         await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
             """
-            INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
+            INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText, TenantId, WorkspaceId, ProjectId)
             VALUES
             """,
             findingRecordId,
             finding.Trace.Notes,
+            tenantId,
+            workspaceId,
+            projectId,
             ct);
     }
 
@@ -455,6 +516,9 @@ public sealed class SqlFindingsSnapshotRepository(
         string insertHeaderThroughValuesKeyword,
         Guid findingRecordId,
         List<string> rows,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         CancellationToken ct)
     {
         if (rows.Count == 0)
@@ -463,10 +527,13 @@ public sealed class SqlFindingsSnapshotRepository(
         for (int offset = 0; offset < rows.Count; offset += FindingChildTripleColumnInsertRows)
         {
             int len = Math.Min(FindingChildTripleColumnInsertRows, rows.Count - offset);
-            StringBuilder sb = new StringBuilder(insertHeaderThroughValuesKeyword.Length + len * 40);
+            StringBuilder sb = new StringBuilder(insertHeaderThroughValuesKeyword.Length + len * 80);
             sb.Append(insertHeaderThroughValuesKeyword);
             DynamicParameters dp = new();
             dp.Add("fid", findingRecordId, DbType.Guid);
+            dp.Add("tid", tenantId);
+            dp.Add("wid", workspaceId);
+            dp.Add("pid", projectId);
 
             for (int i = 0; i < len; i++)
             {
@@ -474,7 +541,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     sb.Append(',');
 
                 int sortOrder = offset + i;
-                sb.Append($"(@fid,@s{i},@t{i})");
+                sb.Append($"(@fid,@s{i},@t{i},@tid,@wid,@pid)");
                 dp.Add($"s{i}", sortOrder);
                 dp.Add($"t{i}", rows[sortOrder]);
             }
@@ -489,23 +556,30 @@ public sealed class SqlFindingsSnapshotRepository(
         IDbTransaction? transaction,
         Guid findingRecordId,
         List<KeyValuePair<string, string>> orderedProps,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         CancellationToken ct)
     {
         if (orderedProps.Count == 0)
             return;
 
         const string preamble = """
-            INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
+            INSERT INTO dbo.FindingProperties (
+                FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
             VALUES
             """;
 
         for (int offset = 0; offset < orderedProps.Count; offset += FindingChildPropertyInsertRows)
         {
             int len = Math.Min(FindingChildPropertyInsertRows, orderedProps.Count - offset);
-            StringBuilder sb = new StringBuilder(preamble.Length + len * 48);
+            StringBuilder sb = new StringBuilder(preamble.Length + len * 96);
             sb.Append(preamble);
             DynamicParameters dp = new();
             dp.Add("fid", findingRecordId, DbType.Guid);
+            dp.Add("tid", tenantId);
+            dp.Add("wid", workspaceId);
+            dp.Add("pid", projectId);
 
             for (int i = 0; i < len; i++)
             {
@@ -513,7 +587,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     sb.Append(',');
 
                 KeyValuePair<string, string> kv = orderedProps[offset + i];
-                sb.Append($"(@fid,@ps{i},@pk{i},@pv{i})");
+                sb.Append($"(@fid,@ps{i},@pk{i},@pv{i},@tid,@wid,@pid)");
                 dp.Add($"ps{i}", offset + i);
                 dp.Add($"pk{i}", kv.Key);
                 dp.Add($"pv{i}", kv.Value);
@@ -547,8 +621,31 @@ public sealed class SqlFindingsSnapshotRepository(
             return;
 
         FindingsSnapshotMigrator.Apply(snapshot);
-        await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);
+
+        const string scopeSql = """
+                                SELECT TenantId, WorkspaceId, ProjectId
+                                FROM dbo.FindingsSnapshots
+                                WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                """;
+
+        FindingSnapshotScopeRow? scopeHdr = await connection.QuerySingleOrDefaultAsync<FindingSnapshotScopeRow>(
+            new CommandDefinition(scopeSql, new { snapshot.FindingsSnapshotId }, transaction, cancellationToken: ct));
+
+        if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
+            throw new InvalidOperationException(
+                $"dbo.FindingsSnapshots row {snapshot.FindingsSnapshotId} lacks denormalized RLS scope (tenant/workspace/project); cannot backfill FindingRecords.");
+
+        await InsertFindingsRelationalFromSnapshotAsync(
+            snapshot,
+            connection,
+            transaction,
+            scopeHdr.TenantId!.Value,
+            scopeHdr.WorkspaceId!.Value,
+            scopeHdr.ProjectId!.Value,
+            ct);
     }
+
+    private sealed record FindingSnapshotScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ProjectId);
 
     private static string? OptionalEqualityFilter(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();

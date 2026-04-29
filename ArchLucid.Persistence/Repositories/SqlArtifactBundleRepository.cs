@@ -177,11 +177,13 @@ public sealed class SqlArtifactBundleRepository(
                                          INSERT INTO dbo.ArtifactBundleArtifacts
                                          (
                                              BundleId, SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+                                             TenantId, WorkspaceId, ProjectId,
                                              ArtifactType, Name, Format, Content, ContentHash, GenerationStatus, ContentBlobUri
                                          )
                                          VALUES
                                          (
                                              @BundleId, @SortOrder, @ArtifactId, @RunId, @ManifestId, @CreatedUtc,
+                                             @TenantId, @WorkspaceId, @ProjectId,
                                              @ArtifactType, @Name, @Format, @Content, @ContentHash, @GenerationStatus, @ContentBlobUri
                                          );
                                          """;
@@ -221,6 +223,9 @@ public sealed class SqlArtifactBundleRepository(
                         a.RunId,
                         a.ManifestId,
                         a.CreatedUtc,
+                        bundle.TenantId,
+                        bundle.WorkspaceId,
+                        bundle.ProjectId,
                         a.ArtifactType,
                         a.Name,
                         a.Format,
@@ -238,8 +243,10 @@ public sealed class SqlArtifactBundleRepository(
             {
                 const string insertMetaSql = """
                                              INSERT INTO dbo.ArtifactBundleArtifactMetadata
-                                             (BundleId, ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue)
-                                             VALUES (@BundleId, @ArtifactSortOrder, @MetaSortOrder, @MetaKey, @MetaValue);
+                                             (BundleId, ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue,
+                                              TenantId, WorkspaceId, ProjectId)
+                                             VALUES (@BundleId, @ArtifactSortOrder, @MetaSortOrder, @MetaKey, @MetaValue,
+                                                     @TenantId, @WorkspaceId, @ProjectId);
                                              """;
 
                 await connection.ExecuteAsync(
@@ -251,7 +258,10 @@ public sealed class SqlArtifactBundleRepository(
                             ArtifactSortOrder = i,
                             MetaSortOrder = metaOrder,
                             MetaKey = meta.Key,
-                            MetaValue = meta.Value
+                            MetaValue = meta.Value,
+                            bundle.TenantId,
+                            bundle.WorkspaceId,
+                            bundle.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -263,8 +273,10 @@ public sealed class SqlArtifactBundleRepository(
             {
                 const string insertDecSql = """
                                             INSERT INTO dbo.ArtifactBundleArtifactDecisionLinks
-                                            (BundleId, ArtifactSortOrder, LinkSortOrder, DecisionId)
-                                            VALUES (@BundleId, @ArtifactSortOrder, @LinkSortOrder, @DecisionId);
+                                            (BundleId, ArtifactSortOrder, LinkSortOrder, DecisionId,
+                                             TenantId, WorkspaceId, ProjectId)
+                                            VALUES (@BundleId, @ArtifactSortOrder, @LinkSortOrder, @DecisionId,
+                                                    @TenantId, @WorkspaceId, @ProjectId);
                                             """;
 
                 await connection.ExecuteAsync(
@@ -275,7 +287,10 @@ public sealed class SqlArtifactBundleRepository(
                             BundleId = bundleId,
                             ArtifactSortOrder = i,
                             LinkSortOrder = d,
-                            DecisionId = a.ContributingDecisionIds[d]
+                            DecisionId = a.ContributingDecisionIds[d],
+                            bundle.TenantId,
+                            bundle.WorkspaceId,
+                            bundle.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -306,14 +321,24 @@ public sealed class SqlArtifactBundleRepository(
         for (int g = 0; g < trace.GeneratorsUsed.Count; g++)
         {
             const string insertGenSql = """
-                                        INSERT INTO dbo.ArtifactBundleTraceGenerators (BundleId, SortOrder, GeneratorName)
-                                        VALUES (@BundleId, @SortOrder, @GeneratorName);
+                                        INSERT INTO dbo.ArtifactBundleTraceGenerators (
+                                            BundleId, SortOrder, GeneratorName,
+                                            TenantId, WorkspaceId, ProjectId)
+                                        VALUES (@BundleId, @SortOrder, @GeneratorName, @TenantId, @WorkspaceId, @ProjectId);
                                         """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertGenSql,
-                    new { BundleId = bundleId, SortOrder = g, GeneratorName = trace.GeneratorsUsed[g] },
+                    new
+                    {
+                        BundleId = bundleId,
+                        SortOrder = g,
+                        GeneratorName = trace.GeneratorsUsed[g],
+                        bundle.TenantId,
+                        bundle.WorkspaceId,
+                        bundle.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
         }
@@ -331,14 +356,24 @@ public sealed class SqlArtifactBundleRepository(
         for (int s = 0; s < trace.SourceDecisionIds.Count; s++)
         {
             const string insertTraceDecSql = """
-                                             INSERT INTO dbo.ArtifactBundleTraceDecisionLinks (BundleId, SortOrder, DecisionId)
-                                             VALUES (@BundleId, @SortOrder, @DecisionId);
+                                             INSERT INTO dbo.ArtifactBundleTraceDecisionLinks (
+                                                 BundleId, SortOrder, DecisionId,
+                                                 TenantId, WorkspaceId, ProjectId)
+                                             VALUES (@BundleId, @SortOrder, @DecisionId, @TenantId, @WorkspaceId, @ProjectId);
                                              """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertTraceDecSql,
-                    new { BundleId = bundleId, SortOrder = s, DecisionId = trace.SourceDecisionIds[s] },
+                    new
+                    {
+                        BundleId = bundleId,
+                        SortOrder = s,
+                        DecisionId = trace.SourceDecisionIds[s],
+                        bundle.TenantId,
+                        bundle.WorkspaceId,
+                        bundle.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
         }
@@ -356,14 +391,24 @@ public sealed class SqlArtifactBundleRepository(
         for (int n = 0; n < trace.Notes.Count; n++)
         {
             const string insertNoteSql = """
-                                         INSERT INTO dbo.ArtifactBundleTraceNotes (BundleId, SortOrder, NoteText)
-                                         VALUES (@BundleId, @SortOrder, @NoteText);
+                                         INSERT INTO dbo.ArtifactBundleTraceNotes (
+                                             BundleId, SortOrder, NoteText,
+                                             TenantId, WorkspaceId, ProjectId)
+                                         VALUES (@BundleId, @SortOrder, @NoteText, @TenantId, @WorkspaceId, @ProjectId);
                                          """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertNoteSql,
-                    new { BundleId = bundleId, SortOrder = n, NoteText = trace.Notes[n] },
+                    new
+                    {
+                        BundleId = bundleId,
+                        SortOrder = n,
+                        NoteText = trace.Notes[n],
+                        bundle.TenantId,
+                        bundle.WorkspaceId,
+                        bundle.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
         }

@@ -1,3 +1,4 @@
+import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -208,7 +209,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
   const timeline = d.pipelineTimeline.map((row) => ({
     timestampUtc: row.occurredUtc,
     kind: row.eventType,
-    label: row.eventType.replaceAll(".", " "),
+    label: pipelineEventTypeFriendlyLabel(row.eventType),
     referenceId: row.correlationId ?? null,
   }));
 

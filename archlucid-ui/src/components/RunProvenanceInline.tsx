@@ -26,25 +26,34 @@ export type RunProvenanceInlineProps = {
  */
 export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
   const stages = stagesForRun(run);
+  const presentCount = stages.filter((s) => s.present).length;
 
   return (
-    <ul
-      className="m-0 flex list-none items-center gap-1.5 p-0"
-      aria-label="Pipeline artifact progress"
-      data-testid="run-provenance-inline"
-    >
-      {stages.map((stage) => (
-        <li key={stage.key} className="flex items-center" title={stage.label}>
-          <span
-            className={
-              stage.present
-                ? "block h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400"
-                : "block h-1.5 w-1.5 rounded-full border border-neutral-300 bg-transparent dark:border-neutral-600"
-            }
-            aria-label={stage.present ? `${stage.label}: present` : `${stage.label}: not yet present`}
-          />
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <ul
+        className="m-0 flex list-none items-center gap-1.5 p-0"
+        aria-label="Pipeline artifact progress"
+        data-testid="run-provenance-inline"
+      >
+        {stages.map((stage) => (
+          <li key={stage.key} className="flex items-center" title={stage.label}>
+            <span
+              className={
+                stage.present
+                  ? "block h-1.5 w-1.5 rounded-full bg-teal-600 dark:bg-teal-400"
+                  : "block h-1.5 w-1.5 rounded-full border border-neutral-300 bg-transparent dark:border-neutral-600"
+              }
+              aria-label={stage.present ? `${stage.label}: present` : `${stage.label}: not yet present`}
+            />
+          </li>
+        ))}
+      </ul>
+      <span
+        className="text-[11px] text-neutral-600 dark:text-neutral-400"
+        data-testid="run-provenance-inline-summary"
+      >
+        Pipeline stages {presentCount}/{stages.length} complete — dots map Context → Graph → Findings → Reviewed manifest (hover each dot for detail).
+      </span>
+    </div>
   );
 }

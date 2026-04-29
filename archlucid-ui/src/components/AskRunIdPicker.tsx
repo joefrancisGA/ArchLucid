@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { listRunsByProjectPaged } from "@/lib/api";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
@@ -115,10 +116,64 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     }
   }, [loading, items, value, onChange, preferAutoPick]);
 
+  useEffect(() => {
+    if (!loadError) {
+      return;
+    }
+
+    if (!preferAutoPick) {
+      return;
+    }
+
+    const demoMode =
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+    if (!demoMode) {
+      return;
+    }
+
+    if (value.trim().length > 0) {
+      return;
+    }
+
+    onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
+  }, [loadError, preferAutoPick, value, onChange]);
+
   const optionalCopy =
     selectedThreadId.trim().length > 0 ? "(optional if thread already anchored)" : "(required for new thread)";
 
   if (loadError) {
+    const demoMode =
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+    if (demoMode) {
+      const selectedInSynthetic = value === SHOWCASE_STATIC_DEMO_RUN_ID;
+
+      return (
+        <div className="space-y-2">
+          <Label htmlFor={selectControlId}>
+            {labelText} {optionalCopy}
+          </Label>
+          <Select
+            value={
+              selectedInSynthetic ? SHOWCASE_STATIC_DEMO_RUN_ID : value.trim().length > 0 ? value : undefined
+            }
+            onValueChange={onChange}
+          >
+            <SelectTrigger id={selectControlId} className="font-mono text-sm">
+              <SelectValue placeholder="Choose demo run" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Runs list unavailable — demo mode uses the Claims Intake sample run for Ask.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-2">
         <Label htmlFor={selectControlId}>

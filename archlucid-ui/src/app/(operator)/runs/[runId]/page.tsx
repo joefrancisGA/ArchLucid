@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { redirect } from "next/navigation";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -15,6 +16,7 @@ import {
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -117,6 +119,10 @@ export default async function RunDetailPage({
   params: Promise<{ runId: string }>;
 }) {
   const { runId } = await params;
+
+  if (isInvalidDynamicRouteToken(runId)) {
+    redirect("/runs?projectId=default");
+  }
 
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
   let loadFailure: ApiLoadFailureState | null = null;

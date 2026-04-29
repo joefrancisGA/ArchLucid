@@ -16,7 +16,14 @@ const result = spawnSync(
     stdio: "inherit",
     cwd: projectRoot,
     shell: true,
-    env: { ...process.env, MOCK_E2E_SKIP_NEXT_BUILD: "1" },
+    env: {
+      ...process.env,
+      MOCK_E2E_SKIP_NEXT_BUILD: "1",
+      /** Ensures Runs list static fallback (`tryStaticDemoRunSummariesPaged`) matches demo screenshots when mock API omits runs. */
+      NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
+      /** Curated run/manifest detail when API errors (demo parity with Showcase). */
+      NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
+    },
   }
 );
 

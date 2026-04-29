@@ -1,3 +1,5 @@
+> **Scope:** Implementation-status tracker for backend engineers; records what has been shipped against the Backend Performance Review plan (indexes, pagination, caching, N+1 reductions) — not a design doc or benchmark report.
+
 # Backend performance review — implementation status
 
 This document tracks work done against the Backend Performance Review plan (indexes, keyset pagination, N+1

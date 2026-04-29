@@ -340,8 +340,10 @@ public sealed class SqlGoldenManifestRepository(
         Guid manifestId = manifest.ManifestId;
 
         const string insertWarningSql = """
-                                        INSERT INTO dbo.GoldenManifestWarnings (ManifestId, SortOrder, WarningText)
-                                        VALUES (@ManifestId, @SortOrder, @WarningText);
+                                        INSERT INTO dbo.GoldenManifestWarnings (
+                                            ManifestId, SortOrder, WarningText,
+                                            TenantId, WorkspaceId, ProjectId)
+                                        VALUES (@ManifestId, @SortOrder, @WarningText, @TenantId, @WorkspaceId, @ProjectId);
                                         """;
 
         for (int w = 0; w < manifest.Warnings.Count; w++)
@@ -349,7 +351,15 @@ public sealed class SqlGoldenManifestRepository(
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
-                    new { ManifestId = manifestId, SortOrder = w, WarningText = manifest.Warnings[w] },
+                    new
+                    {
+                        ManifestId = manifestId,
+                        SortOrder = w,
+                        WarningText = manifest.Warnings[w],
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
     }
@@ -364,8 +374,10 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provFindingIds = manifest.Provenance.SourceFindingIds;
 
         const string insertProvFindingSql = """
-                                            INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
-                                            VALUES (@ManifestId, @SortOrder, @FindingId);
+                                            INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (
+                                                ManifestId, SortOrder, FindingId,
+                                                TenantId, WorkspaceId, ProjectId)
+                                            VALUES (@ManifestId, @SortOrder, @FindingId, @TenantId, @WorkspaceId, @ProjectId);
                                             """;
 
         for (int p = 0; p < provFindingIds.Count; p++)
@@ -373,7 +385,15 @@ public sealed class SqlGoldenManifestRepository(
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvFindingSql,
-                    new { ManifestId = manifestId, SortOrder = p, FindingId = provFindingIds[p] },
+                    new
+                    {
+                        ManifestId = manifestId,
+                        SortOrder = p,
+                        FindingId = provFindingIds[p],
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
     }
@@ -388,8 +408,10 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provNodeIds = manifest.Provenance.SourceGraphNodeIds;
 
         const string insertProvNodeSql = """
-                                         INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
-                                         VALUES (@ManifestId, @SortOrder, @NodeId);
+                                         INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (
+                                             ManifestId, SortOrder, NodeId,
+                                             TenantId, WorkspaceId, ProjectId)
+                                         VALUES (@ManifestId, @SortOrder, @NodeId, @TenantId, @WorkspaceId, @ProjectId);
                                          """;
 
         for (int p = 0; p < provNodeIds.Count; p++)
@@ -397,7 +419,15 @@ public sealed class SqlGoldenManifestRepository(
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvNodeSql,
-                    new { ManifestId = manifestId, SortOrder = p, NodeId = provNodeIds[p] },
+                    new
+                    {
+                        ManifestId = manifestId,
+                        SortOrder = p,
+                        NodeId = provNodeIds[p],
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
     }
@@ -412,8 +442,10 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provRuleIds = manifest.Provenance.AppliedRuleIds;
 
         const string insertProvRuleSql = """
-                                         INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-                                         VALUES (@ManifestId, @SortOrder, @RuleId);
+                                         INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (
+                                             ManifestId, SortOrder, RuleId,
+                                             TenantId, WorkspaceId, ProjectId)
+                                         VALUES (@ManifestId, @SortOrder, @RuleId, @TenantId, @WorkspaceId, @ProjectId);
                                          """;
 
         for (int p = 0; p < provRuleIds.Count; p++)
@@ -421,7 +453,15 @@ public sealed class SqlGoldenManifestRepository(
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvRuleSql,
-                    new { ManifestId = manifestId, SortOrder = p, RuleId = provRuleIds[p] },
+                    new
+                    {
+                        ManifestId = manifestId,
+                        SortOrder = p,
+                        RuleId = provRuleIds[p],
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId
+                    },
                     transaction,
                     cancellationToken: ct));
     }
@@ -437,22 +477,28 @@ public sealed class SqlGoldenManifestRepository(
         const string insertDecisionSql = """
                                          INSERT INTO dbo.GoldenManifestDecisions
                                          (
-                                             ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
+                                             ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson,
+                                             TenantId, WorkspaceId, ProjectId
                                          )
                                          VALUES
                                          (
-                                             @ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson
+                                             @ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson,
+                                             @TenantId, @WorkspaceId, @ProjectId
                                          );
                                          """;
 
         const string insertEvidenceSql = """
-                                         INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
-                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId);
+                                         INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (
+                                             ManifestId, DecisionId, SortOrder, FindingId,
+                                             TenantId, WorkspaceId, ProjectId)
+                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId, @TenantId, @WorkspaceId, @ProjectId);
                                          """;
 
         const string insertNodeLinkSql = """
-                                         INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
-                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId);
+                                         INSERT INTO dbo.GoldenManifestDecisionNodeLinks (
+                                             ManifestId, DecisionId, SortOrder, NodeId,
+                                             TenantId, WorkspaceId, ProjectId)
+                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId, @TenantId, @WorkspaceId, @ProjectId);
                                          """;
 
         for (int d = 0; d < manifest.Decisions.Count; d++)
@@ -471,7 +517,10 @@ public sealed class SqlGoldenManifestRepository(
                         decision.Title,
                         decision.SelectedOption,
                         decision.Rationale,
-                        decision.RawDecisionJson
+                        decision.RawDecisionJson,
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId
                     },
                     transaction,
                     cancellationToken: ct));
@@ -486,7 +535,10 @@ public sealed class SqlGoldenManifestRepository(
                             ManifestId = manifestId,
                             decision.DecisionId,
                             SortOrder = e,
-                            FindingId = decision.SupportingFindingIds[e]
+                            FindingId = decision.SupportingFindingIds[e],
+                            manifest.TenantId,
+                            manifest.WorkspaceId,
+                            manifest.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));
@@ -502,7 +554,10 @@ public sealed class SqlGoldenManifestRepository(
                             ManifestId = manifestId,
                             decision.DecisionId,
                             SortOrder = n,
-                            NodeId = decision.RelatedNodeIds[n]
+                            NodeId = decision.RelatedNodeIds[n],
+                            manifest.TenantId,
+                            manifest.WorkspaceId,
+                            manifest.ProjectId
                         },
                         transaction,
                         cancellationToken: ct));

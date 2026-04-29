@@ -3,6 +3,20 @@ import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 
+/** In public demo builds, omit advanced learning/planning routes that often render empty without live learning APIs. */
+const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>(["/planning", "/product-learning", "/recommendation-learning"]);
+
+function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
+  const demo =
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+  if (!demo) {
+    return links;
+  }
+
+  return links.filter((l) => !DEMO_MODE_OMIT_OPERATOR_HREFS.has(l.href));
+}
+
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
 export type NavGroupWithVisibleLinks = {
   group: NavGroupConfig;
@@ -58,9 +72,11 @@ export function filterNavLinksForOperatorShell(
   showAdvanced: boolean,
   callerAuthorityRank: number,
 ): NavLinkItem[] {
-  return filterNavLinksByAuthority(
-    filterNavLinksByTier(links, showExtended, showAdvanced),
-    callerAuthorityRank,
+  return omitThinRoutesInPublicDemoMode(
+    filterNavLinksByAuthority(
+      filterNavLinksByTier(links, showExtended, showAdvanced),
+      callerAuthorityRank,
+    ),
   );
 }
 

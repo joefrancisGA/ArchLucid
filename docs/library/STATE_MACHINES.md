@@ -1,3 +1,5 @@
+> **Scope:** Reference for backend engineers and DB migration authors; documents all lifecycle state machines on core authority entities and what illegal transitions are enforced — not a user-facing workflow guide.
+
 # ArchLucid backend state machines
 
 This document is the authoritative reference for lifecycle states on core authority entities. It aligns with migrations **127** (constraints and lifecycle columns) and **128** (`RetryCount` / `LastFailureReason` on runs).

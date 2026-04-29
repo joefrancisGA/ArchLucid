@@ -42,8 +42,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
         const string insertCondition = """
             INSERT INTO dbo.CompositeAlertRuleConditions
-            (ConditionId, CompositeRuleId, MetricType, [Operator], ThresholdValue)
-            VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
+            (ConditionId, CompositeRuleId, MetricType, [Operator], ThresholdValue, TenantId, WorkspaceId, ProjectId)
+            VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue, @TenantId, @WorkspaceId, @ProjectId);
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -65,6 +65,9 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                             c.MetricType,
                             c.Operator,
                             c.ThresholdValue,
+                            rule.TenantId,
+                            rule.WorkspaceId,
+                            rule.ProjectId,
                         },
                         transaction: tx,
                         cancellationToken: ct));
@@ -103,8 +106,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
         const string insertCondition = """
             INSERT INTO dbo.CompositeAlertRuleConditions
-            (ConditionId, CompositeRuleId, MetricType, [Operator], ThresholdValue)
-            VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
+            (ConditionId, CompositeRuleId, MetricType, [Operator], ThresholdValue, TenantId, WorkspaceId, ProjectId)
+            VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue, @TenantId, @WorkspaceId, @ProjectId);
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -135,6 +138,9 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                             c.MetricType,
                             c.Operator,
                             c.ThresholdValue,
+                            rule.TenantId,
+                            rule.WorkspaceId,
+                            rule.ProjectId,
                         },
                         transaction: tx,
                         cancellationToken: ct));

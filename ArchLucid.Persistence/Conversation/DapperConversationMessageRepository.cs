@@ -20,19 +20,52 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(message);
+        const string scopeSql = """
+                                 SELECT TenantId, WorkspaceId, ProjectId
+                                 FROM dbo.ConversationThreads
+                                 WHERE ThreadId = @ThreadId;
+                                 """;
+
         const string sql = """
                            INSERT INTO dbo.ConversationMessages
                            (
-                               MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
+                               MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson,
+                               TenantId, WorkspaceId, ProjectId
                            )
                            VALUES
                            (
-                               @MessageId, @ThreadId, @Role, @Content, @CreatedUtc, @MetadataJson
+                               @MessageId, @ThreadId, @Role, @Content, @CreatedUtc, @MetadataJson,
+                               @TenantId, @WorkspaceId, @ProjectId
                            );
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, message, cancellationToken: ct));
+
+        ConversationThreadDenormScopeRow? scopeHdr =
+            await connection.QuerySingleOrDefaultAsync<ConversationThreadDenormScopeRow>(
+                new CommandDefinition(scopeSql, new { message.ThreadId }, cancellationToken: ct));
+
+        if (scopeHdr?.TenantId is null || scopeHdr.WorkspaceId is null || scopeHdr.ProjectId is null)
+            throw new InvalidOperationException(
+                "dbo.ConversationThreads row for ThreadId=" + message.ThreadId
+                + " lacks denormalized RLS scope; cannot persist ConversationMessages.");
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    message.MessageId,
+                    message.ThreadId,
+                    message.Role,
+                    message.Content,
+                    message.CreatedUtc,
+                    message.MetadataJson,
+                    TenantId = scopeHdr.TenantId!.Value,
+                    WorkspaceId = scopeHdr.WorkspaceId!.Value,
+                    ProjectId = scopeHdr.ProjectId!.Value
+                },
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -59,4 +92,5 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
         return rows.ToList();
     }
-}
+
+    private sealed record ConversationThreadDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ProjectId);
