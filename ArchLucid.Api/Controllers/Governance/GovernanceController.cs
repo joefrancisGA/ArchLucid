@@ -6,7 +6,9 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -17,6 +19,9 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Primitives;
+
+using System.Text.Json;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -32,6 +37,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class GovernanceController(
     IGovernanceWorkflowService workflowService,
     IGovernanceApprovalRequestRepository approvalRepo,
@@ -44,6 +50,7 @@ public sealed class GovernanceController(
     IGovernanceRationaleService governanceRationaleService,
     IComplianceDriftTrendService complianceDriftTrendService,
     IPolicyPackDryRunService policyPackDryRunService,
+    IAuditService auditService,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
@@ -65,6 +72,9 @@ public sealed class GovernanceController(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -77,6 +87,10 @@ public sealed class GovernanceController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        (IActionResult? idempotencyError, string? idempotencyKey) = ReadGovernanceIdempotencyKey(!dryRun);
+        if (idempotencyError is not null)
+            return idempotencyError;
 
         string requestedBy = actorContext.GetActor();
 
@@ -94,6 +108,9 @@ public sealed class GovernanceController(
 
             if (dryRun)
                 Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
+
+            if (!dryRun && idempotencyKey is not null)
+                await LogGovernanceApprovalRequestedAuditAsync(request, idempotencyKey, cancellationToken);
 
             return Ok(result);
         }
@@ -117,9 +134,7 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? actorContext.GetActor()
-            : request.ReviewedBy;
+        string reviewedBy = actorContext.GetActor();
 
         try
         {
@@ -170,9 +185,7 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? actorContext.GetActor()
-            : request.ReviewedBy;
+        string reviewedBy = actorContext.GetActor();
 
         try
         {
@@ -241,9 +254,7 @@ public sealed class GovernanceController(
         if (!approve && !reject)
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
 
-        string reviewedBy = string.IsNullOrWhiteSpace(body.ReviewedBy)
-            ? actorContext.GetActor()
-            : body.ReviewedBy;
+        string reviewedBy = actorContext.GetActor();
 
         List<GovernanceBatchReviewItemResult> results = [];
         List<string> distinctIds = body.ApprovalRequestIds
@@ -338,9 +349,11 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string promotedBy = string.IsNullOrWhiteSpace(request.PromotedBy)
-            ? User.Identity?.Name ?? "anonymous"
-            : request.PromotedBy;
+        (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(!dryRun);
+        if (idempotencyError is not null)
+            return idempotencyError;
+
+        string promotedBy = actorContext.GetActor();
 
         try
         {
@@ -378,6 +391,10 @@ public sealed class GovernanceController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        (IActionResult? idempotencyError, _) = ReadGovernanceIdempotencyKey(true);
+        if (idempotencyError is not null)
+            return idempotencyError;
 
         try
         {
@@ -557,5 +574,66 @@ public sealed class GovernanceController(
             cancellationToken);
 
         return Ok(result);
+    }
+
+    private (IActionResult? Error, string? TrimmedKey) ReadGovernanceIdempotencyKey(bool required)
+    {
+        if (!required)
+            return (null, null);
+
+
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
+            string.IsNullOrWhiteSpace(raw.ToString()))
+            return (this.BadRequestProblem(
+                "Idempotency-Key header is required for persisted governance mutations (use dryRun=true on approval or promotion calls to validate without persisting).",
+                ProblemTypes.ValidationFailed), null);
+
+
+        string trimmed = raw.ToString().Trim();
+        if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+            return (this.BadRequestProblem(
+                $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
+                ProblemTypes.ValidationFailed), null);
+
+        return (null, trimmed);
+    }
+
+    private async Task LogGovernanceApprovalRequestedAuditAsync(
+        CreateGovernanceApprovalRequest request,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        byte[] keyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernanceApprovalRequested,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = TryParseArchitectureRunIdForAudit(request.RunId),
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    idempotencyKeySha256Hex = Convert.ToHexString(keyHash),
+                    manifestVersion = request.ManifestVersion,
+                    sourceEnvironment = request.SourceEnvironment,
+                    targetEnvironment = request.TargetEnvironment
+                })
+            },
+            cancellationToken);
+    }
+
+    private static Guid? TryParseArchitectureRunIdForAudit(string runId)
+    {
+        if (Guid.TryParseExact(runId, "N", out Guid g))
+            return g;
+
+
+        return Guid.TryParse(runId, out g) ? g : null;
     }
 }

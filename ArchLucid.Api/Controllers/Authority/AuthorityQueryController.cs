@@ -1,10 +1,13 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Audit;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -33,25 +36,23 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
     IRunRationaleService runRationaleService,
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IScopeContextProvider scopeProvider,
-    IProvenanceBuilder provenanceBuilder) : ControllerBase
+    IProvenanceBuilder provenanceBuilder,
+    IAuditService auditService,
+    IActorContext actorContext) : ControllerBase
 {
-    /// <summary>Lists recent runs for an authority project slug (e.g. <c>default</c>).</summary>
+    /// <summary>Lists runs for an authority project slug (e.g. <c>default</c>) with a paged envelope.</summary>
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
-    /// <param name="take">Max rows when <paramref name="page" /> is not set (default 20, clamped 1–200).</param>
-    /// <param name="page">
-    ///     One-based page. When set, response is <see cref="PagedResponse{T}" /> of
-    ///     <see cref="RunSummaryResponse" />.
-    /// </param>
+    /// <param name="take">Used as <c>pageSize</c> when <paramref name="page" /> is omitted (default 20, clamped 1–200).</param>
+    /// <param name="page">One-based page (default 1 when omitted).</param>
     /// <param name="pageSize">Page size when <paramref name="page" /> is set (clamped 1–200; default 50).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Newest-first. Without <paramref name="page" />: JSON array. With <paramref name="page" />: paged envelope.</returns>
+    /// <returns>Newest-first <see cref="PagedResponse{T}" /> of <see cref="RunSummaryResponse" />.</returns>
     [HttpGet("projects/{projectId}/runs")]
-    [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(PagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -68,22 +69,19 @@ public sealed class AuthorityQueryController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        if (page.HasValue)
-        {
-            (int safePage, int safePageSize) = PaginationDefaults.Normalize(page.Value, pageSize);
-            int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
-            (IReadOnlyList<RunSummaryDto> items, int total) =
-                await queryService.ListRunsByProjectPagedAsync(scope, projectId, skip, safePageSize, ct);
+        int effectivePage = page ?? 1;
+        int effectivePageSize = page.HasValue
+            ? pageSize
+            : Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
 
-            IReadOnlyList<RunSummaryResponse> mapped = items.Select(ToRunSummaryResponse).ToList();
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(effectivePage, effectivePageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+        (IReadOnlyList<RunSummaryDto> items, int total) =
+            await queryService.ListRunsByProjectPagedAsync(scope, projectId, skip, safePageSize, ct);
 
-            return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
-        }
+        IReadOnlyList<RunSummaryResponse> mapped = items.Select(ToRunSummaryResponse).ToList();
 
-        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-        IReadOnlyList<RunSummaryDto> results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
-
-        return Ok(results.Select(ToRunSummaryResponse).ToList());
+        return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
     }
 
     [HttpGet("runs/{runId:guid}/summary")]
@@ -126,6 +124,7 @@ public sealed class AuthorityQueryController(
     ///     Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
     /// </summary>
     [HttpGet("runs/{runId:guid}/pipeline-timeline")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
@@ -149,11 +148,14 @@ public sealed class AuthorityQueryController(
             })
             .ToList();
 
+        await LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, manifestId: null, ct);
+
         return Ok(body);
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
     [HttpGet("runs/{runId:guid}/rationale")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail/rationale")]
     [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -211,6 +213,7 @@ public sealed class AuthorityQueryController(
     /// </summary>
     /// <remarks>Requires a completed authority pipeline; coordinator-only runs return 422.</remarks>
     [HttpGet("runs/{runId:guid}/provenance")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/review-trail/provenance")]
     [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -248,7 +251,60 @@ public sealed class AuthorityQueryController(
             completeness.CoverageRatio,
             new KeyValuePair<string, object?>("surface", "authority_query"));
 
+        await LogRunScopedAuditAsync(AuditEventTypes.ProvenanceAccessed, runId, manifestId: null, ct);
+
         return Ok(graph);
+    }
+
+    /// <summary>Returns the hydrated golden manifest JSON for the run when committed.</summary>
+    [HttpGet("runs/{runId:guid}/manifest")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/manifest")]
+    [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetRunGoldenManifest(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        if (detail.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Golden manifest for run '{runId}' was not found.",
+                ProblemTypes.ManifestNotFound);
+
+
+        await LogRunScopedAuditAsync(
+            AuditEventTypes.ManifestViewed,
+            runId,
+            manifestId: detail.GoldenManifest.ManifestId,
+            ct);
+
+        return Ok(detail.GoldenManifest);
+    }
+
+    private async Task LogRunScopedAuditAsync(string eventType, Guid runId, Guid? manifestId, CancellationToken ct)
+    {
+        string actor = actorContext.GetActor();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = eventType,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runId,
+                ManifestId = manifestId
+            },
+            ct);
     }
 
     private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x)

@@ -4,7 +4,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
-import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
+import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { Button } from "@/components/ui/button";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -42,7 +42,7 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 56,
+    estimateSize: () => 88,
     overscan: 10,
   });
 
@@ -131,25 +131,28 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                 >
                   {gapsSummary(row)}
                 </div>
-                <div className="flex min-w-0 flex-wrap gap-1">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="h-7 px-2 text-xs"
-                    onClick={() => {
-                      setActiveFindingId(row.findingId);
-                      setOpen(true);
-                    }}
-                  >
-                    View trace
-                  </Button>
-                  <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
-                    <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}/inspect`}>Why?</Link>
-                  </Button>
-                  <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
-                    <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}`}>Explain</Link>
-                  </Button>
+                <div className="flex min-w-0 flex-col gap-1.5">
+                  <div className="flex min-w-0 flex-wrap gap-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        setActiveFindingId(row.findingId);
+                        setOpen(true);
+                      }}
+                    >
+                      View trace
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
+                      <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}/inspect`}>Why?</Link>
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" className="h-7 px-2 text-xs" asChild>
+                      <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}`}>Explain</Link>
+                    </Button>
+                  </div>
+                  <CopyTraceRowWorkItemButton row={row} runId={runId} />
                 </div>
               </div>
             );

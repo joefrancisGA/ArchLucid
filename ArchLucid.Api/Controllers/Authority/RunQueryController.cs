@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -34,6 +35,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class RunQueryController(
     IRunDetailQueryService runDetailQueryService,
     IRunRoiEstimator runRoiEstimator,
@@ -51,6 +53,7 @@ public sealed class RunQueryController(
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
     /// </summary>
     [HttpGet("run/{runId}")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(
@@ -212,15 +215,22 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Lists recent runs visible in the current scope (summary rows for dashboards and pickers).
+    ///     Lists runs visible in the current scope with pagination.
     /// </summary>
     [HttpGet("runs")]
-    [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
+    [HttpGet("/v{version:apiVersion}/runs")]
+    [ProducesResponseType(typeof(PagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListRuns(
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<RunSummary> summaries = await runDetailQueryService.ListRunSummariesAsync(cancellationToken);
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
 
-        List<RunListItemResponse> response = summaries
+        (IReadOnlyList<RunSummary> summaries, int total) =
+            await runDetailQueryService.ListRunSummariesPagedAsync(safePage, safePageSize, cancellationToken);
+
+        List<RunListItemResponse> mapped = summaries
             .Select(r => new RunListItemResponse
             {
                 RunId = r.RunId,
@@ -233,7 +243,7 @@ public sealed class RunQueryController(
             })
             .ToList();
 
-        return Ok(response);
+        return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
     }
 
     /// <summary>
@@ -300,6 +310,7 @@ public sealed class RunQueryController(
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
     [HttpGet("run/{runId}/traceability-bundle.zip")]
+    [HttpGet("/v{version:apiVersion}/runs/{runId}/review-trail/export")]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
@@ -10,7 +11,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { findingInspectPrimaryLabels } from "./finding-display-from-inspect";
+import { findingInspectPrimaryLabels } from "@/lib/finding-display-from-inspect";
+
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
 /**
@@ -85,6 +87,16 @@ export default async function RunFindingExplainPage({
           Evidence and decision rule context load first. Supplemental AI audit text is optional — expand when you need prompt
           and completion excerpts.
         </p>
+
+        {inspectPayload !== null ? (
+          <div className="pt-1">
+            <CopyFindingAsWorkItemButton
+              findingId={decodedFindingId}
+              payload={inspectPayload}
+              runId={runId}
+            />
+          </div>
+        ) : null}
       </header>
 
       {inspectFailure !== null ? (

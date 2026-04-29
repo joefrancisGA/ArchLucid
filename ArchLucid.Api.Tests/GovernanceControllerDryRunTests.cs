@@ -6,6 +6,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -63,6 +64,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IAuditService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()
@@ -109,18 +111,22 @@ public sealed class GovernanceControllerDryRunTests
                     ApprovalRequestId = "apr-1"
                 });
 
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("promoter");
+
         GovernanceController sut = new(
             workflow.Object,
             Mock.Of<IGovernanceApprovalRequestRepository>(),
             Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
-            Mock.Of<IActorContext>(),
+            actor.Object,
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IGovernanceDashboardService>(),
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IAuditService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()
