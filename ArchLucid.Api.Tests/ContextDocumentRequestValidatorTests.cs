@@ -140,4 +140,49 @@ public sealed class ContextDocumentRequestValidatorTests
 
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public void Validate_Succeeds_When_SourceDocumentUrl_IsNullOrWhitespace()
+    {
+        ContextDocumentRequest doc = ValidDocument();
+        doc.SourceDocumentUrl = null;
+
+        ValidationResult result = _validator.Validate(doc);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_Succeeds_When_SourceDocumentUrl_IsPublicHttps()
+    {
+        ContextDocumentRequest doc = ValidDocument();
+        doc.SourceDocumentUrl = "https://example.com/docs/adr-1.md";
+
+        ValidationResult result = _validator.Validate(doc);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_Fails_When_SourceDocumentUrl_IsHttp()
+    {
+        ContextDocumentRequest doc = ValidDocument();
+        doc.SourceDocumentUrl = "http://example.com/x";
+
+        ValidationResult result = _validator.Validate(doc);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.SourceDocumentUrl));
+    }
+
+    [Fact]
+    public void Validate_Fails_When_SourceDocumentUrl_TargetsLoopbackHttps()
+    {
+        ContextDocumentRequest doc = ValidDocument();
+        doc.SourceDocumentUrl = "https://127.0.0.1/secret";
+
+        ValidationResult result = _validator.Validate(doc);
+
+        result.IsValid.Should().BeFalse();
+    }
 }

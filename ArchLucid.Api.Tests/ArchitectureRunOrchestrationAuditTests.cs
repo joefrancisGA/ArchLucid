@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -45,13 +46,18 @@ public sealed class ArchitectureRunOrchestrationAuditTests
 
         Mock<IBaselineMutationAuditService> audit = new();
         Mock<IAuditService> durableAudit = new();
+        Mock<IRequestContentSafetyPrecheck> contentSafety = new();
+        contentSafety
+            .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
         ArchitectureRunExecuteOrchestrator sut = CreateExecuteOrchestrator(
             runRepo.Object,
             scopeProvider.Object,
             actor.Object,
             audit.Object,
-            durableAudit.Object);
+            durableAudit.Object,
+            contentSafety.Object);
 
         Func<Task> act = () => sut.ExecuteRunAsync("missing");
 
@@ -84,8 +90,11 @@ public sealed class ArchitectureRunOrchestrationAuditTests
         IScopeContextProvider scopeContextProvider,
         IActorContext actorContext,
         IBaselineMutationAuditService baselineMutationAudit,
-        IAuditService auditService)
+        IAuditService auditService,
+        IRequestContentSafetyPrecheck? requestContentSafetyPrecheck = null)
     {
+        IRequestContentSafetyPrecheck precheck = requestContentSafetyPrecheck ?? BuildAllowAllPrecheck();
+
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,
             scopeContextProvider,
@@ -102,7 +111,17 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             auditService,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            precheck,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+    }
+
+    private static IRequestContentSafetyPrecheck BuildAllowAllPrecheck()
+    {
+        Mock<IRequestContentSafetyPrecheck> mock = new();
+        mock
+            .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+        return mock.Object;
     }
 
     private static IArchitectureRunCommitOrchestrator BuildCommitOrchestratorThatThrowsRunNotFound()

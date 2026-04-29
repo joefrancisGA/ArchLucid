@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -143,7 +144,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine($"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}");
         sb.AppendLine();
 
-        string content = sb.ToString();
+        string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 
         return Task.FromResult(new SynthesizedArtifact
         {

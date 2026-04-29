@@ -157,6 +157,11 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(a => a.GetActor()).Returns("promote-actor");
 
+        Mock<IRequestContentSafetyPrecheck> contentSafety = new();
+        contentSafety
+            .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
         ArchitectureRunExecuteOrchestrator sut = new(
             runRepo.Object,
             scopeProvider.Object,
@@ -173,6 +178,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
+            contentSafety.Object,
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

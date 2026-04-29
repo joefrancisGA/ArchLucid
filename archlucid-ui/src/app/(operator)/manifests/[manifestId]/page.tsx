@@ -3,7 +3,7 @@ import Link from "next/link";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
-import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
+import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -16,7 +16,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
@@ -195,6 +195,11 @@ export default async function ManifestDetailPage({
 
   const manifestSubtitle = manifestScenarioSubtitle(summary);
 
+  const primaryFindingHref =
+    summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID || summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID
+      ? `/runs/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+      : null;
+
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -249,6 +254,8 @@ export default async function ManifestDetailPage({
         </CardContent>
       </Card>
 
+      <ManifestTopDecisionsCard summary={summary} />
+
       {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
         <Card>
           <CardHeader>
@@ -264,7 +271,13 @@ export default async function ManifestDetailPage({
             </p>
             <div className="mt-4">
               <Button variant="secondary" size="sm" asChild>
-                <Link href={`/runs/${encodeURIComponent(summary.runId)}#run-explanation`}>Review findings on run</Link>
+                <Link
+                  href={
+                    primaryFindingHref ?? `/runs/${encodeURIComponent(summary.runId)}#run-explanation`
+                  }
+                >
+                  {primaryFindingHref ? "Review PHI minimization finding" : "Open run findings"}
+                </Link>
               </Button>
             </div>
           </CardContent>

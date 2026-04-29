@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -33,7 +33,7 @@ export type AskRunIdPickerProps = {
 
 /**
  * Loads recent runs for the default project and prefers a combobox over raw IDs.
- * Falls back to manual entry when the list endpoint fails or returns no rows.
+ * When the list is empty or unavailable, renders a disabled selector plus guidance — not a paste-ID field.
  */
 export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const {
@@ -51,7 +51,6 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const labelText = label ?? "Run";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
   const selectControlId = `${controlIdPrefix}-select`;
-  const inputControlId = `${controlIdPrefix}-input`;
 
   useEffect(() => {
     let cancelled = false;
@@ -103,8 +102,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
     const demoPreferred = items.find((r) => r.runId === DEMO_RUN_PREF_ID);
 
-    if (items.length === 1) {
-      onChange(items[0].runId);
+    const firstItem = items[0];
+
+    if (items.length === 1 && firstItem !== undefined) {
+      onChange(firstItem.runId);
 
       return;
     }
@@ -120,20 +121,17 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   if (loadError) {
     return (
       <div className="space-y-2">
-        <Label htmlFor={inputControlId}>
-          {labelText} ID {optionalCopy}
+        <Label htmlFor={selectControlId}>
+          {labelText} {optionalCopy}
         </Label>
-        <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-          Could not load runs — enter a run ID manually.
+        <Select disabled>
+          <SelectTrigger id={selectControlId} className="font-mono text-sm">
+            <SelectValue placeholder="Runs list unavailable" />
+          </SelectTrigger>
+        </Select>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          The run list could not be loaded — open an existing thread from the left, or try again shortly.
         </p>
-        <Input
-          id={inputControlId}
-          className="font-mono text-sm"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Paste a run ID from Run detail"
-          autoComplete="off"
-        />
       </div>
     );
   }
@@ -154,17 +152,20 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   if (items.length === 0) {
     return (
       <div className="space-y-2">
-        <Label htmlFor={inputControlId}>
-          {labelText} ID {optionalCopy}
+        <Label htmlFor={selectControlId}>
+          {labelText} {optionalCopy}
         </Label>
-        <Input
-          id={inputControlId}
-          className="font-mono text-sm"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="No runs in this project yet — paste a run ID"
-          autoComplete="off"
-        />
+        <Select disabled>
+          <SelectTrigger id={selectControlId} className="font-mono text-sm">
+            <SelectValue placeholder="No runs in this project yet" />
+          </SelectTrigger>
+        </Select>
+        <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/runs/new">
+            Create a request
+          </Link>{" "}
+          to add a run, or continue in a thread from the left (threads may reference earlier runs).
+        </p>
       </div>
     );
   }

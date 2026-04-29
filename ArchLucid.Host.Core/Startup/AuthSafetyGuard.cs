@@ -13,6 +13,14 @@ public static class AuthSafetyGuard
         "DevelopmentBypass auth mode is not allowed outside Development environments. "
         + "Set ArchLucidAuth:Mode to ApiKey or JwtBearer.";
 
+    /// <summary>
+    ///     Thrown when <c>ArchLucidAuth:Mode</c> is not <c>JwtBearer</c> or <c>ApiKey</c> outside Development —
+    ///     the API host would otherwise register <c>DevelopmentBypassAuthenticationHandler</c> as the default scheme.
+    /// </summary>
+    public const string AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage =
+        "ArchLucidAuth:Mode must be JwtBearer or ApiKey outside Development environments. "
+        + "Any other value (including omitting Mode) registers DevelopmentBypass authentication, which is not permitted.";
+
     private const string DevelopmentBypassAllNotAllowedOutsideDevelopmentMessage =
         "Authentication:ApiKey:DevelopmentBypassAll is not permitted outside Development environments. "
         + "Set Authentication:ApiKey:DevelopmentBypassAll to false.";
@@ -62,6 +70,14 @@ public static class AuthSafetyGuard
             logger?.LogWarning(
                 "DevelopmentBypass auth mode is active. All requests are authenticated as {DevUserId}. Do not use in production.",
                 devUserId);
+        }
+        else if (!hostEnvironment.IsDevelopment())
+        {
+            bool isJwt = string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase);
+            bool isApiKey = string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase);
+
+            if (!isJwt && !isApiKey)
+                throw new InvalidOperationException(AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage);
         }
 
 

@@ -129,6 +129,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
+        services.AddSingleton<IRequestContentSafetyPrecheck, DefaultRequestContentSafetyPrecheck>();
+        services.Configure<SupportBundleOptions>(configuration.GetSection(SupportBundleOptions.SectionPath));
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector

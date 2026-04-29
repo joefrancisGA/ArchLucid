@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Security;
 
 using FluentValidation;
 
@@ -34,5 +35,18 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
         RuleFor(x => x.Content)
             .NotNull().WithMessage("Document Content must not be null.")
             .MaximumLength(500_000).WithMessage("Document Content must not exceed 500000 characters.");
+
+        RuleFor(x => x.SourceDocumentUrl)
+            .Custom(
+                (url, context) =>
+                {
+                    if (string.IsNullOrWhiteSpace(url))
+                        return;
+
+                    string? reason = AllowedDocumentUrlPolicy.TryGetRejectionReason(url);
+
+                    if (reason is not null)
+                        context.AddFailure(reason);
+                });
     }
 }

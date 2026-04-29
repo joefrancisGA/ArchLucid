@@ -322,7 +322,7 @@ export function NewRunWizardClient() {
 
   return (
     <FormProvider {...form}>
-      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-24">
+      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-36">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
           ) : null}
@@ -418,7 +418,7 @@ export function NewRunWizardClient() {
 
           {showNav ? (
             <div
-              className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/50 bg-neutral-50/95 px-4 py-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.05)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border-neutral-800/50 dark:bg-neutral-950/95 dark:shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.2)] dark:supports-[backdrop-filter]:bg-neutral-950/80 lg:-mx-6 lg:px-6"
+              className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"
               data-testid="new-run-wizard-footer"
             >
               <WizardNavButtons

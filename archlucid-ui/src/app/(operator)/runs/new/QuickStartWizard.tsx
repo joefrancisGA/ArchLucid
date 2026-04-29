@@ -148,7 +148,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const isFirstStep = quickStep === 0;
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 pb-36">
       <div className="space-y-1" data-testid="quick-start-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}
@@ -192,7 +192,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       {quickStep === 2 ? <WizardStepReview /> : null}
 
       <div
-        className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/50 bg-neutral-50/95 px-4 py-3 shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.05)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/80 dark:border-neutral-800/50 dark:bg-neutral-950/95 dark:shadow-[0_-4px_16px_-4px_rgba(0,0,0,0.2)] dark:supports-[backdrop-filter]:bg-neutral-950/80 lg:-mx-6 lg:px-6"
+        className="sticky bottom-0 z-10 -mx-4 mt-8 border-t border-neutral-200/60 bg-neutral-50/98 px-4 py-3 shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.06)] backdrop-blur supports-[backdrop-filter]:bg-neutral-50/85 dark:border-neutral-800/60 dark:bg-neutral-950/98 dark:shadow-[0_-2px_8px_-2px_rgba(0,0,0,0.25)] dark:supports-[backdrop-filter]:bg-neutral-950/85 lg:-mx-6 lg:px-6"
         data-testid="quick-start-footer"
       >
         <WizardNavButtons

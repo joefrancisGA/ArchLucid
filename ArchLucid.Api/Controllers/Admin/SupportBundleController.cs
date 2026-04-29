@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Application.Support;
@@ -72,6 +73,10 @@ public sealed class SupportBundleController(
                     })
             },
             cancellationToken);
+
+        Response.Headers.Append(
+            "X-Support-Bundle-Retention-Discard-After-Utc",
+            artifact.RetentionDiscardAfterUtc.ToString("O", CultureInfo.InvariantCulture));
 
         return File(artifact.Bytes, artifact.ContentType, artifact.FileName);
     }

@@ -312,6 +312,11 @@ export default function PolicyPacksPage() {
     <main className="max-w-5xl">
       <LayerHeader pageKey="policy-packs" />
       <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
+      <p className="mb-3 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        Policy packs are <strong>versioned governance bundles</strong>: they pin compliance rule references, advisory
+        defaults, and alert posture for a tenant, workspace, or project so every architecture run evaluates against the
+        same explicit bar as your team scales.
+      </p>
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and advisory
         defaults for your scope —{" "}

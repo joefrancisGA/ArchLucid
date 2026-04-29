@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Decisioning.Findings;
 

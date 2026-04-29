@@ -60,6 +60,12 @@ public static class AuditEventTypes
     public const string ArchitectureDocxExportGenerated = "ArchitectureDocxExportGenerated";
 
     /// <summary>
+    ///     Architecture request draft imported from an uploaded TOML/JSON file (
+    ///     <c>POST .../architecture/request/import</c>).
+    /// </summary>
+    public const string RequestFileImported = "RequestFileImported";
+
+    /// <summary>
     ///     Stakeholder DOCX value report generated for the current scope (
     ///     <c>POST /v1/value-report/{{tenantId}}/generate</c>).
     /// </summary>

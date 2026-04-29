@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Docx.Builders;
 using ArchLucid.ArtifactSynthesis.Docx.Helpers;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Explanation;
@@ -25,6 +26,8 @@ public sealed class DocxExportService(
     IImprovementAdvisorService improvementAdvisorService,
     IDiagramImageRenderer diagramImageRenderer) : IDocxExportService
 {
+    private static string SanitizeArtifactText(string? text) => LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
+
     private const int MaxEmbeddedMermaidChars = 48_000;
 
     /// <inheritdoc />
@@ -106,7 +109,7 @@ public sealed class DocxExportService(
         CancellationToken ct)
     {
         WordDocumentBuilder.AddStyledParagraph(body, request.DocumentTitle, DocxStyleIds.Title);
-        WordDocumentBuilder.AddBodyText(body, request.Subtitle);
+        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(request.Subtitle));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddBodyText(body, $"Run ID: {manifest.RunId}");
         WordDocumentBuilder.AddBodyText(body, $"Manifest ID: {manifest.ManifestId}");
@@ -117,7 +120,7 @@ public sealed class DocxExportService(
         if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
             WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
         else
-            WordDocumentBuilder.AddMultilineBodyText(body, manifest.Metadata.Summary);
+            WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(manifest.Metadata.Summary));
 
         WordDocumentBuilder.AddSpacer(body);
 
@@ -243,10 +246,10 @@ public sealed class DocxExportService(
 
             foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
-                WordDocumentBuilder.AddBodyText(body, $"{recommendation.Title} [{recommendation.Urgency}]");
-                WordDocumentBuilder.AddBodyText(body, $"Rationale: {recommendation.Rationale}");
-                WordDocumentBuilder.AddBodyText(body, $"Suggested Action: {recommendation.SuggestedAction}");
-                WordDocumentBuilder.AddBodyText(body, $"Expected Impact: {recommendation.ExpectedImpact}");
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"{recommendation.Title} [{recommendation.Urgency}]"));
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Rationale: {recommendation.Rationale}"));
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Suggested Action: {recommendation.SuggestedAction}"));
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Expected Impact: {recommendation.ExpectedImpact}"));
                 WordDocumentBuilder.AddSpacer(body);
             }
 
@@ -526,7 +529,7 @@ public sealed class DocxExportService(
     private static void AppendRunExplanation(Body body, ExplanationResult e)
     {
         WordDocumentBuilder.AddHeading(body, "Executive Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, e.Summary);
+        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(body, e.KeyDrivers.Count > 0 ? e.KeyDrivers : ["(none)"]);
@@ -538,21 +541,21 @@ public sealed class DocxExportService(
         WordDocumentBuilder.AddBulletList(body,
             e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddMultilineBodyText(body, e.DetailedNarrative);
+        WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.DetailedNarrative));
         WordDocumentBuilder.AddSpacer(body, 2);
     }
 
     private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
     {
         WordDocumentBuilder.AddHeading(body, "Executive Change Narrative (AI)");
-        WordDocumentBuilder.AddBodyText(body, e.HighLevelSummary);
+        WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(body, e.MajorChanges.Count > 0 ? e.MajorChanges : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(body, e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs : ["(none)"]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddMultilineBodyText(body, e.Narrative);
+        WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.Narrative));
         WordDocumentBuilder.AddSpacer(body, 2);
     }
 
