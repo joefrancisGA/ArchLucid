@@ -1,3 +1,5 @@
+> **Scope:** For contributors wiring mutations and CI: explains layered audit enforcement (controller checks, echo tripwires, baseline pairing tests, allowlists); not a full audit taxonomy or substitute for `docs/library/AUDIT_COVERAGE_MATRIX.md`.
+
 # Layered audit enforcement
 
 ## Objective
