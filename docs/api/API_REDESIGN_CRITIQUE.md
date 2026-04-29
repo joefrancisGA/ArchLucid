@@ -1,3 +1,5 @@
+> **Scope:** Engineering critique of the public REST surface for API and SDK owners; not the canonical route catalog or a compliance attestation.
+
 # ArchLucid API Surface — Defect Catalogue
 
 This document captures the nine defect dimensions identified during the REST API review (see implementation workstream `docs/api/API_V2_ROUTES.md` for the target surface).

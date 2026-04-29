@@ -297,6 +297,12 @@ public sealed class PolicyPackDryRunServiceTests
 
         public Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RunSummary>>([]);
+
+        public Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<RunSummary>, int)>(([], 0));
     }
 
     /// <summary>

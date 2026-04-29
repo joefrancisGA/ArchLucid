@@ -1,4 +1,5 @@
 // Types moved from ArchLucid.Persistence into Coordination / Runtime; tests use these namespaces widely.
+global using ArchLucid.Contracts.Findings;
 global using ArchLucid.Persistence.Archival;
 global using ArchLucid.Persistence.BlobStore;
 global using ArchLucid.Persistence.Caching;

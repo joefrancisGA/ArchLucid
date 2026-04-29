@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Builders;
 using ArchLucid.Decisioning.Models;
@@ -11,6 +12,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Decisioning.Tests;
 
@@ -138,6 +140,7 @@ public sealed class TypedFindingsGoldenPathTests
             engines,
             new FindingPayloadValidator(),
             NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
             TimeProvider.System);
 
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);

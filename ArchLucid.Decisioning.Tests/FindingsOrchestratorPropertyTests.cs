@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -8,6 +9,7 @@ using FluentAssertions;
 using FsCheck.Xunit;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -42,7 +44,11 @@ public sealed class FindingsOrchestratorPropertyTests
         }
 
         IEnumerable<IFindingEngine> engineObjects = engines.Select(static m => m.Object);
-        FindingsOrchestrator sut = new(engineObjects, validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator sut = new(
+            engineObjects,
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()));
 
         FindingsSnapshot snapshot = sut.GenerateFindingsSnapshotAsync(
                 Guid.NewGuid(),

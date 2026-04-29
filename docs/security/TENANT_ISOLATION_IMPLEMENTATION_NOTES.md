@@ -1,3 +1,5 @@
+> **Scope:** Concrete tenant-isolation enforcement in code (RLS, policies, blob paths, tests) for engineers; not a full threat-model paper or customer-facing trust narrative.
+
 # Tenant isolation — implementation notes (2026-04)
 
 This doc ties code changes to the tenant-isolation threat model: what was enforced in SQL, HTTP, blob paths, and tests.
