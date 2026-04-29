@@ -1,6 +1,5 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
-
 using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
