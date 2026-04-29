@@ -4,7 +4,9 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.Replay;
 
@@ -21,18 +23,21 @@ namespace ArchLucid.Api.Controllers.Authority;
 ///     scope.
 /// </summary>
 /// <remarks>
-///     POST <c>api/authority/replay</c>; uses <see cref="ReplayMode" /> strings from the request body. Emits
+///     POST <c>/v1/internal/authority/replay</c> (legacy: <c>/v1/authority/replay</c>); uses <see cref="ReplayMode" /> strings from the request body. Emits
 ///     <see cref="AuditEventTypes.ReplayExecuted" /> on success.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+[Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/authority/replay")]
+[Route("v{version:apiVersion}/internal/authority/replay")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class AuthorityReplayController(
     IAuthorityReplayService replayService,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IActorContext actorContext,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>Runs replay for the run and mode in <paramref name="request" />.</summary>
     /// <param name="request">Run id and optional mode (defaults to <see cref="ReplayMode.ReconstructOnly" />).</param>
@@ -42,6 +47,7 @@ public sealed class AuthorityReplayController(
     ///     unknown.
     /// </returns>
     [HttpPost]
+    [HttpPost("/v{version:apiVersion}/authority/replay")]
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -63,10 +69,18 @@ public sealed class AuthorityReplayController(
         if (result is null)
             return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);
 
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+
         await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ReplayExecuted,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
                 RunId = request.RunId,
                 DataJson = JsonSerializer.Serialize(new { mode, result.RebuiltManifest?.ManifestId })
             },

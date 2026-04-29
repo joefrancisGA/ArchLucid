@@ -17,12 +17,13 @@ namespace ArchLucid.Api.Controllers.Authority;
 ///     On-demand structural and semantic evaluation of agent traces for a run.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
 [ApiVersion("1.0")]
-[Route("v{version:apiVersion}/architecture")]
+[Route("v{version:apiVersion}/internal/architecture")]
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class RunAgentEvaluationController(
     IRunRepository authorityRunRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -35,6 +36,7 @@ public sealed class RunAgentEvaluationController(
     ///     the run (no metrics).
     /// </summary>
     [HttpGet("run/{runId}/agent-evaluation")]
+    [HttpGet("/v{version:apiVersion}/architecture/run/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunAgentEvaluation(

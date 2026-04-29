@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { findingInspectPrimaryLabels } from "./finding-display-from-inspect";
+import { findingInspectPrimaryLabels } from "@/lib/finding-display-from-inspect";
 
 export type FindingInspectFindingBodyProps = {
   readonly runId: string;

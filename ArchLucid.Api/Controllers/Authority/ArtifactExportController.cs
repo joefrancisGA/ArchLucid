@@ -73,6 +73,74 @@ public sealed class ArtifactExportController(
         return Ok(artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId)).ToList());
     }
 
+    /// <summary>Product route: artifact descriptors for the run's golden manifest.</summary>
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts")]
+    [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ListArtifactsForRun(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        if (detail.Run.GoldenManifestId is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no golden manifest in the current scope.",
+                ProblemTypes.ManifestNotFound);
+
+        return await ListArtifacts(detail.Run.GoldenManifestId.Value, ct);
+    }
+
+    /// <summary>Product route: bundle ZIP for the run's golden manifest.</summary>
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts/bundle")]
+    [Produces("application/zip")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadBundleForRun(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        if (detail.Run.GoldenManifestId is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no golden manifest in the current scope.",
+                ProblemTypes.ManifestNotFound);
+
+        return await DownloadBundle(detail.Run.GoldenManifestId.Value, ct);
+    }
+
+    /// <summary>Product route: download one artifact file for the run's golden manifest.</summary>
+    [HttpGet("/v{version:apiVersion}/runs/{runId:guid}/artifacts/{artifactId:guid}")]
+    [Produces("application/octet-stream")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DownloadArtifactForRun(Guid runId, Guid artifactId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        if (detail.Run.GoldenManifestId is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no golden manifest in the current scope.",
+                ProblemTypes.ManifestNotFound);
+
+        return await DownloadArtifact(detail.Run.GoldenManifestId.Value, artifactId, ct);
+    }
+
     /// <summary>
     ///     JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is
     ///     not in that manifest�s bundle.

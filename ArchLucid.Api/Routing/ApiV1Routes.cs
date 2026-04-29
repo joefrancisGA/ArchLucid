@@ -6,6 +6,15 @@ namespace ArchLucid.Api.Routing;
 /// </summary>
 public static class ApiV1Routes
 {
+    /// <summary>Internal operator diagnostics (replay, determinism, seed) under <c>/v1/internal/architecture</c>.</summary>
+    public const string InternalArchitectureBase = "v1/internal/architecture";
+
+    /// <summary>Authority replay rebuild under <c>/v1/internal/authority/replay</c> (legacy alias <c>/v1/authority/replay</c>).</summary>
+    public const string InternalAuthorityReplay = "v1/internal/authority/replay";
+
+    /// <summary>Federated artifact listing/download routes rooted at <c>/v1/runs/{runId}/artifacts</c>.</summary>
+    public const string RunsArtifactsRelativePrefix = "v1/runs";
+
     public const string PolicyPacks = "v1/policy-packs";
     public const string GovernanceResolution = "v1/governance-resolution";
     public const string AlertRules = "v1/alert-rules";
