@@ -24,4 +24,12 @@ public interface IRunDetailQueryService
     /// </summary>
     Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Paged run summaries for the current scope (newest first).
+    /// </summary>
+    Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

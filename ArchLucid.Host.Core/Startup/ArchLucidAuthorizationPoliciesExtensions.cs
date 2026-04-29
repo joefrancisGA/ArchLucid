@@ -66,6 +66,17 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.RequireClaim("permission", "replay:comparisons"))
             .AddPolicy(ArchLucidPolicies.CanViewReplayDiagnostics, policy =>
                 policy.RequireClaim("permission", "replay:diagnostics"))
+            .AddPolicy(ArchLucidPolicies.RequireOperatorRole, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireRole(
+                    ArchLucidRoles.Admin,
+                    ArchLucidRoles.WorkspaceAdmin,
+                    ArchLucidRoles.Operator,
+                    ArchLucidRoles.Architect,
+                    ArchLucidRoles.Reviewer);
+                policy.Requirements.Add(new TrialActiveRequirement());
+            })
             .AddPolicy(ArchLucidPolicies.ScimWrite, policy =>
             {
                 policy.AddAuthenticationSchemes(ScimBearerDefaults.AuthenticationScheme);

@@ -73,6 +73,15 @@ public interface IRunRepository
     Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct);
 
     /// <summary>
+    ///     Paged runs within <paramref name="scope" /> (all project slugs), newest first, plus total count for dashboards.
+    /// </summary>
+    Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+        ScopeContext scope,
+        int skip,
+        int take,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Applies an update to an existing run row. Callers may pass an existing
     ///     <paramref name="connection" /> and <paramref name="transaction" /> to participate
     ///     in a multi-statement transaction.

@@ -36,47 +36,6 @@ public class RunSummaryResponse
         set;
     }
 
-    public Guid? ContextSnapshotId
-    {
-        get;
-        set;
-    }
-
-    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.GraphSnapshotId" />
-    public Guid? GraphSnapshotId
-    {
-        get;
-        set;
-    }
-
-    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.FindingsSnapshotId" />
-    public Guid? FindingsSnapshotId
-    {
-        get;
-        set;
-    }
-
-    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.GoldenManifestId" />
-    public Guid? GoldenManifestId
-    {
-        get;
-        set;
-    }
-
-    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.DecisionTraceId" />
-    public Guid? DecisionTraceId
-    {
-        get;
-        set;
-    }
-
-    /// <inheritdoc cref="ArchLucid.Persistence.Queries.RunSummaryDto.ArtifactBundleId" />
-    public Guid? ArtifactBundleId
-    {
-        get;
-        set;
-    }
-
     /// <summary>
     ///     Operator-facing flags mirroring <see cref="ArchLucid.Persistence.Queries.RunSummaryDto" /> computed properties
     ///     (JSON for UI without null inference).

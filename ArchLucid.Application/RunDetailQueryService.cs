@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -133,6 +134,35 @@ public sealed class RunDetailQueryService(
                 SystemName = r.ProjectId
             })
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        (IReadOnlyList<Persistence.Models.RunRecord> records, int total) =
+            await runRepository.ListRecentInScopePagedAsync(scope, skip, safePageSize, cancellationToken);
+
+        IReadOnlyList<RunSummary> items = records
+            .Select(r => new RunSummary
+            {
+                RunId = r.RunId.ToString("N"),
+                RequestId = r.ArchitectureRequestId ?? string.Empty,
+                Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = r.CreatedUtc,
+                CompletedUtc = r.CompletedUtc,
+                CurrentManifestVersion = r.CurrentManifestVersion,
+                SystemName = r.ProjectId
+            })
+            .ToList();
+
+        return (items, total);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

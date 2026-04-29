@@ -50,8 +50,8 @@ public sealed class CommercialPackagingMetadataTests
             attr.Should().NotBeNull($"{t.Name} must carry the attribute directly on the controller type.");
             attr!.Arguments.Should().HaveCount(1);
 
-            TenantTier tier = (TenantTier)attr.Arguments[0]!;
-            ((int)tier).Should().BeGreaterThan((int)TenantTier.Free, $"{t.FullName} should require Standard or Enterprise.");
+            TenantTier tier = (TenantTier)attr!.Arguments[0]!;
+            Assert.True((int)tier > (int)TenantTier.Free, $"{t.FullName} should require Standard or Enterprise.");
         }
     }
 
@@ -94,7 +94,7 @@ public sealed class CommercialPackagingMetadataTests
 
         produces.Should().ContainSingle(a =>
             a.StatusCode == StatusCodes.Status200OK &&
-            a.Type ==             typeof(SponsorEvidencePackResponse));
+            a.Type == typeof(SponsorEvidencePackResponse));
     }
 
     [Fact]

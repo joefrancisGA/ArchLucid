@@ -5,7 +5,6 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -26,7 +25,7 @@ using Microsoft.Extensions.Primitives;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-///     HTTP API for mutating architecture run operations: create, execute, replay, commit, submit results, and seed.
+///     HTTP API for mutating architecture runs: create, execute, commit, submit agent results.
 /// </summary>
 /// <remarks>
 ///     Base route <c>v1/architecture</c>. Read-only endpoints live on <see cref="RunQueryController" /> and
@@ -46,9 +45,7 @@ public sealed partial class RunsController(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
-    IReplayRunService replayRunService,
     IArchitectureApplicationService architectureApplicationService,
-    IDeterminismCheckService determinismCheckService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
@@ -67,6 +64,7 @@ public sealed partial class RunsController(
     ///     header when the key matches a prior success.
     /// </returns>
     [HttpPost("request")]
+    [HttpPost("/v{version:apiVersion}/requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
@@ -158,16 +156,19 @@ public sealed partial class RunsController(
     /// </summary>
     /// <returns><see cref="ExecuteRunResponse" /> with agent results.</returns>
     [HttpPost("run/{runId}/execute")]
+    [HttpPost("/v{version:apiVersion}/runs/{runId}/submit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
     [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExecuteRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        string user = User.Identity?.Name ?? "anonymous";
+        string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
         bool pilotTryRealMode = IsPilotTryRealModeRequest();
 
@@ -188,6 +189,8 @@ public sealed partial class RunsController(
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
             LogRunExecuted(runId, result.Results.Count, user, correlationId);
+
+            await LogRunSubmittedAuditAsync(runId, user, cancellationToken);
 
             if (!pilotTryRealMode)
                 return Ok(response);
@@ -213,96 +216,11 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    ///     Re-executes agents for <paramref name="runId" /> under <paramref name="request" />.
-    ///     <see cref="ReplayRunRequest.ExecutionMode" /> and optionally commits a replay manifest.
-    /// </summary>
-    [HttpPost("run/{runId}/replay")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [EnableRateLimiting("expensive")]
-    public async Task<IActionResult> ReplayRun(
-        [FromRoute] string runId,
-        [FromBody] ReplayRunRequest? request,
-        CancellationToken cancellationToken)
-    {
-        request ??= new ReplayRunRequest();
-
-        string user = User.Identity?.Name ?? "anonymous";
-        string correlationId = HttpContext.TraceIdentifier;
-
-        try
-        {
-            ReplayRunResult result = await replayRunService.ReplayAsync(
-                runId,
-                request.ExecutionMode,
-                request.CommitReplay,
-                request.ManifestVersionOverride,
-                cancellationToken);
-
-            ReplayRunResponse response = RunResponseMapper.ToReplayRunResponse(
-                result.OriginalRunId,
-                result.ReplayRunId,
-                result.ExecutionMode,
-                result.Results,
-                result.Manifest,
-                result.DecisionTraces,
-                result.Warnings);
-
-            LogRunReplayed(result.OriginalRunId, result.ReplayRunId, result.ExecutionMode, user, correlationId);
-
-            return Ok(response);
-        }
-        catch (RunNotFoundException ex)
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-        catch (InvalidOperationException ex)
-        {
-            logger.LogWarningWithSanitizedUserArg(ex, "ReplayRun failed for run '{RunId}'.", runId);
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
-        }
-    }
-
-    /// <summary>
-    ///     Runs bounded replay iterations for <paramref name="runId" /> to compare agent results and manifest hashes against
-    ///     the baseline run.
-    /// </summary>
-    [HttpPost("run/{runId}/determinism-check")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [EnableRateLimiting("expensive")]
-    public async Task<IActionResult> RunDeterminismCheck(
-        [FromRoute] string runId,
-        [FromBody] DeterminismCheckRequest? request,
-        CancellationToken cancellationToken)
-    {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-
-        request.RunId = runId;
-
-        try
-        {
-            DeterminismCheckResult result = await determinismCheckService.RunAsync(request, cancellationToken);
-
-            return Ok(new DeterminismCheckResponse { Result = result });
-        }
-        catch (InvalidOperationException ex)
-        {
-            logger.LogWarningWithSanitizedUserArg(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
-        }
-    }
-
-    /// <summary>
     ///     Merges agent results through the decision engine and persists the golden manifest and decision traces for
     ///     <paramref name="runId" />.
     /// </summary>
     [HttpPost("run/{runId}/commit")]
+    [HttpPost("/v{version:apiVersion}/runs/{runId}/manifest/finalize")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
@@ -360,7 +278,7 @@ public sealed partial class RunsController(
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "CommitRun failed for run '{RunId}'.", runId);
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BusinessRuleViolation);
         }
         catch (RunNotFoundException ex)
         {
@@ -393,31 +311,23 @@ public sealed partial class RunsController(
             : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
     }
 
-    [HttpPost("run/{runId}/seed-fake-results")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(SeedFakeResultsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(Policy = "CanSeedResults")]
-    public async Task<IActionResult> SeedFakeResults(
-        [FromRoute] string runId,
-        [FromQuery] bool pilotTryRealModeFellBack = false,
-        CancellationToken cancellationToken = default)
+    private async Task LogRunSubmittedAuditAsync(string runId, string actor, CancellationToken cancellationToken)
     {
-        string user = actorContext.GetActor();
-        string correlationId = HttpContext.TraceIdentifier;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = TryParseRunGuidForAudit(runId);
 
-        PilotSeedFakeResultsOptions? pilot =
-            pilotTryRealModeFellBack ? new PilotSeedFakeResultsOptions(true) : null;
-
-        SeedFakeResultsResult result =
-            await architectureApplicationService.SeedFakeResultsAsync(runId, pilot, cancellationToken);
-        if (!result.Success)
-            return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
-
-        LogFakeResultsSeeded(runId, result.ResultCount, user, correlationId);
-
-        return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RunSubmitted,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid
+            },
+            cancellationToken);
     }
 
     private bool IsPilotTryRealModeRequest()
