@@ -6,7 +6,7 @@ Give operators a concise playbook when embedded SQL migrations (`ArchLucid.Persi
 
 ## Assumptions
 
-- Host uses [`DatabaseMigrator`](ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) with **per-script transactions** (`WithTransactionPerScript()`).
+- Host uses [`DatabaseMigrator`](../../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) with **per-script transactions** (`WithTransactionPerScript()`).
 - Journal table is **`dbo.SchemaVersions`** (DbUp default).
 - Forward migrations are sequential and lexicographically ordered by embedded resource name (`NNN_Name.sql`).
 
@@ -26,14 +26,14 @@ FROM dbo.SchemaVersions
 ORDER BY Applied;
 ```
 
-The **`ScriptName`** value is the full embedded resource name (for example containing `124_FindingRecords_FilterIndexes`). Compare ordering with [`DatabaseMigrator.GetOrderedMigrationResourceNames()`](ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) in source when diagnosing ordering bugs.
+The **`ScriptName`** value is the full embedded resource name (for example containing `124_FindingRecords_FilterIndexes`). Compare ordering with [`DatabaseMigrator.GetOrderedMigrationResourceNames()`](../../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) in source when diagnosing ordering bugs.
 
 ## Journal drift (empty or missing rows while objects exist)
 
 If `dbo.SchemaVersions` was truncated, restored without migration history, or otherwise inconsistent with physical objects:
 
-1. [`GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050`](ArchLucid.Persistence/Data/Infrastructure/GreenfieldBaselineMigrationRunner.cs) runs **before** DbUp and can stamp `001–050` or replay subsets when audit/core tables are missing (see XML remarks on that type).
-2. A subsequent [`DatabaseMigrator.Run`](ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) applies `051+` scripts; guarded DDL is safe when objects already exist.
+1. [`GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050`](../../ArchLucid.Persistence/Data/Infrastructure/GreenfieldBaselineMigrationRunner.cs) runs **before** DbUp and can stamp `001–050` or replay subsets when audit/core tables are missing (see XML remarks on that type).
+2. A subsequent [`DatabaseMigrator.Run`](../../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) applies `051+` scripts; guarded DDL is safe when objects already exist.
 
 Integration coverage: `JournalDriftBaselineRepairSqlIntegrationTests` in `ArchLucid.Persistence.Tests`.
 
@@ -53,11 +53,11 @@ If a row for one script is removed from `dbo.SchemaVersions` but the physical mi
 
 ## Governance baseline (`038_GovernanceWorkflow`)
 
-The baseline runner treats [`038_GovernanceWorkflow.sql`](ArchLucid.Persistence/Migrations/038_GovernanceWorkflow.sql) as **non-idempotent** when replaying incremental files; if governance tables already exist, that script file may be skipped during repair replay so duplicate `CREATE TABLE` does not run (see remarks on `GreenfieldBaselineMigrationRunner`). Do not hand-edit historical `001–028` migration files per repository policy.
+The baseline runner treats [`038_GovernanceWorkflow.sql`](../../ArchLucid.Persistence/Migrations/038_GovernanceWorkflow.sql) as **non-idempotent** when replaying incremental files; if governance tables already exist, that script file may be skipped during repair replay so duplicate `CREATE TABLE` does not run (see remarks on `GreenfieldBaselineMigrationRunner`). Do not hand-edit historical `001–028` migration files per repository policy.
 
 ## Non-transactional operations
 
-- **`ALTER DATABASE`** (for example read-committed snapshot options) is applied outside DbUp’s transaction where required — see `TryEnableReadCommittedSnapshotIfNeeded` in [`DatabaseMigrator`](ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs).
+- **`ALTER DATABASE`** (for example read-committed snapshot options) is applied outside DbUp’s transaction where required — see `TryEnableReadCommittedSnapshotIfNeeded` in [`DatabaseMigrator`](../../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs).
 - Very large backfills may hit **timeouts**; failure rolls back the script transaction but may require increasing timeout or running during a maintenance window — treat as operational, not schema corruption.
 
 ## Operational checklist
