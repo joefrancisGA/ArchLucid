@@ -93,7 +93,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluation.TargetAgentTaskId.Should().Be("T-topo");
         evaluation.EvaluationType.Should().Be(EvalTypes.Oppose);
         evaluation.ConfidenceDelta.Should().Be(-0.30);
-        evaluation.Rationale.Should().Contain("Private");
+        evaluation.Rationale.Should().Contain("private");
     }
 
     [Fact]
