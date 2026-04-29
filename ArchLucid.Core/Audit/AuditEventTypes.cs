@@ -213,6 +213,14 @@ public static class AuditEventTypes
     public const string GovernanceDryRunRequested = "GovernanceDryRunRequested";
 
     /// <summary>
+    ///     Durable audit when an operator validates a governance write path with <c>dryRun=true</c> (
+    ///     approval request or promotion): same validation as a real commit runs, but no row/outbox/ integration
+    ///     publish. Payload names the workflow (approval vs promotion) and the non-sensitive request fields so SIEM
+    ///     can detect probing without relying on skipped <see cref="GovernanceApprovalSubmitted" /> rows.
+    /// </summary>
+    public const string GovernanceDryRunValidationAttempted = "GovernanceDryRunValidationAttempted";
+
+    /// <summary>
     ///     Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception
     ///     details).
     /// </summary>

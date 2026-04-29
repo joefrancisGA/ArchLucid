@@ -526,13 +526,13 @@ function GovernanceWorkflowPageInner() {
             <Button
               type="button"
               onClick={() => void onSubmitApproval()}
-              disabled={submitBusy || !canMutateWorkflow}
+              disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0}
               title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
             >
               {submitBusy
                 ? "Submitting…"
                 : canMutateWorkflow
-                  ? "Submit for approval"
+                  ? "Submit for governance approval"
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
           </CardFooter>
@@ -561,7 +561,7 @@ function GovernanceWorkflowPageInner() {
                 <RunIdPicker
                   inputId="gov-query-run"
                   label="Run"
-                  placeholder="Select a run"
+                  placeholder="Select a run from the list"
                   value={queryRunId}
                   onChange={setQueryRunId}
                   onSelect={(id) => {

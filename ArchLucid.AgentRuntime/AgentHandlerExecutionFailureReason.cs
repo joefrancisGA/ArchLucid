@@ -19,9 +19,6 @@ internal static class AgentHandlerExecutionFailureReason
         if (ex is CircuitBreakerOpenException)
             return AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected;
 
-        if (ex is LlmTokenQuotaExceededException)
-            return AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded;
-
-        return null;
+        return ex is LlmTokenQuotaExceededException ? AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded : null;
     }
 }

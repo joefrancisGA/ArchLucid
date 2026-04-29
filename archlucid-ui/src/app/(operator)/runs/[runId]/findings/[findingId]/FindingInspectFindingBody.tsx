@@ -49,7 +49,6 @@ function EvidenceExcerptBody({ text }: { readonly text: string }): ReactElement 
  */
 export function FindingInspectFindingBody({
   runId,
-  decodedFindingId: _decodedFindingId,
   payload,
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {

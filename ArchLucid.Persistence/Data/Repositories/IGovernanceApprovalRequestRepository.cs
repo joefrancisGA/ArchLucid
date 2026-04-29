@@ -37,6 +37,8 @@ public interface IGovernanceApprovalRequestRepository
     /// <summary>
     ///     Returns the approval request with the specified <paramref name="approvalRequestId" />,
     ///     or <see langword="null" /> when not found.
+    ///     Implementations scope the lookup to the current <see cref="ArchLucid.Core.Scoping.ScopeContext" /> (tenant /
+    ///     workspace / project), matching <c>dbo.GovernanceApprovalRequests</c> filters in the SQL repository.
     /// </summary>
     Task<GovernanceApprovalRequest?> GetByIdAsync(string approvalRequestId,
         CancellationToken cancellationToken = default);

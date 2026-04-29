@@ -97,8 +97,9 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
       {!result.manifestComparison ? (
         <OperatorEmptyState title="No manifest comparison block">
           <p className="m-0 text-sm">
-            The API did not include a manifest comparison object for this pair (distinct from "zero
-            diffs inside a comparison").
+            {
+              'The API did not include a manifest comparison object for this pair (distinct from "zero diffs inside a comparison").'
+            }
           </p>
         </OperatorEmptyState>
       ) : (

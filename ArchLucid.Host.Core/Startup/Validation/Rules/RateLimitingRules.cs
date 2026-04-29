@@ -40,15 +40,24 @@ internal static class RateLimitingRules
 
         IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
 
-        if (!replayHeavy.Exists())
-            return;
-
-
+        if (replayHeavy.Exists())
         {
             int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
             int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
             int queue = configuration.GetValue("RateLimiting:Replay:Heavy:QueueLimit", 0);
             AddIfInvalid(errors, "RateLimiting:Replay:Heavy", permit, window, queue);
+        }
+
+        IConfigurationSection governanceDryRun = configuration.GetSection("RateLimiting:GovernancePolicyPackDryRun");
+
+        if (governanceDryRun.Exists())
+        {
+            int permit = configuration.GetValue(
+                "RateLimiting:GovernancePolicyPackDryRun:PermitLimit",
+                RateLimitingDefaults.GovernancePolicyPackDryRunPermitLimit);
+            int window = configuration.GetValue("RateLimiting:GovernancePolicyPackDryRun:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:GovernancePolicyPackDryRun:QueueLimit", 0);
+            AddIfInvalid(errors, "RateLimiting:GovernancePolicyPackDryRun", permit, window, queue);
         }
     }
 

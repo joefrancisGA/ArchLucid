@@ -28,7 +28,7 @@ describe("Compare / review views (55R smoke)", () => {
   it("StructuredComparisonView shows run IDs and empty-section notes when there is no delta data", () => {
     render(<StructuredComparisonView golden={emptyGolden} />);
 
-    expect(screen.getByText("Structured manifest comparison")).toBeInTheDocument();
+    expect(screen.getByText("Manifest comparison")).toBeInTheDocument();
     expect(screen.getByText("run-base")).toBeInTheDocument();
     expect(screen.getByText("run-target")).toBeInTheDocument();
     expect(screen.getByText("No summary highlights")).toBeInTheDocument();
@@ -65,7 +65,7 @@ describe("Compare / review views (55R smoke)", () => {
 
     render(<LegacyRunComparisonView result={result} />);
 
-    expect(screen.getByText(/Run record \/ manifest diff \(legacy\)/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Run-level diff", level: 3 })).toBeInTheDocument();
     expect(screen.getByText("No run-level diffs")).toBeInTheDocument();
   });
 
