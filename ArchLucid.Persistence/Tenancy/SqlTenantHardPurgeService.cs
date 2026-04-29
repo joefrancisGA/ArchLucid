@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -14,8 +16,60 @@ namespace ArchLucid.Persistence.Tenancy;
 /// </summary>
 public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFactory) : ITenantHardPurgeService
 {
+    /// <summary>
+    ///     Qualified <c>dbo.*</c> names deleted in <see cref="DeleteTenantScopedTablesAsync" /> after dependency-ordered
+    ///     purges. Kept as a frozen allowlist so table identifiers are never taken from external input.
+    /// </summary>
+    private static readonly FrozenSet<string> AllowedTenantScopedPurgeTables =
+        new[]
+        {
+            "dbo.UsageEvents",
+            "dbo.TenantExecDigestPreferences",
+            "dbo.SentEmails",
+            "dbo.BillingSubscriptionStateHistory",
+            "dbo.BillingSubscriptions",
+            "dbo.TenantTrialSeatOccupants",
+            "dbo.IntegrationEventOutbox",
+            "dbo.ArchitectureRunIdempotency",
+            "dbo.ProvenanceSnapshots",
+            "dbo.ConversationThreads",
+            "dbo.RecommendationRecords",
+            "dbo.RecommendationLearningProfiles",
+            "dbo.AdvisoryScanSchedules",
+            "dbo.AdvisoryScanExecutions",
+            "dbo.ArchitectureDigests",
+            "dbo.DigestSubscriptions",
+            "dbo.DigestDeliveryAttempts",
+            "dbo.AlertRules",
+            "dbo.AlertRecords",
+            "dbo.AlertRoutingSubscriptions",
+            "dbo.AlertDeliveryAttempts",
+            "dbo.CompositeAlertRules",
+            "dbo.PolicyPacks",
+            "dbo.PolicyPackAssignments",
+            "dbo.PolicyPackChangeLog",
+            "dbo.ProductLearningPilotSignals",
+            "dbo.ProductLearningImprovementPlans",
+            "dbo.ProductLearningImprovementThemes"
+        }.ToFrozenSet(StringComparer.Ordinal);
+
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    /// <summary>
+    ///     Builds the parameterized DELETE statement for a tenant-scoped purge table. Exposed to
+    ///     <c>ArchLucid.Persistence.Tests</c> via <c>InternalsVisibleTo</c>.
+    /// </summary>
+    /// <param name="table">A value from <see cref="AllowedTenantScopedPurgeTables" /> (e.g. <c>dbo.UsageEvents</c>).</param>
+    /// <exception cref="InvalidOperationException">When <paramref name="table" /> is not allowlisted.</exception>
+    internal static string BuildPurgeSql(string table)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+        if (!AllowedTenantScopedPurgeTables.Contains(table))
+            throw new InvalidOperationException($"Table '{table}' is not in the approved tenant-scoped purge list.");
+
+        return $"DELETE TOP (@Cap) FROM {table} WHERE TenantId = @TenantId";
+    }
 
     /// <inheritdoc />
     public async Task<TenantHardPurgeResult> PurgeTenantAsync(
@@ -277,46 +331,15 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         CancellationToken cancellationToken)
     {
         int total = 0;
-        string[] tenantTables =
-        [
-            "dbo.UsageEvents",
-            "dbo.TenantExecDigestPreferences",
-            "dbo.SentEmails",
-            "dbo.BillingSubscriptionStateHistory",
-            "dbo.BillingSubscriptions",
-            "dbo.TenantTrialSeatOccupants",
-            "dbo.IntegrationEventOutbox",
-            "dbo.ArchitectureRunIdempotency",
-            "dbo.ProvenanceSnapshots",
-            "dbo.ConversationThreads",
-            "dbo.RecommendationRecords",
-            "dbo.RecommendationLearningProfiles",
-            "dbo.AdvisoryScanSchedules",
-            "dbo.AdvisoryScanExecutions",
-            "dbo.ArchitectureDigests",
-            "dbo.DigestSubscriptions",
-            "dbo.DigestDeliveryAttempts",
-            "dbo.AlertRules",
-            "dbo.AlertRecords",
-            "dbo.AlertRoutingSubscriptions",
-            "dbo.AlertDeliveryAttempts",
-            "dbo.CompositeAlertRules",
-            "dbo.PolicyPacks",
-            "dbo.PolicyPackAssignments",
-            "dbo.PolicyPackChangeLog",
-            "dbo.ProductLearningPilotSignals",
-            "dbo.ProductLearningImprovementPlans",
-            "dbo.ProductLearningImprovementThemes"
-        ];
 
-        foreach (string table in tenantTables)
+        foreach (string table in AllowedTenantScopedPurgeTables)
         {
             if (!await TableExistsAsync(connection, table, cancellationToken))
                 continue;
 
 
             string label = table.Replace("dbo.", string.Empty, StringComparison.Ordinal);
-            string sql = $"DELETE TOP (@Cap) FROM {table} WHERE TenantId = @TenantId";
+            string sql = BuildPurgeSql(table);
             total += await DeleteLoopAsync(connection, sql, tenantId, cap, counts, label, cancellationToken);
         }
 
