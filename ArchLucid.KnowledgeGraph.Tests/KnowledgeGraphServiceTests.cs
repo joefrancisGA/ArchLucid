@@ -1,9 +1,13 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -22,7 +26,10 @@ public sealed class KnowledgeGraphServiceTests
 
     public KnowledgeGraphServiceTests()
     {
-        _sut = new KnowledgeGraphService(_graphBuilderMock.Object, _graphValidatorMock.Object);
+        _sut = new KnowledgeGraphService(
+            _graphBuilderMock.Object,
+            _graphValidatorMock.Object,
+            Options.Create(new KnowledgeGraphLimitsOptions()));
     }
 
     [Fact]
@@ -115,6 +122,45 @@ public sealed class KnowledgeGraphServiceTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _sut.BuildSnapshotAsync(contextSnapshot, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task BuildSnapshotAsync_TruncatesWhenAboveConfiguredMaxNodes()
+    {
+        ContextSnapshot contextSnapshot = BuildContextSnapshot();
+        GraphBuildResult buildResult = new();
+
+        for (int i = 0; i < 5; i++)
+            buildResult.Nodes.Add(
+                new GraphNode { NodeId = $"n{i}", NodeType = GraphNodeTypes.TopologyResource, Label = $"{i}" });
+
+        buildResult.Edges.Add(
+            new GraphEdge
+            {
+                EdgeId = "e0",
+                FromNodeId = "n0",
+                ToNodeId = "n4",
+                EdgeType = GraphEdgeTypes.Contains
+            });
+
+        _graphBuilderMock
+            .Setup(b => b.BuildAsync(contextSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(buildResult);
+
+        _graphValidatorMock
+            .Setup(v => v.Validate(It.IsAny<GraphSnapshot>()));
+
+        KnowledgeGraphLimitsOptions limits = new() { MaxNodes = 2 };
+        KnowledgeGraphService sut = new(
+            _graphBuilderMock.Object,
+            _graphValidatorMock.Object,
+            Options.Create(limits));
+
+        GraphSnapshot snapshot = await sut.BuildSnapshotAsync(contextSnapshot, CancellationToken.None);
+
+        snapshot.Nodes.Should().HaveCount(2);
+        snapshot.Edges.Should().BeEmpty();
+        snapshot.Warnings.Should().Contain(w => w.Contains("truncated", StringComparison.OrdinalIgnoreCase));
     }
 
     private static ContextSnapshot BuildContextSnapshot()

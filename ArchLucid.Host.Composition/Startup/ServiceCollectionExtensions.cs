@@ -50,7 +50,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);
         RegisterRunReplayManifestAndDiffs(services, configuration);
-        RegisterContextIngestionAndKnowledgeGraph(services);
+        RegisterContextIngestionAndKnowledgeGraph(services, configuration);
         RegisterDecisioningEngines(services, configuration);
         RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
         RegisterArtifactSynthesis(services);

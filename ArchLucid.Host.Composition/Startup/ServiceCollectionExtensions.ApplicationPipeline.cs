@@ -36,6 +36,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Marketing;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
@@ -198,8 +199,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<DriftReportDocxExport>();
     }
 
-    private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
+    private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<KnowledgeGraphLimitsOptions>(
+            configuration.GetSection(KnowledgeGraphLimitsOptions.SectionName));
         services.AddSingleton<PlainTextContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>

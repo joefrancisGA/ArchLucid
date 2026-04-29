@@ -37,6 +37,26 @@ describe("coerceRunSummaryList", () => {
 });
 
 describe("coerceRunSummaryPaged", () => {
+  it("accepts cursor keyset envelope (requestedTake + hasMore) and synthesizes totals", () => {
+    const result = coerceRunSummaryPaged(
+      {
+        items: [{ runId: "r1", projectId: "default", createdUtc: "2020-01-01T00:00:00Z" }],
+        requestedTake: 20,
+        hasMore: true,
+        nextCursor: "abc",
+      },
+      { page: 1 },
+    );
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.items).toHaveLength(1);
+      expect(result.value.pageSize).toBe(20);
+      expect(result.value.totalCount).toBe(21);
+      expect(result.value.nextCursor).toBe("abc");
+    }
+  });
+
   it("accepts empty items with valid paging fields", () => {
     const result = coerceRunSummaryPaged({
       items: [],

@@ -33,6 +33,7 @@ Currently included:
 - `RequirementFindingPayload`
 - `TopologyGapFindingPayload`
 - `SecurityControlFindingPayload`
+- `ComplianceFindingPayload`
 - `CostConstraintFindingPayload`
 - `PolicyApplicabilityFindingPayload`
 - `TopologyCoverageFindingPayload`
@@ -84,6 +85,7 @@ Several engines use **`ArchLucid.KnowledgeGraph.Models.GraphSnapshotExtensions`*
 
 | Engine | Graph usage (examples) |
 |--------|-------------------------|
+| **`ComplianceFindingEngine`** | Default **`ComplianceRulePack`** + **`GraphComplianceEvaluator`** — topology resources in a **category** (e.g. **storage**) must be linked from **`PolicyControl`** / **`SecurityBaseline`** via **`APPLIES_TO`** / **`PROTECTS`** per rule metadata (**golden:** `tests/golden-corpus/decisioning/case-31`). |
 | **`RequirementFindingEngine`** | **`RELATES_TO`** → expands **`RelatedNodeIds`** / trace |
 | **`SecurityBaselineFindingEngine`** | **`PROTECTS`** → related topology node IDs |
 | **`PolicyApplicabilityFindingEngine`** | **`APPLIES_TO`** → info vs gap (**Warning** when topology exists but no links) |

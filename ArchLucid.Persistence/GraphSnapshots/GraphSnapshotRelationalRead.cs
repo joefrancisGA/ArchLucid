@@ -16,13 +16,40 @@ namespace ArchLucid.Persistence.GraphSnapshots;
 /// </remarks>
 internal static class GraphSnapshotRelationalRead
 {
-    public static async Task<GraphSnapshot> HydrateAsync(
+    /// <summary>Identity row for a graph snapshot header (no JSON columns — avoids loading large NVARCHAR(MAX) payloads).</summary>
+    internal sealed record GraphSnapshotHeaderRow(
+        Guid GraphSnapshotId,
+        Guid ContextSnapshotId,
+        Guid RunId,
+        DateTime CreatedUtc);
+
+    /// <summary>Hydrates from a full storage row (integration tests and callers that already materialized JSON columns).</summary>
+    public static Task<GraphSnapshot> HydrateAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         GraphSnapshotStorageRow row,
         CancellationToken ct)
     {
-        Guid graphSnapshotId = row.GraphSnapshotId;
+        ArgumentNullException.ThrowIfNull(row);
+        GraphSnapshotHeaderRow header = new(row.GraphSnapshotId, row.ContextSnapshotId, row.RunId, row.CreatedUtc);
+
+        return HydrateAsync(connection, transaction, header, jsonRowForMerge: row, ct);
+    }
+
+    /// <summary>
+    ///     Hydrates using relational slices; <paramref name="jsonRowForMerge" /> is optional — when omitted, legacy
+    ///     <c>EdgesJson</c> for merge is loaded only if relational edge rows exist and edge properties are empty.
+    /// </summary>
+    public static async Task<GraphSnapshot> HydrateAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        GraphSnapshotHeaderRow header,
+        GraphSnapshotStorageRow? jsonRowForMerge,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(header);
+
+        Guid graphSnapshotId = header.GraphSnapshotId;
 
         int nodesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
@@ -76,13 +103,30 @@ internal static class GraphSnapshotRelationalRead
 
         List<GraphEdge>? edgesOverride = null;
 
+        GraphSnapshotStorageRow syntheticHeader = new()
+        {
+            GraphSnapshotId = header.GraphSnapshotId,
+            ContextSnapshotId = header.ContextSnapshotId,
+            RunId = header.RunId,
+            CreatedUtc = header.CreatedUtc,
+            NodesJson = "[]",
+            EdgesJson = "[]",
+            WarningsJson = "[]"
+        };
+
         if (edgesCount <= 0)
-            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+            return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
 
         bool mergeEdgeMetadataFromJson = edgePropsCount == 0 && edgesCount > 0;
-        edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
+        edgesOverride = await LoadEdgesRelationalAsync(
+            connection,
+            transaction,
+            graphSnapshotId,
+            jsonRowForMerge,
+            mergeEdgeMetadataFromJson,
+            ct);
 
-        return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+        return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
     }
 
     private static async Task<List<string>> LoadStringColumnRelationalAsync(
@@ -125,19 +169,21 @@ internal static class GraphSnapshotRelationalRead
         if (nodeRows.Count == 0)
             return [];
 
-        List<Guid> rowIds = nodeRows.Select(r => r.GraphNodeRowId).ToList();
-
         const string propsSql = """
-                                SELECT GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue
-                                FROM dbo.GraphSnapshotNodeProperties
-                                WHERE GraphNodeRowId IN @RowIds
-                                ORDER BY GraphNodeRowId, PropertySortOrder;
+                                SELECT p.GraphNodeRowId, p.PropertySortOrder, p.PropertyKey, p.PropertyValue
+                                FROM dbo.GraphSnapshotNodeProperties AS p
+                                WHERE EXISTS (
+                                    SELECT 1
+                                    FROM dbo.GraphSnapshotNodes AS n
+                                    WHERE n.GraphNodeRowId = p.GraphNodeRowId
+                                      AND n.GraphSnapshotId = @GraphSnapshotId)
+                                ORDER BY p.GraphNodeRowId, p.PropertySortOrder;
                                 """;
 
         List<NodePropertyRow> propertyRows = (await connection.QueryAsync<NodePropertyRow>(
             new CommandDefinition(
                 propsSql,
-                new { RowIds = rowIds },
+                new { GraphSnapshotId = graphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -178,7 +224,8 @@ internal static class GraphSnapshotRelationalRead
     private static async Task<List<GraphEdge>> LoadEdgesRelationalAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
-        GraphSnapshotStorageRow row,
+        Guid graphSnapshotId,
+        GraphSnapshotStorageRow? jsonRowForMerge,
         bool mergeMetadataFromJson,
         CancellationToken ct)
     {
@@ -192,7 +239,7 @@ internal static class GraphSnapshotRelationalRead
         List<GraphEdgeTableRow> edgeRows = (await connection.QueryAsync<GraphEdgeTableRow>(
             new CommandDefinition(
                 edgesSql,
-                new { row.GraphSnapshotId },
+                new { GraphSnapshotId = graphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -207,7 +254,7 @@ internal static class GraphSnapshotRelationalRead
                 WHERE GraphSnapshotId = @GraphSnapshotId
                 ORDER BY EdgeId, PropertySortOrder;
                 """,
-                new { row.GraphSnapshotId },
+                new { GraphSnapshotId = graphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -227,7 +274,26 @@ internal static class GraphSnapshotRelationalRead
 
         if (mergeMetadataFromJson)
         {
-            List<GraphEdge> jsonEdges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson);
+            string edgesJson;
+
+            if (jsonRowForMerge is not null)
+                edgesJson = jsonRowForMerge.EdgesJson;
+            else
+            {
+                const string edgesJsonSql =
+                    "SELECT EdgesJson FROM dbo.GraphSnapshots WHERE GraphSnapshotId = @GraphSnapshotId";
+
+                string? loaded = await connection.QuerySingleOrDefaultAsync<string>(
+                    new CommandDefinition(
+                        edgesJsonSql,
+                        new { GraphSnapshotId = graphSnapshotId },
+                        transaction,
+                        cancellationToken: ct));
+
+                edgesJson = string.IsNullOrWhiteSpace(loaded) ? "[]" : loaded;
+            }
+
+            List<GraphEdge> jsonEdges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(edgesJson);
             jsonById = jsonEdges.ToDictionary(e => e.EdgeId, StringComparer.Ordinal);
         }
 

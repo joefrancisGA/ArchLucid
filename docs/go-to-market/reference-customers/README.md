@@ -35,6 +35,9 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 | EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — replace before publishing |
 | DESIGN_PARTNER_NEXT | `<<TIER>>` (fill before Drafting) | TBD | [DESIGN_PARTNER_NEXT_CASE_STUDY.md](DESIGN_PARTNER_NEXT_CASE_STUDY.md) | TBD | Customer review — replace `<<CUSTOMER_NAME>>` and placeholders before publication |
 | First paying tenant (PLG) | `<<TIER>>` (at conversion) | TBD | [TRIAL_FIRST_REFERENCE_CASE_STUDY.md](TRIAL_FIRST_REFERENCE_CASE_STUDY.md) | TBD | Placeholder — populate after first self-serve trial converts to paid; see [`docs/PENDING_QUESTIONS.md`](../../PENDING_QUESTIONS.md) |
+| **[DRAFT]** `[CUSTOMER]` · `[INDUSTRY]` | `[TIER]` | TBD | TBD — add `<slug>_CASE_STUDY.md` when entering Drafting | TBD — `[CONTACT]` | Draft — **DRAFT template row** (fabricated names forbidden here); replace placeholders and move to **Drafting** before naming a real customer |
+
+> **Published requires human approval.** Do not set **`Status: Published`** on any row based on assistant or unilateral documentation edits. Eligibility, logo use, case study copy, and reference-call commitments must follow **[`PRICING_PHILOSOPHY.md` §4.1](../PRICING_PHILOSOPHY.md#41-reference-customer-discount-standardized-2026-04-21)**. Use **[`PUBLICATION_CHECKLIST.md`](PUBLICATION_CHECKLIST.md)** before publication.
 
 > **CI guard contract:** the script reads only this table. The exact column order and the literal `Status` header text matter. Do not split the table across multiple sub-tables; add new rows to the bottom.
 
@@ -56,6 +59,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 
 | Doc | Use |
 |-----|-----|
+| [`PUBLICATION_CHECKLIST.md`](PUBLICATION_CHECKLIST.md) | Logo, quotes, legal review, and CI gate awareness before **Published** |
 | [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md) | Drafting → customer review → Published steps + CLI evidence extraction |
 | [`REFERENCE_EVIDENCE_PACK_TEMPLATE.md`](REFERENCE_EVIDENCE_PACK_TEMPLATE.md) | One-page measured-delta template tied to `pilot-run-deltas.json` |
 | [`PRICING_PHILOSOPHY.md` § 5.1](../PRICING_PHILOSOPHY.md#51-derivation-50-of-fair-value-basis) | Discount stack derivation (`−25%` trust, `−15%` reference, `−10%` self-serve = `−50%` total) |

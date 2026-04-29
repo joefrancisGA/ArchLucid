@@ -147,9 +147,21 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-04-29.
+**Last reviewed:** 2026-04-30.
 
-**Open gaps: 1.** `ManifestSuperseded` remains **catalogued-only** — there is currently no production mutation path that persists a golden manifest with `GoldenManifestLifecycleStatus.Superseded` in this repository; if/when supersession is implemented, wire `IAuditService.LogAsync` in the **application/orchestrator layer** that performs the write (not inside Dapper repositories).
+### Mutating / lifecycle — risk acceptance (verified in repository)
+
+| Gap | Provable state | Owner / policy |
+|-----|----------------|----------------|
+| **`ManifestSuperseded`** | `AuditEventTypes.ManifestSuperseded` and `GoldenManifestLifecycleStatus.Superseded` exist in contracts, but **no** C# mutation path assigns `GoldenManifestLifecycleStatus.Superseded` to a persisted golden manifest today (enum value is unused in writers). | **Product / architecture backlog** — when supersession ships, emit **`IAuditService.LogAsync`** from the **application service or orchestrator** that performs the lifecycle transition (not inside Dapper repositories), using this constant. **Risk acceptance:** until then the event type is **catalogue-only**; absence of rows is expected. |
+
+### Read-path / reserved observability (not an append-only weakness)
+
+| Item | Provable state | Policy |
+|------|----------------|--------|
+| **`FindingsListAccessed`** | Core constant exists; **no** `IAuditService.LogAsync` call site. Public read APIs expose **per-finding** inspect/evidence routes (see OpenAPI: `/v1/architecture/run/{runId}/findings/{findingId}/…`, `/v1/findings/{findingId}/inspect`), not a dedicated bulk “list findings” route tied to this name. | **Deferred** — add durable audit only when a stable list endpoint is defined; until then, rely on run/manifest lifecycle audits and per-finding reads. |
+
+**Open catalogued-only items: 2** (tables above). Neither item weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
 
 **Layered enforcement shipped 2026-04-29**
 
@@ -178,7 +190,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | **Core `AuditEventTypes` `public const string` rows** | 140 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
+| **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
 
 ---
 
@@ -194,20 +206,20 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ManifestViewed` | `ManifestViewed` | `AuthorityQueryController` (`GET …/manifest` / `GET /v1/runs/{runId}/manifest`) |
 | `ReviewTrailAccessed` | `ReviewTrailAccessed` | `AuthorityQueryController` (`GET …/pipeline-timeline`, `GET /v1/runs/{runId}/review-trail`) |
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
-| `FindingsListAccessed` | `FindingsListAccessed` | — (constant catalogued for `GET /v1/runs/{runId}/findings`; durable `LogAsync` not wired yet) |
+| `FindingsListAccessed` | `FindingsListAccessed` | — (constant reserved; no bulk list route + no `LogAsync` yet — see **Known gaps**) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
-| `ArtifactSynthesisFailed` | `ArtifactSynthesisFailed` | — (constant catalogued; hard-failure path — durable `LogAsync` not yet wired) |
-| `ArtifactSynthesisPartial` | `ArtifactSynthesisPartial` | — (constant catalogued; degraded-bundle path — durable `LogAsync` not yet wired) |
-| `RequestCreated` | `Request.Created` | — (constant catalogued for architecture request draft / import persist — durable `LogAsync` not yet wired) |
-| `RequestLocked` | `Request.Locked` | — (constant catalogued; request locked by non-terminal run — durable `LogAsync` not yet wired) |
-| `RequestReleased` | `Request.Released` | — (constant catalogued; request released after all referencing runs reach terminal state — durable `LogAsync` not yet wired) |
-| `ManifestSuperseded` | `ManifestSuperseded` | — (constant catalogued; policy- or admin-driven manifest supersession — durable `LogAsync` not yet wired) |
-| `ManifestArchived` | `ManifestArchived` | — (constant catalogued; golden manifest soft-archived (`ArchivedUtc` set) — durable `LogAsync` not yet wired) |
-| `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | — (constant catalogued; findings snapshot sealed terminal generation — durable `LogAsync` not yet wired) |
-| `FindingReviewApproved` | `FindingReviewApproved` | — (constant catalogued; human reviewer approved finding — durable `LogAsync` not yet wired) |
-| `FindingReviewRejected` | `FindingReviewRejected` | — (constant catalogued; human reviewer rejected finding — durable `LogAsync` not yet wired) |
-| `FindingReviewOverridden` | `FindingReviewOverridden` | — (constant catalogued; privileged override after rejection — durable `LogAsync` not yet wired) |
+| `ArtifactSynthesisFailed` | `ArtifactSynthesisFailed` | `AuthorityPipelineStagesExecutor` (artifact stage `catch` before rethrow) |
+| `ArtifactSynthesisPartial` | `ArtifactSynthesisPartial` | `AuthorityPipelineStagesExecutor` (partial bundle branch) |
+| `RequestCreated` | `Request.Created` | `ArchitectureRunCreateOrchestrator` |
+| `RequestLocked` | `Request.Locked` | `ArchitectureRunCreateOrchestrator` |
+| `RequestReleased` | `Request.Released` | `AuthorityDrivenArchitectureRunCommitOrchestrator` |
+| `ManifestSuperseded` | `ManifestSuperseded` | — (catalogue-only until supersession writer exists — see **Known gaps**) |
+| `ManifestArchived` | `ManifestArchived` | `AdminDiagnosticsService` (`ArchiveRuns*` / cascade — batch `ManifestArchived`) |
+| `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | `AuthorityPipelineStagesExecutor` |
+| `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |
+| `FindingReviewRejected` | `FindingReviewRejected` | `FindingReviewTrailAppendService` |
+| `FindingReviewOverridden` | `FindingReviewOverridden` | `FindingReviewTrailAppendService` |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
 | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |

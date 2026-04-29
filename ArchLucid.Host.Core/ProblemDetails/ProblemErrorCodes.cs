@@ -51,6 +51,8 @@ public static class ProblemErrorCodes
 
     public const string TrialLimitExceeded = "TRIAL_LIMIT_EXCEEDED";
 
+    public const string GraphTooLargeForFullResponse = "GRAPH_TOO_LARGE_FOR_FULL_RESPONSE";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -119,6 +121,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
             return LlmTokenQuotaExceeded;
+
+        if (problemTypeUri == ProblemTypes.GraphTooLargeForFullResponse)
+            return GraphTooLargeForFullResponse;
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }

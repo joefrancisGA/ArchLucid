@@ -358,15 +358,22 @@ export async function listRunsByProject(projectId: string, take = 20): Promise<R
   );
 }
 
-/** Paged runs for a project (GET with `page` + `pageSize` — returns PagedResponse). */
+/** Paged runs for a project (GET — legacy `page`/`pageSize` on page 1, or `cursor`+`take` for keyset pages). */
 export async function listRunsByProjectPaged(
   projectId: string,
   page: number,
   pageSize: number,
+  options?: { readonly cursor?: string | null },
 ): Promise<PagedResponse<RunSummary>> {
   const q = new URLSearchParams();
-  q.set("page", String(page));
-  q.set("pageSize", String(pageSize));
+
+  if (options?.cursor) {
+    q.set("cursor", options.cursor);
+    q.set("take", String(pageSize));
+  } else {
+    q.set("page", String(page));
+    q.set("pageSize", String(pageSize));
+  }
 
   return apiGet<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,

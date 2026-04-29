@@ -130,6 +130,29 @@ public static class ProblemDetailsExtensions
     }
 
     /// <summary>
+    ///     Returns 413 Payload Too Large with Problem Details (e.g. graph node count exceeds full-response limit).
+    /// </summary>
+    public static IActionResult PayloadTooLargeProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.GraphTooLargeForFullResponse,
+            Title = "Payload Too Large",
+            Status = StatusCodes.Status413PayloadTooLarge,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path
+        };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    /// <summary>
     ///     Returns 500 Internal Server Error with a Problem Details body. Use only for genuine server-side faults
     ///     where the caller cannot recover by changing the request — transient downstream failures should prefer
     ///     <see cref="ServiceUnavailableProblem(ControllerBase, string, string?, string?)" /> so clients retry.

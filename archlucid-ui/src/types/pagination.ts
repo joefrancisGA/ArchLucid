@@ -5,4 +5,6 @@ export type PagedResponse<T> = {
   page: number;
   pageSize: number;
   hasMore: boolean;
+  /** Keyset token from `GET .../runs` for the next page (omit on legacy offset responses). */
+  nextCursor?: string | null;
 };
