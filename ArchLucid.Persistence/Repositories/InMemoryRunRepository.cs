@@ -120,6 +120,32 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
 
+    /// <inheritdoc />
+    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+        ScopeContext scope,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int safeSkip = Math.Max(skip, 0);
+
+        List<RunRecord> ordered = _store.Values
+            .Where(r =>
+                MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue)
+            .OrderByDescending(r => r.CreatedUtc)
+            .ToList();
+
+        int total = ordered.Count;
+        IReadOnlyList<RunRecord> page = ordered.Skip(safeSkip).Take(safeTake).ToList();
+
+        return Task.FromResult<(IReadOnlyList<RunRecord>, int)>((page, total));
+    }
+
     public Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,

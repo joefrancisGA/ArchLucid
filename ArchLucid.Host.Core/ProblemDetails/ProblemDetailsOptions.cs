@@ -35,6 +35,9 @@ public static class ProblemTypes
     public const string DeterminismFailed = Base + "#determinism-failed";
     public const string ExportFailed = Base + "#export-failed";
 
+    /// <summary>Operation rejected due to business rules or invalid state (non-export failures).</summary>
+    public const string BusinessRuleViolation = Base + "#business-rule-violation";
+
     /// <summary>Comparison replay verification did not pass (semantic mismatch).</summary>
     public const string ComparisonVerificationFailed = Base + "#comparison-verification-failed";
 

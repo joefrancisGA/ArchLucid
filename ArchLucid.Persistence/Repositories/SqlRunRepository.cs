@@ -258,6 +258,67 @@ public sealed class SqlRunRepository(
         return rows.ToList();
     }
 
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+        ScopeContext scope,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int safeSkip = Math.Max(skip, 0);
+
+        const string countSql = """
+                                SELECT COUNT(1)
+                                FROM dbo.Runs WITH (NOLOCK)
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ScopeProjectId = @ScopeProjectId
+                                  AND ArchivedUtc IS NULL;
+                                """;
+
+        const string pageSql = """
+                               SELECT
+                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                               FROM dbo.Runs WITH (NOLOCK)
+                               WHERE TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ScopeProjectId = @ScopeProjectId
+                                 AND ArchivedUtc IS NULL
+                               ORDER BY CreatedUtc DESC
+                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
+                               """;
+
+        object scopeParams = new
+        {
+            scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId
+        };
+
+        object pageParams = new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Skip = safeSkip,
+            Take = safeTake
+        };
+
+        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+        int total = await connection.QuerySingleAsync<int>(new CommandDefinition(countSql, scopeParams,
+            cancellationToken: ct));
+
+        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(pageSql, pageParams, cancellationToken: ct));
+
+        return (rows.ToList(), total);
+    }
+
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,

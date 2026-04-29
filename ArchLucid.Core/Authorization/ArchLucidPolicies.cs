@@ -30,6 +30,9 @@ public static class ArchLucidPolicies
     /// <summary>Internal replay diagnostics and execution traces.</summary>
     public const string CanViewReplayDiagnostics = "CanViewReplayDiagnostics";
 
+    /// <summary>Operator-only internal architecture diagnostics (<c>/v1/internal/architecture/…</c>).</summary>
+    public const string RequireOperatorRole = "RequireOperatorRole";
+
     /// <summary>Comparison replay and persisting replay results.</summary>
     public const string CanReplayComparisons = "CanReplayComparisons";
 

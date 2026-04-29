@@ -9,6 +9,24 @@ public static class AuditEventTypes
 
     /// <summary>Durable audit when a run's golden manifest is finalized (committed) in one atomic transaction with outbox.</summary>
     public const string ManifestFinalized = "ManifestFinalized";
+
+    /// <summary>Product-facing run submission (<c>POST /v1/runs/{runId}/submit</c>, formerly execute).</summary>
+    public const string RunSubmitted = "RunSubmitted";
+
+    /// <summary>Operator viewed committed manifest JSON (<c>GET /v1/runs/{runId}/manifest</c>).</summary>
+    public const string ManifestViewed = "ManifestViewed";
+
+    /// <summary>Operator retrieved review trail / pipeline timeline (<c>GET /v1/runs/{runId}/review-trail</c>).</summary>
+    public const string ReviewTrailAccessed = "ReviewTrailAccessed";
+
+    /// <summary>Operator retrieved decision provenance graph (<c>GET …/review-trail/provenance</c>).</summary>
+    public const string ProvenanceAccessed = "ProvenanceAccessed";
+
+    /// <summary>Bulk findings list read (<c>GET /v1/runs/{runId}/findings</c>).</summary>
+    public const string FindingsListAccessed = "FindingsListAccessed";
+
+    /// <summary>Governance approval request created (<c>POST /v1/governance/approval-requests</c>).</summary>
+    public const string GovernanceApprovalRequested = "GovernanceApprovalRequested";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
 
