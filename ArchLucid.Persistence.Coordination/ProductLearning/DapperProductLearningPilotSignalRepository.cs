@@ -14,6 +14,38 @@ namespace ArchLucid.Persistence.Coordination.ProductLearning;
 public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFactory connectionFactory)
     : IProductLearningPilotSignalRepository
 {
+    /// <summary>
+    ///     Grouping length for repeated-comment themes. The <c>LEFT(..., N)</c> literals must stay aligned with
+    ///     <see cref="ProductLearningSignalAggregations.CommentThemePrefixLength" /> (no string interpolation — analyzers
+    ///     and reviewers treat interpolated SQL as higher risk).
+    /// </summary>
+    private const string RepeatedCommentThemeSql = """
+                                                   SELECT TOP (@Take)
+                                                       ThemeKey,
+                                                       OccurrenceCount,
+                                                       FirstSeenUtc,
+                                                       LastSeenUtc,
+                                                       SampleCommentShort
+                                                   FROM (
+                                                       SELECT
+                                                           LEFT(LTRIM(RTRIM(CommentShort)), 200) AS ThemeKey,
+                                                           COUNT_BIG(*) AS OccurrenceCount,
+                                                           MIN(RecordedUtc) AS FirstSeenUtc,
+                                                           MAX(RecordedUtc) AS LastSeenUtc,
+                                                           MIN(CommentShort) AS SampleCommentShort
+                                                       FROM dbo.ProductLearningPilotSignals
+                                                       WHERE TenantId = @TenantId
+                                                         AND WorkspaceId = @WorkspaceId
+                                                         AND ProjectId = @ProjectId
+                                                         AND (@SinceUtc IS NULL OR RecordedUtc >= @SinceUtc)
+                                                         AND CommentShort IS NOT NULL
+                                                         AND LEN(LTRIM(RTRIM(CommentShort))) > 0
+                                                       GROUP BY LEFT(LTRIM(RTRIM(CommentShort)), 200)
+                                                       HAVING COUNT_BIG(*) >= @MinOccurrences
+                                                   ) t
+                                                   ORDER BY OccurrenceCount DESC, ThemeKey ASC;
+                                                   """;
+
     private const int MaxTake = 500;
 
     public async Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
@@ -358,39 +390,11 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
     {
         int min = minOccurrences < 1 ? 1 : minOccurrences;
         int cap = take < 1 ? 1 : Math.Min(take, 200);
-        int prefixLen = ProductLearningSignalAggregations.CommentThemePrefixLength;
-
-        string sql = $"""
-                      SELECT TOP (@Take)
-                          ThemeKey,
-                          OccurrenceCount,
-                          FirstSeenUtc,
-                          LastSeenUtc,
-                          SampleCommentShort
-                      FROM (
-                          SELECT
-                              LEFT(LTRIM(RTRIM(CommentShort)), {prefixLen}) AS ThemeKey,
-                              COUNT_BIG(*) AS OccurrenceCount,
-                              MIN(RecordedUtc) AS FirstSeenUtc,
-                              MAX(RecordedUtc) AS LastSeenUtc,
-                              MIN(CommentShort) AS SampleCommentShort
-                          FROM dbo.ProductLearningPilotSignals
-                          WHERE TenantId = @TenantId
-                            AND WorkspaceId = @WorkspaceId
-                            AND ProjectId = @ProjectId
-                            AND (@SinceUtc IS NULL OR RecordedUtc >= @SinceUtc)
-                            AND CommentShort IS NOT NULL
-                            AND LEN(LTRIM(RTRIM(CommentShort))) > 0
-                          GROUP BY LEFT(LTRIM(RTRIM(CommentShort)), {prefixLen})
-                          HAVING COUNT_BIG(*) >= @MinOccurrences
-                      ) t
-                      ORDER BY OccurrenceCount DESC, ThemeKey ASC;
-                      """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<RepeatedCommentThemeSqlRow> rows = await connection.QueryAsync<RepeatedCommentThemeSqlRow>(
             new CommandDefinition(
-                sql,
+                RepeatedCommentThemeSql,
                 new
                 {
                     Take = cap,
