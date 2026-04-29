@@ -18,7 +18,7 @@ Positioning and packaging are **document-complete**: locked pricing ([PRICING_PH
 
 ### Engineering picture
 
-Architecture is **modular and internally coherent** (Application vs Persistence vs Decisioning vs AgentRuntime, Dapper, DbUp, ADRs). **Test breadth is real** (hundreds of test classes, golden corpus, merge-blocking live E2E, k6, architecture tests) but **coverage is uneven**: merged line coverage ~**77.8%** with **Persistence ~53%** and branch coverage ~**63%** per [COVERAGE_GAP_ANALYSIS.md](COVERAGE_GAP_ANALYSIS.md). **Observability is a strength** (custom OTel metrics catalog in [OBSERVABILITY.md](OBSERVABILITY.md)). **Correctness risk** concentrates in **data hydration paths, commit/export orchestration, and LLM variance** — mitigated but not eliminated by simulator mode and replay verify semantics.
+Architecture is **modular and internally coherent** (Application vs Persistence vs Decisioning vs AgentRuntime, Dapper, DbUp, ADRs). **Test breadth is real** (hundreds of test classes, golden corpus, merge-blocking live E2E, k6, architecture tests) but **coverage is uneven**: merged line coverage ~**77.8%** with **Persistence ~53%** and branch coverage ~**63%** per [COVERAGE_GAP_ANALYSIS.md](../COVERAGE_GAP_ANALYSIS.md). **Observability is a strength** (custom OTel metrics catalog in [OBSERVABILITY.md](OBSERVABILITY.md)). **Correctness risk** concentrates in **data hydration paths, commit/export orchestration, and LLM variance** — mitigated but not eliminated by simulator mode and replay verify semantics.
 
 ---
 
@@ -166,7 +166,7 @@ Architecture is **modular and internally coherent** (Application vs Persistence 
 
 ### 2.8 Correctness — Score **74**, Weight **4**, Weighted impact **+2.90%**
 
-**Justification:** Strong automated coverage overall (~77.8% line merged) but **Persistence ~53%** and known heavy paths ([COVERAGE_GAP_ANALYSIS.md](COVERAGE_GAP_ANALYSIS.md)): relational reads, commit orchestrator, export replay service. LLM outputs introduce **probabilistic** behavior; mitigated via evaluation hooks, schema validation, simulator.
+**Justification:** Strong automated coverage overall (~77.8% line merged) but **Persistence ~53%** and known heavy paths ([COVERAGE_GAP_ANALYSIS.md](../COVERAGE_GAP_ANALYSIS.md)): relational reads, commit orchestrator, export replay service. LLM outputs introduce **probabilistic** behavior; mitigated via evaluation hooks, schema validation, simulator.
 
 **Tradeoffs:** More integration tests **slow** CI; golden corpora **stabilize** decisioning but require maintenance.
 
@@ -420,7 +420,7 @@ Architecture is **modular and internally coherent** (Application vs Persistence 
 
 **Justification:** Benchmarks, CPU baselines, k6 thresholds — **present**. Real AOAI latency dominates wall-clock for “full truth” runs.
 
-**Tradeoffs:** Aggressive caching **vs** audit/replay fidelity — must be bounded ([demo preview cache documented](README.md)).
+**Tradeoffs:** Aggressive caching **vs** audit/replay fidelity — must be bounded ([demo preview cache documented](../../README.md)).
 
 **Improvements:** Publish **p95** targets for **non-LLM** API surfaces separately from LLM E2E.
 
@@ -670,7 +670,7 @@ Architecture is **modular and internally coherent** (Application vs Persistence 
 
 ## 6. Top 5 Engineering Risks
 
-1. **Regression in relational persistence hydration** — coverage weakest in Persistence per [COVERAGE_GAP_ANALYSIS.md](COVERAGE_GAP_ANALYSIS.md).
+1. **Regression in relational persistence hydration** — coverage weakest in Persistence per [COVERAGE_GAP_ANALYSIS.md](../COVERAGE_GAP_ANALYSIS.md).
 2. **Commit/export orchestration edge cases** — high business impact paths merit paranoid tests.
 3. **LLM supply chain incidents** (provider outage, quota, prompt regression) — mitigated but still **availability** risk to “full truth” runs.
 4. **Misconfigured auth in customer environments** — classic SaaS footguns; good docs reduce but don’t eliminate.
@@ -724,7 +724,7 @@ You are working in the ArchLucid repo. Goal: raise confidence in persistence hyd
 
 Scope:
 - Add/adjust automated tests only (unit/integration using existing patterns) for:
-  - ArchLucid.Persistence relational readers called out in docs/library/COVERAGE_GAP_ANALYSIS.md (GoldenManifestPhase1RelationalRead*, GraphSnapshotRelationalRead*, FindingsSnapshotRelationalRead* branches).
+  - ArchLucid.Persistence relational readers called out in docs/COVERAGE_GAP_ANALYSIS.md (GoldenManifestPhase1RelationalRead*, GraphSnapshotRelationalRead*, FindingsSnapshotRelationalRead* branches).
   - ArchLucid.Application Analysis export path around EndToEndReplayComparisonExportService and Runs orchestration around ArchitectureRunCommitOrchestrator (focus on uncovered branches / error mapping).
 - Follow existing test project conventions (ArchLucid.Persistence.Tests SQL integration style, ArchLucid.Application.Tests Moq style where appropriate).
 
@@ -736,7 +736,7 @@ Constraints:
 Acceptance criteria:
 - `dotnet test ArchLucid.sln --filter "FullyQualifiedName~<NewTests>"` passes locally.
 - At least +3 meaningful branch assertions per new test class (not trivial smoke).
-- Update docs/library/COVERAGE_GAP_ANALYSIS.md only if you refresh Cobertura (optional); otherwise add a short note in docs/CHANGELOG.md under a dated entry describing added test coverage areas.
+- Update docs/COVERAGE_GAP_ANALYSIS.md only if you refresh Cobertura (optional); otherwise add a short note in docs/CHANGELOG.md under a dated entry describing added test coverage areas.
 
 Out of scope:
 - UI changes, Terraform, pricing docs, OpenAPI breaking changes.

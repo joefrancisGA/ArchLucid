@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-29 — Tests: findings recommended-actions hydration, replay export branches, commit guards
+
+**Outcome.** Added **`FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests`** (SQL container: `FindingRecommendedActions` **`ORDER BY` SortOrder** via `FindingsSnapshotRelationalRead`). Added **`EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests`** (executive Markdown/HTML, null report guard, manifest relationship subsections, PDF pre-render cancellation). Added **`AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests`** (`CommitRunAsync` null/whitespace, malformed run id, missing **`RunRecord`** → **`RunNotFoundException`** + baseline audit). **`COVERAGE_GAP_ANALYSIS.md`** not refreshed (no Cobertura merge).
+
+---
+
 ## 2026-04-29 — Governance SoD: Entra JWT `tid`/`oid` actor keys (ADR 0034, migration 130)
 
 **Outcome.** Eliminates segregation-of-duty **dual-display** bypass against Entra JWTs: **`IActorContext.GetActorId()`** canonicalizes **`jwt:{tid}:{oid}`** (`ActorContext`). **`dbo.GovernanceApprovalRequests`** additive **`RequestedByActorKey`** / **`ReviewedByActorKey`** (**`130_GovernanceApprovalRequests_ActorKeys.sql`** + **`ArchLucid.sql`** / rollback **R130**); **`GovernanceSegregationRules`** compares JWT keys when present. **`GovernanceWorkflowService`** + HTTP **`GovernanceController`** thread keys; **`GovernanceSelfApprovalBlocked`** carries actor-key fields for audit. Decision: [**ADR 0034**](adr/0034-segregation-of-duties-entra-oid-actor-keys.md); owner row [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) (**item 13**, Option **B**). Tests: **`ActorContextTests`**, **`GovernanceSegregationRulesTests`**, **`GovernanceWorkflowSegregationAndPromotionPropertyTests`** (same JWT key / different displays).
