@@ -43,6 +43,11 @@ public sealed class GovernanceWorkflowService(
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
+    private const string OpaqueProdApprovalValidationFailed =
+        "Promotion to prod requires an approved approval request that matches the provided run, manifest version, and target environment.";
+
+    private const string OpaqueProdApprovalMismatch =
+        "The approval request does not match the promoted run, manifest version, or target environment.";
     /// <inheritdoc />
     public async Task<GovernanceApprovalRequest> SubmitApprovalRequestAsync(
         string runId,
@@ -89,7 +94,17 @@ public sealed class GovernanceWorkflowService(
         StampGovernanceScope(request);
 
         if (dryRun)
+        {
+            await LogGovernanceDryRunValidationAttemptedForApprovalRequestAsync(
+                requestedBy,
+                runId,
+                manifestVersion,
+                sourceEnvironment,
+                targetEnvironment,
+                cancellationToken);
+
             return request;
+        }
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
@@ -356,6 +371,7 @@ public sealed class GovernanceWorkflowService(
         string? approvalRequestId,
         string? notes,
         bool dryRun = false,
+        bool verbosePromotionValidationErrors = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -385,35 +401,15 @@ public sealed class GovernanceWorkflowService(
 
 
             GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
-            if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
+            ThrowIfProdApprovalChainInvalid(
+                approvalRequest,
+                approvalRequestId,
+                runId,
+                manifestVersion,
+                targetEnvironment,
+                verbosePromotionValidationErrors);
 
-                throw new InvalidOperationException(
-                    $"Promotion to prod requires an approved approval request. " +
-                    $"Approval request '{approvalRequestId}' has status '{approvalRequest?.Status ?? "not found"}'.");
-
-
-            if (!string.Equals(approvalRequest.RunId, runId, StringComparison.Ordinal))
-
-                throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' was issued for run '{approvalRequest.RunId}', " +
-                    $"not '{runId}'. Use an approval request that matches the promoted run.");
-
-
-            if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.Ordinal))
-
-                throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' was issued for manifest version '{approvalRequest.ManifestVersion}', " +
-                    $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
-
-
-            if (!string.Equals(approvalRequest.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
-
-                throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' targets environment '{approvalRequest.TargetEnvironment}', " +
-                    $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
-
-
-            prodApprovalToMarkPromoted = approvalRequest;
+            prodApprovalToMarkPromoted = approvalRequest!;
         }
 
         GovernancePromotionRecord record = new()
@@ -431,7 +427,18 @@ public sealed class GovernanceWorkflowService(
         StampGovernanceScope(record);
 
         if (dryRun)
+        {
+            await LogGovernanceDryRunValidationAttemptedForPromotionAsync(
+                promotedBy,
+                runId,
+                manifestVersion,
+                sourceEnvironment,
+                targetEnvironment,
+                approvalRequestId,
+                cancellationToken);
+
             return record;
+        }
 
         if (prodApprovalToMarkPromoted is not null)
         {
@@ -641,6 +648,181 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);
+    }
+
+    private void ThrowIfProdApprovalChainInvalid(
+        GovernanceApprovalRequest? approvalRequest,
+        string approvalRequestId,
+        string runId,
+        string manifestVersion,
+        string targetEnvironment,
+        bool verbosePromotionValidationErrors)
+    {
+        if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
+        {
+            if (verbosePromotionValidationErrors)
+                throw new InvalidOperationException(
+                    $"Promotion to prod requires an approved approval request. " +
+                    $"Approval request '{approvalRequestId}' has status '{approvalRequest?.Status ?? "not found"}'.");
+
+
+            if (logger.IsEnabled(LogLevel.Warning))
+
+                logger.LogWarning(
+                    "Promotion to prod blocked: approval request {ApprovalRequestId} has status {Status} (expected Approved). CallerRunId={CallerRunId}, CallerManifestVersion={CallerManifestVersion}, TargetEnvironment={TargetEnvironment}.",
+                    LogSanitizer.Sanitize(approvalRequestId),
+                    approvalRequest?.Status ?? "not found",
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(manifestVersion),
+                    targetEnvironment);
+
+
+            throw new InvalidOperationException(OpaqueProdApprovalValidationFailed);
+        }
+
+        GovernanceApprovalRequest approved = approvalRequest;
+
+        if (!string.Equals(approved.RunId, runId, StringComparison.Ordinal))
+        {
+            if (verbosePromotionValidationErrors)
+                throw new InvalidOperationException(
+                    $"Approval request '{approvalRequestId}' was issued for run '{approved.RunId}', " +
+                    $"not '{runId}'. Use an approval request that matches the promoted run.");
+
+
+            if (logger.IsEnabled(LogLevel.Warning))
+
+                logger.LogWarning(
+                    "Promotion to prod blocked: approval request {ApprovalRequestId} run mismatch (stored {StoredRunId}, caller {CallerRunId}).",
+                    LogSanitizer.Sanitize(approvalRequestId),
+                    LogSanitizer.Sanitize(approved.RunId),
+                    LogSanitizer.Sanitize(runId));
+
+
+            throw new InvalidOperationException(OpaqueProdApprovalMismatch);
+        }
+
+        if (!string.Equals(approved.ManifestVersion, manifestVersion, StringComparison.Ordinal))
+        {
+            if (verbosePromotionValidationErrors)
+                throw new InvalidOperationException(
+                    $"Approval request '{approvalRequestId}' was issued for manifest version '{approved.ManifestVersion}', " +
+                    $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
+
+
+            if (logger.IsEnabled(LogLevel.Warning))
+
+                logger.LogWarning(
+                    "Promotion to prod blocked: approval request {ApprovalRequestId} manifest mismatch (stored {StoredManifestVersion}, caller {CallerManifestVersion}).",
+                    LogSanitizer.Sanitize(approvalRequestId),
+                    LogSanitizer.Sanitize(approved.ManifestVersion),
+                    LogSanitizer.Sanitize(manifestVersion));
+
+
+            throw new InvalidOperationException(OpaqueProdApprovalMismatch);
+        }
+
+        if (!string.Equals(approved.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
+        {
+            if (verbosePromotionValidationErrors)
+                throw new InvalidOperationException(
+                    $"Approval request '{approvalRequestId}' targets environment '{approved.TargetEnvironment}', " +
+                    $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
+
+
+            if (logger.IsEnabled(LogLevel.Warning))
+
+                logger.LogWarning(
+                    "Promotion to prod blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
+                    LogSanitizer.Sanitize(approvalRequestId),
+                    LogSanitizer.Sanitize(approved.TargetEnvironment),
+                    targetEnvironment);
+
+
+            throw new InvalidOperationException(OpaqueProdApprovalMismatch);
+        }
+    }
+
+    private async Task LogGovernanceDryRunValidationAttemptedForApprovalRequestAsync(
+        string requestedBy,
+        string runId,
+        string manifestVersion,
+        string sourceEnvironment,
+        string targetEnvironment,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+        string dataJson = JsonSerializer.Serialize(
+            new
+            {
+                workflow = "approvalRequest",
+                manifestVersion,
+                sourceEnvironment,
+                targetEnvironment,
+            },
+            AuditJsonSerializationOptions.Instance);
+
+        AuditEvent auditEvent = new()
+        {
+            EventType = AuditEventTypes.GovernanceDryRunValidationAttempted,
+            ActorUserId = requestedBy,
+            ActorUserName = requestedBy,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = auditRunId,
+            DataJson = dataJson,
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            $"GovernanceDryRunValidationAttempted:approval:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken);
+    }
+
+    private async Task LogGovernanceDryRunValidationAttemptedForPromotionAsync(
+        string promotedBy,
+        string runId,
+        string manifestVersion,
+        string sourceEnvironment,
+        string targetEnvironment,
+        string? approvalRequestId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+        string dataJson = JsonSerializer.Serialize(
+            new
+            {
+                workflow = "promotion",
+                manifestVersion,
+                sourceEnvironment,
+                targetEnvironment,
+                approvalRequestId,
+            },
+            AuditJsonSerializationOptions.Instance);
+
+        AuditEvent auditEvent = new()
+        {
+            EventType = AuditEventTypes.GovernanceDryRunValidationAttempted,
+            ActorUserId = promotedBy,
+            ActorUserName = promotedBy,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = auditRunId,
+            DataJson = dataJson,
+        };
+
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            $"GovernanceDryRunValidationAttempted:promotion:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken);
     }
 
     /// <summary>

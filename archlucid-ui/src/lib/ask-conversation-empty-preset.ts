@@ -7,5 +7,5 @@ export const ASK_CONVERSATION_EMPTY: EmptyStateProps = {
   icon: MessageCircle,
   title: "No messages yet",
   description:
-    "Enter a run ID for a new conversation (or select a thread), then ask a question. Follow-ups reuse the same thread without resending the run ID.",
+    "Select a run for a new conversation (or open an existing thread on the left), then ask a question. Follow-ups reuse the same thread without picking the run again.",
 };

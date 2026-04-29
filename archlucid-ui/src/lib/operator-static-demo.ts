@@ -11,6 +11,8 @@ import type { RunExplanationSummary } from "@/types/explanation";
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
   "claims-intake-modernization-run",
+  "claims-intake-run-v1",
+  "claims-intake-run-v2",
 ]);
 
 /** When true, operator run/manifest pages use curated showcase data if the API fails (demo deploys only). */
@@ -55,6 +57,36 @@ export function tryStaticDemoRunSummariesPaged(projectId: string): { items: RunS
   };
 
   return { items: [item], totalCount: 1 };
+}
+
+/**
+ * When Compare needs two distinct run rows and the live list is empty, serve baseline/updated labels for the Claims
+ * Intake demo spine (same eligibility as {@link tryStaticDemoRunSummariesPaged}).
+ */
+export function tryStaticDemoCompareRunSummaries(projectId: string): { items: RunSummary[]; totalCount: number } | null {
+  if (!isDemoRunsListFallbackEnabled()) {
+    return null;
+  }
+
+  const d = getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const chain = d.authorityChain;
+
+  const row = (runId: string, description: string): RunSummary => ({
+    runId,
+    projectId,
+    description,
+    createdUtc: d.run.createdUtc,
+    goldenManifestId: chain.goldenManifestId ?? undefined,
+    hasContextSnapshot: !!chain.contextSnapshotId,
+    hasGraphSnapshot: !!chain.graphSnapshotId,
+    hasFindingsSnapshot: !!chain.findingsSnapshotId,
+    hasGoldenManifest: true,
+  });
+
+  return {
+    items: [row("claims-intake-run-v1", "Claims Intake — baseline"), row("claims-intake-run-v2", "Claims Intake — updated")],
+    totalCount: 2,
+  };
 }
 
 export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetail {
@@ -306,19 +338,13 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 }
 
 export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProvenanceGraph | null {
-
-  if (!isOperatorDemoStaticMode()) {
-
+  if (!isDemoRunsListFallbackEnabled()) {
     return null;
-
   }
 
   if (!isDemoRunIdEligibleForStaticFallback(runId)) {
-
     return null;
-
   }
 
   return buildStaticDemoProvenanceGraphFromShowcase(runId);
-
 }

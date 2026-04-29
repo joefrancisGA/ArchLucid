@@ -93,6 +93,11 @@ public interface IGovernanceWorkflowService
     /// When <see langword="true"/>, runs the same validation (including prod approval-chain checks) and returns the
     /// promotion record shape without persisting, updating approval status, auditing, or publishing events.
     /// </param>
+    /// <param name="verbosePromotionValidationErrors">
+    /// When <see langword="true"/> (typically Admin), prod approval-chain validation failures include stored
+    /// run id, manifest version, and status in the exception message. When <see langword="false"/>, clients receive an
+    /// opaque message; details are written to structured logs only.
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The newly created <see cref="GovernancePromotionRecord"/>.</returns>
     /// <exception cref="RunNotFoundException">Thrown when <paramref name="runId"/> does not exist.</exception>
@@ -109,6 +114,7 @@ public interface IGovernanceWorkflowService
         string? approvalRequestId,
         string? notes,
         bool dryRun = false,
+        bool verbosePromotionValidationErrors = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -28,4 +28,10 @@ public sealed class RateLimitingFixedWindowDefaultTests
 
         permit.Should().Be(60);
     }
+
+    [Fact]
+    public void RateLimitingDefaults_GovernancePolicyPackDryRunPermitLimit_is_12()
+    {
+        RateLimitingDefaults.GovernancePolicyPackDryRunPermitLimit.Should().Be(12);
+    }
 }

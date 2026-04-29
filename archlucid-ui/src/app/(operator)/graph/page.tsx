@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -13,6 +13,16 @@ import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from
 import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { coerceGraphViewModel } from "@/lib/operator-response-guards";
+import {
+  getArchitectureGraph,
+  getDecisionSubgraph,
+  getNodeNeighborhood,
+  getProvenanceGraph,
+} from "@/lib/graph-api";
+import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
+import type { GraphViewModel } from "@/types/graph";
 
 const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
@@ -26,14 +36,6 @@ const GraphViewer = dynamic(
     ),
   },
 );
-import { coerceGraphViewModel } from "@/lib/operator-response-guards";
-import {
-  getArchitectureGraph,
-  getDecisionSubgraph,
-  getNodeNeighborhood,
-  getProvenanceGraph,
-} from "@/lib/graph-api";
-import type { GraphViewModel } from "@/types/graph";
 
 /** Graph visualization mode: which endpoint to query and what graph subset to display. */
 type GraphMode =
@@ -55,17 +57,45 @@ export default function GraphPage() {
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
 
+  const loadGenRef = useRef(0);
+
   const nodeTypes = useMemo(() => {
-    if (!graph) return [];
+    if (!graph) {
+      return [];
+    }
+
     const set = new Set(graph.nodes.map((n) => n.type));
+
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [graph]);
 
-  /** Fetches the graph from the API based on the selected mode, then validates via coerce. */
-  async function loadGraph() {
+  const performGraphLoad = useCallback(async () => {
+    const gen = ++loadGenRef.current;
     setLoading(true);
     setLoadFailure(null);
     setMalformedMessage(null);
+
+    const tryStaticProvenance = (): void => {
+      if (gen !== loadGenRef.current) {
+        return;
+      }
+
+      if (mode !== "provenance-full") {
+        return;
+      }
+
+      const rid = runId.trim();
+      const prov = tryStaticDemoProvenanceGraph(rid);
+
+      if (prov === null) {
+        return;
+      }
+
+      setLoadFailure(null);
+      setMalformedMessage(null);
+      setGraph(provenanceLinkageToGraphViewModel(prov));
+      setTypeFilter("");
+    };
 
     try {
       let raw: unknown;
@@ -90,29 +120,66 @@ export default function GraphPage() {
       const coerced = coerceGraphViewModel(raw);
 
       if (!coerced.ok) {
+        if (gen !== loadGenRef.current) {
+          return;
+        }
+
         setGraph(null);
         setMalformedMessage(coerced.message);
+        tryStaticProvenance();
 
+        return;
+      }
+
+      if (gen !== loadGenRef.current) {
         return;
       }
 
       setGraph(coerced.value);
       setTypeFilter("");
     } catch (err) {
+      if (gen !== loadGenRef.current) {
+        return;
+      }
+
       setLoadFailure(toApiLoadFailure(err));
       setGraph(null);
+      tryStaticProvenance();
     } finally {
-      setLoading(false);
+      if (gen === loadGenRef.current) {
+        setLoading(false);
+      }
     }
-  }
+  }, [mode, runId, decisionId, nodeId, depth]);
+
+  const performRef = useRef(performGraphLoad);
+  performRef.current = performGraphLoad;
+
+  useEffect(() => {
+    const rid = runId.trim();
+
+    if (rid.length === 0) {
+      return;
+    }
+
+    if (mode !== "provenance-full") {
+      return;
+    }
+
+    void performRef.current();
+  }, [runId, mode]);
+
+  const showIdleCard =
+    !graph && !loading && loadFailure === null && malformedMessage === null;
 
   return (
     <main>
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title="Architecture graph" helpKey="architecture-graph" />
       <p className="max-w-3xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        Choose a run, pick a graph mode, then load. Nodes and edges reflect the review trail (decisions, findings,
-        rules) or the architecture view—use the filter after load to focus on one node type.
+        Pick a run from the list, choose a graph mode, then <strong>Load graph</strong>. In demo mode, the review trail
+        view can fall back to a sample graph when the API has no graph bundle yet. Node types include decisions,
+        findings, artifacts, review events, and architecture components.
       </p>
 
       <div className="grid gap-3 max-w-4xl mb-6">
@@ -174,7 +241,7 @@ export default function GraphPage() {
 
         <button
           type="button"
-          onClick={() => void loadGraph()}
+          onClick={() => void performGraphLoad()}
           disabled={
             loading ||
             !runId ||
@@ -206,8 +273,8 @@ export default function GraphPage() {
           <OperatorTryNext>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
             Confirm the run exists in <Link href="/runs?projectId=default">Runs</Link>, retry{" "}
-            <strong>Load graph</strong>, and check the browser network tab for the failing{" "}
-            <code>/v1/…/graph</code> call.
+            <strong>Load graph</strong>, and check the browser network tab for the failing <code>/v1/…/graph</code>{" "}
+            call.
           </OperatorTryNext>
         </>
       )}
@@ -218,8 +285,8 @@ export default function GraphPage() {
             <strong>Unexpected graph response shape.</strong>
             <p className="mt-2">{malformedMessage}</p>
             <p className="mt-2 text-sm">
-              The call succeeded but the payload did not match the expected GraphViewModel (nodes and
-              edges arrays). Check API version alignment.
+              The call succeeded but the payload did not match the expected GraphViewModel (nodes and edges arrays).
+              Check API version alignment.
             </p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
@@ -229,7 +296,7 @@ export default function GraphPage() {
         </>
       )}
 
-      {!graph && !loading && loadFailure === null && !malformedMessage ? <EmptyState {...GRAPH_IDLE} /> : null}
+      {showIdleCard ? <EmptyState {...GRAPH_IDLE} /> : null}
 
       {graph && (
         <>

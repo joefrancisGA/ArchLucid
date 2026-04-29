@@ -30,9 +30,9 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
 
 export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
-  title: "No graph loaded yet",
+  title: "No graph on screen yet",
   description:
-    "Select a run, choose a graph mode, and click Load graph. Each graph is made up of nodes (decisions, findings, artifacts, review events, architecture components) connected by edges that show how they relate to each other.",
+    "Choose a run above, keep Review trail graph selected for the default story, then use Load graph. When the API returns no graph for that run, demo builds can still show a sample review-trail shape so the screen is not empty.",
   actions: [{ label: "View runs list", href: "/runs?projectId=default", variant: "outline" }],
 };
 

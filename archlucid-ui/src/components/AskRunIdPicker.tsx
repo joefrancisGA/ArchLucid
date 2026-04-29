@@ -11,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { listRunsByProjectPaged } from "@/lib/api";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import type { RunSummary } from "@/types/authority";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
@@ -63,11 +63,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       setLoading(true);
 
       try {
-        const page = await listRunsByProjectPaged("default", 1, 50);
+        const merged = await loadProjectRunsMergedWithDemoFallback("default");
 
         if (!cancelled) {
-          setItems(page.items);
-          setLoadError(false);
+          setItems(merged.items);
+          setLoadError(merged.loadError);
         }
       } catch {
         if (!cancelled) {
@@ -244,14 +244,18 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="No runs in this project yet" />
+            <SelectValue placeholder="No runs available — connect the API or use demo mode" />
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/runs/new">
             Create a request
           </Link>{" "}
-          to add a run, or continue in a thread from the left (threads may reference earlier runs).
+          to add a run, open an existing thread from the left, or{" "}
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/showcase/claims-intake-modernization">
+            browse the Claims Intake sample scenario
+          </Link>{" "}
+          (read-only).
         </p>
       </div>
     );

@@ -24,7 +24,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await page.getByRole("button", { name: "Compare" }).click();
     await expectComparisonRequestOutcomeVisible(page);
 
-    await expect(page.getByRole("heading", { name: "Structured manifest comparison", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-structured")).toBeVisible();
     await expect(page.getByText(/Fixture highlight alpha/i)).toBeVisible();
 
@@ -35,14 +35,14 @@ test.describe("operator journey — compare query prefill and review order", () 
 
     const reviewNav = page.getByRole("navigation", { name: "Comparison results outline" });
     await expect(reviewNav.getByText("Review order", { exact: true })).toBeVisible();
-    await expect(reviewNav.getByRole("link", { name: "Structured manifest comparison" })).toBeVisible();
+    await expect(reviewNav.getByRole("link", { name: "Manifest comparison summary" })).toBeVisible();
     await expect(reviewNav.getByRole("link", { name: "Legacy authority diff" })).toBeVisible();
 
     const outcome = page.getByRole("region", { name: "Comparison request outcome" });
     await expect(outcome.getByRole("heading", { name: "Last compare request", level: 3 })).toBeVisible();
     await expect(outcome).toContainText(FIXTURE_LEFT_RUN_ID);
     await expect(outcome).toContainText(FIXTURE_RIGHT_RUN_ID);
-    await expect(outcome.getByText("Structured manifest")).toBeVisible();
+    await expect(outcome.getByText("Manifest comparison")).toBeVisible();
     await expect(outcome.getByText("Legacy run / manifest diff")).toBeVisible();
     await expect(outcome.getByText("OK")).toHaveCount(2);
   });

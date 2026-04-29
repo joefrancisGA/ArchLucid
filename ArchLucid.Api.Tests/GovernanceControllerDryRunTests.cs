@@ -101,6 +101,7 @@ public sealed class GovernanceControllerDryRunTests
                 "apr-1",
                 null,
                 true,
+                false,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GovernancePromotionRecord

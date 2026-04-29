@@ -91,7 +91,7 @@ export default function AskPage() {
     const useCompare = base.length > 0 && target.length > 0;
     if ((base.length > 0) !== (target.length > 0)) {
       setActionFailure(
-        uiFailureFromMessage("Provide both base and target run IDs for comparison, or leave both empty."),
+        uiFailureFromMessage("Provide both baseline and updated runs for comparison, or leave both empty."),
       );
       return;
     }
@@ -172,6 +172,9 @@ export default function AskPage() {
         <Card className="h-fit border-neutral-200 dark:border-neutral-700">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Threads</CardTitle>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              Workspace conversations for your signed-in user. Titles come from the first question or server defaults.
+            </p>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">
             <Button

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 using ArchLucid.Api.Filters;
@@ -110,6 +111,35 @@ internal static class InfrastructureExtensions
                     partitionKey,
                     _ => new FixedWindowRateLimiterOptions { PermitLimit = permits, Window = window, QueueLimit = 0 });
             });
+
+            int governancePolicyPackDryRunPermitLimit = configuration.GetValue(
+                "RateLimiting:GovernancePolicyPackDryRun:PermitLimit",
+                RateLimitingDefaults.GovernancePolicyPackDryRunPermitLimit);
+            int governancePolicyPackDryRunWindowMinutes = configuration.GetValue(
+                "RateLimiting:GovernancePolicyPackDryRun:WindowMinutes", 1);
+            int governancePolicyPackDryRunQueueLimit =
+                configuration.GetValue("RateLimiting:GovernancePolicyPackDryRun:QueueLimit", 0);
+
+            options.AddPolicy(
+                "governancePolicyPackDryRun",
+                httpContext =>
+                {
+                    string? nameId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    string userId = !string.IsNullOrWhiteSpace(nameId)
+                        ? nameId
+                        : httpContext.User.Identity?.Name
+                          ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                          ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        $"governancePolicyPackDryRun:{userId}",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = governancePolicyPackDryRunPermitLimit,
+                            Window = TimeSpan.FromMinutes(governancePolicyPackDryRunWindowMinutes),
+                            QueueLimit = governancePolicyPackDryRunQueueLimit
+                        });
+                });
         });
         return services;
     }

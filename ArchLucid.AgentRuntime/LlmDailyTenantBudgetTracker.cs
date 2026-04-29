@@ -36,18 +36,18 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
         {
             ResetIfNewUtcDayLocked(state, today);
 
-            if (state.TotalTokens + assumed > max)
-            {
-                DateTimeOffset retryAfterUtc = new DateTimeOffset(DateTime.UtcNow.Date.AddDays(1), TimeSpan.Zero);
+            if (state.TotalTokens + assumed <= max)
+                return;
 
-                throw new LlmTokenQuotaExceededException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "LLM daily token budget exceeded for tenant (UTC day cap {0}, used ~{1}).",
-                        max,
-                        state.TotalTokens),
-                    retryAfterUtc);
-            }
+            DateTimeOffset retryAfterUtc = new(DateTime.UtcNow.Date.AddDays(1), TimeSpan.Zero);
+
+            throw new LlmTokenQuotaExceededException(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "LLM daily token budget exceeded for tenant (UTC day cap {0}, used ~{1}).",
+                    max,
+                    state.TotalTokens),
+                retryAfterUtc);
         }
     }
 
@@ -158,10 +158,19 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
     {
         public object Sync { get; } = new();
 
-        public DateOnly UtcDay { get; set; }
+        public DateOnly UtcDay
+        {
+            get; set;
+        }
 
-        public long TotalTokens { get; set; }
+        public long TotalTokens
+        {
+            get; set;
+        }
 
-        public bool WarnedApproaching { get; set; }
+        public bool WarnedApproaching
+        {
+            get; set;
+        }
     }
 }

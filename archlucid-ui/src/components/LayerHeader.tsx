@@ -1,6 +1,7 @@
 "use client";
 
 import { type LayerGuidancePageKey } from "@/lib/layer-guidance";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
   const block = surface.layerGuidance;
   const operateExecuteRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
+  const demoUi = isNextPublicDemoMode();
   const usesOperateGovernanceFootnote =
     block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
 
@@ -59,7 +61,7 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
           {block.enterpriseFootnote}
         </p>
       ) : null}
-      {operateExecuteRankCue ? (
+      {operateExecuteRankCue && !demoUi ? (
         <p
           className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400"
           data-testid="layer-header-operate-execute-rank-cue"

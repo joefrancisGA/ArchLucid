@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -63,6 +65,7 @@ function CompareForm() {
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
   const autoComparedFromUrlRef = useRef(false);
+  const demoComparePrefillDoneRef = useRef(false);
   const [leftRunId, setLeftRunId] = useState("");
   const [rightRunId, setRightRunId] = useState("");
   const [result, setResult] = useState<RunComparison | null>(null);
@@ -155,6 +158,31 @@ function CompareForm() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (demoComparePrefillDoneRef.current) {
+      return;
+    }
+
+    if (!isNextPublicDemoMode()) {
+      return;
+    }
+
+    const leftQ = searchParams.get("leftRunId")?.trim() ?? "";
+    const rightQ = searchParams.get("rightRunId")?.trim() ?? "";
+
+    if (leftQ.length > 0 || rightQ.length > 0) {
+      return;
+    }
+
+    if (leftRunId.trim().length > 0 || rightRunId.trim().length > 0) {
+      return;
+    }
+
+    demoComparePrefillDoneRef.current = true;
+    setLeftRunId("claims-intake-run-v1");
+    setRightRunId("claims-intake-run-v2");
+  }, [searchParams, leftRunId, rightRunId]);
+
+  useEffect(() => {
     const left = searchParams.get("leftRunId")?.trim() ?? "";
     const right = searchParams.get("rightRunId")?.trim() ?? "";
 
@@ -242,31 +270,33 @@ function CompareForm() {
         metadata={<ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />}
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Compare finalized manifests to understand what changed between two runs.{" "}
-        <strong>Baseline (left)</strong> is the reference; <strong>updated (right)</strong> is what you are evaluating.
-        Results appear below after you run compare — structured manifest diff first, then a flat summary when available.{" "}
-        Optional <strong>Explain changes (AI)</strong> adds a narrative after the tables.
+        Compare finalized manifests to understand what changed between two runs—useful for sponsors, security review,
+        and release checkpoints. <strong>Baseline</strong> is the reference; <strong>updated</strong> is what you are
+        evaluating. After you compare, review the structured summary first; optional{" "}
+        <strong>Summarize comparison for sponsor</strong> adds a short narrative.
       </p>
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        The structured table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over
-        finalized outputs. The service may persist a{" "}
-        <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for later replay.
+        The primary table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over finalized
+        outputs. The service may persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip>{" "}
+        for later replay.
       </p>
 
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
-          label="Baseline run (left)"
-          placeholder="e.g. claims-intake-run-v1"
+          label="Baseline run"
+          placeholder="Choose a baseline run"
           value={leftRunId}
           onChange={setLeftRunId}
           inputId="compare-left-run-id"
+          forCompare
         />
         <RunIdPicker
-          label="Updated run (right)"
-          placeholder="e.g. claims-intake-run-v2"
+          label="Updated run"
+          placeholder="Choose an updated run"
           value={rightRunId}
           onChange={setRightRunId}
           inputId="compare-right-run-id"
+          forCompare
         />
         <div className="flex flex-wrap items-center gap-3">
           <button
@@ -288,7 +318,7 @@ function CompareForm() {
             onClick={() => void loadAiExplanation()}
             disabled={aiLoading || !leftTrim || !rightTrim}
           >
-            {aiLoading ? "Explaining…" : "Explain changes (AI)"}
+            {aiLoading ? "Summarizing…" : "Summarize comparison for sponsor"}
           </button>
         </div>
       </div>
@@ -297,12 +327,13 @@ function CompareForm() {
 
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
-          <strong>Run IDs no longer match the results below.</strong>
+          <strong>Selections no longer match the results below.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             Content below still reflects{" "}
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.left}</code> →{" "}
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
-            <strong>Explain changes (AI)</strong> again after fixing IDs, or restore the previous values.
+            <strong>Summarize comparison for sponsor</strong> again after fixing selections, or restore the previous
+            values.
           </p>
         </OperatorWarningCallout>
       )}
@@ -326,7 +357,7 @@ function CompareForm() {
       {legacyFailure && (
         <>
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Legacy run comparison failed.
+            Supplementary run-level comparison failed.
           </p>
           <OperatorApiProblem
             problem={legacyFailure.problem}
@@ -334,7 +365,7 @@ function CompareForm() {
             correlationId={legacyFailure.correlationId}
           />
           <OperatorTryNext>
-            Confirm both run IDs exist and are in scope (same tenant/project as the shell). Re-copy IDs from{" "}
+            Confirm both runs exist and are in scope (same tenant/project as the shell). Re-pick runs from{" "}
             <Link href="/runs?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
             Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
@@ -344,12 +375,12 @@ function CompareForm() {
       {legacyMalformed && (
         <>
           <OperatorMalformedCallout>
-            <strong>Legacy comparison response was not usable.</strong>
+            <strong>Supplementary comparison response was not usable.</strong>
             <p className="mt-2">{legacyMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Align API and UI versions (<code>GET /version</code>). If structured compare succeeded below, use that
-            section for review while legacy is investigated.
+            Align API and UI versions (<code>GET /version</code>). If the structured summary succeeded below, use that
+            section for review while the supplementary comparison is investigated.
           </OperatorTryNext>
         </>
       )}
@@ -357,7 +388,7 @@ function CompareForm() {
       {goldenFailure && (
         <>
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Structured manifest comparison request failed.
+            Manifest comparison request failed.
           </p>
           <OperatorApiProblem
             problem={goldenFailure.problem}
@@ -366,11 +397,11 @@ function CompareForm() {
             variant="warning"
           />
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            The legacy comparison may still have succeeded; check the sections below.
+            The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both runs have finalized reviewed manifests in scope. If only legacy diff is needed for now, scroll
-            to <strong>Legacy authority diff</strong> after confirming the pair in the summary panel.
+            Verify both runs have finalized reviewed manifests in scope. If only the supplementary diff is needed for
+            now, expand <strong>Run-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
       )}
@@ -382,8 +413,8 @@ function CompareForm() {
             <p className="mt-2">{goldenMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Treat this as contract drift—compare deployed API vs UI. The legacy diff section may still render if that
-            response was valid.
+            Treat this as contract drift—compare deployed API vs UI. The supplementary diff section may still render if
+            that response was valid.
           </OperatorTryNext>
         </>
       )}
@@ -400,8 +431,9 @@ function CompareForm() {
             variant="warning"
           />
           <OperatorTryNext>
-            AI is optional—use structured and legacy tables above for the authoritative diff. If this should work,
-            check API LLM configuration, quotas, and proxy timeouts, then retry <strong>Explain changes (AI)</strong>.
+            AI is optional—use the structured summary and supplementary tables above for the authoritative diff. If this
+            should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
+            <strong>Summarize comparison for sponsor</strong>.
           </OperatorTryNext>
         </>
       )}
@@ -413,7 +445,8 @@ function CompareForm() {
             <p className="mt-2">{aiMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Fall back to structured/legacy compare. Capture the correlation ID and API version if filing a defect.
+            Fall back to structured and supplementary compare. Capture the correlation ID and API version if filing a
+            defect.
           </OperatorTryNext>
         </>
       )}
@@ -430,7 +463,7 @@ function CompareForm() {
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.right}</code>
           </p>
           <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
-            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Structured manifest</dt>
+            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Manifest comparison</dt>
             <dd className="m-0 text-neutral-800 dark:text-neutral-200">
               {outcomeLabel({
                 hasValue: golden !== null,
@@ -438,7 +471,7 @@ function CompareForm() {
                 malformed: goldenMalformed,
               })}
             </dd>
-            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Legacy run / manifest diff</dt>
+            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary run / manifest diff</dt>
             <dd className="m-0 text-neutral-800 dark:text-neutral-200">
               {outcomeLabel({
                 hasValue: result !== null,
@@ -462,12 +495,12 @@ function CompareForm() {
           <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
             {golden !== null && (
               <li>
-                <a href="#compare-structured">Structured manifest comparison</a>
+                <a href="#compare-structured">Manifest comparison summary</a>
               </li>
             )}
             {result !== null && (
               <li>
-                <a href="#compare-legacy">Run-level diff</a>
+                <a href="#compare-legacy">Supplementary run-level diff</a>
               </li>
             )}
             {aiExplanation !== null && (

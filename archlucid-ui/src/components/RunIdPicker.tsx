@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listRunsByProjectPaged } from "@/lib/api";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,8 @@ type RunIdPickerProps = {
   label: string;
   projectId?: string;
   inputId?: string;
+  /** When true, empty/failed run lists use the two-row Compare demo pair when demo spine fallback is enabled. */
+  forCompare?: boolean;
 };
 
 function truncate(text: string, max: number): string {
@@ -41,6 +43,7 @@ export function RunIdPicker({
   label,
   projectId = "default",
   inputId,
+  forCompare = false,
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
@@ -57,19 +60,18 @@ export function RunIdPicker({
   const loadRuns = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
-
+  
     try {
-      const page = await listRunsByProjectPaged(projectId, 1, 50);
-      setRuns(page.items ?? []);
-    }
-    catch {
+      const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare });
+      setRuns(merged.items ?? []);
+      setLoadError(merged.loadError ? "Could not load runs list." : null);
+    } catch {
       setRuns([]);
       setLoadError("Could not load runs list.");
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, forCompare]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

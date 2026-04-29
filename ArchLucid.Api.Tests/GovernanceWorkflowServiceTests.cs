@@ -206,7 +206,15 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
 
         _durableAudit.Verify(
-            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceDryRunValidationAttempted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalSubmitted),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -769,7 +777,7 @@ public sealed class GovernanceWorkflowServiceTests
             "alice", "apr-pending", null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*approved approval request*");
+            .WithMessage("*matches the provided run, manifest version, and target environment*");
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
@@ -783,6 +791,35 @@ public sealed class GovernanceWorkflowServiceTests
         _durableAudit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task Promote_ToProd_WithUnapprovedRequest_Verbose_IncludesApprovalStatusInMessage()
+    {
+        GovernanceApprovalRequest pendingApproval = new()
+        {
+            ApprovalRequestId = "apr-pending",
+            Status = GovernanceApprovalStatus.Submitted
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-pending", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pendingApproval);
+
+        Func<Task<GovernancePromotionRecord>> act = () => _sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "test",
+            GovernanceEnvironment.Prod,
+            "alice",
+            "apr-pending",
+            null,
+            dryRun: false,
+            verbosePromotionValidationErrors: true);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Submitted*");
     }
 
     [Fact]
@@ -881,7 +918,15 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
 
         _durableAudit.Verify(
-            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceDryRunValidationAttempted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

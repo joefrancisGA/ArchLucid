@@ -1,5 +1,6 @@
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
+import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { GoldenManifestComparison } from "@/types/comparison";
 
@@ -31,18 +32,16 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
 
   return (
     <section id="compare-structured" className="mt-7">
-      <h3 className="mb-2">Structured manifest comparison</h3>
+      <h3 className="mb-2">Manifest comparison</h3>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
         <span>
-          <strong>Base run:</strong>{" "}
-          <code className="text-[13px]">{golden.baseRunId}</code>
+          <strong>Baseline run:</strong> {compareRunHeadingLabel(golden.baseRunId)}
         </span>
         <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
           →
         </span>
         <span>
-          <strong>Target run:</strong>{" "}
-          <code className="text-[13px]">{golden.targetRunId}</code>
+          <strong>Updated run:</strong> {compareRunHeadingLabel(golden.targetRunId)}
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
           · <strong>Total deltas (reported):</strong> {total}

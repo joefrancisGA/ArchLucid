@@ -366,6 +366,8 @@ public sealed class GovernanceController(
 
         try
         {
+            bool verbosePromotionValidationErrors = User.IsInRole(ArchLucidRoles.Admin);
+
             GovernancePromotionRecord result = await workflowService.PromoteAsync(
                 request.RunId,
                 request.ManifestVersion,
@@ -375,6 +377,7 @@ public sealed class GovernanceController(
                 request.ApprovalRequestId,
                 request.Notes,
                 dryRun,
+                verbosePromotionValidationErrors,
                 cancellationToken);
 
             if (dryRun)
@@ -549,10 +552,12 @@ public sealed class GovernanceController(
     ///     list of run ids and returns per-run "would have blocked" deltas without modifying any
     ///     governance state. Read-auth gated (no commit happens). Persists a redacted
     ///     <c>GovernanceDryRunRequested</c> audit row per PENDING_QUESTIONS Q37; default page size 20,
-    ///     server-clamped to 100 per Q38.
+    ///     server-clamped to 100 per Q38. Uses the <c>governancePolicyPackDryRun</c> rate-limit partition (
+    ///     per authenticated user, tighter than the controller default).
     /// </summary>
     [HttpPost("policy-packs/{id:guid}/dry-run")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [EnableRateLimiting("governancePolicyPackDryRun")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PolicyPackDryRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
