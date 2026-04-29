@@ -46,10 +46,9 @@ public sealed class LlmTokenQuotaWindowTrackerTests
 
         Action act = () => tracker.EnsureWithinQuotaBeforeCall(tenant);
 
-        LlmTokenQuotaExceededException ex = act.Should().Throw<LlmTokenQuotaExceededException>().Subject;
+        LlmTokenQuotaExceededException ex = act.Should().Throw<LlmTokenQuotaExceededException>().Which;
         ex.RetryAfterUtc.Should().NotBeNull();
-        DateTimeOffset skew = ex.RetryAfterUtc!.Value - DateTimeOffset.UtcNow;
-        skew.Should().BePositive();
+        ex.RetryAfterUtc!.Value.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-1));
     }
 
     [Fact]

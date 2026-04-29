@@ -69,6 +69,7 @@ const apiHoisted = vi.hoisted(() => ({
   getGovernanceResolution: vi.fn(),
   listDigestSubscriptions: vi.fn(),
   listAdvisorySchedules: vi.fn(),
+  listRunsByProjectPaged: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -89,6 +90,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     getGovernanceResolution: apiHoisted.getGovernanceResolution,
     listDigestSubscriptions: apiHoisted.listDigestSubscriptions,
     listAdvisorySchedules: apiHoisted.listAdvisorySchedules,
+    listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
   };
 });
 
@@ -192,6 +194,13 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     apiHoisted.getGovernanceResolution.mockResolvedValue(emptyGovernanceResolutionPayload);
     apiHoisted.listDigestSubscriptions.mockResolvedValue([]);
     apiHoisted.listAdvisorySchedules.mockResolvedValue([]);
+    apiHoisted.listRunsByProjectPaged.mockResolvedValue({
+      items: [{ runId: "gov-ui-shape-run", projectId: "default", description: "UI shape fixture", createdUtc: "" }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
   });
 
   it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
@@ -365,10 +374,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<GovernanceWorkflowPage />);
 
     await waitFor(() => {
-      const submitRun = document.getElementById("gov-submit-run") as HTMLInputElement | null;
+      const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
 
-      expect(submitRun).not.toBeNull();
-      expect(submitRun!.readOnly).toBe(true);
+      expect(submitRunTrigger).not.toBeNull();
+      expect(submitRunTrigger!.disabled).toBe(true);
     });
 
     expect(screen.getByText(governanceWorkflowSubmitCardTitleReader)).toBeInTheDocument();
@@ -389,10 +398,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<GovernanceWorkflowPage />);
 
     await waitFor(() => {
-      const submitRun = document.getElementById("gov-submit-run") as HTMLInputElement | null;
+      const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
 
-      expect(submitRun).not.toBeNull();
-      expect(submitRun!.readOnly).toBe(false);
+      expect(submitRunTrigger).not.toBeNull();
+      expect(submitRunTrigger!.disabled).toBe(false);
     });
 
     expect(screen.getByRole("button", { name: /submit for approval/i })).not.toBeDisabled();

@@ -217,6 +217,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
 
         CyclePayload payload = new();
+        payload.Child = payload;
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,

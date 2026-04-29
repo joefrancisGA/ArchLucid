@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
@@ -31,6 +32,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { RunIdPicker } from "@/components/RunIdPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
@@ -207,7 +209,7 @@ function GovernanceWorkflowPageInner() {
     const id = queryRunId.trim();
 
     if (!id) {
-      setToast({ kind: "err", message: "Enter a run ID to load approval data." });
+      setToast({ kind: "err", message: "Choose a run to load approval data." });
 
       return;
     }
@@ -230,7 +232,7 @@ function GovernanceWorkflowPageInner() {
     const runId = submitRunId.trim();
 
     if (!runId || !submitManifestVersion.trim()) {
-      setToast({ kind: "err", message: "Run ID and manifest version are required." });
+      setToast({ kind: "err", message: "Choose a run and enter a manifest version." });
 
       return;
     }
@@ -317,7 +319,7 @@ function GovernanceWorkflowPageInner() {
     const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: "Set Acting as (for promote & activate) before promoting." });
+      setToast({ kind: "err", message: "Enter your name for the audit trail before promoting." });
 
       return;
     }
@@ -359,7 +361,7 @@ function GovernanceWorkflowPageInner() {
     const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: "Set Acting as (for promote & activate) before activating." });
+      setToast({ kind: "err", message: "Enter your name for the audit trail before activating." });
 
       return;
     }
@@ -435,8 +437,8 @@ function GovernanceWorkflowPageInner() {
             <CardDescription>
               {canMutateWorkflow ? (
                 <>
-                  Creates a workflow row for promoting a run manifest from a source environment to a target (API:{" "}
-                  <code className="text-xs">POST /v1/governance/approval-requests</code>).
+                  Starts an approval request so reviewers can promote your finalized manifest from a source environment
+                  toward a target (for example staging to production).
                 </>
               ) : (
                 governanceWorkflowSubmitCardDescriptionReader
@@ -445,15 +447,14 @@ function GovernanceWorkflowPageInner() {
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="gov-submit-run">Run ID</Label>
-              <Input
-                id="gov-submit-run"
+              <AskRunIdPicker
+                fieldId="gov-submit-run"
+                label="Run"
                 value={submitRunId}
-                onChange={(e) => setSubmitRunId(e.target.value)}
-                placeholder="Architecture run identifier"
-                autoComplete="off"
-                readOnly={!canMutateWorkflow}
-                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                onChange={setSubmitRunId}
+                selectedThreadId=""
+                preferAutoPick={canMutateWorkflow}
+                disabled={!canMutateWorkflow}
               />
             </div>
             <div className="grid gap-2">
@@ -557,13 +558,12 @@ function GovernanceWorkflowPageInner() {
           <CardContent className="grid gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
               <div className="grid min-w-0 flex-1 gap-2">
-                <Label htmlFor="gov-query-run">Run ID</Label>
-                <Input
-                  id="gov-query-run"
+                <RunIdPicker
+                  inputId="gov-query-run"
+                  label="Run"
+                  placeholder="Choose or type a run ID"
                   value={queryRunId}
-                  onChange={(e) => setQueryRunId(e.target.value)}
-                  placeholder="Run to inspect"
-                  autoComplete="off"
+                  onChange={setQueryRunId}
                 />
               </div>
               <div className="flex flex-wrap gap-2">
@@ -583,22 +583,22 @@ function GovernanceWorkflowPageInner() {
                 ) : null}
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="gov-workflow-actor">Acting as (for promote &amp; activate)</Label>
-              <Input
-                id="gov-workflow-actor"
-                value={workflowActor}
-                onChange={(e) => setWorkflowActor(e.target.value)}
-                placeholder="Display name sent with promote/activate calls"
-                autoComplete="username"
-                disabled={!canMutateWorkflow}
-                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
-              />
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                The API still binds the authenticated principal; this field supplies the explicit{" "}
-                <code className="text-xs">promotedBy</code> / UI contract for <code className="text-xs">activatedBy</code>.
-              </p>
-            </div>
+            {canMutateWorkflow ? (
+              <div className="grid gap-2">
+                <Label htmlFor="gov-workflow-actor">Your name for the audit trail (promote and activate)</Label>
+                <Input
+                  id="gov-workflow-actor"
+                  value={workflowActor}
+                  onChange={(e) => setWorkflowActor(e.target.value)}
+                  placeholder="Display name recorded with promote and activate actions"
+                  autoComplete="username"
+                  title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                />
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  This is stored with promotion and activation records alongside your signed-in account.
+                </p>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -865,7 +865,7 @@ function GovernanceWorkflowPageInner() {
                     {!canMutateWorkflow
                       ? enterpriseMutationControlDisabledTitle
                       : !workflowActor.trim()
-                        ? "Set Acting as (for promote & activate) to enable activation."
+                        ? "Enter your name for the audit trail to enable activation."
                         : "POST activation for this manifest on the promotion’s target environment."}
                   </TooltipContent>
                 </Tooltip>

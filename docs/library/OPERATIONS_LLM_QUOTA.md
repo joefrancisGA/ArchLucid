@@ -19,7 +19,7 @@
 | `LlmTokenQuota:AssumedMaxCompletionTokensPerRequest` | Pre-flight guard before usage is known. |
 | `LlmTelemetry:RecordPerTenantTokens` | Emit Prometheus series with `tenant_id` label (raises cardinality — enable only for bounded tenant counts). |
 
-When quota is exceeded, the API returns **429** with problem type `#llm-token-quota-exceeded`.
+When quota is exceeded, the API returns **429** with problem type `#llm-token-quota-exceeded`. When the server can compute a retry instant (sliding-window expiry or next UTC-day budget boundary), the problem payload may include a **`retryAfterUtc`** extension (same shape as circuit-breaker **`retryAfterUtc`**). OpenTelemetry counter **`archlucid_llm_quota_exceeded_total`** increments once per rejected pre-call (accounting decorator). Agent execution traces persist **`FailureReasonCode`=`LlmTokenQuotaExceeded`** when quota ends a handler.
 
 ## Metrics
 

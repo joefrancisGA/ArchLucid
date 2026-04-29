@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -109,24 +110,18 @@ export default function GraphPage() {
     <main>
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title="Architecture graph" helpKey="architecture-graph" />
-      <p className="mt-1 text-sm">
-        <Link href="/">Home</Link>
-        {" · "}
-        <Link href="/runs?projectId=default">Runs</Link>
-        {" · "}
-        <Link href="/compare">Compare two runs</Link>
-      </p>
       <p className="max-w-3xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        Load provenance (decisions, findings, rules) or the architecture graph for a run. Copy the run ID from
-        the Runs list or run detail, choose a view, then load.
+        Choose a run, pick a graph mode, then load. Nodes and edges reflect the review trail (decisions, findings,
+        rules) or the architecture view—use the filter after load to focus on one node type.
       </p>
 
       <div className="grid gap-3 max-w-4xl mb-6">
-        <input
+        <AskRunIdPicker
           value={runId}
-          onChange={(e) => setRunId(e.target.value)}
-          placeholder="Run ID (GUID)"
-          className="p-2"
+          onChange={setRunId}
+          selectedThreadId=""
+          fieldId="graph-run"
+          label="Run"
         />
 
         <div>
@@ -139,7 +134,7 @@ export default function GraphPage() {
             onChange={(e) => setMode(e.target.value as GraphMode)}
             className="p-2 w-full max-w-[420px]"
           >
-            <option value="provenance-full">Full provenance graph</option>
+            <option value="provenance-full">Full review-trail graph</option>
             <option value="decision-subgraph">Decision subgraph</option>
             <option value="node-neighborhood">Node neighborhood</option>
             <option value="architecture">Architecture graph</option>

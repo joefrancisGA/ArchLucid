@@ -28,6 +28,8 @@ export type AskRunIdPickerProps = {
    */
   readonly preferAutoPick?: boolean;
   readonly label?: string;
+  /** When true, the control cannot be changed (e.g. read-only governance submit at Reader rank). */
+  readonly disabled?: boolean;
   /** Stable DOM id suffix so multiple pickers avoid duplicate ids (defaults to primary run field). */
   readonly fieldId?: string;
 };
@@ -44,6 +46,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     preferAutoPick = true,
     label,
     fieldId,
+    disabled = false,
   } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +158,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             {labelText} {optionalCopy}
           </Label>
           <Select
+            disabled={disabled}
             value={
               selectedInSynthetic ? SHOWCASE_STATIC_DEMO_RUN_ID : value.trim().length > 0 ? value : undefined
             }
@@ -231,7 +235,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={selectControlId}>{labelText}</Label>
-      <Select value={selectValue} onValueChange={onChange}>
+      <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
         <SelectTrigger id={selectControlId} className="font-mono text-sm">
           <SelectValue placeholder="Choose a run" />
         </SelectTrigger>

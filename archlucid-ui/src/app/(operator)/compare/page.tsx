@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -28,6 +28,7 @@ import { LegacyRunComparisonView } from "@/components/compare/LegacyRunCompariso
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
@@ -55,13 +56,13 @@ function outcomeLabel(params: {
 }
 
 /**
- * Compare form: two run IDs; fetches legacy compare then structured compare sequentially on "Compare";
- * optional AI explanation on a separate button. Renders structured section before legacy for review order.
+ * Compare form: two run IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
 function CompareForm() {
   const searchParams = useSearchParams();
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
+  const autoComparedFromUrlRef = useRef(false);
   const [leftRunId, setLeftRunId] = useState("");
   const [rightRunId, setRightRunId] = useState("");
   const [result, setResult] = useState<RunComparison | null>(null);
@@ -77,35 +78,7 @@ function CompareForm() {
   const [aiLoading, setAiLoading] = useState(false);
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
 
-  useEffect(() => {
-    const left = searchParams.get("leftRunId");
-    const right = searchParams.get("rightRunId");
-    if (left) setLeftRunId(left);
-    if (right) setRightRunId(right);
-  }, [searchParams]);
-
-  const leftTrim = leftRunId.trim();
-  const rightTrim = rightRunId.trim();
-  const pairAligned =
-    lastComparedPair !== null &&
-    lastComparedPair.left === leftTrim &&
-    lastComparedPair.right === rightTrim;
-  const showStaleInputsWarning =
-    !pairAligned &&
-    lastComparedPair !== null &&
-    (result !== null ||
-      golden !== null ||
-      legacyFailure !== null ||
-      goldenFailure !== null ||
-      legacyMalformed !== null ||
-      goldenMalformed !== null ||
-      aiExplanation !== null ||
-      aiFailure !== null ||
-      aiMalformed !== null);
-
-  async function onCompare() {
-    const leftAtStart = leftTrim;
-    const rightAtStart = rightTrim;
+  const runCompareForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
     const gen = ++compareGenerationRef.current;
 
     setLoading(true);
@@ -172,6 +145,48 @@ function CompareForm() {
         setLastComparedPair({ left: leftAtStart, right: rightAtStart });
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const left = searchParams.get("leftRunId");
+    const right = searchParams.get("rightRunId");
+    if (left) setLeftRunId(left.trim());
+    if (right) setRightRunId(right.trim());
+  }, [searchParams]);
+
+  useEffect(() => {
+    const left = searchParams.get("leftRunId")?.trim() ?? "";
+    const right = searchParams.get("rightRunId")?.trim() ?? "";
+
+    if (left.length === 0 || right.length === 0 || autoComparedFromUrlRef.current) {
+      return;
+    }
+
+    autoComparedFromUrlRef.current = true;
+    void runCompareForPair(left, right);
+  }, [searchParams, runCompareForPair]);
+
+  const leftTrim = leftRunId.trim();
+  const rightTrim = rightRunId.trim();
+  const pairAligned =
+    lastComparedPair !== null &&
+    lastComparedPair.left === leftTrim &&
+    lastComparedPair.right === rightTrim;
+  const showStaleInputsWarning =
+    !pairAligned &&
+    lastComparedPair !== null &&
+    (result !== null ||
+      golden !== null ||
+      legacyFailure !== null ||
+      goldenFailure !== null ||
+      legacyMalformed !== null ||
+      goldenMalformed !== null ||
+      aiExplanation !== null ||
+      aiFailure !== null ||
+      aiMalformed !== null);
+
+  async function onCompare() {
+    await runCompareForPair(leftTrim, rightTrim);
   }
 
   async function loadAiExplanation() {
@@ -226,36 +241,29 @@ function CompareForm() {
         helpKey="compare-runs"
         metadata={<ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />}
       />
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        <Link href="/">Home</Link>
-        {" · "}
-        <Link href="/runs?projectId=default">Runs</Link>
-        {" · "}
-        <Link href="/graph">Graph</Link>
-      </p>
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        <strong>Base (left)</strong> is the reference run; <strong>target (right)</strong> is what you are
-        evaluating. The page <strong>loads</strong> legacy compare then structured compare; <strong>below</strong>,
-        read <strong>structured first</strong>, then the legacy flat diff. AI explanation is optional and separate—
-        use it after the tables.
+        Compare finalized manifests to understand what changed between two runs.{" "}
+        <strong>Baseline (left)</strong> is the reference; <strong>updated (right)</strong> is what you are evaluating.
+        Results appear below after you run compare — structured manifest diff first, then a flat summary when available.{" "}
+        Optional <strong>Explain changes (AI)</strong> adds a narrative after the tables.
       </p>
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         The structured table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over
-        finalized manifests; the API can persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for replay
-        and verification.
+        finalized outputs. The service may persist a{" "}
+        <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for later replay.
       </p>
 
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
-          label="Base run (left)"
-          placeholder="Base run ID (left)"
+          label="Baseline run (left)"
+          placeholder="e.g. claims-intake-run-v1"
           value={leftRunId}
           onChange={setLeftRunId}
           inputId="compare-left-run-id"
         />
         <RunIdPicker
-          label="Target run (right)"
-          placeholder="Target run ID (right)"
+          label="Updated run (right)"
+          placeholder="e.g. claims-intake-run-v2"
           value={rightRunId}
           onChange={setRightRunId}
           inputId="compare-right-run-id"
@@ -271,7 +279,12 @@ function CompareForm() {
           </button>
           <button
             type="button"
-            className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            className={cn(
+              "rounded-md border px-4 py-2.5 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
+              pairAligned && !loading
+                ? "border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                : "border-dashed border-neutral-300 bg-neutral-50 text-neutral-600 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400 dark:hover:bg-neutral-800/60",
+            )}
             onClick={() => void loadAiExplanation()}
             disabled={aiLoading || !leftTrim || !rightTrim}
           >

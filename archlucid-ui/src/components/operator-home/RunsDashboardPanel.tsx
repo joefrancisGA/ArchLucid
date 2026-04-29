@@ -182,7 +182,7 @@ export function RunsDashboardPanel() {
                       <Link href="/runs/new">Create your first request</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/getting-started">Pilot checklist</Link>
+                      <Link href="/getting-started">First manifest checklist</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/help">Operator help</Link>
