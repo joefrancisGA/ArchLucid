@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;

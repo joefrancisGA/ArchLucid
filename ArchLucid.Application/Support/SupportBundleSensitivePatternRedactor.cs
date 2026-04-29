@@ -28,6 +28,19 @@ public static class SupportBundleSensitivePatternRedactor
         @"(?i)(\b(?:Password|Pwd|AccountKey|SharedAccessKey)\s*=\s*)[^\s;""]+",
         RegexOptions.Compiled);
 
+    private static readonly Regex EmailAddress = new(
+        @"(?<![\w.+_-])([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?![\w.+_-])",
+        RegexOptions.Compiled);
+
+    /// <summary>JWT-looking three-part base64url segments (redacts entire token).</summary>
+    private static readonly Regex LikelyJwt = new(
+        @"\beyJ[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\.[a-zA-Z0-9_-]{5,}\b",
+        RegexOptions.Compiled);
+
+    private static readonly Regex SystemRoleBlock = new(
+        @"(?im)(<\|\s*system\s*\|>|```\s*system|^\s*#+\s*system\s+prompt\s*:)",
+        RegexOptions.Compiled);
+
     private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
     [
         "PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING",
@@ -110,6 +123,9 @@ public static class SupportBundleSensitivePatternRedactor
         string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
         s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
         s = ConnectionSecret.Replace(s, m => m.Groups[1].Value + "[REDACTED]");
+        s = EmailAddress.Replace(s, "[REDACTED_EMAIL]");
+        s = LikelyJwt.Replace(s, "[REDACTED_JWT]");
+        s = SystemRoleBlock.Replace(s, "[REDACTED_LLM_PROMPT_MARKER]");
 
         return s;
     }

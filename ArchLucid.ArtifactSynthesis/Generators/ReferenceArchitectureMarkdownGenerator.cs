@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -126,7 +127,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             sb.AppendLine("- No unresolved issues.");
 
 
-        string content = sb.ToString();
+        string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 
         return Task.FromResult(new SynthesizedArtifact
         {

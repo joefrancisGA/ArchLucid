@@ -8,6 +8,7 @@ import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { EmptyState } from "@/components/EmptyState";
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -16,6 +17,7 @@ import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
@@ -40,6 +42,8 @@ export default async function RunsPage({
   let loadFailure: ApiLoadFailureState | null = null;
   let malformedMessage: string | null = null;
 
+  let usedStaticRunsFallback = false;
+
   try {
     const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize);
     const coerced = coerceRunSummaryPaged(raw);
@@ -56,7 +60,18 @@ export default async function RunsPage({
     loadFailure = toApiLoadFailure(e);
   }
 
-  if (loadFailure === null && malformedMessage === null && totalCount > 0) {
+  const demoPaged =
+    loadFailure !== null || malformedMessage !== null ? tryStaticDemoRunSummariesPaged(projectId) : null;
+
+  if (demoPaged !== null) {
+    runs = demoPaged.items;
+    totalCount = demoPaged.totalCount;
+    loadFailure = null;
+    malformedMessage = null;
+    usedStaticRunsFallback = true;
+  }
+
+  if (loadFailure === null && malformedMessage === null && totalCount > 0 && !usedStaticRunsFallback) {
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     if (page > pages) {
@@ -71,7 +86,7 @@ export default async function RunsPage({
     )?.runId ?? null;
 
   return (
-    <main aria-labelledby="runs-page-heading">
+    <main aria-label="Architecture runs">
       <OperatorPageHeader
         title="Architecture runs"
         metadata={<span>Project {projectId}</span>}
@@ -95,6 +110,12 @@ export default async function RunsPage({
           </Link>
         </Button>
       </div>
+
+      {usedStaticRunsFallback ? (
+        <div className="mt-4 max-w-3xl">
+          <OperatorDemoStaticBanner />
+        </div>
+      ) : null}
 
       {loadFailure === null && malformedMessage === null ? (
         <BeforeAfterDeltaPanel variant="top" />

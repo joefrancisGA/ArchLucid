@@ -7,6 +7,12 @@ export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
 /**
+ * Deterministic finding id for deep links from manifest “Related findings” (aligned with demo narrative;
+ * resolves when the API seeds this finding for the showcase run).
+ */
+export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
+
+/**
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
  * Keep length aligned with `manifest.decisionCount` / `warningCount` in this payload.
  */

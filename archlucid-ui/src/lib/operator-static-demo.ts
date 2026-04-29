@@ -3,7 +3,7 @@ import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
-import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail } from "@/types/authority";
+import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -19,6 +19,41 @@ export function isOperatorDemoStaticMode(): boolean {
 
 export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
+}
+
+function isDemoRunsListFallbackEnabled(): boolean {
+  return (
+    isOperatorDemoStaticMode() ||
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_MODE === "1"
+  );
+}
+
+/**
+ * When the runs list API fails (or returns unusable JSON), serve one curated Claims Intake row so
+ * primary nav + `/runs` screenshots stay credible in demo / static-operator deploys.
+ */
+export function tryStaticDemoRunSummariesPaged(projectId: string): { items: RunSummary[]; totalCount: number } | null {
+  if (!isDemoRunsListFallbackEnabled()) {
+    return null;
+  }
+
+  const d = getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const chain = d.authorityChain;
+
+  const item: RunSummary = {
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    projectId,
+    description: d.run.description,
+    createdUtc: d.run.createdUtc,
+    goldenManifestId: chain.goldenManifestId ?? undefined,
+    hasContextSnapshot: !!chain.contextSnapshotId,
+    hasGraphSnapshot: !!chain.graphSnapshotId,
+    hasFindingsSnapshot: !!chain.findingsSnapshotId,
+    hasGoldenManifest: true,
+  };
+
+  return { items: [item], totalCount: 1 };
 }
 
 export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetail {

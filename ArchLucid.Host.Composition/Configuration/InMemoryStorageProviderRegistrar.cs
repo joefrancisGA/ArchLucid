@@ -94,6 +94,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITenantCustomerSuccessRepository, InMemoryTenantCustomerSuccessRepository>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
+        services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
+        services.AddSingleton<IImportedArchitectureRequestRepository, NoOpImportedArchitectureRequestRepository>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));

@@ -39,6 +39,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
+    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -64,6 +65,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
         outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
+
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
+        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
@@ -135,6 +140,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+
+            RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+
+            if (!safety.IsAllowed)
+                throw new InvalidOperationException(string.Join("; ", safety.Reasons));
 
             IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 

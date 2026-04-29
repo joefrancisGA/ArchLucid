@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
-    get: (key: string) => (key === "example" ? "environmental-report-audit" : null),
+    get: (key: string) => (key === "example" ? "claims-intake-modernization" : null),
   }),
 }));
 
@@ -77,7 +77,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     );
   });
 
-  it("prefills description and system name when example=environmental-report-audit", async () => {
+  it("prefills description and system name when example=claims-intake-modernization", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {
@@ -98,13 +98,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
 
     expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
-
-    expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe(
-      OPERATOR_HOME_EXAMPLE_DESCRIPTION,
-    );
+    expect((screen.getByLabelText("Description") as HTMLTextAreaElement).value).toBe(OPERATOR_HOME_EXAMPLE_DESCRIPTION);
   });
 
   afterEach(() => {

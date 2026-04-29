@@ -117,7 +117,7 @@ describe("RunsDashboardPanel", () => {
     expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
       "href",
-      "/runs/new?example=environmental-report-audit",
+      "/runs/new?example=claims-intake-modernization",
     );
     expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
       "href",

@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Application.Support;
 
 /// <summary>
@@ -28,7 +30,8 @@ namespace ArchLucid.Application.Support;
 ///     being written to the archive. The environment snapshot also masks values for
 ///     names matching the secret-shaped pattern list.
 /// </remarks>
-public sealed class SupportBundleAssembler(TimeProvider timeProvider) : ISupportBundleAssembler
+public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMonitor<SupportBundleOptions> supportBundleOptions)
+    : ISupportBundleAssembler
 {
     /// <summary>File names mirror the CLI <c>SupportBundleArchiveWriter</c> constants.</summary>
     public const string ReadmeFileName = "README.txt";
@@ -55,6 +58,9 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider) : ISupport
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    private readonly IOptionsMonitor<SupportBundleOptions> _supportBundleOptions =
+        supportBundleOptions ?? throw new ArgumentNullException(nameof(supportBundleOptions));
 
     /// <inheritdoc />
     public Task<SupportBundleArtifact> AssembleAsync(
@@ -95,7 +101,10 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider) : ISupport
                           generatedUtc.UtcDateTime.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) +
                           "Z.zip";
 
-        return Task.FromResult(new SupportBundleArtifact(zipBytes, fileName, ZipContentType, generatedUtc));
+        int retentionDays = Math.Max(1, _supportBundleOptions.CurrentValue.BundleRetentionDays);
+        DateTimeOffset retentionDiscardAfterUtc = generatedUtc.AddDays(retentionDays);
+
+        return Task.FromResult(new SupportBundleArtifact(zipBytes, fileName, ZipContentType, generatedUtc, retentionDiscardAfterUtc));
     }
 
     private static byte[] RedactToBytes(string text) =>

@@ -19,4 +19,11 @@ public class ContextDocumentRequest
         get;
         set;
     } = null!;
+
+    /// <summary>Optional HTTPS URL for an external document — validated for SSRF (no private IPs, https only).</summary>
+    public string? SourceDocumentUrl
+    {
+        get;
+        set;
+    }
 }

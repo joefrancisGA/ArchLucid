@@ -72,9 +72,13 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
         data-testid="delta-top-rows"
         className="mt-3 space-y-1 text-xs text-neutral-600 dark:text-neutral-400"
       >
-        {data.items.map((row) => (
-          <li key={row.runId} className="flex flex-wrap gap-x-3">
-            <span className="font-mono">{row.runId.slice(0, 8)}…</span>
+        {data.items.map((row, index) => {
+          const rid = typeof row.runId === "string" && row.runId.length > 0 ? row.runId : `row-${String(index)}`;
+          const shortId = rid.length >= 8 ? `${rid.slice(0, 8)}…` : rid;
+
+          return (
+          <li key={rid} className="flex flex-wrap gap-x-3">
+            <span className="font-mono">{shortId}</span>
             <span>{row.totalFindings} finding(s)</span>
             <span>{formatHours(row.timeToCommittedManifestTotalSeconds)}</span>
             {row.isDemoTenant ? (
@@ -83,7 +87,8 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
               </span>
             ) : null}
           </li>
-        ))}
+          );
+        })}
       </ol>
     </section>
   );

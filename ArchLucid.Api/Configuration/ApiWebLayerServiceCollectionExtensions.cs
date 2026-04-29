@@ -3,6 +3,8 @@ using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Api.Validators;
+using ArchLucid.Application.Import;
 using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Api.Configuration;
@@ -36,6 +38,8 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
         services.AddScoped<ApiRequestMeteringMiddleware>();
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
+        services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
+        services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
 
         return services;
     }

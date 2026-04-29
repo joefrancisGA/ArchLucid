@@ -272,6 +272,32 @@ public sealed class AuthSafetyGuardTests
             .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
     }
 
+    [Fact]
+    public void GuardAllDevelopmentBypasses_production_host_and_missing_mode_throws_auth_mode_required()
+    {
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage(AuthSafetyGuard.AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage);
+    }
+
+    [Fact]
+    public void GuardAllDevelopmentBypasses_production_host_and_invalid_mode_throws_auth_mode_required()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "NotARealMode" })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage(AuthSafetyGuard.AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage);
+    }
+
     private sealed class WarningCaptureLogger : ILogger
     {
         private readonly List<string> _warnings;
