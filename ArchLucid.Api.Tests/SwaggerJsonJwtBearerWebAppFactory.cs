@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
+using ArchLucid.TestSupport;
+
+using Microsoft.AspNetCore.Hosting;using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
@@ -19,7 +20,7 @@ public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Pr
                 new Dictionary<string, string?>
                 {
                     ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = "",
+                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",

@@ -6,7 +6,10 @@ import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayloa
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { findingInspectPrimaryLabels } from "@/lib/finding-display-from-inspect";
+import {
+  findingInspectPrimaryLabels,
+  findingWhyThisMattersText,
+} from "@/lib/finding-display-from-inspect";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
 export type FindingInspectFindingBodyProps = {
@@ -51,6 +54,7 @@ export function FindingInspectFindingBody({
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {
   const labels = findingInspectPrimaryLabels(payload);
+  const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
   const recommendedActionParagraph =
     labels.recommendedAction ??
@@ -69,7 +73,16 @@ export function FindingInspectFindingBody({
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Why this matters</h2>
-        <dl className="mt-2 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
+        {whyThisMattersNarrative ? (
+          <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            {whyThisMattersNarrative}
+          </p>
+        ) : (
+          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+            — (no dedicated rationale on file; see primary rule and evidence below.)
+          </p>
+        )}
+        <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
             <dd className="m-0 mt-1">{payload.decisionRuleName ?? payload.decisionRuleId ?? "—"}</dd>

@@ -15,7 +15,7 @@ import {
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import type { AuditEvent } from "@/lib/api";
+import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
 import {
   canExportAuditCsv,
@@ -89,6 +89,7 @@ export default function AuditPage() {
   const [runId, setRunId] = useState<string>("");
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
+  const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);
   const [loadingTypes, setLoadingTypes] = useState(true);
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -114,25 +115,21 @@ export default function AuditPage() {
 
   const executeSearch = useCallback(
     async (
-      filters: AuditFilterFields,
-      appendBeforeUtc?: string,
-      appendBeforeEventId?: string,
-    ) => {
+    async (filters: AuditFilterFields, loadMoreCursor?: string | null) => {
       setFailure(null);
 
       const payload = {
         eventType: filters.eventType || undefined,
         fromUtc: filters.fromUtc ? new Date(filters.fromUtc).toISOString() : undefined,
         toUtc: filters.toUtc ? new Date(filters.toUtc).toISOString() : undefined,
-        beforeUtc: appendBeforeUtc,
-        beforeEventId: appendBeforeEventId,
+        cursor: loadMoreCursor ?? undefined,
         correlationId: filters.correlationId.trim() || undefined,
         actorUserId: filters.actorUserId.trim() || undefined,
         runId: filters.runId.trim() || undefined,
         take: AUDIT_PAGE_SIZE,
       };
 
-      const data = await searchAuditEvents(payload);
+      const data: CursorPagedResponse<AuditEvent> = await searchAuditEvents(payload);
 
       return data;
     },
@@ -154,9 +151,10 @@ export default function AuditPage() {
   const runSearch = useCallback(async () => {
     setSearching(true);
     try {
-      const data = await executeSearch(currentFilters());
-      setEvents(data);
-      setHasMoreResults(data.length === AUDIT_PAGE_SIZE);
+      const page = await executeSearch(currentFilters());
+      setEvents(page.items);
+      setHasMoreResults(page.hasMore);
+      setAuditNextCursor(page.nextCursor);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -182,9 +180,10 @@ export default function AuditPage() {
       runId: "",
     };
     try {
-      const data = await executeSearch(empty);
-      setEvents(data);
-      setHasMoreResults(data.length === AUDIT_PAGE_SIZE);
+      const page = await executeSearch(empty);
+      setEvents(page.items);
+      setHasMoreResults(page.hasMore);
+      setAuditNextCursor(page.nextCursor);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -197,25 +196,20 @@ export default function AuditPage() {
       return;
     }
 
-    const last = events[events.length - 1];
-    const lastOccurredUtc = last?.occurredUtc;
-    if (!lastOccurredUtc) {
+    if (!auditNextCursor) {
       return;
     }
 
     setLoadingMore(true);
     setFailure(null);
     try {
-      const more = await executeSearch(
-        currentFilters(),
-        lastOccurredUtc,
-        last.eventId,
-      );
-      setHasMoreResults(more.length === AUDIT_PAGE_SIZE);
+      const page = await executeSearch(currentFilters(), auditNextCursor);
+      setHasMoreResults(page.hasMore);
+      setAuditNextCursor(page.nextCursor);
       setEvents((prev) => {
         const seen = new Set(prev.map((e) => e.eventId));
         const merged = [...prev];
-        for (const ev of more) {
+        for (const ev of page.items) {
           if (!seen.has(ev.eventId)) {
             merged.push(ev);
           }
@@ -227,7 +221,7 @@ export default function AuditPage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [currentFilters, events, executeSearch]);
+  }, [currentFilters, events.length, auditNextCursor, executeSearch]);
 
   const onExportCsv = useCallback(async () => {
     if (!canExportAuditCsv(fromUtc, toUtc) || !principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues)) {

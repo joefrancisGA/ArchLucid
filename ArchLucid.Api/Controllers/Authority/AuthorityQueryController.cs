@@ -106,24 +106,25 @@ public sealed class AuthorityQueryController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        (IReadOnlyList<RunSummaryDto> items, bool hasMore) =
+        (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
             await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
         string? nextCursor =
-            hasMore && items.Count > 0 ? RunCursorCodec.Encode(items[^1].CreatedUtc, items[^1].RunId) : null;
+            keysetPage.HasMore && keysetPage.Items.Count > 0
+                ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
+                : null;
 
-        IReadOnlyList<RunSummaryResponse> mapped = items.Select(ToRunSummaryResponse).ToList();
+        IReadOnlyList<RunSummaryResponse> mapped = keysetPage.Items.Select(ToRunSummaryResponse).ToList();
 
         return Ok(
             new CursorPagedResponse<RunSummaryResponse>
-
             {
 
                 Items = mapped,
 
                 NextCursor = nextCursor,
 
-                HasMore = hasMore,
+                HasMore = keysetPage.HasMore,
 
                 RequestedTake = effectiveTake
 

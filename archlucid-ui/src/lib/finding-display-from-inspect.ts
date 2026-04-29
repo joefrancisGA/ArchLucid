@@ -210,3 +210,16 @@ export function findingDetailLeadSentence(payload: FindingInspectPayload): strin
 
 }
 
+/** Optional narrative for "Why this matters" — common typed-payload keys from finding engines. */
+export function findingWhyThisMattersText(payload: FindingInspectPayload): string | null {
+  return (
+    typedPayloadLookupString(payload, "whyThisMatters") ??
+    typedPayloadLookupString(payload, "WhyThisMatters") ??
+    typedPayloadLookupString(payload, "rationale") ??
+    typedPayloadLookupString(payload, "Rationale") ??
+    typedPayloadLookupString(payload, "businessImpact") ??
+    typedPayloadLookupString(payload, "impact") ??
+    null
+  );
+}
+

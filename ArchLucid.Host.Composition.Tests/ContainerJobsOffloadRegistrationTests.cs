@@ -3,6 +3,7 @@ using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -94,7 +95,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
         {
             ["Hosting:Role"] = "Worker",
             ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ConnectionStrings:ArchLucid"] = "",
+            ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
             ["AgentExecution:Mode"] = "Simulator",
             ["AzureOpenAI:Endpoint"] = "",
             ["AzureOpenAI:ApiKey"] = "",

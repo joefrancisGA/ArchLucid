@@ -1,5 +1,6 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -30,6 +31,9 @@ public sealed class SqlFindingsSnapshotRepository(
     ISqlConnectionFactory connectionFactory,
     IScopeContextProvider scopeContextProvider) : IFindingsSnapshotRepository
 {
+    private const int FindingChildTripleColumnInsertRows = 650;
+    private const int FindingChildPropertyInsertRows = 650;
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -359,138 +363,163 @@ public sealed class SqlFindingsSnapshotRepository(
         Finding finding,
         CancellationToken ct)
     {
-        const string insertRelatedSql = """
-                                        INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
-                                        VALUES (@FindingRecordId, @SortOrder, @NodeId);
-                                        """;
+        await InsertTripleStringColumnChunksAsync(
+            connection,
+            transaction,
+            """
+            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
+            VALUES
+            """,
+            findingRecordId,
+            finding.RelatedNodeIds,
+            ct);
 
-        for (int r = 0; r < finding.RelatedNodeIds.Count; r++)
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertRelatedSql,
-                    new { FindingRecordId = findingRecordId, SortOrder = r, NodeId = finding.RelatedNodeIds[r] },
-                    transaction,
-                    cancellationToken: ct));
-
-
-        const string insertActionSql = """
-                                       INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
-                                       VALUES (@FindingRecordId, @SortOrder, @ActionText);
-                                       """;
-
-        for (int a = 0; a < finding.RecommendedActions.Count; a++)
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertActionSql,
-                    new
-                    {
-                        FindingRecordId = findingRecordId, SortOrder = a, ActionText = finding.RecommendedActions[a]
-                    },
-                    transaction,
-                    cancellationToken: ct));
-
-
-        const string insertPropSql = """
-                                     INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
-                                     VALUES (@FindingRecordId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-                                     """;
+        await InsertTripleStringColumnChunksAsync(
+            connection,
+            transaction,
+            """
+            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
+            VALUES
+            """,
+            findingRecordId,
+            finding.RecommendedActions,
+            ct);
 
         List<KeyValuePair<string, string>> orderedProps = finding.Properties
             .OrderBy(kv => kv.Key, StringComparer.Ordinal)
             .ToList();
 
-        for (int p = 0; p < orderedProps.Count; p++)
-        {
-            KeyValuePair<string, string> kv = orderedProps[p];
+        await InsertFindingPropertiesChunksAsync(connection, transaction, findingRecordId, orderedProps, ct);
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertPropSql,
-                    new
-                    {
-                        FindingRecordId = findingRecordId,
-                        PropertySortOrder = p,
-                        PropertyKey = kv.Key,
-                        PropertyValue = kv.Value
-                    },
-                    transaction,
-                    cancellationToken: ct));
-        }
-
-        await InsertOrderedStringRowsAsync(
+        await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
-            findingRecordId,
             """
             INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
-            VALUES (@FindingRecordId, @SortOrder, @Text);
+            VALUES
             """,
+            findingRecordId,
             finding.Trace.GraphNodeIdsExamined,
             ct);
 
-        await InsertOrderedStringRowsAsync(
+        await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
-            findingRecordId,
             """
             INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
-            VALUES (@FindingRecordId, @SortOrder, @Text);
+            VALUES
             """,
+            findingRecordId,
             finding.Trace.RulesApplied,
             ct);
 
-        await InsertOrderedStringRowsAsync(
+        await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
-            findingRecordId,
             """
             INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
-            VALUES (@FindingRecordId, @SortOrder, @Text);
+            VALUES
             """,
+            findingRecordId,
             finding.Trace.DecisionsTaken,
             ct);
 
-        await InsertOrderedStringRowsAsync(
+        await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
-            findingRecordId,
             """
             INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
-            VALUES (@FindingRecordId, @SortOrder, @Text);
+            VALUES
             """,
+            findingRecordId,
             finding.Trace.AlternativePathsConsidered,
             ct);
 
-        await InsertOrderedStringRowsAsync(
+        await InsertTripleStringColumnChunksAsync(
             connection,
             transaction,
-            findingRecordId,
             """
             INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
-            VALUES (@FindingRecordId, @SortOrder, @Text);
+            VALUES
             """,
+            findingRecordId,
             finding.Trace.Notes,
             ct);
     }
 
-    private static async Task InsertOrderedStringRowsAsync(
+    private static async Task InsertTripleStringColumnChunksAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        string insertHeaderThroughValuesKeyword,
+        Guid findingRecordId,
+        List<string> rows,
+        CancellationToken ct)
+    {
+        if (rows.Count == 0)
+            return;
+
+        for (int offset = 0; offset < rows.Count; offset += FindingChildTripleColumnInsertRows)
+        {
+            int len = Math.Min(FindingChildTripleColumnInsertRows, rows.Count - offset);
+            StringBuilder sb = new StringBuilder(insertHeaderThroughValuesKeyword.Length + len * 40);
+            sb.Append(insertHeaderThroughValuesKeyword);
+            DynamicParameters dp = new();
+            dp.Add("fid", findingRecordId, DbType.Guid);
+
+            for (int i = 0; i < len; i++)
+            {
+                if (i > 0)
+                    sb.Append(',');
+
+                int sortOrder = offset + i;
+                sb.Append($"(@fid,@s{i},@t{i})");
+                dp.Add($"s{i}", sortOrder);
+                dp.Add($"t{i}", rows[sortOrder]);
+            }
+
+            await connection.ExecuteAsync(
+                new CommandDefinition(sb.ToString(), dp, transaction, cancellationToken: ct));
+        }
+    }
+
+    private static async Task InsertFindingPropertiesChunksAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         Guid findingRecordId,
-        string sql,
-        List<string> items,
+        List<KeyValuePair<string, string>> orderedProps,
         CancellationToken ct)
     {
-        for (int i = 0; i < items.Count; i++)
+        if (orderedProps.Count == 0)
+            return;
+
+        const string preamble = """
+            INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
+            VALUES
+            """;
+
+        for (int offset = 0; offset < orderedProps.Count; offset += FindingChildPropertyInsertRows)
+        {
+            int len = Math.Min(FindingChildPropertyInsertRows, orderedProps.Count - offset);
+            StringBuilder sb = new StringBuilder(preamble.Length + len * 48);
+            sb.Append(preamble);
+            DynamicParameters dp = new();
+            dp.Add("fid", findingRecordId, DbType.Guid);
+
+            for (int i = 0; i < len; i++)
+            {
+                if (i > 0)
+                    sb.Append(',');
+
+                KeyValuePair<string, string> kv = orderedProps[offset + i];
+                sb.Append($"(@fid,@ps{i},@pk{i},@pv{i})");
+                dp.Add($"ps{i}", offset + i);
+                dp.Add($"pk{i}", kv.Key);
+                dp.Add($"pv{i}", kv.Value);
+            }
 
             await connection.ExecuteAsync(
-                new CommandDefinition(
-                    sql,
-                    new { FindingRecordId = findingRecordId, SortOrder = i, Text = items[i] },
-                    transaction,
-                    cancellationToken: ct));
+                new CommandDefinition(sb.ToString(), dp, transaction, cancellationToken: ct));
+        }
     }
 
     /// <summary>

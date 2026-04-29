@@ -1076,7 +1076,16 @@ export async function listAlertsPaged(
   return apiGet<PagedResponse<AlertRecord>>(`/v1/alerts?${q}`);
 }
 
-/** Row from `GET /v1/audit` / `GET /v1/audit/search` (camelCase JSON). */
+/** Stable keyset response from runs/audit list endpoints. */
+export interface CursorPagedResponse<T> {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  requestedTake: number;
+}
+
+/** Row from `GET /v1/audit` / `GET /v1/audit/search` items (camelCase JSON). */
+
 export interface AuditEvent {
   eventId: string;
   occurredUtc: string;
@@ -1094,12 +1103,14 @@ export interface AuditEvent {
   otelTraceId?: string | null;
 }
 
-/** Filtered audit query for the operator UI. */
+/** Filtered audit query for the operator UI (returns a cursor page). */
 export async function searchAuditEvents(params: {
+  /** Pass `nextCursor` from the prior page response. */
+  cursor?: string;
   eventType?: string;
   fromUtc?: string;
   toUtc?: string;
-  /** Keyset cursor: events strictly older than this ISO-8601 instant (matches API `beforeUtc`). */
+  /** Explicit keyset — prefer `cursor` for load-more when supported. */
   beforeUtc?: string;
   /** Tie-break when many events share the same `occurredUtc` (matches API `beforeEventId`). */
   beforeEventId?: string;
@@ -1107,8 +1118,9 @@ export async function searchAuditEvents(params: {
   actorUserId?: string;
   runId?: string;
   take?: number;
-}): Promise<AuditEvent[]> {
+}): Promise<CursorPagedResponse<AuditEvent>> {
   const query = new URLSearchParams();
+  if (params.cursor) query.set("cursor", params.cursor);
   if (params.eventType) query.set("eventType", params.eventType);
   if (params.fromUtc) query.set("fromUtc", params.fromUtc);
   if (params.toUtc) query.set("toUtc", params.toUtc);
@@ -1119,7 +1131,7 @@ export async function searchAuditEvents(params: {
   if (params.runId) query.set("runId", params.runId);
   if (params.take) query.set("take", String(params.take));
   const qs = query.toString();
-  return apiGet<AuditEvent[]>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
+  return apiGet<CursorPagedResponse<AuditEvent>>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
 }
 
 /** Core registry constants for event-type dropdowns (`GET /v1/audit/event-types`). */

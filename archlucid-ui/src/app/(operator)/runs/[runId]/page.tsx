@@ -14,6 +14,7 @@ import {
   coerceManifestSummary,
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
+import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -332,6 +333,9 @@ export default async function RunDetailPage({
         warningCountDisplay={manifestSummary?.warningCount ?? null}
         hasGoldenManifest={Boolean(manifestId)}
         unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
+        governanceGateLabel={
+          manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null
+        }
       />
 
       {showProgressTracker ? (
@@ -409,16 +413,19 @@ export default async function RunDetailPage({
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
               <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Reviewed manifest</p>
-              <div className="mt-2 flex min-w-0 flex-wrap items-center justify-end gap-2 sm:justify-start">
+              <div className="mt-2 min-w-0">
                 {manifestId ? (
                   <>
                     <Link
-                      className="truncate font-mono text-xs text-teal-800 underline dark:text-teal-300"
-                      href={`/manifests/${manifestId}`}
+                      className="inline-block text-sm font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                      href={`/manifests/${encodeURIComponent(manifestId)}`}
                     >
-                      {manifestId}
+                      Finalized Architecture Manifest
                     </Link>
-                    <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
+                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                      Open the manifest record for decisions, warnings, and exports. Technical id is listed under audit
+                      identifiers below.
+                    </p>
                   </>
                 ) : (
                   <span className="font-mono text-xs">—</span>
@@ -445,6 +452,19 @@ export default async function RunDetailPage({
 
             <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
               <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
+                {manifestId ? (
+                  <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                      Reviewed manifest id
+                    </span>
+                    <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
+                      <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                        {manifestId}
+                      </code>
+                      <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
+                    </span>
+                  </li>
+                ) : null}
                 <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
                   <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
                     <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>
@@ -668,12 +688,7 @@ export default async function RunDetailPage({
             <CardDescription>Secondary downloads and sponsor collateral.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {manifestId ? (
-              <div className="max-w-xl space-y-2">
-                <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Sponsor collateral</p>
-                <GenerateSponsorValueReportButton />
-              </div>
-            ) : null}
+            {manifestId ? <GenerateSponsorValueReportButton /> : null}
             <div className="flex flex-wrap gap-3">
               <Button variant="secondary" size="sm" asChild>
                 <a href={getTraceabilityBundleDownloadUrl(resolvedDetail.run.runId)}>

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.BlobStore;
@@ -107,6 +108,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
         services.AddSingleton<IBackgroundJobResultBlobAccessor, AzureBlobBackgroundJobResultBlobAccessor>();
         services.AddSingleton(static sp => CreateBackgroundJobsQueueClient(sp));
+
+        services.AddHostedService<BackgroundJobStuckRunningWatchdogHostedService>();
     }
 
     private static QueueClient CreateBackgroundJobsQueueClient(IServiceProvider serviceProvider)
@@ -129,7 +132,6 @@ public static partial class ServiceCollectionExtensions
         if (string.IsNullOrWhiteSpace(jobsOptions.QueueName))
 
             throw new InvalidOperationException("BackgroundJobs:QueueName is required when BackgroundJobs:Mode is Durable.");
-
 
         QueueServiceClient serviceClient = new(queueUri, credential);
 

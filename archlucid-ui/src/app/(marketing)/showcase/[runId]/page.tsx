@@ -14,6 +14,7 @@ import {
   ShowcaseWhatThisProves,
   showcaseOutcomeSnapshotFromPayload,
 } from "./ShowcaseWhatThisProves";
+import { ShowcaseQuickNav } from "./ShowcaseQuickNav";
 export const revalidate = 300;
 
 const SHOWCASE_HERO_SUBTITLE =
@@ -264,6 +265,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
         <ShowcaseOutcomeStripAboveBody payload={payload} />
 
+        <ShowcaseQuickNav payload={payload} />
+
         <div className="mt-6">
           <DemoPreviewMarketingBody payload={payload} />
         </div>
@@ -308,6 +311,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
           </div>
 
           <ShowcaseOutcomeStripAboveBody payload={bundle.payload} />
+
+          <ShowcaseQuickNav payload={bundle.payload} />
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={bundle.payload} />
@@ -368,6 +373,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseApiUnavailableBanner />
 
           <ShowcaseOutcomeStripAboveBody payload={fallbackPayload} />
+
+          <ShowcaseQuickNav payload={fallbackPayload} />
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={fallbackPayload} />

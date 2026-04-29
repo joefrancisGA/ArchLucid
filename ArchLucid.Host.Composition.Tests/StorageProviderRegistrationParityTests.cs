@@ -6,6 +6,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -113,7 +114,7 @@ public sealed class StorageProviderRegistrationParityTests
                 new Dictionary<string, string?>
                 {
                     ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = "",
+                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
                     ["HotPathCache:Enabled"] = "false",
                     ["LlmCompletionCache:Enabled"] = "false",
                     ["Hosting:Role"] = "Api",

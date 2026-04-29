@@ -26,11 +26,11 @@ describe("validateWizardStep", () => {
     expect(err.some((e) => e.field === "systemName")).toBe(true);
   });
 
-  it("returns errors for step 2 when description is under 10 characters", () => {
+  it("returns errors for step 1 when description is under 10 characters", () => {
     const v = buildDefaultWizardValues();
     v.description = "short";
 
-    const err = validateWizardStep(2, v);
+    const err = validateWizardStep(1, v);
     expect(err.some((e) => e.field === "description")).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -49,7 +50,7 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
                 new Dictionary<string, string?>
                 {
                     ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = "",
+                    ["ConnectionStrings:ArchLucid"] = InMemoryStartupSqlConnectionStringSentinel.Value,
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",
