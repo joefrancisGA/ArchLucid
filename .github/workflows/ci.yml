@@ -1736,7 +1736,8 @@ jobs:
             kill "$(cat "${RUNNER_TEMP}/k6-api.pid")" 2>/dev/null || true
           fi
 
-  # k6 CI smoke: read + write API paths. Merge-blocking; thresholds in scripts/ci/assert_k6_ci_smoke_summary.py + docs/LOAD_TEST_BASELINE.md.
+  # k6 CI smoke: read + write API paths. Merge-blocking: k6 thresholds in tests/load/ci-smoke.js (p95 per tag + http_req_failed) +
+  # scripts/ci/assert_k6_ci_smoke_summary.py duplicate gate; env vars documented in docs/library/API_SLOS.md + LOAD_TEST_BASELINE.md.
   k6-ci-smoke:
     name: "Performance: k6 CI smoke (read + write baseline)"
     needs: dotnet-fast-core
@@ -1783,6 +1784,12 @@ jobs:
       - name: Run k6 CI smoke
         env:
           BASE_URL: http://127.0.0.1:5128
+          # Aligned with docs/library/API_SLOS.md Tier 1/2/3 p95; tests/load/ci-smoke.js + assert_k6_ci_smoke_summary.py — override in fork for noisy runners only.
+          ARCHLUCID_K6_P95_HEALTH_LIVE_MS: "300"
+          ARCHLUCID_K6_P95_HEALTH_READY_MS: "1200"
+          ARCHLUCID_K6_P95_TIER2_MS: "800"
+          ARCHLUCID_K6_P95_TIER3_MS: "8000"
+          ARCHLUCID_K6_HTTP_FAIL_RATE_MAX: "0.02"
         run: |
           set -e
           k6 run "${GITHUB_WORKSPACE}/tests/load/ci-smoke.js" --summary-export "${RUNNER_TEMP}/k6-ci-summary.json"

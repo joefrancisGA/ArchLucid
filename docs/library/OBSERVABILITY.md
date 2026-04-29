@@ -51,6 +51,8 @@
 
 **Data-consistency enforcement (reference API):** `DataConsistencyEnforcementOptions.Mode` defaults to **`Warn`** in code; the committed **`ArchLucid.Api/appsettings.json`** sets **`Alert`** so **`archlucid_data_consistency_alerts_total`** increments when orphan counts meet **`AlertThreshold`**, alongside detection-only **`archlucid_data_consistency_orphans_detected_total`**. Pair **`ArchLucidDataConsistencyOrphansDetected`** and **`ArchLucidDataConsistencyAlertsRaised`** in **`infra/prometheus/archlucid-alerts.yml`**.
 
+**Grafana dashboard:** committed JSON **`infra/grafana/dashboard-archlucid-authority.json`** (dashboard uid **`archlucid-authority`**) includes Prometheus panels for **`archlucid_authority_pipeline_stage_duration_ms`**, **`archlucid_authority_pipeline_work_pending`**, **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`**, and **`archlucid_data_consistency_*_total`**, with thresholds described against the same alert bundle. Operator runbook: **[`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`](../runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md)**.
+
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 
 ---

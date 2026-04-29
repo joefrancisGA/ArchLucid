@@ -35,7 +35,7 @@
 
 **Config:** `archlucid-ui/playwright.config.ts` (default live); **`playwright.live.config.ts`** re-exports the same object.  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  
-**CI jobs:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (full suite, DevelopmentBypass) and **`ui-e2e-live-apikey`** (ApiKey API + subset: apikey-auth + journey + negative-paths) — both **merge-blocking**; **`ui-e2e-live-jwt`** (JwtBearer + local PEM + subset: jwt-auth + journey + negative-paths) — **`continue-on-error: true`** (signal-only until stable). **Nightly:** `.github/workflows/live-e2e-nightly.yml` runs the **full** `live-api-*.spec.ts` suite under DevelopmentBypass, ApiKey, and JwtBearer (separate DBs). Parity matrix: **`docs/LIVE_E2E_AUTH_PARITY.md`**; JWT env: **`docs/LIVE_E2E_JWT_SETUP.md`**.
+**CI jobs:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (full suite, DevelopmentBypass), **`ui-e2e-live-apikey`** (ApiKey API + subset: apikey-auth + journey + negative-paths), and **`ui-e2e-live-jwt`** (JwtBearer + local PEM + subset: jwt-auth + journey + negative-paths) — all **merge-blocking** PR gates. **Nightly:** `.github/workflows/live-e2e-nightly.yml` runs the **full** `live-api-*.spec.ts` suite under DevelopmentBypass, ApiKey, and JwtBearer (separate DBs). Parity matrix: **`docs/LIVE_E2E_AUTH_PARITY.md`**; JWT env: **`docs/LIVE_E2E_JWT_SETUP.md`**.
 
 ---
 
@@ -122,7 +122,7 @@ Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from *
 
 - **No real LLM** in CI — semantic quality of outputs is not under test; **`POST /v1/ask`** may be non-**2xx** without failing the graph/search spec.
 - **DevelopmentBypass** — not a production auth configuration; do not equate this gate with Entra/API-key hardening.
-- **`ui-axe-components`** runs **Vitest + jest-axe** on **`src/accessibility/**`** (fast component gate). **`ui-e2e-live`** is the **only** merge-blocking **browser** operator journey gate (**default `playwright.config.ts`**, live API + SQL). **Mock** Playwright: **`playwright.mock.config.ts`** / **`npm run test:e2e`**.
+- **`ui-axe-components`** runs **Vitest + jest-axe** on **`src/accessibility/**`** (fast component gate). Merge-blocking **live API + SQL** Playwright gates: **`ui-e2e-live`** (full `live-api-*.spec.ts` via default `playwright.config.ts`), **`ui-e2e-live-apikey`** (subset), **`ui-e2e-live-jwt`** (subset + `live-api-jwt-auth`). **Mock** Playwright: **`playwright.mock.config.ts`** / **`npm run test:e2e`**.
 - **Run archival** is not invocable over **`ArchLucid.Api`** HTTP in DevelopmentBypass; see **`live-api-archival.spec.ts`** skip rationale and **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**.
 
 ---

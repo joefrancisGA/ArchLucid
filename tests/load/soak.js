@@ -1,11 +1,21 @@
 /**
  * k6 soak — longer, low-rate read-only mix (scheduled / manual; not a merge gate).
- * Run: BASE_URL=https://api.example k6 run tests/load/soak.js --summary-export k6-soak-summary.json
+ * Default base URL is local only — production traffic must never be coded into repo YAML.
+ * Run: BASE_URL=https://api.staging.example k6 run tests/load/soak.js --summary-export k6-soak-summary.json
+ *
+ * Threshold env overrides (optional; align with docs/library/API_SLOS.md Tier 1/2 where practical):
+ *   ARCHLUCID_K6_SOAK_P95_TIER1_MS   — health + version (default 2000)
+ *   ARCHLUCID_K6_SOAK_P95_TIER2_MS   — list + audit (default 8000)
+ *   ARCHLUCID_K6_SOAK_HTTP_FAIL_RATE_MAX — failed request rate ceiling (default 0.05)
  */
 import http from "k6/http";
 import { check } from "k6";
 
 const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5128";
+
+const P95_TIER1 = Number(__ENV.ARCHLUCID_K6_SOAK_P95_TIER1_MS ?? 2000);
+const P95_TIER2 = Number(__ENV.ARCHLUCID_K6_SOAK_P95_TIER2_MS ?? 8000);
+const HTTP_FAIL_RATE_MAX = Number(__ENV.ARCHLUCID_K6_SOAK_HTTP_FAIL_RATE_MAX ?? 0.05);
 
 function req(scenario, method, url) {
   const params = {
@@ -47,10 +57,10 @@ export const options = {
     },
   },
   thresholds: {
-    http_req_failed: ["rate<0.05"],
-    "http_req_duration{k6soak:health}": ["p(95)<2000"],
-    "http_req_duration{k6soak:version}": ["p(95)<2000"],
-    "http_req_duration{k6soak:runs_list}": ["p(95)<8000"],
-    "http_req_duration{k6soak:audit_search}": ["p(95)<8000"],
+    http_req_failed: [`rate<${HTTP_FAIL_RATE_MAX}`],
+    "http_req_duration{k6soak:health}": [`p(95)<${P95_TIER1}`],
+    "http_req_duration{k6soak:version}": [`p(95)<${P95_TIER1}`],
+    "http_req_duration{k6soak:runs_list}": [`p(95)<${P95_TIER2}`],
+    "http_req_duration{k6soak:audit_search}": [`p(95)<${P95_TIER2}`],
   },
 };

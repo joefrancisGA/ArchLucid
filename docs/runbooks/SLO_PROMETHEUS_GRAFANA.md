@@ -19,7 +19,7 @@ Give operators a **repeatable** way to:
 
 - HTTP traffic is instrumented with **`http.server.request.duration`** (Prometheus names often `http_server_request_duration_seconds_*`) or legacy **`http_server_duration_milliseconds_*`**.
 - Prometheus loads **`infra/prometheus/archlucid-slo-rules.yml`** next to **`archlucid-alerts.yml`**.
-- **99.5% monthly availability** is the documented HTTP target for burn math in-repo (0.5% error budget). Adjust `0.005` in the rules file if your leadership signs a different number.
+- **99.9% monthly availability** is the documented HTTP target for burn math in-repo (0.1% error budget). Adjust `0.001` in the rules file if your leadership signs a different number.
 
 ## 3. Constraints
 
@@ -50,7 +50,7 @@ Give operators a **repeatable** way to:
 
 1. **Counters** increment per HTTP request (status label).
 2. **`archlucid:slo:http_availability:ratio`** ≈ non-5xx rate / total rate over 5m.
-3. **Burn** (conceptually) = `(1 − availability) / 0.005` for a **0.5%** budget.
+3. **Burn** (conceptually) = `(1 − availability) / 0.001` for a **0.1%** budget.
 4. **Fast burn alert** fires when **both** short (**5m**) and longer (**1h**) windows show burn **> 14.4×**.
 5. **Slow burn alert** fires when **30m** and **6h** windows both exceed **6×**.
 
@@ -65,7 +65,7 @@ Give operators a **repeatable** way to:
 
 Those multipliers come from the **Google SRE multi-window, multi-burn-rate** alerting pattern for **monthly** error budgets. They are **paired with specific window lengths** (fast: 5m+1h, slow: 30m+6h), not arbitrary 1h/6h alone.
 
-With a **99.5%** target, the **0.005** divisor scales “how many budgets worth of errors” you are spending. The **14.4 / 6** factors are still the usual **triage knobs**; if pages are too noisy, **lower** the multiplier or **widen** `for:` durations before changing the SLO objective.
+With a **99.9%** target, the **0.001** divisor scales “how many budgets worth of errors” you are spending. The **14.4 / 6** factors are still the usual **triage knobs**; if pages are too noisy, **lower** the multiplier or **widen** `for:` durations before changing the SLO objective.
 
 ### Validate rule syntax before deploy
 

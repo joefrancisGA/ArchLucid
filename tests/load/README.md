@@ -2,7 +2,7 @@
 
 ## Core pilot load baseline (Flow A)
 
-**SLOs:** [../go-to-market/SLA_SUMMARY.md](../go-to-market/SLA_SUMMARY.md) — 99.5% availability, **p95 &lt; 2s** for API response time (5-minute windows; agent/LLM work may exceed this on longer paths). **Flow A:** [../library/ARCHITECTURE_FLOWS.md](../library/ARCHITECTURE_FLOWS.md) (create run → tasks/results → commit → manifest/artifacts).
+**SLOs:** [../go-to-market/SLA_SUMMARY.md](../go-to-market/SLA_SUMMARY.md) and [../library/API_SLOS.md](../library/API_SLOS.md) — **99.9%** availability (non-5xx / requests), **tiered p95** (infrastructure **&lt; 300 ms**, synchronous API **&lt; 800 ms**, AI-augmented **&lt; 8 s**). **`ci-smoke.js`** uses env-tunable thresholds (defaults match tiers). **Flow A:** [../library/ARCHITECTURE_FLOWS.md](../library/ARCHITECTURE_FLOWS.md) (create run → tasks/results → commit → manifest/artifacts).
 
 **What it measures:** `core-pilot.js` drives the **pilot** HTTP path against a **local** API (default `http://127.0.0.1:5001`), **DevelopmentBypass** (no Entra/JWT), **InMemory** storage, and **Simulator** agent mode — see `ArchLucid.Api/appsettings.Development.json`. Do not point this at production or staging.
 

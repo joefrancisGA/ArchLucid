@@ -8,7 +8,7 @@ Optional root for **monitoring-as-code**:
 - **`azurerm_dashboard_grafana`** (optional) — **Azure Managed Grafana** 11.x; assign **Monitoring Reader** (or Log Analytics roles) to the instance **managed identity** so operators can build dashboards against subscription metrics.
 - **Grafana Terraform provider** (optional) — when **`grafana_terraform_dashboards_enabled = true`**, provisions **`../grafana/*.json`** into a folder on that Managed Grafana (requires **`grafana_url`** + **`grafana_auth`**; usually a **second apply** after the workspace exists — see below).
 
-Dashboard JSON intended for import (Grafana Cloud, Managed Grafana, or self-hosted) lives under **`../grafana/`** and **`../grafana/dashboards/`**.
+Dashboard JSON intended for import (Grafana Cloud, Managed Grafana, or self-hosted) lives under **`../grafana/`** and **`../grafana/dashboards/`**. Prometheus-oriented bundles (**`dashboard-archlucid-authority.json`**, SLO/trial funnel/LLM) pair with **`../prometheus/archlucid-alerts.yml`** alert names; **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** ties authority panels to remediation.
 
 ## Defaults
 

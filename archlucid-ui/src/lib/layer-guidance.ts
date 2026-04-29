@@ -1,6 +1,7 @@
 /**
- * In-product copy for the **Pilot** and **Operate** buyer layers (**docs/PRODUCT_PACKAGING.md**,
- * **docs/OPERATOR_DECISION_GUIDE.md**). Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
+ * In-product copy for **Pilot** (Layer A) and **Operate** (Layer B) — **`docs/library/PRODUCT_PACKAGING.md`**
+ * ("Layer A — Pilot", "Layer B — Operate", **Operate · analysis** vs **Operate · governance**).
+ * **`docs/OPERATOR_DECISION_GUIDE.md`**. Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
  *
  * **UI shaping only:** explains layer / when-to-use; does not grant access. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is
  * **authoritative** (**401/403**). This file does not implement **nav** (**`nav-config.ts`** + **`nav-shell-visibility.ts`**) or
@@ -44,7 +45,7 @@ export type LayerGuidanceBlock = {
   headline: string;
   /** When to use it (one sentence) */
   useWhen: string;
-  /** Optional reminder for first pilots */
+  /** Optional framing relative to Pilot (first proof)—see PRODUCT_PACKAGING "Not required for first Pilot proof" sections. */
   firstPilotNote: string | null;
   /**
    * Optional one line for **Operate · governance** pages: who usually owns the surface vs Pilot default.
@@ -58,46 +59,48 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Operate",
     headline: "Answers: what changed between two finalized runs?",
     useWhen: "Use after you have two runs with reviewed manifests when you need a structured diff or narrative.",
-    firstPilotNote: "Not needed for your first pilot unless you are explicitly comparing two outcomes.",
+    firstPilotNote:
+      "Operate · analysis — optional until first Pilot proof unless you deliberately compare two committed outcomes.",
   },
   replay: {
     layerBadge: "Operate",
     headline: "Answers: does stored pipeline output still validate for this run on replay?",
     useWhen: "Use when you need drift or integrity checks on a single run, not a visual diff.",
-    firstPilotNote: "Optional until you need to prove or debug chain validation.",
+    firstPilotNote: "Operate · analysis — typically after Pilot proof when you replay or validate chains.",
   },
   graph: {
     layerBadge: "Operate",
     headline: "Answers: how does provenance or architecture look for one run?",
     useWhen: "Use when tables and compare are not enough and you need a visual exploration.",
-    firstPilotNote: "Skip until you have a finalized run and a concrete graph question.",
+    firstPilotNote: "Operate · analysis — defer until after Pilot proof when a graph answers the question.",
   },
   "governance-dashboard": {
     layerBadge: "Operate",
     headline: "Cross-run approvals and governance signals.",
     useWhen: "Queue snapshot; open a row to continue in workflow for that run.",
-    firstPilotNote: "Defer until cross-run triage is routine.",
+    firstPilotNote: "Operate · governance — after Pilot proof when cross-run triage—not first-session work.",
     enterpriseFootnote: "Signals here; writes in workflow.",
   },
   "governance-findings": {
     layerBadge: "Operate",
     headline: "Findings from architecture runs and governance scans.",
     useWhen: "Open a run for snapshot and explainability; use governance dashboard for cross-run queue context.",
-    firstPilotNote: "After your first run with a findings snapshot, use run detail for full findings context.",
+    firstPilotNote:
+      "Operate · governance — after Pilot proof use run detail for drill-down; dashboard queues cross-run findings.",
     enterpriseFootnote: "Run-scoped detail; cross-run queue on governance dashboard.",
   },
   alerts: {
     layerBadge: "Operate",
     headline: "Risk and compliance signals that need triage.",
     useWhen: "Work the inbox; rules, routing, composite, and simulation & tuning are tabs on the same Alerts page.",
-    firstPilotNote: "Defer rule tuning until volume justifies it.",
+    firstPilotNote: "Operate · governance — inbox first; rule tooling after Pilot proof when volume warrants it.",
     enterpriseFootnote: "Inbox first; tooling for config.",
   },
   audit: {
     layerBadge: "Operate",
     headline: "Tenant audit trail—who did what, when.",
     useWhen: "Search first; CSV reuses the same From/To window (Auditor/Admin on API).",
-    firstPilotNote: "Defer export until the window and roles are settled.",
+    firstPilotNote: "Operate · governance — bounded export after Pilot proof when audit window and roles are clear.",
     enterpriseFootnote: "Search + bounded CSV export.",
   },
   "security-trust": {
@@ -105,77 +108,78 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Procurement-facing security posture and NDA-gated pen-test summaries.",
     useWhen: "Use when buyers need CAIQ/SIG pointers, Trust Center links, and the NDA path for redacted pen-test excerpts.",
     firstPilotNote:
-      "Redacted third-party summaries are NDA-only — contact security@ from this page; no public pen-test body is hosted here.",
+      "Operate · governance — procurement/CCI, not Pilot scope. Redacted pen-test excerpts NDA-only; contact security@.",
     enterpriseFootnote: "Read-oriented; Admin API may still emit SecurityAssessmentPublished for audit/SIEM without implying public publication.",
   },
   "teams-notifications": {
     layerBadge: "Operate",
     headline: "Microsoft Teams channel wiring for integration-event fan-out.",
     useWhen: "After Service Bus topics are live and operators want run / governance / alert cards in Teams.",
-    firstPilotNote: "Store only a Key Vault secret name here — the webhook URL stays in Key Vault.",
+    firstPilotNote:
+      "Operate · governance — after Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
   },
   "value-report": {
     layerBadge: "Operate",
     headline: "Sponsor-facing value DOCX for a UTC window.",
     useWhen: "After you have finalized runs; pairs with ROI_MODEL for CFO-ready narrative.",
-    firstPilotNote: "Defer until the tenant is on Standard tier and operators need sponsor collateral.",
+    firstPilotNote: "Operate · governance — after Pilot proof with Standard tier when sponsor DOCX is needed.",
     enterpriseFootnote: "Execute + Standard tier on API; LLM line is estimated per ROI_MODEL when SQL token ledger absent.",
   },
   "governance-resolution": {
     layerBadge: "Operate",
     headline: "Effective policy stack for this scope.",
     useWhen: "Read ordering here; change content on Policy packs or Workflow.",
-    firstPilotNote: "Defer until merge order or conflicts matter.",
+    firstPilotNote: "Operate · governance — after Pilot proof when merge order or conflicts need resolution.",
     enterpriseFootnote: "Read-only stack; edits on Packs or Workflow.",
   },
   "governance-workflow": {
     layerBadge: "Operate",
     headline: "Run-scoped submit, review, promote, activate.",
     useWhen: "One run ID; follow status top to bottom.",
-    firstPilotNote: "Defer until SoD or promotions apply.",
+    firstPilotNote: "Operate · governance — after Pilot proof when submit/review/promotion applies to the run.",
     enterpriseFootnote: "Run workflow; API-gated writes.",
   },
   "policy-packs": {
     layerBadge: "Operate",
     headline: "Packs in scope, published versions, and effective JSON.",
     useWhen: "Inspect inventory and diff; lifecycle actions last.",
-    firstPilotNote: "Defer lifecycle until you own publishing.",
+    firstPilotNote: "Operate · governance — after Pilot proof when you steward pack publish and assignment.",
     enterpriseFootnote: "Inspect/compare first; lifecycle on API.",
   },
   "alert-rules": {
     layerBadge: "Operate",
     headline: "Metric thresholds that raise alerts after scans.",
     useWhen: "Define thresholds here; triage fired alerts on Alerts.",
-    firstPilotNote: "Skip until limits are operational.",
+    firstPilotNote: "Operate · governance — threshold tuning after Pilot proof when scans drive production signals.",
     enterpriseFootnote: "Thresholds on scan outcomes.",
   },
   "alert-routing": {
     layerBadge: "Operate",
     headline: "Where fired alerts are delivered.",
     useWhen: "Targets for fired alerts—not digest mail.",
-    firstPilotNote: "Skip until live delivery matters.",
+    firstPilotNote: "Operate · governance — destinations after Pilot proof when fired alerts need routing.",
     enterpriseFootnote: "Delivery targets for fired alerts.",
   },
   "alert-simulation": {
     layerBadge: "Operate",
     headline: "Dry-run rules against recent runs.",
     useWhen: "What-if before changing production thresholds; triage on Alerts.",
-    firstPilotNote: "Skip until you have a concrete scenario.",
+    firstPilotNote: "Operate · governance — what-if after Pilot proof before changing live thresholds.",
     enterpriseFootnote: "Simulation before production change.",
   },
   "alert-tuning": {
     layerBadge: "Operate",
     headline: "Balance coverage vs. noise for one rule.",
     useWhen: "After simulation shows a tradeoff worth fixing.",
-    firstPilotNote: "Skip until simulation justifies a change.",
+    firstPilotNote: "Operate · governance — after Pilot proof when simulation evidence backs a live change.",
     enterpriseFootnote: "Tuning from simulation evidence.",
   },
   "composite-alert-rules": {
     layerBadge: "Operate",
     headline: "Combine metrics with AND/OR before firing.",
     useWhen: "Use when one metric is not enough; add cooldown as needed.",
-    firstPilotNote: "Skip until composite firing is in scope.",
+    firstPilotNote: "Operate · governance — composite rules after Pilot proof when AND/OR firing is in scope.",
     enterpriseFootnote: "AND/OR and cooldown configuration.",
   },
 };

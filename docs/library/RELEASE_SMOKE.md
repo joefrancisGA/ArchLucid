@@ -20,13 +20,27 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
 8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
 
+### Does passing `release-smoke` prove UI ↔ SQL parity?
+
+<a id="release-smoke-ui-sql-parity"></a>
+
+**No** — unless you independently run **`live-api-*.spec.ts`** against a live **`ArchLucid.Api` + SQL**.
+
+| What ran | Validates API + CLI + artifacts from steps 5–7 (same smoke process)? | Validates operator **browser** against **that** SQL-backed API (`live-api-*.spec.ts`)? |
+|----------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **`release-smoke.ps1`** (default; no `-RunPlaywright`) | **Yes** | **No** (no live Playwright lane) |
+| **`release-smoke.ps1 -RunPlaywright`** | **Yes** for API/CLI; **`-RunPlaywright`** then runs **`npm run test:e2e`** (**mock**/fixture loopback — [§ What `-RunPlaywright` exercises](#what--runplaywright-actually-exercises-57r)) | **No** — mocks do not call the smoke API instance |
+| CI **`ui-e2e-live`** / **`ui-e2e-live-apikey`** / **`ui-e2e-live-jwt`** (`live-api-*.spec.ts`) | N/A (different entry point) | **Yes** |
+
+**One-minute answer:** passing **`release-smoke.ps1`** (with or without **`-RunPlaywright`**) does **not** replace **`ci.yml`** **`live-api-*.spec.ts`** gates. Canonical live path: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**; tier table: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**.
+
 **Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
 
 ### What `-RunPlaywright` actually exercises (57R)
 
 The Playwright suite is **operator-journey smoke** for the Next shell: **home**, **run → manifest → back**, **manifest with empty artifact list**, **compare** (prefill, structured/legacy outcomes, stale-input warning), and **compare + Explain (AI)** via mocked **`/api/proxy`** — all with **deterministic fixtures** and a **loopback TypeScript mock** (`archlucid-ui/e2e/`), **not** the live **`ArchLucid.Api`** started in steps 5–6. Passing it does **not** imply the UI was validated against the same SQL-backed API instance used for the CLI smoke.
 
-It is **not** a full browser regression suite. Authoritative detail: **[archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md)** — **section 8 (E2E tests / Playwright)**.
+It is **not** a full browser regression suite. Authoritative detail: **[archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md)** — **[§8 — E2E tests (mock vs live parity)](../../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)**.
 
 ---
 

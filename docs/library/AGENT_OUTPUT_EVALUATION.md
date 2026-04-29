@@ -13,10 +13,11 @@ Provide a **cheap, deterministic** check that persisted agent **`AgentExecutionT
 
 - **Traces** store **`ParsedResultJson`** only when **`ParseSucceeded`** is true (handlers serialize the validated **`AgentResult`**).
 - **Schema validation** already ran at execution time; this layer catches **drift**, **manual SQL edits**, or **future serializer changes** that leave traces readable but structurally incomplete.
-- **Metrics emission** is triggered explicitly via **`AgentOutputEvaluationRecorder`** (not yet wired into the authority pipeline executor by default).
+- **Automatic metrics path:** **`AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync`** runs after a successful architecture execute (**`ArchitectureRunExecuteOrchestrator`** → **`IAgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync`**) once evidence, **`AgentResult`** rows, and evaluations are committed; failures in the hook are logged and swallowed so the run stays successful. **`GET …/agent-evaluation`** still performs the same scoring on demand without recording OTel metrics.
 
 ## 3. Constraints
 
+- **`schemas/agentresult.schema.json`**: top-level **`AgentResult`** contract plus optional **`proposedChanges`** (when present, **`ManifestDeltaProposal`** shape with **`addedServices`** / **`addedDatastores`** / **`addedRelationships`** item schemas). Enforced before domain checks in **`AgentResultParser`** when **`AgentExecution:SchemaValidation:EnforceOnParse`** is **`true`**.
 - **CI fixture guard:** `scripts/ci/assert_agent_reference_baselines.py` (wired in `.github/workflows/ci.yml`) validates committed golden JSON under `ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/` listed in `scripts/ci/agent-reference-baselines.json`. Extend that array when adding new golden files.
 - **No new external services**; only **`System.Text.Json`** and existing repositories.
 - **Privacy**: evaluation reads **already-persisted** trace JSON; the **GET** endpoint requires the same **read authority** policy as other run reads.
@@ -67,7 +68,7 @@ flowchart LR
 ## 6. Data Flow
 
 1. **API**: **`GetByRunIdAsync`** → for each eligible trace, structural **`Evaluate`**, then **`IAgentOutputSemanticEvaluator.Evaluate`** (when structural parse is OK); set **`BlobUploadFailed`** from the trace; aggregate **`AverageStructuralCompletenessRatio`** and **`AverageSemanticScore`**; skipped count for traces without parsed JSON.
-2. **Metrics job** (future caller): **`EvaluateAndRecordMetricsAsync(runId)`** → same loop → **`Histogram.Record`** / **`Counter.Add`** with **`agent_type`** tag.
+2. **Post-execute hook** (automatic on successful **`POST …/execute`**): **`ArchitectureRunExecuteOrchestrator`** calls **`IAgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync`**, which delegates to **`AgentOutputEvaluationRecorder.EvaluateAndRecordMetricsAsync(runId)`** → load traces → same scoring loop → **`Histogram.Record`** / **`Counter.Add`** with **`agent_type`** tag.
 3. **Parse failure** (invalid JSON or non-object root): **`IsJsonParseFailure`** true; metrics path increments **`archlucid_agent_output_parse_failures_total`** (no histogram point).
 
 ## 7. Security Model

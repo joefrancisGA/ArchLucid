@@ -15,7 +15,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 ## 2. Assumptions
 
-- The HTTP availability SLO is **99.5%** over a **30-day** rolling window (matches `0.005` error budget in `infra/prometheus/archlucid-slo-rules.yml`). Leadership may change this number; then update recording rules, alerts, and this doc together.
+- The HTTP availability SLO is **99.9%** over a **30-day** rolling window (matches `0.001` error budget in `infra/prometheus/archlucid-slo-rules.yml`). Leadership may change this number; then update recording rules, alerts, and this doc together.
 - **“Good” requests** for the availability SLI are responses **without HTTP 5xx** (same proxy as in Prometheus rules; 4xx are excluded from “good”/“bad” in that formula unless you add a separate SLO).
 - **Synthetic probes** call **anonymous** endpoints: `GET /health/live` (process up) and `GET /version` (build identity). They do **not** prove database connectivity; use `GET /health/ready` in a separate probe if you need readiness signal in SLO math — its JSON is **summary only** (status + per-check status, no exception text or build metadata). Full diagnostic health JSON (`GET /health`) requires **ReadAuthority** (API key or JWT with reader/operator/admin role).
 - GitHub Actions runners reach your API over the **public** URL you configure (or private runner + internal URL). Network path differs from in-cluster scrapes.
@@ -39,7 +39,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 | Piece | Location | Role |
 |-------|----------|------|
 | Quantified HTTP SLO (5xx, availability ratio, burn) | `infra/prometheus/archlucid-slo-rules.yml` | Server-side SLI from request metrics |
-| Burn-rate runbook | `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md` | How alerts map to the 99.5% target |
+| Burn-rate runbook | `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md` | How alerts map to the 99.9% target |
 | **Synthetic probe** | `.github/workflows/api-synthetic-probe.yml` | Periodic external `GET /health/live` + `GET /version`, latency check |
 | **k6 soak (optional)** | `.github/workflows/k6-soak-scheduled.yml` + `tests/load/soak.js` | Weekly / manual low-rate read mix against **`ARCHLUCID_SOAK_BASE_URL`** — informational, not an SLO gate |
 | Live/ready/detailed health maps | `ArchLucid.Api/Startup/PipelineExtensions.cs` | Anonymous: `/health/live` (minimal), `/health/ready` (summary JSON). `/health` is detailed JSON and requires `ReadAuthority`. |
@@ -59,16 +59,41 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 ## 8. Operational considerations
 
-### SLO table (HTTP API — contract)
+### SLO table (HTTP API — contract summary)
 
-| SLO | Target | Measurement window | SLI definition | Where measured |
-|-----|--------|--------------------|----------------|----------------|
-| **Availability** | **99.5%** | 30 days rolling | Ratio of successful requests: **non-5xx** / **all** (server-side) | Prometheus recording rules; Grafana |
-| **Error rate** | ≤ **0.5%** 5xx (budget) | Same | 5xx count / all requests | Same |
-| **Latency** | **p95 under 2 s** for API requests (initial guardrail; tune per environment) | 5m (Prometheus) | Histogram `http.server.request.duration` p95 | `archlucid:slo:http_p95_seconds`; alert policy optional |
+| SLO | Customer-visible target | Measurement window | SLI definition | Where measured |
+|-----|-------------------------|--------------------|----------------|----------------|
+| **Availability** | **99.9%** | 30 days rolling | Ratio of successful requests: **non-5xx** / **all** (server-side) | Prometheus recording rules; Grafana |
+| **Error rate** | ≤ **0.1%** 5xx | Same | 5xx count / all requests | Same |
 | **Synthetic reachability** | **100%** of scheduled runs succeed (both endpoints **HTTP 2xx**, latency under ceiling) | Per run | `GET /health/live` + `GET /version` | GitHub Actions workflow; job summary |
 
-**Note:** The **latency SLO** row is a **starting guardrail**; product owners should align it with pilot SLAs. Prometheus already records **p99** with `ArchLucidSloHttpP99High` at 5s as a **warning**—adjust thresholds to match the table once agreed.
+**LLM upstream carve-out:** Responses that are **documented** as attributable to **third-party model provider unavailability** (distinct HTTP status / error code contract per route) consume a **separate** operational error sub-budget in the commercial SLA pack, not the primary **0.1%** 5xx row. Exact mapping is negotiated per [SLA_SUMMARY.md](../go-to-market/SLA_SUMMARY.md).
+
+### Latency tiers (customer-visible)
+
+Endpoints are grouped so **synchronous health/metadata**, **standard API reads/writes**, and **AI-augmented** paths are not held to one impossible percentile.
+
+| Tier | Scope (examples) | **p95 (external)** | **p99 (external)** |
+|------|-------------------|--------------------|--------------------|
+| **1 — Infrastructure** | `GET /health/live`, `GET /version` | **< 300 ms** | **< 500 ms** |
+| **2 — Synchronous API** | Typical reads/writes without LLM in the hot path (e.g. list runs, audit search, many GETs) | **< 800 ms** | **< 1.5 s** |
+| **3 — AI-augmented** | Requests whose documented behavior invokes an LLM (e.g. architecture request create when pipeline invokes models) | **< 8 s** | *internal tracking only until pilot proof* |
+
+**Async / long-running:** Operations that return **202** + polling (or webhooks) advertise **polling** latency under **Tier 2**; end-to-end job duration is **not** a synchronous HTTP latency SLO.
+
+**Measurement:** 5-minute Prometheus windows on `http.server.request.duration` (or legacy `http_server_duration_milliseconds`). **Route-level** breakdown is recommended before tightening Tier 2 vs Tier 3 alerts globally.
+
+**Merge-blocking k6 CI:** The **`k6-ci-smoke`** job in **`.github/workflows/ci.yml`** runs **`tests/load/ci-smoke.js`** with **`options.thresholds`** enforced by k6 (exit non-zero on breach) plus **`scripts/ci/assert_k6_ci_smoke_summary.py --per-tag-ci-smoke`**. Overrides: **`ARCHLUCID_K6_P95_HEALTH_LIVE_MS`**, **`ARCHLUCID_K6_P95_HEALTH_READY_MS`**, **`ARCHLUCID_K6_P95_TIER2_MS`**, **`ARCHLUCID_K6_P95_TIER3_MS`**, **`ARCHLUCID_K6_HTTP_FAIL_RATE_MAX`** — see **`LOAD_TEST_BASELINE.md`** § CI smoke. CI defaults align Tier 2/3 with this table’s **external** columns; **`health_ready`** allows **1200 ms** p95 versus **Tier 1 300 ms** for **live only** because readiness probes aggregate dependency latency on GitHub Actions runners.
+
+### Internal engineering targets (not customer-published)
+
+| Signal | Target | Notes |
+|--------|--------|--------|
+| Tier 1 **p95** / **p99** | **< 150 ms** / **< 300 ms** | Synthetic + load-balancer paths |
+| Tier 2 **p95** / **p99** | **< 400 ms** / **< 800 ms** | Stricter than external for headroom |
+| Tier 3 **p95** / **p99** | **< 5 s** / **< 12 s** | Until histograms split by route, global **p99** alert uses **12 s** (see `ArchLucidSloHttpP99High`) |
+| **5xx ratio (early warning)** | **< 0.05%** sustained | `ArchLucidSloHttp5xxRatioEarlyWarning` in `archlucid-slo-rules.yml` |
+| **Burn-rate paging** | Multi-window vs **0.1%** monthly budget | `ArchLucidSloHttpErrorBudgetBurnFast` / `...Slow` |
 
 ### Outbox convergence (integration event publish)
 

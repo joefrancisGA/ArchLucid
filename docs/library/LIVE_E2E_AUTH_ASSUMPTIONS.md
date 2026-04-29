@@ -78,7 +78,8 @@ flowchart LR
 
 ## 9. Operational considerations
 
-- **PR job `ui-e2e-live-apikey`:** Subset of specs + dedicated `live-api-apikey-auth.spec.ts`; merge-blocking.
+- **PR job `ui-e2e-live-apikey`:** Subset of specs + dedicated **`live-api-apikey-auth.spec.ts`**; merge-blocking.
+- **PR job `ui-e2e-live-jwt`:** Subset plus **`live-api-jwt-auth.spec.ts`** (`mint_ci_jwt.py` + **`LIVE_JWT_TOKEN`**); merge-blocking (see **`LIVE_E2E_JWT_SETUP.md`**).
 - **Nightly `live-e2e-nightly.yml`:** Full `live-api-*.spec.ts` matrix for DevelopmentBypass, ApiKey, and JwtBearer (three API boots); long duration acceptable off critical path.
 - **Docs:** Parity matrix in **`docs/LIVE_E2E_AUTH_PARITY.md`**; operator narrative in **`docs/LIVE_E2E_HAPPY_PATH.md`**.
 

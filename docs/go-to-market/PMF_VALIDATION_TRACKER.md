@@ -7,9 +7,11 @@
 
 **Audience:** Product, sales, and leadership teams validating PMF hypotheses with pilot evidence.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-29
 
-This is a **living document**. Populate placeholder rows as pilots execute. Update after each pilot scorecard review.
+This is a **living document**. Use **anonymous pilot identifiers** only (**Pilot A**, **Pilot B**, …)—never customer, company, or employee names here. Populate rows as pilots execute; aggregate into §6 after synthesis.
+
+**Measurement grounding:** Numeric and qualitative pilot measures align with **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)** — **§3** (baseline before the pilot), **§4** (during the pilot), and **§4.1** (primary pilot metrics table: time to committed manifest, findings, LLM calls, audit rows, etc.). The PMF scorecard columns below are a **hypothesis lens** on top of that ROI story; they are not a second, competing metrics system.
 
 ---
 
@@ -29,20 +31,57 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 ## 2. Evidence tracker
 
-| Hypothesis | Pilot | ICP score | ICP segment | Scorecard metric | Baseline | Result | Status |
-|------------|-------|-----------|-------------|------------------|----------|--------|--------|
-| H1 | _Pilot 1_ | _/45_ | _FS / Tech / HC_ | Hours per review | ___ hrs | ___ hrs | Pending |
-| H2 | _Pilot 1_ | _/45_ | | Governance turnaround | ___ days | ___ days | Pending |
-| H3 | _Pilot 1_ | _/45_ | | Audit trail coverage | __% | __% | Pending |
-| H4 | _Pilot 1_ | _/45_ | | Quality rating | N/A | __/5 | Pending |
-| H5 | _Pilot 1_ | _/45_ | | Time-to-first-run | N/A | ___ min | Pending |
-| H1 | _Pilot 2_ | _/45_ | | Hours per review | ___ hrs | ___ hrs | Pending |
-| H2 | _Pilot 2_ | _/45_ | | Governance turnaround | ___ days | ___ days | Pending |
-| ... | ... | ... | ... | ... | ... | ... | ... |
+### 2.1 Identifiers and population cadence
+
+| Rule | Detail |
+|------|--------|
+| **Pilot ID** | Use **Pilot A**, **Pilot B**, **Pilot C**, … in this file only. Map to real programs in a **separate** restricted system (CRM, pilot charter, or internal tracker) if names are required. |
+| **After each scorecard** | Within **5 business days** of a [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) review, update every row for that **Pilot ID** that was in scope. |
+| **Internal dogfood** | You may fill **Pilot A** (or **Pilot B**) from **internal** runs first—aggregate numbers and qualitative signal are enough; do not invent customer outcomes. |
+| **Quarterly** | Reconcile §2.2 with §6 **Current PMF status** and note the date in the §6 summary row (footer). |
+
+### 2.2 Column semantics (Pending / Unknown / TBD)
+
+| Column | How to fill |
+|--------|-------------|
+| **ICP score** | From [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) scoring, or **TBD** until scored. |
+| **ICP segment** | Short code (e.g. **FS** / **Tech** / **HC**) or **TBD**. |
+| **Baseline** | Pre-ArchLucid or pre-pilot measure, **TBD** if not yet collected, or **Unknown** if you deliberately skip baseline (note in **Notes**). |
+| **Result** | Observed value after the pilot window, **TBD** if not finished, or **Unknown** if not measured. |
+| **Status** | **Pending** (not started / no data), **Captured** (values or qualitative signal recorded), **Deferred** (pilot paused), or **N/A** (hypothesis not in scope for that pilot). |
+
+No numeric **Result** or **Baseline** cells should be fabricated. If the team only has qualitative signal, put **See scorecard** in **Result** and keep **Status** = **Captured**.
+
+### 2.3 Evidence rows
+
+| Hypothesis | Pilot ID | ICP score | ICP segment | Scorecard metric | Baseline | Result | Status | Notes |
+|------------|----------|-----------|-------------|------------------|----------|--------|--------|-------|
+| H1 | **Pilot A** | TBD | TBD | Hours per review | TBD | TBD | Pending | Internal or external pilot—update when scorecard exists. |
+| H2 | **Pilot A** | TBD | TBD | Governance turnaround | TBD | TBD | Pending | |
+| H3 | **Pilot A** | TBD | TBD | Audit trail coverage | TBD | TBD | Pending | |
+| H4 | **Pilot A** | TBD | TBD | Quality rating | TBD | TBD | Pending | |
+| H5 | **Pilot A** | TBD | TBD | Time-to-first-run | TBD | TBD | Pending | Align with [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) **§4.1** “Time to committed manifest” where applicable. |
+| H1 | **Pilot B** | TBD | TBD | Hours per review | TBD | TBD | Pending | Add **Pilot C** by copying a block when needed. |
+| H2 | **Pilot B** | TBD | TBD | Governance turnaround | TBD | TBD | Pending | |
+| H3 | **Pilot B** | TBD | TBD | Audit trail coverage | TBD | TBD | Pending | |
+| H4 | **Pilot B** | TBD | TBD | Quality rating | TBD | TBD | Pending | |
+| H5 | **Pilot B** | TBD | TBD | Time-to-first-run | TBD | TBD | Pending | |
 
 ---
 
-## 3. Synthesis rules
+## 3. Ethics / confidentiality (pre–reference-customer)
+
+| Topic | Guidance |
+|-------|----------|
+| **This file** | Safe for **internal** use with anonymized **Pilot A/B** rows and **TBD** / **Pending**—no customer names, logos, or identifiable quotes. |
+| **Aggregates** | Summarizing **ranges** or **counts** of pilots (e.g. “2 of 3 pilots met H4 threshold”) without naming customers is appropriate for internal GTM and investor conversations when your policy allows. |
+| **External publication** | Named reference customers, logos, and published case studies remain governed by program policy and **[V1_DEFERRED.md](../library/V1_DEFERRED.md)** (reference-customer publication scope)—this tracker does **not** override that. |
+| **Public / community excerpts** | **Smallest necessary** redaction: **no PII** in anything shared outside trusted pilot channels (no names, work email, employer, or quotes that imply identity). **Community-oriented** audience—systematic binning (ranges-only, rounded hours) is **optional**, not required unless a number or quote could re-identify someone. |
+| **Demo / seed data** | If any number is copied from a **demo** tenant, follow **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) §4.1.1** (non-negotiable redaction; do not treat demo figures as customer outcomes). |
+
+---
+
+## 4. Synthesis rules
 
 | Status | Criteria |
 |--------|----------|
@@ -53,7 +92,7 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 ---
 
-## 4. Product implications
+## 5. Product implications
 
 | Hypothesis outcome | Product action |
 |-------------------|----------------|
@@ -67,7 +106,7 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 ---
 
-## 5. Go-to-market implications
+## 6. Go-to-market implications
 
 | Hypothesis outcome | GTM action |
 |-------------------|------------|
@@ -79,7 +118,7 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 ---
 
-## 6. Current PMF status
+## 7. Current PMF status
 
 | Hypothesis | Pilots completed | Signal | Overall status |
 |------------|-----------------|--------|----------------|
@@ -89,7 +128,9 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 | H4 | 0 | — | **Not yet tested** |
 | H5 | 0 | — | **Not yet tested** |
 
-**Next action:** Execute first pilot with a strong-fit ICP customer ([IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md)) and populate the evidence tracker.
+**Next action:** Execute first pilot with a strong-fit ICP customer ([IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md)), record measures per **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**, and move **Pilot A** rows from **Pending** to **Captured** when data exists.
+
+**Last aggregate review:** _TBD_
 
 ---
 
@@ -97,8 +138,10 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 
 | Doc | Use |
 |-----|-----|
+| [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) | Baseline (§3), during-pilot metrics (§4–§4.1), demo-number rules (§4.1.1) |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework |
 | [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP scoring for pilot selection |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value hypotheses grounding |
 | [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | Learning signals |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates for validated hypotheses |
+| [V1_DEFERRED.md](../library/V1_DEFERRED.md) | Deferred reference-customer publication scope (unchanged) |
