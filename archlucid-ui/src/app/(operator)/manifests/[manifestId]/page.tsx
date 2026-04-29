@@ -3,6 +3,7 @@ import Link from "next/link";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
