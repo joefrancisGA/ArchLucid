@@ -1,3 +1,5 @@
+> **Scope:** For operators responding to failed DbUp SQL migrations in staging or production—journal drift, rollback scripts, and retry mechanics; **not** general database design or how to author new migrations.
+
 # Migration incident runbook (DbUp)
 
 ## Objective

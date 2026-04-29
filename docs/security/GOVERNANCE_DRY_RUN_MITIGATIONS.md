@@ -1,3 +1,5 @@
+> **Scope:** For security and platform teams assessing governance dry-run controls—audit signals, throttling, and opaque errors; **not** full governance API reference or non–dry-run promotion workflows.
+
 # Governance dry-run mitigations (enumeration & SIEM visibility)
 
 ## Objective
