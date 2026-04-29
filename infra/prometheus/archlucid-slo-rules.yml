@@ -1,10 +1,10 @@
 # Recording rules for SLO-style dashboards. Metric names must match your OTel → Prometheus scrape.
 # Load alongside archlucid-alerts.yml in Prometheus operator or server config.
 #
-# HTTP availability burn-rate alerts assume a 99.5% availability SLO (0.5% error budget).
+# HTTP availability burn-rate alerts assume a 99.9% availability SLO (0.1% error budget).
 # Multi-window pairs follow the Google SRE multi-burn pattern (fast: 5m+1h at 14.4×, slow: 30m+6h at 6×).
-# The 14.4 / 6 factors are the canonical pair from the workbook; with a 0.5% budget they page when the
-# short-window 5xx ratio exceeds ~7.2% and ~3% respectively (see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md).
+# The 14.4 / 6 factors are the canonical pair from the workbook; with a 0.1% budget they page when the
+# short-window 5xx ratio exceeds ~1.44% and ~0.6% respectively (see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md).
 groups:
   - name: archlucid-slo-http
     interval: 30s
@@ -43,10 +43,10 @@ groups:
           , 1e-9)
         labels:
           component: api
-      # Instantaneous burn vs a 99.5% target: (error_ratio) / 0.005 — 1 means consuming budget at nominal rate.
+      # Instantaneous burn vs a 99.9% target: (error_ratio) / 0.001 — 1 means consuming budget at nominal rate.
       - record: archlucid:slo:http_error_budget_burn_rate:ratio
         expr: |
-          clamp_min((1 - archlucid:slo:http_availability:ratio) / 0.005, 0)
+          clamp_min((1 - archlucid:slo:http_availability:ratio) / 0.001, 0)
         labels:
           component: api
 
@@ -96,7 +96,7 @@ groups:
               sum(rate(http_server_request_duration_seconds_count[5m]))
               or sum(rate(http_server_duration_milliseconds_count[5m]))
             , 1e-9)
-          ) / 0.005 > 14.4
+          ) / 0.001 > 14.4
           and
           (
             (
@@ -108,15 +108,15 @@ groups:
               sum(rate(http_server_request_duration_seconds_count[1h]))
               or sum(rate(http_server_duration_milliseconds_count[1h]))
             , 1e-9)
-          ) / 0.005 > 14.4
+          ) / 0.001 > 14.4
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: HTTP SLO error budget burning fast (5m and 1h windows >14.4× vs 99.5% target)
+          summary: HTTP SLO error budget burning fast (5m and 1h windows >14.4× vs 99.9% target)
           description: >-
             Multi-window burn-rate check: both short (5m) and long (1h) windows exceed 14.4× the nominal
-            0.5% error budget. See runbook docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+            0.1% error budget. See runbook docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
       - alert: ArchLucidSloHttpErrorBudgetBurnSlow
         expr: |
@@ -130,7 +130,7 @@ groups:
               sum(rate(http_server_request_duration_seconds_count[30m]))
               or sum(rate(http_server_duration_milliseconds_count[30m]))
             , 1e-9)
-          ) / 0.005 > 6
+          ) / 0.001 > 6
           and
           (
             (
@@ -142,14 +142,14 @@ groups:
               sum(rate(http_server_request_duration_seconds_count[6h]))
               or sum(rate(http_server_duration_milliseconds_count[6h]))
             , 1e-9)
-          ) / 0.005 > 6
+          ) / 0.001 > 6
         for: 15m
         labels:
           severity: warning
         annotations:
-          summary: HTTP SLO error budget burning slowly (30m and 6h windows >6× vs 99.5% target)
+          summary: HTTP SLO error budget burning slowly (30m and 6h windows >6× vs 99.9% target)
           description: >-
-            Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.5% budget. Tune windows/thresholds
+            Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.1% budget. Tune windows/thresholds
             to match your paging policy; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
   - name: archlucid-slo-http-p99
@@ -169,19 +169,42 @@ groups:
         labels:
           component: api
       - alert: ArchLucidSloHttpP99High
-        expr: archlucid:slo:http_p99_seconds > 5
+        expr: archlucid:slo:http_p99_seconds > 12
         for: 10m
         labels:
           severity: warning
         annotations:
-          summary: HTTP p99 latency above 5s (5m histogram)
+          summary: HTTP p99 latency above 12s (5m histogram; mixed traffic)
           description: >-
-            Tail latency SLO breach: p99 from http.server.request.duration (or legacy http_server_duration_milliseconds)
-            exceeds 5 seconds for 10 minutes. Tune threshold per product expectations; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+            Global tail latency warning: p99 from http.server.request.duration (or legacy http_server_duration_milliseconds)
+            exceeds 12 seconds for 10 minutes (internal ceiling for AI-tier traffic until route-labeled histograms exist).
+            Tiered customer-facing targets are in docs/library/API_SLOS.md.
 
   - name: archlucid-slo-http-error-ratio
     interval: 30s
     rules:
+      - alert: ArchLucidSloHttp5xxRatioEarlyWarning
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[15m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[15m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[15m]))
+              or sum(rate(http_server_duration_milliseconds_count[15m]))
+            , 1e-9)
+          ) > 0.0005
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP 5xx ratio above 0.05% (15m window; internal early warning)
+          description: >-
+            Engineering guardrail before the 0.1% customer-visible 5xx budget is at risk; pair with
+            docs/library/API_SLOS.md internal targets.
+
       - alert: ArchLucidSloHttp5xxRatioElevated
         expr: |
           (

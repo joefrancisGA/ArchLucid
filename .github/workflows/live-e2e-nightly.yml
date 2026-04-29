@@ -1,5 +1,5 @@
 # Full Playwright live-api suite off the PR critical path (schedule + manual).
-# PRs still run `ui-e2e-live` + `ui-e2e-live-apikey` + optional `ui-e2e-live-jwt` (subset) in ci.yml.
+# PRs still run merge-blocking `ui-e2e-live` + `ui-e2e-live-apikey` + `ui-e2e-live-jwt` (subset matrix) in ci.yml before this nightly.
 
 name: Live E2E nightly
 

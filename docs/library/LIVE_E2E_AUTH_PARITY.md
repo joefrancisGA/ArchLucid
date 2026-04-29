@@ -44,7 +44,7 @@ flowchart LR
 |----------|------|
 | **`ci.yml` → `ui-e2e-live`** | Full **`live-api-*.spec.ts`** under DevelopmentBypass + `DevelopmentBypassAll`; no `LIVE_API_KEY`. |
 | **`ci.yml` → `ui-e2e-live-apikey`** | ApiKey API + subset: **`live-api-apikey-auth`**, **`live-api-journey`**, **`live-api-negative-paths`**. |
-| **`ci.yml` → `ui-e2e-live-jwt`** | JwtBearer + local public PEM + subset (same three specs as ApiKey subset); **`continue-on-error: true`**. |
+| **`ci.yml` → `ui-e2e-live-jwt`** | JwtBearer + local public PEM + subset (same specs as **`ui-e2e-live-apikey`** plus **`live-api-jwt-auth`**); merge-blocking. |
 | **`live-e2e-nightly.yml`** | Scheduled + `workflow_dispatch`: **full** suite ×3 (DevelopmentBypass + ApiKey + JwtBearer DBs). |
 | **`e2e/helpers/live-api-client.ts`** | Injects `X-Api-Key` when `LIVE_API_KEY` set (unless `LIVE_JWT_TOKEN` wins); Bearer when JWT configured; exports **`liveAuthActorName`**, **`livePeerReviewerActorName`**. |
 

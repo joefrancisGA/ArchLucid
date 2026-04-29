@@ -33,7 +33,7 @@ ArchLucid presents as a **seriously engineered** Azure-first SaaS platform: boun
 
 ### Engineering picture
 
-**Correctness guardrails** are unusually strong for this category (golden corpus under `tests/golden-corpus/`, broad API integration tests, chaos/load probes). **Operational maturity** is credible (SLO docs [API_SLOS.md](API_SLOS.md), Prometheus rules under `infra/prometheus/`). Residual risks concentrate in **LLM-dependent behaviors**, **scaling proof at tenant extremes**, and **keeping composite CI honest** (JWT live lane currently non-blocking per [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
+**Correctness guardrails** are unusually strong for this category (golden corpus under `tests/golden-corpus/`, broad API integration tests, chaos/load probes). **Operational maturity** is credible (SLO docs [API_SLOS.md](API_SLOS.md), Prometheus rules under `infra/prometheus/`). Residual risks concentrate in **LLM-dependent behaviors**, **scaling proof at tenant extremes**, and **maintaining parity** among **DevelopmentBypass**, **ApiKey**, and **JwtBearer** live E2E lanes (see merge-blocking matrix: [LIVE_E2E_AUTH_PARITY.md](LIVE_E2E_AUTH_PARITY.md), [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)).
 
 ---
 
@@ -303,7 +303,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 - **Weighted impact:** +2.35 pts.
 - **Why:** Fail-closed defaults, ZAP/Schemathesis/CodeQL, STRIDE, billing webhook verification patterns ([SECURITY.md](SECURITY.md)).
 - **Tradeoffs:** Strict defaults slow **first-run** for sloppy dev environments (mitigated by DevelopmentBypass guardrails).
-- **Improvements:** Ensure JWT Playwright lane reaches parity importance ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
+- **Improvements:** Keep JWT/ApiKey/DevelopmentBypass **`ci.yml`** job definitions and **`LIVE_*` / `TEST_EXECUTION_MODEL`** wording in sync when auth seams change ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
 - **Fix horizon:** **v1** CI hardening.
 
 #### Reliability — Score **76**, Weight **2**
@@ -481,7 +481,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 1. **Commercial proof density is thin versus narrative strength** — PMF tracker unfilled; logos deferred by policy but market still demands proof ([PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md), [reference-customers/README.md](../go-to-market/reference-customers/README.md)).
 2. **Enterprise assurance posture is “engineering-strong / attestation-in-flight”** — SOC 2 opinion not yet in hand ([SOC2_ROADMAP.md](../go-to-market/SOC2_ROADMAP.md)).
 3. **Operator cognitive load vs capability depth** — Progressive disclosure helps but cannot erase intrinsic workflow complexity ([PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)).
-4. **JWT authentication parity not merge-blocking in CI** — Signal-only lane risks auth regressions ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
+4. **JWT / ApiKey subset vs full DevelopmentBypass drift** — Subset lanes can miss specs covered only in **`ui-e2e-live`** unless the parity matrix stays current ([LIVE_E2E_AUTH_PARITY.md](LIVE_E2E_AUTH_PARITY.md)).
 5. **Performance/scalability evidence is scenario-based, not universal** — Benchmarks + k6/soak exist but not a single guaranteed ceiling under all tenant mixes ([tests/load/](../../tests/load/)).
 6. **LLM variability remains an inherent correctness risk** despite gates — Quality gates mitigate but cannot eliminate nondeterminism in real mode ([OBSERVABILITY.md](OBSERVABILITY.md)).
 7. **Compliance questionnaires partial / manual** — CAIQ/SIG depend on human narrative maintenance ([CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md)).
@@ -513,7 +513,7 @@ Below, each quality follows the requested structure (**score / weight / weighted
 
 ## Top 5 Engineering Risks
 
-1. **Auth regression risk** — JWT lane non-blocking in CI ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
+1. **Cross-auth regression risk** — **JwtBearer**, **ApiKey**, and **DevelopmentBypass** code paths diverge subtly; **`ci.yml`** runs three merge-blocking journeys—keep docs and **`LIVE_E2E_AUTH_PARITY.md`** authoritative when seams move ([TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)).
 2. **LLM nondeterminism** — Mitigations exist; fundamental residual remains ([OBSERVABILITY.md](OBSERVABILITY.md)).
 3. **Multi-tenant isolation operational misconfiguration** — Correct patterns documented; human error remains ([MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md)).
 4. **Async pipeline poison messages / outbox backlog** — Operational hazards if worker scaling lags ([OBSERVABILITY.md](OBSERVABILITY.md), worker hosted services).
@@ -533,28 +533,28 @@ Ranked by leverage (highest first). All eight below are **fully actionable witho
 
 ### 1) Make JWT Playwright parity merge-blocking
 
-- **Why it matters:** Authentication regressions are existential; today JWT live E2E is explicitly non-blocking ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)).
-- **Expected impact:** Reduces enterprise adoption blocker risk; catches cross-scheme regressions early.
-- **Affected qualities:** Security (+4–8), Correctness (+2–4), Reliability (+2–3). **Weighted readiness impact:** ~**+0.35–0.55%** (depends on starting scores).
+- **Why it matters:** JWT vs DevelopmentBypass/API-key divergence is high-risk; **`JwtBearer`** live journeys must be **first-class** in CI narratives and behavior.
+- **Expected impact:** Doc alignment with **`ci.yml`**; the workflow job was **already** merge-blocking (**no** `continue-on-error`).
+- **Affected qualities:** Security (+4–8), Correctness (+2–4), Reliability (+2–3) — **when JWT coverage is trusted**; stale “signal-only” docs previously undercut that trust.
+- **Repository status — 2026-04-29:** **`docs/library/LIVE_E2E_HAPPY_PATH.md`**, **`docs/library/LIVE_E2E_AUTH_PARITY.md`**, **`docs/library/TEST_EXECUTION_MODEL.md`**, **`docs/library/LIVE_E2E_AUTH_ASSUMPTIONS.md`**, and **`live-e2e-nightly.yml`** were updated to match **`.github/workflows/ci.yml`**; **`docs/library/LIVE_E2E_JWT_SETUP.md`** was already aligned.
 
 **Cursor prompt:**
 
 ```text
-Goal: Promote the JWT-based Playwright live E2E lane from signal-only to merge-blocking parity with ApiKey/DevelopmentBypass where feasible.
+Goal: Confirm the JWT Playwright live E2E job is merge-blocking and documentation matches ci.yml.
 
 Scope:
-- Read docs/library/LIVE_E2E_HAPPY_PATH.md and docs/LIVE_E2E_JWT_SETUP.md for prerequisites.
-- Inspect .github/workflows/ci.yml jobs ui-e2e-live-jwt (or equivalent): remove continue-on-error: true unless a tracked flaky test remains; if flaky, stabilize tests first.
-- Ensure secrets documented: LIVE_JWT_TOKEN, ARCHLUCID_PROXY_BEARER_TOKEN alignment with Next proxy.
-- Update LIVE_E2E_HAPPY_PATH.md § CI jobs to reflect merge-blocking status.
+- Read docs/library/LIVE_E2E_HAPPY_PATH.md and docs/library/LIVE_E2E_JWT_SETUP.md.
+- Inspect .github/workflows/ci.yml ui-e2e-live-jwt for continue-on-error; remove it if present unless flakiness is tracked and stabilized first.
+- Document LIVE_JWT_TOKEN + ARCHLUCID_PROXY_BEARER_TOKEN (mint_ci_jwt + Playwright env) where missing.
+- Update LIVE_E2E_HAPPY_PATH.md § CI jobs, LIVE_E2E_AUTH_PARITY.md artifact table, TEST_EXECUTION_MODEL.md tier rows + PR gate paragraph.
 
 Constraints:
 - Do not weaken ApiKey or DevelopmentBypass gates.
 - Do not print secrets in logs.
 
 Acceptance criteria:
-- JWT lane fails PR merge on deterministic failures same as other merge-blocking UI jobs.
-- Docs updated; link from docs/library/TEST_EXECUTION_MODEL.md if needed.
+- JWT lane failures block PR merges (same semantics as ApiKey/UI live jobs).
 
 What not to change:
 - Core auth policy semantics in ArchLucid.Host.Core except test-discovered bugs.
@@ -567,6 +567,7 @@ What not to change:
 - **Why it matters:** Release smoke optional Playwright uses mocks; live SQL-backed truth remains separate ([RELEASE_SMOKE.md](RELEASE_SMOKE.md))—contributors can misunderstand coverage.
 - **Expected impact:** Fewer false confidence incidents; better Adoption Friction / Cognitive Load.
 - **Affected qualities:** Adoption Friction (+3–5), Cognitive Load (+3–5), Testability (+2–3). **Weighted readiness impact:** ~**+0.25–0.40%**.
+- **Repository status — 2026-04-29:** **`docs/library/RELEASE_SMOKE.md`** (parity table + anchor), **`archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** §8 (mock vs live opener + **`LIVE_E2E_HAPPY_PATH.md`** link), **`README.md`** blockquote beside **`scripts/pilots/release-smoke.ps1`**.
 
 **Cursor prompt:**
 
@@ -593,6 +594,7 @@ What not to change:
 
 - **Why it matters:** Operational credibility ties directly to enterprise trust; metrics exist ([OBSERVABILITY.md](OBSERVABILITY.md)) but buyers/operators need curated dashboards.
 - **Expected impact:** Supportability (+4–6), Manageability (+3–5), Observability (+3–5). **Weighted readiness impact:** ~**+0.20–0.35%**.
+- **Repository status — 2026-04-29:** Extended **`infra/grafana/dashboard-archlucid-authority.json`** (meter panels + import note + thresholds tied to **`infra/prometheus/archlucid-alerts.yml`**). New runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`**. **`infra/grafana/dashboards/README.md`** indexes the authority bundle path; **`docs/library/OBSERVABILITY.md`** cross-links the dashboard + runbook.
 
 **Cursor prompt:**
 
@@ -624,6 +626,7 @@ What not to change:
 
 - **Why it matters:** Empty tables signal “no learning loop” to investors/customers even when product works ([PMF_VALIDATION_TRACKER.md](../go-to-market/PMF_VALIDATION_TRACKER.md)).
 - **Expected impact:** Proof-of-ROI Readiness (+4–7), Marketability (+2–4). **Weighted readiness impact:** ~**+0.25–0.40%**.
+- **Repository status — 2026-04-29:** **`docs/go-to-market/PMF_VALIDATION_TRACKER.md`** — **Pilot A/B** rows, Pending/TBD/Unknown semantics, cadence subsection, **`PILOT_ROI_MODEL.md`** cross-links (**§3**, **§4**, **§4.1**), **Ethics / confidentiality** (including **public / community excerpts**: no PII minimum; ranges/rounding optional) with **`V1_DEFERRED.md`** pointer (policy unchanged).
 
 **Cursor prompt:**
 
@@ -746,24 +749,6 @@ Acceptance criteria:
 What not to change:
 - Historical migrations or golden corpus directories for unrelated cases.
 ```
-
----
-
-## Pending Questions for Later
-
-Organized by improvement title (blocking / decision-shaping only):
-
-- **JWT Playwright merge-blocking**
-  - Are there known flaky tests or secret availability gaps on GitHub-hosted runners blocking promotion?
-
-- **k6 thresholds**
-  - What latency/error targets does the business want to advertise externally vs keep internal-only?
-
-- **PMF tracker operationalization**
-  - What anonymization standard is acceptable for public excerpts (ranges only vs rounded hours)?
-
-- **CAIQ evidence linking**
-  - Which questionnaires must remain lawyer-reviewed before linking operational evidence from private repos?
 
 ---
 

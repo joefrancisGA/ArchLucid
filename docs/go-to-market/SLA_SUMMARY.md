@@ -7,7 +7,7 @@
 
 **Audience:** Procurement, security reviewers, and technical evaluators assessing ArchLucid's reliability commitments.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-29
 
 ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../library/API_SLOS.md).
 
@@ -19,19 +19,33 @@ ArchLucid targets **high availability and low latency** for the production API. 
 
 | Metric | Target | Measurement |
 |--------|--------|-------------|
-| **Monthly availability** | **99.5%** | Ratio of successful API responses (non-5xx) to total requests, measured over a **30-day rolling window**. |
+| **Monthly availability** | **99.9%** | Ratio of successful API responses (**non-5xx**) to total requests, measured over a **30-day rolling window** (same SLI as Prometheus burn-rate rules in `infra/prometheus/archlucid-slo-rules.yml`). |
 
-**What counts as downtime:** Any period where the API returns HTTP 5xx errors at a rate exceeding the error budget (> 0.5% of requests). Planned maintenance windows that are communicated in advance are **excluded** from the availability calculation.
+**What counts as downtime:** Periods where the API fails to meet the availability target above. **5xx rate** is the same signal: a **99.9%** target implies at most **0.1%** of requests may be **5xx** over the window for that measurement. Planned maintenance windows that are communicated in advance are **excluded** from the availability calculation.
+
+### Error rate (5xx)
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **HTTP 5xx** | ≤ **0.1%** of requests | 30-day rolling window; server-side counts (pairs with availability SLI above). |
+
+**LLM provider carve-out:** Contract may define a **separate** sub-budget for documented upstream model unavailability; see [../library/API_SLOS.md](../library/API_SLOS.md).
 
 ---
 
 ## 2. Latency
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| **API response time (p95)** | **Under 2 seconds** | 95th percentile of HTTP request duration across all API endpoints, measured in 5-minute windows. |
+Latency is **tiered** so infrastructure probes, standard API traffic, and **AI-augmented** routes each have credible targets. Full table: [../library/API_SLOS.md](../library/API_SLOS.md) § *Latency tiers (customer-visible)*.
 
-This is an initial guardrail. Agent pipeline execution (architecture runs) may take longer due to LLM inference; the latency target applies to **API request handling**, not end-to-end run completion.
+| Tier | Examples | **p95** (customer-visible) | **p99** (customer-visible) |
+|------|----------|----------------------------|---------------------------|
+| **1 — Infrastructure** | `GET /health/live`, `GET /version` | **< 300 ms** | **< 500 ms** |
+| **2 — Synchronous API** | Typical reads/writes without LLM in the hot path | **< 800 ms** | **< 1.5 s** |
+| **3 — AI-augmented** | Documented LLM-backed request paths | **< 8 s** | *tracked internally until pilot proof* |
+
+**Async work:** Operations that return **202** + polling are measured on **polling** latency (Tier **2**), not end-to-end job duration.
+
+Engineering detail (synthetic probes, Prometheus histograms, internal early warnings): [../library/API_SLOS.md](../library/API_SLOS.md).
 
 ---
 

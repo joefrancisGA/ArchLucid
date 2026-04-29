@@ -131,4 +131,114 @@ public sealed class SchemaValidationIntegrationTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().NotBeEmpty();
     }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public void ValidateAgentResult_WithMinimalManifestDeltaProposal_ReturnsSuccess()
+    {
+        ServiceCollection services = [];
+        services.AddLogging();
+        services.AddSchemaValidation(options =>
+        {
+            options.AgentResultSchemaPath = "schemas/agentresult.schema.json";
+            options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
+        });
+        ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
+
+        string validJson = """
+                           {
+                               "resultId": "res-1",
+                               "taskId": "task-1",
+                               "runId": "run-1",
+                               "agentType": "Topology",
+                               "claims": ["claim1"],
+                               "evidenceRefs": ["ev-1"],
+                               "confidence": 0.9,
+                               "createdUtc": "2025-01-01T00:00:00Z",
+                               "proposedChanges": {
+                                   "proposalId": "p1",
+                                   "sourceAgent": "Topology",
+                                   "addedServices": [],
+                                   "addedDatastores": [],
+                                   "addedRelationships": [],
+                                   "requiredControls": [],
+                                   "warnings": []
+                               }
+                           }
+                           """;
+
+        SchemaValidationResult result = service.ValidateAgentResultJson(validJson);
+
+        result.Should().NotBeNull();
+        result.IsValid.Should().BeTrue();
+        result.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public void ValidateAgentResult_WhenProposedChangesIsString_ReturnsInvalidResult()
+    {
+        ServiceCollection services = [];
+        services.AddLogging();
+        services.AddSchemaValidation(options =>
+        {
+            options.AgentResultSchemaPath = "schemas/agentresult.schema.json";
+            options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
+        });
+        ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
+
+        string invalidJson = """
+                             {
+                                 "resultId": "res-1",
+                                 "taskId": "task-1",
+                                 "runId": "run-1",
+                                 "agentType": "Topology",
+                                 "claims": ["claim1"],
+                                 "evidenceRefs": ["ev-1"],
+                                 "confidence": 0.9,
+                                 "createdUtc": "2025-01-01T00:00:00Z",
+                                 "proposedChanges": "invalid"
+                             }
+                             """;
+
+        SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
+
+        result.Should().NotBeNull();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public void ValidateAgentResult_WhenProposedChangesObjectMissingRequiredKeys_ReturnsInvalidResult()
+    {
+        ServiceCollection services = [];
+        services.AddLogging();
+        services.AddSchemaValidation(options =>
+        {
+            options.AgentResultSchemaPath = "schemas/agentresult.schema.json";
+            options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
+        });
+        ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
+
+        string invalidJson = """
+                             {
+                                 "resultId": "res-1",
+                                 "taskId": "task-1",
+                                 "runId": "run-1",
+                                 "agentType": "Topology",
+                                 "claims": ["claim1"],
+                                 "evidenceRefs": ["ev-1"],
+                                 "confidence": 0.9,
+                                 "createdUtc": "2025-01-01T00:00:00Z",
+                                 "proposedChanges": {}
+                             }
+                             """;
+
+        SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
+
+        result.Should().NotBeNull();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().NotBeEmpty();
+    }
 }

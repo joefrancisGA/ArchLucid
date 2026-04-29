@@ -98,7 +98,7 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 
 ## 7. Service levels
 
-7.1 **Service level objectives.** Vendor targets the service level objectives described in [SLA_SUMMARY.md](SLA_SUMMARY.md), including **99.5% monthly availability** and **p95 API latency under 2 seconds**.
+7.1 **Service level objectives.** Vendor targets the service level objectives described in [SLA_SUMMARY.md](SLA_SUMMARY.md), including **99.9% monthly availability** (non-5xx request ratio), **≤ 0.1%** HTTP 5xx over the same window, and **tiered p95 latency** (infrastructure **< 300 ms**, synchronous API **< 800 ms**, AI-augmented **< 8 s** per [SLA_SUMMARY.md](SLA_SUMMARY.md) §2).
 
 7.2 **SLA terms.** These are **objectives**, not contractual guarantees, unless a separate SLA addendum is attached to the Order Form. Enterprise-tier customers may negotiate contractual SLA terms with service credits per the Order Form.
 

@@ -14,18 +14,18 @@ import json
 import sys
 from pathlib import Path
 
-# Per-tag p95 caps (ms) aligned with tests/load/ci-smoke.js thresholds.
-# Key = k6 summary metric name for the tagged sub-metric.
+# Per-tag p95 caps (ms) — MUST stay aligned with defaults in tests/load/ci-smoke.js P95_MS and
+# ARCHLUCID_K6_* env overrides used by .github/workflows/ci.yml (see docs/library/API_SLOS.md tiers).
 _CI_SMOKE_TAG_CAPS: dict[str, float] = {
-    "http_req_duration{k6ci:health_live}": 500.0,
-    "http_req_duration{k6ci:health_ready}": 1500.0,
-    "http_req_duration{k6ci:create_run}": 90000.0,
-    "http_req_duration{k6ci:list_runs}": 1500.0,
-    "http_req_duration{k6ci:audit_search}": 1500.0,
-    "http_req_duration{k6ci:version}": 1500.0,
-    "http_req_duration{k6ci:list_for_get_run}": 1500.0,
-    "http_req_duration{k6ci:get_run_detail}": 2500.0,
-    "http_req_duration{k6ci:client_error_telemetry}": 1500.0,
+    "http_req_duration{k6ci:health_live}": 300.0,
+    "http_req_duration{k6ci:health_ready}": 1200.0,
+    "http_req_duration{k6ci:create_run}": 8000.0,
+    "http_req_duration{k6ci:list_runs}": 800.0,
+    "http_req_duration{k6ci:audit_search}": 800.0,
+    "http_req_duration{k6ci:version}": 800.0,
+    "http_req_duration{k6ci:list_for_get_run}": 800.0,
+    "http_req_duration{k6ci:get_run_detail}": 800.0,
+    "http_req_duration{k6ci:client_error_telemetry}": 800.0,
 }
 
 

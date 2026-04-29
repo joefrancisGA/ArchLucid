@@ -84,5 +84,5 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 | Doc | Use |
 |-----|-----|
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
-| [../API_SLOS.md](../library/API_SLOS.md) | HTTP SLOs (e.g. **99.5%** availability target) |
+| [../API_SLOS.md](../library/API_SLOS.md) | HTTP SLOs (e.g. **99.9%** availability, tiered latency) |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Breach notification clause |

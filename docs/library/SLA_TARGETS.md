@@ -17,7 +17,7 @@
 
 **Meaning:** For each calendar month, we target at least **99.9%** uptime for API and operator UI together, measured as described below.
 
-**Relationship to other docs:** The **HTTP-only** rolling objective in [`API_SLOS.md`](API_SLOS.md) / buyer summary [`SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md) may remain **99.5%** until metrics are unified — that slice is narrower (API requests only). This document states the **full hosted product** (API + UI) narrative for packaging and Trust Center.
+**Relationship to other docs:** The **HTTP** rolling objective in [`API_SLOS.md`](API_SLOS.md) and [`SLA_SUMMARY.md`](../go-to-market/SLA_SUMMARY.md) is aligned to **99.9%** availability (non-5xx / all requests) with tiered latency; this document states the **full hosted product** (API + UI) narrative **also** at **99.9%** for packaging and Trust Center (minute-based signal differs — see *Measurement* below).
 
 ---
 

@@ -35,7 +35,176 @@
     },
     "createdUtc": {
       "type": "string"
+    },
+    "proposedChanges": {
+      "description": "When present, must deserialize as ManifestDeltaProposal (camelCase JSON from System.Text.Json). Null or omission is allowed.",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/manifestDeltaProposal" }
+      ]
+    }
+  },
+  "$defs": {
+    "manifestDeltaProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposalId",
+        "sourceAgent",
+        "addedServices",
+        "addedDatastores",
+        "addedRelationships",
+        "requiredControls",
+        "warnings"
+      ],
+      "properties": {
+        "proposalId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceAgent": {
+          "type": "string",
+          "enum": ["Topology", "Cost", "Compliance", "Critic"]
+        },
+        "addedServices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/manifestService" }
+        },
+        "addedDatastores": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/manifestDatastore" }
+        },
+        "addedRelationships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/manifestRelationship" }
+        },
+        "requiredControls": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "manifestService": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "serviceId",
+        "serviceName",
+        "serviceType",
+        "runtimePlatform"
+      ],
+      "properties": {
+        "serviceId": { "type": "string", "minLength": 1 },
+        "serviceName": { "type": "string", "minLength": 1 },
+        "serviceType": {
+          "type": "string",
+          "enum": [
+            "Unknown",
+            "Api",
+            "Worker",
+            "Ui",
+            "Integration",
+            "DataService",
+            "SearchService",
+            "AiService"
+          ]
+        },
+        "runtimePlatform": {
+          "type": "string",
+          "enum": [
+            "Unknown",
+            "AppService",
+            "Functions",
+            "Aks",
+            "Vm",
+            "ContainerApps",
+            "SqlServer",
+            "AzureAiSearch",
+            "AzureOpenAi",
+            "Redis",
+            "BlobStorage",
+            "KeyVault"
+          ]
+        },
+        "purpose": { "type": ["string", "null"] },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "requiredControls": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "manifestDatastore": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "datastoreId",
+        "datastoreName",
+        "datastoreType",
+        "runtimePlatform"
+      ],
+      "properties": {
+        "datastoreId": { "type": "string", "minLength": 1 },
+        "datastoreName": { "type": "string", "minLength": 1 },
+        "datastoreType": {
+          "type": "string",
+          "enum": ["Unknown", "Sql", "NoSql", "Object", "Cache", "Search"]
+        },
+        "runtimePlatform": {
+          "type": "string",
+          "enum": [
+            "Unknown",
+            "AppService",
+            "Functions",
+            "Aks",
+            "Vm",
+            "ContainerApps",
+            "SqlServer",
+            "AzureAiSearch",
+            "AzureOpenAi",
+            "Redis",
+            "BlobStorage",
+            "KeyVault"
+          ]
+        },
+        "purpose": { "type": ["string", "null"] },
+        "privateEndpointRequired": { "type": "boolean" },
+        "encryptionAtRestRequired": { "type": "boolean" }
+      }
+    },
+    "manifestRelationship": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "relationshipId",
+        "sourceId",
+        "targetId",
+        "relationshipType"
+      ],
+      "properties": {
+        "relationshipId": { "type": "string", "minLength": 1 },
+        "sourceId": { "type": "string", "minLength": 1 },
+        "targetId": { "type": "string", "minLength": 1 },
+        "relationshipType": {
+          "type": "string",
+          "enum": [
+            "Calls",
+            "ReadsFrom",
+            "WritesTo",
+            "PublishesTo",
+            "SubscribesTo",
+            "AuthenticatesWith"
+          ]
+        },
+        "description": { "type": ["string", "null"] }
+      }
     }
   }
 }
-

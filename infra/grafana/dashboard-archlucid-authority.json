@@ -1,7 +1,5 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "annotations": { "list": [] },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -10,17 +8,152 @@
   "liveNow": false,
   "panels": [
     {
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "content": "## Authority pipeline (meter **ArchLucid**)\n\nStable names match **`docs/library/OBSERVABILITY.md`** (source **`ArchLucidInstrumentation.cs`**).\n\n| Signal | What good looks like | Alert rule |\n|--------|---------------------|-------------|\n| **`archlucid_authority_pipeline_work_pending`** | Well **below 50** for normal load | **`ArchLucidAuthorityPipelineWorkBacklog`**: **`> 50`** for **15m** |\n| **`archlucid_authority_pipeline_work_oldest_pending_age_seconds`** | Seconds near zero | **`ArchLucidAuthorityPipelineWorkStale`**: **`> 3600`** for **20m** |\n| **`archlucid_data_consistency_*_total`** | Zero **`rate`** in steady state | **`ArchLucidDataConsistencyOrphansDetected`** / **`ArchLucidDataConsistencyAlertsRaised`** ( **`1h`** windows in **`infra/prometheus/archlucid-alerts.yml`** ) |\n\n**Import:** Grafana → **Dashboards** → **Import** → upload this JSON → bind variable **`${datasource}`** to **Prometheus**. Optional Terraform root: **`infra/terraform-monitoring/grafana_dashboards.tf`**. Runbook **`docs/runbooks/AUTHORITY_PIPELINE_OBSERVABILITY.md`** (clone).",
+        "mode": "markdown"
+      },
+      "title": "Meter / alert alignment",
+      "transparent": false,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Histogram **`archlucid_authority_pipeline_stage_duration_ms`** — labels **`stage`**, **`outcome`** per **`OBSERVABILITY.md`**. If empty, confirm OTLP histogram export names (`*_bucket`) on scrape.",
+      "fieldConfig": {
+        "defaults": { "decimals": 1, "unit": "ms" },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 7 },
+      "id": 11,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_authority_pipeline_stage_duration_ms_bucket[5m])) by (le, stage, outcome))",
+          "legendFormat": "{{stage}} {{outcome}} p95",
+          "refId": "A"
+        }
+      ],
+      "title": "Pipeline stage duration (p95 per stage/outcome)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Observable gauge depth on **`dbo.AuthorityPipelineWorkOutbox`**. **Yellow / red shading** approximates Prometheus **`ArchLucidAuthorityPipelineWorkBacklog`** (>50 for **15m**).",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 40 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 12,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_authority_pipeline_work_pending",
+          "legendFormat": "pending rows",
+          "refId": "A"
+        }
+      ],
+      "title": "Authority outbox backlog (gauge)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Oldest unprocessed **`AuthorityPipelineWorkOutbox`** row age. Prometheus **`ArchLucidAuthorityPipelineWorkStale`** at **>3600s** (**20m** **`for`**). Increase worker replicas when persistently elevated + SQL tier is healthy.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2700 },
+              { "color": "red", "value": 3600 }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 13,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
+          "legendFormat": "oldest age",
+          "refId": "A"
+        }
+      ],
+      "title": "Oldest pending age (authority outbox)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness — widen if noisy.",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 14,
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_data_consistency_orphans_detected_total[5m])) by (table)",
+          "legendFormat": "orphans/s {{table}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archlucid_data_consistency_alerts_total[5m])) by (table)",
+          "legendFormat": "alert signal/s {{table}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Data consistency: orphans_detected_total vs alerts_total (rates)",
+      "type": "timeseries"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
       "fieldConfig": {
-        "defaults": {
-          "unit": "s"
-        },
+        "defaults": { "unit": "s" },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
       "id": 1,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -33,7 +166,7 @@
           "refId": "A"
         }
       ],
-      "title": "Authority stage span latency (p95)",
+      "title": "Authority stage span latency (OTel traces, p95)",
       "type": "timeseries"
     },
     {
@@ -41,11 +174,8 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
       "id": 2,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -58,7 +188,7 @@
           "refId": "A"
         }
       ],
-      "title": "Authority run throughput (OTel → Prometheus)",
+      "title": "Authority run throughput (OTel spans)",
       "type": "timeseries"
     },
     {
@@ -66,12 +196,9 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Meter **ArchLucid** counters. If a panel is empty, scrape `/metrics` and adjust the series name for your OpenTelemetry → Prometheus exporter (name mangling varies by exporter version).",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "description": "Meter **ArchLucid** counters. Empty series ⇒ confirm Prometheus scrape translates histogram/counter names (OTLP mapping version).",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
       "id": 3,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -92,11 +219,8 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
       "id": 4,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -117,11 +241,8 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 48 },
       "id": 5,
       "options": {
         "legend": { "displayMode": "list", "placement": "bottom" },
@@ -145,7 +266,7 @@
   ],
   "refresh": "30s",
   "schemaVersion": 38,
-  "tags": ["archlucid", "authority"],
+  "tags": ["archlucid", "authority", "authority-pipeline", "prometheus"],
   "templating": {
     "list": [
       {
@@ -166,6 +287,6 @@
   "timezone": "browser",
   "title": "ArchLucid — Authority pipeline",
   "uid": "archlucid-authority",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

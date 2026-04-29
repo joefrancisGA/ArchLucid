@@ -24,8 +24,11 @@ const pageCueClassName =
   "mb-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400";
 
 /**
- * Second line under the **Operate** nav group caption (governance slice — sidebar + mobile drawer).
- * Explains omission for readers vs responsibility framing for operator+.
+ * Second line under **Operate · governance** in the sidebar and mobile drawer.
+ *
+ * **Layer model** (`docs/library/PRODUCT_PACKAGING.md`): **Pilot** is the default wedge (request → run → commit → review).
+ * **Operate** deepens afterward—here the **governance slice** (`operate-governance`) for policy, workflow, alerts, audit, and trust.
+ * At **Execute+** (`AUTHORITY_RANK.ExecuteAuthority`), the line contrasts that slice with Pilot; Readers get an empty string (omit line).
  */
 export function OperateCapabilityNavGroupHint(): ReactNode {
   const rank = useNavCallerAuthorityRank();

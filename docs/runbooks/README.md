@@ -35,6 +35,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P2** | [COMPARISON_RECORD_ORPHAN_REMEDIATION.md](./COMPARISON_RECORD_ORPHAN_REMEDIATION.md) | Orphan `ComparisonRecords` / golden manifests / findings snapshots vs `dbo.Runs` (dry-run then delete). |
 | **P2** | [DATA_ARCHIVAL_HEALTH.md](./DATA_ARCHIVAL_HEALTH.md) | `data_archival` health degraded or archival host errors. |
 | **P2** | [PROVENANCE_INDEXING.md](./PROVENANCE_INDEXING.md) | Provenance indexing lag or failures. |
+| **P2** | [AUTHORITY_PIPELINE_OBSERVABILITY.md](./AUTHORITY_PIPELINE_OBSERVABILITY.md) | Grafana / Prometheus: authority outbox backlog, stale rows, data-consistency counters vs alerts; scale and SQL triage. |
 | **P2** | [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) | Metrics, SLOs, Grafana panels. |
 | **P2** | [INFRASTRUCTURE_OPS.md](./INFRASTRUCTURE_OPS.md) | Terraform stacks (APIM, Front Door, Entra, private endpoints): validate, roll out, triage. |
 | **P2** | [MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md](./MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) | Roll Marketplace `ChangePlan` / `ChangeQuantity` back to `AcknowledgedNoOp` (flip `Billing:AzureMarketplace:GaEnabled=false`); the supported escape hatch for the 2026-04-20 GA flip. |

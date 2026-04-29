@@ -365,6 +365,15 @@ describe("prepareArtifactBodyText", () => {
 
 ## 8. E2E tests (Playwright)
 
+### Mock `npm run test:e2e` vs live `live-api-*.spec.ts` (SQL-backed parity)
+
+| Entry point | Uses mock / loopback fixtures (`playwright.mock.config.ts`)? | Proves shell ↔ **same** **`ArchLucid.Api` + SQL** as CI **`ui-e2e-live`**? |
+|-------------|---------------------------------------------------------------|--------------------------------------------------------------------------|
+| **`npm run test:e2e`** ( **`test-ui-smoke`**, **`release-smoke.ps1 -RunPlaywright`** ) | **Yes** | **No** — does not consume the smoke API **`release-smoke`** may have started ([docs/library/RELEASE_SMOKE.md](../../../docs/library/RELEASE_SMOKE.md) § *Does passing `release-smoke` prove…*) |
+| **`npx playwright test`** default **`playwright.config.ts`** with API + DB up (**`live-api-*.spec.ts`**) | **No** — real HTTP to API | **Yes** ([docs/library/LIVE_E2E_HAPPY_PATH.md](../../../docs/library/LIVE_E2E_HAPPY_PATH.md)) |
+
+**One-minute contributor answer:** Passing **`release-smoke.ps1`**, **including `-RunPlaywright`**, still does **not** prove **`live-api-*.spec.ts`** parity; use CI live jobs locally or run the live config yourself.
+
 ### Change Set 57R — operator-journey E2E contract
 
 The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey** coverage: a small set of linear flows with **deterministic mocked HTTP**, not exhaustive browser automation (single Chromium project, one worker in CI, no visual regression grid, no full route matrix).
@@ -389,7 +398,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 | **`e2e/compare-stale-input-warning.spec.ts`** | After a successful compare, changing a run ID shows the stale-input warning; restoring the prior left ID clears it. |
 | **`e2e/compare-proxy-mock.spec.ts`** | Client compare + **Explain changes (AI)** with mocked proxy responses (legacy + structured + explanation). |
 
-**Out of scope for mock suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, and cross-browser matrices unless explicitly added later. **Live** journeys and **route-level axe** live under **`live-api-*.spec.ts`** and run with **default `playwright.config.ts`** when the API + SQL are up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**).
+**Out of scope for mock suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, and cross-browser matrices unless explicitly added later. **Live** journeys and **route-level axe** live under **`live-api-*.spec.ts`** and run with **default `playwright.config.ts`** when the API + SQL are up — see **[LIVE_E2E_HAPPY_PATH.md](../../../docs/library/LIVE_E2E_HAPPY_PATH.md)**.
 
 ### How to run (checked-in E2E only)
 
@@ -408,7 +417,7 @@ Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
 **From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
 
-**Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archlucid-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/RELEASE_SMOKE.md](../../../docs/RELEASE_SMOKE.md)**.
+**Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archlucid-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/library/RELEASE_SMOKE.md](../../../docs/library/RELEASE_SMOKE.md)** (also § *Mock Playwright vs live* above).
 
 ### Manual testing against a live API
 
