@@ -6,13 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunInspectorPreview } from "@/components/RunInspectorPreview";
 import { RunProvenanceInline } from "@/components/RunProvenanceInline";
+import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Label } from "@/components/ui/label";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -30,6 +31,16 @@ type SortOrder = "createdDesc" | "createdAsc";
 
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
+}
+
+function runRowExplicitCountsLine(run: RunSummary): string | null {
+  if (!isNextPublicDemoMode() || run.runId.trim() !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return null;
+  }
+
+  const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
+
+  return `${c.findingCount} findings · ${c.warningCount} warnings · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
 }
 
 function runRowOutputReadinessLine(run: RunSummary): string {
@@ -312,68 +323,78 @@ export function RunsListClient({
                           const createdLabel = new Date(run.createdUtc).toLocaleString();
                           const isSelected = selectedRun?.runId === run.runId;
                           const title = runListPrimaryTitle(run);
+                          const countsLine = runRowExplicitCountsLine(run);
 
                           return (
-                            <tr
-                              key={run.runId}
-                              data-testid={`runs-row-${run.runId}`}
-                              tabIndex={0}
-                              className={cn(
-                                "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
-                                isSelected
-                                  ? "bg-teal-50/80 dark:bg-teal-950/30"
-                                  : "hover:bg-neutral-50 dark:hover:bg-neutral-800",
-                              )}
-                              onClick={(e) => {
-                                onRowActivate(run, e);
-                              }}
-                              onKeyDown={(e) => {
-                                activateRowKeyboard(e, run, setSelectedRun);
-                              }}
-                            >
-                              <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
-                                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                                  <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
-                                    {title}
-                                  </span>
-                                  <RunStatusBadge run={run} />
-                                </div>
-                                <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
-                                  {run.runId}
-                                </code>
-                                {run.projectId !== projectId ? (
-                                  <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                    Project <span className="font-mono">{run.projectId}</span>
-                                  </p>
-                                ) : null}
-                                <div className="mt-1.5">
-                                  <RunProvenanceInline run={run} />
-                                </div>
-                                <p
-                                  className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400"
-                                  data-testid={`runs-row-readiness-${run.runId}`}
-                                >
-                                  {runRowOutputReadinessLine(run)}
-                                </p>
-                              </td>
-                              <td
-                                className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
-                                title={createdLabel}
+                            <RunTableRowErrorBoundary key={run.runId} runId={run.runId}>
+                              <tr
+                                data-testid={`runs-row-${run.runId}`}
+                                tabIndex={0}
+                                className={cn(
+                                  "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+                                  isSelected
+                                    ? "bg-teal-50/80 dark:bg-teal-950/30"
+                                    : "hover:bg-neutral-50 dark:hover:bg-neutral-800",
+                                )}
+                                onClick={(e) => {
+                                  onRowActivate(run, e);
+                                }}
+                                onKeyDown={(e) => {
+                                  activateRowKeyboard(e, run, setSelectedRun);
+                                }}
                               >
-                                {displayRelativeCreated(run)}
-                              </td>
-                              <td className="whitespace-nowrap px-3 py-2 align-top">
-                                <Link
-                                  href={`/runs/${run.runId}`}
-                                  className="font-medium text-teal-800 underline dark:text-teal-300"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                  }}
+                                <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
+                                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                    <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                                      {title}
+                                    </span>
+                                    <RunStatusBadge run={run} />
+                                  </div>
+                                  <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                    {run.runId}
+                                  </code>
+                                  {run.projectId !== projectId ? (
+                                    <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                      Project <span className="font-mono">{run.projectId}</span>
+                                    </p>
+                                  ) : null}
+                                  <div className="mt-1.5">
+                                    <RunProvenanceInline run={run} />
+                                  </div>
+                                  {countsLine !== null ? (
+                                    <p
+                                      className="m-0 mt-1 text-[11px] font-medium text-neutral-700 dark:text-neutral-300"
+                                      data-testid={`runs-row-counts-${run.runId}`}
+                                    >
+                                      {countsLine}
+                                    </p>
+                                  ) : null}
+                                  <p
+                                    className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400"
+                                    data-testid={`runs-row-readiness-${run.runId}`}
+                                  >
+                                    {runRowOutputReadinessLine(run)}
+                                  </p>
+                                </td>
+                                <td
+                                  className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
+                                  title={createdLabel}
                                 >
-                                  Open run
-                                </Link>
-                              </td>
-                            </tr>
+                                  {displayRelativeCreated(run)}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-2 align-top">
+                                  <Link
+                                    href={`/runs/${run.runId}`}
+                                    className="font-medium text-teal-800 underline dark:text-teal-300"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                    }}
+                                  >
+                                    Open run
+                                  </Link>
+                                </td>
+                              </tr>
+                            </RunTableRowErrorBoundary>
                           );
                         })}
                       </tbody>

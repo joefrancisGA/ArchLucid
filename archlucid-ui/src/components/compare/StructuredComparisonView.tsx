@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
@@ -137,7 +138,10 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             <tbody>
               {golden.decisionChanges.map((d, i) => (
                 <tr key={i}>
-                  <td className={cellCls}>{d.decisionKey}</td>
+                  <td className={cellCls}>
+                    <div className="font-medium text-neutral-900 dark:text-neutral-100">{decisionKeyDisplay(d.decisionKey)}</div>
+                    <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{d.decisionKey}</div>
+                  </td>
                   <td className={cellCls}>{d.baseValue ?? "—"}</td>
                   <td className={cellCls}>{d.targetValue ?? "—"}</td>
                   <td className={cellCls}>{d.changeType}</td>
@@ -229,22 +233,28 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             <p className="m-0 text-sm">Estimated max monthly cost unchanged or not surfaced as numeric delta rows.</p>
           </OperatorEmptyState>
         ) : (
-          <table className="mt-2 w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Baseline (est. max monthly)</th>
-                <th className={cellCls}>Updated (est. max monthly)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {golden.costChanges.map((c, i) => (
-                <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                  <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
-                  <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
+          <>
+            <table className="mt-2 w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                  <th className={cellCls}>Baseline (est. max monthly)</th>
+                  <th className={cellCls}>Updated (est. max monthly)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {golden.costChanges.map((c, i) => (
+                  <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
+                    <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
+                    <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+              Values are engineering estimates from the manifest comparison payload (rounded; illustrative). Treat as
+              directional unless your FinOps model is attached to the same baseline.
+            </p>
+          </>
         )}
       </ComparisonFoldSection>
     </section>

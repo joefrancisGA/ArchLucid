@@ -3,6 +3,8 @@
 import { HelpCircle } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
+import { usePathname } from "next/navigation";
+
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
@@ -16,9 +18,10 @@ import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
-import { RouteAnnouncer } from "@/components/RouteAnnouncer";
-import { OnboardingTour } from "@/components/OnboardingTour";
 import { SidebarNav } from "@/components/SidebarNav";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
+import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +37,7 @@ type AppShellClientProps = {
  * collapsible sidebar (lg+), mobile drawer, keyboard shortcuts, main landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
+  const pathname = usePathname();
   const [helpOpen, setHelpOpen] = useState(false);
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
@@ -45,6 +49,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
 
   return (
     <OperatorNavAuthorityProvider>
+      <WorkspaceActiveRunProvider>
       <TooltipProvider delayDuration={200}>
         <a href="#main-content" className="skip-to-main">
           Skip to main content
@@ -89,7 +94,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
               <SidebarNav />
             </aside>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
-              <TrialBanner />
+              {pathname === "/" ? <TrialBanner /> : null}
               <KeyboardShortcutProvider
                 onHelpRequested={() => {
                   setHelpOpen(true);
@@ -100,6 +105,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
+                  <SyncActiveRunFromPathname />
                   {children}
                 </div>
               </KeyboardShortcutProvider>
@@ -120,6 +126,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         <CorePilotWizardLauncher />
         <OnboardingTour />
       </TooltipProvider>
+      </WorkspaceActiveRunProvider>
     </OperatorNavAuthorityProvider>
   );
 }
