@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { normalizeSeeItMarketingPayload } from "../see-it/normalize-see-it-payload";
+import { normalizeSeeItMarketingPayload } from "../../see-it/normalize-see-it-payload";
 import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";

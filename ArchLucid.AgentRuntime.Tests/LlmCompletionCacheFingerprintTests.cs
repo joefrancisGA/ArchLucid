@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
-public sealed class LlmCompletionCacheKeyTests
+public sealed class LlmCompletionCacheFingerprintTests
 {
     [Fact]
     public void Compute_when_partitionByScope_differs_by_tenant_produces_different_keys()
@@ -24,8 +24,8 @@ public sealed class LlmCompletionCacheKeyTests
             ProjectId = scopeA.ProjectId
         };
 
-        string keyA = LlmCompletionCacheKey.Compute(true, "dep", "sys", "user", scopeA);
-        string keyB = LlmCompletionCacheKey.Compute(true, "dep", "sys", "user", scopeB);
+        string keyA = LlmCompletionCacheFingerprint.Compute(true, "dep", "sys", "user", scopeA);
+        string keyB = LlmCompletionCacheFingerprint.Compute(true, "dep", "sys", "user", scopeB);
 
         keyA.Should().NotBe(keyB);
     }
@@ -43,8 +43,8 @@ public sealed class LlmCompletionCacheKeyTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
-        string keyA = LlmCompletionCacheKey.Compute(false, "dep", "sys", "user", scopeA);
-        string keyB = LlmCompletionCacheKey.Compute(false, "dep", "sys", "user", scopeB);
+        string keyA = LlmCompletionCacheFingerprint.Compute(false, "dep", "sys", "user", scopeA);
+        string keyB = LlmCompletionCacheFingerprint.Compute(false, "dep", "sys", "user", scopeB);
 
         keyA.Should().Be(keyB);
     }
@@ -57,8 +57,8 @@ public sealed class LlmCompletionCacheKeyTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
-        Action empty = () => LlmCompletionCacheKey.Compute(false, "", "s", "u", scope);
-        Action whitespace = () => LlmCompletionCacheKey.Compute(false, "   ", "s", "u", scope);
+        Action empty = () => LlmCompletionCacheFingerprint.Compute(false, "", "s", "u", scope);
+        Action whitespace = () => LlmCompletionCacheFingerprint.Compute(false, "   ", "s", "u", scope);
 
         empty.Should().Throw<ArgumentException>().WithParameterName("deploymentName");
         whitespace.Should().Throw<ArgumentException>().WithParameterName("deploymentName");
@@ -72,7 +72,7 @@ public sealed class LlmCompletionCacheKeyTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
-        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", null!, "u", scope);
+        Action act = () => LlmCompletionCacheFingerprint.Compute(false, "dep", null!, "u", scope);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("systemPrompt");
     }
@@ -85,7 +85,7 @@ public sealed class LlmCompletionCacheKeyTests
             TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
-        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", "s", null!, scope);
+        Action act = () => LlmCompletionCacheFingerprint.Compute(false, "dep", "s", null!, scope);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("userPrompt");
     }
@@ -93,8 +93,16 @@ public sealed class LlmCompletionCacheKeyTests
     [Fact]
     public void Compute_throws_when_scope_null()
     {
-        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", "s", "u", null!);
+        Action act = () => LlmCompletionCacheFingerprint.Compute(false, "dep", "s", "u", null!);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("scope");
+    }
+
+    [Fact]
+    public void ComputePromptHash_returns_stable_hex_digest()
+    {
+        string digest = LlmCompletionCacheFingerprint.ComputePromptHash("a", "b");
+        digest.Should().HaveLength(64);
+        LlmCompletionCacheFingerprint.ComputePromptHash("a", "b").Should().Be(digest);
     }
 }

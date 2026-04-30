@@ -43,6 +43,12 @@ public static class ArchLucidInstrumentation
 
     private static int _trialFunnelObservableGaugesRegistered;
 
+    private static int _llmCompletionCacheObservableInstrumentsRegistered;
+
+    private static long _llmCompletionCacheHitsAggregate;
+
+    private static long _llmCompletionCacheMissesAggregate;
+
     private static long _trialActiveTenantsCached;
 
     private static Func<long>? _auditRetryQueuePendingReader;
@@ -223,6 +229,19 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_explanation_cache_misses_total",
             description: "Aggregate explanation cache misses (LLM call required).");
+
+    /// <summary>LLM completion response cache hits (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> LlmCompletionCacheHitsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_hits_total",
+            description: "LLM completion response cache hits (label: agent_type).");
+
+    /// <summary>LLM completion response cache misses (<c>CachingLlmCompletionClient</c>, label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> LlmCompletionCacheMissesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_cache_misses_total",
+            description: "LLM completion response cache misses (label: agent_type).");
+
 
     /// <summary>In-process cache hits for <c>GET /v1/demo/preview</c> (marketing commit-page bundle).</summary>
     public static readonly Counter<long> DemoPreviewCacheHits =
@@ -696,6 +715,31 @@ public static class ArchLucidInstrumentation
             "Tenants currently on an active self-service trial (TrialStatus=Active, TrialExpiresUtc set).");
     }
 
+    /// <summary>
+    ///     Registers observable LLM completion cache instruments once (<c>CachingLlmCompletionClient</c>).
+    /// </summary>
+    public static void EnsureLlmCompletionCacheObservableInstrumentsRegistered()
+    {
+        if (Interlocked.Exchange(ref _llmCompletionCacheObservableInstrumentsRegistered, 1) != 0)
+
+            return;
+
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_llm_cache_hit_ratio",
+            () =>
+            {
+                long hits = Interlocked.Read(ref _llmCompletionCacheHitsAggregate);
+                long misses = Interlocked.Read(ref _llmCompletionCacheMissesAggregate);
+                long denominator = hits + misses;
+
+                double ratio = denominator == 0 ? 0 : hits / (double)denominator;
+
+                return new Measurement<double>(ratio);
+            },
+            description: "Process-wide LLM completion cache hit ratio (hits / (hits + misses)) from CachingLlmCompletionClient.");
+    }
+
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
     public static void PublishTrialActiveTenantCount(long count)
     {
@@ -728,6 +772,32 @@ public static class ArchLucidInstrumentation
         if (acc is not null)
 
             acc.AddCompletions(1);
+    }
+
+    /// <summary>Records one LLM completion response cache hit (label <c>agent_type</c>).</summary>
+    public static void RecordLlmCompletionCacheHit(string agentType)
+    {
+        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
+
+        _ = Interlocked.Increment(ref _llmCompletionCacheHitsAggregate);
+
+        TagList tags = new();
+        tags.Add("agent_type", label);
+
+        LlmCompletionCacheHitsTotal.Add(1, tags);
+    }
+
+    /// <summary>Records one LLM completion response cache miss (label <c>agent_type</c>).</summary>
+    public static void RecordLlmCompletionCacheMiss(string agentType)
+    {
+        string label = string.IsNullOrWhiteSpace(agentType) ? "unknown" : agentType.Trim();
+
+        _ = Interlocked.Increment(ref _llmCompletionCacheMissesAggregate);
+
+        TagList tags = new();
+        tags.Add("agent_type", label);
+
+        LlmCompletionCacheMissesTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid.try.real_mode.attempted_total</c>.</summary>
