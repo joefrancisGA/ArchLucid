@@ -7,6 +7,7 @@ import { ChevronDown } from "lucide-react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,12 +31,12 @@ const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Explain the finalized manifest in plain language.",
   "Explain the PHI minimization risk.",
   "Summarize the finalized manifest for a sponsor.",
-  "What evidence supports this finding?",
   "What evidence supports the PHI minimization risk?",
   "Summarize this for an executive sponsor.",
 ];
 
 export default function AskPage() {
+  const workspaceRun = useWorkspaceActiveRun();
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
@@ -61,6 +62,24 @@ export default function AskPage() {
   useEffect(() => {
     void loadThreads();
   }, [loadThreads]);
+
+  useEffect(() => {
+    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
+
+    if (selectedThreadId.trim().length > 0) {
+      return;
+    }
+
+    if (fromWorkspace.length === 0) {
+      return;
+    }
+
+    if (runId.trim().length > 0) {
+      return;
+    }
+
+    setRunId(fromWorkspace);
+  }, [workspaceRun?.activeRunId, selectedThreadId, runId]);
 
   async function loadMessages(threadId: string) {
     setActionFailure(null);
@@ -173,7 +192,8 @@ export default function AskPage() {
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Threads</CardTitle>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Workspace conversations for your signed-in user. Titles come from the first question or server defaults.
+              Live workspace threads for your signed-in user — not seeded sample dialogs. Pick a thread to continue, or{" "}
+              start <strong>New conversation</strong> and choose a run.
             </p>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">

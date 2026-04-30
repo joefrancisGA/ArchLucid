@@ -108,6 +108,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
               <Link href={findingHref}>Primary finding</Link>
             </Button>
           ) : null}
+          {run.hasArtifactBundle === true || showcaseStory ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={`/runs/${encodeURIComponent(run.runId)}#artifacts-exports`}>Artifacts</Link>
+            </Button>
+          ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
             <Link href={`/replay?runId=${encodeURIComponent(run.runId)}`}>Review trail (replay)</Link>
           </Button>

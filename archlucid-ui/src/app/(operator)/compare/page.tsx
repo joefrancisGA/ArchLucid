@@ -277,7 +277,7 @@ function CompareForm() {
         Compare finalized manifests to understand what changed between two runs—useful for sponsors, security review,
         and release checkpoints. <strong>Baseline</strong> is the reference; <strong>updated</strong> is what you are
         evaluating. After you compare, review the structured summary first; optional{" "}
-        <strong>Summarize comparison for sponsor</strong> adds a short narrative.
+        <strong>Summarize for sponsor</strong> adds a short narrative.
       </p>
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         The primary table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over finalized
@@ -324,7 +324,7 @@ function CompareForm() {
             onClick={() => void loadAiExplanation()}
             disabled={aiLoading || !leftTrim || !rightTrim}
           >
-            {aiLoading ? "Summarizing…" : "Summarize comparison"}
+            {aiLoading ? "Summarizing…" : "Summarize for sponsor"}
           </button>
         </div>
       </div>
@@ -338,7 +338,7 @@ function CompareForm() {
             Content below still reflects{" "}
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.left}</code> →{" "}
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
-            <strong>Summarize comparison for sponsor</strong> again after fixing selections, or restore the previous
+            <strong>Summarize for sponsor</strong> again after fixing selections, or restore the previous
             values.
           </p>
         </OperatorWarningCallout>
@@ -439,7 +439,7 @@ function CompareForm() {
           <OperatorTryNext>
             AI is optional—use the structured summary and supplementary tables above for the authoritative diff. If this
             should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
-            <strong>Summarize comparison for sponsor</strong>.
+            <strong>Summarize for sponsor</strong>.
           </OperatorTryNext>
         </>
       )}
@@ -455,41 +455,6 @@ function CompareForm() {
             defect.
           </OperatorTryNext>
         </>
-      )}
-
-      {pairAligned && !loading && lastComparedPair !== null && (
-        <section
-          className="mt-5 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
-          aria-label="Comparison request outcome"
-        >
-          <h3 className="mb-2.5 mt-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Last compare request</h3>
-          <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
-            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.left}</code>
-            <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
-            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.right}</code>
-          </p>
-          <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
-            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Manifest comparison</dt>
-            <dd className="m-0 text-neutral-800 dark:text-neutral-200">
-              {outcomeLabel({
-                hasValue: golden !== null,
-                failure: goldenFailure,
-                malformed: goldenMalformed,
-              })}
-            </dd>
-            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary run / manifest diff</dt>
-            <dd className="m-0 text-neutral-800 dark:text-neutral-200">
-              {outcomeLabel({
-                hasValue: result !== null,
-                failure: legacyFailure,
-                malformed: legacyMalformed,
-              })}
-            </dd>
-          </dl>
-          <p className="mb-0 mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
-            AI explanation is not included here—use the AI button for that pair.
-          </p>
-        </section>
       )}
 
       {hasResultsToNavigate && (
@@ -535,6 +500,46 @@ function CompareForm() {
         ) : null}
 
       {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
+
+      {pairAligned && !loading && lastComparedPair !== null ? (
+        <details
+          className="mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
+          aria-label="Comparison request outcome"
+          open={showStaleInputsWarning}
+        >
+          <summary className="cursor-pointer text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Last compare request (technical)
+          </summary>
+          <div className="mt-3">
+            <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.left}</code>
+              <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
+              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.right}</code>
+            </p>
+            <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
+              <dt className="m-0 text-neutral-500 dark:text-neutral-400">Manifest comparison</dt>
+              <dd className="m-0 text-neutral-800 dark:text-neutral-200">
+                {outcomeLabel({
+                  hasValue: golden !== null,
+                  failure: goldenFailure,
+                  malformed: goldenMalformed,
+                })}
+              </dd>
+              <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary run / manifest diff</dt>
+              <dd className="m-0 text-neutral-800 dark:text-neutral-200">
+                {outcomeLabel({
+                  hasValue: result !== null,
+                  failure: legacyFailure,
+                  malformed: legacyMalformed,
+                })}
+              </dd>
+            </dl>
+            <p className="mb-0 mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
+              AI explanation is not included here—use <strong>Summarize for sponsor</strong> for that pair.
+            </p>
+          </div>
+        </details>
+      ) : null}
     </main>
   );
 }

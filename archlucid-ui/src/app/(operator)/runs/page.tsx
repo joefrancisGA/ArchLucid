@@ -4,7 +4,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { redirect } from "next/navigation";
 
-import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
+import { RunsListAggregateErrorBoundary } from "@/components/RunsListAggregateErrorBoundary";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { EmptyState } from "@/components/EmptyState";
@@ -197,7 +197,7 @@ export default async function RunsPage({
       ) : null}
 
       {!loadFailure && !malformedMessage && totalCount > 0 ? (
-        <RunsListClient
+        <RunsListAggregateErrorBoundary
           runs={runs}
           projectId={projectId}
           page={page}

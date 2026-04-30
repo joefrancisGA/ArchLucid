@@ -211,7 +211,7 @@ export function RunsDashboardPanel() {
                   data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Environmental reporting analysis — completed example run
+                    Claims Intake — completed example run
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     Open the proof path: run detail, finalized manifest, primary finding, or the read-only marketing
@@ -256,9 +256,9 @@ export function RunsDashboardPanel() {
                     <Button asChild variant="primary" size="sm" className="h-8">
                       <Link href="/runs/new">Create your first request</Link>
                     </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/getting-started">First manifest guide</Link>
-                    </Button>
+          <Button asChild variant="outline" size="sm" className="h-8">
+            <Link href="/getting-started">First Manifest Guide</Link>
+          </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/help">Operator help</Link>
                     </Button>

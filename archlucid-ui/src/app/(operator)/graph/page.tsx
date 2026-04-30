@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -23,9 +24,14 @@ import {
   mergeArchitectureGraphPages,
 } from "@/lib/graph-api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import type { GraphViewModel } from "@/types/graph";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
@@ -49,6 +55,7 @@ type GraphMode =
 
 /** Interactive graph viewer page. Operator picks a run, graph mode, and optional filters. */
 export default function GraphPage() {
+  const workspaceRun = useWorkspaceActiveRun();
   const [runId, setRunId] = useState("");
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
@@ -62,6 +69,28 @@ export default function GraphPage() {
   const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
 
   const loadGenRef = useRef(0);
+
+  useEffect(() => {
+    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
+
+    if (fromWorkspace.length === 0 || runId.trim().length > 0) {
+      return;
+    }
+
+    setRunId(fromWorkspace);
+  }, [workspaceRun?.activeRunId, runId]);
+
+  useEffect(() => {
+    if (!isNextPublicDemoMode()) {
+      return;
+    }
+
+    if (runId.trim().length > 0) {
+      return;
+    }
+
+    setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+  }, [runId]);
 
   const nodeTypes = useMemo(() => {
     if (!graph) {
@@ -221,24 +250,34 @@ export default function GraphPage() {
         findings, artifacts, review events, and architecture components.
       </p>
 
-      <div className="grid gap-3 max-w-4xl mb-6">
-        <AskRunIdPicker
-          value={runId}
-          onChange={setRunId}
-          selectedThreadId=""
-          fieldId="graph-run"
-          label="Run"
-        />
+      <div
+        className={cn(
+          "mb-6 flex max-w-4xl flex-col gap-3 rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
+          "lg:flex-row lg:flex-wrap lg:items-end",
+        )}
+      >
+        <div className="min-w-[12rem] flex-1 lg:max-w-sm">
+          <AskRunIdPicker
+            value={runId}
+            onChange={setRunId}
+            selectedThreadId=""
+            fieldId="graph-run"
+            label="Run"
+          />
+        </div>
 
-        <div>
-          <label htmlFor="graph-mode-select" className="block mb-1.5 text-[13px] font-semibold">
+        <div className="min-w-[10rem] lg:w-auto">
+          <Label htmlFor="graph-mode-select" className="text-[13px] font-semibold">
             Graph mode
-          </label>
+          </Label>
           <select
             id="graph-mode-select"
             value={mode}
             onChange={(e) => setMode(e.target.value as GraphMode)}
-            className="p-2 w-full max-w-[420px]"
+            className={cn(
+              "mt-1.5 block w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100",
+              "lg:w-[220px]",
+            )}
           >
             <option value="provenance-full">Review trail graph</option>
             <option value="decision-subgraph">Decision focus</option>
@@ -247,51 +286,61 @@ export default function GraphPage() {
           </select>
         </div>
 
-        {mode === "decision-subgraph" && (
-          <input
-            value={decisionId}
-            onChange={(e) => setDecisionId(e.target.value)}
-            placeholder="Decision ID"
-            className="p-2"
-          />
-        )}
-
-        {mode === "node-neighborhood" && (
-          <>
-            <input
-              value={nodeId}
-              onChange={(e) => setNodeId(e.target.value)}
-              placeholder="Node ID"
-              className="p-2"
-            />
-            <label className="flex items-center gap-2">
-              Depth
-              <input
-                type="number"
-                min={0}
-                max={10}
-                value={depth}
-                onChange={(e) => setDepth(Number(e.target.value))}
-                className="p-2 w-20"
-              />
-            </label>
-          </>
-        )}
-
-        <button
+        <Button
           type="button"
+          variant="primary"
+          className="w-full lg:w-auto"
           onClick={() => void performGraphLoad()}
           disabled={
             loading ||
-            !runId ||
-            (mode === "decision-subgraph" && !decisionId) ||
-            (mode === "node-neighborhood" && !nodeId)
+            runId.trim().length === 0 ||
+            (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
+            (mode === "node-neighborhood" && nodeId.trim().length === 0)
           }
-          className={`px-4 py-2.5 ${loading ? "cursor-wait" : "cursor-pointer"}`}
         >
           {loading ? "Loading…" : "Load graph"}
-        </button>
+        </Button>
       </div>
+
+      {mode === "decision-subgraph" ? (
+        <div className="mb-3 max-w-4xl">
+          <Label htmlFor="graph-decision-id">Decision ID</Label>
+          <Input
+            id="graph-decision-id"
+            value={decisionId}
+            onChange={(e) => setDecisionId(e.target.value)}
+            placeholder="e.g. claims.intake.boundary"
+            className="mt-1.5 max-w-xl font-mono text-sm"
+          />
+        </div>
+      ) : null}
+
+      {mode === "node-neighborhood" ? (
+        <div className="mb-3 flex max-w-4xl flex-wrap items-end gap-3">
+          <div className="min-w-0 flex-1 sm:max-w-md">
+            <Label htmlFor="graph-node-id">Node ID</Label>
+            <Input
+              id="graph-node-id"
+              value={nodeId}
+              onChange={(e) => setNodeId(e.target.value)}
+              placeholder="Graph node identifier"
+              className="mt-1.5 font-mono text-sm"
+            />
+          </div>
+          <div>
+            <Label htmlFor="graph-depth">Depth</Label>
+            <Input
+              id="graph-depth"
+              type="number"
+              min={0}
+              max={10}
+              value={depth}
+              onChange={(e) => setDepth(Number(e.target.value))}
+              className="mt-1.5 w-20"
+            />
+          </div>
+        </div>
+      ) : null}
 
       {loading && (
         <OperatorLoadingNotice>
