@@ -39,7 +39,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
           onNavigate(`/runs/${trimmed}`);
         }}
       >
-        Open run detail for {trimmed}
+        Open review detail for {trimmed}
       </CommandItem>
     </CommandGroup>
   );

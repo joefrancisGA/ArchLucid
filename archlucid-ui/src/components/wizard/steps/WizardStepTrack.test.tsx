@@ -108,7 +108,7 @@ describe("WizardStepTrack", () => {
     expect(screen.getAllByText("Complete").length).toBe(4);
   });
 
-  it("renders Open run detail when hasGoldenManifest is true", () => {
+  it("renders Open review detail when hasGoldenManifest is true", () => {
     renderWithTooltips(
       <WizardStepTrack
         runId="golden-1"
@@ -120,7 +120,7 @@ describe("WizardStepTrack", () => {
       />,
     );
 
-    const link = screen.getByRole("link", { name: "Open run detail" });
+    const link = screen.getByRole("link", { name: "Open review detail" });
     expect(link).toHaveAttribute("href", "/runs/golden-1");
   });
 
@@ -170,7 +170,7 @@ describe("WizardStepTrack", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open run detail" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Open review detail" })).toBeInTheDocument();
     });
 
     expect(mockGetRunSummary.mock.calls.length).toBeGreaterThanOrEqual(2);

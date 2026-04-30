@@ -43,9 +43,7 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Showing the public Claims Intake sample — add demo API routing when you want this page to pull live JSON.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -62,9 +60,7 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          The demo host did not respond — showing the same curated sample used on <span className="font-medium">See it</span> and Showcase.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -76,9 +72,7 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Live preview returned HTTP {response.status} — showing the curated public sample instead.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -92,7 +86,7 @@ export default async function DemoPreviewMarketingPage() {
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Read-only view of the latest finalized demo-seed run — same services as the operator manifest page, without signing in.
+        A read-only walkthrough of a completed architecture review — suitable for procurement and sponsor conversations.
       </p>
       <div className="mt-8">
         <DemoPreviewMarketingBody payload={payload} />

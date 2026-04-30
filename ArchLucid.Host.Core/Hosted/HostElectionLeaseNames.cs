@@ -24,4 +24,6 @@ public static class HostElectionLeaseNames
     public const string TenantHealthScoring = "hosted:tenant-health-scoring";
 
     public const string TrialArchitecturePreseed = "hosted:trial-architecture-preseed";
+
+    public const string DataConsistencyReconciliation = "hosted:data-consistency-reconciliation";
 }

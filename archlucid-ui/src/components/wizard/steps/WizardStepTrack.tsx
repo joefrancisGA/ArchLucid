@@ -36,7 +36,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       description="Snapshot stages run asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
     >
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Run ID:</strong>{" "}
+        <strong>Review ID:</strong>{" "}
         <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
       </p>
 
@@ -86,7 +86,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
           <p className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">Reviewed manifest is available.</p>
           <nav className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-sm">
             <Link className="text-teal-800 underline dark:text-teal-200" href={`/runs/${runId}`}>
-              Open run detail
+              Open review detail
             </Link>
             <Link
               className="text-teal-800 underline dark:text-teal-200"

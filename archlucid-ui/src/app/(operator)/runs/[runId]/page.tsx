@@ -18,6 +18,7 @@ import {
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
@@ -102,9 +103,9 @@ function ManifestSummarySection({
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               {manifestStatusForDisplay(manifestSummary.status)}
             </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Rule set</dt>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Policy pack</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-              {manifestSummary.ruleSetId} {manifestSummary.ruleSetVersion}
+              {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.decisionCount}</dd>

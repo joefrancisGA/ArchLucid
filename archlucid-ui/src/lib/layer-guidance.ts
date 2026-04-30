@@ -35,6 +35,7 @@ export type LayerGuidancePageKey =
   | "alerts"
   | "audit"
   | "value-report"
+  | "value-report-pilot"
   | "security-trust"
   | "teams-notifications";
 
@@ -83,7 +84,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-findings": {
     layerBadge: "Operate",
-    headline: "Findings from architecture runs and governance scans.",
+    headline: "Findings from architecture reviews and governance scans.",
     useWhen: "Open a run for snapshot and explainability; use governance dashboard for cross-run queue context.",
     firstPilotNote:
       "Operate · governance — after Pilot proof use run detail for drill-down; dashboard queues cross-run findings.",
@@ -118,6 +119,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "Operate · governance — after Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
+  },
+  "value-report-pilot": {
+    layerBadge: "Operate",
+    headline: "Sponsor-ready proof snapshot without generating a DOCX.",
+    useWhen:
+      "When executives need totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
+    firstPilotNote:
+      "Operate · analysis — complements the in-product scorecard; Read-tier API; optional during Pilot for executive visibility.",
   },
   "value-report": {
     layerBadge: "Operate",

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -162,7 +163,7 @@ function CompareForm() {
       return;
     }
 
-    if (!isNextPublicDemoMode()) {
+    if (!isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 
@@ -197,7 +198,7 @@ function CompareForm() {
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
   const isDemoClaimsIntakeComparePair =
-    isNextPublicDemoMode() &&
+    isStaticDemoPayloadFallbackEnabled() &&
     leftTrim === "claims-intake-run-v1" &&
     rightTrim === "claims-intake-run-v2";
   const pairAligned =
@@ -284,11 +285,11 @@ function CompareForm() {
         outputs. The service may persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip>{" "}
         for later replay.
       </p>
-      {isNextPublicDemoMode() ? (
+      {isStaticDemoPayloadFallbackEnabled() ? (
         <>
           <p className="mb-4 mt-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            <strong>Demo — Claims Intake comparison:</strong> pick a baseline and target in one tap, then click{" "}
-            <strong>Compare</strong>. You can still change runs from the lists below.
+            <strong>Demo — Claims Intake comparison:</strong>             pick a baseline and target in one tap, then click{" "}
+            <strong>Compare</strong>. You can still change reviews from the lists below.
           </p>
           <div className="mb-4 grid max-w-3xl gap-3 sm:grid-cols-2">
             <button
@@ -384,19 +385,27 @@ function CompareForm() {
           <strong>Selections no longer match the results below.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             Content below still reflects{" "}
-            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.left}</code> →{" "}
-            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
-            <strong>Summarize for sponsor</strong> again after fixing selections, or restore the previous
-            values.
+            <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.left) : ""}</strong> →{" "}
+            <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.right) : ""}</strong>. Click{" "}
+            <strong>Compare</strong> or <strong>Summarize for sponsor</strong> again after fixing selections, or restore
+            the previous values.
           </p>
+          <details className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+            <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
+              Technical review IDs
+            </summary>
+            <p className="m-0 mt-1 font-mono">
+              {lastComparedPair?.left} → {lastComparedPair?.right}
+            </p>
+          </details>
         </OperatorWarningCallout>
       )}
 
       {loading && leftTrim && rightTrim && (
         <OperatorLoadingNotice>
-          <strong>Comparing runs.</strong>
+          <strong>Comparing reviews.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            Comparing runs — this may take a few seconds. Results appear below when ready.
+            Comparing reviews — this may take a few seconds. Results appear below when ready.
           </p>
         </OperatorLoadingNotice>
       )}
@@ -560,9 +569,16 @@ function CompareForm() {
           </summary>
           <div className="mt-3">
             <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.left}</code>
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                {compareRunHeadingLabel(lastComparedPair.left)}
+              </span>
               <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
-              <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.right}</code>
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                {compareRunHeadingLabel(lastComparedPair.right)}
+              </span>
+              <span className="sr-only">
+                (technical IDs: {lastComparedPair.left} → {lastComparedPair.right})
+              </span>
             </p>
             <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
               <dt className="m-0 text-neutral-500 dark:text-neutral-400">Manifest comparison</dt>

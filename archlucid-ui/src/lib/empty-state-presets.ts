@@ -32,8 +32,8 @@ export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
   title: "No graph on screen yet",
   description:
-    "Choose a run above, keep Review trail graph selected for the default story, then use Load graph. When the API returns no graph for that run, demo builds can still show a sample review-trail shape so the screen is not empty.",
-  actions: [{ label: "View runs list", href: "/runs?projectId=default", variant: "outline" }],
+    "Choose a review above, keep Review trail graph selected for the default story, then use Load graph.",
+  actions: [{ label: "View reviews list", href: "/runs?projectId=default", variant: "outline" }],
 };
 
 export const COMPARE_WAITING: EmptyStateProps = {
@@ -54,12 +54,12 @@ export const PLANNING_EMPTY: EmptyStateProps = {
 
 export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   icon: Shield,
-  title: "Load a run to review workflow rows",
+  title: "Load a review to see workflow rows",
   description:
-    "Under Approval requests for this run, choose or type a run, then click Load to fetch approval requests, promotions, and activations.",
+    "Under Approval requests for this review, choose or type a review id, then click Load to fetch approval requests, promotions, and activations.",
   actions: [
     { label: "Governance findings", href: "/governance/findings", variant: "outline" },
-    { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
+    { label: "View reviews list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "governance",
 };
@@ -67,12 +67,12 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
 /** Idle state when the principal is below Execute: inspection-first copy (mutations stay API-gated). */
 export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   icon: Shield,
-  title: "Inspect run-scoped workflow",
+  title: "Inspect review-scoped workflow",
   description:
-    "Under Approval requests for this run, choose or type a run and click Load to review approvals, promotions, and activations. Submitting, reviewing, promoting, or activating requires operator-level access where your tenant expects it.",
+    "Under Approval requests for this review, choose or type a review and click Load to review approvals, promotions, and activations. Submitting, reviewing, promoting, or activating requires operator-level access where your tenant expects it.",
   actions: [
     { label: "Governance findings", href: "/governance/findings", variant: "outline" },
-    { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
+    { label: "View reviews list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "governance",
 };

@@ -17,6 +17,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/governance/findings": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/value-report": "advanced-only",
+  "/value-report/pilot": "advanced-only",
   "/graph": "advanced-only",
   "/compare": "advanced-only",
   "/replay": "advanced-only",
@@ -38,7 +39,7 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/admin/health": "admin-only",
   "/admin/support": "admin-only",
   "/admin/users": "admin-only",
-  "/settings/tenant": "advanced-only",
+  "/settings/tenant": "admin-only",
   "/settings/baseline": "advanced-only",
   "/settings/tenant-cost": "advanced-only",
   "/settings/exec-digest": "advanced-only",
@@ -57,6 +58,11 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   }
 
   const trimmedPath = path.trim().length === 0 ? "/" : path;
+
+  if (trimmedPath.startsWith("/governance/approval-requests")) {
+    return "admin-only";
+  }
+
   const exact = READINESS_BY_PATH[href] ?? READINESS_BY_PATH[trimmedPath];
 
   if (exact !== undefined) {
@@ -66,13 +72,15 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   return "demo-ready";
 }
 
-/** In `NEXT_PUBLIC_DEMO_MODE`, omit hidden links from the sidebar entirely. */
+/** In `NEXT_PUBLIC_DEMO_MODE`, omit hidden and admin-only links from the sidebar (buyer demos). */
 export function shouldHideOperatorNavLinkInDemo(href: string, demoMode: boolean): boolean {
   if (!demoMode) {
     return false;
   }
 
-  return operatorRouteReadiness(href) === "hidden";
+  const tier = operatorRouteReadiness(href);
+
+  return tier === "hidden" || tier === "admin-only";
 }
 
 /** In demo mode, advanced-only links remain navigable but are visually de-emphasized in the sidebar. */

@@ -59,12 +59,12 @@ export function RunDetailPageHeader({
       </div>
 
       <dl className="m-0 grid gap-2 text-sm text-neutral-600 dark:text-neutral-400 sm:grid-cols-[auto_1fr] sm:gap-x-6 sm:gap-y-1">
-        <dt className="font-medium text-neutral-700 dark:text-neutral-300">Run ID</dt>
+        <dt className="font-medium text-neutral-700 dark:text-neutral-300">Review ID</dt>
         <dd className="m-0 flex min-w-0 flex-wrap items-center gap-1">
           <code className="truncate rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100">
             {runId}
           </code>
-          <CopyIdButton value={runId} aria-label="Copy run ID" />
+          <CopyIdButton value={runId} aria-label="Copy review ID" />
         </dd>
         <dt className="font-medium text-neutral-700 dark:text-neutral-300">Project</dt>
         <dd className="m-0 font-mono text-xs text-neutral-800 dark:text-neutral-200">{projectId}</dd>

@@ -49,6 +49,7 @@ import {
   shouldInjectDemoAuditSample,
 } from "@/lib/demo-audit-sample-events";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isOperatorDemoStaticMode } from "@/lib/operator-static-demo";
 
 function formatUtc(iso: string): string {
   try {
@@ -61,6 +62,10 @@ function formatUtc(iso: string): string {
 }
 
 const AUDIT_PAGE_SIZE = 200;
+
+function auditDemoSampleInjectEnabled(): boolean {
+  return isNextPublicDemoMode() || isOperatorDemoStaticMode();
+}
 
 function tryFormatDataJson(dataJson: string): string {
   try {
@@ -159,7 +164,7 @@ export default function AuditPage() {
       const filters = currentFilters();
       const page = await executeSearch(filters);
       const injectDemo =
-        isNextPublicDemoMode() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+        auditDemoSampleInjectEnabled() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
       setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
       setHasMoreResults(injectDemo ? false : page.hasMore);
       setAuditNextCursor(injectDemo ? null : page.nextCursor);
@@ -171,7 +176,7 @@ export default function AuditPage() {
   }, [currentFilters, executeSearch]);
 
   useEffect(() => {
-    if (!isNextPublicDemoMode() || demoAuditPrimedRef.current) {
+    if ((!isNextPublicDemoMode() && !isOperatorDemoStaticMode()) || demoAuditPrimedRef.current) {
       return;
     }
 
@@ -199,7 +204,7 @@ export default function AuditPage() {
     try {
       const page = await executeSearch(empty);
       const injectDemo =
-        isNextPublicDemoMode() && shouldInjectDemoAuditSample(empty) && page.items.length === 0;
+        auditDemoSampleInjectEnabled() && shouldInjectDemoAuditSample(empty) && page.items.length === 0;
       setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
       setHasMoreResults(injectDemo ? false : page.hasMore);
       setAuditNextCursor(injectDemo ? null : page.nextCursor);

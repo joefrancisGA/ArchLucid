@@ -9,24 +9,14 @@ public sealed class LlmCompletionCacheOptions
     public const string SectionName = "AgentRuntime:CompletionCache";
 
     /// <summary>When false, the decorator forwards every call to the inner client.</summary>
-    public bool Enabled
-    {
-        get; set;
-    }
+    public bool Enabled { get; set; }
 
     /// <summary>Maximum cached entries (uniform size budget for the dedicated memory cache).</summary>
-    public int MaxEntries
-    {
-        get;
-        set;
-    } = 1000;
+    public int MaxEntries { get; set; } = 1000;
+
 
     /// <summary>Default absolute expiration in minutes when <c>TTLSeconds</c> is unset (0 or negative).</summary>
-    public int TTLMinutes
-    {
-        get;
-        set;
-    } = 30;
+    public int TTLMinutes { get; set; } = 30;
 
     /// <summary>
     ///     When greater than zero, overrides <see cref="TTLMinutes" /> (expiration is exactly this many seconds).

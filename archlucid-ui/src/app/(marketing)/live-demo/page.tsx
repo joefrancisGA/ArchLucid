@@ -43,10 +43,7 @@ export default async function LiveDemoMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          A read-only sample architecture review bundle you can share for procurement and sponsor conversations — no API
-          host required for this view.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -63,10 +60,7 @@ export default async function LiveDemoMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Showing the curated read-only sample bundle — ideal when you want a stable story without depending on a live
-          sample endpoint.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
@@ -78,9 +72,7 @@ export default async function LiveDemoMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Showing the curated read-only sample bundle for a consistent walkthrough experience.
-        </p>
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Showing a curated sample architecture review.</p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>

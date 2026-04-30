@@ -23,6 +23,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/settings/baseline",
   "/settings/tenant-cost",
   "/value-report",
+  "/value-report/pilot",
 ]);
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {

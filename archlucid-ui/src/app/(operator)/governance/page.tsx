@@ -84,7 +84,12 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
+import {
+  isStaticDemoPayloadFallbackEnabled,
+  tryStaticDemoGovernanceApprovalRequests,
+  tryStaticDemoGovernancePromotions,
+} from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type {
   GovernanceApprovalRequest,
@@ -193,9 +198,30 @@ function GovernanceWorkflowPageInner() {
         listPromotions(runId),
         listActivations(runId),
       ]);
-      setApprovals(a);
+      let nextApprovals = a;
+      let nextPromotions = p;
+
+      if (isStaticDemoPayloadFallbackEnabled()) {
+        if (nextApprovals.length === 0) {
+          const seeded = tryStaticDemoGovernanceApprovalRequests(runId);
+
+          if (seeded !== null) {
+            nextApprovals = seeded;
+          }
+        }
+
+        if (nextPromotions.length === 0) {
+          const seededP = tryStaticDemoGovernancePromotions(runId);
+
+          if (seededP !== null) {
+            nextPromotions = seededP;
+          }
+        }
+      }
+
+      setApprovals(nextApprovals);
       setPromotions(
-        [...p].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
+        [...nextPromotions].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
       );
       setActivations(
         [...act].sort((x, y) => (x.activatedUtc < y.activatedUtc ? 1 : x.activatedUtc > y.activatedUtc ? -1 : 0)),
@@ -230,7 +256,7 @@ function GovernanceWorkflowPageInner() {
   }, [activeRunId, loadLists]);
 
   useEffect(() => {
-    if (!isNextPublicDemoMode()) {
+    if (!isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 
@@ -431,7 +457,7 @@ function GovernanceWorkflowPageInner() {
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       />
 
-      {isNextPublicDemoMode() ? (
+      {isBuyerSafeDemoMarketingChromeEnv() ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
           <strong>Governance approval workflow</strong>
           {" — "}for full demo walkthrough, contact your account team.

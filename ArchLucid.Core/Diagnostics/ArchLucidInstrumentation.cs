@@ -563,6 +563,19 @@ public static class ArchLucidInstrumentation
             "archlucid_data_consistency_orphans_quarantined_total",
             description: "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
 
+    /// <summary>Wall time for scheduled read-only data consistency reconciliation (full pass).</summary>
+    public static readonly Histogram<double> DataConsistencyReconciliationDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_data_consistency_check_duration_ms",
+            "ms",
+            "Wall time for scheduled data consistency reconciliation (read-only checks).");
+
+    /// <summary>Findings emitted during data consistency reconciliation (labels <c>severity</c>, <c>check_name</c>).</summary>
+    public static readonly Counter<long> DataConsistencyReconciliationFindingsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_consistency_findings_total",
+            description: "Data consistency reconciliation findings (labels severity, check_name).");
+
     /// <summary><c>ArchLucid.Jobs.Cli</c> / <c>IArchLucidJob</c> executions (labels: <c>job_name</c>, <c>exit_class</c>).</summary>
     public static readonly Counter<long> ContainerJobRunsTotal =
         AppMeter.CreateCounter<long>(

@@ -14,19 +14,19 @@ const STEPS: readonly {
 }[] = [
   {
     title: "Create request",
-    body: "Start the new-request wizard with your architecture scenario.",
+    body: "Start the new-request wizard with your healthcare-claims modernization scenario (or your own system brief).",
   },
   {
-    title: "Execute run",
-    body: "The pipeline runs automatically; watch progress on run detail or from the runs list.",
+    title: "Run review pipeline",
+    body: "The pipeline runs automatically; watch progress on review detail or from the reviews list.",
   },
   {
     title: "Commit manifest",
-    body: "When the run is ready, commit on run detail to produce the golden manifest.",
+    body: "When the review is ready, commit on review detail to produce the golden manifest.",
   },
   {
     title: "Review manifest and artifacts",
-    body: "Review the manifest summary, findings, and downloads on run detail.",
+    body: "Review the manifest summary, PHI findings, and downloads on review detail.",
   },
 ];
 
@@ -41,6 +41,15 @@ export function CorePilotOneSessionChecklist() {
 
   useEffect(() => {
     let cancelled = false;
+
+    const safetyTimer =
+      typeof window !== "undefined"
+        ? window.setTimeout(() => {
+            if (!cancelled) {
+              setPhase("ready");
+            }
+          }, 4000)
+        : null;
 
     void (async () => {
       try {
@@ -62,6 +71,10 @@ export function CorePilotOneSessionChecklist() {
 
     return () => {
       cancelled = true;
+
+      if (safetyTimer !== null) {
+        window.clearTimeout(safetyTimer);
+      }
     };
   }, []);
 
@@ -95,22 +108,22 @@ export function CorePilotOneSessionChecklist() {
     }
 
     if (index === 1) {
-      return "Runs list";
+      return "Reviews list";
     }
 
     if (index === 2) {
       if (latestRunId !== null) {
-        return "Open run detail to commit";
+        return "Open review detail to commit";
       }
 
-      return "Choose a run to commit";
+      return "Choose a review to commit";
     }
 
     if (firstCommittedRunId !== null) {
-      return "Open committed run";
+      return "Open committed review";
     }
 
-    return "Open a run after commit";
+    return "Open a review after commit";
   }
 
   return (

@@ -1,5 +1,6 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   getShowcaseStaticDemoPayload,
@@ -7,10 +8,13 @@ import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
+import type { AlertRecord } from "@/types/alerts";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type { RunExplanationSummary } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
+import type { GovernanceApprovalRequest, GovernancePromotionRecord } from "@/types/governance-workflow";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -412,4 +416,211 @@ export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProv
   }
 
   return buildStaticDemoProvenanceGraphFromShowcase(effectiveRunId);
+}
+
+export function tryStaticDemoPolicyPacksList(): PolicyPack[] | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  return [
+    {
+      policyPackId: "demo-healthcare-claims-pack",
+      tenantId: "demo-tenant",
+      workspaceId: "demo-workspace",
+      projectId: "default",
+      name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
+      description: "Illustrative pack aligned with the Claims Intake sample manifest.",
+      packType: "BuiltIn",
+      status: "Active",
+      createdUtc: "2026-01-10T12:00:00.000Z",
+      currentVersion: "3.4.1",
+    },
+  ];
+}
+
+export function tryStaticDemoEffectivePolicyPacks(projectId: string): EffectivePolicyPackSet | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const pid = projectId.trim().length > 0 ? projectId.trim() : "default";
+
+  return {
+    tenantId: "demo-tenant",
+    workspaceId: "demo-workspace",
+    projectId: pid,
+    packs: [
+      {
+        policyPackId: "demo-healthcare-claims-pack",
+        name: policyPackBuyerLabel("healthcare-claims-v3", "3.4.1"),
+        version: "3.4.1",
+        packType: "BuiltIn",
+        contentJson: JSON.stringify({
+          complianceRuleIds: [],
+          complianceRuleKeys: ["phi.minimization.intake"],
+          alertRuleIds: [],
+          compositeAlertRuleIds: [],
+          advisoryDefaults: {},
+          metadata: { vertical: "healthcare", ruleSetId: "healthcare-claims-v3" },
+        }),
+      },
+    ],
+  };
+}
+
+export function tryStaticDemoEffectivePolicyContent(): PolicyPackContentDocument | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  return {
+    complianceRuleIds: [],
+    complianceRuleKeys: ["phi.minimization.intake", "claims.intake.boundary"],
+    alertRuleIds: [],
+    compositeAlertRuleIds: [],
+    advisoryDefaults: {},
+    metadata: { vertical: "healthcare" },
+  };
+}
+
+export function mergePolicyPacksStateWithStaticDemo(
+  packs: PolicyPack[],
+  effective: EffectivePolicyPackSet | null,
+  content: PolicyPackContentDocument | null,
+  projectId: string,
+): { packs: PolicyPack[]; effective: EffectivePolicyPackSet | null; content: PolicyPackContentDocument | null } {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return { packs, effective, content };
+  }
+
+  let nextPacks = packs;
+
+  if (nextPacks.length === 0) {
+    const seeded = tryStaticDemoPolicyPacksList();
+
+    if (seeded !== null) {
+      nextPacks = seeded;
+    }
+  }
+
+  let nextEffective = effective;
+
+  if (nextEffective === null || nextEffective.packs.length === 0) {
+    const seededEff = tryStaticDemoEffectivePolicyPacks(projectId);
+
+    if (seededEff !== null) {
+      nextEffective = seededEff;
+    }
+  }
+
+  let nextContent = content;
+
+  if (nextContent === null || (nextContent.complianceRuleKeys?.length ?? 0) === 0) {
+    const seededDoc = tryStaticDemoEffectivePolicyContent();
+
+    if (seededDoc !== null) {
+      nextContent = seededDoc;
+    }
+  }
+
+  return { packs: nextPacks, effective: nextEffective, content: nextContent };
+}
+
+export function staticDemoPolicyPacksFallbackBundle(projectId: string): {
+  packs: PolicyPack[];
+  effective: EffectivePolicyPackSet;
+  content: PolicyPackContentDocument;
+} | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const list = tryStaticDemoPolicyPacksList();
+  const eff = tryStaticDemoEffectivePolicyPacks(projectId);
+  const doc = tryStaticDemoEffectivePolicyContent();
+
+  if (list === null || eff === null || doc === null) {
+    return null;
+  }
+
+  return { packs: list, effective: eff, content: doc };
+}
+
+export function tryStaticDemoAlertInboxRow(): AlertRecord | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  return {
+    alertId: "demo-alert-phi-intake",
+    ruleId: "architecture-risk-phi-intake",
+    title: "PHI minimization risk — intake path",
+    category: "Privacy / regulated data",
+    severity: "High",
+    status: "Open",
+    triggerValue: "Elevated handling risk on unstructured attachments",
+    description:
+      "Correlates with the PHI minimization storyline in the Claims Intake sample review — monitor exception volume weekly.",
+    createdUtc: "2026-01-14T22:01:00.000Z",
+    lastUpdatedUtc: null,
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    comparedToRunId: null,
+    recommendationId: null,
+  };
+}
+
+export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  return [
+    {
+      approvalRequestId: "claims-intake-approval-001",
+      runId: effectiveRunId,
+      manifestVersion: "3.4.1",
+      sourceEnvironment: "dev",
+      targetEnvironment: "test",
+      status: "Approved",
+      requestedBy: "Taylor Morgan",
+      reviewedBy: "Jordan Lee",
+      requestComment: "Promote finalized intake manifest after privacy review.",
+      reviewComment: "Approved — maintain weekly monitoring on unstructured attachment volume.",
+      requestedUtc: "2026-01-14T21:00:00.000Z",
+      reviewedUtc: "2026-01-14T22:05:00.000Z",
+    },
+  ];
+}
+
+export function tryStaticDemoGovernancePromotions(runId: string): GovernancePromotionRecord[] | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  return [
+    {
+      promotionRecordId: "demo-promotion-claims-intake-001",
+      runId: effectiveRunId,
+      manifestVersion: "3.4.1",
+      sourceEnvironment: "dev",
+      targetEnvironment: "test",
+      promotedBy: "Taylor Morgan",
+      approvalRequestId: "claims-intake-approval-001",
+      notes: "Sample promotion aligned with the Claims Intake showcase.",
+      promotedUtc: "2026-01-14T22:06:00.000Z",
+    },
+  ];
 }

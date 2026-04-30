@@ -27,6 +27,11 @@ import {
   publishPolicyPackVersion,
 } from "@/lib/api";
 import {
+  isStaticDemoPayloadFallbackEnabled,
+  mergePolicyPacksStateWithStaticDemo,
+  staticDemoPolicyPacksFallbackBundle,
+} from "@/lib/operator-static-demo";
+import {
   enterpriseMutationControlDisabledTitle,
   policyPacksAssignButtonLabelReaderRank,
   policyPacksCompareVersionsIntroOperator,
@@ -120,11 +125,22 @@ export default function PolicyPacksPage() {
         getEffectivePolicyPacks(),
         getEffectivePolicyContent(),
       ]);
-      setPacks(p);
-      setEffective(eff);
-      setEffectiveContent(doc);
+      const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default");
+
+      setPacks(merged.packs);
+      setEffective(merged.effective);
+      setEffectiveContent(merged.content);
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      const fb = staticDemoPolicyPacksFallbackBundle("default");
+
+      if (fb !== null) {
+        setPacks(fb.packs);
+        setEffective(fb.effective);
+        setEffectiveContent(fb.content);
+        setFailure(null);
+      } else {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
       setLoading(false);
     }
@@ -318,7 +334,7 @@ export default function PolicyPacksPage() {
       <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
       <p className="mb-3 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         Policy packs are <strong>versioned governance bundles</strong>: they pin compliance rule references, advisory
-        defaults, and alert posture for a tenant, workspace, or project so every architecture run evaluates against the
+        defaults, and alert posture for a tenant, workspace, or project so every architecture review evaluates against the
         same explicit bar as your team scales.
       </p>
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
@@ -541,6 +557,7 @@ export default function PolicyPacksPage() {
       </section>
       </div>
 
+      {isStaticDemoPayloadFallbackEnabled() ? null : (
       <section className="mb-8" aria-labelledby="policy-packs-lifecycle-heading">
         <h3 id="policy-packs-lifecycle-heading">
           {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
@@ -789,6 +806,7 @@ export default function PolicyPacksPage() {
           </section>
         </div>
       </section>
+      )}
     </main>
   );
 }
