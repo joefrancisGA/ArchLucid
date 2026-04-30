@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
@@ -30,6 +31,8 @@ using ArchLucid.Retrieval.Queries;
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
+using Microsoft.Extensions.Caching.Memory;
 
 using Polly;
 
@@ -119,6 +122,21 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
         services.Configure<LlmPromptRedactionOptions>(configuration.GetSection(LlmPromptRedactionOptions.SectionName));
         services.AddSingleton<IPostConfigureOptions<LlmPromptRedactionOptions>, LlmPromptRedactionProductionWarningPostConfigure>();
+        services.Configure<LlmCompletionCacheOptions>(configuration.GetSection(LlmCompletionCacheOptions.SectionName));
+        services.AddSingleton<ILlmCompletionResponseCache>(sp =>
+        {
+            IOptions<LlmCompletionCacheOptions> startupOpts =
+                sp.GetRequiredService<IOptions<LlmCompletionCacheOptions>>();
+            int maxEntries = Math.Max(1, startupOpts.Value.MaxEntries);
+
+            MemoryCache memoryCache =
+                new(new MemoryCacheOptions { SizeLimit = maxEntries });
+
+            IOptionsMonitor<LlmCompletionCacheOptions> monitor =
+                sp.GetRequiredService<IOptionsMonitor<LlmCompletionCacheOptions>>();
+
+            return new LlmCompletionResponseCache(memoryCache, monitor);
+        });
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.AddSingleton<IAgentOutputEvaluator, AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputSemanticEvaluator, AgentOutputSemanticEvaluator>();
@@ -380,15 +398,21 @@ public static partial class ServiceCollectionExtensions
                 accountingLogger);
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
+
+            bool modernCompletionCacheEnabled = IsAgentRuntimeCompletionCacheEnabled(config);
+
+            completionPipeline =
+                WrapWithAgentRuntimeCompletionCacheIfEnabled(sp, completionPipeline, simulatorMode: false);
+
             LlmCompletionResponseCacheOptions cacheOptions = config
-                                                               .GetSection(LlmCompletionResponseCacheOptions.SectionName)
-                                                               .Get<LlmCompletionResponseCacheOptions>()
-                                                           ?? new LlmCompletionResponseCacheOptions();
+                                                                   .GetSection(LlmCompletionResponseCacheOptions.SectionName)
+                                                                   .Get<LlmCompletionResponseCacheOptions>()
+                                                               ?? new LlmCompletionResponseCacheOptions();
+
+            if (!cacheOptions.Enabled || modernCompletionCacheEnabled)
+                return completionPipeline;
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
-
-            if (!cacheOptions.Enabled)
-                return completionPipeline;
 
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
@@ -610,6 +634,46 @@ public static partial class ServiceCollectionExtensions
         return new CircuitBreakerGate(gateName, monitor, clock, onAuditEntry: onAudit);
     }
 
+    private static bool IsAgentRuntimeCompletionCacheEnabled(IConfiguration configuration)
+    {
+        LlmCompletionCacheOptions? opts =
+            configuration.GetSection(LlmCompletionCacheOptions.SectionName).Get<LlmCompletionCacheOptions>();
+
+        return opts?.Enabled ?? false;
+    }
+
+    private static IAgentCompletionClient WrapWithAgentRuntimeCompletionCacheIfEnabled(
+        IServiceProvider serviceProvider,
+        IAgentCompletionClient inner,
+        bool simulatorMode)
+    {
+        IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+        if (!IsAgentRuntimeCompletionCacheEnabled(configuration))
+
+            return inner;
+
+
+        ILlmCompletionResponseCache completionCache =
+            serviceProvider.GetRequiredService<ILlmCompletionResponseCache>();
+        IScopeContextProvider scopeContexts = serviceProvider.GetRequiredService<IScopeContextProvider>();
+        IOptionsMonitor<LlmCompletionCacheOptions> completionCacheOptionsMonitor =
+            serviceProvider.GetRequiredService<IOptionsMonitor<LlmCompletionCacheOptions>>();
+        IOptionsMonitor<LlmTelemetryLabelOptions> telemetryLabelOptionsMonitor =
+            serviceProvider.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+        ILogger<CachingLlmCompletionClient> completionCacheLogger =
+            serviceProvider.GetRequiredService<ILogger<CachingLlmCompletionClient>>();
+
+        return new CachingLlmCompletionClient(
+            inner,
+            completionCache,
+            simulatorMode,
+            scopeContexts,
+            completionCacheOptionsMonitor,
+            telemetryLabelOptionsMonitor,
+            completionCacheLogger);
+    }
+
     private sealed class FallbackAzureOpenAiInnerClientHolder(AzureOpenAiCompletionClient client)
     {
         public AzureOpenAiCompletionClient Client
@@ -659,12 +723,17 @@ public static partial class ServiceCollectionExtensions
             accountingLogger);
 
         IConfiguration config = sp.GetRequiredService<IConfiguration>();
+        bool modernCompletionCacheEnabled = IsAgentRuntimeCompletionCacheEnabled(config);
+
+        completionPipeline =
+            WrapWithAgentRuntimeCompletionCacheIfEnabled(sp, completionPipeline, simulatorMode: false);
+
         LlmCompletionResponseCacheOptions cacheOptions = config
                                                            .GetSection(LlmCompletionResponseCacheOptions.SectionName)
                                                            .Get<LlmCompletionResponseCacheOptions>()
                                                        ?? new LlmCompletionResponseCacheOptions();
 
-        if (cacheOptions.Enabled)
+        if (cacheOptions.Enabled && !modernCompletionCacheEnabled)
         {
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();

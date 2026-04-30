@@ -70,7 +70,7 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
 
         string key =
             CacheKeyPrefix
-            + LlmCompletionCacheKey.Compute(
+            + LlmCompletionCacheFingerprint.Compute(
                 _partitionByScope,
                 _deploymentName,
                 systemPrompt,
