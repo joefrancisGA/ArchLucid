@@ -1,6 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
@@ -19,7 +22,9 @@ namespace ArchLucid.Api.Controllers.Webhooks;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class OutboundWebhookDryRunController(IOutboundWebhookDryRunService probe) : ControllerBase
+public sealed class OutboundWebhookDryRunController(
+    IOutboundWebhookDryRunService probe,
+    IAuditService auditService) : ControllerBase
 {
     /// <summary>POST synthetic CloudEvents-shaped JSON (optionally signed) to validate subscriber URLs.</summary>
     [HttpPost("dry-run")]
@@ -48,6 +53,23 @@ public sealed class OutboundWebhookDryRunController(IOutboundWebhookDryRunServic
             Error = outcome.Error
         };
 
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.OutboundWebhookDryRunProbeExecuted,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    targetAuthority = body.TargetUrl.GetLeftPart(UriPartial.Authority),
+                    path = body.TargetUrl.AbsolutePath,
+                    scheme = body.TargetUrl.Scheme,
+                    hasSharedSecret = body.SharedSecret is { Length: > 0 },
+                    transportSucceeded = outcome.TransportSucceeded,
+                    statusCode = outcome.StatusCode,
+                    reasonPhrase = outcome.ReasonPhrase,
+                    error = outcome.Error
+                })
+            },
+            cancellationToken);
 
         return Ok(response);
     }

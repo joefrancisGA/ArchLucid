@@ -173,7 +173,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                                 ProjectId = retryScope.ProjectId,
                                 RunId = failedRunGuid,
                                 DataJson = JsonSerializer.Serialize(
-                                    new { runId, previousStatus = nameof(ArchitectureRunStatus.Failed) },
+                                    new
+                                    {
+                                        runId,
+                                        previousStatus = nameof(ArchitectureRunStatus.Failed)
+                                    },
                                     AuditJsonSerializationOptions.Instance),
                             },
                             ct);
@@ -425,7 +429,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     ProjectId = scope.ProjectId,
                     RunId = runGuid,
                     DataJson = JsonSerializer.Serialize(
-                        new { runId, previousLegacyRunStatus, newLegacyRunStatus = header.LegacyRunStatus },
+                        new
+                        {
+                            runId,
+                            previousLegacyRunStatus,
+                            newLegacyRunStatus = header.LegacyRunStatus
+                        },
                         AuditJsonSerializationOptions.Instance),
                 };
 
@@ -491,30 +500,22 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static string FormatExecuteRunFailureAuditDetails(Exception ex)
     {
-        if (ex is null)
-            throw new ArgumentNullException(nameof(ex));
+        ArgumentNullException.ThrowIfNull(ex);
 
         Exception root = UnwrapSingleFailure(ex);
 
         if (root is CircuitBreakerOpenException)
             return $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected}";
 
-        if (root is LlmTokenQuotaExceededException)
-            return $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded}";
-
-        return root.GetType().Name;
+        return root is LlmTokenQuotaExceededException ? $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded}" : root.GetType().Name;
     }
 
     private static Exception UnwrapSingleFailure(Exception ex)
     {
-        if (ex is AggregateException agg)
-        {
-            IReadOnlyCollection<Exception> inners = agg.Flatten().InnerExceptions;
+        if (ex is not AggregateException agg)
+            return ex;
+        IReadOnlyCollection<Exception> inners = agg.Flatten().InnerExceptions;
 
-            if (inners.Count == 1)
-                return inners.First();
-        }
-
-        return ex;
+        return inners.Count == 1 ? inners.First() : ex;
     }
 }

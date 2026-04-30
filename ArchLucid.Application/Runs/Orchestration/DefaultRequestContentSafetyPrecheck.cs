@@ -54,13 +54,6 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
 
         string normalized = text.Trim().ToLowerInvariant();
 
-        foreach (string phrase in BlockedPhrases)
-        {
-            if (!normalized.Contains(phrase, StringComparison.Ordinal))
-                continue;
-
-            reasons.Add(
-                string.Format(CultureInfo.InvariantCulture, "Field {0} matches blocked phrase \"{1}\".", fieldLabel, phrase));
-        }
+        reasons.AddRange(from phrase in BlockedPhrases where normalized.Contains(phrase, StringComparison.Ordinal) select string.Format(CultureInfo.InvariantCulture, "Field {0} matches blocked phrase \"{1}\".", fieldLabel, phrase));
     }
 }

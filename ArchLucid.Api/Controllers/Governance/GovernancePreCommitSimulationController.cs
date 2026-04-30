@@ -1,7 +1,11 @@
+using System.Linq;
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
 
@@ -22,7 +26,9 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class GovernancePreCommitSimulationController(IPreCommitGovernanceGate gate) : ControllerBase
+public sealed class GovernancePreCommitSimulationController(
+    IPreCommitGovernanceGate gate,
+    IAuditService auditService) : ControllerBase
 {
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(PreCommitGateResult), StatusCodes.Status200OK)]
@@ -48,6 +54,29 @@ public sealed class GovernancePreCommitSimulationController(IPreCommitGovernance
             body.SyntheticCount,
             cancellationToken);
 
+        Guid? auditRunId = Guid.TryParse(runIdNormalized, out Guid runGuid) ? runGuid : null;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    runId = runIdNormalized,
+                    syntheticSeverity = body.SyntheticSeverity,
+                    syntheticCount = body.SyntheticCount,
+                    blocked = outcome.Blocked,
+                    warnOnly = outcome.WarnOnly,
+                    reason = outcome.Reason,
+                    policyPackId = outcome.PolicyPackId,
+                    minimumBlockingSeverity = outcome.MinimumBlockingSeverity,
+                    blockingFindingIdCount = outcome.BlockingFindingIds.Count,
+                    blockingFindingIdsSample = outcome.BlockingFindingIds.Take(10).ToArray(),
+                    warningsCount = outcome.Warnings.Count
+                })
+            },
+            cancellationToken);
 
         return Ok(outcome);
     }

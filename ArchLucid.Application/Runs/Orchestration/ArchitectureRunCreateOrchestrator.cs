@@ -245,7 +245,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                                 requestId = request.RequestId,
                                 runId = coordination.Run.RunId,
                                 systemName = request.SystemName,
-                                environment = request.Environment.ToString(),
+                                environment = request.Environment,
                                 cloudProvider = request.CloudProvider.ToString(),
                             },
                             AuditJsonSerializationOptions.Instance),

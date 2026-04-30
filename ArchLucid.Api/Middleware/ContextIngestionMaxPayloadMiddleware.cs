@@ -3,8 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Configuration;
 
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Middleware;
@@ -14,12 +12,13 @@ namespace ArchLucid.Api.Middleware;
 /// </summary>
 [ExcludeFromCodeCoverage(
     Justification = "Thin guard unit-tested via LooksLikeArchitectureCreateRun static helpers.")]
-public sealed class ContextIngestionMaxPayloadMiddleware(IOptions<ContextIngestionLimitsOptions> options)
+public sealed class ContextIngestionMaxPayloadMiddleware(
+    RequestDelegate next,
+    IOptions<ContextIngestionLimitsOptions> options)
 {
     private readonly long _max = Math.Max(options.Value.MaxPayloadBytes, 1);
 
-    /// <inheritdoc />
-    public Task InvokeAsync(HttpContext context, RequestDelegate next)
+    public Task InvokeAsync(HttpContext context)
     {
         if (!HttpMethods.IsPost(context.Request.Method))
             return next(context);
@@ -67,12 +66,7 @@ public sealed class ContextIngestionMaxPayloadMiddleware(IOptions<ContextIngesti
         if (string.IsNullOrEmpty(p))
             return false;
 
-
-        if (p.Contains("/architecture/request", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return EndsWithVersionedRequests(p.TrimEnd('/'));
+        return p.Contains("/architecture/request", StringComparison.OrdinalIgnoreCase) || EndsWithVersionedRequests(p.TrimEnd('/'));
     }
 
     internal static bool EndsWithVersionedRequests(string trimmedNoTrailingSlash)
@@ -80,11 +74,9 @@ public sealed class ContextIngestionMaxPayloadMiddleware(IOptions<ContextIngesti
         if (!trimmedNoTrailingSlash.EndsWith("/requests", StringComparison.OrdinalIgnoreCase))
             return false;
 
-
         ReadOnlySpan<char> s = trimmedNoTrailingSlash.AsSpan(
             0,
             trimmedNoTrailingSlash.Length - "/requests".Length);
-
 
         int lastSlash = s.LastIndexOf('/');
 
