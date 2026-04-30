@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/lib/finding-display-from-inspect";
 
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
@@ -54,7 +55,12 @@ export default async function RunFindingExplainPage({
   } catch (e) {
     inspectFailure = toApiLoadFailure(e);
 
-    if (isApiNotFoundFailure(inspectFailure)) {
+    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
+
+    if (staticInspect !== null) {
+      inspectPayload = staticInspect;
+      inspectFailure = null;
+    } else if (isApiNotFoundFailure(inspectFailure)) {
       notFound();
     }
   }

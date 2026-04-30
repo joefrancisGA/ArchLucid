@@ -95,7 +95,7 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
     expect(screen.getByTestId("see-it-demo-banner")).toHaveTextContent(
-      "Sample healthcare architecture review — illustrative output for evaluation.",
+      "Sample healthcare architecture review — for evaluation only",
     );
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
     expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("Findings: 7 · Compliance gaps: 2");

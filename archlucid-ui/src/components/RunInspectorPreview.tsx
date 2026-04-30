@@ -32,11 +32,12 @@ export type RunInspectorPreviewProps = {
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const demo = isNextPublicDemoMode();
-  const createdLabel = new Date(run.createdUtc).toLocaleString();
+  const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
+  const createdLabel =
+    showcaseStory && demo ? "Sample review (illustrative)" : new Date(run.createdUtc).toLocaleString();
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
   const findingHref = `/runs/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demo
@@ -132,7 +133,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button variant="primary" size="sm" className="w-full sm:w-auto" asChild>
-          <Link href={`/runs/${encodeURIComponent(run.runId)}`}>Open run detail</Link>
+          <Link href={`/runs/${encodeURIComponent(run.runId)}`}>Open review</Link>
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>

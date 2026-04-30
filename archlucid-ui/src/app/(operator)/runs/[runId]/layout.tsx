@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/lib/demo-run-canonical";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 export const metadata: Metadata = {
-  title: "Run detail",
+  title: "Review detail",
 };
 
 export default async function RunDetailLayout({
@@ -19,6 +20,10 @@ export default async function RunDetailLayout({
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
+  }
+
+  if (demoRunUrlRequiresCanonicalRedirect(runId)) {
+    permanentRedirect(`/runs/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
   }
 
   return children;

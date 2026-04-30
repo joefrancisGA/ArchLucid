@@ -239,7 +239,7 @@ export default async function ManifestDetailPage({
         </Link>
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
-          Run detail
+          Open review
         </Link>
         {summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID ? (
           <>

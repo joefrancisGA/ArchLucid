@@ -12,7 +12,8 @@ Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and 
 | Tier | Meaning | Filter |
 |------|---------|--------|
 | **Core (corset)** | Curated high-value regression; opt-in per **class** with `[Trait("Suite", "Core")]` | `Suite=Core` |
-| **Fast core** | Core tests that are **not** `Category=Slow` and **not** `Category=Integration` (typical CI first gate) | `Suite=Core&Category!=Slow&Category!=Integration` |
+| **Fast core** | Matches CI **dotnet-fast-core** corset: Core minus **`Slow`**, **`Integration`**, and **`GoldenCorpusRecord`** | `Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord` |
+| **OpenAPI v1 snapshot** | `OpenApiContractSnapshotTests` only — asserts committed contract JSON (**CI Tier 0.x** runs this before corset build) | `FullyQualifiedName~OpenApiContractSnapshotTests` locally via **`scripts/ci/check_openapi_contract_snapshot.sh`** or **`.\test.ps1 -Tier OpenApiContract`** — see **[OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md)** |
 | **Integration** | Real API host (`WebApplicationFactory`), HTTP-level behavior | `Category=Integration` |
 | **Slow** | Long-running or heavy; excluded from fast core | `Category=Slow` |
 | **Performance baseline** | In-process **Stopwatch** gates for the pilot path (simulator + in-memory; not production SQL); see **[PERFORMANCE_BASELINES.md](PERFORMANCE_BASELINES.md)** and **`CorePilotFlowPerformanceTests`** in `ArchLucid.Api.Tests/Performance/` | `Category=Slow` (also `Suite=Core`) |
@@ -29,8 +30,14 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 ```
 
 ```bash
-dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 ```
+
+```bash
+bash scripts/ci/check_openapi_contract_snapshot.sh
+```
+
+**(OpenAPI only — same assertion as CI job `openapi-contract-snapshot`;** regenerate with **`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`** per [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md)**.)**
 
 ```bash
 dotnet test ArchLucid.sln --filter "Category=Integration"
@@ -46,7 +53,7 @@ dotnet test ArchLucid.sln
 
 **Configuration:** GitHub Actions .NET jobs use **`-c Release`**. Repo-root `test-*.cmd` / `.ps1` call `dotnet test` **without** `-c` (typically **Debug**). To mirror CI: `dotnet test ArchLucid.sln -c Release`.
 
-**Windows (same filters):** `test-core.cmd`, `test-fast-core.cmd`, `test-integration.cmd`, `test-slow.cmd`, `test-full.cmd` (and `.ps1` where present).
+**Windows:** `.\test.ps1 -Tier OpenApiContract` runs the OpenAPI snapshot script above. **`test-core.cmd`**, **`test-fast-core.cmd`**, … delegate to **`.\test.ps1`** (same filters).
 
 ### Release candidate packaging (56R)
 

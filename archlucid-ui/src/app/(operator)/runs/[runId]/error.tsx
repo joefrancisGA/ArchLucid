@@ -8,6 +8,7 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**
  * Segment error boundary for `/runs/[runId]` so run detail client failures show buyer-safe recovery
@@ -34,7 +35,7 @@ export default function RunDetailSegmentError({
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "Something went wrong while showing this review. You can retry, go back to reviews, or open Help."}
+            : "The sample review is temporarily unavailable in this environment. You can open the curated sample manifest or the public walkthrough while we recover this view."}
         </p>
         {isDev ? (
           <pre
@@ -58,6 +59,12 @@ export default function RunDetailSegmentError({
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="primary" onClick={() => reset()}>
           Retry
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Sample manifest</Link>
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>Sample walkthrough</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/runs?projectId=default">Back to reviews</Link>

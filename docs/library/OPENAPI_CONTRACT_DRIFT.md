@@ -33,7 +33,9 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 |--------|------|
 | `OpenApiContractSnapshotTests` | xUnit test, trait `Suite=Core` |
 | `openapi-v1.contract.snapshot.json` | Expected OpenAPI v1 document |
-| `.github/workflows/ci.yml` job **dotnet-fast-core** | Runs `Suite=Core&Category!=Slow&Category!=Integration` (includes this test) |
+| `scripts/ci/check_openapi_contract_snapshot.sh` (and `.ps1`) | Local / CI **same** build+test as the fail-fast gate (build `ArchLucid.Api.Tests` only, then single test FQN) |
+| `.github/workflows/ci.yml` job **openapi-contract-snapshot** | Runs **before** **dotnet-fast-core** (`needs`); surfaces drift **without** waiting for SBOM/Python guards/full-solution corset guards |
+| `.github/workflows/ci.yml` job **dotnet-fast-core** | Runs `Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord` (still includes this test for coverage merge parity) |
 
 ## 6. Data flow
 
@@ -57,9 +59,22 @@ $env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = "1"
 dotnet test ArchLucid.Api.Tests --filter "OpenApiContractSnapshotTests"
 ```
 
+Equivalent (recommended before push):
+
+```powershell
+# Repo root — faster than full FastCore (builds ArchLucid.Api.Tests only)
+$env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = "1"
+.\scripts\ci\check_openapi_contract_snapshot.ps1
+```
+
+```bash
+# Git Bash / Linux / macOS
+ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 bash scripts/ci/check_openapi_contract_snapshot.sh
+```
+
 Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
 
-**CI:** The **“.NET: fast core (corset)”** job fails if the snapshot drifts. See `docs/TEST_EXECUTION_MODEL.md` for the full filter definition.
+**CI:** Job **openapi-contract-snapshot** runs parallel with Terraform validation and gates **dotnet-fast-core** — snapshot drift surfaces before the corset **`dotnet build` ArchLucid.sln** path. Job **“.NET: fast core (corset)”** still runs the snapshot test inside the broader Core suite so coverage stays contiguous. See `docs/library/TEST_EXECUTION_MODEL.md` for tier mapping.
 
 **Cost / scalability:** One HTTP request per test run; negligible.
 

@@ -465,7 +465,7 @@ export function RunsListClient({
                                       e.stopPropagation();
                                     }}
                                   >
-                                    Open run detail
+                                    Open review
                                   </Link>
                                 </td>
                               </tr>

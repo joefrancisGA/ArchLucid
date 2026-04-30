@@ -26,7 +26,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
   return (
     <section aria-label="Open completed output" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       <Link className={cardClass} href={`/runs/${encRun}`}>
-        <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Run detail</span>
+        <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Open review</span>
         <span className="text-xs text-neutral-600 dark:text-neutral-400">Outcome summary, timeline, exports</span>
       </Link>
 

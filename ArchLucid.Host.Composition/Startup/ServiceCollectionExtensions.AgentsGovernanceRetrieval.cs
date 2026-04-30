@@ -190,6 +190,8 @@ public static partial class ServiceCollectionExtensions
         }
         else
         {
+            // Deterministic simulator is also used by POST /v1/demo/quickstart which must never call real LLMs.
+            services.AddScoped<DeterministicAgentSimulator>();
             services.AddScoped<IAgentExecutor, RealAgentExecutor>();
             services.AddScoped<IAgentHandler, TopologyAgentHandler>();
             services.AddScoped<IAgentHandler, CostAgentHandler>();

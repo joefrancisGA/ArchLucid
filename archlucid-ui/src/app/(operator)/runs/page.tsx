@@ -13,17 +13,19 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
-import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
 export const metadata: Metadata = {
-  title: "Runs list",
+  title: "Architecture reviews",
 };
 
 /** Server-rendered run list page. Fetches a page of runs and validates via coerceRunSummaryPaged. */
@@ -88,6 +90,11 @@ export default async function RunsPage({
     usedStaticRunsFallback = true;
   }
 
+  runs = runs.map(normalizeRunSummaryForDemoPicker);
+
+  const projectTitle =
+    isPublicDemoModeEnv() && projectId === "default" ? "Sample workspace" : `Project ${projectId}`;
+
   if (loadFailure === null && malformedMessage === null && totalCount > 0 && !usedStaticRunsFallback) {
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -103,11 +110,8 @@ export default async function RunsPage({
     )?.runId ?? null;
 
   return (
-    <main aria-label="Architecture runs">
-      <OperatorPageHeader
-        title="Architecture runs"
-        metadata={<span>Project {projectId}</span>}
-      />
+    <main aria-label="Architecture reviews">
+      <OperatorPageHeader title="Architecture reviews" metadata={<span>{projectTitle}</span>} />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Open an <GlossaryTooltip termKey="run">architecture run</GlossaryTooltip> to review its manifest, artifacts,
         findings, and exports.
@@ -124,7 +128,7 @@ export default async function RunsPage({
         {totalCount > 0 ? (
           <Button variant="outline" size="sm" asChild>
             <Link href="/compare" className="no-underline">
-              Compare two runs
+              Compare two reviews
             </Link>
           </Button>
         ) : null}

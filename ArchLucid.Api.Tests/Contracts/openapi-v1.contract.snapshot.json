@@ -1649,6 +1649,25 @@
         ],
         "type": "object"
       },
+      "ArchitectureRequestTemplateSummary": {
+        "properties": {
+          "shortDescription": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "templateId",
+          "title",
+          "shortDescription"
+        ],
+        "type": "object"
+      },
       "ArchitectureRun": {
         "properties": {
           "artifactBundleId": {
@@ -4161,6 +4180,54 @@
           "eventType",
           "actorUserName"
         ],
+        "type": "object"
+      },
+      "DemoQuickStartFindingSummary": {
+        "properties": {
+          "severity": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DemoQuickStartRequest": {
+        "properties": {
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "presetId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "DemoQuickStartResponse": {
+        "properties": {
+          "manifestId": {
+            "type": "string"
+          },
+          "runDetailUrl": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "topFindings": {
+            "items": {
+              "$ref": "#/components/schemas/DemoQuickStartFindingSummary"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "DeterminismCheckRequest": {
@@ -8359,6 +8426,57 @@
         ],
         "type": "object"
       },
+      "OutboundWebhookDryRunRequest": {
+        "properties": {
+          "sharedSecret": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetUrl": {
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "targetUrl"
+        ],
+        "type": "object"
+      },
+      "OutboundWebhookDryRunResponse": {
+        "properties": {
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reasonPhrase": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "responseBodyPreview": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "responseBodyTruncated": {
+            "type": "boolean"
+          },
+          "statusCode": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "transportSucceeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PagedResponseOfAlertRecord": {
         "properties": {
           "hasMore": {
@@ -9266,6 +9384,70 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "PreCommitGateResult": {
+        "properties": {
+          "blocked": {
+            "type": "boolean"
+          },
+          "blockingFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "minimumBlockingSeverity": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "policyPackId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "warnOnly": {
+            "type": "boolean"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "PreCommitSyntheticSimulationRequest": {
+        "properties": {
+          "runId": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "syntheticCount": {
+            "format": "int32",
+            "maximum": 500,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "syntheticSeverity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          }
+        },
+        "required": [
+          "runId"
+        ],
         "type": "object"
       },
       "PriorManifestEvidence": {
@@ -23791,6 +23973,104 @@
         ]
       }
     },
+    "/v1/architecture/templates": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureRequestTemplateSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureRequestTemplateSummary"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureRequestTemplateSummary"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "Templates"
+        ]
+      }
+    },
     "/v1/artifacts/manifests/{manifestId}": {
       "get": {
         "parameters": [
@@ -26800,6 +27080,95 @@
         },
         "tags": [
           "DemoCommitPagePreview"
+        ]
+      }
+    },
+    "/v1/demo/quickstart": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemoQuickStartRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemoQuickStartRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DemoQuickStartRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoQuickStartResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoQuickStartResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoQuickStartResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "QuickStart"
         ]
       }
     },
@@ -30840,6 +31209,135 @@
         },
         "tags": [
           "Governance"
+        ]
+      }
+    },
+    "/v1/governance/pre-commit/simulate": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreCommitSyntheticSimulationRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreCommitSyntheticSimulationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreCommitSyntheticSimulationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreCommitGateResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreCommitGateResult"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreCommitGateResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "GovernancePreCommitSimulation"
         ]
       }
     },
@@ -38569,6 +39067,135 @@
         ]
       }
     },
+    "/v1/webhooks/dry-run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/OutboundWebhookDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/OutboundWebhookDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/OutboundWebhookDryRunRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "OutboundWebhookDryRun"
+        ]
+      }
+    },
     "/version": {
       "get": {
         "responses": {
@@ -38735,6 +39362,9 @@
       "name": "Governance"
     },
     {
+      "name": "GovernancePreCommitSimulation"
+    },
+    {
       "name": "GovernancePreview"
     },
     {
@@ -38771,6 +39401,9 @@
       "name": "OperatorTaskSuccessDiagnostics"
     },
     {
+      "name": "OutboundWebhookDryRun"
+    },
+    {
       "name": "Pilots"
     },
     {
@@ -38787,6 +39420,9 @@
     },
     {
       "name": "ProvenanceQuery"
+    },
+    {
+      "name": "QuickStart"
     },
     {
       "name": "RecommendationLearning"
@@ -38841,6 +39477,9 @@
     },
     {
       "name": "TeamsIncomingWebhookConnections"
+    },
+    {
+      "name": "Templates"
     },
     {
       "name": "TenantBaseline"

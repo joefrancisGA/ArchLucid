@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HelpLink } from "@/components/HelpLink";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -17,6 +17,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent, CursorPagedResponse } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import {
   canExportAuditCsv,
   formatAuditSummaryHeading,
@@ -43,7 +44,11 @@ import {
   auditSearchSectionLeadReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { cn } from "@/lib/utils";
+import {
+  getDemoSampleAuditTrailEvents,
+  shouldInjectDemoAuditSample,
+} from "@/lib/demo-audit-sample-events";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
 function formatUtc(iso: string): string {
   try {
@@ -95,6 +100,7 @@ export default function AuditPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const demoAuditPrimedRef = useRef(false);
 
   const loadTypes = useCallback(async () => {
     setLoadingTypes(true);
@@ -150,16 +156,28 @@ export default function AuditPage() {
   const runSearch = useCallback(async () => {
     setSearching(true);
     try {
-      const page = await executeSearch(currentFilters());
-      setEvents(page.items);
-      setHasMoreResults(page.hasMore);
-      setAuditNextCursor(page.nextCursor);
+      const filters = currentFilters();
+      const page = await executeSearch(filters);
+      const injectDemo =
+        isNextPublicDemoMode() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+      setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
+      setHasMoreResults(injectDemo ? false : page.hasMore);
+      setAuditNextCursor(injectDemo ? null : page.nextCursor);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setSearching(false);
     }
   }, [currentFilters, executeSearch]);
+
+  useEffect(() => {
+    if (!isNextPublicDemoMode() || demoAuditPrimedRef.current) {
+      return;
+    }
+
+    demoAuditPrimedRef.current = true;
+    void runSearch();
+  }, [runSearch]);
 
   const clearFiltersAndSearch = useCallback(async () => {
     setEventType("");
@@ -180,9 +198,11 @@ export default function AuditPage() {
     };
     try {
       const page = await executeSearch(empty);
-      setEvents(page.items);
-      setHasMoreResults(page.hasMore);
-      setAuditNextCursor(page.nextCursor);
+      const injectDemo =
+        isNextPublicDemoMode() && shouldInjectDemoAuditSample(empty) && page.items.length === 0;
+      setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
+      setHasMoreResults(injectDemo ? false : page.hasMore);
+      setAuditNextCursor(injectDemo ? null : page.nextCursor);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -428,7 +448,7 @@ export default function AuditPage() {
               <div className="text-sm">
                 Run:{" "}
                 {ev.runId ? (
-                  <Link href={`/runs/${ev.runId}`} title="Open run detail">
+                  <Link href={`/runs/${ev.runId}`} title="Open review">
                     {ev.runId}
                   </Link>
                 ) : (

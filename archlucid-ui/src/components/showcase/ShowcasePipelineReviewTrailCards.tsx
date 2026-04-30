@@ -89,7 +89,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                   className="rounded-md border border-neutral-200 bg-neutral-50 px-2 py-1 font-medium text-teal-800 no-underline hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
                   href={`/runs/${encodeURIComponent(runId)}`}
                 >
-                  Run detail
+                  Open review
                 </Link>
                 {showManifest ? (
                   <Link
@@ -104,7 +104,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                     className="rounded-md border border-amber-200 bg-amber-50/80 px-2 py-1 font-medium text-amber-950 no-underline hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100 dark:hover:bg-amber-950/70"
                     href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(primaryFindingId.trim())}`}
                   >
-                    Finding
+                    Review finding
                   </Link>
                 ) : null}
               </div>

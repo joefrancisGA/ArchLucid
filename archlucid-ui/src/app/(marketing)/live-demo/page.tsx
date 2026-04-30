@@ -8,8 +8,8 @@ import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · Live demo",
-  description: "Read-only demo run bundle for procurement and sponsor walkthroughs.",
+  title: "ArchLucid · Sample walkthrough",
+  description: "Read-only sample architecture review bundle for procurement and sponsor walkthroughs.",
   robots: { index: false, follow: false },
 };
 
@@ -42,9 +42,10 @@ export default async function LiveDemoMarketingPage() {
   if (!base) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          No demo API host is configured — showing the curated public sample bundle instead of a live pull.
+          A read-only sample architecture review bundle you can share for procurement and sponsor conversations — no API
+          host required for this view.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -61,9 +62,10 @@ export default async function LiveDemoMarketingPage() {
   } catch {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          The sample-run endpoint did not respond — showing the curated public walkthrough bundle.
+          Showing the curated read-only sample bundle — ideal when you want a stable story without depending on a live
+          sample endpoint.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -75,9 +77,9 @@ export default async function LiveDemoMarketingPage() {
   if (!response.ok) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Sample walkthrough</h1>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Live sample-run returned HTTP {response.status} — showing the curated public bundle instead.
+          Showing the curated read-only sample bundle for a consistent walkthrough experience.
         </p>
         <div className="mt-8">
           <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
@@ -90,7 +92,7 @@ export default async function LiveDemoMarketingPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
+      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live sample review</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         A read-only view of a completed architecture analysis — suitable for procurement and sponsor walkthroughs.
       </p>

@@ -5,6 +5,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Application.Templates;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
@@ -400,6 +402,51 @@ public sealed class ArchitectureControllerTests
 
             createdCount.Should().Be(1, "exactly one parallel request should create the run; others replay");
             runIds.Should().HaveCount(1, "all responses must reference the same authority run id");
+        });
+    }
+
+    [Fact]
+    public async Task GetArchitectureRequestTemplates_ReturnsFiveSummaries()
+    {
+        await RunWithIsolatedFactory(async client =>
+        {
+            HttpResponseMessage response = await client.GetAsync("/v1/architecture/templates");
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            List<ArchitectureRequestTemplateSummary>? items =
+                await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
+
+            items.Should().NotBeNull();
+            items!.Should().HaveCount(5);
+            items.Select(i => i.TemplateId).Should().OnlyHaveUniqueItems();
+        });
+    }
+
+    [Fact]
+    public async Task Post_each_catalog_template_creates_valid_run()
+    {
+        await RunWithIsolatedFactory(async client =>
+        {
+            ArchitectureRequest[] templates =
+            [
+                ArchitectureRequestTemplates.MicroservicesWebPlatform($"tpl-api-mw-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.MonolithMigrationAssessment($"tpl-api-mono-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.EventDrivenProcessingPipeline($"tpl-api-ev-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.CloudNativeMigration($"tpl-api-az-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.RegulatedHealthcareSystem($"tpl-api-phi-{Guid.NewGuid():N}")
+            ];
+
+            foreach (ArchitectureRequest template in templates)
+            {
+                HttpResponseMessage response = await client.PostAsync("/v1/architecture/request", JsonContent(template));
+
+                response.StatusCode.Should().Be(HttpStatusCode.Created, $"template {template.SystemName} should create a run");
+
+                CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                payload.Should().NotBeNull();
+                payload!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+            }
         });
     }
 
