@@ -95,7 +95,9 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
               </li>
             ))
           ) : (
-            <li data-testid="see-it-no-artifacts">No artifacts in this preview payload.</li>
+            <li data-testid="see-it-no-artifacts">
+              Artifact descriptors will appear here once the preview payload includes generated outputs.
+            </li>
           )}
         </ul>
       </section>

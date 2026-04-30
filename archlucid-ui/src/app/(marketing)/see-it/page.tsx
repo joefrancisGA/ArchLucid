@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
+import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
 
 export const revalidate = 300;
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 
 export default async function SeeItMarketingPage() {
   const { source, payload } = await loadSeeItDemoPreview();
+  const normalized = normalizeSeeItMarketingPayload(payload);
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -36,7 +38,7 @@ export default async function SeeItMarketingPage() {
         .
       </p>
       <div className="mt-8">
-        <SeeItMarketingBody source={source} payload={payload} />
+        <SeeItMarketingBody source={source} payload={normalized} />
       </div>
     </main>
   );

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -291,5 +291,36 @@ describe("countLinksHiddenByProgressiveDisclosure", () => {
 
     const n = countLinksHiddenByProgressiveDisclosure(enterprise, false, false, AUTHORITY_RANK.ReadAuthority);
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
+  const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+  const prevDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+
+  afterEach(() => {
+    if (prevDemo === undefined) {
+      delete process.env.NEXT_PUBLIC_DEMO_MODE;
+      return;
+    }
+
+    process.env.NEXT_PUBLIC_DEMO_MODE = prevDemo;
+  });
+
+  it("hides alerts, audit, and admin health while keeping Security & trust when NEXT_PUBLIC_DEMO_MODE is true", () => {
+    expect(enterprise).toBeDefined();
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+    );
+
+    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
+    expect(visible.some((l) => l.href === "/audit")).toBe(false);
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
+    expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 });
