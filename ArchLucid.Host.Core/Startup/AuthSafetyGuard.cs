@@ -43,9 +43,9 @@ public static class AuthSafetyGuard
     ///         (include <c>ArchLucidAuth:DevUserId</c>); pass <see langword="null" /> in unit tests if not needed.
     ///     </para>
     ///     <para>
-    ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked in any
-    ///         environment where <see cref="IHostEnvironment.IsDevelopment()" /> is <see langword="false" />
-    ///         (Staging, Production, Test, and production-like names). Call before registering authentication services.
+    ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked when the host is not Development,
+    ///         or when <see cref="IsProductionEnvironment" /> is true (including <c>ARCHLUCID_ENVIRONMENT</c> that implies
+    ///         production-like naming). Call before registering authentication services.
     ///     </para>
     /// </remarks>
     public static void GuardAllDevelopmentBypasses(
@@ -82,7 +82,8 @@ public static class AuthSafetyGuard
         }
 
 
-        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false) && !hostEnvironment.IsDevelopment())
+        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false)
+            && (!hostEnvironment.IsDevelopment() || IsProductionEnvironment(hostEnvironment, configuration)))
             throw new InvalidOperationException(DevelopmentBypassAllNotAllowedOutsideDevelopmentMessage);
     }
 

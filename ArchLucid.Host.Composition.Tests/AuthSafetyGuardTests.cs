@@ -255,6 +255,24 @@ public sealed class AuthSafetyGuardTests
     }
 
     [Fact]
+    public void GuardAllDevelopmentBypasses_archlucid_environment_staging_and_development_bypass_all_does_not_throw()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "ApiKey",
+                ["ARCHLUCID_ENVIRONMENT"] = "Staging",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void GuardDevelopmentBypassInProduction_delegates_to_guard_all_and_blocks_bypass_all_in_production()
     {
         IConfiguration configuration = new ConfigurationBuilder()
