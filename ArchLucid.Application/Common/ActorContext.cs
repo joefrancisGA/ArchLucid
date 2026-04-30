@@ -47,20 +47,13 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
         string oidNormalized = oid.Trim();
         string? tid = TryGetClaimValue(user, TidClaimType);
 
-        if (string.IsNullOrWhiteSpace(tid))
-            return $"{JwtActorKeyPrefix}{oidNormalized}";
-
-        return $"{JwtActorKeyPrefix}{tid.Trim()}:{oidNormalized}";
+        return string.IsNullOrWhiteSpace(tid) ? $"{JwtActorKeyPrefix}{oidNormalized}" : $"{JwtActorKeyPrefix}{tid.Trim()}:{oidNormalized}";
     }
 
     private static string? TryGetClaimValue(ClaimsPrincipal? user, string claimType)
     {
         Claim? first = user?.FindFirst(claimType);
 
-        if (string.IsNullOrWhiteSpace(first?.Value))
-            return null;
-
-
-        return first.Value;
+        return string.IsNullOrWhiteSpace(first?.Value) ? null : first.Value;
     }
 }

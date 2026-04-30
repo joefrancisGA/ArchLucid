@@ -58,7 +58,7 @@ public sealed class RunDetailQueryService(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        Persistence.Models.RunRecord? record =
+        RunRecord? record =
             await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (record is null)
@@ -120,7 +120,7 @@ public sealed class RunDetailQueryService(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<Persistence.Models.RunRecord> records =
+        IReadOnlyList<RunRecord> records =
             await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken);
 
         return records
@@ -173,12 +173,12 @@ public sealed class RunDetailQueryService(
 
         string? next = null;
 
-        if (page.HasMore && page.Items.Count > 0)
-        {
-            RunRecord last = page.Items[^1];
+        if (!page.HasMore || page.Items.Count <= 0)
+            return (items, page.HasMore, next);
 
-            next = RunCursorCodec.Encode(last.CreatedUtc, last.RunId);
-        }
+        RunRecord last = page.Items[^1];
+
+        next = RunCursorCodec.Encode(last.CreatedUtc, last.RunId);
 
         return (items, page.HasMore, next);
     }

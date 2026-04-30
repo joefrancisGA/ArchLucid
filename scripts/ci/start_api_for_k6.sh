@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Reusable: create SQL catalog, start ArchLucid.Api in background, wait for /health/ready.
+# Reusable: create SQL catalog, start ArchLucid.Api in background, wait for /health/ready,
+# then verify GET /v1/audit/search (same path as k6 audit_search) returns 200 before k6 runs.
 # Usage: ./scripts/ci/start_api_for_k6.sh <database_name> <log_file> <pid_file>
 # Env: SA_PASSWORD (default: LocalTesting123!), API_PORT (default: 5128)
 set -euo pipefail
@@ -41,6 +42,13 @@ echo "Waiting for ${API_URL}/health/ready..."
 for i in $(seq 1 90); do
   if curl -fsS "${API_URL}/health/ready"; then
     echo ""
+    audit_code="$(curl -sS -o /dev/null -w "%{http_code}" "${API_URL}/v1/audit/search?take=1" -H "Accept: application/json")"
+    if [ "${audit_code}" != "200" ]; then
+      echo "::error::GET /v1/audit/search (smoke) returned HTTP ${audit_code} — check API log for SQL/auth/RLS errors"
+      tail -n 200 "${LOG_FILE}" || true
+      exit 1
+    fi
+
     echo "API ready."
     exit 0
   fi

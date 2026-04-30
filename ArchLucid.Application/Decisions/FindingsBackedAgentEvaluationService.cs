@@ -39,17 +39,7 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
         string? topologyTaskId = topologyTask?.TaskId;
 
         List<AgentEvaluation> evaluations = [];
-
-        foreach (AgentResult result in results)
-        {
-            foreach (ArchitectureFinding finding in result.Findings)
-            {
-                AgentEvaluation? evaluation = TryMapFinding(runId, result, finding, topologyTaskId);
-
-                if (evaluation is not null)
-                    evaluations.Add(evaluation);
-            }
-        }
+        evaluations.AddRange((from result in results from finding in result.Findings select TryMapFinding(runId, result, finding, topologyTaskId)).OfType<AgentEvaluation>());
 
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>(evaluations);
     }
@@ -96,7 +86,6 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
 
             // Critical/Error from Topology/Cost: not translated to evaluations (see plan severity table).
             (_, FindingSeverity.Critical) => null,
-            (_, FindingSeverity.Error) => null,
 
             _ => null
         };
@@ -109,7 +98,7 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
         double confidenceDelta,
         ArchitectureFinding finding)
     {
-        List<string> evidenceRefs = [..finding.EvidenceRefs];
+        List<string> evidenceRefs = [.. finding.EvidenceRefs];
 
         if (!string.IsNullOrWhiteSpace(finding.FindingId))
             evidenceRefs.Add($"finding:{finding.FindingId}");

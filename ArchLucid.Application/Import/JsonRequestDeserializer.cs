@@ -13,17 +13,11 @@ public static class JsonRequestDeserializer
             utf8,
             ImportArchitectureRequestSerializerOptions.StrictDeserialize);
 
-        if (req is null)
-            throw new JsonException("Imported JSON deserialized to null.");
-
-        return req;
+        return req ?? throw new JsonException("Imported JSON deserialized to null.");
     }
 
     public static ArchitectureRequest DeserializeText(string text)
     {
-        if (text is null)
-            throw new ArgumentNullException(nameof(text));
-
-        return DeserializeUtf8(Encoding.UTF8.GetBytes(text));
+        return text is null ? throw new ArgumentNullException(nameof(text)) : DeserializeUtf8(Encoding.UTF8.GetBytes(text));
     }
 }

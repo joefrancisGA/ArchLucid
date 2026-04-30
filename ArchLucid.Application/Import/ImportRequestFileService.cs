@@ -119,7 +119,13 @@ public sealed class ImportRequestFileService(
 
         await importedRequestRepository.InsertAsync(record, ct);
 
-        object payload = new { importId, requestId = request.RequestId, format, sourceFileName = safeName };
+        object payload = new
+        {
+            importId,
+            requestId = request.RequestId,
+            format,
+            sourceFileName = safeName
+        };
         string dataJson = JsonSerializer.Serialize(
             payload,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -179,10 +185,7 @@ public sealed class ImportRequestFileService(
 
     private static ArchitectureRequest DeserializeForImport(string text, string format)
     {
-        if (string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
-            return JsonRequestDeserializer.DeserializeText(text);
-
-        return TomlRequestDeserializer.Deserialize(text);
+        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase) ? JsonRequestDeserializer.DeserializeText(text) : TomlRequestDeserializer.Deserialize(text);
     }
 
     private static async Task<string> ReadUtf8CappedAsync(IFormFile file, CancellationToken ct)

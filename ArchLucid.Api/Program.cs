@@ -11,6 +11,7 @@ using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
@@ -84,6 +85,8 @@ public partial class Program
         builder.Services.Configure<E2EHarnessOptions>(builder.Configuration.GetSection(E2EHarnessOptions.SectionName));
         builder.Services.AddArchLucidCors(builder.Configuration);
         builder.Services.AddArchLucidResponseCompression();
+        builder.Services.Configure<ContextIngestionLimitsOptions>(
+            builder.Configuration.GetSection(ContextIngestionLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();

@@ -31,6 +31,7 @@ import { StructuredComparisonView } from "@/components/compare/StructuredCompari
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
 import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
+import { cn } from "@/lib/utils";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";

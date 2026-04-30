@@ -86,6 +86,12 @@ export function listRunsFn() {
 
 export function auditSearchFn() {
   const r = req("audit_search", "GET", `${BASE}/v1/audit/search?take=20`);
+
+  if (r.status !== 200) {
+    const snippet = typeof r.body === "string" ? r.body.slice(0, 500) : String(r.body);
+    console.error(`audit_search: status=${r.status} body_snippet=${snippet}`);
+  }
+
   check(r, { "audit search 200": (res) => res.status === 200 });
 }
 

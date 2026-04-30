@@ -21,6 +21,7 @@ internal static class PipelineExtensions
     public static WebApplication UseArchLucidPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<ContextIngestionMaxPayloadMiddleware>();
         app.UseMiddleware<TraceResponseHeaderMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
         app.UseMiddleware<ApiDeprecationHeadersMiddleware>();

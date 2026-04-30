@@ -36,7 +36,7 @@ type AppShellClientProps = {
 
 /**
  * Operator shell: sticky header (logo, auth/environment, scope, command palette, help, theme), breadcrumbs,
- * collapsible sidebar (lg+), mobile drawer, keyboard shortcuts, main landmark.
+ * collapsible sidebar nav landmark (lg+), mobile drawer, keyboard shortcuts, primary <main> landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   const pathname = usePathname();
@@ -92,9 +92,13 @@ export function AppShellClient({ children }: AppShellClientProps) {
           </header>
           <LayerContextFromRoute />
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
-            <aside data-testid="sidebar-nav" className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block">
+            <nav
+              data-testid="sidebar-nav"
+              aria-label="Primary"
+              className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 print:!hidden dark:border-neutral-800 dark:bg-neutral-950/80 lg:block"
+            >
               <SidebarNav />
-            </aside>
+            </nav>
             <div data-testid="app-shell-main" className="min-w-0 flex-1 px-4 py-4 print:px-0 lg:px-6 lg:py-6">
               {pathname === "/" ? <TrialBanner /> : null}
               <KeyboardShortcutProvider
@@ -102,14 +106,14 @@ export function AppShellClient({ children }: AppShellClientProps) {
                   setHelpOpen(true);
                 }}
               >
-                <div
+                <main
                   id="main-content"
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
                   <SyncActiveRunFromPathname />
                   {children}
-                </div>
+                </main>
               </KeyboardShortcutProvider>
             </div>
           </div>

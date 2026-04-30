@@ -53,6 +53,8 @@ public static class ProblemErrorCodes
 
     public const string GraphTooLargeForFullResponse = "GRAPH_TOO_LARGE_FOR_FULL_RESPONSE";
 
+    public const string RequestPayloadTooLarge = "REQUEST_PAYLOAD_TOO_LARGE";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -124,6 +126,10 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.GraphTooLargeForFullResponse)
             return GraphTooLargeForFullResponse;
+
+        if (problemTypeUri == ProblemTypes.RequestPayloadTooLarge)
+            return RequestPayloadTooLarge;
+
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }

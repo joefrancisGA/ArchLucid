@@ -223,6 +223,40 @@ public static class Program
 
                     return CliExitCode.UsageError;
 
+                case "policy":
+                    if (normalized.Length > 2 && normalized[1] == "validate")
+                        return await PolicyValidateCommand.RunAsync(normalized[2]);
+
+
+                    Console.WriteLine("Usage: archlucid policy validate <file.json>");
+
+                    return CliExitCode.UsageError;
+
+                case "graph":
+                    if (normalized.Length > 2 && normalized[1] == "export")
+                        return await GraphExportCommand.RunAsync(
+                            normalized
+                                .Skip(2)
+                                .ToArray());
+
+                    Console.WriteLine(
+                        "Usage: archlucid graph export <runId> [--format mermaid] [--decision <key>] [--out <path>]");
+
+                    return CliExitCode.UsageError;
+
+                case "rules":
+                    if (normalized.Length > 1 && normalized[1] == "simulate")
+                        return await RulesSimulateCommand.RunAsync(
+                            normalized
+                                .Skip(2)
+                                .ToArray());
+
+
+                    Console.WriteLine(
+                        "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
+
+                    return CliExitCode.UsageError;
+
                 case "doctor":
                 case "check":
                     return await DoctorCommand.RunAsync(CliCommandShared.TryLoadConfigFromCwd());
@@ -281,7 +315,7 @@ public static class Program
     private static void WriteNoCommandMessage()
     {
         const string plain =
-            "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
+            "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, policy validate <file.json>, graph export <runId> [--format mermaid] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
 
         if (CliExecutionContext.JsonOutput)
 

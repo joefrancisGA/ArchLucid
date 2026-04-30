@@ -39793,6 +39793,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateVersion")]
         public string? PromptTemplateVersion { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("recommendedActions")]
+        public System.Collections.Generic.ICollection<string>? RecommendedActions { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
 
