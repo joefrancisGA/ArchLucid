@@ -6,19 +6,19 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/runs/new")).toBe("New architecture request");
+    expect(getRouteTitle("/runs/new")).toBe("New review");
   });
 });
 
 describe("getRouteTitle — dynamic run detail", () => {
-  it("returns Run detail for uuid path", () => {
-    expect(getRouteTitle("/runs/e2e-fixture-run-001")).toBe("Run detail");
+  it("returns Review detail for uuid path", () => {
+    expect(getRouteTitle("/runs/e2e-fixture-run-001")).toBe("Review detail");
   });
 });
 
 describe("getRouteTitle — manifest detail", () => {
-  it("returns Manifest detail", () => {
-    expect(getRouteTitle("/manifests/abc-123")).toBe("Manifest detail");
+  it("returns Architecture package", () => {
+    expect(getRouteTitle("/manifests/abc-123")).toBe("Architecture package");
   });
 });
 

@@ -1,3 +1,5 @@
+> **Scope:** Contributors and CI maintainers: documents the Playwright demo-readiness DOM scan that blocks leaked engineering tokens in customer-visible `main` content; not a general Playwright or operator UX guide.
+
 # Demo-mode DOM token scan (Playwright)
 
 ## Objective

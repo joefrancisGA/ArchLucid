@@ -147,7 +147,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "pilot",
     // Buyer layer: Pilot
     label: "Pilot",
-    caption: "Default path — request through finalization and artifact review.",
+    caption: "Start a review — upload evidence, track progress, and review findings.",
     links: [
       {
         href: "/",
@@ -159,9 +159,9 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       },
       {
         href: "/runs/new",
-        label: "New request",
+        label: "New review",
         title: navTitleWithShortcut(
-          "Guided new-request wizard — system identity through pipeline tracking",
+          "Start a new architecture review — guided wizard through pipeline tracking",
           "alt+n",
         ),
         keyShortcut: "alt+n",
@@ -170,8 +170,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       },
       {
         href: "/runs?projectId=default",
-        label: "Runs",
-        title: navTitleWithShortcut("Runs list — open detail, manifest, artifacts, exports", "alt+r"),
+        label: "Reviews",
+        title: navTitleWithShortcut("Reviews — open review detail, architecture package, artifacts, exports", "alt+r"),
         keyShortcut: "alt+r",
         icon: ListOrdered,
         tier: "essential",

@@ -79,6 +79,8 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
       const titleRaw = (t.findingTitle ?? findingId).trim();
       const manifestRaw = (run.goldenManifestId ?? "").trim();
 
+      const firstAction = (t.recommendedActions ?? []).find((a: string) => a.trim().length > 0)?.trim();
+
       return {
         runId: run.runId,
         runLabel: ((run.description ?? "").trim().length > 0 ? run.description : run.runId) ?? run.runId,
@@ -88,7 +90,7 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
         severity: severityFromTrace(t.traceConfidenceLabel),
         category: (t.ruleId ?? "—").replace(/;/g, ", "),
         status: "Open",
-        recommended: "Open the finding to review rationale, evidence, and recommended next steps.",
+        recommended: firstAction ?? "Open the finding to review rationale, evidence, and recommended next steps.",
       };
     });
 }

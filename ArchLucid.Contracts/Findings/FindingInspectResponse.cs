@@ -89,4 +89,15 @@ public sealed class FindingInspectResponse
         get;
         init;
     }
+
+    /// <summary>
+    /// Ordered list of recommended actions produced by the finding engine.
+    /// Populated from <c>dbo.FindingRecommendedActions ORDER BY SortOrder</c>.
+    /// Empty when the finding engine produced no explicit actions.
+    /// </summary>
+    public IReadOnlyList<string> RecommendedActions
+    {
+        get;
+        init;
+    } = [];
 }
