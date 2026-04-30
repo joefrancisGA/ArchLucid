@@ -30,7 +30,7 @@ import { LegacyRunComparisonView } from "@/components/compare/LegacyRunCompariso
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { compareRunBuyerDisplayLabel } from "@/lib/compare-run-display-label";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
@@ -269,12 +269,12 @@ function CompareForm() {
     <main>
       <LayerHeader pageKey="compare" />
       <OperatorPageHeader
-        title="Compare runs"
+        title="Compare reviews"
         helpKey="compare-runs"
         metadata={<ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />}
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Compare finalized manifests to understand what changed between two runs—useful for sponsors, security review,
+        Compare finalized manifests to understand what changed between two reviews—useful for sponsors, security review,
         and release checkpoints. <strong>Baseline</strong> is the reference; <strong>updated</strong> is what you are
         evaluating. After you compare, review the structured summary first; optional{" "}
         <strong>Summarize for sponsor</strong> adds a short narrative.
@@ -325,22 +325,34 @@ function CompareForm() {
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
           preferAutoPick={false}
-          label={isDemoClaimsIntakeComparePair ? "Claims Intake baseline run" : "Baseline run"}
-          placeholder="Choose a baseline run"
+          label={isDemoClaimsIntakeComparePair ? "Claims Intake baseline review" : "Baseline review"}
+          placeholder="Choose a baseline review"
           value={leftRunId}
           onChange={setLeftRunId}
           inputId="compare-left-run-id"
           forCompare
         />
+        {compareRunBuyerDisplayLabel(leftRunId) ? (
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span>{" "}
+            {compareRunBuyerDisplayLabel(leftRunId)}
+          </p>
+        ) : null}
         <RunIdPicker
           preferAutoPick={false}
-          label={isDemoClaimsIntakeComparePair ? "Claims Intake updated run" : "Updated run"}
-          placeholder="Choose an updated run"
+          label={isDemoClaimsIntakeComparePair ? "Claims Intake updated review" : "Updated review"}
+          placeholder="Choose an updated review"
           value={rightRunId}
           onChange={setRightRunId}
           inputId="compare-right-run-id"
           forCompare
         />
+        {compareRunBuyerDisplayLabel(rightRunId) ? (
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">Showing:</span>{" "}
+            {compareRunBuyerDisplayLabel(rightRunId)}
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"

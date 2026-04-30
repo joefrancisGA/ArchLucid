@@ -98,6 +98,11 @@ export default function AdminHealthPage() {
     void refresh();
   }, [refresh]);
 
+  const internalTestBuildDisclosure =
+    version !== null &&
+    (Boolean(version.informationalVersion?.toLowerCase().includes("e2e")) ||
+      Boolean(version.commitSha?.toLowerCase().startsWith("e2e")));
+
   const overall = ready?.status ?? "Unknown";
 
   return (
@@ -126,7 +131,9 @@ export default function AdminHealthPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Readiness checks</CardTitle>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">GET /health/ready (anonymous) — dependency probes used by load balancers before taking traffic.</p>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            Readiness checks — dependency probes load balancers use before routing traffic.
+          </p>
         </CardHeader>
         <CardContent>
           {readyError !== null ? (
@@ -136,14 +143,22 @@ export default function AdminHealthPage() {
           ) : null}
           {version !== null ? (
             <div className="mb-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/50" data-testid="admin-health-build-identity">
-              <p className="m-0">
-                <span className="font-medium text-neutral-800 dark:text-neutral-100">Version: </span>
-                <span className="font-mono text-xs">{version.informationalVersion ?? "—"}</span>
-              </p>
-              <p className="m-0 mt-1">
-                <span className="font-medium text-neutral-800 dark:text-neutral-100">Commit: </span>
-                <span className="font-mono text-xs">{version.commitSha ?? "—"}</span>
-              </p>
+              {internalTestBuildDisclosure ? (
+                <p className="m-0 text-neutral-700 dark:text-neutral-200">
+                  Build labels in this environment use internal test identifiers — detailed version strings are hidden.
+                </p>
+              ) : (
+                <>
+                  <p className="m-0">
+                    <span className="font-medium text-neutral-800 dark:text-neutral-100">Version: </span>
+                    <span className="font-mono text-xs">{version.informationalVersion ?? "—"}</span>
+                  </p>
+                  <p className="m-0 mt-1">
+                    <span className="font-medium text-neutral-800 dark:text-neutral-100">Commit: </span>
+                    <span className="font-mono text-xs">{version.commitSha ?? "—"}</span>
+                  </p>
+                </>
+              )}
             </div>
           ) : null}
           {ready && ready.entries.length > 0 ? (
@@ -182,7 +197,7 @@ export default function AdminHealthPage() {
                 </table>
               </div>
               <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="admin-health-ready-duration-footnote">
-                Readiness summary (`GET /health/ready`) normally omits per-check duration; values appear when the API includes them.
+                Readiness responses normally omit per-check duration unless the API includes them.
               </p>
             </div>
           ) : (
@@ -194,7 +209,9 @@ export default function AdminHealthPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Circuit breakers</CardTitle>
-          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">From GET /health (Read) — OpenAI completion/embedding gates.</p>
+          <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+            Model and embedding circuit gates when authenticated health detail is available.
+          </p>
         </CardHeader>
         <CardContent>
           {circuitNote !== null ? (

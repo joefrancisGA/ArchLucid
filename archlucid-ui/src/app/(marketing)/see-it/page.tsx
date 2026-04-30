@@ -9,7 +9,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "ArchLucid · See it in 30 seconds",
   description:
-    "No-install snapshot of the latest finalized Contoso demo run — same JSON as GET /v1/demo/preview, with a static fallback when the API is unreachable.",
+    "No-install look at a sample healthcare architecture review: finalized manifest snapshot, counts, and artifact descriptors — with a static fallback when live preview is unavailable.",
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",
@@ -25,16 +25,15 @@ export default async function SeeItMarketingPage() {
         See a real finalized manifest in 30 seconds
       </h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        No install — data comes from <code className="text-xs">GET /v1/demo/preview</code> when the demo API is
-        reachable; otherwise a checked-in snapshot keeps this page online.
+        No install — this page pulls a live preview when configured, or falls back to a checked-in snapshot so the proof
+        stays online.
       </p>
       <p className="mt-3 rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100">
         <span className="font-semibold">Sample only:</span>{" "}
         <Link className="text-teal-800 underline underline-offset-2 dark:text-teal-200" href="/WORKED_EXAMPLE_ROI.pdf">
-          See worked example (PDF)
-        </Link>{" "}
-        — fictional Contoso tenant ROI from the per-tenant value-report DOCX path (markdown mirror in the repo at{" "}
-        <code className="text-[0.7rem]">docs/go-to-market/WORKED_EXAMPLE_ROI.md</code>).
+          See worked example ROI (PDF)
+        </Link>
+        .
       </p>
       <div className="mt-8">
         <SeeItMarketingBody source={source} payload={payload} />

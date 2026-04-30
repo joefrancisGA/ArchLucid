@@ -40,8 +40,8 @@ export function HomeMaturityLayerCards() {
   const demoUi = isNextPublicDemoMode();
 
   const advancedItems = demoUi
-    ? (["Compare runs", "Replay", "Graph", "Ask", "Architecture advisory"] as const)
-    : (["Compare runs", "Replay", "Graph"] as const);
+    ? (["Compare reviews", "Replay", "Graph", "Ask", "Architecture advisory"] as const)
+    : (["Compare reviews", "Replay", "Graph"] as const);
 
   const searchItems = demoUi
     ? (["Indexed search", "Planning", "Digests", "Value report"] as const)

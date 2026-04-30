@@ -172,6 +172,37 @@ describe("AdminHealthPage", () => {
     vi.unstubAllGlobals();
   });
 
+  it("hides raw version strings for internal e2e-style builds", async () => {
+    const fetchMock = vi.fn(
+      async (url: string | URL) => {
+        const s = String(url);
+        if (s.includes("health/ready")) {
+          return jsonResponse({ status: "Healthy", entries: [] });
+        }
+        if (s.includes("/version")) {
+          return jsonResponse({ informationalVersion: "e2e-screenshots", commitSha: "e2e000abc" });
+        }
+        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+          return jsonResponse({ status: "Healthy", entries: [] });
+        }
+        if (s.includes("operator-task-success-rates")) {
+          return jsonResponse({
+            windowNote: "n",
+            firstRunCommittedTotal: 0,
+            firstSessionCompletedTotal: 0,
+            firstRunCommittedPerSessionRatio: 0,
+          });
+        }
+        return new Response("n", { status: 404 });
+      },
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<AdminHealthPage />);
+    expect(await screen.findByTestId("admin-health-build-identity")).toHaveTextContent(/internal test identifiers/i);
+    expect(screen.queryByText("e2e-screenshots")).toBeNull();
+    vi.unstubAllGlobals();
+  });
+
   it("refresh re-fetches", async () => {
     const fetchMock = vi.fn(
       async (url: string | URL) => {

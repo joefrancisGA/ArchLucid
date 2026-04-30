@@ -389,7 +389,7 @@ export default function AuditPage() {
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
           Each card below is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip> (time, type, actor,
-          run, and data JSON).
+          and run when present). Expand an event for technical detail.
         </p>
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use

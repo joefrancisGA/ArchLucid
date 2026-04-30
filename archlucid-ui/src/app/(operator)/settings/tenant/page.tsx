@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -107,9 +108,8 @@ export default function TenantSettingsPage() {
         </CardHeader>
         <CardContent>
           <p className="m-0 text-sm text-neutral-600 dark:text-neutral-300">
-            A friendly tenant display name is not available through the public API yet. Principal name from sign-in:{" "}
-            <span className="font-medium">{currentPrincipal.name ?? "—"}</span>.{" "}
-            <span className="text-neutral-500">(API endpoint not yet available)</span>
+            Friendly organization display name is shown from your identity provider. Signed-in name:{" "}
+            <span className="font-medium">{currentPrincipal.name ?? "—"}</span>.
           </p>
         </CardContent>
       </Card>
@@ -119,19 +119,31 @@ export default function TenantSettingsPage() {
           <CardTitle className="text-base">Request scope (workspace / project)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
-          <p className="m-0">These values are what the UI sends on <code className="text-xs">/api/proxy</code> calls. Use the header scope switcher to change the active project.</p>
-          <ul className="m-0 list-inside list-disc">
-            <li>
-              <code className="text-xs">x-tenant-id</code>: {scope["x-tenant-id"]}
-            </li>
-            <li>
-              <code className="text-xs">x-workspace-id</code>: {scope["x-workspace-id"]}
-            </li>
-            <li>
-              <code className="text-xs">x-project-id</code>: {scope["x-project-id"]}
-            </li>
-          </ul>
-          <p className="m-0 text-xs text-neutral-500">Listing workspaces from the API (GET /v1/tenant/workspaces) is optional; the <Link className="text-teal-800 underline dark:text-teal-300" href="/">home</Link> scope control reflects your selection.</p>
+          <p className="m-0">
+            Active workspace and project come from the scope control on{" "}
+            <Link className="text-teal-800 underline dark:text-teal-300" href="/">
+              home
+            </Link>
+            . Change scope there to update what this session targets.
+          </p>
+
+          <CollapsibleSection title="Advanced — routing identifiers (operators)" defaultOpen={false}>
+            <p className="m-0 text-sm">
+              Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
+              current selection.
+            </p>
+            <ul className="m-0 mt-2 list-inside list-disc">
+              <li>
+                Tenant: <span className="font-mono text-xs">{scope["x-tenant-id"]}</span>
+              </li>
+              <li>
+                Workspace: <span className="font-mono text-xs">{scope["x-workspace-id"]}</span>
+              </li>
+              <li>
+                Project: <span className="font-mono text-xs">{scope["x-project-id"]}</span>
+              </li>
+            </ul>
+          </CollapsibleSection>
         </CardContent>
       </Card>
 

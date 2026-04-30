@@ -92,7 +92,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
               className="text-teal-800 underline dark:text-teal-200"
               href={`/compare?leftRunId=${encodeURIComponent(runId)}`}
             >
-              Compare runs
+              Compare reviews
             </Link>
             <Link className="text-teal-800 underline dark:text-teal-200" href={`/runs/${runId}/provenance`}>
               View provenance

@@ -10,7 +10,7 @@ export const NAV_DISCLOSURE = {
     hide: "Hide advanced tools",
     /** `title` on the sidebar toggle and settings checkbox. */
     title:
-      "Compare runs, replay authority chains, advisory scans, and similar investigation tools.",
+      "Compare reviews, replay authority chains, advisory scans, and similar investigation tools.",
   },
   advanced: {
     /** Settings checkbox: reveal advanced Enterprise Controls links. */

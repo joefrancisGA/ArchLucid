@@ -6,6 +6,7 @@ import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { ShellReadySurface } from "@/components/ShellReadySurface";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { Button } from "@/components/ui/button";
+import { resolveMarketingLiveDemoApiBase } from "@/lib/marketing-live-demo-api-base";
 
 export const metadata: Metadata = {
   title: "Welcome",
@@ -16,6 +17,8 @@ export const metadata: Metadata = {
  * Public marketing chrome (no operator sidebar). Root `layout.tsx` still supplies global styles and color script.
  */
 export default function MarketingLayout({ children }: { children: ReactNode }) {
+  const liveDemoConfigured = resolveMarketingLiveDemoApiBase().length > 0;
+
   return (
     <ShellReadySurface className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <header className="border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
@@ -40,9 +43,11 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <Button asChild variant="ghost" size="sm">
                 <Link href="/see-it">See it (30s)</Link>
               </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/live-demo">Live demo</Link>
-              </Button>
+              {liveDemoConfigured ? (
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/live-demo">Live demo</Link>
+                </Button>
+              ) : null}
               <Button asChild variant="ghost" size="sm">
                 <Link href="/compliance-journey">Compliance journey</Link>
               </Button>

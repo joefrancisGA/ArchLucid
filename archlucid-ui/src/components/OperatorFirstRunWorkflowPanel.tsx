@@ -267,7 +267,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           What&apos;s next
         </h2>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
-          Compare runs, replay pipeline steps, and explore the architecture graph.
+          Compare reviews, replay pipeline steps, and explore the architecture graph.
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link

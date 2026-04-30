@@ -9,6 +9,7 @@ import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
+import { severityFromTrace } from "@/lib/executive-finding-severity";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -47,28 +48,6 @@ function demoPhiRow(): GovernanceFindingQueueRow {
     recommended:
       "Review PHI handling posture with intake and security owners before production rollout.",
   };
-}
-
-function severityFromTrace(label: string | null | undefined): string {
-  const t = (label ?? "").trim();
-
-  if (t.length === 0) {
-    return "—";
-  }
-
-  if (/high|critical|severe/i.test(t)) {
-    return "High";
-  }
-
-  if (/low|minimal/i.test(t)) {
-    return "Low";
-  }
-
-  if (/medium|moderate/i.test(t)) {
-    return "Medium";
-  }
-
-  return t.length > 32 ? `${t.slice(0, 29)}…` : t;
 }
 
 function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): GovernanceFindingQueueRow[] {
