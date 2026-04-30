@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -30,10 +31,6 @@ export type GovernanceFindingQueueRow = {
   status: string;
   recommended: string;
 };
-
-function isPublicDemoMode(): boolean {
-  return process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-}
 
 function demoPhiRow(): GovernanceFindingQueueRow {
   return {
@@ -115,7 +112,7 @@ export default function GovernanceFindingsQueueClient() {
       setLoading(true);
       setLoadFailed(false);
 
-      const demo = isPublicDemoMode();
+      const demo = isPublicDemoModeEnv();
 
       try {
         const page = await listRunsByProjectPaged("default", 1, 25);

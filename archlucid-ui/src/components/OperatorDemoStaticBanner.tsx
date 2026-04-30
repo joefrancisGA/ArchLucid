@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 
 /**
  * Inline notice when operator run/manifest content is served from the curated showcase bundle
- * because the upstream API returned an error and {@link isOperatorDemoStaticMode} is enabled.
+ * because the upstream API returned an error and static demo fallback is enabled (`NEXT_PUBLIC_DEMO_MODE` or `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`).
  */
 export function OperatorDemoStaticBanner(): ReactElement {
   const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";

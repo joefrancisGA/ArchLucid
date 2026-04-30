@@ -3,12 +3,26 @@ import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 
-/** In public demo builds, omit advanced learning/planning routes that often render empty without live learning APIs. */
+/** In public demo builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/planning",
   "/product-learning",
   "/recommendation-learning",
   "/demo/explain",
+  "/admin/health",
+  "/admin/support",
+  "/admin/users",
+  "/alerts",
+  "/policy-packs",
+  "/governance-resolution",
+  "/governance",
+  "/audit",
+  "/integrations/teams",
+  "/digests",
+  "/settings/tenant",
+  "/settings/baseline",
+  "/settings/tenant-cost",
+  "/value-report",
 ]);
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {

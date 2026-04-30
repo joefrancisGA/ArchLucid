@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
-import { DemoPreviewMarketingBody, DemoPreviewNotAvailable } from "../demo/preview/DemoPreviewMarketingBody";
+import { DemoPreviewMarketingBody } from "../demo/preview/DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { normalizeSeeItMarketingPayload } from "../see-it/normalize-see-it-payload";
+import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const revalidate = 300;
 
@@ -30,6 +32,10 @@ function resolveDemoPreviewApiBase(): string {
   return "";
 }
 
+function curatedOfflinePayload(): DemoCommitPagePreviewResponse {
+  return normalizeSeeItMarketingPayload(getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID));
+}
+
 export default async function LiveDemoMarketingPage() {
   const base = resolveDemoPreviewApiBase();
 
@@ -37,9 +43,12 @@ export default async function LiveDemoMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          The live demo is not enabled in this environment.
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          No demo API host is configured — showing the curated public sample bundle instead of a live pull.
         </p>
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
+        </div>
       </main>
     );
   }
@@ -53,35 +62,31 @@ export default async function LiveDemoMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          The live demo could not be loaded right now. Please try again later.
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          The sample-run endpoint did not respond — showing the curated public walkthrough bundle.
         </p>
-      </main>
-    );
-  }
-
-  if (response.status === 404)
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
-        <div className="mt-6">
-          <DemoPreviewNotAvailable />
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
       </main>
     );
+  }
 
   if (!response.ok) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
-        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          The live demo could not be loaded right now. Please try again later.
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          Live sample-run returned HTTP {response.status} — showing the curated public bundle instead.
         </p>
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
+        </div>
       </main>
     );
   }
 
-  const payload = (await response.json()) as DemoCommitPagePreviewResponse;
+  const payload = normalizeSeeItMarketingPayload((await response.json()) as DemoCommitPagePreviewResponse);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">

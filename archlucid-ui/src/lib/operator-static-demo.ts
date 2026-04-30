@@ -1,4 +1,5 @@
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -20,16 +21,20 @@ export function isOperatorDemoStaticMode(): boolean {
   return process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true";
 }
 
+/**
+ * Curated static payloads when authority APIs error — static-operator image **or** any `NEXT_PUBLIC_DEMO_MODE` build.
+ * Eligibility is still limited to {@link isDemoRunIdEligibleForStaticFallback}.
+ */
+export function isStaticDemoPayloadFallbackEnabled(): boolean {
+  return isOperatorDemoStaticMode() || isPublicDemoModeEnv();
+}
+
 export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
 }
 
 function isDemoRunsListFallbackEnabled(): boolean {
-  return (
-    isOperatorDemoStaticMode() ||
-    process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
-    process.env.NEXT_PUBLIC_DEMO_MODE === "1"
-  );
+  return isStaticDemoPayloadFallbackEnabled();
 }
 
 /**
@@ -167,7 +172,7 @@ export function buildStaticDemoArtifactsFromShowcase(urlRunId: string): Artifact
 }
 
 export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
-  if (!isOperatorDemoStaticMode()) {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 
@@ -179,7 +184,7 @@ export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {
-  if (!isOperatorDemoStaticMode()) {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 
@@ -191,7 +196,7 @@ export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummar
 }
 
 export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineItem[] | null {
-  if (!isOperatorDemoStaticMode()) {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 
@@ -203,7 +208,7 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
 }
 
 export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: string): ArtifactDescriptor[] | null {
-  if (!isOperatorDemoStaticMode()) {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 
@@ -216,7 +221,7 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
 
 /** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */
 export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSummary | null {
-  if (!isOperatorDemoStaticMode()) {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
     return null;
   }
 

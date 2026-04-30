@@ -43,10 +43,10 @@ describe("CorePilotOneSessionChecklist", () => {
     expect(screen.getByTestId("core-pilot-one-session-checklist")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.queryByText("Loading checklist links…")).not.toBeInTheDocument();
+      expect(screen.queryByText("Resolving checklist links…")).not.toBeInTheDocument();
     });
 
-    expect(screen.getByRole("heading", { name: "Core Pilot in one session" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "First architecture review in one session" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "New request" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByRole("link", { name: "Runs list" })).toHaveAttribute("href", "/runs?projectId=default");
     expect(screen.getByRole("link", { name: "Open run detail to commit" })).toHaveAttribute(
@@ -69,7 +69,7 @@ describe("CorePilotOneSessionChecklist", () => {
     render(<CorePilotOneSessionChecklist />);
 
     await waitFor(() => {
-      expect(screen.queryByText("Loading checklist links…")).not.toBeInTheDocument();
+      expect(screen.queryByText("Resolving checklist links…")).not.toBeInTheDocument();
     });
 
     expect(screen.getByRole("link", { name: "Open committed run" })).toHaveAttribute(

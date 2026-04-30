@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 
-import {
-  DemoPreviewFriendlyUnavailable,
-  DemoPreviewMarketingBody,
-  DemoPreviewNotAvailable,
-} from "./DemoPreviewMarketingBody";
+import { normalizeSeeItMarketingPayload } from "../see-it/normalize-see-it-payload";
+import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const revalidate = 300;
 
@@ -34,6 +32,10 @@ function resolveDemoPreviewApiBase(): string {
   return "";
 }
 
+function curatedOfflinePayload(): DemoCommitPagePreviewResponse {
+  return normalizeSeeItMarketingPayload(getShowcaseStaticDemoPayload(SHOWCASE_STATIC_DEMO_RUN_ID));
+}
+
 export default async function DemoPreviewMarketingPage() {
   const base = resolveDemoPreviewApiBase();
 
@@ -41,8 +43,11 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <div className="mt-6">
-          <DemoPreviewFriendlyUnavailable />
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          Showing the public Claims Intake sample — add demo API routing when you want this page to pull live JSON.
+        </p>
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
       </main>
     );
@@ -57,35 +62,31 @@ export default async function DemoPreviewMarketingPage() {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <div className="mt-6">
-          <DemoPreviewFriendlyUnavailable />
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          The demo host did not respond — showing the same curated sample used on <span className="font-medium">See it</span> and Showcase.
+        </p>
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
       </main>
     );
   }
-
-  if (response.status === 404)
-    return (
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <div className="mt-6">
-          <DemoPreviewNotAvailable />
-        </div>
-      </main>
-    );
 
   if (!response.ok) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
-        <div className="mt-6">
-          <DemoPreviewFriendlyUnavailable />
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+          Live preview returned HTTP {response.status} — showing the curated public sample instead.
+        </p>
+        <div className="mt-8">
+          <DemoPreviewMarketingBody payload={curatedOfflinePayload()} />
         </div>
       </main>
     );
   }
 
-  const payload = (await response.json()) as DemoCommitPagePreviewResponse;
+  const payload = normalizeSeeItMarketingPayload((await response.json()) as DemoCommitPagePreviewResponse);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">

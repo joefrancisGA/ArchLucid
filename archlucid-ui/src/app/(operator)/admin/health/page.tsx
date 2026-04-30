@@ -296,7 +296,12 @@ export default function AdminHealthPage() {
                   </tr>
                 </tbody>
               </table>
-              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{rates.windowNote}</p>
+              {rates.windowNote !== undefined &&
+              rates.windowNote !== null &&
+              rates.windowNote.trim().length > 0 &&
+              !/e2e|screenshot|fixture/i.test(rates.windowNote) ? (
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">{rates.windowNote}</p>
+              ) : null}
             </div>
           ) : (
             !ratesNote && <p className="m-0 text-sm text-neutral-500">(Endpoint not yet available)</p>

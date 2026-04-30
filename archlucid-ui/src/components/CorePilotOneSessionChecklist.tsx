@@ -124,7 +124,7 @@ export function CorePilotOneSessionChecklist() {
           id="core-pilot-one-session-heading"
           className="m-0 text-base font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
         >
-          Core Pilot in one session
+          First architecture review in one session
         </h2>
         <HelpLink docPath="/docs/CORE_PILOT.md" label="Open Core Pilot path on GitHub (new tab)" />
       </div>
@@ -135,7 +135,7 @@ export function CorePilotOneSessionChecklist() {
 
       {phase === "loading" ? (
         <p className="m-0 mt-3 text-xs text-neutral-500 dark:text-neutral-400" role="status">
-          Loading checklist links…
+          Resolving checklist links…
         </p>
       ) : (
         <ol className="m-0 mt-3 list-none space-y-2.5 p-0">

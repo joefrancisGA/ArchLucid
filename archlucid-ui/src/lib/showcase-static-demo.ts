@@ -61,7 +61,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
     demoStatusMessage: "Demonstration — sample healthcare intake scenario",
     run: {
       runId,
-      projectId: "contoso-health-pilot",
+      projectId: "claims-intake-sample-workspace",
       description: "Claims Intake Modernization Run",
       createdUtc: "2026-01-10T09:15:22.000Z",
     },
@@ -189,7 +189,16 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       usedDeterministicFallback: false,
       faithfulnessWarning: null,
       findingTraceConfidences: null,
-      citations: [],
+      citations: [
+        { kind: "Manifest", id: SHOWCASE_STATIC_DEMO_MANIFEST_ID, label: "Committed architecture manifest", runId },
+        {
+          kind: "GraphSnapshot",
+          id: "graph-snapshot-01",
+          label: "Review-trail graph — PHI minimization and control coverage",
+          runId,
+        },
+        { kind: "ContextSnapshot", id: "ctx-snapshot-01", label: "Context snapshot — intake boundaries", runId },
+      ],
     },
   };
 }

@@ -1,11 +1,15 @@
 import { listRunsByProjectPaged } from "@/lib/api";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 const DEFAULT_PROJECT_ID = "default";
 
 /** First page size when scanning for a committed run (newest runs appear first). */
 const COMMIT_SCAN_PAGE_SIZE = 40;
+
+const FETCH_BUDGET_MS = 10_000;
 
 export type CorePilotCommitContext = {
   /** True when tenant has at least one authority-committed manifest (trial anchor or run row). */
@@ -28,10 +32,21 @@ function isCommittedRunSummary(run: RunSummary): boolean {
  * Prefer `GET /v1/tenant/trial-status.firstCommitUtc`; fall back to scanning run summaries.
  */
 export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitContext> {
+  if (isPublicDemoModeEnv()) {
+    return {
+      hasCommittedManifest: true,
+      latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    };
+  }
+
   let trialAnchoredCommit = false;
 
   try {
-    const res = await fetch("/api/proxy/v1/tenant/trial-status", { credentials: "include" });
+    const res = await fetch("/api/proxy/v1/tenant/trial-status", {
+      credentials: "include",
+      signal: AbortSignal.timeout(FETCH_BUDGET_MS),
+    });
 
     if (res.ok) {
       const json: unknown = await res.json();
@@ -51,7 +66,12 @@ export async function fetchCorePilotCommitContext(): Promise<CorePilotCommitCont
   }
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, COMMIT_SCAN_PAGE_SIZE);
+    const raw: unknown = await Promise.race([
+      listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, COMMIT_SCAN_PAGE_SIZE),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error("timeout")), FETCH_BUDGET_MS);
+      }),
+    ]);
     const coerced = coerceRunSummaryPaged(raw);
 
     if (!coerced.ok) {
