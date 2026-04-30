@@ -5,11 +5,8 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 /**
- * Operator-facing support page (PENDING_QUESTIONS.md item 37, owner decisions F + G,
- * 2026-04-23). One-button download of a freshly-assembled, redacted support bundle ZIP
- * gated by `ExecuteAuthority` server-side. The redaction-policy sub-question (item 37
- * part c) is still open at owner level — surfaced here so operators don't assume the
- * default policy is final.
+ * Operator-facing support: one-button download of a redacted support bundle ZIP,
+ * gated by `ExecuteAuthority` server-side.
  */
 export default function AdminSupportPage() {
   const [downloading, setDownloading] = useState(false);
@@ -59,9 +56,12 @@ export default function AdminSupportPage() {
       <div>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Support</h1>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Download a redacted support bundle to attach to an inbound support ticket. The bundle includes host build
-          identity, an environment-variable snapshot (secret-shaped names show <code>(set)</code>/<code>(not set)</code>{" "}
-          only), and references to API + documentation correlation tips.
+          Download a redacted support bundle to attach to a ticket. The bundle summarizes deployment context your
+          administrator approves sharing. For questions before you export, contact{" "}
+          <a className="text-teal-800 underline dark:text-teal-300" href="mailto:support@archlucid.net">
+            support@archlucid.net
+          </a>
+          .
         </p>
       </div>
 
@@ -76,9 +76,8 @@ export default function AdminSupportPage() {
         </Button>
 
         <p className="text-xs text-neutral-600 dark:text-neutral-400">
-          The endpoint requires <strong>elevated permissions</strong> on the API for your tenant.
-          Owner approval of the pre-forwarding redaction policy (item 37 part c) is still pending — review the bundle
-          contents before forwarding to a third party.
+          Download requires appropriate API permissions for your tenant. Review the bundle before sharing outside your
+          organization.
         </p>
 
         {error !== null ? (

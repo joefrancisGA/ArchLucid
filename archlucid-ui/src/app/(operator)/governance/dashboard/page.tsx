@@ -1,10 +1,12 @@
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import Link from "next/link";
+
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
-import { FeatureNotAvailable } from "@/components/product/FeatureAvailabilityStates";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 /**
- * The prior cross-run dashboard is not demo-ready; nav entry is removed. Direct links show this state until rebuilt.
+ * Placeholder until the cross-run governance dashboard ships — direct visits only (not linked from product nav).
  */
 export default function GovernanceDashboardPage() {
   return (
@@ -18,10 +20,24 @@ export default function GovernanceDashboardPage() {
         />
       </div>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Planned <GlossaryTooltip termKey="governance_workflow">governance</GlossaryTooltip> dashboard scope will summarize
-        approval requests and lineage across runs (rebuild in progress).
+        Cross-run approvals and lineage summaries are <strong>coming soon</strong>. Use governance workflow, findings, and
+        audit log for current reviews today.
       </p>
-      <FeatureNotAvailable />
+      <Card className="border-neutral-200 dark:border-neutral-800">
+        <CardContent className="space-y-4 px-6 py-8">
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            When this view ships, it will summarize pending approvals and traceability across reviews in one place.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild type="button" variant="default">
+              <Link href="/governance">Open governance workflow</Link>
+            </Button>
+            <Button asChild type="button" variant="outline">
+              <Link href="/audit">Open audit log</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

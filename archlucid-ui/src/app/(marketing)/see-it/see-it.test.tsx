@@ -94,9 +94,11 @@ describe("SeeItMarketingBody", () => {
 
     render(<SeeItMarketingBody source="live" payload={payload} />);
 
-    expect(screen.getByTestId("see-it-demo-banner")).toHaveTextContent("isDemoData=true");
+    expect(screen.getByTestId("see-it-demo-banner")).toHaveTextContent(
+      "Sample healthcare architecture review — illustrative output for evaluation.",
+    );
     expect(screen.queryByTestId("see-it-snapshot-notice")).toBeNull();
-    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("findingCount=7");
+    expect(screen.getByTestId("see-it-finding-counts")).toHaveTextContent("Findings: 7 · Compliance gaps: 2");
     expect(screen.getByTestId("see-it-proof-pack-download")).toHaveAttribute(
       "href",
       "/api/proxy/v1/marketing/why-archlucid-pack.pdf",

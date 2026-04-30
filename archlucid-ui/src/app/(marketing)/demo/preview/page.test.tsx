@@ -97,12 +97,15 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-aggregate-explanation")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Changes committed");
     expect(screen.getByTestId("demo-preview-artifacts")).toHaveTextContent("Architecture brief");
-    expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent("Powered by ArchLucid");
+    expect(screen.getByTestId("demo-preview-footer")).toHaveTextContent(
+      "Structured architecture review output — manifest, findings, and audit trail.",
+    );
   });
 
   it("renders the not-available notice", () => {
     render(<DemoPreviewNotAvailable />);
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /see it in 30 seconds/i })).toHaveAttribute("href", "/see-it");
   });
 
   it("renders customer-safe friendly unavailable with example links", () => {

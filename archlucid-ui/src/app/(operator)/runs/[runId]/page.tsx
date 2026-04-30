@@ -167,7 +167,7 @@ export default async function RunDetailPage({
 
     return (
       <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Run detail</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
         <OperatorApiProblem
           problem={loadFailure?.problem ?? null}
           fallbackMessage={fallback}
@@ -175,7 +175,7 @@ export default async function RunDetailPage({
         />
         <p>
           <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-            ← Back to runs
+            ← Back to reviews
           </Link>
         </p>
       </main>
@@ -187,7 +187,7 @@ export default async function RunDetailPage({
   if (!envelope.ok) {
     return (
       <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Run detail</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
         <OperatorMalformedCallout>
           <strong>Run detail response was not usable.</strong>
           <p className="mt-2">{envelope.message}</p>
@@ -197,7 +197,7 @@ export default async function RunDetailPage({
         </OperatorMalformedCallout>
         <p>
           <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-            ← Back to runs
+            ← Back to reviews
           </Link>
         </p>
       </main>
@@ -337,7 +337,7 @@ export default async function RunDetailPage({
         </Link>
         {" · "}
         <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-          Runs
+          Reviews
         </Link>
         {" · "}
         <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
@@ -392,9 +392,9 @@ export default async function RunDetailPage({
       <section id="run-metadata" className="scroll-mt-24">
         <Card>
           <CardHeader>
-            <h3 className={sectionHeadingClass}>Run</h3>
+            <h3 className={sectionHeadingClass}>Review</h3>
             <CardDescription>
-              Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this run</GlossaryTooltip>{" "}
+              Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip>{" "}
               has a <GlossaryTooltip termKey="golden_manifest">reviewed manifest</GlossaryTooltip> (after finalization).
             </CardDescription>
           </CardHeader>
@@ -463,10 +463,6 @@ export default async function RunDetailPage({
                     >
                       Finalized Architecture Manifest
                     </Link>
-                    <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                      Open the manifest record for decisions, warnings, and exports. Technical id is listed under audit
-                      identifiers below.
-                    </p>
                   </>
                 ) : (
                   <span className="font-mono text-xs">—</span>
@@ -727,10 +723,8 @@ export default async function RunDetailPage({
           <CardHeader>
             <h3 className={sectionHeadingClass}>Actions</h3>
             <CardDescription>
-              Run-scoped pilot scorecard package (PDF, Markdown, DOCX, ZIP) appears above after finalization — see{" "}
-              <code className="text-[0.8rem]">docs/EXECUTIVE_SPONSOR_BRIEF.md</code> and{" "}
-              <code className="text-[0.8rem]">docs/library/PILOT_ROI_MODEL.md</code> for narrative and measurement.
-              Tenant-wide sponsor DOCX uses the control below when your workspace allows enterprise mutations.
+              Pilot scorecard package (PDF, Markdown, DOCX, ZIP) appears above after finalization when your workspace
+              allows it. Generate the tenant sponsor report below when permitted.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -743,11 +737,11 @@ export default async function RunDetailPage({
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-                  Compare two runs (base = this run)
+                  Compare two reviews (base = this review)
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this run</Link>
+                <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
               </Button>
             </div>
           </CardContent>

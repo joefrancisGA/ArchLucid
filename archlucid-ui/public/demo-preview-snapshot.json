@@ -5,7 +5,7 @@
   "run": {
     "runId": "11111111111111111111111111111111",
     "projectId": "default",
-    "description": "Static fallback: regenerate via scripts/ops/refresh-demo-preview-snapshot.ps1 against docker-compose demo.",
+    "description": "Sample healthcare claims intake modernization — finalized architecture review output.",
     "createdUtc": "2026-04-23T12:00:00+00:00"
   },
   "manifest": {
@@ -13,13 +13,13 @@
     "runId": "11111111111111111111111111111111",
     "createdUtc": "2026-04-23T12:00:00+00:00",
     "manifestHash": "snapshot0000000000000000000000000000000000000000000000000000",
-    "ruleSetId": "contoso-demo-snapshot",
-    "ruleSetVersion": "0.0.0-snapshot",
+    "ruleSetId": "healthcare-claims-v3",
+    "ruleSetVersion": "3.4.1",
     "decisionCount": 3,
     "warningCount": 1,
     "unresolvedIssueCount": 0,
     "status": "Committed",
-    "operatorSummary": "Checked-in fallback when GET /v1/demo/preview is unreachable at build or request time.",
+    "operatorSummary": "Illustrative finalized manifest for marketing — use live preview when the API is reachable.",
     "hasWarnings": true,
     "hasUnresolvedIssues": false
   },

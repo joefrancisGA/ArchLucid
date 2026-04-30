@@ -54,18 +54,24 @@ export function DemoPreviewNotAvailable() {
       role="status"
       className="rounded border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
     >
-      <p className="font-medium">Demo preview is not available on this host.</p>
-      <p className="mt-1 text-neutral-600 dark:text-neutral-400">This usually means one of two things:</p>
-      <ul className="mt-1 list-disc pl-5 text-neutral-600 dark:text-neutral-400">
-        <li>
-          The demo seed has not been applied yet on this host. Run <code>archlucid try</code> or{" "}
-          <code>POST /v1/demo/seed</code>, then refresh.
-        </li>
-        <li>
-          This deployment is not configured with <code>Demo:Enabled=true</code> — the demo surface is intentionally hidden
-          on production-like hosts.
-        </li>
-      </ul>
+      <p className="font-medium text-neutral-900 dark:text-neutral-100">This live preview is not available on this site right now.</p>
+      <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+        You can still open a completed sample output without signing in, or continue from the product home.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link
+          href="/showcase/claims-intake-modernization"
+          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          View example output
+        </Link>
+        <Link
+          href="/see-it"
+          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          See it in 30 seconds
+        </Link>
+      </div>
     </div>
   );
 }
@@ -336,7 +342,7 @@ export function DemoPreviewMarketingBody({
         data-testid="demo-preview-footer"
         className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
       >
-        Powered by ArchLucid.
+        Structured architecture review output — manifest, findings, and audit trail.
       </p>
     </div>
   );
