@@ -37,7 +37,7 @@ Exit codes
 Run::
 
     python scripts/ci/check_doc_scope_header.py
-    python scripts/ci/check_doc_scope_header.py --no-readme
+    python scripts/ci/check_doc_scope_header.py --no-check-readme
 """
 
 from __future__ import annotations
