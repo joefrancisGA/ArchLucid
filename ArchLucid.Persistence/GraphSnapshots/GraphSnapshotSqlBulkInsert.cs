@@ -69,26 +69,46 @@ internal static class GraphSnapshotSqlBulkInsert
             DynamicParameters parameters = new();
 
             for (int i = 0; i < take; i++)
-            {
-                (Guid rowId, GraphNode node, int sortOrder) = planned[offset + i];
-
-                if (i > 0)
-                    sql.Append(',');
-
-                string p = $"n{i}_";
-                sql.Append('(')
-                    .Append('@').Append(p).Append("rid,")
-                    .Append('@').Append(p).Append("gsid,")
-                    .Append('@').Append(p).Append("sort,")
-                    .Append('@').Append(p).Append("tid,")
-                    .Append('@').Append(p).Append("wid,")
-                    .Append('@').Append(p).Append("pid,")
-                    .Append('@').Append(p).Append("nid,")
-                    .Append('@').Append(p).Append("nt,")
-                    .Append('@').Append(p).Append("lab,")
-                    .Append('@').Append(p).Append("cat,")
-                    .Append('@').Append(p).Append("st,")
-                    .Append('@').Append(p).Append("sid)");
+            {
+
+                (Guid rowId, GraphNode node, int sortOrder) = planned[offset + i];
+
+
+
+                if (i > 0)
+
+                    sql.Append(',');
+
+
+
+                string p = $"n{i}_";
+
+                sql.Append('(')
+
+                    .Append('@').Append(p).Append("rid,")
+
+                    .Append('@').Append(p).Append("gsid,")
+
+                    .Append('@').Append(p).Append("sort,")
+
+                    .Append('@').Append(p).Append("tid,")
+
+                    .Append('@').Append(p).Append("wid,")
+
+                    .Append('@').Append(p).Append("pid,")
+
+                    .Append('@').Append(p).Append("nid,")
+
+                    .Append('@').Append(p).Append("nt,")
+
+                    .Append('@').Append(p).Append("lab,")
+
+                    .Append('@').Append(p).Append("cat,")
+
+                    .Append('@').Append(p).Append("st,")
+
+                    .Append('@').Append(p).Append("sid)");
+
 
                 parameters.Add(p + "rid", rowId);
                 parameters.Add(p + "gsid", snapshot.GraphSnapshotId);
@@ -154,19 +174,32 @@ internal static class GraphSnapshotSqlBulkInsert
             for (int i = 0; i < take; i++)
             {
                 PropertyRow r = flat[offset + i];
-
-                if (i > 0)
-                    sql.Append(',');
-
-                string p = $"np{i}_";
-                sql.Append('(')
-                    .Append('@').Append(p).Append("rid,")
-                    .Append('@').Append(p).Append("ord,")
-                    .Append('@').Append(p).Append("pk,")
-                    .Append('@').Append(p).Append("pv,")
-                    .Append('@').Append(p).Append("tid,")
-                    .Append('@').Append(p).Append("wid,")
-                    .Append('@').Append(p).Append("pid)");
+
+
+                if (i > 0)
+
+                    sql.Append(',');
+
+
+
+                string p = $"np{i}_";
+
+                sql.Append('(')
+
+                    .Append('@').Append(p).Append("rid,")
+
+                    .Append('@').Append(p).Append("ord,")
+
+                    .Append('@').Append(p).Append("pk,")
+
+                    .Append('@').Append(p).Append("pv,")
+
+                    .Append('@').Append(p).Append("tid,")
+
+                    .Append('@').Append(p).Append("wid,")
+
+                    .Append('@').Append(p).Append("pid)");
+
 
                 parameters.Add(p + "rid", r.GraphNodeRowId);
                 parameters.Add(p + "ord", r.PropertySortOrder);
@@ -242,20 +275,34 @@ internal static class GraphSnapshotSqlBulkInsert
             for (int i = 0; i < take; i++)
             {
                 EdgePropertyRow r = rows[offset + i];
-
-                if (i > 0)
-                    sql.Append(',');
-
-                string p = $"ep{i}_";
-                sql.Append('(')
-                    .Append('@').Append(p).Append("gsid,")
-                    .Append('@').Append(p).Append("eid,")
-                    .Append('@').Append(p).Append("ord,")
-                    .Append('@').Append(p).Append("pk,")
-                    .Append('@').Append(p).Append("pv,")
-                    .Append('@').Append(p).Append("tid,")
-                    .Append('@').Append(p).Append("wid,")
-                    .Append('@').Append(p).Append("pid)");
+
+
+                if (i > 0)
+
+                    sql.Append(',');
+
+
+
+                string p = $"ep{i}_";
+
+                sql.Append('(')
+
+                    .Append('@').Append(p).Append("gsid,")
+
+                    .Append('@').Append(p).Append("eid,")
+
+                    .Append('@').Append(p).Append("ord,")
+
+                    .Append('@').Append(p).Append("pk,")
+
+                    .Append('@').Append(p).Append("pv,")
+
+                    .Append('@').Append(p).Append("tid,")
+
+                    .Append('@').Append(p).Append("wid,")
+
+                    .Append('@').Append(p).Append("pid)");
+
 
                 parameters.Add(p + "gsid", r.GraphSnapshotId);
                 parameters.Add(p + "eid", r.EdgeId);
