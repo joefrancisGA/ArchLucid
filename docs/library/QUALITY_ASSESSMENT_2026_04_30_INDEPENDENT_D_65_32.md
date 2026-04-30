@@ -229,7 +229,7 @@ Qualities ordered from most urgent (highest weighted deficiency) to least urgent
 
 ### 2.17 Commercial Packaging Readiness — Score: 60 | Weight: 2 | Deficiency: 80
 
-**Justification:** Three tiers defined (Team $199/mo, Professional $899/mo, Enterprise custom). Pricing philosophy documented. Order form template exists. Feature matrix per tier specified. Marketplace alignment enforced by CI. But: (1) checkout is not live (Stripe TEST mode, Marketplace not published), (2) no metering infrastructure validates run counts against tier allowances in production, (3) the `[RequiresCommercialTenantTier]` filter exists but has not been exercised with real paid customers.
+**Justification:** Three tiers defined (Team / Professional monthly list prices per [docs/go-to-market/PRICING_PHILOSOPHY.md §5](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026); Enterprise custom). Pricing philosophy documented. Order form template exists. Feature matrix per tier specified. Marketplace alignment enforced by CI. But: (1) checkout is not live (Stripe TEST mode, Marketplace not published), (2) no metering infrastructure validates run counts against tier allowances in production, (3) the `[RequiresCommercialTenantTier]` filter exists but has not been exercised with real paid customers.
 
 **Tradeoffs:** Not flipping commerce live until the product is proven in pilots is prudent. But it means the commercial machinery is untested.
 
@@ -593,7 +593,7 @@ Qualities ordered from most urgent (highest weighted deficiency) to least urgent
 
 2. **No self-serve trial with automatic sandbox provisioning.** The trial funnel code exists but is not live. Without a "try for free" button that works end-to-end, customer acquisition depends entirely on sales outreach. Sales-led works at enterprise but does not generate inbound pipeline.
 
-3. **No proof of customer willingness to pay.** Pricing is modeled against manual review costs ($294K savings) but no customer has validated the price points. The $199/mo Team tier and $899/mo Professional tier are reasonable but untested. The first 3 customers will determine whether pricing survives contact with reality.
+3. **No proof of customer willingness to pay.** Pricing is modeled against manual review costs ($294K savings) but no customer has validated the price points. The Team and Professional monthly rates in [docs/go-to-market/PRICING_PHILOSOPHY.md §5](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026) are reasonable but untested. The first 3 customers will determine whether pricing survives contact with reality.
 
 4. **No inbound data connectors reduce the addressable market.** Buyers who already have architecture artifacts in Terraform, ArchiMate, or CMDBs cannot bring them into ArchLucid without manual re-entry. This makes the first run harder than it should be, which reduces conversion.
 
