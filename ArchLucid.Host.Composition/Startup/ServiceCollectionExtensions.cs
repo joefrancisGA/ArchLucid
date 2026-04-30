@@ -63,6 +63,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
+        RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);

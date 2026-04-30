@@ -17,7 +17,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const workflowSummary = heading.nextElementSibling;
     expect(workflowSummary?.tagName.toLowerCase()).toBe("p");
-    expect(workflowSummary).toHaveTextContent("Create → Run → Finalize → Review");
+    expect(workflowSummary).toHaveTextContent("Create → Review → Finalize → Outputs");
 
     expect(screen.getByText("Start here")).toBeInTheDocument();
 
@@ -35,7 +35,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
     fireEvent.click(step2Title);
 
-    expect(screen.getByRole("link", { name: "Open runs list" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open reviews list" })).toBeVisible();
 
     const step1Title = screen.getByRole("button", { name: /Step 1 —/i });
     fireEvent.click(step1Title);

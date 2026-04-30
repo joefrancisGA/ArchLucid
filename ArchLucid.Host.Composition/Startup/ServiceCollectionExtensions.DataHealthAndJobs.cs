@@ -1,4 +1,7 @@
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
@@ -57,6 +60,28 @@ public static partial class ServiceCollectionExtensions
                 failureStatus: HealthStatus.Degraded,
                 tags: [ReadinessTags.Ready]);
 
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+
+            builder.AddCheck<DataConsistencyHealthCheck>(
+                "data_consistency",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready]);
+
+    }
+
+    private static void RegisterDataConsistencyReconciliation(
+        IServiceCollection services,
+        IConfiguration _,
+        ArchLucidHostingRole hostingRole)
+    {
+        services.AddSingleton<IArchLucidStorageMode, ArchLucidStorageMode>();
+        services.AddSingleton<ILeaderElectionWorkRunner, LeaderElectionWorkRunner>();
+        services.AddSingleton<DataConsistencyReconciliationHealthState>();
+        services.AddScoped<IDataConsistencyReconciliationService, DataConsistencyReconciliationService>();
+
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+
+            services.AddHostedService<DataConsistencyReconciliationHostedService>();
     }
 
     private static void RegisterBackgroundJobs(

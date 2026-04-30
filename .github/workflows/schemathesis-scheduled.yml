@@ -32,6 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
+        run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh
+
       - name: Build API image
         run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:fuzz .
 

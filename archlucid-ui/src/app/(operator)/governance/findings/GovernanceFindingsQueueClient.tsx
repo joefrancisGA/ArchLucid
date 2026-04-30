@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
+  SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -45,6 +47,23 @@ function demoPhiRow(): GovernanceFindingQueueRow {
     recommended:
       "Review PHI handling posture with intake and security owners before production rollout.",
   };
+}
+
+function staticDemoGovernanceRows(): GovernanceFindingQueueRow[] {
+  const phi = demoPhiRow();
+  const decisionRows: GovernanceFindingQueueRow[] = SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.slice(0, 8).map((syn, i) => ({
+    runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+    runLabel: "Claims Intake Modernization",
+    manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+    findingId: `sample-decision-${i + 1}`,
+    title: syn.length > 96 ? `${syn.slice(0, 93)}…` : syn,
+    severity: "Info",
+    category: "Architecture decision",
+    status: "Recorded",
+    recommended: "Confirm with owners in the next design review.",
+  }));
+
+  return [phi, ...decisionRows];
 }
 
 function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): GovernanceFindingQueueRow[] {
@@ -112,7 +131,7 @@ export default function GovernanceFindingsQueueClient() {
       setLoading(true);
       setLoadFailed(false);
 
-      const demo = isPublicDemoModeEnv();
+      const useDemoSpine = isPublicDemoModeEnv() || isStaticDemoPayloadFallbackEnabled();
 
       try {
         const page = await listRunsByProjectPaged("default", 1, 25);
@@ -145,7 +164,9 @@ export default function GovernanceFindingsQueueClient() {
 
         let merged = dedupeRows(collected);
 
-        if (demo) {
+        if (merged.length === 0 && useDemoSpine) {
+          merged = staticDemoGovernanceRows();
+        } else if (useDemoSpine) {
           const hasPhi = merged.some((x) => x.findingId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID);
 
           if (!hasPhi) {
@@ -161,8 +182,8 @@ export default function GovernanceFindingsQueueClient() {
 
         setLoadFailed(true);
 
-        if (demo) {
-          setRows([demoPhiRow()]);
+        if (useDemoSpine) {
+          setRows(staticDemoGovernanceRows());
         } else {
           setRows([]);
         }
@@ -185,7 +206,7 @@ export default function GovernanceFindingsQueueClient() {
 
       <div className="mt-4 space-y-4">
         <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Findings from architecture runs — severity, category, and links to inspect each item in context.
+          Findings from architecture reviews — severity, category, and links to inspect each item in context.
         </p>
 
         {loading ? (
@@ -356,7 +377,7 @@ export default function GovernanceFindingsQueueClient() {
             </summary>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
               Each finding includes a severity level, category, rationale, supporting evidence, and a recommended action
-              when the analysis produced one. Findings are attached to architecture runs.
+              when the analysis produced one. Findings are attached to architecture reviews.
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
               <li>Create an architecture request and wait for the pipeline to complete.</li>

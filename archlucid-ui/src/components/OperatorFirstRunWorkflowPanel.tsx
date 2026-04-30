@@ -32,7 +32,7 @@ const corePilotSteps: WorkflowStep[] = CORE_PILOT_STEPS.map((s, index) =>
         ...s,
         secondary: (
           <>
-            From the final wizard step, use <strong>Open run detail</strong> for the new run ID.
+            From the final wizard step, use <strong>Open review detail</strong> for the new review ID.
           </>
         ),
       }
@@ -313,38 +313,20 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             Explore completed output
           </h2>
           <p className="m-0 mt-0.5 text-xs text-teal-800 dark:text-teal-300">
-            A run has completed. Jump into the outputs below.
+            A review has completed. Jump into the outputs below.
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
-              href="/runs?projectId=default"
-            >
-              Runs
-            </Link>
-            <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
               href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
-              Claims Intake run
+              Claims Intake review
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
               href="/showcase/claims-intake-modernization"
             >
               Showcase
-            </Link>
-            <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
-              href="/governance/findings"
-            >
-              Findings
-            </Link>
-            <Link
-              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
-              href="/ask"
-            >
-              Ask
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
@@ -362,7 +344,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             <>
               <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Explore completed output</h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-                Claims Intake is the guided story — run detail, manifest, and showcase are the proof path. The checklist
+                Claims Intake is the guided story — review detail, manifest, and showcase are the proof path. The checklist
                 below is optional.
               </p>
               <p className="m-0 mt-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
@@ -370,7 +352,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                   href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                 >
-                  Open the completed Claims Intake run
+                  Open the completed Claims Intake review
                 </Link>{" "}
                 ·{" "}
                 <Link
@@ -392,7 +374,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           )}
           {!exploreCompletedOutput ? (
             <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-              Create → <GlossaryTooltip termKey="run">Run</GlossaryTooltip> → Finalize → Review
+              Create → <GlossaryTooltip termKey="run">Review</GlossaryTooltip> → Finalize → Outputs
             </p>
           ) : null}
         </div>
@@ -416,7 +398,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
         Complete these four steps to get from an empty workspace to a reviewed, exportable{" "}
-        <GlossaryTooltip termKey="run">architecture run</GlossaryTooltip>.
+        <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip>.
       </p>
       <ol className="m-0 list-none space-y-2 p-0">
         {corePilotSteps.map((step, index) => {

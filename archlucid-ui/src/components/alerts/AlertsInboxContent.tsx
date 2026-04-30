@@ -53,6 +53,7 @@ import { useNavSurface } from "@/lib/use-nav-surface";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -107,8 +108,20 @@ export function AlertsInboxContent() {
     try {
       const statusFilter = status === ALL_STATUSES_VALUE ? null : status;
       const data = await listAlertsPaged(statusFilter, page, ALERTS_PAGE_SIZE);
-      setAlerts(data.items);
-      setTotalCount(data.totalCount);
+      let items = data.items;
+      let total = data.totalCount;
+
+      if (isStaticDemoPayloadFallbackEnabled() && items.length === 0) {
+        const demoRow = tryStaticDemoAlertInboxRow();
+
+        if (demoRow !== null && (statusFilter === null || statusFilter === "Open")) {
+          items = [demoRow];
+          total = 1;
+        }
+      }
+
+      setAlerts(items);
+      setTotalCount(total);
       const pages = Math.max(1, Math.ceil(data.totalCount / ALERTS_PAGE_SIZE));
 
       if (data.totalCount > 0 && page > pages) {

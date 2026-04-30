@@ -275,8 +275,8 @@ export default async function ManifestDetailPage({
       </div>
 
       <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        A finalized manifest is the reviewed, versioned architecture record for this run. It captures decisions, findings,
-        and the downloadable artifact bundle linked from run detail.
+        A finalized manifest is the reviewed, versioned architecture record for this review. It captures decisions, findings,
+        and the downloadable artifact bundle linked from review detail.
       </p>
 
       <Card>
@@ -311,7 +311,7 @@ export default async function ManifestDetailPage({
                     primaryFindingHref ?? `/runs/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
-                  {primaryFindingHref ? "Review PHI minimization finding" : "Open run findings"}
+                  {primaryFindingHref ? "Review PHI minimization finding" : "Open review findings"}
                 </Link>
               </Button>
             </div>
@@ -322,7 +322,7 @@ export default async function ManifestDetailPage({
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold">Generated artifacts</CardTitle>
-          <CardDescription>Outputs produced during this run — available for preview and download.</CardDescription>
+          <CardDescription>Outputs produced during this review — available for preview and download.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>

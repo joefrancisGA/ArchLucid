@@ -1147,6 +1147,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
+        run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh
+
       - name: Decide whether to write BuildKit GHA cache
         id: gha_cache_write
         run: |
@@ -1164,6 +1167,7 @@ jobs:
           file: ArchLucid.Api/Dockerfile
           tags: archlucid-api:ci
           load: true
+          pull: true
           provenance: false
           sbom: false
           cache-from: type=gha,scope=api-docker-smoke
@@ -1177,6 +1181,7 @@ jobs:
           file: ArchLucid.Api/Dockerfile
           tags: archlucid-api:ci
           load: true
+          pull: true
           provenance: false
           sbom: false
           cache-from: type=gha,scope=api-docker-smoke
@@ -1889,6 +1894,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
+        run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh
+
       - name: Build API image (reuse GHA cache from docker-build-smoke)
         uses: docker/build-push-action@v7
         with:
@@ -1896,6 +1904,7 @@ jobs:
           file: ArchLucid.Api/Dockerfile
           tags: archlucid-api:zap
           load: true
+          pull: true
           provenance: false
           sbom: false
           cache-from: type=gha,scope=api-docker-smoke
@@ -1953,6 +1962,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v5
+
+      - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
+        run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh
 
       - name: Build API image
         run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:fuzz-light .

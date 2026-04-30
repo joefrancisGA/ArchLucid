@@ -124,6 +124,10 @@ jobs:
         if: steps.acr.outputs.configured == 'true'
         uses: docker/setup-buildx-action@v4
 
+      - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
+        if: steps.acr.outputs.configured == 'true'
+        run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh
+
       - name: Log in to ACR
         if: steps.acr.outputs.configured == 'true'
         env:
@@ -144,6 +148,7 @@ jobs:
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-api:${{ env.LATEST_ALIAS }}
           push: true
+          pull: true
           provenance: false
           sbom: false
           cache-from: type=gha,scope=api-docker-smoke
@@ -160,6 +165,7 @@ jobs:
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.LATEST_ALIAS }}
           push: true
+          pull: true
           provenance: false
           sbom: false
           cache-from: type=gha,scope=ui-docker-smoke

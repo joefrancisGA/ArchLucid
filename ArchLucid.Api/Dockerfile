@@ -2,7 +2,12 @@
 # Multi-stage build: SDK (restore + publish) → Alpine runtime.
 # Build context MUST be the repository root so project references resolve.
 #
-#   docker build -f ArchLucid.Api/Dockerfile -t archlucid-api .
+# MCR vs BuildKit: if metadata fails with "HEAD ... 403 Forbidden", prefetch bases first —
+#     bash scripts/ci/prefetch-docker-dotnet-base-images.sh
+#
+# Optional mirrors / alternate tags (must stay linux-musl-x64-compatible with restore/publish RID):
+#   docker build ... --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=...
+# Example: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api .
 # Publishes API, Worker, and Jobs CLI into /app (shared Host.Core); image contains ArchLucid.Api.dll + ArchLucid.Worker.dll + ArchLucid.Jobs.Cli.dll.
 # Default ENTRYPOINT runs the API; Container Apps worker revision sets command ["dotnet","ArchLucid.Worker.dll"]; scheduled jobs use ["dotnet","ArchLucid.Jobs.Cli.dll","--job",...].
 # ────────────────────────────────────────────────────────────────────
@@ -10,10 +15,12 @@
 # ── Stage 1: restore (layer-cached independently of source changes) ─
 # SDK image tags use the SDK band (e.g. 10.0.201-alpine3.23). The aspnet *runtime* image must use an ASP.NET Core
 # runtime tag — never reuse the SDK patch (10.0.201) on mcr.microsoft.com/dotnet/aspnet.
-# Use 10.0-alpine3.23 (not 10.0-alpine): same Alpine band as the SDK image; the short 10.0-alpine manifest has hit
-# MCR 403 on HEAD in some buildx/CI registries, and pinning OS aligns libc/musl expectations with publish -r linux-musl-x64.
+# Use explicit alpine3.23 bands (aliases like 10.0-alpine can track a different Alpine); align with linux-musl-x64 RID.
+# MCR intermittently returns 403 on HEAD manifest probes — CI prefetches bases (scripts/ci/prefetch-docker-dotnet-base-images.sh).
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
-FROM mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23 AS restore
+
+ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
+FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
 
@@ -110,7 +117,9 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
         /p:PublishReadyToRun=false
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23 AS runtime
+
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23
+FROM ${DOTNET_ASPNET_IMAGE} AS runtime
 
 # ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.

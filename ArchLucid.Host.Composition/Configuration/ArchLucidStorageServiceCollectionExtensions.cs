@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -49,6 +50,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         services.Configure<DataConsistencyProbeOptions>(
             configuration.GetSection(DataConsistencyProbeOptions.SectionName));
+
+        services.Configure<DataConsistencyReconciliationOptions>(
+            configuration.GetSection(DataConsistencyReconciliationOptions.SectionName));
 
         services.Configure<DataConsistencyEnforcementOptions>(
             configuration.GetSection(DataConsistencyEnforcementOptions.SectionName));

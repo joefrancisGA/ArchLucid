@@ -137,7 +137,7 @@ export function FindingInspectFindingBody({
                     href={`/runs/${encodeURIComponent(runId)}`}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
-                    Open run (artifacts and graph context)
+                    Open review (artifacts and graph context)
                   </Link>
                 </div>
               </li>
@@ -166,7 +166,7 @@ export function FindingInspectFindingBody({
                     href={`/runs/${encodeURIComponent(runId)}`}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
-                    Open run (artifacts and graph context)
+                    Open review (artifacts and graph context)
                   </Link>
                 </div>
               </li>

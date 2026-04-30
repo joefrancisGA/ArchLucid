@@ -15,32 +15,32 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     title: "Create an architecture request",
     shortBody: "Capture system identity, requirements, and constraints.",
     detail:
-      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
+      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the review pipeline and tracks progress in real time.",
     primaryHref: "/runs/new",
     primaryLabel: "Start new request",
   },
   {
-    title: "Track run progress",
-    shortBody: "Watch progress in the wizard or open the run from the runs list when ready.",
+    title: "Track review progress",
+    shortBody: "Watch progress in the wizard or open the review from the reviews list when ready.",
     detail:
-      "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open run detail anytime.",
+      "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open review detail anytime.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Open runs list",
+    primaryLabel: "Open reviews list",
   },
   {
     title: "Finalize the reviewed manifest",
-    shortBody: "On run detail, finalize when the run is ready, or use the API/CLI for automation.",
+    shortBody: "On review detail, finalize when the pipeline is ready, or use the API/CLI for automation.",
     detail:
       "Until finalization, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Choose run → open detail",
+    primaryLabel: "Choose review → open detail",
   },
   {
     title: "Review manifest and artifacts",
-    shortBody: "After finalization, review the manifest summary, artifact table, and export links on run detail.",
+    shortBody: "After finalization, review the manifest summary, artifact table, and export links on review detail.",
     detail:
-      "Open the reviewed manifest link from run detail for the full page; use artifact actions for download and review.",
+      "Open the reviewed manifest link from review detail for the full page; use artifact actions for download and review.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Open a finalized run",
+    primaryLabel: "Open a finalized review",
   },
 ];

@@ -166,6 +166,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
+        services.AddScoped<IPilotValueReportService, PilotValueReportService>();
         services.AddScoped<ITenantMeasuredRoiService, TenantMeasuredRoiService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

@@ -296,6 +296,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ExecuteAuthority",
       },
       {
+        href: "/value-report/pilot",
+        label: "Pilot value report",
+        title: "Pilot value report — committed-run metrics, governance signals, Markdown export",
+        icon: FileText,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
         href: "/digests",
         label: "Digests",
         title: "Digests — generated digests, subscriptions, and sponsor schedule",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -73,8 +74,8 @@ export function ManifestDetailSummaryPanel({
       </div>
 
       <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
-        <span className="font-medium text-neutral-800 dark:text-neutral-200">Rule set:</span>{" "}
-        {summary.ruleSetId} {summary.ruleSetVersion}
+        <span className="font-medium text-neutral-800 dark:text-neutral-200">Policy pack:</span>{" "}
+        {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}
       </p>
 
       <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
@@ -110,16 +111,16 @@ export function ManifestDetailSummaryPanel({
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Full decision text is included in the{" "}
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
-                run export
+                governed review export
               </Link>{" "}
-              and manifest bundle — download below.
+              and manifest bundle — use the download actions on this page when available.
             </p>
           ) : (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No decisions recorded for this manifest.</p>
           )}
           {decisionRestCount > 0 ? (
             <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-              … and {decisionRestCount} more decisions in the governed export — open run detail or download the manifest
+              … and {decisionRestCount} more decisions in the governed export — open review detail or download the manifest
               bundle for the full list.
             </p>
           ) : null}
@@ -141,7 +142,7 @@ export function ManifestDetailSummaryPanel({
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Warning detail ships with the governed manifest export. Use{" "}
               <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
-                run detail
+                review detail
               </Link>{" "}
               or download the bundle.
             </p>

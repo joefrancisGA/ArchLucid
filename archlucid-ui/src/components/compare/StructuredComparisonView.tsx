@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
@@ -9,15 +8,6 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 
 const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:border-neutral-700";
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
-
-/** Inline empty-state note for a comparison section with zero deltas. */
-function EmptySectionNote({ label }: { label: string }) {
-  return (
-    <OperatorEmptyState title={label}>
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No changes in this section for this pair.</p>
-    </OperatorEmptyState>
-  );
-}
 
 /**
  * Prefer dollar + monthly framing when the payload is numeric (demo-friendly “100 vs 120” deltas).
@@ -89,23 +79,34 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
     <section id="compare-structured" className="mt-7">
       <h3 className="mb-2">Manifest comparison</h3>
       <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
-        Compare finalized manifests to understand what changed between runs — each card below summarizes one category.
+        Compare finalized manifests to understand what changed between reviews — each card below summarizes one category.
         Prefer this narrative before supplementary diffs further down.
       </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
         <span>
-          <strong>Baseline run:</strong> {compareRunHeadingLabel(golden.baseRunId)}
+          <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId)}
         </span>
         <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
           →
         </span>
         <span>
-          <strong>Updated run:</strong> {compareRunHeadingLabel(golden.targetRunId)}
+          <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId)}
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
           · <strong>Total deltas (reported):</strong> {total}
         </span>
       </div>
+      {golden.summaryHighlights.length > 0 ? (
+        <p className="mb-3 max-w-3xl rounded-md border border-teal-200/80 bg-teal-50/50 p-3 text-sm text-neutral-900 dark:border-teal-900/50 dark:bg-teal-950/30 dark:text-neutral-100">
+          <strong>Sponsor recommendation:</strong> {golden.summaryHighlights[0]}
+          {golden.summaryHighlights.length > 1 ? (
+            <span className="text-neutral-600 dark:text-neutral-400">
+              {" "}
+              (+{golden.summaryHighlights.length - 1} more in summary highlights below)
+            </span>
+          ) : null}
+        </p>
+      ) : null}
       <p className="mb-4 mt-0 text-sm">
         <a
           href={getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
@@ -117,17 +118,15 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         </a>
       </p>
 
-      <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
-        {golden.summaryHighlights.length === 0 ? (
-          <EmptySectionNote label="No summary highlights" />
-        ) : (
+      {golden.summaryHighlights.length > 0 ? (
+        <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
           <ul className="m-0 pl-5 leading-normal">
             {golden.summaryHighlights.map((h, i) => (
               <li key={`highlight-${i}`}>{h}</li>
             ))}
           </ul>
-        )}
-      </ComparisonFoldSection>
+        </ComparisonFoldSection>
+      ) : null}
 
       {noMaterialDeltaSections ? (
         <div
@@ -143,144 +142,139 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         </div>
       ) : (
         <>
-      <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={golden.decisionChanges.length > 0}>
-        {golden.decisionChanges.length === 0 ? (
-          <EmptySectionNote label="No decision changes" />
-        ) : (
-          <table className="mt-2 w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Decision</th>
-                <th className={cellCls}>Base</th>
-                <th className={cellCls}>Target</th>
-                <th className={cellCls}>Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {golden.decisionChanges.map((d, i) => (
-                <tr key={i}>
-                  <td className={cellCls}>
-                    <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                      {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
-                    </div>
-                    <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{d.decisionKey}</div>
-                  </td>
-                  <td className={cellCls}>{d.baseValue ?? "—"}</td>
-                  <td className={cellCls}>{d.targetValue ?? "—"}</td>
-                  <td className={cellCls}>{d.changeType}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </ComparisonFoldSection>
-
-      <ComparisonFoldSection
-        title="Requirement changes"
-        countBadge={golden.requirementChanges.length}
-        defaultOpen={golden.requirementChanges.length > 0}
-      >
-        {golden.requirementChanges.length === 0 ? (
-          <EmptySectionNote label="No requirement changes" />
-        ) : (
-          <table className="mt-2 w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Requirement</th>
-                <th className={cellCls}>Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {golden.requirementChanges.map((r) => (
-                <tr key={`${r.requirementName}:${r.changeType}`}>
-                  <td className={cellCls}>{r.requirementName}</td>
-                  <td className={cellCls}>{r.changeType}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </ComparisonFoldSection>
-
-      <ComparisonFoldSection title="Finding / posture delta" countBadge={golden.securityChanges.length} defaultOpen={golden.securityChanges.length > 0}>
-        {golden.securityChanges.length === 0 ? (
-          <EmptySectionNote label="No security control changes" />
-        ) : (
-          <table className="mt-2 w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Control</th>
-                <th className={cellCls}>Base</th>
-                <th className={cellCls}>Target</th>
-              </tr>
-            </thead>
-            <tbody>
-              {golden.securityChanges.map((s, i) => (
-                <tr key={i}>
-                  <td className={cellCls}>{s.controlName}</td>
-                  <td className={cellCls}>{s.baseStatus ?? "—"}</td>
-                  <td className={cellCls}>{s.targetStatus ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </ComparisonFoldSection>
-
-      <ComparisonFoldSection title="Topology / footprint" countBadge={golden.topologyChanges.length} defaultOpen={golden.topologyChanges.length > 0}>
-        {golden.topologyChanges.length === 0 ? (
-          <EmptySectionNote label="No topology changes" />
-        ) : (
-          <table className="mt-2 w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Resource</th>
-                <th className={cellCls}>Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              {golden.topologyChanges.map((t) => (
-                <tr key={`${t.resource}:${t.changeType}`}>
-                  <td className={cellCls}>{t.resource}</td>
-                  <td className={cellCls}>{t.changeType}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </ComparisonFoldSection>
-
-      <ComparisonFoldSection title="Estimated cost delta" countBadge={golden.costChanges.length} defaultOpen={golden.costChanges.length > 0}>
-        {golden.costChanges.length === 0 ? (
-          <OperatorEmptyState title="No modeled cost deltas">
-            <p className="m-0 text-sm">Estimated max monthly cost unchanged or not surfaced as numeric delta rows.</p>
-          </OperatorEmptyState>
-        ) : (
-          <>
-            <table className="mt-2 w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                  <th className={cellCls}>Baseline (est. max monthly)</th>
-                  <th className={cellCls}>Updated (est. max monthly)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {golden.costChanges.map((c, i) => (
-                  <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                    <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
-                    <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
+          {golden.decisionChanges.length > 0 ? (
+            <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen>
+              <table className="mt-2 w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <th className={cellCls}>Decision</th>
+                    <th className={cellCls}>Base</th>
+                    <th className={cellCls}>Target</th>
+                    <th className={cellCls}>Change</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-              Estimated monthly figures are engineering projections from the comparison service (rounded, illustrative).
-              Directional only — not an invoice; align with your FinOps model and the AI “Summarize for sponsor” narrative
-              for confidence context.
-            </p>
-          </>
-        )}
-      </ComparisonFoldSection>
+                </thead>
+                <tbody>
+                  {golden.decisionChanges.map((d, i) => (
+                    <tr key={i}>
+                      <td className={cellCls}>
+                        <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                          {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
+                        </div>
+                        {d.displayLabel?.trim() ? (
+                          <details className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                            <summary className="cursor-pointer select-none">Technical key</summary>
+                            <code className="mt-0.5 block font-mono text-[11px]">{d.decisionKey}</code>
+                          </details>
+                        ) : (
+                          <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
+                            {d.decisionKey}
+                          </div>
+                        )}
+                      </td>
+                      <td className={cellCls}>{d.baseValue ?? "—"}</td>
+                      <td className={cellCls}>{d.targetValue ?? "—"}</td>
+                      <td className={cellCls}>{d.changeType}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ComparisonFoldSection>
+          ) : null}
+
+          {golden.requirementChanges.length > 0 ? (
+            <ComparisonFoldSection
+              title="Requirement changes"
+              countBadge={golden.requirementChanges.length}
+              defaultOpen
+            >
+              <table className="mt-2 w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <th className={cellCls}>Requirement</th>
+                    <th className={cellCls}>Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {golden.requirementChanges.map((r) => (
+                    <tr key={`${r.requirementName}:${r.changeType}`}>
+                      <td className={cellCls}>{r.requirementName}</td>
+                      <td className={cellCls}>{r.changeType}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ComparisonFoldSection>
+          ) : null}
+
+          {golden.securityChanges.length > 0 ? (
+            <ComparisonFoldSection title="Finding / posture delta" countBadge={golden.securityChanges.length} defaultOpen>
+              <table className="mt-2 w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <th className={cellCls}>Control</th>
+                    <th className={cellCls}>Base</th>
+                    <th className={cellCls}>Target</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {golden.securityChanges.map((s, i) => (
+                    <tr key={i}>
+                      <td className={cellCls}>{s.controlName}</td>
+                      <td className={cellCls}>{s.baseStatus ?? "—"}</td>
+                      <td className={cellCls}>{s.targetStatus ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ComparisonFoldSection>
+          ) : null}
+
+          {golden.topologyChanges.length > 0 ? (
+            <ComparisonFoldSection title="Topology / footprint" countBadge={golden.topologyChanges.length} defaultOpen>
+              <table className="mt-2 w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <th className={cellCls}>Resource</th>
+                    <th className={cellCls}>Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {golden.topologyChanges.map((t) => (
+                    <tr key={`${t.resource}:${t.changeType}`}>
+                      <td className={cellCls}>{t.resource}</td>
+                      <td className={cellCls}>{t.changeType}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ComparisonFoldSection>
+          ) : null}
+
+          {golden.costChanges.length > 0 ? (
+            <ComparisonFoldSection title="Estimated cost delta" countBadge={golden.costChanges.length} defaultOpen>
+              <table className="mt-2 w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
+                    <th className={cellCls}>Baseline (est. max monthly)</th>
+                    <th className={cellCls}>Updated (est. max monthly)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {golden.costChanges.map((c, i) => (
+                    <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
+                      <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
+                      <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
+                Estimated monthly figures are engineering projections from the comparison service (rounded, illustrative).
+                Directional only — not an invoice; align with your FinOps model and the AI “Summarize for sponsor” narrative
+                for confidence context.
+              </p>
+            </ComparisonFoldSection>
+          ) : null}
         </>
       )}
     </section>

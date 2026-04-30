@@ -14,6 +14,29 @@ type StageDef = {
   tooltip: string;
 };
 
+function stageChipLabel(stage: StageDef): string {
+  if (!stage.present) {
+    return `${stage.label} · …`;
+  }
+
+  switch (stage.key) {
+    case "context":
+      return "Context captured";
+
+    case "graph":
+      return "Graph generated";
+
+    case "findings":
+      return "Findings reviewed";
+
+    case "manifest":
+      return "Manifest finalized";
+
+    default:
+      return `${stage.label} · ok`;
+  }
+}
+
 function stagesForRun(run: RunSummary): StageDef[] {
   return [
     {
@@ -82,8 +105,7 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
                       : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
                   )}
                 >
-                  {stage.label}
-                  {stage.present ? " · ok" : " · …"}
+                  {stageChipLabel(stage)}
                 </span>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-xs">

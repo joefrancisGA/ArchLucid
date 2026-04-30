@@ -6,6 +6,8 @@ public static class IntegrationEventTypes
 {
     public const string AuthorityRunCompletedV1 = "com.archlucid.authority.run.completed";
 
+    public const string DataConsistencyCheckCompletedV1 = "com.archlucid.system.data-consistency-check.completed.v1";
+
     /// <summary>Review-trail / webhook payload when a golden manifest row is finalized for a run.</summary>
     public const string ManifestFinalizedV1 = "com.archlucid.manifest.finalized.v1";
 

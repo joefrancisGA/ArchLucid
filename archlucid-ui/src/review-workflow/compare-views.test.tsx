@@ -25,13 +25,13 @@ const emptyGolden: GoldenManifestComparison = {
 };
 
 describe("Compare / review views (55R smoke)", () => {
-  it("StructuredComparisonView shows run IDs, empty summary, and consolidated no-deltas banner when there is no delta data", () => {
+  it("StructuredComparisonView shows review heading labels, no empty summary fold, and consolidated no-deltas banner when there is no delta data", () => {
     render(<StructuredComparisonView golden={emptyGolden} />);
 
     expect(screen.getByText("Manifest comparison")).toBeInTheDocument();
     expect(screen.getByText("run-base")).toBeInTheDocument();
     expect(screen.getByText("run-target")).toBeInTheDocument();
-    expect(screen.getByText("No summary highlights")).toBeInTheDocument();
+    expect(screen.queryByText("Summary highlights")).not.toBeInTheDocument();
     expect(screen.getByTestId("compare-no-material-deltas")).toBeInTheDocument();
     expect(screen.getByText(/No other material changes/i)).toBeInTheDocument();
   });
@@ -52,11 +52,11 @@ describe("Compare / review views (55R smoke)", () => {
 
     render(<StructuredComparisonView golden={golden} />);
 
-    // Decision column shows `decisionKeyDisplay(key)` and the raw key below (duplicate text when they match).
-    const decisionKeyNodes = screen.getAllByText("deploy-region");
-    expect(decisionKeyNodes).toHaveLength(2);
+    // Decision column shows `decisionKeyDisplay(key)` and the raw key in the same cell when no display label.
+    expect(screen.getAllByText("deploy-region")).toHaveLength(2);
+    expect(screen.getByText("Sponsor recommendation:")).toBeInTheDocument();
     expect(screen.getByText("Modified")).toBeInTheDocument();
-    expect(screen.getByText("Region changed")).toBeInTheDocument();
+    expect(screen.getAllByText("Region changed").length).toBeGreaterThanOrEqual(1);
   });
 
   it("LegacyRunComparisonView shows empty run-level diff message when there are no diffs", () => {
