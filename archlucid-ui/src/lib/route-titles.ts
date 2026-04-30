@@ -19,6 +19,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/planning": "Planning",
   "/getting-started": "Getting started",
   "/digests": "Digests",
+  "/executive/reviews": "Executive reviews",
 };
 
 /** Human-readable title for route announcements and accessibility copy. */
@@ -35,6 +36,14 @@ export function getRouteTitle(pathname: string): string {
 
   if (/^\/manifests\/[^/]+$/.test(normalized)) {
     return "Architecture package";
+  }
+
+  if (/^\/executive\/reviews\/[^/]+\/findings\/[^/]+$/.test(normalized)) {
+    return "Finding (executive)";
+  }
+
+  if (/^\/executive\/reviews\/[^/]+$/.test(normalized)) {
+    return "Risk review";
   }
 
   if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {

@@ -6,6 +6,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { sameAuthorityRunId } from "@/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectView";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
