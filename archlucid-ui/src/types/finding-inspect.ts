@@ -11,6 +11,8 @@ export type FindingInspectPayload = {
   decisionRuleId: string | null;
   decisionRuleName: string | null;
   evidence: FindingInspectEvidence[];
+  /** Ordered recommended actions from the finding engine. Empty array when none were produced. */
+  recommendedActions: string[];
   auditRowId: string | null;
   runId: string;
   manifestVersion: string | null;

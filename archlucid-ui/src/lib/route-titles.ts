@@ -2,8 +2,8 @@ import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Home",
-  "/runs": "Runs",
-  "/runs/new": "New architecture request",
+  "/runs": "Reviews",
+  "/runs/new": "New review",
   "/alerts": "Alerts",
   "/alert-rules": "Alert rules",
   "/compare": "Compare",
@@ -30,11 +30,11 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (/^\/runs\/[^/]+$/.test(normalized)) {
-    return "Run detail";
+    return "Review detail";
   }
 
   if (/^\/manifests\/[^/]+$/.test(normalized)) {
-    return "Manifest detail";
+    return "Architecture package";
   }
 
   if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {

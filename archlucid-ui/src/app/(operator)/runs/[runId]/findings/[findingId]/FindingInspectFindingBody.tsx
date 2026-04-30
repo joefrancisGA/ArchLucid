@@ -55,9 +55,11 @@ export function FindingInspectFindingBody({
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
+  // Use the full ordered list from the API when present; otherwise fall back to single derived label.
+  const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
   const recommendedActionParagraph =
     labels.recommendedAction ??
-    "Review PHI handling posture with intake and security owners — align retention, encryption in transit and at rest, and egress controls with organizational policy before production rollout.";
+    "Review evidence and rationale above. Consult the finding category and primary rule to determine the appropriate remediation path.";
 
   return (
     <>
@@ -95,9 +97,17 @@ export function FindingInspectFindingBody({
       {variant === "detail" ? (
         <section className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
           <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
-          <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
-            {recommendedActionParagraph.trim()}
-          </p>
+          {structuredActions.length > 1 ? (
+            <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+              {structuredActions.map((action, idx) => (
+                <li key={idx}>{action}</li>
+              ))}
+            </ol>
+          ) : (
+            <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
+              {recommendedActionParagraph.trim()}
+            </p>
+          )}
         </section>
       ) : null}
 
@@ -138,9 +148,17 @@ export function FindingInspectFindingBody({
       {variant === "inspect" ? (
         <section className="rounded-lg border border-violet-200 bg-violet-50/70 p-4 dark:border-violet-900 dark:bg-violet-950/30">
           <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
-          <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
-            {recommendedActionParagraph.trim()}
-          </p>
+          {structuredActions.length > 1 ? (
+            <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+              {structuredActions.map((action, idx) => (
+                <li key={idx}>{action}</li>
+              ))}
+            </ol>
+          ) : (
+            <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
+              {recommendedActionParagraph.trim()}
+            </p>
+          )}
         </section>
       ) : null}
 

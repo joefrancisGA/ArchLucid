@@ -87,6 +87,10 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
 
         JsonElement? typed = TryPayloadElement(match);
 
+        List<string> recommendedActions = match.RecommendedActions
+            .Where(static a => !string.IsNullOrWhiteSpace(a))
+            .ToList();
+
         return new FindingInspectResponse
         {
             FindingId = match.FindingId,
@@ -94,6 +98,7 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             DecisionRuleId = ruleId,
             DecisionRuleName = ruleName,
             Evidence = evidence,
+            RecommendedActions = recommendedActions,
             AuditRowId = null,
             RunId = runId,
             ManifestVersion = detail.Run.CurrentManifestVersion,

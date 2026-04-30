@@ -130,6 +130,34 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 cancellationToken: ct));
 
 
+        const string actionsSql = """
+                                  SELECT fra.ActionText
+                                  FROM dbo.FindingRecommendedActions fra
+                                  INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId
+                                  INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
+                                  INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
+                                  WHERE fr.FindingId = @FindingId
+                                    AND r.TenantId = @TenantId
+                                    AND r.WorkspaceId = @WorkspaceId
+                                    AND r.ScopeProjectId = @ScopeProjectId
+                                  ORDER BY fra.SortOrder;
+                                  """;
+
+        List<string> recommendedActions = (await connection.QueryAsync<string>(
+                new CommandDefinition(
+                    actionsSql,
+                    new
+                    {
+                        FindingId = findingId.Trim(),
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId
+                    },
+                    cancellationToken: ct)))
+            .Where(static a => !string.IsNullOrWhiteSpace(a))
+            .ToList();
+
+
         const string auditSql = """
                                 SELECT TOP 1 ae.EventId
                                 FROM dbo.AuditEvents ae
@@ -164,6 +192,7 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             DecisionRuleId = ruleId,
             DecisionRuleName = ruleName ?? ruleId,
             Evidence = evidence,
+            RecommendedActions = recommendedActions,
             AuditRowId = auditRowId,
             RunId = row.RunId,
             ManifestVersion = row.CurrentManifestVersion,

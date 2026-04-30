@@ -25,14 +25,15 @@ const emptyGolden: GoldenManifestComparison = {
 };
 
 describe("Compare / review views (55R smoke)", () => {
-  it("StructuredComparisonView shows run IDs and empty-section notes when there is no delta data", () => {
+  it("StructuredComparisonView shows run IDs, empty summary, and consolidated no-deltas banner when there is no delta data", () => {
     render(<StructuredComparisonView golden={emptyGolden} />);
 
     expect(screen.getByText("Manifest comparison")).toBeInTheDocument();
     expect(screen.getByText("run-base")).toBeInTheDocument();
     expect(screen.getByText("run-target")).toBeInTheDocument();
     expect(screen.getByText("No summary highlights")).toBeInTheDocument();
-    expect(screen.getByText("No decision changes")).toBeInTheDocument();
+    expect(screen.getByTestId("compare-no-material-deltas")).toBeInTheDocument();
+    expect(screen.getByText(/No other material changes/i)).toBeInTheDocument();
   });
 
   it("StructuredComparisonView renders decision rows when comparison data exists", () => {
