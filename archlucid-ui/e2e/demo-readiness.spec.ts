@@ -21,7 +21,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
   test("runs list shows Claims Intake example without mock-provider leakage", async ({ page }) => {
     await page.goto("/runs?projectId=default");
-    await expect(page.getByRole("heading", { name: /architecture runs/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
     await expect(page.getByText(/Claims Intake Modernization/i).first()).toBeVisible();
     await expect(page.getByText(/mock API/i)).toHaveCount(0);
   });
@@ -35,6 +35,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(primaryMain.getByText(/\b0 of 4 run pipeline stages complete\b/i)).toHaveCount(0);
 
     await page.goto(`/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`);
+    await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
     await expect(page.getByRole("main").first()).not.toContainText(/run not found/i);
   });
 
@@ -53,7 +54,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       /completed architecture output|Completed example/i,
     );
 
-    await page.getByRole("link", { name: /Run detail/i }).first().click();
+    await page.getByRole("link", { name: /Open review/i }).first().click();
     await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
     await expect(page.getByRole("main").first()).not.toContainText(/Invalid Date/i);
 
@@ -113,7 +114,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await expect(page).toHaveURL(/\/runs\/new/);
 
     await page.goto("/runs?projectId=default");
-    await expect(page.getByRole("heading", { name: /architecture runs/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /architecture reviews/i })).toBeVisible();
     await page.getByRole("link", { name: /Claims Intake Modernization/i }).first().click();
     await expect(page).toHaveURL(new RegExp(`/runs/${SHOWCASE_DEMO_RUN_ID.replace(/-/g, "\\-")}`));
     await expect(page.getByRole("main").first()).not.toContainText(/request failed/i);

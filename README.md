@@ -208,7 +208,7 @@ Full **54R** tier list, copy-paste commands, SQL variables, and **`archlucid-ui`
 **Common entry points (repo root):**
 
 ```bash
-dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 ```
 
 ```bash

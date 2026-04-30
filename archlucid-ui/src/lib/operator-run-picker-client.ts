@@ -1,4 +1,5 @@
 import { listRunsByProjectPaged } from "@/lib/api";
+import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import {
   tryStaticDemoCompareRunSummaries,
   tryStaticDemoRunSummariesPaged,
@@ -28,7 +29,7 @@ export async function loadProjectRunsMergedWithDemoFallback(
     const items = page.items ?? [];
 
     if (items.length > 0) {
-      return { items, loadError: false };
+      return { items: items.map(normalizeRunSummaryForDemoPicker), loadError: false };
     }
   } catch {
     loadError = true;
@@ -38,14 +39,14 @@ export async function loadProjectRunsMergedWithDemoFallback(
     const compareDemo = tryStaticDemoCompareRunSummaries(projectId);
 
     if (compareDemo !== null) {
-      return { items: compareDemo.items, loadError: false };
+      return { items: compareDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
     }
   }
 
   const fallback = tryStaticDemoRunSummariesPaged(projectId);
 
   if (fallback !== null) {
-    return { items: fallback.items, loadError: false };
+    return { items: fallback.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
   }
 
   return { items: [], loadError };

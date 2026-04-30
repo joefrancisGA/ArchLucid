@@ -188,7 +188,7 @@ export default function AskPage() {
       <OperatorPageHeader
         title="Ask about a review"
         helpKey="ask-archlucid"
-        subtitle="Conversations stay in your workspace. Select an architecture review for a new thread; follow-ups stay on the same thread without picking the review again."
+        subtitle="Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
       />
       <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
         Answers use the run context you select (finalized manifest and findings when available; in-progress runs may
@@ -321,6 +321,7 @@ export default function AskPage() {
                       variant="outline"
                       size="sm"
                       className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                      disabled={runMissing}
                       onClick={() => setQuestion(line)}
                     >
                       {line}

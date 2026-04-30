@@ -14,9 +14,10 @@
 
     .PARAMETER Tier
         One of:
-          Core                  – xUnit Suite=Core (full Core tier)
-          FastCore              – xUnit Suite=Core, excluding Slow + Integration
-          Full                  – entire ``ArchLucid.sln`` test run
+          Core                 – xUnit Suite=Core (full Core tier)
+          FastCore             – same filter as CI corset: Core minus Slow, Integration, GoldenCorpusRecord
+          OpenApiContract      – OpenAPI ``/openapi/v1.json`` snapshot (``scripts/ci/check_openapi_contract_snapshot.ps1``; CI gate)
+          Full                 – entire ``ArchLucid.sln`` test run
           Integration           – xUnit Category=Integration
           Slow                  – xUnit Category=Slow
           SqlServerIntegration  – xUnit Category=SqlServerContainer (requires
@@ -38,6 +39,7 @@ param(
     [ValidateSet(
         'Core',
         'FastCore',
+        'OpenApiContract',
         'Full',
         'Integration',
         'Slow',
@@ -60,7 +62,8 @@ Set-Location $root
 # Adding a tier = add an entry here AND a case in Invoke-Tier below.
 $tierDescriptions = [ordered]@{
     'Core'                 = 'xUnit Suite=Core (full Core tier)'
-    'FastCore'             = 'xUnit Suite=Core, excluding Slow + Integration'
+    'FastCore'             = 'Suite=Core minus Slow, Integration, GoldenCorpusRecord (matches CI corset)'
+    'OpenApiContract'      = 'OpenAPI v1 contract snapshot test (scripts/ci/check_openapi_contract_snapshot.ps1)'
     'Full'                 = 'entire ArchLucid.sln test run'
     'Integration'          = 'xUnit Category=Integration'
     'Slow'                 = 'xUnit Category=Slow'
@@ -128,7 +131,12 @@ function Invoke-Tier {
             return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core')
         }
         'FastCore' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core&Category!=Slow&Category!=Integration')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord')
+        }
+        'OpenApiContract' {
+            $script = Join-Path $root 'scripts/ci/check_openapi_contract_snapshot.ps1'
+            & $script
+            return $LASTEXITCODE
         }
         'Full' {
             return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter '')

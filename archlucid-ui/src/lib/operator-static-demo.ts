@@ -1,13 +1,16 @@
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   getShowcaseStaticDemoPayload,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type { RunExplanationSummary } from "@/types/explanation";
+import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -176,11 +179,60 @@ export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
     return null;
   }
 
-  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
   }
 
-  return buildStaticDemoRunDetailFromShowcase(runId);
+  return buildStaticDemoRunDetailFromShowcase(effectiveRunId);
+}
+
+/** Curated PHI finding for static demo when inspect API is unavailable (matches manifest deep links). */
+export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: string): FindingInspectPayload {
+  const d = getShowcaseStaticDemoPayload(effectiveRunId);
+
+  return {
+    findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+    typedPayload: {
+      title: "PHI minimization risk",
+      description:
+        "Unstructured intake attachments can bypass minimization controls during peak load — monitor exceptions, reinforce " +
+        "ingress classification, and keep privacy-office review on a weekly cadence for this modernization path.",
+      severity: "Warning",
+      category: "Compliance",
+      status: "Triaged",
+    },
+    decisionRuleId: "phi.minimization.intake",
+    decisionRuleName: "PHI minimization at intake",
+    evidence: [],
+    recommendedActions: [
+      "Confirm OCR bypass monitoring and alerting for unstructured attachment paths.",
+      "Schedule sponsor + privacy review of exception volume before the next release train.",
+    ],
+    auditRowId: null,
+    runId: d.run.runId,
+    manifestVersion: "Healthcare Claims Policy Pack v3.4.1",
+  };
+}
+
+export function tryStaticDemoFindingInspect(runId: string, findingId: string): FindingInspectPayload | null {
+  if (!isStaticDemoPayloadFallbackEnabled()) {
+    return null;
+  }
+
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+  const fid = findingId.trim();
+
+  if (fid !== SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID) {
+    return null;
+  }
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  return buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId);
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {
@@ -200,11 +252,13 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
     return null;
   }
 
-  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
   }
 
-  return buildStaticDemoPipelineTimelineFromShowcase(runId);
+  return buildStaticDemoPipelineTimelineFromShowcase(effectiveRunId);
 }
 
 export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: string): ArtifactDescriptor[] | null {
@@ -216,7 +270,9 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
     return null;
   }
 
-  return buildStaticDemoArtifactsFromShowcase(runIdForPayload);
+  const effectiveRunId = canonicalizeDemoRunId(runIdForPayload);
+
+  return buildStaticDemoArtifactsFromShowcase(effectiveRunId);
 }
 
 /** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */
@@ -225,11 +281,13 @@ export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSu
     return null;
   }
 
-  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
   }
 
-  return getShowcaseStaticDemoPayload(runId).runExplanation;
+  return getShowcaseStaticDemoPayload(effectiveRunId).runExplanation;
 }
 
 /** Curated linkage graph aligned with Claims Intake static showcase payloads (demo static operator mode only). */
@@ -347,9 +405,11 @@ export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProv
     return null;
   }
 
-  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
     return null;
   }
 
-  return buildStaticDemoProvenanceGraphFromShowcase(runId);
+  return buildStaticDemoProvenanceGraphFromShowcase(effectiveRunId);
 }

@@ -7,6 +7,7 @@ import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
+import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { sameAuthorityRunId } from "@/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectView";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -46,7 +47,12 @@ export default async function ExecutiveFindingDetailPage({
   } catch (e) {
     failure = toApiLoadFailure(e);
 
-    if (isApiNotFoundFailure(failure)) {
+    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
+
+    if (staticInspect !== null) {
+      payload = normalizeInspectPayload(staticInspect);
+      failure = null;
+    } else if (isApiNotFoundFailure(failure)) {
       notFound();
     }
   }

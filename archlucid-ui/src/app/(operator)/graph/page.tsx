@@ -264,7 +264,7 @@ export default function GraphPage() {
             onChange={setRunId}
             selectedThreadId=""
             fieldId="graph-run"
-            label="Run"
+            label="Review"
           />
         </div>
 

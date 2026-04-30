@@ -31,6 +31,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
+        // Demo quick-start (POST /v1/demo/quickstart): QuickStartForcedSimulatorExecuteOrchestrator + QuickStartService
+        // are registered in ArchLucid.Api Program (composition must not reference the Api assembly).
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);

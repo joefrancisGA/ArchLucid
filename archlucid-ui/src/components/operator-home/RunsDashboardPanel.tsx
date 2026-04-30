@@ -219,7 +219,7 @@ export function RunsDashboardPanel() {
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}`}>Run detail</Link>
+                      <Link href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link

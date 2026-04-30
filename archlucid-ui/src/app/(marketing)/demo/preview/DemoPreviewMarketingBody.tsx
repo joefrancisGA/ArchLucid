@@ -7,6 +7,7 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -89,11 +90,9 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreview
         className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
         role="status"
       >
-        <span className="font-semibold">Demo data</span>
+        <span className="font-semibold">Sample output</span>
         {" · "}
-        <span className="text-neutral-600 dark:text-neutral-400">
-          Claims Intake sample scenario · generated {generatedUtc}
-        </span>
+        <span className="text-neutral-600 dark:text-neutral-400">Claims Intake modernization (illustrative)</span>
       </div>
     );
   }
@@ -167,10 +166,12 @@ export function DemoPreviewMarketingBody({
       {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} />}
 
       <section data-testid="demo-preview-run">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Run</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+          {demoMode ? "Sample review" : "Run"}
+        </h2>
         {demoMode ? (
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            <strong>Run:</strong> Claims Intake Modernization Run
+            <strong>Review:</strong> Claims Intake Modernization Review
           </p>
         ) : (
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
@@ -180,21 +181,25 @@ export function DemoPreviewMarketingBody({
             </code>
           </p>
         )}
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Project:</strong> {payload.run?.projectId ?? "—"}
-        </p>
+        {!demoMode ? (
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+            <strong>Project:</strong> {payload.run?.projectId ?? "—"}
+          </p>
+        ) : null}
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Description:</strong> {payload.run?.description ?? ""}
         </p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Created (UTC):</strong> {typeof payload.run?.createdUtc === "string" ? payload.run.createdUtc : "—"}
-        </p>
+        {!demoMode ? (
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+            <strong>Created (UTC):</strong> {typeof payload.run?.createdUtc === "string" ? payload.run.createdUtc : "—"}
+          </p>
+        ) : null}
       </section>
 
       <section data-testid="demo-preview-review-trail">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          Audit milestones for this completed output — same vertical timeline as workspace run detail (oldest first).
+          Audit milestones for this completed output — same timeline as the in-product review trail (oldest first).
         </p>
         <div className="mt-3 space-y-4" data-testid="demo-preview-pipeline-timeline">
           <ShowcasePipelineReviewTrailCards
@@ -261,8 +266,7 @@ export function DemoPreviewMarketingBody({
               <strong>Status:</strong> {manifestStatusForDisplay(manifest.status)}
             </p>
             <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-              <strong>Rule set:</strong>{" "}
-              {manifest.ruleSetId ?? "—"} {manifest.ruleSetVersion ?? ""}
+              <strong>Policy pack:</strong> {policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "")}
             </p>
             <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
               <strong>Decisions:</strong>{" "}

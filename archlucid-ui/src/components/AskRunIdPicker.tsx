@@ -170,7 +170,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }, [loadError, preferAutoPick, value, onChange]);
 
   const optionalCopy =
-    selectedThreadId.trim().length > 0 ? "(optional if thread already anchored)" : "(required for new thread)";
+    selectedThreadId.trim().length > 0 ? "(optional when a conversation is already selected)" : "(required for a new conversation)";
 
   if (loadError) {
     const demoMode =

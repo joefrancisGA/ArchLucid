@@ -9,7 +9,7 @@ This document is the **canonical reference** for how the ArchLucid product codeb
 
 **See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md) (scheduled Schemathesis OpenAPI fuzz), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 
-> **Canonical entry point (2026-04-20).** Every tier below can be invoked from the repo root with the consolidated driver: **`.\test.ps1 -Tier <name>`** (PowerShell) or **`test.cmd <name>`** (cmd trampoline). Tier names: `Core`, `FastCore`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. Run **`.\test.ps1 -ListTiers`** for the full list. The legacy `test-<tier>.cmd` / `test-<tier>.ps1` scripts still exist as **shims** that delegate to the consolidated driver and are scheduled for removal **after 2026-Q3** — new docs and runbooks should call the consolidated driver directly.
+> **Canonical entry point (2026-04-20).** Every tier below can be invoked from the repo root with the consolidated driver: **`.\test.ps1 -Tier <name>`** (PowerShell) or **`test.cmd <name>`** (cmd trampoline). Tier names: `Core`, `FastCore`, `OpenApiContract`, `Integration`, `SqlServerIntegration`, `Full`, `UiUnit`, `UiSmoke`, `Slow`. Run **`.\test.ps1 -ListTiers`** for the full list. The legacy `test-<tier>.cmd` / `test-<tier>.ps1` scripts still exist as **shims** that delegate to the consolidated driver and are scheduled for removal **after 2026-Q3** — new docs and runbooks should call the consolidated driver directly.
 
 ---
 
@@ -42,10 +42,10 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 
 **Notes:**
 
-- **GitHub Actions** job **“.NET: fast core (corset)”** runs the same filter as the Fast core subset below (`Suite=Core&Category!=Slow&Category!=Integration`), which **includes** `OpenApiContractSnapshotTests` — any OpenAPI drift fails CI until the snapshot is regenerated.
+- **GitHub Actions** job **“.NET: fast core (corset)”** runs the same filter as the Fast core subset below (`Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord`), which **includes** `OpenApiContractSnapshotTests` — any OpenAPI drift fails CI until the snapshot is regenerated. **Earlier** in CI, job **`openapi-contract-snapshot`** runs **only** those tests for fail-fast feedback.
 - Not every test in the solution is (or should be) in Core. Adding `Suite=Core` is a deliberate choice.
 - Some Core classes are also tagged `Category=Integration` or `Category=Slow`; they still run in the full Core filter.
-- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json` after `OpenApiJsonCanonicalizer` (stable across Windows/Linux). **Regenerate after intentional API surface changes:** `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` (from repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
+- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json` after `OpenApiJsonCanonicalizer` (stable across Windows/Linux). **Regenerate after intentional API surface changes:** `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` or **`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 .\scripts\ci\check_openapi_contract_snapshot.ps1`** (repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
 
 ---
 
@@ -55,12 +55,12 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 
 | Mechanism | xUnit filter |
 |-----------|----------------|
-| Filter | `Suite=Core&Category!=Slow&Category!=Integration` |
+| Filter | `Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord` |
 
 **Run:**
 
 ```bash
-dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 ```
 
 **Scripts:** `test-fast-core.cmd` / `test-fast-core.ps1`
@@ -69,6 +69,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integrat
 
 - `WebApplicationFactory` / HTTP integration tests (`Category=Integration`).
 - Tests tagged `Category=Slow`.
+- Tests tagged `Category=GoldenCorpusRecord` (long-running corpus replay; see full regression / dedicated runs).
 
 **May still require:** Local tools or optional services depending on which Core classes you hit; most Fast Core tests are in-memory or unit-style.
 
@@ -202,8 +203,9 @@ Workflow: `.github/workflows/ci.yml` — **tiered jobs** for clarity and fail-fa
 
 | Tier | Job | What runs |
 |------|-----|-----------|
-| **0** | **`gitleaks`** | Full-history secret scan (`gacts/gitleaks@v1.3.2` + **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
-| **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
+| **0** | **`gitleaks`** | Full-history secret scan (`gacts/gitleaks@v1.3.2` + **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`** (unless noted). |
+| **0.x** | **`openapi-contract-snapshot`** | **`scripts/ci/check_openapi_contract_snapshot.sh`**: restore + build **`ArchLucid.Api.Tests`** (`Release`), **`dotnet test`** **`FullyQualifiedName~OpenApiContractSnapshotTests`**. **`needs: gitleaks`, `doc-markdown-links`** — **parallel** with **`terraform-validate-private`** / **`terraform-validate-public-stacks`**. **`dotnet-fast-core`** depends on this job → snapshot drift fails **before** Corset **full-solution** build and guards. |
+| **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build ArchLucid.sln -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord` (still includes **`OpenApiContractSnapshotTests`**). **No SQL** service (fast gate). |
 | **1.5** | **`api-greenfield-boot`** | After Tier **1**. SQL Server service, **`CREATE DATABASE ArchLucidGreenfieldCi`** (empty catalog), **`dotnet run`** **`ArchLucid.Api`** with **`ArchLucid:StorageProvider=Sql`**, wait for **`/health/ready`**, assert **`dbo.SchemaVersions`** has rows (DbUp journal). **Blocking** — catches greenfield startup / DbUp vs bootstrap ordering bugs. See **`GreenfieldSqlBootIntegrationTests`** for the same path via **`WebApplicationFactory`**. |
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier **1** and **`api-greenfield-boot`**. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
 | **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). **Quarterly game day** (manual `workflow_dispatch`, artifact policy): [GAME_DAY_CHAOS_QUARTERLY.md](../runbooks/GAME_DAY_CHAOS_QUARTERLY.md) and `docs/quality/game-day-log/README.md`. |
@@ -214,7 +216,7 @@ Workflow: `.github/workflows/ci.yml` — **tiered jobs** for clarity and fail-fa
 | **3c″** | **`ui-e2e-live-jwt`** | After **`dotnet-full-regression`**. Catalog **`ArchLucidLiveE2eJwt`**, API **`JwtBearer`** + **`JwtSigningPublicKeyPemPath`** + local issuer/audience; OpenSSL + **`mint_ci_jwt.py`**; Playwright env **`LIVE_JWT_TOKEN`** and **`ARCHLUCID_PROXY_BEARER_TOKEN`**. Same subset as **3c′** plus **`live-api-jwt-auth`**. **`timeout-minutes: 25`**. **Merge-blocking.** See **[LIVE_E2E_JWT_SETUP.md](LIVE_E2E_JWT_SETUP.md)**. |
 | **3d** | **`Performance: k6 API smoke (operator path)`** | After **`dotnet-full-regression`**. Create **`ArchLucidK6Smoke`**, start API via **`scripts/ci/start_api_for_k6.sh`** (exports **RLS break-glass** for **`SqlServer:RowLevelSecurity:ApplySessionContext`** in **`appsettings.Advanced.json`**), **native k6** `tests/load/k6-api-smoke.js` (5 VUs ~60s: ready + version + create run + authority runs list), **`assert_k6_ci_smoke_summary.py`** (p95 ≤ 2000 ms, failed rate ≤ 1%), artifact **`k6-smoke-results`** (summary JSON). Rate limits raised for this job. **Merge-blocking.** See **[PERFORMANCE.md](PERFORMANCE.md)** § k6 operator-path smoke, **[PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md)**. |
 
-PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3c′**, **3c″**, and **3d** as wired in `ci.yml`). Tiers **3c**, **3c′**, and **3c″** cover **DevelopmentBypass**, **ApiKey**, and **JwtBearer** live journeys against SQL (full suite vs auth subsets — see **`LIVE_E2E_AUTH_PARITY.md`**). Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
+PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3c′**, **3c″**, and **3d** as wired in `ci.yml`). Tiers **3c**, **3c′**, and **3c″** cover **DevelopmentBypass**, **ApiKey**, and **JwtBearer** live journeys against SQL (full suite vs auth subsets — see **`LIVE_E2E_AUTH_PARITY.md`**). Tier 2 (and 2b) are skipped automatically if Tier **0.x** / **1** fails (`needs: dotnet-fast-core`), saving SBOM/context-ingestion/Python guards/full corset/ SQL spin-up, full-suite time, and chaos runs on obvious breaks.
 
 ### Tier 4 — scheduled security testing (not per-PR)
 
@@ -234,12 +236,13 @@ These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_
 
 Optional **local** sequence before a PR (preferred form using the consolidated driver):
 
-1. `.\test.ps1 -Tier FastCore`
-2. `.\test.ps1 -Tier SqlServerIntegration` (if you touched Persistence / SQL)
-3. `.\test.ps1 -Tier Integration` (if you touched API / HTTP)
-4. `.\test.ps1 -Tier UiUnit` or `npm test` in `archlucid-ui/` (if you touched `archlucid-ui` logic/components)
-5. `.\test.ps1 -Tier UiSmoke` (if you touched `archlucid-ui` routes/build/e2e-relevant behavior)
-6. `.\test.ps1 -Tier Full` before merge (or rely on CI)
+1. `.\test.ps1 -Tier OpenApiContract` (if you touched API routes, controllers, or OpenAPI metadata)
+2. `.\test.ps1 -Tier FastCore`
+3. `.\test.ps1 -Tier SqlServerIntegration` (if you touched Persistence / SQL)
+4. `.\test.ps1 -Tier Integration` (if you touched API / HTTP)
+5. `.\test.ps1 -Tier UiUnit` or `npm test` in `archlucid-ui/` (if you touched `archlucid-ui` logic/components)
+6. `.\test.ps1 -Tier UiSmoke` (if you touched `archlucid-ui` routes/build/e2e-relevant behavior)
+7. `.\test.ps1 -Tier Full` before merge (or rely on CI)
 
 > **Legacy form (still works via shims).** The `test-<tier>.cmd` / `test-<tier>.ps1` scripts remain as deprecated shims that forward to the consolidated driver. They will be removed after **2026-Q3**.
 

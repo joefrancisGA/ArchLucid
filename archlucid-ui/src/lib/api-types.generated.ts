@@ -7327,6 +7327,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/architecture/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArchitectureRequestTemplateSummary"][];
+                        "text/json": components["schemas"]["ArchitectureRequestTemplateSummary"][];
+                        "text/plain": components["schemas"]["ArchitectureRequestTemplateSummary"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/artifacts/manifests/{manifestId}": {
         parameters: {
             query?: never;
@@ -9529,6 +9599,60 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/demo/quickstart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["DemoQuickStartRequest"];
+                    "application/json": null | components["schemas"]["DemoQuickStartRequest"];
+                    "text/json": null | components["schemas"]["DemoQuickStartRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DemoQuickStartResponse"];
+                        "text/json": components["schemas"]["DemoQuickStartResponse"];
+                        "text/plain": components["schemas"]["DemoQuickStartResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -12295,6 +12419,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/pre-commit/simulate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PreCommitSyntheticSimulationRequest"];
+                    "application/json": null | components["schemas"]["PreCommitSyntheticSimulationRequest"];
+                    "text/json": null | components["schemas"]["PreCommitSyntheticSimulationRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PreCommitGateResult"];
+                        "text/json": components["schemas"]["PreCommitGateResult"];
+                        "text/plain": components["schemas"]["PreCommitGateResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/promotions": {
         parameters: {
             query?: never;
@@ -12675,6 +12875,17 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Payload Too Large */
+                413: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -17722,6 +17933,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/tenant/link-entra": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["TenantLinkEntraRequest"];
+                    "application/json": null | components["schemas"]["TenantLinkEntraRequest"];
+                    "text/json": null | components["schemas"]["TenantLinkEntraRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/tenant/measured-roi": {
         parameters: {
             query?: never;
@@ -17951,6 +18201,82 @@ export interface paths {
                 };
                 /** @description Not Found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/webhooks/dry-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["OutboundWebhookDryRunRequest"];
+                    "application/json": null | components["schemas"]["OutboundWebhookDryRunRequest"];
+                    "text/json": null | components["schemas"]["OutboundWebhookDryRunRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OutboundWebhookDryRunResponse"];
+                        "text/json": components["schemas"]["OutboundWebhookDryRunResponse"];
+                        "text/plain": components["schemas"]["OutboundWebhookDryRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -18472,6 +18798,11 @@ export interface components {
             securityBaselineHints?: string[];
             systemName: string;
             topologyHints?: string[];
+        };
+        ArchitectureRequestTemplateSummary: {
+            shortDescription: string;
+            templateId: string;
+            title: string;
         };
         ArchitectureRun: {
             /** Format: uuid */
@@ -19224,6 +19555,20 @@ export interface components {
             /** Format: date-time */
             occurredUtc: string;
         };
+        DemoQuickStartFindingSummary: {
+            severity?: string;
+            title?: string;
+        };
+        DemoQuickStartRequest: {
+            description?: null | string;
+            presetId?: null | string;
+        };
+        DemoQuickStartResponse: {
+            manifestId?: string;
+            runDetailUrl?: string;
+            runId?: string;
+            topFindings?: components["schemas"]["DemoQuickStartFindingSummary"][];
+        };
         DeterminismCheckRequest: {
             commitReplays?: boolean;
             executionMode?: string;
@@ -19677,6 +20022,7 @@ export interface components {
             manifestVersion?: null | string;
             modelDeploymentName?: null | string;
             promptTemplateVersion?: null | string;
+            recommendedActions?: string[];
             /** Format: uuid */
             runId?: string;
             typedPayload?: null | components["schemas"]["JsonElement"];
@@ -19725,7 +20071,6 @@ export interface components {
             findingId: string;
             findingTitle?: string;
             missingTraceFields?: string[];
-            recommendedActions?: string[];
             ruleId?: string;
             /** Format: double */
             traceCompletenessRatio?: number | string;
@@ -20471,6 +20816,20 @@ export interface components {
             /** Format: int32 */
             rowCount: number;
         };
+        OutboundWebhookDryRunRequest: {
+            sharedSecret?: null | string;
+            /** Format: uri */
+            targetUrl: string;
+        };
+        OutboundWebhookDryRunResponse: {
+            error?: null | string;
+            reasonPhrase?: null | string;
+            responseBodyPreview?: null | string;
+            responseBodyTruncated?: boolean;
+            /** Format: int32 */
+            statusCode?: number;
+            transportSucceeded?: boolean;
+        };
         PagedResponseOfAlertRecord: {
             hasMore?: boolean;
             items?: components["schemas"]["AlertRecord"][];
@@ -20773,6 +21132,22 @@ export interface components {
             notes?: string[];
             satisfiedControls?: components["schemas"]["PolicyControlItem"][];
             violations?: components["schemas"]["PolicyControlItem"][];
+        };
+        PreCommitGateResult: {
+            blocked?: boolean;
+            blockingFindingIds?: string[];
+            /** Format: int32 */
+            minimumBlockingSeverity?: null | number;
+            policyPackId?: null | string;
+            reason?: null | string;
+            warnOnly?: boolean;
+            warnings?: string[];
+        };
+        PreCommitSyntheticSimulationRequest: {
+            runId: string;
+            /** Format: int32 */
+            syntheticCount?: number;
+            syntheticSeverity?: components["schemas"]["FindingSeverity"];
         };
         PriorManifestEvidence: {
             existingDatastores?: string[];
@@ -21650,6 +22025,12 @@ export interface components {
             /** Format: date-time */
             updatedUtc?: null | string;
         };
+        TenantLinkEntraRequest: {
+            entraOid?: null | string;
+            /** Format: uuid */
+            entraTenantId?: string;
+            localEmail?: null | string;
+        };
         TenantMeasuredRoiResponse: {
             disclaimer?: string;
             monthlyCostEstimate?: null | components["schemas"]["TenantCostEstimateResponse"];
@@ -21767,6 +22148,7 @@ export interface components {
             daysRemaining?: null | number;
             /** Format: date-time */
             firstCommitUtc?: null | string;
+            identityHandoffPending?: boolean;
             status?: string;
             /** Format: date-time */
             trialExpiresUtc?: null | string;

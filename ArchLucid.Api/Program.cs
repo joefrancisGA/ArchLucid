@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 
+using ArchLucid.Api.Demo;
 using ArchLucid.Api.Hosting;
 
 using ArchLucid.Core.Hosting;
@@ -47,6 +48,8 @@ public partial class Program
         // deployment and CI break-glass (RLS bypass for DbUp + schema bootstrap) still wins.
         builder.Configuration.AddEnvironmentVariables();
 
+        ArchitectureRunCreationConfigurationBridge.Apply(builder.Configuration);
+
         // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
         builder.WebHost.ConfigureKestrel(static options => options.AddServerHeader = false);
 
@@ -85,11 +88,13 @@ public partial class Program
         builder.Services.Configure<E2EHarnessOptions>(builder.Configuration.GetSection(E2EHarnessOptions.SectionName));
         builder.Services.AddArchLucidCors(builder.Configuration);
         builder.Services.AddArchLucidResponseCompression();
-        builder.Services.Configure<ContextIngestionLimitsOptions>(
-            builder.Configuration.GetSection(ContextIngestionLimitsOptions.SectionName));
+        builder.Services.Configure<ArchitectureRunCreationPayloadLimitsOptions>(
+            builder.Configuration.GetSection(ArchitectureRunCreationPayloadLimitsOptions.SectionName));
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
+        builder.Services.AddScoped<QuickStartForcedSimulatorExecuteOrchestrator>();
+        builder.Services.AddScoped<QuickStartService>();
 
         if (builder.Configuration.GetValue("Demo:Enabled", false))
         {

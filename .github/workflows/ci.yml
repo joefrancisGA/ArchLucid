@@ -1,5 +1,7 @@
 # Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
 #   Tier 0 — Secret scan (gitleaks; full clone)
+#   Tier 0.x — OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
+#               Runs parallel with Terraform validate; dotnet-fast-core needs it → drift fails before corset guards.
 #   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
 #   Tier 1.5 — .NET greenfield SQL boot (empty catalog; API process + /health/ready; after Tier 1)
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
@@ -448,11 +450,34 @@ jobs:
           exit-code: "1"
           cache: false
 
+  openapi-contract-snapshot:
+    name: ".NET: OpenAPI v1 contract snapshot (fail-fast)"
+    needs:
+      - gitleaks
+      - doc-markdown-links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Build + OpenApiContractSnapshotTests
+        run: bash scripts/ci/check_openapi_contract_snapshot.sh
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs:
       - gitleaks
       - doc-markdown-links
+      - openapi-contract-snapshot
       - terraform-validate-private
       - terraform-validate-public-stacks
     runs-on: ubuntu-latest
@@ -626,7 +651,7 @@ jobs:
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py
 
-      # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
+      # Includes OpenApiContractSnapshotTests (Suite=Core); same assertion already ran in job openapi-contract-snapshot for fail-fast ordering.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).

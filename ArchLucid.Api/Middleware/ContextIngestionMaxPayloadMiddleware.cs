@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Middleware;
     Justification = "Thin guard unit-tested via LooksLikeArchitectureCreateRun static helpers.")]
 public sealed class ContextIngestionMaxPayloadMiddleware(
     RequestDelegate next,
-    IOptions<ContextIngestionLimitsOptions> options)
+    IOptions<ArchitectureRunCreationPayloadLimitsOptions> options)
 {
     private readonly long _max = Math.Max(options.Value.MaxPayloadBytes, 1);
 
@@ -46,7 +46,7 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
             Title = "Payload Too Large",
             Status = StatusCodes.Status413PayloadTooLarge,
             Detail =
-                $"Request body exceeds the configured architecture request limit ({_max} bytes). Reduce context payload size or adjust ArchLucid:ContextIngestion:MaxPayloadBytes.",
+                $"Request body exceeds the configured architecture request limit ({_max} bytes). Reduce context payload size or adjust {ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey}.",
             Instance = path.Value
         };
 
