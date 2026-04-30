@@ -47,11 +47,7 @@ public sealed class PreCommitGovernanceGate(
         int syntheticCount,
         CancellationToken cancellationToken = default)
     {
-        if (syntheticCount < 0)
-            throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.");
-
-
-        return SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
+        return syntheticCount < 0 ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.") : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
     }
 
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
@@ -62,13 +58,8 @@ public sealed class PreCommitGovernanceGate(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (!_options.Value.PreCommitGateEnabled)
+        if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
             return PreCommitGateResult.Allowed();
-
-
-        if (!Guid.TryParse(runId, out Guid runKey))
-            return PreCommitGateResult.Allowed();
-
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
@@ -76,7 +67,6 @@ public sealed class PreCommitGovernanceGate(
 
         if (run is null || !run.FindingsSnapshotId.HasValue)
             return PreCommitGateResult.Allowed();
-
 
         IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository.ListByScopeAsync(
             scope.TenantId,
@@ -92,7 +82,6 @@ public sealed class PreCommitGovernanceGate(
         if (enforcing is null)
             return PreCommitGateResult.Allowed();
 
-
         FindingsSnapshot? snapshot =
             await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
 
@@ -100,12 +89,11 @@ public sealed class PreCommitGovernanceGate(
             ? snapshot.Findings.ToList()
             : [];
 
+        if (syntheticSeverity is not { } sev || syntheticCount <= 0)
+            return EvaluateAgainstFindings(enforcing, findings);
 
-        if (syntheticSeverity is { } sev && syntheticCount > 0)
-
-            for (int i = 0; i < syntheticCount; i++)
-                findings.Add(CreateSyntheticFinding(runId, i, sev));
-
+        for (int i = 0; i < syntheticCount; i++)
+            findings.Add(CreateSyntheticFinding(runId, i, sev));
 
         return EvaluateAgainstFindings(enforcing, findings);
     }

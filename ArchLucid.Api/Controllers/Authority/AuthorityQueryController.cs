@@ -78,8 +78,7 @@ public sealed class AuthorityQueryController(
         if (string.IsNullOrWhiteSpace(projectId))
             return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
-        if (page is { } and > 1 && string.IsNullOrWhiteSpace(cursor))
-
+        if (page is > 1 && string.IsNullOrWhiteSpace(cursor))
             return this.BadRequestProblem(
                 "Paging beyond page 1 requires the nextCursor token from the prior response.",
                 ProblemTypes.BadRequest);
@@ -92,7 +91,6 @@ public sealed class AuthorityQueryController(
             (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(cursor.Trim());
 
             if (!decoded.HasValue)
-
                 return this.BadRequestProblem("cursor is invalid.", ProblemTypes.ValidationFailed);
 
             cu = decoded.Value.CreatedUtc;
@@ -120,13 +118,9 @@ public sealed class AuthorityQueryController(
         return Ok(
             new CursorPagedResponse<RunSummaryResponse>
             {
-
                 Items = mapped,
-
                 NextCursor = nextCursor,
-
                 HasMore = keysetPage.HasMore,
-
                 RequestedTake = effectiveTake
 
             });
@@ -183,7 +177,6 @@ public sealed class AuthorityQueryController(
 
         if (items is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
 
         IReadOnlyList<RunPipelineTimelineItemResponse> body = items
             .Select(i => new RunPipelineTimelineItemResponse
@@ -273,16 +266,13 @@ public sealed class AuthorityQueryController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         if (detail.GoldenManifest is null ||
             detail.GraphSnapshot is null ||
             detail.FindingsSnapshot is null ||
             detail.AuthorityTrace is null)
-
             return this.UnprocessableEntityProblem(
                 "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
-
 
         IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
         DecisionProvenanceGraph graph = provenanceBuilder.Build(
@@ -319,12 +309,10 @@ public sealed class AuthorityQueryController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         if (detail.GoldenManifest is null)
             return this.NotFoundProblem(
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
-
 
         await LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,

@@ -107,67 +107,33 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         }
 
 
-
         if (result is null)
-
             return Task.FromResult<ArtifactBundle?>(null);
 
-
-
-        if (loadArtifactBodies)
-
-            return Task.FromResult<ArtifactBundle?>(result);
-
-
-
-        return Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
-
+        return loadArtifactBodies ? Task.FromResult<ArtifactBundle?>(result) : Task.FromResult<ArtifactBundle?>(WithBodiesStrippedSnapshot(result));
     }
-
-
 
     /// <summary>
-
     ///     Returns a detached copy whose artifact bodies are empty so callers never mutate stored bundles.
-
     /// </summary>
-
     private static ArtifactBundle WithBodiesStrippedSnapshot(ArtifactBundle source)
-
     {
-
         return new ArtifactBundle
-
         {
-
             TenantId = source.TenantId,
-
             WorkspaceId = source.WorkspaceId,
-
             ProjectId = source.ProjectId,
-
             BundleId = source.BundleId,
-
             RunId = source.RunId,
-
             ManifestId = source.ManifestId,
-
             CreatedUtc = source.CreatedUtc,
-
             Trace = source.Trace,
-
             Artifacts = source.Artifacts.ConvertAll(CloneArtifactWithEmptyBody)
-
         };
-
     }
 
-
-
     private static SynthesizedArtifact CloneArtifactWithEmptyBody(SynthesizedArtifact a)
-
     {
-
         return new SynthesizedArtifact
 
         {

@@ -119,7 +119,7 @@ public sealed class ManifestFinalizationService(
                 nameof(ArchitectureRunStatus.Committed),
                 StringComparison.OrdinalIgnoreCase))
         {
-            if (locked.GoldenManifestId is not Guid manifestId)
+            if (locked.GoldenManifestId is not { } manifestId)
                 throw new ConflictException(
                     $"Run '{request.RunId:D}' is Committed but GoldenManifestId is missing on the run record.");
 
@@ -257,7 +257,7 @@ public sealed class ManifestFinalizationService(
                 nameof(ArchitectureRunStatus.Committed),
                 StringComparison.OrdinalIgnoreCase))
         {
-            if (header.GoldenManifestId is not Guid mid)
+            if (header.GoldenManifestId is not { } mid)
                 throw new ConflictException(
                     $"Run '{request.RunId:D}' is Committed but GoldenManifestId is missing on the run record.");
 
@@ -381,13 +381,7 @@ public sealed class ManifestFinalizationService(
 
     private static bool IsCommitAllowedStatus(string? legacyRunStatus)
     {
-        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
+        return string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase) || string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)

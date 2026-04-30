@@ -182,6 +182,13 @@ public static class AuditEventTypes
     /// <summary>Emitted when pre-commit governance warns but allows commit due to WarnOnly severity configuration.</summary>
     public const string GovernancePreCommitWarned = "GovernancePreCommitWarned";
 
+    /// <summary>
+    ///     Operator ran pre-commit gate what-if with synthetic findings (
+    ///     <c>POST /v1/governance/pre-commit/simulate</c>). Payload summarizes request parameters and gate outcome; no
+    ///     manifest commit.
+    /// </summary>
+    public const string GovernancePreCommitSimulationEvaluated = "GovernancePreCommitSimulationEvaluated";
+
     /// <summary>Emitted when a governance approval request breaches its SLA deadline.</summary>
     public const string GovernanceApprovalSlaBreached = "GovernanceApprovalSlaBreached";
 
@@ -325,6 +332,12 @@ public static class AuditEventTypes
     ///     <c>PUT /v1/notifications/customer-channel-preferences</c>).
     /// </summary>
     public const string TenantNotificationChannelPreferencesUpdated = "TenantNotificationChannelPreferencesUpdated";
+
+    /// <summary>
+    ///     Outbound subscriber URL probe without persistence (<c>POST /v1/webhooks/dry-run</c>). Payload excludes shared
+    ///     secrets and response bodies.
+    /// </summary>
+    public const string OutboundWebhookDryRunProbeExecuted = "OutboundWebhookDryRunProbeExecuted";
 
     /// <summary>
     ///     Tenant Microsoft Teams incoming-webhook Key Vault reference upserted (
