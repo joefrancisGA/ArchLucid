@@ -42,3 +42,17 @@ describe("getRouteTitle — unknown path", () => {
     expect(getRouteTitle("/planning/")).toBe("Planning");
   });
 });
+
+describe("getRouteTitle — executive shell", () => {
+  it("returns Executive reviews for list", () => {
+    expect(getRouteTitle("/executive/reviews")).toBe("Executive reviews");
+  });
+
+  it("returns Risk review for one review", () => {
+    expect(getRouteTitle("/executive/reviews/run-abc")).toBe("Risk review");
+  });
+
+  it("returns Finding (executive) for finding detail", () => {
+    expect(getRouteTitle("/executive/reviews/run-abc/findings/f-1")).toBe("Finding (executive)");
+  });
+});

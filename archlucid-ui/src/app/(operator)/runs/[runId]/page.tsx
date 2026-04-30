@@ -743,6 +743,13 @@ export default async function RunDetailPage({
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this review</Link>
               </Button>
+              {manifestId ? (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/executive/reviews/${encodeURIComponent(resolvedDetail.run.runId)}`}>
+                    Open executive view
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </CardContent>
         </Card>
