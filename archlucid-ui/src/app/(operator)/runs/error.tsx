@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
 
 /**
