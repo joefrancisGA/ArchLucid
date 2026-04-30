@@ -234,7 +234,7 @@ For each quality below: **Score / Weight / Weighted deficiency signal / Weighted
     - **Fix horizon:** v1.
 
 25. **Azure Compatibility and SaaS Deployment Readiness — 80 / 2 / 40 / 15.69pp**  
-    - **Justification:** Terraform modules span edge, container apps, monitoring, SQL failover patterns; hosted probes exist ([`.github/workflows/hosted-saas-probe.yml`](../../github/workflows/hosted-saas-probe.yml)).  
+    - **Justification:** Terraform modules span edge, container apps, monitoring, SQL failover patterns; hosted probes exist ([`.github/workflows/hosted-saas-probe.yml`](../../.github/workflows/hosted-saas-probe.yml)).  
     - **Tradeoffs:** Full-stack IaC complexity raises onboarding cost for small buyers self-hosting.  
     - **Recommendations:** Maintain pilot profile docs ([`docs/deployment/PILOT_PROFILE.md`](../deployment/PILOT_PROFILE.md)) aligned to Terraform roots actually used in staging/prod.  
     - **Fix horizon:** v1.
@@ -296,7 +296,7 @@ For each quality below: **Score / Weight / Weighted deficiency signal / Weighted
 35. **Extensibility — 73 / 1 / 27 / 7.16pp**  
     - **Justification:** Finding engines/templates/extension points exist; extension ergonomics still require reading many docs.  
     - **Tradeoffs:** Formal plugin APIs increase compatibility commitments.  
-    - **Recommendations:** Maintain “add a comparison type” / “add integration recipe” guides ([`docs/HOWTO_ADD_COMPARISON_TYPE.md`](../HOWTO_ADD_COMPARISON_TYPE.md), [`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)).  
+    - **Recommendations:** Maintain “add a comparison type” / “add integration recipe” guides ([`docs/library/HOWTO_ADD_COMPARISON_TYPE.md`](HOWTO_ADD_COMPARISON_TYPE.md), [`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)).  
     - **Fix horizon:** v1.
 
 36. **Performance — 74 / 1 / 26 / 7.25pp**  
