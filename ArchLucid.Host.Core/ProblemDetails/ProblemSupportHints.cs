@@ -81,6 +81,9 @@ public static class ProblemSupportHints
         if (typeUri == ProblemTypes.GraphTooLargeForFullResponse)
             return "Use GET /v1/graph/runs/{runId}/nodes with page/pageSize to retrieve the architecture graph in pages (max page size 200). Cross-page edges are omitted per page; export or downstream analytics may be needed for full linkage.";
 
+        if (typeUri == ProblemTypes.RequestPayloadTooLarge)
+            return "Shrink the POST /v1/architecture/request JSON (documents, IaC payloads, hints) or raise ArchLucid:ContextIngestion:MaxPayloadBytes with operator approval (HTTP 413 uses Content-Length).";
+
         if (typeUri == ProblemTypes.TrialExpired)
             return "Convert the tenant trial (POST /v1/tenant/convert) or purchase a subscription to lift trial limits; see docs/security/TRIAL_LIMITS.md.";
 

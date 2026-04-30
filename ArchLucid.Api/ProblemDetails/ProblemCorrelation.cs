@@ -27,5 +27,6 @@ public static class ProblemCorrelation
             return;
 
         problem.Extensions[ExtensionKey] = id;
+        problem.Extensions.TryAdd("traceId", id);
     }
 }

@@ -26,6 +26,12 @@ public sealed class AgentExecutionResilienceOptions
         set;
     } = 900;
 
+    /// <summary>
+    ///     Optional overrides keyed by <see cref="ArchLucid.Contracts.Common.AgentTypeKeys" /> (e.g. <c>topology</c>). 0 in
+    ///     map falls back to <see cref="PerHandlerTimeoutSeconds" />.
+    /// </summary>
+    public Dictionary<string, int> PerAgentTimeoutSeconds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
     /// <summary>Retry attempts before a failure is recorded against the circuit breaker. Default 3. 0 = no retry.</summary>
     public int LlmCallMaxRetryAttempts
     {
@@ -53,5 +59,28 @@ public sealed class AgentExecutionResilienceOptions
         LlmCallMaxRetryAttempts = Math.Clamp(LlmCallMaxRetryAttempts, 0, 10);
         LlmCallBaseDelayMilliseconds = Math.Clamp(LlmCallBaseDelayMilliseconds, 50, 30_000);
         LlmCallMaxDelaySeconds = Math.Clamp(LlmCallMaxDelaySeconds, 1, 120);
+        PerHandlerTimeoutSeconds = Math.Clamp(PerHandlerTimeoutSeconds, 0, 86400);
+    }
+
+    /// <summary>
+    ///     Resolved Polly timeout seconds for an agent dispatch key. When <see cref="PerHandlerTimeoutSeconds" /> is 0, agent
+    ///     timeouts are disabled globally.
+    /// </summary>
+    public int ResolveTimeoutSecondsForAgent(string dispatchKey)
+    {
+        Normalize();
+
+        if (PerHandlerTimeoutSeconds <= 0)
+            return 0;
+
+
+        if (string.IsNullOrWhiteSpace(dispatchKey) ||
+            !PerAgentTimeoutSeconds.TryGetValue(dispatchKey.Trim(), out int raw))
+            return PerHandlerTimeoutSeconds;
+
+
+        int clamped = Math.Clamp(raw, 0, 86400);
+
+        return clamped > 0 ? clamped : PerHandlerTimeoutSeconds;
     }
 }

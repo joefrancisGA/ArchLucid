@@ -70,6 +70,9 @@ public static class ProblemTypes
     /// <summary>Caller requested a full graph payload that exceeds the configured maximum (HTTP 413).</summary>
     public const string GraphTooLargeForFullResponse = Base + "#graph-too-large-for-full-response";
 
+    /// <summary>Architecture request JSON exceeds configured <c>ArchLucid:ContextIngestion:MaxPayloadBytes</c>.</summary>
+    public const string RequestPayloadTooLarge = Base + "#request-payload-too-large";
+
     /// <summary>Caller is authenticated but the tenant commercial tier is below the capability required for this route (HTTP 402).</summary>
     public const string PackagingTierInsufficient = Base + "#packaging-tier-insufficient";
 }

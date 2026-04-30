@@ -623,9 +623,7 @@ public sealed class GovernanceWorkflowService(
         string reviewedByActorKey,
         CancellationToken cancellationToken)
     {
-        if (!GovernanceSegregationRules.IsSameActorForReview(request, reviewedByDisplay, reviewedByActorKey))
-            return;
-
+        if (!GovernanceSegregationRules.IsSameActorForReview(request, reviewedByDisplay, reviewedByActorKey)) return;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         await LogGovernanceDurableWithRetryAsync(
@@ -665,7 +663,6 @@ public sealed class GovernanceWorkflowService(
                     $"Promotion to prod requires an approved approval request. " +
                     $"Approval request '{approvalRequestId}' has status '{approvalRequest?.Status ?? "not found"}'.");
 
-
             if (logger.IsEnabled(LogLevel.Warning))
 
                 logger.LogWarning(
@@ -675,7 +672,6 @@ public sealed class GovernanceWorkflowService(
                     LogSanitizer.Sanitize(runId),
                     LogSanitizer.Sanitize(manifestVersion),
                     targetEnvironment);
-
 
             throw new InvalidOperationException(OpaqueProdApprovalValidationFailed);
         }
@@ -689,7 +685,6 @@ public sealed class GovernanceWorkflowService(
                     $"Approval request '{approvalRequestId}' was issued for run '{approved.RunId}', " +
                     $"not '{runId}'. Use an approval request that matches the promoted run.");
 
-
             if (logger.IsEnabled(LogLevel.Warning))
 
                 logger.LogWarning(
@@ -697,7 +692,6 @@ public sealed class GovernanceWorkflowService(
                     LogSanitizer.Sanitize(approvalRequestId),
                     LogSanitizer.Sanitize(approved.RunId),
                     LogSanitizer.Sanitize(runId));
-
 
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
@@ -709,7 +703,6 @@ public sealed class GovernanceWorkflowService(
                     $"Approval request '{approvalRequestId}' was issued for manifest version '{approved.ManifestVersion}', " +
                     $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
 
-
             if (logger.IsEnabled(LogLevel.Warning))
 
                 logger.LogWarning(
@@ -718,29 +711,25 @@ public sealed class GovernanceWorkflowService(
                     LogSanitizer.Sanitize(approved.ManifestVersion),
                     LogSanitizer.Sanitize(manifestVersion));
 
-
             throw new InvalidOperationException(OpaqueProdApprovalMismatch);
         }
 
-        if (!string.Equals(approved.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
-        {
-            if (verbosePromotionValidationErrors)
-                throw new InvalidOperationException(
-                    $"Approval request '{approvalRequestId}' targets environment '{approved.TargetEnvironment}', " +
-                    $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
+        if (string.Equals(approved.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase)) return;
 
+        if (verbosePromotionValidationErrors)
+            throw new InvalidOperationException(
+                $"Approval request '{approvalRequestId}' targets environment '{approved.TargetEnvironment}', " +
+                $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
 
-            if (logger.IsEnabled(LogLevel.Warning))
+        if (logger.IsEnabled(LogLevel.Warning))
 
-                logger.LogWarning(
-                    "Promotion to prod blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
-                    LogSanitizer.Sanitize(approvalRequestId),
-                    LogSanitizer.Sanitize(approved.TargetEnvironment),
-                    targetEnvironment);
+            logger.LogWarning(
+                "Promotion to prod blocked: approval request {ApprovalRequestId} target environment mismatch (stored {StoredTarget}, caller {CallerTarget}).",
+                LogSanitizer.Sanitize(approvalRequestId),
+                LogSanitizer.Sanitize(approved.TargetEnvironment),
+                targetEnvironment);
 
-
-            throw new InvalidOperationException(OpaqueProdApprovalMismatch);
-        }
+        throw new InvalidOperationException(OpaqueProdApprovalMismatch);
     }
 
     private async Task LogGovernanceDryRunValidationAttemptedForApprovalRequestAsync(

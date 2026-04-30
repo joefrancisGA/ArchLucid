@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -29,11 +30,13 @@ namespace ArchLucid.AgentRuntime;
 /// </remarks>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
+    private static readonly ConcurrentDictionary<int, ResiliencePipeline<AgentResult>> TimeoutPipelines = new();
+
     private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
     private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
-    private readonly ResiliencePipeline<AgentResult> _handlerTimeoutPipeline;
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
+    private readonly IOptions<AgentExecutionResilienceOptions> _resilienceOptions;
     private readonly IScopeContextProvider _scopeContextProvider;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey" /> (duplicates throw).</summary>
@@ -50,17 +53,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         _promptCatalog = promptCatalog ?? throw new ArgumentNullException(nameof(promptCatalog));
         _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
         _concurrencyGate = concurrencyGate ?? throw new ArgumentNullException(nameof(concurrencyGate));
-        ArgumentNullException.ThrowIfNull(resilienceOptions);
-
-        AgentExecutionResilienceOptions ro = resilienceOptions.Value;
-        ro.Normalize();
-        int timeoutSeconds = ro.PerHandlerTimeoutSeconds;
-
-        _handlerTimeoutPipeline = timeoutSeconds <= 0
-            ? ResiliencePipeline<AgentResult>.Empty
-            : new ResiliencePipelineBuilder<AgentResult>()
-                .AddTimeout(TimeSpan.FromSeconds(timeoutSeconds))
-                .Build();
+        _resilienceOptions = resilienceOptions ?? throw new ArgumentNullException(nameof(resilienceOptions));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -161,6 +154,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 $"No handler is registered for agent type key '{dispatchKey}'.");
 
 
+        int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
+        ResiliencePipeline<AgentResult> handlerTimeoutPipeline = ResolveTimeoutPipeline(timeoutSeconds);
+
         Stopwatch sw = Stopwatch.StartNew();
 
         AgentResult result;
@@ -180,7 +176,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
             {
                 result = await _concurrencyGate.ExecuteAsync(
                     async ct =>
-                        await _handlerTimeoutPipeline.ExecuteAsync(
+                        await handlerTimeoutPipeline.ExecuteAsync(
                             async (_, innerCt) => await handler.ExecuteAsync(
                                 runId,
                                 request,
@@ -221,6 +217,19 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
 
         return result;
+    }
+
+    private static ResiliencePipeline<AgentResult> ResolveTimeoutPipeline(int timeoutSeconds)
+    {
+        if (timeoutSeconds <= 0)
+            return ResiliencePipeline<AgentResult>.Empty;
+
+
+        return TimeoutPipelines.GetOrAdd(
+            timeoutSeconds,
+            secs => new ResiliencePipelineBuilder<AgentResult>()
+                .AddTimeout(TimeSpan.FromSeconds(secs))
+                .Build());
     }
 
     private string ResolvePromptVersion(string agentTypeKey)

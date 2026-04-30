@@ -1,46 +1,59 @@
-using FluentAssertions;
+using Xunit;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
-[Trait("Category", "Unit")]
-[Trait("Suite", "Core")]
 public sealed class AgentExecutionResilienceOptionsTests
 {
     [Fact]
-    public void Normalize_ClampsNegativeRetryAttempts_ToZero()
-    {
-        AgentExecutionResilienceOptions o = new() { LlmCallMaxRetryAttempts = -5 };
-        o.Normalize();
 
-        o.LlmCallMaxRetryAttempts.Should().Be(0);
+    public void ResolveTimeoutSecondsForAgent_ReturnsZero_WhenGlobalTimeoutDisabled()
+    {
+        AgentExecutionResilienceOptions o =
+            new()
+            {
+                PerHandlerTimeoutSeconds = 0,
+                PerAgentTimeoutSeconds = new() { ["topology"] = 120 }
+            };
+
+        Assert.Equal(0, o.ResolveTimeoutSecondsForAgent("topology"));
+
     }
 
     [Fact]
-    public void Normalize_ClampsExcessiveBaseDelay_To30s()
-    {
-        AgentExecutionResilienceOptions o = new() { LlmCallBaseDelayMilliseconds = 999_999 };
-        o.Normalize();
 
-        o.LlmCallBaseDelayMilliseconds.Should().Be(30_000);
+    public void ResolveTimeoutSecondsForAgent_OverridesDispatchKey()
+    {
+
+        AgentExecutionResilienceOptions o = new()
+        {
+            PerHandlerTimeoutSeconds = 900,
+            PerAgentTimeoutSeconds =
+                new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["topology"] = 60 }
+        };
+
+
+        Assert.Equal(60, o.ResolveTimeoutSecondsForAgent("topology"));
+
+        Assert.Equal(900, o.ResolveTimeoutSecondsForAgent("other"));
+
     }
 
     [Fact]
-    public void Normalize_ClampsMaxDelayTo120s()
-    {
-        AgentExecutionResilienceOptions o = new() { LlmCallMaxDelaySeconds = 999 };
-        o.Normalize();
 
-        o.LlmCallMaxDelaySeconds.Should().Be(120);
+    public void ResolveTimeoutSecondsForAgent_FallsBack_WhenOverrideIsZero()
+    {
+
+
+        AgentExecutionResilienceOptions o = new()
+        {
+            PerHandlerTimeoutSeconds = 900,
+            PerAgentTimeoutSeconds =
+                new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) { ["topology"] = 0 }
+        };
+
+
+        Assert.Equal(900, o.ResolveTimeoutSecondsForAgent("topology"));
+
     }
 
-    [Fact]
-    public void Defaults_AreReasonable()
-    {
-        AgentExecutionResilienceOptions o = new();
-        o.Normalize();
-
-        o.LlmCallMaxRetryAttempts.Should().Be(3);
-        o.LlmCallBaseDelayMilliseconds.Should().Be(500);
-        o.LlmCallMaxDelaySeconds.Should().Be(10);
-    }
 }

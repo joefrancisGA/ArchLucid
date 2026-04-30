@@ -12,10 +12,7 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Blocks commit when an enabled assignment enforces a severity threshold
-/// and the run's findings snapshot contains findings at or above that threshold.
-/// Supports configurable <see cref="PolicyPackAssignment.BlockCommitMinimumSeverity"/>
-/// and warn-only severities via <see cref="PreCommitGovernanceGateOptions.WarnOnlySeverities"/>.
+///     Blocks commit when an enabled assignment enforces a severity threshold and persisted findings meet that bar.
 /// </summary>
 public sealed class PreCommitGovernanceGate(
     IOptions<PreCommitGovernanceGateOptions> options,
@@ -40,7 +37,28 @@ public sealed class PreCommitGovernanceGate(
         policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
 
     /// <inheritdoc />
-    public async Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default) =>
+        SimulateSyntheticFindingsInternalAsync(runId, null, 0, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<PreCommitGateResult> SimulateSyntheticFindingsAsync(
+        string runId,
+        FindingSeverity syntheticSeverity,
+        int syntheticCount,
+        CancellationToken cancellationToken = default)
+    {
+        if (syntheticCount < 0)
+            throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.");
+
+
+        return SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
+    }
+
+    private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
+        string runId,
+        FindingSeverity? syntheticSeverity,
+        int syntheticCount,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
@@ -53,6 +71,7 @@ public sealed class PreCommitGovernanceGate(
 
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
 
         if (run is null || !run.FindingsSnapshotId.HasValue)
@@ -77,14 +96,28 @@ public sealed class PreCommitGovernanceGate(
         FindingsSnapshot? snapshot =
             await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
 
-        if (snapshot is null)
-            return PreCommitGateResult.Allowed();
+        List<Finding> findings = snapshot?.Findings is { Count: > 0 }
+            ? snapshot.Findings.ToList()
+            : [];
 
 
+        if (syntheticSeverity is { } sev && syntheticCount > 0)
+
+            for (int i = 0; i < syntheticCount; i++)
+                findings.Add(CreateSyntheticFinding(runId, i, sev));
+
+
+        return EvaluateAgainstFindings(enforcing, findings);
+    }
+
+    private PreCommitGateResult EvaluateAgainstFindings(
+        PolicyPackAssignment enforcing,
+        IReadOnlyList<Finding> findings)
+    {
         int effectiveMinSeverity = ResolveEffectiveMinimumSeverity(enforcing);
         FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
 
-        List<string> blockingIds = snapshot.Findings
+        List<string> blockingIds = findings
             .Where(f => (int)f.Severity >= effectiveMinSeverity)
             .Select(static f => f.FindingId)
             .ToList();
@@ -121,12 +154,24 @@ public sealed class PreCommitGovernanceGate(
         };
     }
 
+    private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity) => new()
+    {
+        FindingId = $"synthetic-precommit-{index}-{Guid.NewGuid():N}",
+        FindingType = "SyntheticPreCommitSimulation",
+        Category = "GovernanceSimulation",
+        EngineType = "Synthetic",
+        Severity = severity,
+        Title = "Synthetic finding (pre-commit simulation)",
+        Rationale = $"Ephemeral-only; not persisted. Run {runId}.",
+        RunIdRef = runId
+    };
+
     private static int ResolveEffectiveMinimumSeverity(PolicyPackAssignment assignment)
     {
         if (assignment.BlockCommitMinimumSeverity.HasValue)
             return assignment.BlockCommitMinimumSeverity.Value;
 
-        // Legacy behavior: BlockCommitOnCritical=true → block on Critical (3) only
+
         return (int)FindingSeverity.Critical;
     }
 

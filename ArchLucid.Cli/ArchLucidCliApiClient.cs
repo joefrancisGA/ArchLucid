@@ -113,6 +113,27 @@ public sealed class ArchLucidApiClient
         return http;
     }
 
+    /// <summary>
+    ///     CLI subcommands that call REST routes not covered by the generated OpenAPI client reuse the same decompress,
+    ///     retry, and API-key behavior as <see cref="ArchLucidApiClient" />.
+    /// </summary>
+    public static HttpClient CreateSharedApiHttpClient(
+        string baseUrl,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
+    {
+        string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
+        if (invalidReason is not null)
+            throw new ArgumentException(invalidReason, nameof(baseUrl));
+
+
+        string normalized = baseUrl.Trim().TrimEnd('/');
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
+            cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
+        CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
+
+        return CreateHttpClient(normalized, true, httpResilience);
+    }
+
     public static string GetDefaultBaseUrl()
     {
         return Environment.GetEnvironmentVariable("ARCHLUCID_API_URL") ?? "http://localhost:5128";

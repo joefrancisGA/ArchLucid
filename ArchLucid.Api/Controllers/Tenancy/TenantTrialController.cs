@@ -168,7 +168,7 @@ public sealed class TenantTrialController(
 
             string requestedOid = body.EntraOid!.Trim();
 
-            if (localRow.LinkedEntraOid is string linked && linked != requestedOid)
+            if (localRow.LinkedEntraOid is { } linked && linked != requestedOid)
                 return this.ConflictProblem(
                     "That local identity is already linked to a different Entra user id.",
                     ProblemTypes.Conflict);
@@ -197,7 +197,8 @@ public sealed class TenantTrialController(
             },
             cancellationToken);
 
-        if (normalizedLocal is not null && hasOid)
+        if (normalizedLocal is null || !hasOid) return NoContent();
+
         {
             bool linked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
                 normalizedLocal,

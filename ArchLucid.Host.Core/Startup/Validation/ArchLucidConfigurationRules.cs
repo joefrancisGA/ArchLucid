@@ -33,6 +33,7 @@ public static class ArchLucidConfigurationRules
         AgentExecutionRules.Collect(configuration, errors);
         LlmCompletionCacheRules.Collect(configuration, errors);
         SchemaValidationRules.Collect(configuration, errors);
+        ContextIngestionRules.Collect(configuration, errors);
         BatchReplayRules.Collect(configuration, errors);
         ApiDeprecationRules.Collect(configuration, errors);
         DataArchivalRules.Collect(configuration, errors);
