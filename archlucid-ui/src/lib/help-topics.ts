@@ -25,7 +25,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Create a request, track progress, finalize the reviewed manifest, and review artifacts, findings, and the review trail.",
     docPath: "docs/FIRST_RUN_WIZARD.md",
-    routes: ["/reviews/new", "/", "/getting-started"],
+    routes: ["/reviews/new", "/", "/onboarding"],
   },
   {
     id: "artifacts",

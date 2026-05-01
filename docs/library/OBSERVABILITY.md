@@ -11,6 +11,23 @@
 
 ---
 
+## Export path configuration (OpenTelemetry)
+
+Registration lives in **`ArchLucid.Host.Core`** → **`ObservabilityExtensions.AddArchLucidOpenTelemetry`**. Custom metrics (including **`archlucid_agent_output_*`**) only reach **Application Insights**, a **collector**, or **Prometheus** after you configure **at least one** export path:
+
+| Mechanism | What to set |
+|-----------|-------------|
+| **Azure Monitor / Application Insights** | **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (environment — typical on Azure), or **`ApplicationInsights:ConnectionString`**, or **`Observability:AzureMonitor:ApplicationInsightsConnectionString`**. Enables **`AddAzureMonitorMetricExporter`** and trace exporter. |
+| **OTLP** | Non-empty **`Observability:Otlp:Endpoint`** (absolute URI). Optional: **`Observability:Otlp:Protocol`** (`Grpc` default, or `HttpProtobuf`), **`Observability:Otlp:Headers`** (auth), **`Observability:Otlp:Enabled`** `false` to kill-switch. Empty endpoint ⇒ OTLP off. |
+| **Prometheus scrape** | **`Observability:Prometheus:Enabled`** `true`; **`Observability:Prometheus:ScrapePath`** (default **`/metrics`**). When **`RequireScrapeAuthentication`** is true, set **`ScrapeUsername`** and **`ScrapePassword`**. Expose scrape URL only on trusted networks or private link. |
+| **Console** (local) | **`Observability:ConsoleExporter:Enabled`** — defaults **on** in **Development** only. |
+
+If **none** of the above are active (typical bare **local** `dotnet run` without env vars), custom metrics exist **in-process only** until you add an exporter.
+
+Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-otel-collector/README.md`**.
+
+---
+
 ## Meter
 
 | Name | Version | Registration |

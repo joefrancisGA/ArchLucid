@@ -24,7 +24,7 @@ export function SignupVerifyClient() {
       </p>
       <div className="flex flex-wrap gap-3 pt-2">
         <Button asChild variant="primary" size="lg">
-          <Link href="/getting-started?source=registration" data-testid="signup-verify-continue-onboarding">
+          <Link href="/onboarding?source=registration" data-testid="signup-verify-continue-onboarding">
             Continue to onboarding
           </Link>
         </Button>

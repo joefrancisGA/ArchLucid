@@ -4,6 +4,7 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
+import { CopyIdButton } from "@/components/CopyIdButton";
 
 type OperatorApiProblemProps = {
   problem: ApiProblemDetails | null;
@@ -36,9 +37,15 @@ export function OperatorApiProblem({
       ) : null}
       <OperatorErrorUiReferenceLine />
       {trimmedCorrelation && trimmedCorrelation.length > 0 ? (
-        <p className="mt-2.5 font-mono text-xs text-neutral-600 dark:text-neutral-400">
-          Reference (correlation ID — use with API logs and support bundle): {trimmedCorrelation}
-        </p>
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="shrink-0 font-semibold">Need support?</span>
+            <span className="shrink-0">Provide correlation ID</span>
+            <code className="break-all rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{trimmedCorrelation}</code>
+            <span className="shrink-0">with steps to reproduce.</span>
+          </p>
+          <CopyIdButton value={trimmedCorrelation} aria-label="Copy correlation ID" />
+        </div>
       ) : null}
     </Callout>
   );

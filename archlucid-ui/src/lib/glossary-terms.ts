@@ -40,6 +40,11 @@ export const GLOSSARY_TERMS = {
     definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
+  provenance: {
+    term: "Provenance",
+    definition: "A traceable record of how an architectural decision was made, linking findings, policy rules, and context snapshots.",
+    docLink: "/docs/library/GLOSSARY.md#decision-trace",
+  },
   effective_governance: {
     term: "Effective governance",
     definition: "The merged policy content for a scope (project → workspace → tenant) used for alerts, compliance, and advisories.",

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -27,6 +28,10 @@ import {
   alertToolingListRefreshButtonTitleReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertRoutingEmptyGettingStartedOperator,
+  alertRoutingEmptyGettingStartedReader,
+} from "@/lib/alerts-hub-empty-guidance";
 import { cn } from "@/lib/utils";
 import {
   createAlertRoutingSubscription,
@@ -146,9 +151,14 @@ export function AlertRoutingContent() {
           </button>
           <div className="grid gap-3">
             {items.length === 0 ? (
-              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
-                {canMutateRouting ? alertRoutingSubscriptionsEmptyOperatorLine : alertRoutingSubscriptionsEmptyReaderLine}
-              </p>
+              <div className="grid max-w-xl gap-3">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {canMutateRouting ? alertRoutingSubscriptionsEmptyOperatorLine : alertRoutingSubscriptionsEmptyReaderLine}
+                </p>
+                <GettingStartedSteps
+                  {...(canMutateRouting ? alertRoutingEmptyGettingStartedOperator : alertRoutingEmptyGettingStartedReader)}
+                />
+              </div>
             ) : (
               items.map((item) => (
                 <div

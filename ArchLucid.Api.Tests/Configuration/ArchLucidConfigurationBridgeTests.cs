@@ -72,7 +72,7 @@ public sealed class ArchLucidConfigurationBridgeTests
         string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
 
         cs.Should().NotBeNull();
-        SqlConnectionStringBuilder parsed = new(cs!);
+        SqlConnectionStringBuilder parsed = new(cs);
         parsed.Encrypt.Should().Be(SqlConnectionEncryptOption.Mandatory);
         parsed.DataSource.Should().Be(".");
         parsed.InitialCatalog.Should().Be("x");

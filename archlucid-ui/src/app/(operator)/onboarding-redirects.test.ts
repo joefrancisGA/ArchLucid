@@ -6,41 +6,41 @@ vi.mock("next/navigation", () => ({
 }));
 
 import OnboardRedirectPage from "./onboard/page";
-import OnboardingRedirectPage from "./onboarding/page";
+import GettingStartedRedirectPage from "./getting-started/page";
 import OnboardingStartRedirectPage from "./onboarding/start/page";
 
-describe("legacy onboarding routes permanent-redirect (308) to /getting-started", () => {
+describe("legacy onboarding routes permanent-redirect (308) to /onboarding", () => {
   beforeEach(() => {
     vi.mocked(permanentRedirect).mockClear();
   });
 
-  it("redirects /onboarding to /getting-started", async () => {
-    await OnboardingRedirectPage({ searchParams: Promise.resolve({}) });
-    expect(permanentRedirect).toHaveBeenCalledWith("/getting-started");
+  it("redirects /getting-started to /onboarding", async () => {
+    await GettingStartedRedirectPage({ searchParams: Promise.resolve({}) });
+    expect(permanentRedirect).toHaveBeenCalledWith("/onboarding");
   });
 
-  it("redirects /onboarding and preserves query", async () => {
-    await OnboardingRedirectPage({
+  it("redirects /getting-started and preserves query", async () => {
+    await GettingStartedRedirectPage({
       searchParams: Promise.resolve({ source: "registration" }),
     });
-    expect(permanentRedirect).toHaveBeenCalledWith("/getting-started?source=registration");
+    expect(permanentRedirect).toHaveBeenCalledWith("/onboarding?source=registration");
   });
 
-  it("redirects /onboard to /getting-started", async () => {
+  it("redirects /onboard to /onboarding", async () => {
     await OnboardRedirectPage({ searchParams: Promise.resolve({}) });
-    expect(permanentRedirect).toHaveBeenCalledWith("/getting-started");
+    expect(permanentRedirect).toHaveBeenCalledWith("/onboarding");
   });
 
   it("redirects /onboard and preserves query", async () => {
     await OnboardRedirectPage({ searchParams: Promise.resolve({ trial: "1" }) });
-    expect(permanentRedirect).toHaveBeenCalledWith("/getting-started?trial=1");
+    expect(permanentRedirect).toHaveBeenCalledWith("/onboarding?trial=1");
   });
 
-  it("redirects /onboarding/start to /getting-started and preserves query", async () => {
+  it("redirects /onboarding/start to /onboarding and preserves query", async () => {
     await OnboardingStartRedirectPage({
       searchParams: Promise.resolve({ source: "registration" }),
     });
-    expect(permanentRedirect).toHaveBeenCalledWith("/getting-started?source=registration");
+    expect(permanentRedirect).toHaveBeenCalledWith("/onboarding?source=registration");
   });
 
   it("redirects /onboarding/start and preserves multiple query keys", async () => {
@@ -48,7 +48,7 @@ describe("legacy onboarding routes permanent-redirect (308) to /getting-started"
       searchParams: Promise.resolve({ source: "registration", foo: "bar" }),
     });
     const call = vi.mocked(permanentRedirect).mock.calls[0]?.[0] as string;
-    expect(call.startsWith("/getting-started?")).toBe(true);
+    expect(call.startsWith("/onboarding?")).toBe(true);
     expect(call).toContain("source=registration");
     expect(call).toContain("foo=bar");
   });

@@ -23,7 +23,7 @@ public sealed class SponsorEvidencePackEndpointTests(ArchLucidApiFactory factory
             await response.Content.ReadFromJsonAsync<SponsorEvidencePackResponse>(JsonOptions);
 
         pack.Should().NotBeNull();
-        pack!.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        pack.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
         pack.ProcessInstrumentation.Should().NotBeNull();
         pack.ProcessInstrumentation.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
         pack.ExplainabilityTrace.Should().NotBeNull();

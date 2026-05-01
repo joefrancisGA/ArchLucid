@@ -51,7 +51,14 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByRole("heading", { name: "Turn architecture proposals into governed, evidence-backed review packages." })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.",
+        (content, node) => {
+          const hasText = (node: Element) => node.textContent === "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
+          const nodeHasText = hasText(node as Element);
+          const childrenDontHaveText = Array.from(node?.children || []).every(
+            (child) => !hasText(child)
+          );
+          return nodeHasText && childrenDontHaveText;
+        }
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
@@ -88,7 +95,16 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(
-      screen.getByText("Monitor active runs, finalize manifests, and review governance findings."),
+      screen.getByText(
+        (content, node) => {
+          const hasText = (node: Element) => node.textContent === "Monitor active runs, finalize manifests, and review governance findings.";
+          const nodeHasText = hasText(node as Element);
+          const childrenDontHaveText = Array.from(node?.children || []).every(
+            (child) => !hasText(child)
+          );
+          return nodeHasText && childrenDontHaveText;
+        }
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(

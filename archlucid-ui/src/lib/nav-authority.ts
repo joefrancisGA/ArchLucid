@@ -27,7 +27,7 @@
  *
  * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
  * primary workflows (replay, governance workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;
- * many admin-only POSTs stay server-gated while list pages stay **`ReadAuthority`** — see **`nav-config.ts`** header.
+ * many admin-only POSTs stay server-gated while list pages stay **`ReadAuthority`** — see **`docs/NAV_CONFIG_CONTRACT.md`**.
  *
  * ## Packaging references
  *

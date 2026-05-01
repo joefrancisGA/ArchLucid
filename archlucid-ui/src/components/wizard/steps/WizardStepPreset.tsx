@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Textarea } from "@/components/ui/textarea";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-architecture-request-presets";
 import { getDocHref } from "@/lib/help-topics";
@@ -118,8 +119,9 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       description={
         <div className="space-y-2">
           <p className="m-0">
-            An architecture request captures the system, goals, constraints, and context ArchLucid uses to generate a
-            manifest, findings, and artifacts.
+            An architecture request captures the system, goals, constraints, and context ArchLucid uses to generate a{" "}
+            <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip>,{" "}
+            <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>, and artifacts.
           </p>
           <p className="m-0">
             Start from scratch, use an industry starter, Quick shapes or documentation-aligned templates, or import a
@@ -182,7 +184,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       <div className="mb-6">
         <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Industry starters</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Pre-fill regulated-industry context. You can add matching policy packs later.
+          Pre-fill regulated-industry context. You can add matching <GlossaryTooltip termKey="policy_pack">policy packs</GlossaryTooltip> later.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {heroVerticals.map((preset) => (

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -24,6 +25,10 @@ import {
   alertToolingListRefreshButtonTitleReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertRulesEmptyGettingStartedOperator,
+  alertRulesEmptyGettingStartedReader,
+} from "@/lib/alerts-hub-empty-guidance";
 import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
@@ -132,9 +137,14 @@ export function AlertRulesContent() {
           </button>
           <div className="grid gap-3">
             {items.length === 0 ? (
-              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
-                {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
-              </p>
+              <div className="grid max-w-xl gap-3">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
+                </p>
+                <GettingStartedSteps
+                  {...(canMutateAlertRules ? alertRulesEmptyGettingStartedOperator : alertRulesEmptyGettingStartedReader)}
+                />
+              </div>
             ) : (
               items.map((r) => (
                 <div

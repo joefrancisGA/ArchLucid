@@ -657,11 +657,11 @@ Scope:
 - Inspect docs/go-to-market/PRICING_PHILOSOPHY.md, docs/go-to-market/TRIAL_AND_SIGNUP.md, archlucid-ui/public/pricing.json, pricing page components, TrialBanner, and billing checkout UI copy.
 - Preserve the explicitly deferred V1.1 live Stripe/Marketplace un-hold boundary.
 - Remove or hide visible placeholder checkout URLs such as `placeholder-replace-before-launch` from buyer-facing rendered UI.
-- Make the primary V1 CTA "Request quote" or "Start guided pilot" where checkout is not production-configured.
+- Make the **primary** V1 CTA **Request quote** (owner decision 2026-05-01); **Start guided pilot** may appear as a **secondary** CTA where checkout is not production-configured.
 
 Acceptance criteria:
 - No buyer-facing page renders a fake Stripe checkout URL or placeholder sales contact.
-- If `teamStripeCheckoutUrl` is absent or placeholder-like, the UI hides the Stripe button and shows the quote/guided-pilot path.
+- If `teamStripeCheckoutUrl` is absent or placeholder-like, the UI hides the Stripe button and shows the **Request quote** path (secondary: guided pilot copy where present). When a **non-placeholder** URL is configured (including Stripe **test** checkout), the Team Stripe button **may** show even if production-live checkout is not yet declared (owner decision 2026-05-01).
 - Pricing single-source rules still pass.
 - Tests cover placeholder URL suppression and real URL rendering.
 - Docs clearly state that V1 sales-led purchase is supported while live checkout publication is V1.1.
@@ -690,13 +690,14 @@ Scope:
 - Review docs/go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md, docs/go-to-market/TRUST_CENTER.md, docs/security/SOC2_SELF_ASSESSMENT_2026.md, docs/go-to-market/DPA_TEMPLATE.md, docs/go-to-market/MSA_TEMPLATE.md, scripts/build_procurement_pack.py, and scripts/procurement_pack_canonical.json.
 - Add a classification field to the procurement pack manifest or generated README.
 - Ensure SOC2 and pen-test materials are labeled accurately as self-assessment, awarded/in-flight, template, or deferred as applicable.
-- Add a CI or script-level guard that fails the procurement pack build if unapproved placeholder language appears in buyer-facing packaged artifacts.
+- Add a script-level or workflow-level guard that fails **release/procurement** procurement-pack builds (not default merge CI) if unapproved placeholder language appears in buyer-facing packaged artifacts — see `docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md` § *Placeholder strictness*.
 
 Acceptance criteria:
 - Generated procurement pack includes an artifact-status index.
 - Templates and self-assessments cannot be mistaken for executed legal agreements or third-party attestations.
 - Placeholder detection has an allowlist for intentional template fields.
 - Unit tests cover classification and placeholder guard behavior.
+- The strict placeholder gate is wired to **release/procurement** builds only so routine CI can still verify the pack **assembles**.
 
 Constraints:
 - Do not claim SOC2 Type I/II, ISO 27001, or completed external pen-test results.
@@ -764,6 +765,7 @@ Acceptance criteria:
 - Failures are actionable: agent type, case id, failed metric, and remediation hint.
 - CI can run a lightweight/offline subset without Azure OpenAI credentials.
 - Docs explain how to run the real-mode slice manually when credentials are available.
+- **Release policy (owner 2026-05-01):** Document how a **release candidate is blocked** when reference-path scores fall below **conservative** configured floors (not warn-only); align with **`AGENT_OUTPUT_EVALUATION.md`** quality gate and golden-cohort real-LLM when promoted to required.
 
 Constraints:
 - Do not require Azure OpenAI for normal PR CI.
@@ -835,25 +837,41 @@ Constraints:
 
 ## 10. Pending Questions for Later
 
+### Owner responses (2026-05-01)
+
+| # | Topic | Decision |
+|---|--------|----------|
+| 1 | Buyer-facing dominant noun | **Architecture review** |
+| 3 | Default proof-pack format for sales | **PDF** |
+| 7 | Counsel review before external sharing | **None required per owner** — distribution posture is owner-owned; redaction profiles in **`PROOF_PACK_REDACTION_PROFILES.md`** |
+| 10 | V1 primary commercial CTA (sales-led) | **Request quote** |
+| 12 | Preferred automation in integration recipes | **Azure Logic Apps** |
+| 13 | V1 pilot support escalation | **E-mail and URL** (both) |
+| Commercial | Team Stripe “Subscribe” path pre–production-live checkout | **Visible** when `teamStripeCheckoutUrl` is a **real** Stripe link (including **test** mode); **placeholder** URLs remain hidden |
+| Proof pack | Redaction standard | **`PROOF_PACK_REDACTION_PROFILES.md`** — three named profiles; mandatory removals + per-profile rules |
+| UI framing | Pilot first-run vs "run" | **Explicit hybrid** — **architecture review** on Pilot chrome; **run** on technical spine; one-line bridge that each review is one run |
+| Procurement pack | Placeholder detection in CI | **Strict only** when building **release / procurement** artifacts — **not** on every default CI job |
+| Real-mode quality | Agent score posture for releases | **Conservative (high bar)** — **block** a release when reference-path evidence shows **insufficient** structural/semantic scores or **rejected** gate outcomes at configured floors; **warn-only is not enough** for credibility with Azure/AI practitioner buyers (numeric floors finalized after reference AOAI deployment is named) |
+
 ### Compress the Buyer First-Run Journey Around One Review Package
 
-- Which buyer-facing noun should dominate everywhere: "architecture review," "review package," or another term?
-- Should the UI rename visible "run" labels for buyers, or only add explanatory wrapper copy?
+- **Resolved (2026-05-01):** Buyer-facing noun — use **architecture review** as the dominant phrase.
+- **Resolved (2026-05-01):** **Explicit hybrid** — rename Pilot **primary** labels/CTAs/headings to architecture-review language; keep **run** for IDs, API-shaped copy, diagnostics, support; include **one explicit bridge sentence** on first session (each architecture review = one run in the system).
 
 ### Generate a Buyer-Safe Proof-of-Value Pack From a Real Tenant Run
 
-- Which proof-pack format should be the default for sales use: Markdown, PDF, DOCX, or ZIP containing all three?
-- What redaction standard should apply before a proof pack is shared outside the customer's tenant?
+- **Resolved (2026-05-01):** Default sales-facing artifact — **PDF**.
+- **Resolved (2026-05-01):** Redaction standard — canonical profiles in **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** (`internal-pilot`, `customer-approved-external`, `anonymous-benchmark`); external share defaults to **`customer-approved-external`** with documented approver + attestation block.
 
 ### Harden Sales-Led V1 Commercial CTAs and Remove Placeholder Buyer Residue
 
-- What is the preferred V1 primary CTA: "Request quote," "Start guided pilot," or "Talk to sales"?
-- Should the interim Team Stripe bundled SKU be visible before live checkout is production-configured?
+- **Resolved (2026-05-01):** V1 **primary** buyer CTA — **Request quote** (async sales-led path).
+- **Resolved (2026-05-01):** Interim **Team** Stripe **Subscribe with Stripe** path — **remain available** when `teamStripeCheckoutUrl` is a **real** checkout link (including **test** mode); **do not** require “production-live” checkout before showing. **Placeholder** URLs must still be suppressed in UI.
 
 ### Make the Procurement Pack Buyer-Safe by Classifying Drafts, Templates, and Evidence
 
-- Which legal artifacts are approved for external sharing as-is, and which require counsel review every time?
-- Should placeholder detection be strict in CI or only strict when building a release/procurement artifact?
+- **Resolved (2026-05-01):** Per-share counsel gate — **not required** (owner decision).
+- **Resolved (2026-05-01):** Buyer-facing **placeholder / TBD** detection — **strict** only in **release or procurement-pack artifact** builds (and equivalent manual “ship this ZIP” runs); **default CI** continues to **assemble** the pack without that gate so merge pipelines are not blocked by draft doc markers.
 
 ### Fix Release Fast-Core Build Failure and Add a Hygiene Guard for Unused Primary-Constructor Dependencies
 
@@ -861,18 +879,18 @@ Constraints:
 
 ### Expand Real-Mode Agent Quality Evidence Without Making It a V1.1 Feature
 
-- What minimum score threshold should block a release candidate versus merely warn?
-- Which Azure OpenAI deployment should be treated as the reference model for manual real-mode evidence?
+- **Resolved (2026-05-01):** Release posture — **conservative** structural/semantic expectations for credibility with Azure architects and AI-system builders: **block** a release when **reference** real-mode (or required golden-cohort real-LLM) evidence is **below** agreed floors or shows **rejected** quality-gate outcomes at material rates; **warn-only is insufficient** for GA perception. Implement by tightening **`ArchLucid:AgentOutput:QualityGate`** (see **`AGENT_OUTPUT_EVALUATION.md`**) and **required** CI/branch-protection checks once the reference model path exists.
+- **Open:** Which Azure OpenAI deployment should be treated as the reference model for manual real-mode evidence?
 
 ### Add Customer-Owned Workflow Bridge Recipes for Common Enterprise Tools
 
 - Which recipe should be prioritized for the next buyer conversation: Jira, ServiceNow, Confluence, Sentinel, or Teams?
-- Are there customer automation platforms that should be preferred in examples, such as Azure Logic Apps or Power Automate?
+- **Resolved (2026-05-01):** Prefer **Azure Logic Apps** in example recipes (vs Power Automate-only or generic-only).
 
 ### Add a Pilot Rescue Playbook and Link It From CLI Support Output
 
-- What support escalation contact should be shown in V1 pilot artifacts?
-- Should support-bundle output include a generated "next action" summary, or only links to runbooks?
+- **Resolved (2026-05-01):** Support escalation — show **e-mail and URL** in V1 pilot artifacts.
+- **Open:** Should support-bundle output include a generated "next action" summary, or only links to runbooks?
 
 ## Verification Notes
 

@@ -129,7 +129,7 @@ These two assurance milestones are **explicitly release-window-pinned to V1.1** 
 **Rules:**
 
 - These are **release-window** promises, not dates. Pinning calendar dates requires a follow-up owner entry recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
-- Future quality assessments (after 2026-04-23) **must not** treat the pen-test publication or PGP key drop as V1 deficits. Pre-2026-04-23 assessments are correct *for their date*; this decision retroactively excludes both items from the new fresh assessment at [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md).
+- Future quality assessments (after 2026-04-23) **must not** treat the pen-test publication or PGP key drop as V1 deficits. Pre-2026-04-23 assessments are correct *for their date*; this decision retroactively excludes both items from the new fresh assessment at [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md).
 - These decisions do **not** retract or downgrade other V1 security obligations — owner-conducted self-assessment, `BillingProductionSafetyRules`, RLS object-name discipline, OWASP ZAP baseline, Gitleaks, STRIDE-style threat modeling, audit-event coverage matrix, all remain V1 obligations.
 - A new security or assurance milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
 

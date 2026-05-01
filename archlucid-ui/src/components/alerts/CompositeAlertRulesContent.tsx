@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,10 @@ import {
   compositeRulesRefreshAssistReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import {
+  compositeRulesEmptyGettingStartedOperator,
+  compositeRulesEmptyGettingStartedReader,
+} from "@/lib/alerts-hub-empty-guidance";
 import { cn } from "@/lib/utils";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
@@ -173,9 +178,16 @@ export function CompositeAlertRulesContent() {
           </div>
           <div className="grid gap-3.5">
             {items.length === 0 ? (
-              <p className="max-w-xl text-sm text-neutral-500 dark:text-neutral-400">
-                {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
-              </p>
+              <div className="grid max-w-xl gap-3">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
+                </p>
+                <GettingStartedSteps
+                  {...(canMutateComposite
+                    ? compositeRulesEmptyGettingStartedOperator
+                    : compositeRulesEmptyGettingStartedReader)}
+                />
+              </div>
             ) : (
               items.map((r) => (
                 <div

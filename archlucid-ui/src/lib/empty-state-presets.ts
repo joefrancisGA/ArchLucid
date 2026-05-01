@@ -1,6 +1,10 @@
 import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
 
 import type { EmptyStateProps } from "@/components/EmptyState";
+import {
+  governanceWorkflowIdleGettingStartedOperator,
+  governanceWorkflowIdleGettingStartedReader,
+} from "@/lib/governance-workflow-empty-guidance";
 
 export { SEARCH_EMPTY } from "./search-empty-preset";
 
@@ -11,7 +15,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Create a request to generate your first architecture manifest, surfaced findings, and exportable artifact bundle. You can also submit via the CLI or API.",
   actions: [
     { label: "Create request", href: "/reviews/new" },
-    { label: "Getting started", href: "/getting-started", variant: "outline" },
+    { label: "Onboarding", href: "/onboarding", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
@@ -20,10 +24,10 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   icon: Bell,
   title: "No alerts for this filter",
   description:
-    "Try All or another status, or refresh after a scan window. New alerts appear when scheduled architecture-risk checks fire and dedupe rules allow a row.",
+    "Try another status or refresh. Alerts appear after rules evaluate findings from completed reviews.",
   actions: [
-    { label: "Configure alert rules", href: "/alerts?tab=rules" },
-    { label: "View reviews list", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "Set up alert rules", href: "/alerts?tab=rules" },
+    { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "alerts",
 };
@@ -56,12 +60,14 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   icon: Shield,
   title: "Load a review to see workflow rows",
   description:
-    "Under Approval requests for this review, choose or type a review id, then click Load to fetch approval requests, promotions, and activations.",
+    "Pick a run under Approval requests for this review, then Load — approvals, promotions, and activations appear for that review.",
   actions: [
+    { label: "View reviews", href: "/reviews?projectId=default" },
     { label: "Governance findings", href: "/governance/findings", variant: "outline" },
-    { label: "View reviews list", href: "/reviews?projectId=default", variant: "outline" },
+    { label: "Policy packs", href: "/policy-packs", variant: "outline" },
   ],
   helpTopicPath: "governance",
+  gettingStarted: governanceWorkflowIdleGettingStartedOperator,
 };
 
 /** Idle state when the principal is below Execute: inspection-first copy (mutations stay API-gated). */
@@ -69,10 +75,11 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   icon: Shield,
   title: "Inspect review-scoped workflow",
   description:
-    "Under Approval requests for this review, choose or type a review and click Load to review approvals, promotions, and activations. Submitting, reviewing, promoting, or activating requires operator-level access where your tenant expects it.",
+    "Choose a review under Approval requests and click Load to review approvals, promotions, and activations for that run.",
   actions: [
+    { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" },
     { label: "Governance findings", href: "/governance/findings", variant: "outline" },
-    { label: "View reviews list", href: "/reviews?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "governance",
+  gettingStarted: governanceWorkflowIdleGettingStartedReader,
 };

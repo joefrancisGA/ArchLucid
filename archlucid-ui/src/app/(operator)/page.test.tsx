@@ -34,10 +34,6 @@ vi.mock("@/components/WelcomeBanner", () => ({
   WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
 }));
 
-vi.mock("@/components/CorePilotOneSessionChecklist", () => ({
-  CorePilotOneSessionChecklist: () => <div data-testid="core-pilot-one-session-checklist-mock" />,
-}));
-
 vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
@@ -93,7 +89,7 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(runsLinks.length).toBeGreaterThan(0);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Create your first request" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Use this example" })).toBeInTheDocument();
     });
   });
 

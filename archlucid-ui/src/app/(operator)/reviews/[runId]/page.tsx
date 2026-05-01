@@ -567,7 +567,7 @@ export default async function RunDetailPage({
                 </li>
                 <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                    Artifact bundle
+                    <GlossaryTooltip termKey="artifact_bundle">Artifact bundle</GlossaryTooltip>
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                     <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
@@ -587,8 +587,8 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p className="m-0">
-            This run has not been finalized yet. Once the pipeline completes and the run is finalized, the
-            manifest, artifacts, and exports will appear here.
+            This run has not been finalized yet. Once the pipeline completes and the run is finalized, the{" "}
+            <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip>, artifacts, and exports will appear here.
           </p>
         </OperatorEmptyState>
       )}

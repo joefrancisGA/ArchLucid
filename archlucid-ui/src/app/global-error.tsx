@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import "./globals.css";
 
 import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -36,10 +37,15 @@ export default function GlobalError({
           </p>
           <OperatorErrorUiReferenceLine paragraphClassName="mt-3 text-red-900/90 dark:text-red-100/85" />
           {digest.length > 0 ? (
-            <p className="mt-2 text-xs text-red-900/85 dark:text-red-100/80">
-              Next.js digest (optional):{" "}
-              <code className="rounded bg-red-100/80 px-1 py-0.5 font-mono dark:bg-red-900/60">{digest}</code>
-            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <p className="m-0 flex min-w-0 flex-1 flex-wrap items-center gap-1 text-[11px] text-red-900/85 dark:text-red-100/80">
+                <span className="shrink-0 font-semibold">Need support?</span>
+                <span className="shrink-0">Provide error digest</span>
+                <code className="break-all rounded bg-red-100/80 px-1 py-0.5 font-mono dark:bg-red-900/60">{digest}</code>
+                <span className="shrink-0">with steps to reproduce.</span>
+              </p>
+              <CopyIdButton value={digest} aria-label="Copy Next.js diagnostic digest" />
+            </div>
           ) : null}
         </div>
         <div className="mt-6 flex flex-wrap gap-2">

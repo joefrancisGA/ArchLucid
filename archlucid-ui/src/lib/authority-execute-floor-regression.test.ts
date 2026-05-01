@@ -18,7 +18,7 @@ import {
  * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4. Broader tier∩rank coverage lives in **`authority-seam-regression.test.ts`**.
  */
 
-/** Synthetic Execute-tier row matching Enterprise workflow semantics (`nav-config` doc block). */
+/** Synthetic Execute-tier row matching Enterprise workflow semantics (`docs/NAV_CONFIG_CONTRACT.md`). */
 const executeTierNavLink = {
   href: "/synthetic-governance-workflow",
   label: "Workflow",
@@ -60,7 +60,7 @@ describe("authority Execute floor regression", () => {
     expect(executeCount).toBeLessThanOrEqual(adminCount);
   });
 
-  /** Doc-seam guard: workflow stays Execute-gated in config so Reader nav does not advertise it (`nav-config` header). */
+  /** Doc-seam guard: workflow stays Execute-gated in config so Reader nav does not advertise it (`docs/NAV_CONFIG_CONTRACT.md`). */
   it("hides governance workflow href from Reader-filtered Enterprise links while inbox remains", () => {
     const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 

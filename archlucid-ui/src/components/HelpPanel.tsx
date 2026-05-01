@@ -295,7 +295,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
         <div className="shrink-0 border-t border-neutral-100 px-5 py-3 dark:border-neutral-800">
           <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
             In-app:{" "}
-            <Link href="/getting-started" className="font-medium text-teal-800 underline dark:text-teal-300">
+            <Link href="/onboarding" className="font-medium text-teal-800 underline dark:text-teal-300">
               Getting started
             </Link>{" "}
             (first-manifest checklist on Home)

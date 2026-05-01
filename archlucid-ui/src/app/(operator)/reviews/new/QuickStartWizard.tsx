@@ -60,18 +60,10 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   }, [presetId, reset]);
 
   const stepHasErrors = useMemo(() => {
-    if (quickStep === 0) {
-      return validateWizardStep(1, watched as WizardFormValues).length > 0;
-    }
-
-    if (quickStep === 1) {
-      return validateWizardStep(2, watched as WizardFormValues).length > 0;
-    }
-
-    return false;
+    return false; // let react-hook-form handle validation on 'Next' click
   }, [quickStep, watched]);
 
-  const canProceed = !submitting && !stepHasErrors;
+  const canProceed = !submitting;
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
       showSuccess(message);
@@ -84,25 +76,17 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     setQuickStep((s) => Math.max(0, s - 1));
   };
 
-  const goNext = () => {
+  const goNext = async () => {
     const validationStepIndex = quickStep === 0 ? 1 : 2;
     const fieldGroup = WIZARD_STEP_FIELD_GROUPS[validationStepIndex];
 
     if (fieldGroup != null) {
-      for (const f of fieldGroup) {
-        clearErrors(f);
+      // Trigger validation for only the fields on this step
+      const ok = await trigger(fieldGroup, { shouldFocus: true });
+      if (!ok) {
+        showToast("err", "Fix the highlighted fields before continuing.");
+        return;
       }
-    }
-
-    const list = validateWizardStep(validationStepIndex, getValues());
-    if (list.length > 0) {
-      for (const e of list) {
-        setError(e.field as FieldPath<WizardFormValues>, { type: "validate", message: e.message });
-      }
-
-      showToast("err", "Fix the highlighted fields before continuing.");
-
-      return;
     }
 
     setQuickStep((s) => Math.min(QUICK_STEPS.length - 1, s + 1));

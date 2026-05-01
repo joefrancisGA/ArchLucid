@@ -418,7 +418,7 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items!.Should().HaveCount(5);
+            items.Should().HaveCount(5);
             items.Select(i => i.TemplateId).Should().OnlyHaveUniqueItems();
         });
     }
@@ -445,7 +445,7 @@ public sealed class ArchitectureControllerTests
 
                 CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
                 payload.Should().NotBeNull();
-                payload!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+                payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
             }
         });
     }

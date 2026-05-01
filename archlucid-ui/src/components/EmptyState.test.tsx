@@ -27,7 +27,7 @@ describe("EmptyState — help link", () => {
       <EmptyState title="T" description="D" actions={[]} helpTopicPath="alerts" />,
     );
 
-    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/getting-started#alerts");
+    expect(screen.getByRole("link", { name: "Learn more" })).toHaveAttribute("href", "/onboarding#alerts");
   });
 
   it("omits learn more when helpTopicPath is absent", () => {
@@ -63,5 +63,26 @@ describe("EmptyState — status role", () => {
     render(<EmptyState title="Empty here" description="Nothing to see." actions={[]} />);
 
     expect(screen.getByRole("status", { name: "Empty here" })).toBeInTheDocument();
+  });
+});
+
+describe("EmptyState — getting started steps", () => {
+  it("renders ordered guidance when gettingStarted is provided", () => {
+    render(
+      <EmptyState
+        title="T"
+        description="D"
+        actions={[]}
+        gettingStarted={{
+          heading: "First actions",
+          steps: ["Step one", "Step two"],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("First actions")).toBeInTheDocument();
+    expect(screen.getByText("Step one")).toBeInTheDocument();
+    expect(screen.getByText("Step two")).toBeInTheDocument();
+    expect(screen.getByRole("list")).toBeInTheDocument();
   });
 });

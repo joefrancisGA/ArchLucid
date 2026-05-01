@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
 
-import { buildGettingStartedRedirectPath } from "./legacy-onboarding-redirect";
+import { buildOnboardingRedirectPath } from "./legacy-onboarding-redirect";
 
-describe("buildGettingStartedRedirectPath", () => {
-  it("returns bare /getting-started when search is empty", () => {
-    expect(buildGettingStartedRedirectPath({})).toBe("/getting-started");
+describe("buildOnboardingRedirectPath", () => {
+  it("returns bare /onboarding when search is empty", () => {
+    expect(buildOnboardingRedirectPath({})).toBe("/onboarding");
   });
 
   it("copies scalar query params", () => {
-    expect(buildGettingStartedRedirectPath({ source: "registration" })).toBe("/getting-started?source=registration");
+    expect(buildOnboardingRedirectPath({ source: "registration" })).toBe("/onboarding?source=registration");
   });
 
   it("appends repeated keys from array values", () => {
-    const path = buildGettingStartedRedirectPath({ tag: ["a", "b"] });
-    expect(path).toContain("/getting-started?");
+    const path = buildOnboardingRedirectPath({ tag: ["a", "b"] });
+    expect(path).toContain("/onboarding?");
     expect(path).toContain("tag=a");
     expect(path).toContain("tag=b");
   });

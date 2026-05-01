@@ -45,6 +45,10 @@ python scripts/build_procurement_pack.py --dry-run
 
 Both wrappers invoke the same Python builder.
 
+## Placeholder strictness (owner policy)
+
+**Strict** checks for buyer-unsafe placeholders (for example unresolved `TODO` / `TBD` in packaged Markdown) apply **only** when producing a **release** or **procurement** artifact — the build path you use to ship `dist/procurement-pack.zip` to a buyer — **not** on every repository CI job. **Default CI** may still run `build_procurement_pack` to prove the bundle **assembles**; **do not** make merge-blocking gates depend on draft markers inside templates until a dedicated release/procurement job enforces cleanup.
+
 ## After generating the ZIP
 
 1. Complete a buyer-specific cover letter using [`PROCUREMENT_PACK_COVER.md`](PROCUREMENT_PACK_COVER.md) **outside** the committed tree (see scaffold warnings there).

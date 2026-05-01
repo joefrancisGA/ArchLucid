@@ -29,7 +29,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body!.Mode.Should().Be("Simulator");
+        body.Mode.Should().Be("Simulator");
         body.MaxCompletionTokens.Should().Be(4096);
         body.EstimatedCostUsd.Should().BeNull();
         body.EstimatedCostUsdLow.Should().BeNull();
@@ -50,7 +50,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body!.Mode.Should().Be("Real");
+        body.Mode.Should().Be("Real");
         body.MaxCompletionTokens.Should().Be(1024);
         body.DeploymentName.Should().Be("gpt-test-deploy");
         body.EstimatedCostUsd.Should().NotBeNull();

@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -10,18 +11,32 @@ export type EmptyStateAction = {
   variant?: "primary" | "default" | "secondary" | "outline" | "ghost" | "destructive" | "link";
 };
 
+export type EmptyStateGettingStarted = {
+  heading: string;
+  steps: readonly string[];
+};
+
 export type EmptyStateProps = {
   icon?: LucideIcon;
   title: string;
   description: string;
   actions?: EmptyStateAction[];
   helpTopicPath?: string;
+  /** Optional first-run “how it works” list shown below the description. */
+  gettingStarted?: EmptyStateGettingStarted;
 };
 
 /**
  * Centered empty collection / idle state with optional icon, CTAs, and help deep-link.
  */
-export function EmptyState({ icon: Icon, title, description, actions, helpTopicPath }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  actions,
+  helpTopicPath,
+  gettingStarted,
+}: EmptyStateProps) {
   const actionList = actions ?? [];
 
   return (
@@ -33,6 +48,13 @@ export function EmptyState({ icon: Icon, title, description, actions, helpTopicP
           ) : null}
           <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{title}</h3>
           <p className="max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">{description}</p>
+          {gettingStarted !== undefined ? (
+            <GettingStartedSteps
+              heading={gettingStarted.heading}
+              steps={gettingStarted.steps}
+              className="w-full max-w-lg"
+            />
+          ) : null}
           {actionList.length > 0 ? (
             <div className="flex flex-wrap items-center justify-center gap-3">
               {actionList.map((action, index) => {
@@ -53,7 +75,7 @@ export function EmptyState({ icon: Icon, title, description, actions, helpTopicP
           ) : null}
           {helpTopicPath ? (
             <Link
-              href={`/getting-started#${helpTopicPath}`}
+              href={`/onboarding#${helpTopicPath}`}
               className="text-sm font-medium text-teal-800 underline dark:text-teal-300"
             >
               Learn more

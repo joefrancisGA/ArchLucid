@@ -454,10 +454,10 @@ export const governanceWorkflowActivationsEmptyOperatorHint =
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =
-  "No alerts match your current filters. Adjust filters or wait for new activity.";
+  "Nothing matches your filters yet, or no alerts have been raised for this workspace.";
 
 export const alertsFilteredEmptyDescriptionOperator =
-  "No alerts match your current filters. Clear filters or adjust the date range.";
+  "Nothing matches this filter yet — or rules have not fired. Adjust filters or keep building coverage below.";
 
 /** Audit log — zero rows after a successful search. */
 export const auditSearchNoResultsReaderLine = "No audit events match your search.";

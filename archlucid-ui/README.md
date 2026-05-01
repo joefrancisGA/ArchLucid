@@ -20,7 +20,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 
 | Concern | Source file(s) |
 |---------|----------------|
-| Link metadata + product grouping | `src/lib/nav-config.ts` |
+| Link metadata + product grouping | `src/lib/nav-config.ts`, `src/lib/*-nav-group-builder.ts`, **`docs/NAV_CONFIG_CONTRACT.md`** |
 | Policy tier names + rank helpers | `src/lib/nav-authority.ts` |
 | Execute floor parity (nav **`ExecuteAuthority`** row **≡** mutation boolean) | `src/lib/authority-execute-floor-regression.test.ts` (with `operate-capability.ts`) |
 | `GET /api/auth/me` read-model | `src/lib/current-principal.ts` (`loadCurrentPrincipal`, `getCurrentPrincipal`, `getCurrentAuthority`, `getCurrentAuthorityRank`) |
@@ -36,7 +36,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order** (same pipeline as **docs/PRODUCT_PACKAGING.md** §3 *Code seams*: **API** → **nav metadata** → **shell composition** → **page guidance / mutation affordances** → **docs**):
 
 1. **C#** — `[Authorize(Policy = …)]` on the controller/action (`ArchLucidPolicies`).
-2. **`nav-config.ts`** — `tier`, `href`, `requiredAuthority` for the `NavLinkItem` (see file header **Authority** block and **Drift guard** list tying **`authority-seam-regression.test.ts`** to this file).
+2. **`nav-config.ts`** (+ `*-nav-group-builder.ts`) — `tier`, `href`, `requiredAuthority` for each `NavLinkItem`. Normative rules: **[docs/NAV_CONFIG_CONTRACT.md](./docs/NAV_CONFIG_CONTRACT.md)** (**Drift guard** ties **`authority-seam-regression.test.ts`** and siblings to this stack).
 3. **In-product guidance** — `layer-guidance.ts` + `LayerHeader` on the page when the route should show layer / when-to-use copy; governance-style footnotes and rank lines pull from `enterprise-controls-context-copy.ts`. **Operate** `LAYER_PAGE_GUIDANCE` rows that carry **`enterpriseFootnote`** drive the Execute+ rank cue on **`LayerHeader`**; analysis-only rows omit it — **`authority-seam-regression.test.ts`** guards that contract.
 4. **Operate mutations** — keep **`useOperateCapability()`** (deprecated **`useEnterpriseMutationCapability()`**) in sync with Execute+ server write policies; extend **`operate-authority-ui-shaping.test.tsx`** when you add POST/toggle-heavy Operate pages that should soft-disable for read-tier callers. Pair rank cues where it helps: **`AuditLogRankCue`** on **`/audit`**, **`EnterpriseControlsExecutePageHint`** on **`/policy-packs`**, reader-ranked lifecycle labels alongside **`disabled`**. **audit CSV export** uses **`/me` roles** (Auditor/Admin) to match **`RequireAuditor`**, not that hook.
 5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.
