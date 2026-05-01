@@ -11,6 +11,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
 });
 
 import { listRunsByProjectPaged } from "@/lib/api";
+import * as operatorStaticDemo from "@/lib/operator-static-demo";
 
 import { RunsDashboardPanel } from "./RunsDashboardPanel";
 
@@ -126,14 +127,21 @@ describe("RunsDashboardPanel", () => {
   });
 
   it("handles runs list API errors in the recent tab", async () => {
-    listRuns.mockRejectedValue(new Error("runs unavailable"));
-    stubFetchForDashboard();
+    const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
-    render(<RunsDashboardPanel />);
+    try {
+      listRuns.mockRejectedValue(new Error("runs unavailable"));
+      stubFetchForDashboard();
 
-    await waitFor(() => {
+      render(<RunsDashboardPanel />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("runs-dashboard-recent-error")).toBeInTheDocument();
+      });
       expect(screen.getByText(/runs unavailable/i)).toBeInTheDocument();
-    });
+    } finally {
+      fallbackSpy.mockRestore();
+    }
   });
 
   it("shows pipeline status for runs needing attention tab", async () => {
