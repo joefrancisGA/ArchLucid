@@ -1,3 +1,8 @@
+> **Scope:** Internal assessment of external OpenAI UI feedback for engineering — prioritization, root-cause notes, and action items; not customer-facing specifications, legal commitments, or a substitute for product roadmap docs.
+
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+
+
 # OpenAI UI Feedback — Assessment & To-Do List
 **Received:** 2026-05-01 4:12 AM EDT  
 **Assessed:** 2026-05-01  
