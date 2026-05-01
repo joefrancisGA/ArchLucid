@@ -33,6 +33,7 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 - **[PILOT_GUIDE.md](library/PILOT_GUIDE.md)** — full pilot onboarding narrative
 - **[OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md)** — copy-paste CLI and API commands
 - **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — measurement companion
+- **[DOGFOOD_PILOT_KIT.md](library/DOGFOOD_PILOT_KIT.md)** — internal Core Pilot worksheets + **[PMF_VALIDATION_TRACKER.md](go-to-market/PMF_VALIDATION_TRACKER.md)** (**Pilot A**) update rules without inventing baselines/results
 - **[SECOND_RUN.md](library/SECOND_RUN.md)** — your own data after the demo (`archlucid second-run`)
 
 ---

@@ -6,6 +6,8 @@
 
 **Evidence index:** **[trust-center.md](../trust-center.md)**
 
+**SIG / CAIQ row acceleration:** **[PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md)** — fifty Shared-Assessments-style prompts mapped to **in-repo** evidence links and honesty labels (**Implemented / Self-asserted / In flight / Deferred V1.1**); **SOC 2 Type II “issued” is not claimed** there—see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)**.
+
 ---
 
 ## Q & A

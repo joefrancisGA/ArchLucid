@@ -81,9 +81,9 @@ Unchanged. The acceleration removes a calendar-time buffer but does not change a
 
 This checklist is **the** authoritative inline tracker for Phase 3 **PR B** (audit-constant retirement). The standalone [`docs/architecture/PHASE_3_PR_B_TODO.md`](../architecture/PHASE_3_PR_B_TODO.md) mirrors this checklist for day-to-day execution; CI compares checkbox labels via `scripts/ci/assert_pr_b_tracker_in_sync.py` (**warn-only** until at least one PR B iteration has landed — see script docstring; use `ARCHLUCID_PR_B_TRACKER_STRICT=1` later for merge-blocking contradiction detection).
 
-- [ ] PR A3 has merged on `main` (Coordinator concretes deleted).
-- [ ] All `AuditEventTypes.CoordinatorRun*` references are gone from application code (grep should return only the constants file itself).
-- [ ] Migration prepared to drop the `AuditEventTypes.CoordinatorRun*` constants definition.
+- [x] PR A3 has merged on `main` (Coordinator concretes deleted).
+- [x] All `AuditEventTypes.CoordinatorRun*` string constants are gone from **`AuditEventTypes`** (verified by **`Legacy_CoordinatorRun_audit_constants_are_removed_from_AuditEventTypes`** in **`ArchLucid.Architecture.Tests/DependencyConstraintTests.cs`** — remaining **`CoordinatorRun`** substrings elsewhere in **`*.cs`** are assertion text only).
+- [x] No SQL migration is required — literals were removed in **C#** only (**`ArchLucid.sql`** unchanged for this cleanup).
 - [ ] Calendar date 2026-05-15 reached or owner has explicitly approved earlier merge.
 - [ ] PR B opened, CI green, owner approves, merged.
 

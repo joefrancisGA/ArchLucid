@@ -1,9 +1,9 @@
 namespace ArchLucid.Jobs.Cli;
 
-/// <summary>Parses <c>--job &lt;name&gt;</c> for <see cref="Program"/>.</summary>
+/// <summary>Parses <c>--job &lt;name&gt;</c> for <see cref="Program" />.</summary>
 internal static class JobsCommandLine
 {
-    /// <summary>Returns <see langword="false"/> when <paramref name="jobName"/> is missing or whitespace.</summary>
+    /// <summary>Returns <see langword="false" /> when <paramref name="jobName" /> is missing or whitespace.</summary>
     public static bool TryParseJobName(IReadOnlyList<string> args, out string? jobName, out string? usageError)
     {
         jobName = null;
@@ -23,7 +23,6 @@ internal static class JobsCommandLine
             if (!string.Equals(token, "--job", StringComparison.Ordinal))
                 continue;
 
-
             if (i + 1 >= args.Count)
             {
                 usageError = "Expected a job name after --job.";
@@ -38,7 +37,6 @@ internal static class JobsCommandLine
             usageError = "Job name must not be empty.";
 
             return false;
-
         }
 
         usageError = "Required: --job <name>";

@@ -4,12 +4,14 @@ Authoritative cross-reference is ADR 0029 § Lifecycle § **PR B — audit-const
 
 ## Checklist (mirror of ADR 0029 § Lifecycle § PR B)
 
-- [ ] PR A3 has merged on `main` (Coordinator concretes deleted).
-- [ ] All `AuditEventTypes.CoordinatorRun*` references are gone from application code (grep should return only the constants file itself).
-- [ ] Migration prepared to drop the `AuditEventTypes.CoordinatorRun*` constants definition.
+- [x] PR A3 has merged on `main` (Coordinator concretes deleted).
+- [x] All `AuditEventTypes.CoordinatorRun*` string constants are gone from **`AuditEventTypes`** (verified by **`Legacy_CoordinatorRun_audit_constants_are_removed_from_AuditEventTypes`** in **`ArchLucid.Architecture.Tests/DependencyConstraintTests.cs`** — remaining **`CoordinatorRun`** substrings elsewhere in **`*.cs`** are assertion text only).
+- [x] No SQL migration is required — literals were removed in **C#** only (**`ArchLucid.sql`** unchanged for this cleanup).
 - [ ] Calendar date 2026-05-15 reached or owner has explicitly approved earlier merge.
 - [ ] PR B opened, CI green, owner approves, merged.
 
 ## Working notes
+
+- **2026-05-01:** Reconciled with **`COORDINATOR_STRANGLER_INVENTORY.md`** (engineering state + ADR/amend backlog).
 
 Use this section for sequencing, unresolved questions, draft commit links, and grep output snippets. Keep the checklist above aligned with ADR 0029 — the ADR section is the normative list; CI warns when labels drift (`scripts/ci/assert_pr_b_tracker_in_sync.py`).
