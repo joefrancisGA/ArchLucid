@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -11,14 +11,14 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController" /> improvements path
-///     (<c>GET /v1/advisory/runs/{runId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
+///     (<c>GET /v1/advisory/runs/{runId}/improvements</c>) â€” lowest-covered API surface per coverage gap analysis.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetImprovements_unknown_run_returns_404_problem()
     {
         HttpResponseMessage response = await Client.GetAsync(
@@ -31,7 +31,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
         problem.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetImprovements_compareTo_missing_run_returns_404_run_problem()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

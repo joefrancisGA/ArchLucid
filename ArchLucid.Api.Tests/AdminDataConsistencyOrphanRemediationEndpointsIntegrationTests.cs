@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 ///     Smoke tests for admin data-consistency orphan remediation endpoints. With default <c>InMemory</c> authority
 ///     storage, orphan lists are empty without hitting SQL. When <c>ArchLucid:StorageProvider=Sql</c>, soft-archived runs
 ///     still exist on <c>dbo.Runs</c> and cascade <c>ArchivedUtc</c> to findings snapshots so they do not appear as
-///     orphans — integration coverage: <c>DataArchivalOrphanProbeSqlIntegrationTests.After_archival_child_rows_remain_consistent_with_probe_queries</c>
+///     orphans â€” integration coverage: <c>DataArchivalOrphanProbeSqlIntegrationTests.After_archival_child_rows_remain_consistent_with_probe_queries</c>
 ///     and the admin-style findings snapshot select in that test.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Post_orphan_golden_manifests_dry_run_returns_ok_with_zero_rows()
     {
         HttpResponseMessage response =
@@ -35,7 +35,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
         body.ManifestIds!.Count.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_orphan_findings_snapshots_dry_run_returns_ok_with_zero_rows()
     {
         HttpResponseMessage response =

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Api.Routing;
 
@@ -12,14 +12,14 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class AlertRulesIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListAlertRules_Returns200()
     {
         HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.AlertRules}");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListAlerts_Returns200()
     {
         HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.Alerts}?take=10");

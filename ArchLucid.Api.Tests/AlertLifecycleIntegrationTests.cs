@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: create simple alert rule → run advisory scan (evaluates rules) → list persisted
+///     End-to-end: create simple alert rule â†’ run advisory scan (evaluates rules) â†’ list persisted
 ///     <see cref="AlertRecord" /> rows via HTTP.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -22,7 +22,7 @@ public sealed class AlertLifecycleIntegrationTests
         PropertyNameCaseInsensitive = true
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_rule_run_advisory_scan_list_alerts_persists_open_alert()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -35,7 +35,7 @@ public sealed class AlertLifecycleIntegrationTests
             $"/{ApiV1Routes.AlertRules}",
             new
             {
-                name = "Integration lifecycle — critical rec count",
+                name = "Integration lifecycle â€” critical rec count",
                 ruleType = AlertRuleType.CriticalRecommendationCount,
                 severity = AlertSeverity.Warning,
                 thresholdValue = 0m,

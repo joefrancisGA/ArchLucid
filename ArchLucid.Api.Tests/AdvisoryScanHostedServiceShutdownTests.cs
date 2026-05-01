@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Scheduling;
+﻿using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence;
 
@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AdvisoryScanHostedServiceShutdownTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_exits_cleanly_when_cancellation_is_requested_during_delay()
     {
         Mock<IAdvisoryScanScheduleRepository> scheduleRepo = new();
@@ -52,7 +52,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         await act.Should().NotThrowAsync("hosted service should exit cleanly on cancellation");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_continues_after_processor_throws_non_cancellation_exception()
     {
         int callCount = 0;
@@ -97,7 +97,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         callCount.Should().BeGreaterThanOrEqualTo(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_exits_when_cancellation_fires_during_processing()
     {
         using CancellationTokenSource cts = new();

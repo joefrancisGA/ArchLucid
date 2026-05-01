@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Scheduling;
+﻿using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AdvisoryDueScheduleProcessorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ProcessDueAsync_invokes_runner_for_each_due_schedule_in_order()
     {
         AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
@@ -46,7 +46,7 @@ public sealed class AdvisoryDueScheduleProcessorTests
         runner.Verify(x => x.RunScheduleAsync(b, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessDueAsync_continues_second_schedule_when_first_runner_throws_non_cancel()
     {
         AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
@@ -75,7 +75,7 @@ public sealed class AdvisoryDueScheduleProcessorTests
         runner.Verify(x => x.RunScheduleAsync(b, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessDueAsync_propagates_OperationCanceledException()
     {
         AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
