@@ -18,7 +18,7 @@ The architecture is exceptionally sound. The disciplined use of bounded contexts
 
 ## Deferred Scope Uncertainty
 
-No deferred scope uncertainty identified; all V1.1/V2 defers (ITSM connectors, Slack, Stripe live keys, Azure Marketplace publishing, Aeronova pen-test, PGP key, and MCP inbound server) were successfully located and verified against `docs/library/V1_DEFERRED.md` and `docs/library/V1_SCOPE.md`. Consequently, the readiness score was not penalized for these explicitly deferred capabilities.
+No deferred scope uncertainty identified; V1.1/V2 defers (ITSM connectors, Slack, Stripe live keys, Azure Marketplace publishing, **third-party** pen test **V2**, PGP key, and MCP inbound server) were successfully located and verified against `docs/library/V1_DEFERRED.md` and `docs/library/V1_SCOPE.md`. **V1** uses owner-conducted pen testing; **independent assessments must not** penalize V1 for lacking third-party pen-test publication (owner 2026-05-01). Consequently, the readiness score was not penalized for these explicitly deferred capabilities.
 
 ---
 

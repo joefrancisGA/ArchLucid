@@ -1,4 +1,4 @@
-> **Scope:** Owner-conducted 2026-Q2 penetration-style exercise — empty findings tracker, methodology, and Trust Center cross-links only; not Aeronova deliverables, exploit reproductions, or attestations.
+> **Scope:** Owner-conducted 2026-Q2 penetration-style exercise — empty findings tracker, methodology, and Trust Center cross-links only; not third-party assessor deliverables, exploit reproductions, or attestations.
 
 > **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md).
 >
@@ -59,4 +59,4 @@ Track fixes as **engineering change records** rather than dumping exploit detail
 _Posture narrative is written **after** the engagement window completes._ Until then:
 
 - Assume **material unknowns remain** comparable to [`OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../OWNER_SECURITY_ASSESSMENT_2026_Q2.md).
-- Third-party Aeronova-delivered summaries remain **distinct** (**NDA**) — [`2026-Q2-SOW.md`](2026-Q2-SOW.md).
+- Third-party **assessor** summaries (when a **V2** engagement completes) remain **distinct** — see SoW template [`2026-Q2-SOW.md`](2026-Q2-SOW.md).

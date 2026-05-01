@@ -33,7 +33,7 @@ public sealed class CachingLlmCompletionClientTests
             new(
                 inner,
                 cacheBackend,
-                simulatorMode: false,
+                false,
                 new FixedScopeProvider(
                     new ScopeContext
                     {
@@ -70,7 +70,7 @@ public sealed class CachingLlmCompletionClientTests
             new(
                 inner,
                 cacheBackend,
-                simulatorMode: false,
+                false,
                 new FixedScopeProvider(
                     new ScopeContext
                     {
@@ -111,7 +111,7 @@ public sealed class CachingLlmCompletionClientTests
             new(
                 inner,
                 cacheBackend,
-                simulatorMode: false,
+                false,
                 new FixedScopeProvider(
                     new ScopeContext
                     {
@@ -223,7 +223,6 @@ public sealed class CachingLlmCompletionClientTests
             if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
 
                 return;
-
 
             string name = instrument.Name;
 

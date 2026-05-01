@@ -13,7 +13,9 @@ namespace ArchLucid.AgentRuntime.Tests.Caching;
 public sealed class LlmCompletionResponseCacheTests
 {
     private static string HashBytes(byte discriminator)
-        => Convert.ToHexString(SHA256.HashData([discriminator]));
+    {
+        return Convert.ToHexString(SHA256.HashData([discriminator]));
+    }
 
     [SkippableFact]
     public void ToMemoryKey_includes_simulator_partition()
@@ -21,10 +23,10 @@ public sealed class LlmCompletionResponseCacheTests
         string promptHash = HashBytes(9);
 
         LlmCompletionCacheKey notSim =
-            new("azure-openai", "gpt-test", promptHash, Simulator: false, ScopePartition: string.Empty);
+            new("azure-openai", "gpt-test", promptHash, false, string.Empty);
 
         LlmCompletionCacheKey sim =
-            new("azure-openai", "gpt-test", promptHash, Simulator: true, ScopePartition: string.Empty);
+            new("azure-openai", "gpt-test", promptHash, true, string.Empty);
 
         LlmCompletionResponseCache.ToMemoryKey(notSim).Should().NotBe(LlmCompletionResponseCache.ToMemoryKey(sim));
     }
@@ -34,8 +36,7 @@ public sealed class LlmCompletionResponseCacheTests
     {
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor = new(new LlmCompletionCacheOptions
         {
-            TTLSeconds = 30,
-            MaxEntries = 8
+            TTLSeconds = 30, MaxEntries = 8
         });
 
         using MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 8 });
@@ -43,7 +44,7 @@ public sealed class LlmCompletionResponseCacheTests
         using LlmCompletionResponseCache sut = new(backing, optionsMonitor);
 
         LlmCompletionCacheKey key =
-            new(AgentType: "t", ModelName: "m", PromptHashHex: HashBytes(1), Simulator: false, ScopePartition: string.Empty);
+            new("t", "m", HashBytes(1), false, string.Empty);
 
         await sut.SetAsync(key, new LlmCompletionResult("{\"x\":1}"), CancellationToken.None);
 
@@ -64,7 +65,7 @@ public sealed class LlmCompletionResponseCacheTests
         using LlmCompletionResponseCache sut = new(backing, optionsMonitor);
 
         LlmCompletionCacheKey key =
-            new(AgentType: "t", ModelName: "m", PromptHashHex: HashBytes(2), Simulator: false, ScopePartition: string.Empty);
+            new("t", "m", HashBytes(2), false, string.Empty);
 
         await sut.SetAsync(key, new LlmCompletionResult("{\"x\":1}"), CancellationToken.None);
 
@@ -78,11 +79,7 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_prefers_TTL_seconds_when_positive()
     {
-        LlmCompletionCacheOptions options = new()
-        {
-            TTLSeconds = 42,
-            TTLMinutes = 1
-        };
+        LlmCompletionCacheOptions options = new() { TTLSeconds = 42, TTLMinutes = 1 };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(42));
     }
@@ -90,11 +87,7 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_derives_from_TTLMinutes_when_TTL_seconds_unset()
     {
-        LlmCompletionCacheOptions options = new()
-        {
-            TTLSeconds = 0,
-            TTLMinutes = 30
-        };
+        LlmCompletionCacheOptions options = new() { TTLSeconds = 0, TTLMinutes = 30 };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1800));
     }
@@ -102,14 +95,11 @@ public sealed class LlmCompletionResponseCacheTests
     [SkippableFact]
     public void ResolveTtl_floor_is_one_second()
     {
-        LlmCompletionCacheOptions options = new()
-        {
-            TTLSeconds = 0,
-            TTLMinutes = 0
-        };
+        LlmCompletionCacheOptions options = new() { TTLSeconds = 0, TTLMinutes = 0 };
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1));
     }
+
     [SkippableFact]
     public async Task Concurrent_writes_and_reads_stay_consistent()
     {
@@ -128,11 +118,11 @@ public sealed class LlmCompletionResponseCacheTests
                 byte disc = unchecked((byte)i);
                 LlmCompletionCacheKey key =
                     new(
-                        AgentType: "t",
-                        ModelName: "m",
-                        PromptHashHex: HashBytes(disc),
-                        Simulator: false,
-                        ScopePartition: string.Empty);
+                        "t",
+                        "m",
+                        HashBytes(disc),
+                        false,
+                        string.Empty);
 
                 string expected = $"\"v{i}\"";
 

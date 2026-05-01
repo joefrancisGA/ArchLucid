@@ -1,9 +1,9 @@
 ﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -36,20 +36,22 @@ public sealed class RealAzureOpenAIEndToEndTests
     private static bool HasLiveAzureOpenAiCredentials()
     {
         return !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_ENDPOINT"))
-            && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY"));
+               && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY"));
     }
 
     [SkippableFact]
     public async Task Live_pipeline_topology_compliance_cost_merge_produces_non_empty_manifest()
     {
-        Skip.IfNot(HasLiveAzureOpenAiCredentials(), "Set ARCHLUCID_REAL_AOAI_TEST_ENDPOINT and ARCHLUCID_REAL_AOAI_TEST_KEY.");
+        Skip.IfNot(HasLiveAzureOpenAiCredentials(),
+            "Set ARCHLUCID_REAL_AOAI_TEST_ENDPOINT and ARCHLUCID_REAL_AOAI_TEST_KEY.");
 
         using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(120));
         CancellationToken cancellationToken = deadline.Token;
 
         string endpoint = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_ENDPOINT")!;
         string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY")!;
-        string deployment = (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT") ?? "gpt-4o").Trim();
+        string deployment =
+            (Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT") ?? "gpt-4o").Trim();
 
         if (string.IsNullOrWhiteSpace(deployment))
         {
@@ -124,14 +126,14 @@ public sealed class RealAzureOpenAIEndToEndTests
             Constraints =
             [
                 "Prefer managed services",
-                "Private endpoints for data tiers",
+                "Private endpoints for data tiers"
             ],
             RequiredCapabilities =
             [
                 "Azure SQL",
                 "Azure Cache for Redis",
-                "App Service",
-            ],
+                "App Service"
+            ]
         };
 
         Mock<IRunRepository> runRepo = new();
@@ -167,8 +169,8 @@ public sealed class RealAzureOpenAIEndToEndTests
                 Description = request.Description,
                 Constraints = request.Constraints.ToList(),
                 RequiredCapabilities = request.RequiredCapabilities.ToList(),
-                Assumptions = request.Assumptions.ToList(),
-            },
+                Assumptions = request.Assumptions.ToList()
+            }
         };
 
         IReadOnlyList<AgentResult> results =
@@ -236,12 +238,13 @@ public sealed class RealAzureOpenAIEndToEndTests
             {
                 TenantId = ScopeIds.DefaultTenant,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
+                ProjectId = ScopeIds.DefaultProject
             };
         }
     }
 
-    private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value)
+        : IOptionsMonitor<AgentPromptCatalogOptions>
     {
         public AgentPromptCatalogOptions CurrentValue
         {
@@ -281,7 +284,7 @@ public sealed class RealAzureOpenAIEndToEndTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 GoldenManifestId = Guid.NewGuid(),
                 DecisionTraceId = Guid.NewGuid(),
-                ArtifactBundleId = Guid.NewGuid(),
+                ArtifactBundleId = Guid.NewGuid()
             });
         }
 
@@ -303,7 +306,7 @@ public sealed class RealAzureOpenAIEndToEndTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 GoldenManifestId = Guid.NewGuid(),
                 DecisionTraceId = Guid.NewGuid(),
-                ArtifactBundleId = Guid.NewGuid(),
+                ArtifactBundleId = Guid.NewGuid()
             });
         }
     }

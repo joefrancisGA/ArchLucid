@@ -7,6 +7,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-05-01 — Assurance posture: **V2** third-party pen test — **no vendor committed**; **V1** owner-conducted
+
+**Outcome.** **Owner decision 2026-05-01:** **External** third-party penetration testing (vendor SoW, assessor deliverables, Trust Center row for that engagement) is **V2**. **V1** pen testing is **owner-conducted** — no commitment to Aeronova or any other firm. Docs: **`docs/library/V1_DEFERRED.md`** §6c (rewritten), **`docs/library/V1_SCOPE.md`** §3 (pen-test row → **V2**), **`docs/PENDING_QUESTIONS.md`** (items **2**, **5**, **20**, assessment cadence trigger), **`docs/trust-center.md`**, **`docs/go-to-market/TRUST_CENTER.md`**, **`CURRENT_ASSURANCE_POSTURE.md`**, **`PROCUREMENT_FAQ.md`**, **`docs/security/pen-test-summaries/`** (`2026-Q2-SOW.md` template-only, **`README.md`**, **`2026-Q2-REDACTED-SUMMARY.md`**, **`2026-Q2-OWNER-CONDUCTED.md`), **`OWNER_SECURITY_ASSESSMENT_2026_Q2.md`**, **`SOC2_SELF_ASSESSMENT_2026.md`** (G-002), **`dist/procurement-pack/*` mirror. **Engineering:** default assessor display for **`security-trust publish`** → **`ArchLucid internal`** (`SecurityTrustPublishCommandOptions.cs`); tests updated. **Rule for assessors:** *Independent weighted quality assessments for **V1** must **not** reduce readiness scores solely because a third-party pen test is not yet executed.*
+
 ## 2026-05-01 — Support bundle: generated **next-steps.json** + README summary (CLI + API)
 
 **Outcome.** **`SupportBundleNextStepsBuilder`** in **`ArchLucid.Core`** drives **`next-steps.json`** (and matching README bullets) for CLI **`support-bundle`** and in-product **`/v1/admin/support-bundle`**. CLI **`manifest.json`** **`bundleFormatVersion`** **1.2**; API assembler **`server-1.1`**. Docs: **`TROUBLESHOOTING.md`** bundle contents list; **`QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76.md`** § **10** (resolved).

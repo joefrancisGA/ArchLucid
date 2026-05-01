@@ -27,7 +27,7 @@ internal sealed class SecurityTrustPublishCommandOptions
     {
         get;
         init;
-    } = "Aeronova Red Team LLC";
+    } = "ArchLucid internal";
 
     public string AssessmentCode
     {
@@ -57,7 +57,7 @@ internal sealed class SecurityTrustPublishCommandOptions
         string kind = "pen-test";
         string? date = null;
         string? summaryUrl = null;
-        string assessor = "Aeronova Red Team LLC";
+        string assessor = "ArchLucid internal";
         string assessmentCode = "2026-Q2";
         string uiBaseUrl = TryCommandOptions.DefaultUiBaseUrl;
 

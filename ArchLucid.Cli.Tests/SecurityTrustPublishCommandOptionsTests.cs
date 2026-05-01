@@ -35,7 +35,7 @@ public sealed class SecurityTrustPublishCommandOptionsTests
 
         error.Should().BeNull();
         opts!.AssessmentCode.Should().Be("2026-Q2");
-        opts.AssessorDisplayName.Should().Be("Aeronova Red Team LLC");
+        opts.AssessorDisplayName.Should().Be("ArchLucid internal");
         opts.PublishedOn.Should().Be("2026-07-29");
         opts.SummaryUrl.Should().Be("https://example.com/summary.md");
     }

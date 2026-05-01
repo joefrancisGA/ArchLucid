@@ -60,10 +60,7 @@ public sealed class AgentPromptRegressionTests
             BuildEvidence(RegressionRunId),
             new AgentTask
             {
-                TaskId = "t-cost",
-                RunId = RegressionRunId,
-                AgentType = AgentType.Cost,
-                Objective = "Cost."
+                TaskId = "t-cost", RunId = RegressionRunId, AgentType = AgentType.Cost, Objective = "Cost."
             },
             CancellationToken.None);
 
@@ -170,7 +167,8 @@ public sealed class AgentPromptRegressionTests
     private static void AssertPromptHash(AgentType type, string baselineProperty)
     {
         string baselinePath = Path.Combine(AppContext.BaseDirectory, BaselineFileName);
-        File.Exists(baselinePath).Should().BeTrue("missing {0} â€” add it next to the test class and set CopyToOutputDirectory.", baselinePath);
+        File.Exists(baselinePath).Should()
+            .BeTrue("missing {0} â€” add it next to the test class and set CopyToOutputDirectory.", baselinePath);
 
         string raw = File.ReadAllText(baselinePath);
         using JsonDocument doc = JsonDocument.Parse(raw);
@@ -220,5 +218,4 @@ public sealed class AgentPromptRegressionTests
             }
         };
     }
-
 }

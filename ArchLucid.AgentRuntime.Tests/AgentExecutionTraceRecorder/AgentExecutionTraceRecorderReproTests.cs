@@ -83,9 +83,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         IOptions<LlmCostEstimationOptions> opts = Options.Create(
             new LlmCostEstimationOptions
             {
-                Enabled = true,
-                InputUsdPerMillionTokens = 1m,
-                OutputUsdPerMillionTokens = 2m
+                Enabled = true, InputUsdPerMillionTokens = 1m, OutputUsdPerMillionTokens = 2m
             });
         AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, opts);
 
