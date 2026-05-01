@@ -28,8 +28,13 @@ export default async function PricingPage(props: PricingPageProps) {
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. Compare Standard, Professional, and Enterprise capability bundles
-        below, then start a trial or contact sales for a formal quote.
+        ArchLucid is an {BRAND_CATEGORY} offering. Compare{" "}
+        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
+          Standard, Professional, and Enterprise
+        </strong>{" "}
+        below, then{" "}
+        <strong className="font-semibold text-neutral-800 dark:text-neutral-200">request a quote</strong>{" "}
+        (V1 sales-led path) or <strong className="font-semibold text-neutral-800 dark:text-neutral-200">start a trial</strong>.
       </p>
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"

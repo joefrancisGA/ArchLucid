@@ -35,7 +35,7 @@ function runListPrimaryTitle(run: RunSummary): string {
     return d;
   }
 
-  return "Untitled run";
+  return "Untitled architecture review";
 }
 
 function isRunNeedingAttention(run: RunSummary): boolean {

@@ -58,7 +58,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
   return (
     <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
-      <CollapsibleSection title="Diagnostics — agent traces and output structure" defaultOpen={false}>
+      <CollapsibleSection title="Advanced — agent traces and structural evaluation (diagnostics)" defaultOpen={false}>
       <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
         Prompt/response audit rows and a structural JSON completeness pass over persisted agent outputs (no LLM). Requires
         architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.

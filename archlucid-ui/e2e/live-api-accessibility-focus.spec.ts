@@ -2,12 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
 
-/** Matches `NAV_GROUPS` entry `id: "runs-review"` → `label` in `src/lib/nav-config.ts` (sidebar `<nav aria-label>`). */
-const operatorCorePilotNavLabel = "Core Pilot";
+/** Matches `PilotNavGroupBuilder` → `label` in `src/lib/pilot-nav-group-builder.ts` (sidebar `<nav aria-label>`). */
+const architectureReviewsNavLabel = "Architecture reviews";
 
-/** Expands the Core Pilot collapsible when `localStorage` left it closed so `<nav aria-label>` links are in the a11y tree. */
+/** Expands the architecture-reviews collapsible when `localStorage` left it closed so `<nav aria-label>` links are in the a11y tree. */
 async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
-  const trigger = page.getByRole("button", { name: operatorCorePilotNavLabel });
+  const trigger = page.getByRole("button", { name: architectureReviewsNavLabel });
   await trigger.waitFor({ state: "visible", timeout: 60_000 });
 
   if ((await trigger.getAttribute("aria-expanded")) === "false") await trigger.click();
@@ -32,11 +32,11 @@ test.describe("route focus and announcements", () => {
     await ensureCorePilotSectionExpanded(page);
 
     await page
-      .getByRole("navigation", { name: operatorCorePilotNavLabel })
-      .getByRole("link", { name: "Runs" })
+      .getByRole("navigation", { name: architectureReviewsNavLabel })
+      .getByRole("link", { name: "Reviews" })
       .click();
 
-    await page.waitForURL("**/runs**", { timeout: 60_000 });
+    await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
     // `waitForURL` can resolve before React's `useLayoutEffect` (route-change focus) runs; poll until the landmark is focused.
     await expect(page.locator("#main-content")).toBeFocused({ timeout: 10_000 });
@@ -49,12 +49,14 @@ test.describe("route focus and announcements", () => {
     await ensureCorePilotSectionExpanded(page);
 
     await page
-      .getByRole("navigation", { name: operatorCorePilotNavLabel })
-      .getByRole("link", { name: "Runs" })
+      .getByRole("navigation", { name: architectureReviewsNavLabel })
+      .getByRole("link", { name: "Reviews" })
       .click();
-    await page.waitForURL("**/runs**", { timeout: 60_000 });
+    await page.waitForURL("**/reviews**", { timeout: 60_000 });
 
-    await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Runs", { timeout: 10_000 });
+    await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Architecture reviews", {
+      timeout: 10_000,
+    });
   });
 
   test("axe baseline passes in dark mode", async ({ page }) => {

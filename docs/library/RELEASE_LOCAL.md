@@ -29,6 +29,16 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 - `package-release.ps1 -SkipChecksums` — skip per-file **SHA-256** generation (faster on huge trees; leaves a placeholder `checksums-sha256.txt` and sets `checksumsSha256Generated: false` in `release-manifest.json`).
 - `run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
 
+**Merge discipline — Release fast-core:** after substantive .NET merges, run the analyzer-sensitive fast-core filter in **Release** so hygiene regressions (for example unread primary-constructor dependencies / **CS9113**) are caught before narrative readiness claims drift from CI:
+
+```powershell
+dotnet test ArchLucid.sln `
+  --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" `
+  -c Release
+```
+
+`run-readiness-check` covers a sibling gate when Node is available; contributors invoking `dotnet test` manually should still know this filter.
+
 **Output folder:** `artifacts/release/` is **gitignored**. The **API** publish output is under `artifacts/release/api/`. The same folder’s parent contains **operator handoff files** produced by `scripts/Write-ReleasePackageArtifacts.ps1`:
 
 | File | Purpose |

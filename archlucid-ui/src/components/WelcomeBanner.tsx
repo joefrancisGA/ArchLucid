@@ -122,18 +122,21 @@ export function WelcomeBanner() {
   const trialActive = trial?.status === "Active";
   const days = trial?.daysRemaining;
   const returningUser = hasExistingRuns;
-    const headingText = returningUser
-    ? "Architecture manifest workspace"
-    : "Turn architecture proposals into governed, evidence-backed review packages.";
+  const headingText = returningUser
+      ? "Architecture review workspace"
+      : "Turn architecture proposals into governed, evidence-backed review packages.";
   const subheadingText = returningUser
     ? (
       <>
-        Monitor active runs, finalize <GlossaryTooltip termKey="golden_manifest">manifests</GlossaryTooltip>, and review governance <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+        Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
+        <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
       </>
     )
     : (
       <>
-        Turn architecture intent into a governed, reviewable <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip> with supporting artifacts and <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+        Submit one structured request—after the pipeline and finalization you get a governed{" "}
+        <GlossaryTooltip termKey="golden_manifest">architecture manifest</GlossaryTooltip>, supporting artifacts, and actionable{" "}
+        <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
       </>
     );
 
@@ -252,6 +255,7 @@ export function WelcomeBanner() {
             <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
               <Link href="/reviews/new">New review</Link>
             </Button>
+            <OptInTourLauncher className="h-10 px-4 text-sm" />
             <Button
               asChild
               variant="outline"
@@ -259,14 +263,15 @@ export function WelcomeBanner() {
             >
               <Link href="/showcase/claims-intake-modernization">See completed example</Link>
             </Button>
-            <OptInTourLauncher className="h-10 px-4 text-sm" />
           </div>
         </div>
 
         {!returningUser ? (
           <div
             className="w-full shrink-0 rounded-lg border border-neutral-200/80 bg-white/80 px-4 py-3 text-sm shadow-sm backdrop-blur-sm dark:border-neutral-800/60 dark:bg-neutral-900/80 dark:backdrop-blur-sm lg:max-w-[17rem]"
-            aria-label="What you will receive from a completed run"
+            aria-label={
+              returningUser ? "Resume architecture reviews — shortcuts" : "What one completed architecture review delivers"
+            }
           >
             <p className="m-0 mb-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200">What you&apos;ll get</p>
             <ul className="m-0 mb-2 list-none space-y-1.5 p-0">

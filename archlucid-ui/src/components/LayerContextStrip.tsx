@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 
 const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: string; labelClass: string }> = {
   pilot: {
-    label: "Pilot",
-    question: "Can we go from request to finalized manifest faster?",
+    label: "Architecture reviews",
+    question: "Can we produce a credible, evidence-backed review package faster?",
     strip: "bg-blue-50/90 border-b border-blue-200/60 dark:border-blue-900/50 dark:bg-blue-950/30",
     labelClass: "text-blue-900 dark:text-blue-200"
   },
