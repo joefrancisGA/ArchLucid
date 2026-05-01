@@ -31,7 +31,6 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
                     $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
                     "Tasks from a different run must not be executed together.");
 
-
             string key = AgentTypeKeys.ResolveDispatchKey(task);
             AgentResult result = CreateResultForKey(runId, task.TaskId, request, key);
             results.Add(result);
@@ -50,15 +49,12 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
 
             return FakeScenarioFactory.CreateTopologyResult(runId, taskId, request);
 
-
         if (string.Equals(agentTypeKey, AgentTypeKeys.Cost, StringComparison.OrdinalIgnoreCase))
             return FakeScenarioFactory.CreateCostResult(runId, taskId, request);
-
 
         if (string.Equals(agentTypeKey, AgentTypeKeys.Compliance, StringComparison.OrdinalIgnoreCase))
 
             return FakeScenarioFactory.CreateComplianceResult(runId, taskId, request);
-
 
         return string.Equals(agentTypeKey, AgentTypeKeys.Critic, StringComparison.OrdinalIgnoreCase)
             ? FakeScenarioFactory.CreateCriticResult(runId, taskId, request)
