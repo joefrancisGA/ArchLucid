@@ -1,7 +1,6 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Filters;
-using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 

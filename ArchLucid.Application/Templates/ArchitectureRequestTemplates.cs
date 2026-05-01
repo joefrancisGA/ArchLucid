@@ -13,25 +13,28 @@ public static class ArchitectureRequestTemplates
     private const string TemplateIdDocumentName = "ArchLucid.TemplateId";
 
     /// <summary>Summaries for <c>GET /v1/architecture/templates</c> (fixed catalog).</summary>
-    public static IReadOnlyList<ArchitectureRequestTemplateSummary> Summaries { get; } =
+    public static IReadOnlyList<ArchitectureRequestTemplateSummary> Summaries
+    {
+        get;
+    } =
     [
-        new ArchitectureRequestTemplateSummary(
+        new(
             "microservices-web-platform",
             "Microservices web platform",
             "API gateway plus user, order, and notification services on Kubernetes with PostgreSQL, Redis, and HTTPS between services."),
-        new ArchitectureRequestTemplateSummary(
+        new(
             "monolith-migration-assessment",
             "Monolith migration assessment",
             "Legacy .NET Framework monolith on SQL Server: scaling pain, deployment coupling, and service decomposition options."),
-        new ArchitectureRequestTemplateSummary(
+        new(
             "event-driven-processing-pipeline",
             "Event-driven processing pipeline",
             "Hub-style ingestion, stream processing, multiple consumers, delivery semantics, and dead-letter handling."),
-        new ArchitectureRequestTemplateSummary(
+        new(
             "cloud-native-migration-azure",
             "Cloud-native migration (Azure)",
             "On-premises VMs to Azure (App Service, Azure SQL, Blob) with security and compliance guardrails."),
-        new ArchitectureRequestTemplateSummary(
+        new(
             "regulated-healthcare-hipaa",
             "Regulated healthcare (HIPAA)",
             "Patient-data system: HIPAA constraints, auditability, encryption, access control, and data residency.")
@@ -438,7 +441,7 @@ public static class ArchitectureRequestTemplates
 
         List<ContextDocumentRequest> docs =
         [
-            new ContextDocumentRequest
+            new()
             {
                 Name = TemplateIdDocumentName,
                 ContentType = "text/plain",
@@ -446,15 +449,7 @@ public static class ArchitectureRequestTemplates
             }
         ];
 
-        foreach ((string Name, string Content) doc in evidenceDocuments)
-        {
-            docs.Add(new ContextDocumentRequest
-            {
-                Name = doc.Name,
-                ContentType = "text/markdown",
-                Content = doc.Content
-            });
-        }
+        docs.AddRange(evidenceDocuments.Select(doc => new ContextDocumentRequest { Name = doc.Name, ContentType = "text/markdown", Content = doc.Content }));
 
         string description = $"{title}\n\n{descriptionBody}".Trim();
 

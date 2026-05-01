@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Support;
+using ArchLucid.Core.Support;
 
 using FluentAssertions;
 
@@ -45,6 +46,7 @@ public sealed class SupportBundleAssemblerTests
         entryNames.Should().Contain(SupportBundleAssembler.BuildFileName);
         entryNames.Should().Contain(SupportBundleAssembler.EnvironmentFileName);
         entryNames.Should().Contain(SupportBundleAssembler.ReferencesFileName);
+        entryNames.Should().Contain(SupportBundleLayout.NextStepsFileName);
     }
 
     [Fact]

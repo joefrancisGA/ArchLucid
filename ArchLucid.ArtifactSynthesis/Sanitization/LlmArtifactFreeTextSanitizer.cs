@@ -30,9 +30,6 @@ public static class LlmArtifactFreeTextSanitizer
         if (c is >= '\u2066' and <= '\u2069')
             return true;
 
-        if (c is '\u200B' or '\u200C' or '\u200D' or '\u200E' or '\u200F' or '\uFEFF')
-            return true;
-
-        return false;
+        return c is '\u200B' or '\u200C' or '\u200D' or '\u200E' or '\u200F' or '\uFEFF';
     }
 }

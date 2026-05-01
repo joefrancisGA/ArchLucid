@@ -25,7 +25,7 @@ internal static class CommercialTierIntegrationTestTenant
         if (tenants is not InMemoryTenantRepository inMemory)
         {
             throw new InvalidOperationException(
-                $"Commercial tier tests require singleton {nameof(InMemoryTenantRepository)} (InMemory ArchLucid:StorageProvider). Found {tenants?.GetType().FullName ?? "null"}");
+                $"Commercial tier tests require singleton {nameof(InMemoryTenantRepository)} (InMemory ArchLucid:StorageProvider). Found {tenants.GetType().FullName ?? "null"}");
         }
 
         await inMemory.SetCommercialTierForIntegrationTestsAsync(ScopeIds.DefaultTenant, tier, cancellationToken);

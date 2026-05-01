@@ -788,7 +788,7 @@ Create V1 customer-owned integration recipes that show how to bridge ArchLucid C
 
 Scope:
 - Add or update docs under docs/integrations/recipes/.
-- Cover at least two recipes: webhook -> Jira issue via customer automation, and webhook -> ServiceNow incident via customer automation.
+- Cover at least two recipes in this order: webhook -> ServiceNow incident via customer automation (first), then webhook -> Jira issue via customer automation.
 - Use the existing CloudEvents/event catalog and HMAC guidance.
 - Clearly state these are customer-owned recipes, not first-party V1 connectors.
 
@@ -847,6 +847,7 @@ Constraints:
 | 10 | V1 primary commercial CTA (sales-led) | **Request quote** |
 | 12 | Preferred automation in integration recipes | **Azure Logic Apps** |
 | 13 | V1 pilot support escalation | **E-mail and URL** (both) |
+| 14 | First workflow-bridge recipe priority | **ServiceNow** (then Jira per two-recipe scope) |
 | Commercial | Team Stripe “Subscribe” path pre–production-live checkout | **Visible** when `teamStripeCheckoutUrl` is a **real** Stripe link (including **test** mode); **placeholder** URLs remain hidden |
 | Proof pack | Redaction standard | **`PROOF_PACK_REDACTION_PROFILES.md`** — three named profiles; mandatory removals + per-profile rules |
 | UI framing | Pilot first-run vs "run" | **Explicit hybrid** — **architecture review** on Pilot chrome; **run** on technical spine; one-line bridge that each review is one run |
@@ -884,13 +885,13 @@ Constraints:
 
 ### Add Customer-Owned Workflow Bridge Recipes for Common Enterprise Tools
 
-- Which recipe should be prioritized for the next buyer conversation: Jira, ServiceNow, Confluence, Sentinel, or Teams?
+- **Resolved (2026-05-01):** Prioritize **ServiceNow** for the first buyer-facing recipe; **Jira** second (matches the two-recipe Cursor prompt scope). Other targets (Confluence, Sentinel, Teams) remain later unless scope expands.
 - **Resolved (2026-05-01):** Prefer **Azure Logic Apps** in example recipes (vs Power Automate-only or generic-only).
 
 ### Add a Pilot Rescue Playbook and Link It From CLI Support Output
 
 - **Resolved (2026-05-01):** Support escalation — show **e-mail and URL** in V1 pilot artifacts.
-- **Open:** Should support-bundle output include a generated "next action" summary, or only links to runbooks?
+- **Resolved (2026-05-01):** Support bundles include a generated **advisory** **`next-steps.json`** plus the same bullets in **`README.txt`**, built by **`SupportBundleNextStepsBuilder`** (CLI: probe-driven; API host: correlation/redaction guidance + light env hints). Operators must still confirm against **`health.json`** (CLI) and docs.
 
 ## Verification Notes
 

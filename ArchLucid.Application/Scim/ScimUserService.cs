@@ -220,20 +220,17 @@ public sealed class ScimUserService(
         string? manualFromRequest,
         string? groupMapped)
     {
-        if (groupMapped is not null)
-        {
-            bool fire =
-                existing.ResolvedRoleOrigin == ScimResolvedRoleOrigin.Manual
-                && !string.Equals(existing.ResolvedRole, groupMapped, StringComparison.OrdinalIgnoreCase);
+        if (groupMapped is null)
+            return manualFromRequest is not null
+                ? new ResolveRoleChoices(manualFromRequest, ScimResolvedRoleOrigin.Manual, false)
+                : new ResolveRoleChoices(existing.ResolvedRole, existing.ResolvedRoleOrigin, false);
 
-            return new ResolveRoleChoices(groupMapped, ScimResolvedRoleOrigin.ScimGroups, fire);
-        }
+        bool fire =
+            existing.ResolvedRoleOrigin == ScimResolvedRoleOrigin.Manual
+            && !string.Equals(existing.ResolvedRole, groupMapped, StringComparison.OrdinalIgnoreCase);
 
-        if (manualFromRequest is not null)
-            return new ResolveRoleChoices(manualFromRequest, ScimResolvedRoleOrigin.Manual, false);
+        return new ResolveRoleChoices(groupMapped, ScimResolvedRoleOrigin.ScimGroups, fire);
 
-
-        return new ResolveRoleChoices(existing.ResolvedRole, existing.ResolvedRoleOrigin, false);
     }
 
     private Task EmitRoleOverriddenAuditAsync(Guid tenantId, ScimUserRecord existing, string? incomingGroupRole, CancellationToken ct)
@@ -322,7 +319,7 @@ public sealed class ScimUserService(
 
             JsonElement el = p.Value;
 
-            if (el.ValueKind == JsonValueKind.Null || el.ValueKind != JsonValueKind.String)
+            if (el.ValueKind is JsonValueKind.Null or not JsonValueKind.String)
                 return null;
 
             string? trimmed = el.GetString()?.Trim();

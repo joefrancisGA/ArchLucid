@@ -5,8 +5,6 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests.Configuration;
 
 public sealed class ArchitectureRunCreationConfigurationBridgeTests
