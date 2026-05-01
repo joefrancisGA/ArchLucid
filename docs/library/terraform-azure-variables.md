@@ -36,7 +36,7 @@ flowchart TB
 | `enable_api_management` | Turn APIM on | **`false` by default** — laptop / local dev leaves this off. Set **`true`** only when applying Terraform against Azure. |
 | `apim_name` | `azurerm_api_management` | Globally unique; **`Consumption_0`** SKU only (see `infra/terraform/`). |
 | `archlucid_api_backend_url` | API `service_url` | HTTPS URL the Consumption gateway can reach (typically the public App Service origin for ArchLucid API). APIM **resource addresses** in Terraform may still use the historical `archiforge` token until Phase 7.5 `state mv` ([ARCHLUCID_RENAME_CHECKLIST.md](../ARCHLUCID_RENAME_CHECKLIST.md)). |
-| `apim_openapi_spec_url` | Optional OpenAPI import | e.g. `https://<host>/swagger/v1/swagger.json`; empty uses bootstrap spec then re-apply with URL. |
+| `apim_openapi_spec_url` | Optional OpenAPI import | **Canonical:** `https://<host>/openapi/v1.json` (Microsoft OpenAPI; CI snapshot). Empty uses bootstrap spec then re-apply with URL. Do **not** point APIM at `/swagger/v1/swagger.json` (explorer-only). |
 | `apim_api_path_suffix` | Gateway path segment | Public base: `https://<apim>.azure-api.net/<suffix>/...` |
 
 **Implementation:** `infra/terraform/README.md` (variables, `terraform.tfvars.example`, WAF / private-backend caveats).

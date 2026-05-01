@@ -43,9 +43,9 @@ aligned with your imported OpenAPI paths.
 ## OpenAPI import
 
 - **Bootstrap (default):** If `apim_openapi_spec_url` is empty, apply uses `openapi/apim-bootstrap.yaml` (only `/health/live`) so the API resource exists immediately.
-- **Full surface:** Set `apim_openapi_spec_url` to your running API’s Swagger URL, for example  
-  `https://<app-service>.azurewebsites.net/swagger/v1/swagger.json`  
-  then `terraform apply` again so APIM imports all operations.
+- **Full surface:** Set `apim_openapi_spec_url` to the **canonical Microsoft OpenAPI** URL (same document as contract tests and SDK codegen), for example  
+  `https://<app-service>.azurewebsites.net/openapi/v1.json`  
+  then `terraform apply` again so APIM imports all operations. Do **not** use `/swagger/v1/swagger.json` here — that artifact is for Scalar explorer only and may drift from **`/openapi/v1.json`**.
 
 Terraform must reach that URL at apply time (CI agent with network access to the API host).
 

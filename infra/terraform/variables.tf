@@ -54,7 +54,7 @@ variable "apim_api_path_suffix" {
 
 variable "apim_openapi_spec_url" {
   type        = string
-  description = "Optional HTTPS URL to import OpenAPI (openapi-link). When empty, a minimal bootstrap spec from the module is used; replace with your deployed API swagger URL, e.g. https://api.example.com/swagger/v1/swagger.json"
+  description = "Optional HTTPS URL to import OpenAPI (openapi-link). When empty, a minimal bootstrap spec from the module is used; set to the canonical Microsoft OpenAPI document, e.g. https://api.example.com/openapi/v1.json (contract-tested; do not use /swagger/v1/swagger.json for APIM)."
   default     = ""
 }
 

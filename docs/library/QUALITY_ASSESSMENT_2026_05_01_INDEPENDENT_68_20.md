@@ -2,18 +2,28 @@
 
 # ArchLucid Assessment – Weighted Readiness 68.20%
 
-**Date:** 2026-05-01  
+**Date:** 2026-05-01 (narrative **updated 2026-05-01** for owner Stripe catalogue + `PriceIdTeam` wiring; headline score/table **unchanged** — not re-derived)
 **Method:** First-principles review of codebase (~4,195 C# source files, 49 projects, 110 Terraform files, 73 UI pages, 39 Playwright specs, 554+ documentation files). No prior assessment referenced.
+
+---
+
+## Stripe GA — operator carry-forward (commercial)
+
+**Completed (owner, 2026-05-01).** Stripe **Team** Product + recurring **USD** Price aligned with **`PRICING_PHILOSOPHY.md`** § **3.2** (interim **$249**/mo bundled SKU); Stripe Dashboard **`price_…`** copied into operator configuration as **`Billing:Stripe:PriceIdTeam`** on the intended host(s).
+
+**Still open — see **[`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)**.** Typical sequence: **`Billing:Stripe:SecretKey`** + **`WebhookSigningSecret`** paired to the same Stripe mode; webhook endpoint **`POST /v1/billing/webhooks/stripe`** subscribing to **`checkout.session.completed`**; one **successful staging (or prod) Checkout** demonstrating **`dbo.BillingWebhookEvents`** / **`dbo.BillingSubscriptions`** + trial conversion (**`docs/library/BILLING.md`**); optional **`teamStripeCheckoutUrl`** (Payment Link) replacing marketing placeholder in **`pricing.json`**; **live** `sk_live_` calendar still **`docs/PENDING_QUESTIONS.md`** item **22**.
+
+Legacy assessments sometimes said “Stripe is only a placeholder” — that was **pricing-page URL + unconfigured price id**; **those owner steps are now addressed** wherever the **`price_…`** + **`PriceIdTeam`** injection is deployed. **First dollar / PMF validation** remains blocked until Checkout + webhook + DB proof succeeds (and Marketplace / reference customers remain separate gaps).
 
 ---
 
 ## Executive Summary
 
 ### Overall Readiness
-ArchLucid scores **68.20%** weighted readiness — a product with strong engineering bones and deep governance/audit discipline, but commercially blocked by an absence of real customers, live payment flow, and third-party trust attestation. The delta between "functionally impressive" and "purchasable" remains the critical gap.
+ArchLucid scores **68.20%** weighted readiness — a product with strong engineering bones and deep governance/audit discipline, but commercially blocked by an absence of real customers, **documented receipt of paid subscription revenue via the live funnel**, and third-party trust attestation. The delta between “functionally impressive” and “**money + proof in SQL** after Checkout” remains the critical gap unless webhook/E2E verification has since completed outside this narrative pass.
 
 ### Commercial Picture
-The pricing model is thoughtful and value-anchored. Documentation reads like a mature company. However, zero revenue, no reference customers, placeholder Stripe URLs, and an Azure-only platform constraint limit addressable market to ~30% of enterprise architecture teams. Time-to-value for a *non-guided* customer is measured in days, not minutes — a severe adoption friction problem for a product without a sales team.
+The pricing model is thoughtful and value-anchored. Documentation reads like a mature company. **Stripe Team catalogue + interim $249 Price + operator `Billing:Stripe:PriceIdTeam` progressed (2026-05-01).** **`teamStripeCheckoutUrl`** in **`pricing.json`** may still be a **marketing placeholder** until a Payment Link (or API-driven Checkout only) replaces it. Revenue and reference customers remain **zero** until at least one **verified** Checkout completes with webhook→tenant activation (**`checkout.session.completed`**). Azure-only posture and adoption friction unchanged.
 
 ### Enterprise Picture
 Security architecture is legitimately strong (RLS, RBAC, fail-closed auth, rate limiting, content safety, STRIDE model, ZAP/Schemathesis in CI). Governance depth (approval workflows, segregation of duties, policy packs) exceeds most competitors. Missing: SOC 2 attestation, real pen-test report, and ITSM connectors that enterprise buyers treat as table stakes.
@@ -86,14 +96,15 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 #### 1. Marketability — Score: 49 | Weight: 8 | Deficiency: 4.00
 
-**Justification:** Zero customers, zero revenue, placeholder Stripe URLs, no SOC 2, no published case study. The product cannot be purchased through a self-service flow today. Azure-only constraint excludes >50% of market. No marketplace listing is live.
+**Justification:** Zero customers, zero **confirmed** subscription revenue via the instrumented Stripe path **in this narrative snapshot**, no SOC 2, no published case study. **Stripe Team Price + `PriceIdTeam`** are **no longer missing by default** owner-side (**2026-05-01**); **pricing-page hosted URL may still placeholder** until Payment Link issuance. Monetization blocker shifts to **secret key + webhook + end-to-end paid proof**. Azure-only constraint excludes >50% of market. No marketplace listing is live.
 
-**Tradeoffs:** Building product depth before commercial infrastructure is defensible for a technical founder — but the gap is now existential for revenue timelines.
+**Tradeoffs:** Building product depth before commercial infrastructure is defensible for a technical founder — the **Stripe catalogue/config gap narrowed**; **revenue proof gap** persists until Checkout E2E is demonstrated.
 
 **Recommendations:**
-- Complete Stripe payment link so self-serve purchases are real
+- Finish **[`STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)** (**webhook + signed delivery + trial→paid DB proof**; optional **`teamStripeCheckoutUrl`**; **`sk_live_`** when **`PENDING_QUESTIONS.md`** item **22** un-holds)
 - Close one design partner before any further feature work
-- Publish the Azure Marketplace SaaS offer
+- Publish the Azure Marketplace SaaS offer once Partner Center gates clear
+- Publish the Azure Marketplace SaaS offer once Partner Center gates clear
 
 **Fixability:** V1 (commercial packaging work, not engineering)
 
@@ -249,12 +260,13 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 #### 12. Decision Velocity — Score: 66 | Weight: 2 | Deficiency: 0.67
 
-**Justification:** The product accelerates architecture decision-making (that's its purpose), but the decision velocity for the *buyer* to decide to purchase is impaired by: high setup cost, no immediate demo, no self-serve payment, and a 6-week guided pilot process. Enterprise procurement timelines will be 3-6 months minimum.
+**Justification:** The product accelerates architecture decision-making (that's its purpose), but the decision velocity for the *buyer* to decide to purchase is impaired by: high setup cost, no immediate demo, **and no completed owner proof of card→webhook→paid row** in shared evidence (even though **Team `price_…` + `PriceIdTeam`** are now set). Enterprise procurement timelines will be 3-6 months minimum.
 
-**Tradeoffs:** Enterprise sales cycles are inherently slow — but self-serve adoption can happen in parallel.
+**Tradeoffs:** Enterprise sales cycles are inherently slow — but self-serve adoption can happen in parallel **once Checkout E2E is demonstrated**.
 
 **Recommendations:**
-- Enable Team-tier Stripe self-checkout so small teams can buy without a sales call
+- **Run one full staging Checkout** per [`STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md); capture SQL + audit evidence
+- Enable Team-tier Stripe self-checkout **in product UX** (hosted session or Payment Link) once webhook path is green
 - Ensure the trial-to-paid conversion path has a clear "upgrade now" CTA visible from day 10 onward
 
 **Fixability:** V1
@@ -293,12 +305,13 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 #### 15. Commercial Packaging Readiness — Score: 67 | Weight: 2 | Deficiency: 0.65
 
-**Justification:** Three tiers (Team/Professional/Enterprise) well-defined. Feature gates documented. Locked prices documented with re-rate plan. Stripe checkout URL is a placeholder. Azure Marketplace offer is documented but not published. Metering infrastructure exists (Prometheus counters, run tracking). Gap: no live billing, no live marketplace listing, no tested upgrade/downgrade path.
+**Justification:** Three tiers (Team/Professional/Enterprise) well-defined. Feature gates documented. Locked prices documented with re-rate plan. **Team Stripe Price + operator `Billing:Stripe:PriceIdTeam` are in place (owner, 2026-05-01).** Marketing **`teamStripeCheckoutUrl`** may still literal-placeholder until Payment Link. Azure Marketplace offer is documented but not published. Metering infrastructure exists (Prometheus counters, run tracking). Gap: **Stripe webhook→SQL paid activation not asserted in this document**; no live marketplace listing; no tested upgrade/downgrade path end-to-end **on record here**.
 
-**Tradeoffs:** Pricing documentation maturity far exceeds implementation maturity.
+**Tradeoffs:** Pricing documentation maturity far exceeds implementation maturity; **Stripe catalogue/config maturity recently improved**.
 
 **Recommendations:**
-- Replace Stripe placeholder URL with real Payment Link
+- **Close STRIPE_OPERATOR_CHECKLIST** B–D (secrets, webhook **`checkout.session.completed`**, one green E2E receipt)
+- Optionally replace **`pricing.json`** Stripe CTA with Payment Link to the same **`price_…`**
 - Test the full trial → Team → Professional upgrade path end-to-end
 - Publish the Azure Marketplace SaaS offer (even as private preview)
 
@@ -340,8 +353,8 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 | Rank | Weakness | Impact |
 |------|----------|--------|
-| 1 | **No paying customers or live billing flow** | Cannot generate revenue; cannot validate product-market fit; cannot prove ROI claims |
-| 2 | **No live self-serve trial-to-paid conversion** | Stripe URL is placeholder; Team tier cannot be purchased without manual intervention |
+| 1 | **No paying customers; no verified paid Stripe path on record** | Cannot generate revenue proof; cannot validate product-market fit — **Team `price_…` + `PriceIdTeam` set (2026-05-01); first dollar still requires Checkout + webhook + DB evidence** |
+| 2 | **Self-serve trial-to-paid not documented complete E2E here** | Webhook + SQL proof pending; **pricing CTA URL may still be placeholder** until Payment Link |
 | 3 | **No independent security attestation delivered** | SOC 2 absent; owner pen test underway but not third-party; regulated buyers cannot clear security review |
 | 4 | **Azure-only + Entra-only constrains market to ~30%** | >50% of enterprises are AWS/GCP-primary; non-Microsoft IdP shops are blocked |
 | 5 | **No inbound data connectors** | Customers must re-describe architecture from scratch; cannot import existing Terraform/CMDB/ArchiMate |
@@ -357,7 +370,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 | Rank | Blocker | Why It Blocks Revenue |
 |------|---------|----------------------|
-| 1 | **Stripe checkout is a placeholder** | Cannot collect money from willing buyers |
+| 1 | **End-to-end Stripe paid conversion not proven in shared evidence** | Team Price + **`PriceIdTeam`** configured (**2026-05-01**); first dollar still requires Checkout + **`checkout.session.completed`** + billing tables |
 | 2 | **No reference customer** | Prospects cannot talk to peers; 15% discount cannot be earned; trust gap persists |
 | 3 | **$15K guided pilot requires sales motion** | Founder is sole commercial motion; pilot fee collection requires manual invoicing; free trial (30 days + one-time 14-day extension) is available for self-serve |
 | 4 | **Azure Marketplace not live** | Enterprise buyers with Azure spending commitments cannot route through existing procurement channels |
@@ -408,45 +421,22 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-### Improvement 2: Activate Stripe Self-Serve Checkout
+### Improvement 2: Complete Stripe GA (webhook proof + optional marketing CTA)
 
-**Title:** Activate Stripe self-serve checkout for Team tier  
-**Why it matters:** Removes the single biggest monetization blocker — buyers literally cannot pay today. Unblocks self-serve revenue and removes the "−10% self-serve discount" from the price stack.  
-**Expected impact:** Directly improves Marketability (+8-10 pts), Commercial Packaging Readiness (+10-12 pts), Decision Velocity (+5 pts). Weighted readiness impact: +1.2-1.8%.  
-**Affected qualities:** Marketability, Commercial Packaging Readiness, Decision Velocity, Time-to-Value  
-**Whether actionable now:** YES — fully actionable
+**Title:** Finish Stripe self-serve GA — **verification**, not greenfield wiring  
+**Why it matters:** **Team Product/Price + `Billing:Stripe:PriceIdTeam` are owner-complete (2026-05-01).** The monetization risk is now **operational**: mis-matched Test/Live secrets, missing **`checkout.session.completed`** delivery, or skipping SQL/audit confirmation — not “Stripe does not exist.”  
+**Expected impact:** Completing checklist B–D improves Marketability (+5-7 pts vs prior state), Commercial Packaging Readiness (+6-8 pts). **Do not expect** the full +8-12 pt delta from the earlier “placeholder only” baseline without also publishing reference/Marketplace.  
+**Affected qualities:** Marketability, Commercial Packaging Readiness, Decision Velocity  
+**Whether actionable now:** YES — **operations + one E2E run** (see runbook)
 
-**Cursor Prompt:**
+**Owner / operator steps** (no hypothetical code dump — repo already ships `BillingCheckoutController`, **`BillingStripeWebhookController`**, `StripeBillingProvider`):
 
-```
-Complete the Stripe self-serve checkout integration for the Team tier.
+1. Walk **[`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)** sections **B–D** on **staging** (`sk_test_…` + test `whsec_…` + test `price_…`).
+2. Complete one **TEST** Checkout from trial; confirm **`dbo.BillingWebhookEvents`** / **`dbo.BillingSubscriptions`** per **[`docs/library/BILLING.md`](../library/BILLING.md)**.
+3. Optional: issue **Payment Link** for the same **`price_…`** → set **`teamStripeCheckoutUrl`** (or rely on API **`POST /v1/tenant/billing/checkout`** only).
+4. **Live** flip remains **`docs/PENDING_QUESTIONS.md`** items **9** + **22** (`sk_live_` + live `whsec_` + calendar).
 
-Context:
-- `docs/go-to-market/PRICING_PHILOSOPHY.md` contains a placeholder URL: `"teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch"`
-- The trial-to-paid E2E test exists: `archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`
-- `ArchLucid.Api/Controllers/Billing/BillingCheckoutController.cs` exists
-- `ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs` exists
-
-Tasks:
-1. In `ArchLucid.Api/Controllers/Billing/BillingCheckoutController.cs`, ensure the checkout session creation endpoint creates a real Stripe Checkout Session (not a placeholder redirect) using the `Billing:Stripe:PriceIdPro` config key pattern but for Team tier (`Billing:Stripe:PriceIdTeam`).
-2. Add configuration key `Billing:Stripe:PriceIdTeam` to `appsettings.json` (empty string default — operators must configure).
-3. Add startup configuration validation in `ArchLucidConfigurationRules` that warns (not errors) when `Billing:Stripe:PriceIdTeam` is empty in production-like environments.
-4. Update `archlucid-ui/src/app/(marketing)/pricing/page.tsx` to use a real checkout redirect (POST to `/v1/billing/checkout/team`) instead of linking to the placeholder URL.
-5. Add a unit test in `ArchLucid.Api.Tests` that verifies the checkout endpoint returns 400 when the Stripe Price ID is not configured.
-
-Acceptance criteria:
-- Team tier "Subscribe" button on pricing page initiates a Stripe Checkout session
-- Missing Stripe configuration produces a startup warning (not crash)
-- E2E test can be extended to hit the endpoint (returns 400 without real Stripe config — that's correct)
-
-Constraints:
-- Do not hard-code any Stripe Price IDs or API keys in source
-- Do not modify the pricing philosophy doc numbers
-- Do not change Professional or Enterprise tier flows
-- Do not remove or modify the existing webhook controller
-
-Impact: Directly improves Marketability (+8-10 pts), Commercial Packaging (+10-12 pts), Decision Velocity (+5 pts). Weighted readiness impact: +1.2-1.8%.
-```
+**Constraints:** Do not commit keys or live Price IDs; § **5.2** list numbers in **`PRICING_PHILOSOPHY.md`** unchanged.
 
 ---
 

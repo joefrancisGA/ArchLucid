@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "microservices-no-gateway",
+  "metadata": {
+    "title": "Microservices mesh without edge gateway",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Critic"]
+  },
+  "inputSummary": "Nine services call each other directly; no centralized API gateway / WAF tier.",
+  "recording": "recordings/microservices-no-gateway.findings.json",
+  "expectedFindings": [
+    {
+      "id": "e missing gateway",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["API gateway", "edge"]
+    },
+    {
+      "id": "e lateral movement",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["east-west", "service-to-service"]
+    },
+    {
+      "id": "e observability",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["correlation", "trace"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["no cost impact", "cheap enough to ignore segmentation"] },
+    { "category": "Topology", "ifContainsAny": ["gateway present at every edge"] }
+  ]
+}

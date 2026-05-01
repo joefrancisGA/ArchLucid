@@ -24,12 +24,13 @@ import {
 } from "@/lib/conversation-api";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
 const ASK_EXAMPLE_PROMPTS: readonly string[] = [
-  "Summarize the PHI risk for this run.",
+  "Summarize the PHI risk for this review.",
   "What should the sponsor review before sign-off?",
   "Explain the finalized manifest in plain language.",
   "Summarize the finalized manifest for a sponsor.",
@@ -42,7 +43,9 @@ export default function AskPage() {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [runId, setRunId] = useState(() => (isNextPublicDemoMode() ? SHOWCASE_STATIC_DEMO_RUN_ID : ""));
+  const [runId, setRunId] = useState(() =>
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
+  );
   const [baseRunId, setBaseRunId] = useState("");
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
@@ -191,7 +194,7 @@ export default function AskPage() {
         subtitle="Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
       />
       <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-        Answers use the run context you select (finalized manifest and findings when available; in-progress runs may
+        Answers use the review context you select (finalized manifest and findings when available; reviews in progress may
         omit late-stage outputs until the pipeline completes).
       </p>
 
@@ -273,7 +276,7 @@ export default function AskPage() {
                       className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
                       aria-expanded={compareOpen}
                     >
-                      <span>Compare against another run</span>
+                      <span>Compare against another review</span>
                       <ChevronDown
                         className={cn(
                           "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",

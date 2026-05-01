@@ -51,7 +51,7 @@ export function OptInTourLauncher({ buttonVariant = "outline", className }: OptI
         data-testid="opt-in-tour-launcher"
       >
         <Play className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
-        Take tour
+        How it works
       </Button>
       <OptInTour isOpen={isOpen} onClose={handleClose} />
     </>

@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-ms-1",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Missing API gateway tier",
+      "detail": "No shared API gateway or WAF terminates external calls at the edge; callers hit individual microservices directly."
+    },
+    {
+      "findingId": "f-ms-2",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "East-west coupling",
+      "detail": "Unmediated east-west chatter and service-to-service JWT trust increases blast radius if any publisher ships overly broad scopes."
+    },
+    {
+      "findingId": "f-ms-3",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Trace continuity",
+      "detail": "Service mesh emits spans and distributed traces; backlog item remains to enforce correlation identifiers on every egress hop."
+    }
+  ]
+}

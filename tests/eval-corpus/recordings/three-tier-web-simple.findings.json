@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "f-3t-1",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Baseline layout",
+      "detail": "This sample preserves a textbook three-tier pattern with CDN static assets over HTTPS origins."
+    },
+    {
+      "findingId": "f-3t-2",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Identity hygiene",
+      "detail": "Application uses managed identity for SQL connectivity and restricts secrets to Key Vault references."
+    },
+    {
+      "findingId": "f-3t-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Network posture",
+      "detail": "Data plane resources are reachable through private endpoints; public HTTPS terminates at CDN."
+    },
+    {
+      "findingId": "f-3t-4",
+      "category": "Critic",
+      "severity": "Low",
+      "title": "Documentation debt",
+      "detail": "Runbooks cite quarterly DR rehearsals but do not link automated evidence."
+    }
+  ]
+}

@@ -3,12 +3,23 @@
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 /**
  * Operator-facing support: one-button download of a redacted support bundle ZIP,
  * gated by `ExecuteAuthority` server-side.
  */
 export default function AdminSupportPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Support tools not available in demo mode.</p>
+        <p className="m-0 mt-1">Support bundle downloads are available to operators with a live API connection.</p>
+      </div>
+    );
+  }
+
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

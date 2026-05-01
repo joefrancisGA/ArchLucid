@@ -55,6 +55,7 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 | Engagement | Vendor | Scope | Completed (UTC) | Summary access |
 |------------|--------|-------|-----------------|----------------|
+| **2026-Q2 owner-conducted penetration-style assessment** | ArchLucid internal | Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage) — **distinct from Aeronova artefact deliverables** | Window tracked in **[`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** (stub until closed) | **NDA-aligned public stub** — quantitative findings withheld; procurement detail under **`security@archlucid.net`** alongside Trust Center paragraph above |
 | 2026-Q2 third-party penetration test | Aeronova Red Team LLC | API, operator UI, hosted SaaS data plane | Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight — see [`pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)) | NDA-only — email `security@archlucid.net` once assessor delivers redacted summary |
 | Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
 | Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility` and root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) |
@@ -89,6 +90,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Buyer-readable summary of tenant isolation (identity, app layer, SQL RLS). |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Subprocessors used to deliver the service (Microsoft Azure, Entra ID, Azure OpenAI, etc.). |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement **template** for customers (requires legal review before use). |
+| [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map and erasure constraints vs append-only audit. |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | How we classify incidents and communicate with customers. |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | SOC 2 readiness: controls in place, gaps, and milestone roadmap. |
 | [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation); includes **Type I scoping** and gap register. |
@@ -98,6 +100,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [../SECURITY.md](../library/SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
 | [../API_SLOS.md](../library/API_SLOS.md) | Customer-visible HTTP SLOs (e.g. availability **99.9%** / 30 days, tiered latency) and measurement. |
+| [../SLA_TARGETS.md](../library/SLA_TARGETS.md) | Hosted SaaS **API + operator UI** monthly availability **target** (**99.9%**, pre-contractual; measurement + exclusions). |
 | [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII framing and retention considerations for conversation / Ask data. |
 | [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints. |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer-facing SLO targets (availability **99.9%**, tiered latency, maintenance). |

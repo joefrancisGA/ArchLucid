@@ -57,7 +57,10 @@ export function InspectorPanel({
       aria-label="Inspector"
     >
       <div className="flex shrink-0 items-start justify-between gap-2 border-b border-neutral-200 px-3 py-2.5 dark:border-neutral-700">
-        <h2 className="m-0 min-w-0 flex-1 truncate text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2
+          className="m-0 min-w-0 flex-1 truncate text-base font-semibold text-neutral-900 dark:text-neutral-100"
+          title={title}
+        >
           {title}
         </h2>
         <Button

@@ -12,8 +12,8 @@ Give developers and operators an interactive, browser-based way to discover and 
 ## 2. Assumptions
 
 - Non-production environments may enable the explorer; production keeps it off unless explicitly configured.
-- Swashbuckle remains the source of truth for `/swagger/v1/swagger.json` (schema IDs, tags, examples, auth metadata).
-- Microsoft `MapOpenApi()` continues to expose the alternate OpenAPI document for tooling that prefers that pipeline.
+- **`GET /openapi/v1.json`** is the **canonical** OpenAPI document (contract tests, APIM import, npm/PyPI/.NET client generation). **`GET /swagger/v1/swagger.json`** exists **only** so Scalar can render the explorer (schema IDs, tags, examples, auth metadata aligned via shared mutators — but not a second contract of record).
+- Microsoft `MapOpenApi()` serves the canonical document; Swashbuckle serves the explorer-facing sibling.
 
 ## 3. Constraints
 
@@ -27,20 +27,20 @@ Give developers and operators an interactive, browser-based way to discover and 
 flowchart LR
   Browser[Browser]
   ScalarUI[Scalar static UI]
-  SwaggerJson["/swagger/v1/swagger.json"]
-  OpenApiJson["Microsoft OpenAPI route"]
+  SwaggerJson["/swagger/v1/swagger.json explorer only"]
+  OpenApiJson["/openapi/v1.json canonical"]
   Browser --> ScalarUI
   ScalarUI --> SwaggerJson
-  OpenApiJson --> Tooling[Codegen / contract tests]
+  OpenApiJson --> Tooling[APIM import / codegen / CI snapshot]
 ```
 
 ## 5. Component Breakdown
 
 | Piece | Role |
 | --- | --- |
-| `Swashbuckle.AspNetCore` | Generates OpenAPI JSON and serves it via `UseSwagger()`. |
+| `Swashbuckle.AspNetCore` | Generates **`/swagger/v1/swagger.json`** for Scalar (`UseSwagger()`); explorer UX only. |
 | `Scalar.AspNetCore` | Renders the Scalar UI and points it at the Swashbuckle document pattern. |
-| `Microsoft.AspNetCore.OpenApi` | Parallel OpenAPI document for Microsoft-first consumers. |
+| `Microsoft.AspNetCore.OpenApi` | Serves **`/openapi/v1.json`** — **canonical** spec for APIM, SDKs, and `OpenApiContractSnapshotTests`. |
 | `DeveloperExperienceOptions` | Configuration gate for opt-in outside Development. |
 
 ## 6. Data Flow
@@ -57,6 +57,6 @@ flowchart LR
 
 ## 8. Operational Considerations
 
-- **URLs:** Scalar UI: `/scalar/v1` (typical). Swashbuckle JSON: `/swagger/v1/swagger.json`. Microsoft OpenAPI: `/openapi/v1.json` (when mapped).
+- **URLs:** Scalar UI: `/scalar/v1` (typical). Explorer JSON: `/swagger/v1/swagger.json`. **Canonical import/codegen:** `/openapi/v1.json`.
 - **Upgrades:** Keep `Scalar.AspNetCore` aligned with the repo central package versions (`Directory.Packages.props`).
 - **Failure mode:** If Scalar fails to load the JSON, check reverse-proxy paths and that `UseSwagger()` runs in the same pipeline configuration as Scalar.

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +37,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
 
   useEffect(() => {
-    if (isNextPublicDemoMode()) {
+    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 
@@ -84,6 +85,21 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
 
   if (isNextPublicDemoMode()) {
     return null;
+  }
+
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div
+        data-testid="command-center-health-card"
+        className={cn("mb-2 flex flex-wrap items-center gap-2 text-xs", className)}
+        aria-label="System status"
+      >
+        <span className="h-2 w-2 shrink-0 rounded-full bg-neutral-400" aria-hidden />
+        <span className="text-neutral-600 dark:text-neutral-400">
+          Sample data — live API not connected
+        </span>
+      </div>
+    );
   }
 
   const overall = ready?.status?.trim() ?? "";

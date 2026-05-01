@@ -7,7 +7,7 @@
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.
 
-**Last reviewed:** 2026-04-21 (reference-discount standardized to **15%** — see § 4.1)
+**Last reviewed:** 2026-05-01 (interim Stripe Team bundled monthly — § 3.2)
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
@@ -87,6 +87,19 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 ### 3.1 Canonical Marketplace tier names
 
 **Partner Center plan display names** and in-repo GTM docs must use **`Team`**, **`Professional`**, and **`Enterprise`** — the same labels as the packaging table above — not shorthand such as **`Pro`**. That keeps [`MARKETPLACE_PUBLICATION.md`](MARKETPLACE_PUBLICATION.md), [`AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md), and webhook tier mapping aligned. **CI:** `python scripts/ci/assert_marketplace_pricing_alignment.py`. **Configuration:** Stripe `Billing:Stripe:PriceIdPro` is a historical key name for the **Professional** tier Price ID only; do not use `Pro` as the external tier label in new docs.
+
+### 3.2 Interim Stripe Team self-serve (bundled SKU)
+
+Stripe Checkout uses **one** recurring **Price** for Team conversions (see **`Billing:Stripe:PriceIdTeam`** and [`STRIPE_CHECKOUT.md`](STRIPE_CHECKOUT.md)). Until per-component line items or metered bundles ship in Checkout, product treats self-serve Team as **one bundled monthly SKU**.
+
+| Field | Value |
+|-------|-------|
+| **Monthly amount (USD)** | **$249** / billing period for subscriptions created under this SKU |
+| **Relationship to § 5.2** | Locked list still decomposes Team as **workspace + seats** for **quotes**, order forms, and ROI comparisons; the **$249** figure is **only** the self-serve Stripe subscription total for this interim implementation |
+| **Grandfathering** | Tenants whose Team subscription **starts** at **$249** keep **$249** for that subscription as long as it remains continuously active without cancel-and-resubscribe games; increases apply only after an explicit billing change initiated by ArchLucid (e.g. new list price SKU for **net-new** subscriptions) plus normal renewal notices |
+| **Net-new pricing later** | List amount for subscriptions started **after** a future cutoff is **to be determined** — does not imply automatic migration of grandfathered subscriptions |
+
+Operational setup (Dashboard Price object, webhook events) stays in **`docs/go-to-market/STRIPE_CHECKOUT.md`** and **`docs/library/BILLING.md`**.
 
 ---
 
@@ -188,7 +201,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 }
 ```
 
-**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready.
+**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$249** / month interim Team SKU).
 
 | Item | Price |
 |------|-------|

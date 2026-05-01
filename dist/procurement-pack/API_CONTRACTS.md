@@ -23,10 +23,14 @@
 
 ## Contract artifacts
 
+**Canonical OpenAPI (APIM, codegen, integrators):** Use **`GET /openapi/v1.json`** (Microsoft.AspNetCore.OpenApi). It is the document guarded by **`OpenApiContractSnapshotTests`** and must stay aligned with published npm/PyPI/.NET clients. Azure API Management and external gateways should import this URL, not the Swashbuckle document.
+
+**Explorer-only OpenAPI:** **`GET /swagger/v1/swagger.json`** exists so Scalar loads an interactive UI in development/staging. Do **not** treat it as a second contract of record — it can drift from **`/openapi/v1.json`** if generators diverge.
+
 | Artifact | Location | Purpose |
-|----------|----------|---------|
-| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. |
-| OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | Interactive docs and optional APIM import (`infra/terraform`). |
+|----------|----------|-------|
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | **Canonical.** CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. Use for **APIM import**, **OpenAPI Generator**, and downstream SDK artifacts. |
+| OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | **Interactive explorer only** (Scalar); not the authoritative import surface for APIM or client SDKs. |
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
 
@@ -188,9 +192,13 @@ The **batch replay** endpoint (`POST /v1/architecture/comparisons/replay/batch`)
 
 Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` or `#governance-pre-commit-blocked` on commit when applicable. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
 
-### Security schemes (Swashbuckle)
+### Security schemes (canonical vs explorer documents)
 
-When **`ArchLucidAuth:Mode`** is **`JwtBearer`**, **`/swagger/v1/swagger.json`** includes **`components.securitySchemes.Bearer`** (HTTP bearer, JWT) and **document-level `security`** defaulting to that scheme, with text derived from **`ArchLucidAuth:Audience`** and **`ArchLucidAuth:Authority`** where set (Microsoft Entra). When **`ArchLucidAuth:Mode`** is **`ApiKey`**, the document includes **`ApiKey`** (**`X-Api-Key`** header). **`DevelopmentBypass`** does not add these schemes (local ergonomics). Schema **ids** use the CLR **full type name** so colliding short names (e.g. two `DecisionTrace` types) do not break generation.
+**`MicrosoftOpenApiAuthDocumentTransformer`** applies the same auth metadata to **`/openapi/v1.json`** as Swashbuckle applies to **`/swagger/v1/swagger.json`** (shared **`OpenApiAuthDocumentMutator`**).
+
+When **`ArchLucidAuth:Mode`** is **`JwtBearer`**, both documents include **`components.securitySchemes.Bearer`** (HTTP bearer, JWT) and **document-level `security`** defaulting to that scheme, with text derived from **`ArchLucidAuth:Audience`** and **`ArchLucidAuth:Authority`** where set (Microsoft Entra). When **`ArchLucidAuth:Mode`** is **`ApiKey`**, both include **`ApiKey`** (**`X-Api-Key`** header). **`DevelopmentBypass`** does not add these schemes (local ergonomics).
+
+Swashbuckle schema **ids** use the CLR **full type name** so colliding short names (e.g. two `DecisionTrace` types) do not break generation; the Microsoft OpenAPI pipeline uses separate codegen-oriented transformers — prefer **`/openapi/v1.json`** for imports regardless.
 
 ## Create run — `ArchitectureRequest` (context ingestion fields)
 

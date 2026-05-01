@@ -96,13 +96,20 @@ export function filterNavLinksForOperatorShell(
   showExtended: boolean,
   showAdvanced: boolean,
   callerAuthorityRank: number,
+  /** Pilot default sidebar: fewer links until the user expands “Show all features” (**localStorage** `archlucid-nav-expanded`). */
+  applyCollapsedSidebarPilotFilter = false,
 ): NavLinkItem[] {
-  return omitThinRoutesInPublicDemoMode(
-    filterNavLinksByAuthority(
-      filterNavLinksByTier(links, showExtended, showAdvanced),
-      callerAuthorityRank,
-    ),
+  let tiered: NavLinkItem[] = filterNavLinksByAuthority(
+    filterNavLinksByTier(links, showExtended, showAdvanced),
+    callerAuthorityRank,
   );
+
+  tiered = omitThinRoutesInPublicDemoMode(tiered);
+
+  if (!applyCollapsedSidebarPilotFilter)
+    return tiered;
+
+  return tiered.filter((l) => l.defaultVisibleInCollapsedSidebar === true);
 }
 
 /**
@@ -114,12 +121,19 @@ export function listNavGroupsVisibleInOperatorShell(
   showExtended: boolean,
   showAdvanced: boolean,
   callerAuthorityRank: number,
+  applyCollapsedSidebarPilotFilter = false,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
     const visibleLinks = filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank),
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        applyCollapsedSidebarPilotFilter,
+      ),
     );
 
     if (visibleLinks.length === 0) {
@@ -130,6 +144,30 @@ export function listNavGroupsVisibleInOperatorShell(
   }
 
   return out;
+}
+
+/**
+ * Sidebar “N more features” badge: full operator link count vs collapsed-pilot link count (same tier ∩ authority ∩ publish gates).
+ */
+export function countSidebarLinksHiddenByCollapsedPilot(
+  groups: ReadonlyArray<NavGroupConfig>,
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+): number {
+  let full = 0;
+  let collapsed = 0;
+
+  for (const group of groups) {
+    full += filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank, false),
+    ).length;
+    collapsed += filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank, true),
+    ).length;
+  }
+
+  return Math.max(0, full - collapsed);
 }
 
 /**

@@ -459,8 +459,21 @@ export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProv
   return buildStaticDemoProvenanceGraphFromShowcase(effectiveRunId);
 }
 
-export function tryStaticDemoPolicyPacksList(): PolicyPack[] | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+export type PolicyPacksStaticFallbackOptions = {
+  /**
+   * When the Policy Packs API fails (network error, auth, empty deployment), serve the curated
+   * Healthcare Claims pack even if demo env vars are unset — same logic as
+   * {@link StaticDemoRunsListFallbackOptions.afterAuthorityListFailure} for run lists.
+   */
+  readonly afterAuthorityFailure?: boolean;
+};
+
+function isPolicyPacksStaticFallbackActive(options?: PolicyPacksStaticFallbackOptions): boolean {
+  return isStaticDemoPayloadFallbackEnabled() || options?.afterAuthorityFailure === true;
+}
+
+export function tryStaticDemoPolicyPacksList(options?: PolicyPacksStaticFallbackOptions): PolicyPack[] | null {
+  if (!isPolicyPacksStaticFallbackActive(options)) {
     return null;
   }
 
@@ -480,8 +493,11 @@ export function tryStaticDemoPolicyPacksList(): PolicyPack[] | null {
   ];
 }
 
-export function tryStaticDemoEffectivePolicyPacks(projectId: string): EffectivePolicyPackSet | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+export function tryStaticDemoEffectivePolicyPacks(
+  projectId: string,
+  options?: PolicyPacksStaticFallbackOptions,
+): EffectivePolicyPackSet | null {
+  if (!isPolicyPacksStaticFallbackActive(options)) {
     return null;
   }
 
@@ -510,8 +526,10 @@ export function tryStaticDemoEffectivePolicyPacks(projectId: string): EffectiveP
   };
 }
 
-export function tryStaticDemoEffectivePolicyContent(): PolicyPackContentDocument | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+export function tryStaticDemoEffectivePolicyContent(
+  options?: PolicyPacksStaticFallbackOptions,
+): PolicyPackContentDocument | null {
+  if (!isPolicyPacksStaticFallbackActive(options)) {
     return null;
   }
 
@@ -530,15 +548,16 @@ export function mergePolicyPacksStateWithStaticDemo(
   effective: EffectivePolicyPackSet | null,
   content: PolicyPackContentDocument | null,
   projectId: string,
+  options?: PolicyPacksStaticFallbackOptions,
 ): { packs: PolicyPack[]; effective: EffectivePolicyPackSet | null; content: PolicyPackContentDocument | null } {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isPolicyPacksStaticFallbackActive(options)) {
     return { packs, effective, content };
   }
 
   let nextPacks = packs;
 
   if (nextPacks.length === 0) {
-    const seeded = tryStaticDemoPolicyPacksList();
+    const seeded = tryStaticDemoPolicyPacksList(options);
 
     if (seeded !== null) {
       nextPacks = seeded;
@@ -548,7 +567,7 @@ export function mergePolicyPacksStateWithStaticDemo(
   let nextEffective = effective;
 
   if (nextEffective === null || nextEffective.packs.length === 0) {
-    const seededEff = tryStaticDemoEffectivePolicyPacks(projectId);
+    const seededEff = tryStaticDemoEffectivePolicyPacks(projectId, options);
 
     if (seededEff !== null) {
       nextEffective = seededEff;
@@ -558,7 +577,7 @@ export function mergePolicyPacksStateWithStaticDemo(
   let nextContent = content;
 
   if (nextContent === null || (nextContent.complianceRuleKeys?.length ?? 0) === 0) {
-    const seededDoc = tryStaticDemoEffectivePolicyContent();
+    const seededDoc = tryStaticDemoEffectivePolicyContent(options);
 
     if (seededDoc !== null) {
       nextContent = seededDoc;
@@ -568,18 +587,21 @@ export function mergePolicyPacksStateWithStaticDemo(
   return { packs: nextPacks, effective: nextEffective, content: nextContent };
 }
 
-export function staticDemoPolicyPacksFallbackBundle(projectId: string): {
+export function staticDemoPolicyPacksFallbackBundle(
+  projectId: string,
+  options?: PolicyPacksStaticFallbackOptions,
+): {
   packs: PolicyPack[];
   effective: EffectivePolicyPackSet;
   content: PolicyPackContentDocument;
 } | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isPolicyPacksStaticFallbackActive(options)) {
     return null;
   }
 
-  const list = tryStaticDemoPolicyPacksList();
-  const eff = tryStaticDemoEffectivePolicyPacks(projectId);
-  const doc = tryStaticDemoEffectivePolicyContent();
+  const list = tryStaticDemoPolicyPacksList(options);
+  const eff = tryStaticDemoEffectivePolicyPacks(projectId, options);
+  const doc = tryStaticDemoEffectivePolicyContent(options);
 
   if (list === null || eff === null || doc === null) {
     return null;

@@ -90,6 +90,19 @@ These tables support the persisted authority pipeline (context → graph → fin
 
 Linked to runs and context snapshots; see the authority section in `ArchLucid.Persistence/Scripts/ArchLucid.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
 
+#### Foreign keys to **`dbo.Runs`** (authority integrity)
+
+Persisted snapshots and manifests that participate in the **authority chain** reference **`dbo.Runs(RunId)`** under **`NO ACTION`** foreign keys enforced in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** (idempotent `IF NOT EXISTS` guards mirror incremental DbUp history). Representative constraint names:
+
+- **`FK_ContextSnapshots_Runs_RunId`**
+- **`FK_GraphSnapshots_Runs_RunId`**
+- **`FK_FindingsSnapshots_Runs_RunId`**
+- **`FK_GoldenManifests_Runs_RunId`**
+
+**`ComparisonRecords`** `LeftRunId` / **`RightRunId`** remain **without** FK to **`dbo.Runs`** where historical or archived runs must stay referenceable without blocking comparisons.
+
+Deletes that remove tenant data (**hard purge**, bulk archive) intentionally remove **dependent authority rows before** **`Runs`** so **`NO ACTION`** does not block lifecycle operations (same ordering as relational satellites under **`ContextSnapshots`**).
+
 ---
 
 ### Comparison records (`002_ComparisonRecords.sql` + `003_ComparisonRecords_LabelAndTags.sql`)

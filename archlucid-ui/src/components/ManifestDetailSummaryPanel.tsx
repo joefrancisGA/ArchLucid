@@ -31,9 +31,11 @@ export function ManifestDetailSummaryPanel({
   return (
     <>
       {summary.operatorSummary ? (
-        <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {summary.operatorSummary}
-        </p>
+        <div className="rounded-lg border border-teal-100 bg-teal-50/60 px-4 py-3 dark:border-teal-900/40 dark:bg-teal-950/30">
+          <p className="m-0 text-sm font-medium leading-relaxed text-teal-900 dark:text-teal-100">
+            {summary.operatorSummary}
+          </p>
+        </div>
       ) : null}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -77,24 +79,6 @@ export function ManifestDetailSummaryPanel({
         <span className="font-medium text-neutral-800 dark:text-neutral-200">Policy pack:</span>{" "}
         {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}
       </p>
-
-      <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
-        <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-          <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
-          <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-            <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
-            <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
-          </dd>
-          {summary.manifestHash ? (
-            <>
-              <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Hash</dt>
-              <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                <span className="font-mono text-[12px]">{summary.manifestHash}</span>
-              </dd>
-            </>
-          ) : null}
-        </dl>
-      </CollapsibleSection>
 
       <details className="rounded-lg border border-neutral-200 dark:border-neutral-800" open>
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -151,6 +135,24 @@ export function ManifestDetailSummaryPanel({
           )}
         </div>
       </details>
+
+      <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
+        <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
+          <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
+          <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
+            <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
+            <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
+          </dd>
+          {summary.manifestHash ? (
+            <>
+              <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Hash</dt>
+              <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                <span className="font-mono text-[12px]">{summary.manifestHash}</span>
+              </dd>
+            </>
+          ) : null}
+        </dl>
+      </CollapsibleSection>
 
       {isCuratedDemo ? (
         <section

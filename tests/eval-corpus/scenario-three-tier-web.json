@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "three-tier-web-simple",
+  "metadata": {
+    "title": "Stable three-tier SaaS pattern",
+    "complexity": "low",
+    "primaryAgents": ["Topology"]
+  },
+  "inputSummary": "Three-tier HTTPS web workload with managed identity SQL and CDN static assets.",
+  "recording": "recordings/three-tier-web-simple.findings.json",
+  "expectedFindings": [
+    {
+      "id": "e topology baseline",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["three-tier", "HTTPS"]
+    },
+    {
+      "id": "e identity posture",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["managed identity", "Vault"]
+    },
+    {
+      "id": "e segmentation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoints", "data plane"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["catastrophic", "immediate production halt required"] },
+    { "category": "Cost", "ifContainsAny": ["400% overrun", "emergency resizing"] }
+  ]
+}

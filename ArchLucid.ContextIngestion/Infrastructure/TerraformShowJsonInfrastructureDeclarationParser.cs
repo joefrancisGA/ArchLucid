@@ -145,6 +145,31 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
 
                 properties[$"tf.{key}"] = valueText.Length > 512 ? valueText[..512] : valueText;
             }
+
+            if (res.TryGetProperty("sensitive_values", out JsonElement sensitive) && sensitive.ValueKind == JsonValueKind.Object)
+                RedactTopLevelSensitiveTfValues(sensitive, properties);
+        }
+
+        if (res.TryGetProperty("depends_on", out JsonElement depOn) && depOn.ValueKind == JsonValueKind.Array)
+        {
+            List<string> refs = [];
+
+            foreach (JsonElement dep in depOn.EnumerateArray())
+            {
+                if (dep.ValueKind != JsonValueKind.String)
+                    continue;
+
+                string? r = dep.GetString();
+                if (!string.IsNullOrWhiteSpace(r))
+                    refs.Add(r.Trim());
+            }
+
+            if (refs.Count > 0)
+            {
+                string joined = string.Join('|', refs);
+
+                properties["terraformDependsOn"] = joined.Length > 2000 ? joined[..2000] : joined;
+            }
         }
 
         results.Add(new CanonicalObject
@@ -177,6 +202,26 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         return new string(buffer[..w]);
     }
 
+    private static void RedactTopLevelSensitiveTfValues(
+        JsonElement sensitiveRoot,
+        Dictionary<string, string> properties)
+    {
+        foreach (JsonProperty sp in sensitiveRoot.EnumerateObject())
+        {
+            if (sp.Value.ValueKind != JsonValueKind.True)
+                continue;
+
+            string k = SanitizePropertyKey(sp.Name);
+            if (string.IsNullOrEmpty(k))
+                continue;
+
+            string pk = $"tf.{k}";
+
+            if (properties.ContainsKey(pk))
+                properties[pk] = "[REDACTED]";
+        }
+    }
+
     private static string ResolveObjectTypeFromTerraformType(string tfType)
     {
         ReadOnlySpan<char> s = tfType.AsSpan();
@@ -189,6 +234,11 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
                 or "azurerm_key_vault_access_policy" =>
                 "SecurityBaseline",
             "azurerm_policy_assignment" or "azurerm_policy_definition" => "PolicyControl",
+            // Common Azure topology nodes (explicit for assessor traceability; still TopologyResource-shaped)
+            "azurerm_resource_group" or "azurerm_app_service" or "azurerm_linux_web_app"
+                or "azurerm_windows_web_app" or "azurerm_sql_server" or "azurerm_mssql_server"
+                or "azurerm_storage_account" or "azurerm_virtual_network" or "azurerm_subnet" =>
+                "TopologyResource",
             _ => "TopologyResource"
         };
     }

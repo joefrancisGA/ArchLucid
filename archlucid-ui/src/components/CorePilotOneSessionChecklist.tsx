@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { HelpLink } from "@/components/HelpLink";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 type Phase = "loading" | "ready";
 
@@ -35,11 +37,18 @@ const STEPS: readonly {
  * lightweight commit context can resolve them from existing APIs.
  */
 export function CorePilotOneSessionChecklist() {
-  const [phase, setPhase] = useState<Phase>("loading");
-  const [latestRunId, setLatestRunId] = useState<string | null>(null);
-  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(null);
+  const isDemoFallback = isStaticDemoPayloadFallbackEnabled();
+  const [phase, setPhase] = useState<Phase>(isDemoFallback ? "ready" : "loading");
+  const [latestRunId, setLatestRunId] = useState<string | null>(isDemoFallback ? SHOWCASE_STATIC_DEMO_RUN_ID : null);
+  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(
+    isDemoFallback ? SHOWCASE_STATIC_DEMO_RUN_ID : null,
+  );
 
   useEffect(() => {
+    if (isDemoFallback) {
+      return;
+    }
+
     let cancelled = false;
 
     const safetyTimer =
@@ -76,7 +85,7 @@ export function CorePilotOneSessionChecklist() {
         window.clearTimeout(safetyTimer);
       }
     };
-  }, []);
+  }, [isDemoFallback]);
 
   function hrefForStep(index: number): string {
     if (index === 0) {

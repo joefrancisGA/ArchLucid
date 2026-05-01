@@ -131,7 +131,7 @@ export default function PolicyPacksPage() {
       setEffective(merged.effective);
       setEffectiveContent(merged.content);
     } catch (e) {
-      const fb = staticDemoPolicyPacksFallbackBundle("default");
+      const fb = staticDemoPolicyPacksFallbackBundle("default", { afterAuthorityFailure: true });
 
       if (fb !== null) {
         setPacks(fb.packs);
@@ -449,7 +449,13 @@ export default function PolicyPacksPage() {
         <h4 className="mt-2 mb-2">Effective resolved packs</h4>
         {effective ? (
           <div className="mb-5">
-            <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
+            {isStaticDemoPayloadFallbackEnabled() ? (
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                {effective.effectivePacks?.length ?? 0} pack(s) resolved for this scope. Connect a live API to inspect raw configuration.
+              </p>
+            ) : (
+              <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
+            )}
           </div>
         ) : (
           <p className="text-sm text-neutral-500 dark:text-neutral-400">—</p>
@@ -458,10 +464,16 @@ export default function PolicyPacksPage() {
         <h4 className="mt-0 mb-2">Resolved effective content</h4>
         {effectiveContent ? (
           <div className="mb-6">
-            <CollapsibleJsonTree
-              value={effectiveContent}
-              className="max-h-[360px] border border-neutral-200 dark:border-neutral-600"
-            />
+            {isStaticDemoPayloadFallbackEnabled() ? (
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                Effective policy content is available with a live API connection.
+              </p>
+            ) : (
+              <CollapsibleJsonTree
+                value={effectiveContent}
+                className="max-h-[360px] border border-neutral-200 dark:border-neutral-600"
+              />
+            )}
           </div>
         ) : (
           <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">—</p>

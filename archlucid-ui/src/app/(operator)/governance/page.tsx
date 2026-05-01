@@ -112,6 +112,9 @@ function GovernanceWorkflowPageInner() {
   const searchParams = useSearchParams();
   const canMutateWorkflow = useEnterpriseMutationCapability();
   const [toast, setToast] = useState<ToastState>(null);
+  const isStaticDemoFallbackActiveForShowcase =
+    isStaticDemoPayloadFallbackEnabled() ||
+    tryStaticDemoGovernanceApprovalRequests(SHOWCASE_STATIC_DEMO_RUN_ID) !== null;
 
   const [submitRunId, setSubmitRunId] = useState("");
   const [submitManifestVersion, setSubmitManifestVersion] = useState("");
@@ -280,7 +283,7 @@ function GovernanceWorkflowPageInner() {
   }, [activeRunId, loadLists]);
 
   useEffect(() => {
-    if (!isStaticDemoPayloadFallbackEnabled()) {
+    if (!isStaticDemoPayloadFallbackEnabled() && !isStaticDemoFallbackActiveForShowcase) {
       return;
     }
 
@@ -306,7 +309,7 @@ function GovernanceWorkflowPageInner() {
     setQueryRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
     setActiveRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
     void loadLists(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [searchParams, queryRunId, loadLists]);
+  }, [searchParams, queryRunId, loadLists, isStaticDemoFallbackActiveForShowcase]);
 
   async function onSubmitApproval() {
     if (!canMutateWorkflow) {

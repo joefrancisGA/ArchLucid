@@ -120,6 +120,27 @@ export function getArtifactTypeLabel(artifactType: string): string {
   return artifactType.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
 }
 
+/**
+ * Buyer-facing business label for artifact types used on public/marketing pages.
+ * Maps technical artifact types to sponsor-readable names.
+ */
+const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
+  MarkdownReport: "Sponsor brief",
+  JsonBundle: "Decision record",
+  Diagram: "System diagram",
+  MermaidDiagram: "System diagram",
+  DiagramAst: "System diagram",
+  EvidenceBundle: "Evidence bundle",
+  CostSummary: "Cost analysis",
+  UnresolvedIssuesReport: "Open issues summary",
+  ArchitectureNarrative: "Architecture narrative",
+  Inventory: "Architecture inventory",
+};
+
+export function getArtifactBusinessLabel(artifactType: string): string {
+  return ARTIFACT_BUSINESS_LABELS[artifactType] ?? getArtifactTypeLabel(artifactType);
+}
+
 /** Returns a one-line description of what an artifact type represents, for the preview panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];

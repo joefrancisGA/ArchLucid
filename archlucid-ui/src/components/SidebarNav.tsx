@@ -3,7 +3,7 @@
 import { ChevronDown, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
@@ -24,15 +24,21 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
-import { countLinksHiddenByProgressiveDisclosure, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import {
+  countLinksHiddenByProgressiveDisclosure,
+  countSidebarLinksHiddenByCollapsedPilot,
+  listNavGroupsVisibleInOperatorShell,
+} from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
+const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 
 /** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
 const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
@@ -118,17 +124,38 @@ function SidebarRecentActivityCard() {
 export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [navAllFeaturesExpanded, setNavAllFeaturesExpanded] = useState(false);
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const demoUi = isNextPublicDemoMode();
+  const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
     showAdvanced,
   );
+
+  const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !navAllFeaturesExpanded;
+  const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
+    ? countSidebarLinksHiddenByCollapsedPilot(
+        NAV_GROUPS,
+        demoUi ? true : shellShowExtended,
+        demoUi ? true : shellShowAdvanced,
+        callerAuthorityRank,
+      )
+    : 0;
+
+  useLayoutEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+
+      setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
+    } catch {
+      /* private mode — keep collapsed default */
+    }
+  }, []);
 
   useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -168,6 +195,7 @@ export function SidebarNav() {
         demoUi ? true : shellShowExtended,
         demoUi ? true : shellShowAdvanced,
         callerAuthorityRank,
+        applyCollapsedSidebarPilotFilter,
       ).map(({ group, visibleLinks }) => {
         const linksAfterDemoFilter = demoUi
           ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
@@ -300,19 +328,51 @@ export function SidebarNav() {
               >
                 <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 {group.id === "operate-analysis"
-                  ? `${hiddenByDisclosure} advanced analysis`
+                  ? `${hiddenByDisclosure} more`
                   : group.id === "operate-governance"
-                    ? `${hiddenByDisclosure} governance controls`
+                    ? `${hiddenByDisclosure} more`
                     : group.id === "operator-admin"
-                      ? `${hiddenByDisclosure} admin controls`
+                      ? `${hiddenByDisclosure} more`
                       : group.id === "pilot"
-                        ? `${hiddenByDisclosure} pilot tools`
+                        ? `${hiddenByDisclosure} more`
                         : `${hiddenByDisclosure} more`}
               </button>
             ) : null}
           </Collapsible>
         );
       })}
+
+      {showProgressiveDisclosureChrome ? (
+        <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
+          <button
+            type="button"
+            className="w-full rounded-md border border-neutral-200 bg-white px-2 py-2 text-left text-xs font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            onClick={() => {
+              const next = !navAllFeaturesExpanded;
+              setNavAllFeaturesExpanded(next);
+
+              try {
+                window.localStorage.setItem(SIDEBAR_NAV_EXPAND_ALL_KEY, next ? "true" : "false");
+              } catch {
+                /* private mode */
+              }
+            }}
+          >
+            {navAllFeaturesExpanded ? (
+              "Fewer sidebar links"
+            ) : (
+              <>
+                Show all features
+                {extraLinksBehindCollapsedPilot > 0 ? (
+                  <span className="ml-1 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
+                    {extraLinksBehindCollapsedPilot} more
+                  </span>
+                ) : null}
+              </>
+            )}
+          </button>
+        </div>
+      ) : null}
 
       {showProgressiveDisclosureChrome ? (
       <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">

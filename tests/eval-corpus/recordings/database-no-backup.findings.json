@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-db-1",
+      "category": "Compliance",
+      "severity": "Critical",
+      "title": "Backup policy gap",
+      "detail": "No automated backup snapshots meet the stated twelve-hour RPO; manual exports are ad hoc."
+    },
+    {
+      "findingId": "f-db-2",
+      "category": "Topology",
+      "severity": "High",
+      "title": "Geo-redundant storage disabled",
+      "detail": "Storage redundancy is Locally Redundant Storage only — multi-region recovery is unspecified."
+    },
+    {
+      "findingId": "f-db-3",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Restore rehearsals",
+      "detail": "No documented quarterly restore game day attaches SQL restore evidence to CAB records."
+    }
+  ]
+}

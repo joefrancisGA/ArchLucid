@@ -19,7 +19,7 @@ archlucid_api_backend_url = "https://archlucid-api-dev.azurewebsites.net"
 apim_api_path_suffix = "v1"
 
 # After the API is deployed, point at real Swagger to import all operations (optional but recommended).
-# apim_openapi_spec_url = "https://archlucid-api-dev.azurewebsites.net/swagger/v1/swagger.json"
+# apim_openapi_spec_url = "https://archlucid-api-dev.azurewebsites.net/openapi/v1.json"
 
 tags = {
   workload = "archlucid"

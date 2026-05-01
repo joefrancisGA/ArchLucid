@@ -13,6 +13,8 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
@@ -21,6 +23,15 @@ import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } fr
  * 60R simulation review: browse candidate change sets, plan-derived expectations, and per-baseline before/after diffs.
  */
 export default function EvolutionReviewPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Evolution review not available in demo mode.</p>
+        <p className="m-0 mt-1">60R simulation review requires a live API connection with baseline data.</p>
+      </div>
+    );
+  }
+
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<EvolutionResultsResponse | null>(null);

@@ -8,6 +8,8 @@ import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 const USERS_PATH = "/api/proxy/v1/admin/users";
@@ -27,6 +29,15 @@ type AdminUsersNote = "api_unavailable" | "empty_response" | "load_failed";
  * the page stays read-only until GET/PUT admin user endpoints are available.
  */
 export default function AdminUsersPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">User management not available in demo mode.</p>
+        <p className="m-0 mt-1">Manage users and access through your identity provider.</p>
+      </div>
+    );
+  }
+
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<UserRow[]>([]);
   const [note, setNote] = useState<AdminUsersNote | null>(null);

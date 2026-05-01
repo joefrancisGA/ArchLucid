@@ -17,7 +17,7 @@ export default defineConfig({
    * `live-api-*.spec.ts` — journeys against real SQL + API.
    * `marketing-accessibility-public.spec.ts` — static marketing route (no API); still uses the live webServer bundle.
    */
-  testMatch: ["live-api-*.spec.ts", "marketing-accessibility-public.spec.ts"],
+  testMatch: ["live-api-*.spec.ts", "marketing-accessibility-public.spec.ts", "marketing-demo-preview.spec.ts"],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

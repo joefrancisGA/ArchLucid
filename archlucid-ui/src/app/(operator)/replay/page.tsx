@@ -12,6 +12,8 @@ import {
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
@@ -259,6 +261,15 @@ function ReplaySuspenseFallback() {
 
 /** Replay page entry point. Wraps ReplayForm in Suspense for useSearchParams hydration. */
 export default function ReplayPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Replay not available in demo mode.</p>
+        <p className="m-0 mt-1">Re-validating stored pipeline output requires a live API connection.</p>
+      </div>
+    );
+  }
+
   return (
     <Suspense fallback={<ReplaySuspenseFallback />}>
       <ReplayForm />
