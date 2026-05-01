@@ -73,4 +73,15 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
     expect(items).toHaveLength(2);
     expect(items.map((r) => r.runId)).toEqual(["claims-intake-run-v1", "claims-intake-run-v2"]);
   });
+
+  it("injects single showcase row when list throws and demo mode is off", async () => {
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    mockList.mockRejectedValue(new Error("network down"));
+
+    const { items, loadError } = await loadProjectRunsMergedWithDemoFallback("default");
+
+    expect(loadError).toBe(false);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.runId).toBe("claims-intake-modernization");
+  });
 });

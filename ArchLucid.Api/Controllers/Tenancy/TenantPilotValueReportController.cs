@@ -1,3 +1,4 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 
@@ -39,7 +40,11 @@ public sealed class TenantPilotValueReportController(IPilotValueReportService pi
         PilotValueReport? report = await _pilotValueReportService.BuildAsync(fromUtc, toUtc, cancellationToken);
 
         if (report is null)
-            return NotFound();
+        {
+            return this.NotFoundProblem(
+                "Tenant was not found for the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         string? accept = Request.Headers.Accept.ToString();
 

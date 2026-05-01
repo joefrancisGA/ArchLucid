@@ -41,7 +41,7 @@ public sealed class TenantPilotValueReportControllerTests
     }
 
     [Fact]
-    public async Task GetPilotValueReport_returns_not_found_when_service_null()
+    public async Task GetPilotValueReport_returns_problem_details_when_tenant_missing()
     {
         Mock<IPilotValueReportService> svc = new();
         svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).ReturnsAsync((PilotValueReport?)null);
@@ -53,7 +53,11 @@ public sealed class TenantPilotValueReportControllerTests
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 
-        result.Should().BeOfType<NotFoundResult>();
+        ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? pd = problem.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        pd.Should().NotBeNull();
+        pd!.Detail.Should().Be("Tenant was not found for the current scope.");
     }
 
     [Fact]

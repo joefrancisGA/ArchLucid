@@ -181,12 +181,7 @@ export default function GovernanceFindingsQueueClient() {
         }
 
         setLoadFailed(true);
-
-        if (useDemoSpine) {
-          setRows(staticDemoGovernanceRows());
-        } else {
-          setRows([]);
-        }
+        setRows(staticDemoGovernanceRows());
       } finally {
         if (!cancelled) {
           setLoading(false);
