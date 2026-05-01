@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
@@ -14,14 +14,14 @@ using Polly.Timeout;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-///     Polly Simmy chaos strategies layered with retries / timeouts — mirrors production resilience patterns without
+///     Polly Simmy chaos strategies layered with retries / timeouts â€” mirrors production resilience patterns without
 ///     external services.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class SimmyChaosPipelineTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Timeout_rejects_slow_delegate_quickly()
     {
         ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
@@ -40,7 +40,7 @@ public sealed class SimmyChaosPipelineTests
         await act.Should().ThrowAsync<TimeoutRejectedException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChaosLatency_at_full_injection_adds_delay_before_completion()
     {
         ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
@@ -61,7 +61,7 @@ public sealed class SimmyChaosPipelineTests
         sw.ElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(90);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChaosFault_transient_sql_retries_then_invokes_delegate_once()
     {
         int innerCalls = 0;

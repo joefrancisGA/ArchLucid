@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class CachingAgentCompletionClientTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_when_disabled_invokes_inner_each_time()
     {
         CountingCompletionClient inner = new();
@@ -33,7 +33,7 @@ public sealed class CachingAgentCompletionClientTests
         inner.CallCount.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_when_enabled_reuses_inner_for_identical_prompts()
     {
         CountingCompletionClient inner = new();
@@ -58,7 +58,7 @@ public sealed class CachingAgentCompletionClientTests
         second.Should().Be(first);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_when_partitionByScope_and_scope_changes_invokes_inner_again()
     {
         CountingCompletionClient inner = new();

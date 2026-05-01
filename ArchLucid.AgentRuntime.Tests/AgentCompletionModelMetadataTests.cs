@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class AgentCompletionModelMetadataTests
 {
-    [Fact]
+    [SkippableFact]
     public void TryConsume_returns_false_when_no_metadata_set()
     {
         AgentCompletionModelMetadata.TryConsume(out string? dep, out string? ver);
@@ -15,7 +15,7 @@ public sealed class AgentCompletionModelMetadataTests
         ver.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryConsume_returns_true_then_clears()
     {
         AzureOpenAiCompletionClient.TestingSetLastModelMetadata("my-deployment", "gpt-4o-mini");

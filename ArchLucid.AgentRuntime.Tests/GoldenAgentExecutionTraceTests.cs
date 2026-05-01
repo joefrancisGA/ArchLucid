@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -15,7 +15,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class GoldenAgentExecutionTraceTests
 {
-    [Fact]
+    [SkippableFact]
     public void Fixture_golden_simulator_deserializes_with_expected_model_metadata()
     {
         AgentExecutionTrace trace = LoadTrace("golden-simulator.json");
@@ -26,7 +26,7 @@ public sealed class GoldenAgentExecutionTraceTests
         trace.ParsedResultJson.Should().NotBeNullOrEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Fixture_golden_unspecified_deserializes_with_expected_sentinels()
     {
         AgentExecutionTrace trace = LoadTrace("golden-unspecified.json");
@@ -36,7 +36,7 @@ public sealed class GoldenAgentExecutionTraceTests
         trace.ParseSucceeded.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Fixture_golden_parse_success_has_parsed_json_when_parse_succeeded()
     {
         AgentExecutionTrace trace = LoadTrace("golden-parse-success.json");

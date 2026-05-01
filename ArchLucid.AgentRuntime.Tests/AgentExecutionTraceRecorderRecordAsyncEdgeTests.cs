@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
@@ -26,7 +26,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_throws_when_run_id_whitespace()
     {
         AgentExecutionTraceRecorderImpl sut = CreateSut(false);
@@ -46,7 +46,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_throws_when_task_id_empty()
     {
         AgentExecutionTraceRecorderImpl sut = CreateSut(false);
@@ -66,7 +66,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_cost_disabled_does_not_set_estimated_cost_despite_token_counts()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -93,7 +93,7 @@ public sealed class AgentExecutionTraceRecorderRecordAsyncEdgeTests
         traces[0].EstimatedCostUsd.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_simulator_skips_blob_persistence_after_create()
     {
         Mock<IArtifactBlobStore> blobs = new();

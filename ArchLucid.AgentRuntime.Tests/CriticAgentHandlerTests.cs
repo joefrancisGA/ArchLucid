@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Prompts;
+﻿using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -17,7 +17,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class CriticAgentHandlerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_ShouldReturnParsedCriticAgentResult()
     {
         string json = """

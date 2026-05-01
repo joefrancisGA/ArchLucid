@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -17,7 +17,7 @@ public sealed class LlmCallRetrySimmyTests
     /// <summary>Outer-loop trials for 50% chaos injection (statistical coverage, not tied to retry attempt count).</summary>
     private const int ChaosResilienceObservationIterations = 12;
 
-    [Fact]
+    [SkippableFact]
     public async Task ChaosTransient429_RetryRecoverBeforeCBTrip()
     {
         int innerCalls = 0;
@@ -56,7 +56,7 @@ public sealed class LlmCallRetrySimmyTests
         chaosWave.Should().Be(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChaosPersistentFault_RetryExhaustedPropagates()
     {
         ChaosFaultStrategyOptions chaosOptions = new()
@@ -86,7 +86,7 @@ public sealed class LlmCallRetrySimmyTests
         await act.Should().ThrowAsync<HttpRequestException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InnerTimeout_slowDelegate_RetryThenTimeoutRejected()
     {
         // Retry wraps an inner timeout pipeline (same nesting shape as LLM call resilience).
@@ -124,7 +124,7 @@ public sealed class LlmCallRetrySimmyTests
         await act.Should().ThrowAsync<TimeoutRejectedException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChaosIntermittent_FiftyPercent_EventualSuccessWithinBudget()
     {
         ChaosFaultStrategyOptions chaosOptions = new()

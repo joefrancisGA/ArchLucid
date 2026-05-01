@@ -1,4 +1,4 @@
-using System.ClientModel;
+﻿using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Net;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class LlmCallResilienceDefaultsTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_ZeroAttempts_RunsDelegateOnce()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(maxRetryAttempts: 0);
@@ -31,7 +31,7 @@ public sealed class LlmCallResilienceDefaultsTests
         calls.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_RetriesHttpRequestException()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -60,7 +60,7 @@ public sealed class LlmCallResilienceDefaultsTests
         calls.Should().Be(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_RetriesClientResultException429()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -81,7 +81,7 @@ public sealed class LlmCallResilienceDefaultsTests
         calls.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_DoesNotRetryClientResultException400()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -103,7 +103,7 @@ public sealed class LlmCallResilienceDefaultsTests
         calls.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_DoesNotRetryInvalidOperationException()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -125,7 +125,7 @@ public sealed class LlmCallResilienceDefaultsTests
         calls.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildLlmRetryPipeline_PropagatesUserCancellation()
     {
         ResiliencePipeline pipeline = LlmCallResilienceDefaults.BuildLlmRetryPipeline(

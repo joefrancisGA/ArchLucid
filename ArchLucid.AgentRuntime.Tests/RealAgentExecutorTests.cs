@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -43,7 +43,7 @@ public sealed class RealAgentExecutorTests
             ro);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_when_duplicate_agent_types_throws()
     {
         IAgentHandler[] handlers =
@@ -57,7 +57,7 @@ public sealed class RealAgentExecutorTests
         act.Should().Throw<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_orders_results_by_agent_type_regardless_of_completion_order()
     {
         List<AgentType> observed = [];
@@ -96,7 +96,7 @@ public sealed class RealAgentExecutorTests
         results[1].AgentType.Should().Be(AgentType.Topology);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_when_handler_missing_throws()
     {
         RealAgentExecutor sut = CreateSut();
@@ -120,7 +120,7 @@ public sealed class RealAgentExecutorTests
             .WithMessage("*cost*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_records_one_activity_per_task_with_agent_tags()
     {
         List<Activity> completed = [];
@@ -171,7 +171,7 @@ public sealed class RealAgentExecutorTests
         types.Should().Equal(AgentTypeKeys.Compliance, AgentTypeKeys.Topology);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_runs_multiple_handlers_concurrently_so_topology_can_unblock_compliance()
     {
         // Dispatch-key order is Compliance then Topology. Compliance blocks until Topology runs; sequential execution would deadlock.

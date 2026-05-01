@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Explanation;
+﻿using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Validation;
@@ -17,7 +17,7 @@ public sealed class ExplanationServiceComparisonTests
     ///     back to heuristics.
     ///     This test exercises the comparison explanation pipeline and heuristic fallbacks when the model JSON is not bound.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task ExplainComparisonAsync_returns_heuristic_summary_when_llm_json_does_not_bind()
     {
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => "{}");

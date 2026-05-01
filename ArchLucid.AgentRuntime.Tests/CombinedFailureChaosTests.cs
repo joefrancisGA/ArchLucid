@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
@@ -20,7 +20,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class CombinedFailureChaosTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Combined_sql_then_http_transient_faults_outer_retry_eventually_succeeds()
     {
         int innerSuccesses = 0;

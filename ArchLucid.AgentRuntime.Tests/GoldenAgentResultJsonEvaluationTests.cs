@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -19,7 +19,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
     private static readonly AgentOutputEvaluator Structural = new();
     private static readonly AgentOutputSemanticEvaluator Semantic = new();
 
-    [Fact]
+    [SkippableFact]
     public void Golden_valid_fixture_scores_full_structural_completeness()
     {
         string json = LoadFixtureText("golden-agent-result-valid.json");
@@ -31,7 +31,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         score.MissingKeys.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Golden_valid_fixture_has_nonzero_semantic_score_from_findings_and_claims()
     {
         string json = LoadFixtureText("golden-agent-result-valid.json");
@@ -42,7 +42,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         semantic.FindingsQualityRatio.Should().Be(1.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Golden_partial_fixture_is_incomplete_structurally_but_parseable()
     {
         string json = LoadFixtureText("golden-agent-result-partial-keys.json");
@@ -54,7 +54,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         score.MissingKeys.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Golden_non_json_fixture_is_structural_parse_failure()
     {
         string json = LoadFixtureText("golden-agent-result-not-json.txt");
@@ -65,9 +65,9 @@ public sealed class GoldenAgentResultJsonEvaluationTests
     }
 
     /// <summary>
-    ///     Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 — golden-set guard).
+    ///     Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 â€” golden-set guard).
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void Golden_claim_without_evidence_refs_lowers_semantic_score_relative_to_valid_fixture()
     {
         string validJson = LoadFixtureText("golden-agent-result-valid.json");

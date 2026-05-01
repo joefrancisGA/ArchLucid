@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Prompts;
+﻿using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -10,7 +10,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class AgentPromptReproTests
 {
-    [Fact]
+    [SkippableFact]
     public void CanonicalHasher_ignores_crlf_vs_lf()
     {
         string a = "line1\nline2";
@@ -21,7 +21,7 @@ public sealed class AgentPromptReproTests
             .Be(AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(b));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CachedCatalog_applies_release_label_from_options()
     {
         AgentPromptCatalogOptions opts = new() { Versions = { [AgentTypeKeys.Topology] = "pilot-a" } };
@@ -36,7 +36,7 @@ public sealed class AgentPromptReproTests
         r.Text.Should().StartWith("You are the ArchLucid Topology Agent.");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolvedSystemPrompt_ToReproMetadata_round_trips()
     {
         ResolvedSystemPrompt r = new("x", "id", "1.0.0", "abc", "lab");

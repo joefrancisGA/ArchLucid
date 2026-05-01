@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class LlmCostEstimatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void EstimateUsd_returns_null_when_disabled()
     {
         LlmCostEstimator sut = new(Options.Create(new LlmCostEstimationOptions { Enabled = false }));
@@ -17,7 +17,7 @@ public sealed class LlmCostEstimatorTests
         sut.EstimateUsd(100, 100).Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EstimateUsd_computes_when_enabled()
     {
         LlmCostEstimator sut = new(
