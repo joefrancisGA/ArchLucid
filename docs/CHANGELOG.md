@@ -7,6 +7,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-05-01 — Support bundle: generated **next-steps.json** + README summary (CLI + API)
+
+**Outcome.** **`SupportBundleNextStepsBuilder`** in **`ArchLucid.Core`** drives **`next-steps.json`** (and matching README bullets) for CLI **`support-bundle`** and in-product **`/v1/admin/support-bundle`**. CLI **`manifest.json`** **`bundleFormatVersion`** **1.2**; API assembler **`server-1.1`**. Docs: **`TROUBLESHOOTING.md`** bundle contents list; **`QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76.md`** § **10** (resolved).
+
 ## 2026-05-01 — Observability: Application Insights connection string fallback + export checklist
 
 **Outcome.** **`ObservabilityExtensions`** reads **`Observability:AzureMonitor:ApplicationInsightsConnectionString`** as a third source for **Azure Monitor** OTel exporters (after **`APPLICATIONINSIGHTS_CONNECTION_STRING`** and **`ApplicationInsights:ConnectionString`**). **`OBSERVABILITY.md`** — new **Export path configuration (OpenTelemetry)** (App Insights, OTLP, Prometheus scrape, console).

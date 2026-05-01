@@ -32,8 +32,7 @@ public sealed class CommercialPackagingMetadataTests
             .Where(t =>
                 t is { IsClass: true } &&
                 controllerBase.IsAssignableFrom(t) &&
-                !t.IsAbstract &&
-                !t.IsNestedPrivate &&
+                t is { IsAbstract: false, IsNestedPrivate: false } &&
                 t.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false) is not null)
             .ToList();
 

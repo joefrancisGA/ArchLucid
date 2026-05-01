@@ -3,6 +3,8 @@ using System.Text;
 
 using ArchLucid.Cli.Support;
 
+using ArchLucid.Core.Support;
+
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -86,7 +88,8 @@ public sealed class SupportBundleTests
             payload.Health.Ready.HttpStatus.Should().Be(200);
             payload.ApiContract.MicrosoftOpenApiV1.HttpStatus.Should().Be(200);
             payload.ApiContract.MicrosoftOpenApiV1.BodyPreview.Should().Contain("openapi");
-            payload.Manifest.TriageReadOrder.Should().NotBeEmpty();
+            payload.Manifest.TriageReadOrder[0].File.Should().Be(SupportBundleLayout.NextStepsFileName);
+            payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
         }
@@ -120,12 +123,13 @@ public sealed class SupportBundleTests
 
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleLayout.NextStepsFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.HealthFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
                 .Contain("bundleFormatVersion");
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should()
-                .Contain("health.json");
+                .Contain("next-steps.json");
         }
         finally
         {

@@ -272,13 +272,17 @@ export function WelcomeBanner() {
             <ul className="m-0 mb-2 list-none space-y-1.5 p-0">
               {(
                 [
-                  { label: "Governed manifest" as const, Icon: FileCheck2 },
-                  { label: "Actionable findings" as const, Icon: Target },
-                  { label: <><GlossaryTooltip termKey="artifact_bundle">artifact bundle</GlossaryTooltip></> as const, Icon: Package },
-                  { label: "Review trail" as const, Icon: ClipboardCheck },
+                  { id: "governed-manifest", label: "Governed manifest" as const, Icon: FileCheck2 },
+                  { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
+                  {
+                    id: "artifact-bundle",
+                    label: <GlossaryTooltip termKey="artifact_bundle">artifact bundle</GlossaryTooltip>,
+                    Icon: Package,
+                  },
+                  { id: "review-trail", label: "Review trail" as const, Icon: ClipboardCheck },
                 ] as const
-              ).map(({ label, Icon }) => (
-                <li key={label} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+              ).map(({ id, label, Icon }) => (
+                <li key={id} className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400">
                   <Icon className="h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
                   {label}
                 </li>

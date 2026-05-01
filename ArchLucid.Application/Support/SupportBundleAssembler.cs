@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Core.Support;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Support;
@@ -49,7 +51,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
     public const string ReferencesFileName = "references.json";
 
     /// <summary>Bundle format version — bumped only on breaking changes to the file shape.</summary>
-    public const string BundleFormatVersion = "server-1.0";
+    public const string BundleFormatVersion = "server-1.1";
 
     /// <summary>Content type returned to the controller.</summary>
     public const string ZipContentType = "application/zip";
@@ -82,15 +84,20 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             ? "(no tenant context)"
             : request.TenantDisplayName;
 
+        IReadOnlyDictionary<string, string> envSnapshot = SupportBundleSensitivePatternRedactor.SnapshotEnvironmentForBundle();
+        SupportBundleNextStepsDocument nextSteps = SupportBundleNextStepsBuilder.BuildForApiHost(createdUtcIso, envSnapshot);
+
         string manifestJson = SerializeIndented(BuildManifest(createdUtcIso, requesterDisplay, tenantDisplay));
         string buildJson = SerializeIndented(BuildBuildSection());
-        string environmentJson = SerializeIndented(BuildEnvironmentSection());
+        string environmentJson = SerializeIndented(BuildEnvironmentSection(envSnapshot));
         string referencesJson = SerializeIndented(BuildReferencesSection());
-        string readmeText = BuildReadme(createdUtcIso, requesterDisplay, tenantDisplay);
+        string nextStepsJson = SerializeIndented(nextSteps);
+        string readmeText = BuildReadme(createdUtcIso, requesterDisplay, tenantDisplay, nextSteps);
 
         byte[] zipBytes = WriteZip(
         [
             new SupportBundleZipEntry(ReadmeFileName, RedactToBytes(readmeText)),
+            new SupportBundleZipEntry(SupportBundleLayout.NextStepsFileName, RedactToBytes(nextStepsJson)),
             new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)),
             new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)),
             new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)),
@@ -117,9 +124,10 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         createdUtc = createdUtcIso,
         requesterDisplayId = requesterDisplay,
         tenantDisplayName = tenantDisplay,
-        triageReadOrder = new[]
+        triageReadOrder = new object[]
         {
             new { file = ReadmeFileName, why = "Plain-text overview — open first." },
+            new { file = SupportBundleLayout.NextStepsFileName, why = "Machine-generated triage summary (advisory only)." },
             new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
             new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
             new { file = EnvironmentFileName, why = "Redacted host environment snapshot." },
@@ -151,9 +159,9 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         };
     }
 
-    private static object BuildEnvironmentSection() => new
+    private static object BuildEnvironmentSection(IReadOnlyDictionary<string, string> archlucidAndDotnetEnvironment) => new
     {
-        archlucidAndDotnetEnvironment = SupportBundleSensitivePatternRedactor.SnapshotEnvironmentForBundle(),
+        archlucidAndDotnetEnvironment,
         notes = "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only.",
     };
 
@@ -177,34 +185,56 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs.",
     };
 
-    private static string BuildReadme(string createdUtcIso, string requesterDisplay, string tenantDisplay) =>
-        $"""
-         ArchLucid support bundle (server-assembled)
-         ===========================================
-         Generated (UTC): {createdUtcIso}
-         Requester:       {requesterDisplay}
-         Tenant:          {tenantDisplay}
+    private static string BuildReadme(
+        string createdUtcIso,
+        string requesterDisplay,
+        string tenantDisplay,
+        SupportBundleNextStepsDocument nextSteps)
+    {
+        if (nextSteps is null) throw new ArgumentNullException(nameof(nextSteps));
 
-         Read first (in order)
-         ---------------------
-         1. {ManifestFileName}    — bundle metadata + machine-readable read order
-         2. {BuildFileName}       — host build identity (assembly version + runtime)
-         3. {EnvironmentFileName} — redacted ARCHLUCID_* / DOTNET_* env vars
-         4. {ReferencesFileName}  — API endpoints, doc links, correlation tip
+        StringBuilder body = new();
 
-         Redaction
-         ---------
-         Bearer tokens, X-Api-Key headers, and password-shaped key=value pairs are replaced
-         with [REDACTED] before the bundle is written. Environment variables whose names
-         look like secrets show (set)/(not set) only.
+        body.AppendLine("ArchLucid support bundle (server-assembled)");
+        body.AppendLine("===========================================");
+        body.Append("Generated (UTC): ").AppendLine(createdUtcIso);
+        body.Append("Requester:       ").AppendLine(requesterDisplay);
+        body.Append("Tenant:          ").AppendLine(tenantDisplay);
+        body.AppendLine();
+        body.AppendLine("Suggested next steps (generated — advisory)");
+        body.AppendLine("-------------------------------------------");
 
-         Open ticket / next steps
-         ------------------------
-         Attach this ZIP to a support ticket. See docs/PENDING_QUESTIONS.md item 37 — the
-         pre-forwarding redaction policy is still owner-pending; review the contents before
-         forwarding to a third party.
+        foreach (string line in nextSteps.SummaryLines)
+        {
+            body.Append(" - ").AppendLine(line);
+        }
 
-         """;
+        body.AppendLine();
+        body.AppendLine("Read first (in order)");
+        body.AppendLine("---------------------");
+        body.Append(" 1. ").Append(ReadmeFileName).AppendLine("              — this file");
+        body.Append(" 2. ").Append(SupportBundleLayout.NextStepsFileName)
+            .AppendLine(" — same summary as JSON + structured hints");
+        body.Append(" 3. ").Append(ManifestFileName).AppendLine("            — bundle metadata + machine-readable read order");
+        body.Append(" 4. ").Append(BuildFileName).AppendLine("               — host build identity (assembly version + runtime)");
+        body.Append(" 5. ").Append(EnvironmentFileName).AppendLine("         — redacted ARCHLUCID_* / DOTNET_* env vars");
+        body.Append(" 6. ").Append(ReferencesFileName).AppendLine("          — API endpoints, doc links, correlation tip");
+        body.AppendLine();
+        body.AppendLine("Redaction");
+        body.AppendLine("---------");
+        body.AppendLine("Bearer tokens, X-Api-Key headers, and password-shaped key=value pairs are replaced");
+        body.AppendLine("with [REDACTED] before the bundle is written. Environment variables whose names");
+        body.AppendLine("look like secrets show (set)/(not set) only.");
+        body.AppendLine();
+        body.AppendLine("Open ticket / next steps");
+        body.AppendLine("------------------------");
+        body.Append(SupportBundleNextStepsDocument.AdvisoryDisclaimer);
+        body.AppendLine(" Attach this ZIP to a support ticket.");
+        body.AppendLine("See docs/PENDING_QUESTIONS.md item 37 — the pre-forwarding redaction policy is still");
+        body.AppendLine("owner-pending; review the contents before forwarding to a third party.");
+
+        return body.ToString();
+    }
 
     private static string SerializeIndented<T>(T value) => JsonSerializer.Serialize(value, JsonWrite);
 

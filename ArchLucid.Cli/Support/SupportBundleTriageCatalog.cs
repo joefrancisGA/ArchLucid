@@ -1,3 +1,5 @@
+using ArchLucid.Core.Support;
+
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
@@ -13,8 +15,13 @@ public static class SupportBundleTriageCatalog
     [
         new()
         {
+            File = SupportBundleLayout.NextStepsFileName,
+            Why = "Machine-generated triage summary from probes (advisory only) — read with health.json."
+        },
+        new()
+        {
             File = SupportBundleArchiveWriter.HealthFileName,
-            Why = "Liveness/readiness/combined health — start here when the API misbehaves."
+            Why = "Liveness/readiness/combined health — primary evidence when the API misbehaves."
         },
         new()
         {

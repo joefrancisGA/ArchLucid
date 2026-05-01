@@ -1,6 +1,8 @@
 using System.IO.Compression;
 using System.Text;
 
+using ArchLucid.Core.Support;
+
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
@@ -29,6 +31,8 @@ public static class SupportBundleArchiveWriter
 
         Directory.CreateDirectory(outputDirectory);
 
+        SupportBundleNextStepsDocument nextSteps = BuildNextSteps(payload);
+
         WriteFile(Path.Combine(outputDirectory, ManifestFileName),
             SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
@@ -36,8 +40,11 @@ public static class SupportBundleArchiveWriter
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
                 ? "(unknown)"
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
-            payload.Manifest.CliWorkingDirectory);
+            payload.Manifest.CliWorkingDirectory,
+            nextSteps);
         WriteFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
+        WriteFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
+            SupportBundleCollector.SerializeIndented(nextSteps));
         WriteFile(Path.Combine(outputDirectory, BuildFileName),
             SupportBundleCollector.SerializeIndented(payload.Build));
         WriteFile(Path.Combine(outputDirectory, HealthFileName),
@@ -68,6 +75,8 @@ public static class SupportBundleArchiveWriter
 
         Directory.CreateDirectory(outputDirectory);
 
+        SupportBundleNextStepsDocument nextSteps = BuildNextSteps(payload);
+
         WriteRedactedFile(Path.Combine(outputDirectory, ManifestFileName),
             SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
@@ -75,8 +84,11 @@ public static class SupportBundleArchiveWriter
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
                 ? "(unknown)"
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
-            payload.Manifest.CliWorkingDirectory);
+            payload.Manifest.CliWorkingDirectory,
+            nextSteps);
         WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
+        WriteRedactedFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
+            SupportBundleCollector.SerializeIndented(nextSteps));
         WriteRedactedFile(Path.Combine(outputDirectory, BuildFileName),
             SupportBundleCollector.SerializeIndented(payload.Build));
         WriteRedactedFile(Path.Combine(outputDirectory, HealthFileName),
@@ -134,6 +146,23 @@ public static class SupportBundleArchiveWriter
             using FileStream input = File.OpenRead(filePath);
             input.CopyTo(entryStream);
         }
+    }
+
+    private static SupportBundleNextStepsDocument BuildNextSteps(SupportBundlePayload payload)
+    {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        string? excerpt = payload.Logs.LocalLogExcerpt;
+
+        return SupportBundleNextStepsBuilder.BuildForCliClient(
+            payload.Manifest.CreatedUtc,
+            payload.Health.Live.HttpStatus,
+            payload.Health.Ready.HttpStatus,
+            payload.Health.Combined.HttpStatus,
+            payload.ApiContract.MicrosoftOpenApiV1.HttpStatus,
+            payload.Build.ApiVersionError,
+            payload.Manifest.ArchLucidJsonPresent,
+            !string.IsNullOrWhiteSpace(excerpt));
     }
 
     private static void WriteFile(string path, string utf8Json)
