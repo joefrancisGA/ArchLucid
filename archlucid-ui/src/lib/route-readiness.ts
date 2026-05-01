@@ -72,24 +72,76 @@ export function operatorRouteReadiness(href: string): RouteReadinessTier {
   return "demo-ready";
 }
 
-/** In `NEXT_PUBLIC_DEMO_MODE`, omit hidden and admin-only links from the sidebar (buyer demos). */
+/**
+ * Advanced routes that stay in the buyer demo nav (compare, graph, Q&A, findings queue).
+ * All other `advanced-only` destinations are hidden when `NEXT_PUBLIC_DEMO_MODE` is on.
+ */
+const DEMO_MODE_ADVANCED_NAV_ALLOWLIST = new Set<string>([
+  "/compare",
+  "/graph",
+  "/ask",
+  "/governance/findings",
+]);
+
+/** Pilot-tier links that are hidden in buyer demo nav (reduce noise vs core review story). */
+const DEMO_MODE_EXPLICIT_NAV_HIDE = new Set<string>(["/scorecard", "/search"]);
+
+function normalizeOperatorNavHrefForDemo(href: string): string {
+  const [path, query] = href.split("?", 2);
+  const trimmed = path.trim().length === 0 ? "/" : path;
+
+  if (trimmed === "/runs" && query !== undefined && query.includes("projectId=")) {
+    return "/runs?projectId=default";
+  }
+
+  return trimmed;
+}
+
+/** In `NEXT_PUBLIC_DEMO_MODE`, omit hidden, admin-only, and non-allowlisted advanced links (buyer demos). */
 export function shouldHideOperatorNavLinkInDemo(href: string, demoMode: boolean): boolean {
+  if (!demoMode) {
+    return false;
+  }
+
+  const navKey = normalizeOperatorNavHrefForDemo(href);
+
+  if (DEMO_MODE_EXPLICIT_NAV_HIDE.has(navKey)) {
+    return true;
+  }
+
+  const tier = operatorRouteReadiness(href);
+
+  if (tier === "hidden" || tier === "admin-only") {
+    return true;
+  }
+
+  if (tier === "advanced-only") {
+    return !DEMO_MODE_ADVANCED_NAV_ALLOWLIST.has(navKey);
+  }
+
+  return false;
+}
+
+/**
+ * In demo mode, de-emphasize links that are admin-only or advanced-only but not on the demo allowlist.
+ * Allowlisted advanced destinations (Graph, Compare, Ask, Findings) stay at full weight.
+ */
+export function isOperatorNavLinkAdvancedInDemo(href: string, demoMode: boolean): boolean {
   if (!demoMode) {
     return false;
   }
 
   const tier = operatorRouteReadiness(href);
 
-  return tier === "hidden" || tier === "admin-only";
-}
-
-/** In demo mode, advanced-only links remain navigable but are visually de-emphasized in the sidebar. */
-export function isOperatorNavLinkAdvancedInDemo(href: string, demoMode: boolean): boolean {
-  if (!demoMode) {
-    return false;
+  if (tier === "admin-only") {
+    return true;
   }
 
-  const r = operatorRouteReadiness(href);
+  if (tier === "advanced-only") {
+    const key = normalizeOperatorNavHrefForDemo(href);
 
-  return r === "advanced-only" || r === "admin-only";
+    return !DEMO_MODE_ADVANCED_NAV_ALLOWLIST.has(key);
+  }
+
+  return false;
 }

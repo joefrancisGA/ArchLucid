@@ -8,7 +8,7 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { FindingInspectView } from "../FindingInspectView";
+import { FindingInspectView, sameAuthorityRunId } from "../FindingInspectView";
 
 /**
  * First-class technical inspection: persisted payload, rule linkage, evidence citations, and audit correlation.
@@ -46,6 +46,15 @@ export default async function FindingInspectPage({
       failure = null;
     } else if (isApiNotFoundFailure(failure)) {
       notFound();
+    }
+  }
+
+  if (payload !== null) {
+    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
+
+    if (staticInspect !== null && !sameAuthorityRunId(payload.runId, runId)) {
+      payload = staticInspect;
+      failure = null;
     }
   }
 

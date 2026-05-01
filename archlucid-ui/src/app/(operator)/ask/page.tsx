@@ -42,7 +42,7 @@ export default function AskPage() {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [runId, setRunId] = useState("");
+  const [runId, setRunId] = useState(() => (isNextPublicDemoMode() ? SHOWCASE_STATIC_DEMO_RUN_ID : ""));
   const [baseRunId, setBaseRunId] = useState("");
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");

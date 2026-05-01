@@ -227,10 +227,38 @@ function GovernanceWorkflowPageInner() {
         [...act].sort((x, y) => (x.activatedUtc < y.activatedUtc ? 1 : x.activatedUtc > y.activatedUtc ? -1 : 0)),
       );
     } catch (e) {
-      setListFailure(toApiLoadFailure(e));
+      const fail = toApiLoadFailure(e);
       setApprovals([]);
       setPromotions([]);
       setActivations([]);
+
+      if (isStaticDemoPayloadFallbackEnabled()) {
+        const idForDemo = runId.trim();
+
+        if (idForDemo.length > 0) {
+          const seeded = tryStaticDemoGovernanceApprovalRequests(idForDemo);
+          const seededP = tryStaticDemoGovernancePromotions(idForDemo);
+
+          if (seeded !== null) {
+            setApprovals(seeded);
+          }
+
+          if (seededP !== null) {
+            setPromotions(
+              [...seededP].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
+            );
+          }
+
+          if (seeded !== null || seededP !== null) {
+            setListFailure(null);
+            setListsLoading(false);
+
+            return;
+          }
+        }
+      }
+
+      setListFailure(fail);
     } finally {
       setListsLoading(false);
     }

@@ -183,7 +183,17 @@ export default async function RunDetailPage({
     );
   }
 
-  const envelope = coerceRunDetail(runDetailResponse.data);
+  let envelope = coerceRunDetail(runDetailResponse.data);
+
+  if (!envelope.ok) {
+    const staticDetail = tryStaticDemoRunDetail(runId);
+
+    if (staticDetail !== null) {
+      runDetailResponse = { data: staticDetail, traceId: runDetailResponse.traceId };
+      envelope = coerceRunDetail(staticDetail);
+      usedStaticDemoRun = true;
+    }
+  }
 
   if (!envelope.ok) {
     return (
