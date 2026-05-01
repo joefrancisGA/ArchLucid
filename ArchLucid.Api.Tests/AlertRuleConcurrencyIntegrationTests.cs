@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     Parallel <c>POST /v1/alert-rules</c> with identical <see cref="AlertRule.Name" />: there is no uniqueness guard on
-///     the name. With in-memory storage, rules are not in <c>dbo.AlertRules</c> — the list API is the ground truth.
+///     the name. With in-memory storage, rules are not in <c>dbo.AlertRules</c> â€” the list API is the ground truth.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -26,7 +26,7 @@ public sealed class AlertRuleConcurrencyIntegrationTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Five_parallel_creates_with_same_name_persist_five_distinct_rule_rows_in_list()
     {
         await using ArchLucidApiFactory factory = new();

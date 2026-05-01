@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Contracts;
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListRecommendations_for_run_with_no_rows_returns_ok_empty_array()
     {
         Guid unusedRunId = Guid.Parse("00000000-0000-0000-0000-00000000bb01");
@@ -34,7 +34,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
         items.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRecommendations_after_commit_before_improvements_returns_ok_empty_array()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

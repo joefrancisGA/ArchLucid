@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,7 +18,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task GetCostPreview_when_mode_is_simulator_returns_null_estimates_and_basis()
     {
         await using OpenApiContractWebAppFactory factory = new();
@@ -39,7 +39,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         body.PricingUsesIllustrativeUsdRates.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetCostPreview_when_mode_is_real_returns_range_estimate_and_deployment()
     {
         await using RealModeOpenApiContractWebAppFactory factory = new();
@@ -63,7 +63,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         // Default LlmCostEstimation rates: low = one completion at 8192 in @ 0.5/M + 1024 out @ 1.5/M
         body.EstimatedCostUsdLow!.Value.Should().BeApproximately(0.005632, 0.000001);
 
-        // High = 4 × (65536 in @ 0.5/M + 1024 out @ 1.5/M)
+        // High = 4 Ã— (65536 in @ 0.5/M + 1024 out @ 1.5/M)
         body.EstimatedCostUsdHigh!.Value.Should().BeApproximately(0.137216, 0.000001);
     }
 

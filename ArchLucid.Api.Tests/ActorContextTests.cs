@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Application.Common;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ActorContextTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetActor_WhenIdentityNamePresent_ReturnsTrimmedName()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -34,7 +34,7 @@ public sealed class ActorContextTests
         sut.GetActor().Should().Be("domain\\alice");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActor_WhenNoHttpContext_ReturnsApiUserFallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -45,7 +45,7 @@ public sealed class ActorContextTests
         sut.GetActor().Should().Be("api-user");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActor_WhenIdentityNameEmpty_ReturnsApiUserFallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -64,7 +64,7 @@ public sealed class ActorContextTests
         actor.Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActor_WhenOnlyShortJwtNameClaim_ReturnsClaimValue()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -82,7 +82,7 @@ public sealed class ActorContextTests
         sut.GetActor().Should().Be("JwtE2eAdmin");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActorId_WhenOidAndTidClaimsPresent_returns_prefixed_tid_oid_key()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -104,7 +104,7 @@ public sealed class ActorContextTests
         sut.GetActorId().Should().Be("jwt:tenant-guid:obj-guid");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActorId_WhenOnlyOid_claim_present_uses_oid_prefix_without_tid()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -122,7 +122,7 @@ public sealed class ActorContextTests
         sut.GetActorId().Should().Be("jwt:only-oid-guid");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActorId_when_oid_claim_absent_returns_GetActor_fallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
@@ -141,7 +141,7 @@ public sealed class ActorContextTests
         sut.GetActorId().Should().Be("spi-user");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActorId_when_long_oid_claim_type_present_matches_short_oid_claim()
     {
         string longOidClaimType =
@@ -177,7 +177,7 @@ public sealed class ActorContextTests
         new ActorContext(accessorLong.Object).GetActorId().Should().Be("jwt:same-tenant:same-object");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetActorId_when_oid_present_differs_from_GetActor_display_when_name_differs_from_oid_semantics()
     {
         // Same Entra oid can arrive with CI SP display vs human UPN-shaped "name"; SoD compares keys, not strings.

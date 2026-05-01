@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class AdvisoryControllerSecurityIntegrationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListRecommendations_anonymous_with_api_key_mode_returns_401()
     {
         await using HealthEndpointSecurityApiFactory factory = new();
@@ -30,7 +30,7 @@ public sealed class AdvisoryControllerSecurityIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ApplyRecommendationAction_reader_role_returns_403()
     {
         await using ReaderRoleArchLucidApiFactory factory = new();

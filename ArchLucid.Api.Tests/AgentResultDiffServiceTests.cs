@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diffs;
+﻿using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AgentResultDiffServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compare_ShouldDetectClaimAndControlChanges()
     {
         AgentResult[] left =

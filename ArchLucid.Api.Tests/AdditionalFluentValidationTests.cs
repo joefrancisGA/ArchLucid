@@ -1,4 +1,4 @@
-using ArchLucid.Api.Models;
+﻿using ArchLucid.Api.Models;
 using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Decisioning.Advisory.Workflow;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class AdditionalFluentValidationTests
 {
-    [Fact]
+    [SkippableFact]
     public void CompositeAlertRuleBodyValidator_invalid_when_conditions_empty()
     {
         CompositeAlertRuleBodyValidator v = new();
@@ -30,7 +30,7 @@ public sealed class AdditionalFluentValidationTests
         r.Errors.Should().Contain(e => e.ErrorMessage.Contains("condition", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CompositeAlertRuleBodyValidator_valid_when_minimal_rule()
     {
         CompositeAlertRuleBodyValidator v = new();
@@ -53,7 +53,7 @@ public sealed class AdditionalFluentValidationTests
         r.IsValid.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void RecommendationActionRequestValidator_invalid_action_length()
     {
         RecommendationActionRequestValidator v = new();
@@ -64,7 +64,7 @@ public sealed class AdditionalFluentValidationTests
         r.IsValid.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void RuleCandidateComparisonRequestValidator_simple_requires_both_candidates()
     {
         RuleCandidateComparisonRequestValidator v = new();
@@ -80,7 +80,7 @@ public sealed class AdditionalFluentValidationTests
         r.IsValid.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void RuleSimulationRequestValidator_invalid_kind()
     {
         RuleSimulationRequestValidator v = new();
@@ -91,7 +91,7 @@ public sealed class AdditionalFluentValidationTests
         r.IsValid.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void SubmitAgentResultRequestValidator_invalid_confidence()
     {
         SubmitAgentResultRequestValidator v = new();
@@ -113,7 +113,7 @@ public sealed class AdditionalFluentValidationTests
         r.IsValid.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ThresholdRecommendationRequestValidator_requires_positive_recent_run_count()
     {
         ThresholdRecommendationRequestValidator v = new();
