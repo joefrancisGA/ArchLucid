@@ -108,7 +108,6 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
                 WriteTextEntry(archive, "decision-trace.json", traceJson);
 
-
             StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchLucid run export package")
                 .AppendLine("===========================")
@@ -122,11 +121,9 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
                     readme.AppendLine($"Manifest name: {readmeContext.ManifestDisplayName}");
 
-
                 if (!string.IsNullOrWhiteSpace(readmeContext.RuleSetLabel))
 
                     readme.AppendLine($"Rule set: {readmeContext.RuleSetLabel}");
-
 
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
 

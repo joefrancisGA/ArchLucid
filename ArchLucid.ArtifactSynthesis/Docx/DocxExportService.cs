@@ -26,8 +26,6 @@ public sealed class DocxExportService(
     IImprovementAdvisorService improvementAdvisorService,
     IDiagramImageRenderer diagramImageRenderer) : IDocxExportService
 {
-    private static string SanitizeArtifactText(string? text) => LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
-
     private const int MaxEmbeddedMermaidChars = 48_000;
 
     /// <inheritdoc />
@@ -74,7 +72,6 @@ public sealed class DocxExportService(
                         new PageSize { Width = 12240U, Height = 15840U },
                         new PageMargin { Top = 1440, Right = 1440, Bottom = 1440, Left = 1440 }));
 
-
             doc.Save();
         }
 
@@ -82,6 +79,11 @@ public sealed class DocxExportService(
         {
             FileName = $"archlucid-architecture-package-{manifest.ManifestId:N}.docx", Content = stream.ToArray()
         };
+    }
+
+    private static string SanitizeArtifactText(string? text)
+    {
+        return LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
     }
 
     /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
@@ -130,7 +132,6 @@ public sealed class DocxExportService(
         if (request.IncludeArchitectureDiagram)
 
             await AppendArchitectureDiagramSectionAsync(doc, body, manifest, artifacts, ct);
-
 
         if (request.IncludeCoverageSection)
         {
@@ -246,13 +247,15 @@ public sealed class DocxExportService(
 
             foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"{recommendation.Title} [{recommendation.Urgency}]"));
+                WordDocumentBuilder.AddBodyText(body,
+                    SanitizeArtifactText($"{recommendation.Title} [{recommendation.Urgency}]"));
                 WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Rationale: {recommendation.Rationale}"));
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Suggested Action: {recommendation.SuggestedAction}"));
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Expected Impact: {recommendation.ExpectedImpact}"));
+                WordDocumentBuilder.AddBodyText(body,
+                    SanitizeArtifactText($"Suggested Action: {recommendation.SuggestedAction}"));
+                WordDocumentBuilder.AddBodyText(body,
+                    SanitizeArtifactText($"Expected Impact: {recommendation.ExpectedImpact}"));
                 WordDocumentBuilder.AddSpacer(body);
             }
-
 
         WordDocumentBuilder.AddSpacer(body);
 
@@ -382,13 +385,11 @@ public sealed class DocxExportService(
             if (string.IsNullOrWhiteSpace(a.Content))
                 continue;
 
-
             string format = a.Format.Trim();
 
             if (!format.Equals("png", StringComparison.OrdinalIgnoreCase) &&
                 !format.Equals("image/png", StringComparison.OrdinalIgnoreCase))
                 continue;
-
 
             string trimmed = a.Content.Trim();
             byte[] bytes;
@@ -405,10 +406,8 @@ public sealed class DocxExportService(
             if (bytes.Length < pngSignature.Length)
                 continue;
 
-
             if (!bytes.AsSpan(0, pngSignature.Length).SequenceEqual(pngSignature))
                 continue;
-
 
             return bytes;
         }
@@ -423,7 +422,6 @@ public sealed class DocxExportService(
             if (string.IsNullOrWhiteSpace(a.Content))
                 continue;
 
-
             bool isMermaidType = string.Equals(a.ArtifactType, ArtifactType.MermaidDiagram, StringComparison.Ordinal);
             bool isMermaidFormat = a.Format.Equals("mermaid", StringComparison.OrdinalIgnoreCase);
             bool isMmdName = a.Name.EndsWith(".mmd", StringComparison.OrdinalIgnoreCase);
@@ -431,12 +429,10 @@ public sealed class DocxExportService(
             if (!isMermaidType && !isMermaidFormat && !isMmdName)
                 continue;
 
-
             string s = a.Content;
 
             if (s.Length > MaxEmbeddedMermaidChars)
                 return s[..MaxEmbeddedMermaidChars] + "\n\n… (truncated for Word document size)";
-
 
             return s;
         }
@@ -480,7 +476,6 @@ public sealed class DocxExportService(
                     body,
                     $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
 
-
         WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
         if (c.RequirementChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
@@ -488,7 +483,6 @@ public sealed class DocxExportService(
 
             foreach (RequirementDelta r in c.RequirementChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
-
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
         if (c.SecurityChanges.Count == 0)
@@ -501,7 +495,6 @@ public sealed class DocxExportService(
                     body,
                     $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
 
-
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
         if (c.TopologyChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No topology resource changes.");
@@ -509,7 +502,6 @@ public sealed class DocxExportService(
 
             foreach (TopologyDelta t in c.TopologyChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
-
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
         if (c.CostChanges.Count == 0)
@@ -521,7 +513,6 @@ public sealed class DocxExportService(
                 WordDocumentBuilder.AddBodyText(
                     body,
                     $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
-
 
         WordDocumentBuilder.AddSpacer(body);
     }
