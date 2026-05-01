@@ -27,7 +27,6 @@ public static class FileNameSanitizer
 
             set.Add(c);
 
-
         return set;
     }
 }

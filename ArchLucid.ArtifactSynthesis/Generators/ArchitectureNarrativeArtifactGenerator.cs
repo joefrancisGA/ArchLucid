@@ -37,7 +37,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
                 sb.AppendLine($"- Covered: {item.RequirementName}");
 
-
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
 
                 sb.AppendLine($"- Uncovered: {item.RequirementName}");
@@ -52,11 +51,9 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
                 sb.AppendLine($"- Resource: {resource}");
 
-
         else
 
             sb.AppendLine("No concrete topology resources were recorded in the manifest.");
-
 
         foreach (string gap in manifest.Topology.Gaps)
 
@@ -75,7 +72,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
                 sb.AppendLine($"- {control.ControlName}: {control.Status}");
 
-
         foreach (string gap in manifest.Security.Gaps)
 
             sb.AppendLine($"- Security Gap: {gap}");
@@ -92,7 +88,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             foreach (CompliancePostureItem control in manifest.Compliance.Controls)
 
                 sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
-
 
         foreach (string gap in manifest.Compliance.Gaps)
 
@@ -134,7 +129,6 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
 
                 sb.AppendLine($"- [{issue.Severity}] {issue.Title}: {issue.Description}");
-
 
         sb.AppendLine();
 

@@ -36,7 +36,6 @@ public class ArtifactSynthesisService(
                 manifest.ManifestId,
                 generators.Count());
 
-
         ArtifactBundle bundle = new()
         {
             TenantId = manifest.TenantId,
@@ -92,7 +91,6 @@ public class ArtifactSynthesisService(
                 bundle.Trace.TraceId,
                 bundle.Artifacts.Count,
                 string.Join(',', bundle.Trace.GeneratorsUsed));
-
 
         return bundle;
     }

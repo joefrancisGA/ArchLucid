@@ -116,7 +116,6 @@ public static class WordDocumentBuilder
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(row.Item1))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(row.Item2)))))));
 
-
         body.AppendChild(table);
     }
 
@@ -139,7 +138,6 @@ public static class WordDocumentBuilder
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c1))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c2))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c3)))))));
-
 
         body.AppendChild(table);
     }
@@ -190,7 +188,6 @@ public static class WordDocumentBuilder
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(b))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(d)))))));
-
 
         body.AppendChild(table);
     }

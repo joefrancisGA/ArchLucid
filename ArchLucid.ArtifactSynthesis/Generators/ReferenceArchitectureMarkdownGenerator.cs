@@ -126,7 +126,6 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
             sb.AppendLine("- No unresolved issues.");
 
-
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 
         return Task.FromResult(new SynthesizedArtifact

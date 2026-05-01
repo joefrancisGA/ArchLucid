@@ -1,8 +1,8 @@
 namespace ArchLucid.ArtifactSynthesis.Sanitization;
 
 /// <summary>
-/// Strips control/bidi override characters from LLM- or user-origin strings before Markdown/DOCX embedding
-/// (reduces confusing Unicode / RTL spoofing in generated artifacts).
+///     Strips control/bidi override characters from LLM- or user-origin strings before Markdown/DOCX embedding
+///     (reduces confusing Unicode / RTL spoofing in generated artifacts).
 /// </summary>
 public static class LlmArtifactFreeTextSanitizer
 {

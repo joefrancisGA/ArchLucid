@@ -29,7 +29,6 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Notes = requirement.RequirementText
             });
 
-
         foreach (RequirementCoverageItem requirement in manifest.Requirements.Uncovered)
 
             inventory.Items.Add(new InventoryItem
@@ -39,7 +38,6 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = requirement.CoverageStatus,
                 Notes = requirement.RequirementText
             });
-
 
         foreach (SecurityPostureItem control in manifest.Security.Controls)
 
@@ -51,7 +49,6 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Notes = control.Impact
             });
 
-
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
 
             inventory.Items.Add(new InventoryItem
@@ -62,14 +59,12 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Notes = control.AppliesToCategory
             });
 
-
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
 
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Issue", Name = issue.Title, Status = issue.Severity, Notes = issue.Description
             });
-
 
         string content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);
 
