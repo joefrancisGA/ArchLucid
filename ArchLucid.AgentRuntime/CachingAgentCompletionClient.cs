@@ -85,7 +85,6 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
 
                 _logger.LogDebug("LLM completion cache hit (key prefix {KeyPrefix}).", key[..Math.Min(24, key.Length)]);
 
-
             return cached;
         }
 

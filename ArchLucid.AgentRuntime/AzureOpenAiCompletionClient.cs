@@ -51,7 +51,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens,
                 "Must be at least 1.");
 
-
         Uri endpointUri = new(endpoint);
         AzureOpenAIClient azureClient = new(
             endpointUri,
@@ -131,7 +130,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             if (inTok > 0 || outTok > 0)
 
                 LastCompletionTokenUsage.Value = (inTok, outTok);
-
 
             if (llmActivity is not null)
             {

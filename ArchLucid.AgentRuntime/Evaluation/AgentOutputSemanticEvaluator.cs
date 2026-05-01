@@ -20,14 +20,12 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
         if (string.IsNullOrWhiteSpace(parsedResultJson))
             return BuildZeroScore(traceId, agentType);
 
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return BuildZeroScore(traceId, agentType);
-
 
             (double claimsRatio, int emptyClaims) = EvaluateClaims(doc.RootElement);
             (double findingsRatio, int incompleteFindings) = EvaluateFindings(doc.RootElement);
@@ -57,7 +55,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             claimsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
-
         int total = 0;
         int withEvidence = 0;
 
@@ -67,7 +64,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
             if (claim.ValueKind != JsonValueKind.Object)
                 continue;
-
 
             bool hasEvidenceRefs = claim.TryGetProperty("evidenceRefs", out JsonElement refs)
                                    && refs.ValueKind == JsonValueKind.Array
@@ -91,7 +87,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             findingsElement.ValueKind != JsonValueKind.Array)
             return (0.0, 0);
 
-
         int total = 0;
         int complete = 0;
 
@@ -101,7 +96,6 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
             if (finding.ValueKind != JsonValueKind.Object)
                 continue;
-
 
             bool hasSeverity = finding.TryGetProperty("severity", out JsonElement sev)
                                && sev.ValueKind == JsonValueKind.String
@@ -136,14 +130,11 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
         if (!hasClaims && !hasFindings)
             return 0.0;
 
-
         if (hasClaims && !hasFindings)
             return claimsRatio;
 
-
         if (!hasClaims && hasFindings)
             return findingsRatio;
-
 
         return claimsRatio * 0.4 + findingsRatio * 0.6;
     }

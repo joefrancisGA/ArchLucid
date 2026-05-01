@@ -21,8 +21,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
     /// <inheritdoc />
@@ -58,7 +57,6 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
         if (systemPrompt.Contains("Compliance Agent", StringComparison.Ordinal))
             return AgentType.Compliance;
 
-
         return systemPrompt.Contains("Critic Agent", StringComparison.Ordinal) ? AgentType.Critic : AgentType.Topology;
     }
 
@@ -66,9 +64,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
     {
         return new ArchitectureRequest
         {
-            SystemName = "Echo",
-            Description = "Echo completion client (no LLM).",
-            Environment = "prod"
+            SystemName = "Echo", Description = "Echo completion client (no LLM).", Environment = "prod"
         };
     }
 

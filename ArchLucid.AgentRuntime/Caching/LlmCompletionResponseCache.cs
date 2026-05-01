@@ -73,7 +73,6 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache, ID
         if (ttlSeconds < 1)
             ttlSeconds = 1;
 
-
         return TimeSpan.FromSeconds(ttlSeconds);
     }
 
@@ -89,14 +88,14 @@ public sealed class LlmCompletionResponseCache : ILlmCompletionResponseCache, ID
             throw new ArgumentException("PromptHashHex is required.", nameof(key));
 
         return "al:llmcomp:v1:"
-            + key.AgentType
-            + ':'
-            + key.ModelName
-            + ':'
-            + (key.Simulator ? '1' : '0')
-            + ':'
-            + key.ScopePartition
-            + ':'
-            + key.PromptHashHex;
+               + key.AgentType
+               + ':'
+               + key.ModelName
+               + ':'
+               + (key.Simulator ? '1' : '0')
+               + ':'
+               + key.ScopePartition
+               + ':'
+               + key.PromptHashHex;
     }
 }

@@ -11,7 +11,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>UTC-day combined token totals per tenant for <see cref="LlmDailyTenantBudgetOptions" /> (warn once, hard stop).</summary>
+/// <summary>
+///     UTC-day combined token totals per tenant for <see cref="LlmDailyTenantBudgetOptions" /> (warn once, hard
+///     stop).
+/// </summary>
 public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBudgetOptions> optionsMonitor)
 {
     private readonly ConcurrentDictionary<Guid, TenantDayState> _states = new();
@@ -142,7 +145,10 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
                || string.Equals(providerKind, "echo", StringComparison.OrdinalIgnoreCase);
     }
 
-    private TenantDayState GetOrCreateState(Guid tenantId) => _states.GetOrAdd(tenantId, _ => new TenantDayState());
+    private TenantDayState GetOrCreateState(Guid tenantId)
+    {
+        return _states.GetOrAdd(tenantId, _ => new TenantDayState());
+    }
 
     private static void ResetIfNewUtcDayLocked(TenantDayState state, DateOnly today)
     {
@@ -156,21 +162,27 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
 
     private sealed class TenantDayState
     {
-        public object Sync { get; } = new();
+        public object Sync
+        {
+            get;
+        } = new();
 
         public DateOnly UtcDay
         {
-            get; set;
+            get;
+            set;
         }
 
         public long TotalTokens
         {
-            get; set;
+            get;
+            set;
         }
 
         public bool WarnedApproaching
         {
-            get; set;
+            get;
+            set;
         }
     }
 }

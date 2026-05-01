@@ -46,12 +46,10 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
             if (_loadAttempted && field is not null)
                 return field;
 
-
             lock (_loadGate)
             {
                 if (field is not null)
                     return field;
-
 
                 field = LoadCasesLocked();
                 _loadAttempted = true;
@@ -67,7 +65,6 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
 
         if (!opts.Enabled)
             return [];
-
 
         if (string.IsNullOrWhiteSpace(opts.ReferenceCasesPath))
         {
@@ -98,7 +95,6 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
 
             if (list is null || list.Count == 0)
                 return [];
-
 
             List<AgentOutputReferenceCaseDefinition> valid = [];
 

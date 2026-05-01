@@ -25,7 +25,6 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
             throw new InvalidOperationException(
                 $"No system prompt template is registered for agent type '{agentType}'.");
 
-
         string dispatchKey = AgentTypeKeys.FromEnum(agentType);
         string? release = null;
         AgentPromptCatalogOptions opts = _optionsMonitor.CurrentValue;
@@ -33,7 +32,6 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
         if (opts.Versions.TryGetValue(dispatchKey, out string? configured) && !string.IsNullOrWhiteSpace(configured))
 
             release = configured.Trim();
-
 
         return new ResolvedSystemPrompt(core.Text, core.TemplateId, core.TemplateVersion, core.ContentSha256Hex,
             release);

@@ -47,14 +47,12 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
                 MissingKeys = expected
             };
 
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
             if (doc.RootElement.ValueKind != JsonValueKind.Object)
                 return BuildScore(traceId, agentType, 0.0, true, expected);
-
 
             HashSet<string> present = CollectPropertyNames(doc.RootElement);
             List<string> missing = expected.Where(k => !present.Contains(k)).ToList();
@@ -100,7 +98,6 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         foreach (JsonProperty p in root.EnumerateObject())
 
             _ = names.Add(p.Name);
-
 
         return names;
     }

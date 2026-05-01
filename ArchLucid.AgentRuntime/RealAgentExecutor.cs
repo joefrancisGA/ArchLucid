@@ -68,7 +68,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 $"Duplicate IAgentHandler registrations for keys: {string.Join(", ", duplicateKeys)}",
                 nameof(handlers));
 
-
         _handlers = list.ToDictionary(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase);
     }
 
@@ -91,7 +90,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         if (orderedTasks.Length == 0)
             return [];
-
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
@@ -122,7 +120,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
                     _logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
 
-
                 return finished;
             }
             catch
@@ -152,7 +149,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
             throw new InvalidOperationException(
                 $"No handler is registered for agent type key '{dispatchKey}'.");
-
 
         int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
         ResiliencePipeline<AgentResult> handlerTimeoutPipeline = ResolveTimeoutPipeline(timeoutSeconds);
@@ -215,7 +211,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
             _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
 
-
         return result;
     }
 
@@ -223,7 +218,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
     {
         if (timeoutSeconds <= 0)
             return ResiliencePipeline<AgentResult>.Empty;
-
 
         return TimeoutPipelines.GetOrAdd(
             timeoutSeconds,
@@ -238,7 +232,6 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v))
             return v.Trim();
-
 
         return "default";
     }

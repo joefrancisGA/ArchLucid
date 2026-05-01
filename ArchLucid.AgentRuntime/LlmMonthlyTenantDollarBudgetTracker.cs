@@ -11,14 +11,20 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
 
-/// <summary>UTC-month estimated USD spend per tenant for <see cref="LlmMonthlyTenantDollarBudgetOptions" /> (warn once, hard stop).</summary>
+/// <summary>
+///     UTC-month estimated USD spend per tenant for <see cref="LlmMonthlyTenantDollarBudgetOptions" /> (warn once,
+///     hard stop).
+/// </summary>
 public sealed class LlmMonthlyTenantDollarBudgetTracker(
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
     ILlmCostEstimator costEstimator)
 {
     private readonly ConcurrentDictionary<Guid, TenantMonthState> _states = new();
 
-    /// <summary>Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-month hard cutoff.</summary>
+    /// <summary>
+    ///     Throws <see cref="LlmTokenQuotaExceededException" /> when the next call would exceed the UTC-month hard
+    ///     cutoff.
+    /// </summary>
     public void EnsureWithinBudgetBeforeCall(Guid tenantId, string providerKind)
     {
         if (tenantId == Guid.Empty || IsExcludedProvider(providerKind))
@@ -158,7 +164,10 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                || string.Equals(providerKind, "echo", StringComparison.OrdinalIgnoreCase);
     }
 
-    private TenantMonthState GetOrCreateState(Guid tenantId) => _states.GetOrAdd(tenantId, _ => new TenantMonthState());
+    private TenantMonthState GetOrCreateState(Guid tenantId)
+    {
+        return _states.GetOrAdd(tenantId, _ => new TenantMonthState());
+    }
 
     private static void ResetIfNewUtcMonthLocked(TenantMonthState state, int year, int month)
     {
@@ -187,26 +196,33 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private sealed class TenantMonthState
     {
-        public object Sync { get; } = new();
+        public object Sync
+        {
+            get;
+        } = new();
 
         public int UtcYear
         {
-            get; set;
+            get;
+            set;
         }
 
         public int UtcMonth
         {
-            get; set;
+            get;
+            set;
         }
 
         public decimal SpentUsd
         {
-            get; set;
+            get;
+            set;
         }
 
         public bool WarnedApproaching
         {
-            get; set;
+            get;
+            set;
         }
     }
 }

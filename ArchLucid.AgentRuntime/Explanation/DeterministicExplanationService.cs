@@ -152,7 +152,6 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
                 list.Add($"Decision '{d.DecisionKey}' removed (was '{d.BaseValue ?? "—"}').");
 
-
         list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
 
         return list;

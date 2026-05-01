@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-
 using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 
@@ -19,6 +18,8 @@ internal static class AgentHandlerExecutionFailureReason
         if (ex is CircuitBreakerOpenException)
             return AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected;
 
-        return ex is LlmTokenQuotaExceededException ? AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded : null;
+        return ex is LlmTokenQuotaExceededException
+            ? AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded
+            : null;
     }
 }

@@ -35,6 +35,15 @@ public sealed class LlmCompletionAccountingClient(
     ILogger<LlmCompletionAccountingClient> logger)
     : IAgentCompletionClient
 {
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IOptionsMonitor<LlmDailyTenantBudgetOptions> _dailyTenantBudgetOptions =
+        dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
+
+    private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
+        dailyTenantBudgetTracker ?? throw new ArgumentNullException(nameof(dailyTenantBudgetTracker));
+
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions =
@@ -42,6 +51,12 @@ public sealed class LlmCompletionAccountingClient(
 
     private readonly ILogger<LlmCompletionAccountingClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions =
+        monthlyDollarBudgetOptions ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetOptions));
+
+    private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker =
+        monthlyDollarBudgetTracker ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetTracker));
 
     private readonly IPromptRedactor _promptRedactor =
         promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
@@ -63,21 +78,6 @@ public sealed class LlmCompletionAccountingClient(
 
     private readonly IUsageMeteringService _usageMetering =
         usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
-
-    private readonly IOptionsMonitor<LlmDailyTenantBudgetOptions> _dailyTenantBudgetOptions =
-        dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
-
-    private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
-        dailyTenantBudgetTracker ?? throw new ArgumentNullException(nameof(dailyTenantBudgetTracker));
-
-    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions =
-        monthlyDollarBudgetOptions ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetOptions));
-
-    private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker =
-        monthlyDollarBudgetTracker ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetTracker));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;
@@ -106,7 +106,6 @@ public sealed class LlmCompletionAccountingClient(
             ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
             throw;
         }
-
 
         LlmPromptRedactionOptions redactionOpts = _redactionOptions.CurrentValue;
         string outboundSystem = systemPrompt;
@@ -206,7 +205,6 @@ public sealed class LlmCompletionAccountingClient(
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
-
 
             if (completionTok > 0)
 
