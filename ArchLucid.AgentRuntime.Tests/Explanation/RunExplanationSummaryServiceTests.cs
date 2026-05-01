@@ -34,9 +34,9 @@ public sealed class RunExplanationSummaryServiceTests
     {
         List<string> drivers =
         [
-            "Cost: Pick SKU â†’ A",
-            "Cost: Pick region â†’ East",
-            "Security: TLS â†’ 1.3",
+            "Cost: Pick SKU \u2192 A",
+            "Cost: Pick region \u2192 East",
+            "Security: TLS \u2192 1.3",
             "3 topology resource(s) recorded."
         ];
 
@@ -51,13 +51,13 @@ public sealed class RunExplanationSummaryServiceTests
     public void TryParseDecisionDriverLine_recognizes_explanation_service_key_driver_shape()
     {
         bool ok = RunExplanationSummaryService.TryParseDecisionDriverLine(
-            "Reliability: Use multi-AZ â†’ enabled",
+            "Reliability: Use multi-AZ \u2192 enabled",
             out string category,
             out string rest);
 
         ok.Should().BeTrue();
         category.Should().Be("Reliability");
-        rest.Should().Be("Use multi-AZ â†’ enabled");
+        rest.Should().Be("Use multi-AZ \u2192 enabled");
     }
 
     [SkippableFact]
@@ -169,7 +169,7 @@ public sealed class RunExplanationSummaryServiceTests
         ExplanationResult explained = new()
         {
             Summary = "Exec summary.",
-            KeyDrivers = ["Cost: SKU â†’ A"],
+            KeyDrivers = ["Cost: SKU \u2192 A"],
             Structured = new StructuredExplanation { Reasoning = "Body", Confidence = 0.82m },
             Confidence = 0.82m
         };
@@ -288,14 +288,14 @@ public sealed class RunExplanationSummaryServiceTests
         {
             Summary = "Hallucinated summary not grounded in findings.",
             DetailedNarrative = "Narrative without overlap.",
-            KeyDrivers = ["Cost: SKU â†’ A"]
+            KeyDrivers = ["Cost: SKU \u2192 A"]
         };
 
         ExplanationResult deterministicLayer = new()
         {
             Summary = "Deterministic headline",
             DetailedNarrative = "Deterministic body from manifest signals.",
-            KeyDrivers = ["Cost: SKU â†’ A"],
+            KeyDrivers = ["Cost: SKU \u2192 A"],
             Structured = new StructuredExplanation
             {
                 SchemaVersion = 1, Reasoning = "Deterministic body from manifest signals."
@@ -334,7 +334,7 @@ public sealed class RunExplanationSummaryServiceTests
         Mock<IDeterministicExplanationService> deterministic = new();
         deterministic
             .Setup(d => d.ExtractRunKeyDrivers(manifest, null))
-            .Returns(["Cost: SKU â†’ A"]);
+            .Returns(["Cost: SKU \u2192 A"]);
         deterministic
             .Setup(d => d.ExtractRiskImplications(manifest))
             .Returns(["No unresolved issues recorded."]);

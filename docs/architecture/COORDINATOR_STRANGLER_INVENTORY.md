@@ -1,4 +1,4 @@
-> **Scope:** Living inventory for ADR 0021 coordinator strangler — post-PR A3 / PR A4 ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)): what shipped, what stays pinned in CI, and what remains (PR B audit constants). Complements `DualPipelineRegistrationDisciplineTests` (now asserts coordinator interfaces are **gone**) and `scripts/ci/assert_coordinator_reference_ceiling.py` (reference-count ceiling).
+> **Scope:** Living inventory for ADR 0021 coordinator strangler — post-PR A3 / PR A4 ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)): what shipped, what stays pinned in CI, and what is **product/ADR follow-up** (not dual storage). Complements [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs) (pins **no** resurrected `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository`, authority repository namespaces, and `AuthorityDrivenArchitectureRunCommitOrchestrator`) and [`scripts/ci/assert_coordinator_reference_ceiling.py`](../../scripts/ci/assert_coordinator_reference_ceiling.py) (reference-count ceiling).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
@@ -21,7 +21,7 @@
 | Work item | Resolution |
 |-----------|------------|
 | `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` write consumers | **Deleted** — consumers use **`IGoldenManifestRepository`** + **`IUnifiedGoldenManifestReader`** (authority-only reads post-PR A3). |
-| `POST /v1/architecture/*` run lifecycle | Implementation targets **`AuthorityDrivenArchitectureRunCommitOrchestrator`**; routes retain deprecation headers until a future ADR retires the HTTP surface. |
+| `POST /v1/architecture/*` run lifecycle | Implementation targets **`AuthorityDrivenArchitectureRunCommitOrchestrator`**. **`CoordinatorPipelineDeprecationFilter`** was **removed** ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md) PR A final cleanup); optional **`Deprecation`** / **`Sunset`** headers use **[`ApiDeprecationHeadersMiddleware`](../../ArchLucid.Api/Middleware/ApiDeprecationHeadersMiddleware.cs)** + **[`ApiDeprecationOptions`](../../ArchLucid.Host.Core/Configuration/ApiDeprecationOptions.cs)** (`ApiDeprecation:*` appsettings). Narrowing/removing the **route surface** awaits a future ADR. |
 | `RunCommitOrchestratorFacade` coordinator branch | **Removed** with legacy orchestrator deletion (PR A3). |
 
 ---
@@ -30,20 +30,29 @@
 
 | Symbol / automation | Owning assembly / location | Risk note |
 |---------------------|------------------------------|-----------|
-| `IUnifiedGoldenManifestReader` | `ArchLucid.Persistence` | Authority-only post-PR A3 — single internal read façade for `GoldenManifest`. |
-| `DualPipelineRegistrationDisciplineTests` | `ArchLucid.Api.Tests` | Asserts coordinator interfaces **do not** resolve in production DI; opposite invariant vs Phase 1 allow-list. |
-| `AuditEventTypes_DoNotCollideAcrossPipelinesTests` | `ArchLucid.Core.Tests` | Prevents duplicate audit wire values until PR B retires **`CoordinatorRun*`** constants. |
+| `IUnifiedGoldenManifestReader` | Contract: **[`ArchLucid.Decisioning/Interfaces/IUnifiedGoldenManifestReader.cs`](../../ArchLucid.Decisioning/Interfaces/IUnifiedGoldenManifestReader.cs)** · impl: **`UnifiedGoldenManifestReader`** (**[`ArchLucid.Persistence/Reads/UnifiedGoldenManifestReader.cs`](../../ArchLucid.Persistence/Reads/UnifiedGoldenManifestReader.cs)**) | Authority-only post-PR A3 read façade; DI resolves Persistence concrete (see **`UnifiedGoldenManifestReader_resolves_from_Persistence_namespace`** in [`DualPipelineRegistrationDisciplineTests`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs)). |
+| `DualPipelineRegistrationDisciplineTests` | **[`ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs`](../../ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs)** | Pins ADR 0030 PR A3 closure — no resurrected **`ICoordinatorGoldenManifestRepository`** / **`ICoordinatorDecisionTraceRepository`**; authority repos from **Decisioning** or **Persistence** namespaces; **`IArchitectureRunCommitOrchestrator`** → **`AuthorityDrivenArchitectureRunCommitOrchestrator`**. |
+| **`AuditEventTypesDoNotCollideAcrossPipelinesTests`** | **[`ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs`](../../ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs)** | Non-collision / uniqueness invariants across **`AuditEventTypes.Run.*`**, **`RunStarted`** / **`RunCompleted`**, **`Baseline`** nesting — aligned to [`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md). |
 
 ---
 
-## Remaining work (PR B — after 2026-05-15 Sunset)
+## Completed in code (track ADR archival separately)
 
-Per [ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Lifecycle and [`PHASE_3_PR_B_TODO.md`](PHASE_3_PR_B_TODO.md):
+| Item | Resolution |
+|------|------------|
+| **`AuditEventTypes.CoordinatorRun*`** literals | **Removed** — regression guard **`Legacy_CoordinatorRun_audit_constants_are_removed_from_AuditEventTypes`** in **[`DependencyConstraintTests`](../../ArchLucid.Architecture.Tests/DependencyConstraintTests.cs)** (**only** remaining `CoordinatorRun` substring hits in **`*.cs`** are that test). |
+| **`CoordinatorPipelineDeprecationFilter`** + **`CoordinatorPipelineDeprecatedAttribute`** + coordinator-only deprecation tests | **Deleted** per [ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md) header (**PR A final cleanup**). |
+
+Formal [**`PHASE_3_PR_B_TODO.md`**](PHASE_3_PR_B_TODO.md) / ADR checklist closure may still lag; reconcile there without reintroducing removed symbols.
+
+---
+
+## Remaining product / ADR follow-up
 
 | Item | Notes |
-|------|--------|
-| **`AuditEventTypes.CoordinatorRun*`** retirement | Dual-write / dashboard migration window as described in ADR 0021 Phase 2 framing; calendar deadline applies to **PR B**. |
-| **`CoordinatorPipelineDeprecationFilter`** / route-family sunset | Operator **`POST /v1/architecture/*`** retirement is **not** part of PR A4 — separate ADR when HTTP surface shrinks. |
+|------|-------|
+| Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist** through PR A3/A4; **narrowing/removal** needs a **future ADR**. Deprecation signalling is **`ApiDeprecation:*`** appsettings (**not** a coordinator-only filter — see Migrate table). |
+| PR **B** programme paperwork | Archive [**`PHASE_3_PR_B_TODO.md`**](PHASE_3_PR_B_TODO.md) and update **[ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md)** § Lifecycle when product signs off that engineering matches checklist (**no** SQL migration was required — constants removed in C# only). |
 
 ---
 

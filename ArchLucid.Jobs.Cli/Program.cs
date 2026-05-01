@@ -14,14 +14,19 @@ namespace ArchLucid.Jobs.Cli;
 
 /// <summary>One-shot job runner for Azure Container Apps Jobs (<c>dotnet ArchLucid.Jobs.Cli.dll --job advisory-scan</c>).</summary>
 /// <remarks>
-/// Host wiring is a composition root (WebApplication, DI, migrations). Unit tests cover <see cref="JobsCommandLine"/>;
-/// the running job path is exercised in Container Apps Job deployments and optional integration suites.
+///     Host wiring is a composition root (WebApplication, DI, migrations). Unit tests cover <see cref="JobsCommandLine" />
+///     ;
+///     the running job path is exercised in Container Apps Job deployments and optional integration suites.
 /// </remarks>
-[ExcludeFromCodeCoverage(Justification = "Composition root for ACA Jobs; CLI parsing covered by ArchLucid.Jobs.Cli.Tests.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Composition root for ACA Jobs; CLI parsing covered by ArchLucid.Jobs.Cli.Tests.")]
 public static class Program
 {
     /// <summary>Entry point.</summary>
-    public static async Task<int> Main(string[] args) => await RunAsync(args);
+    public static async Task<int> Main(string[] args)
+    {
+        return await RunAsync(args);
+    }
 
     /// <summary>Used by tests and the console host.</summary>
     public static async Task<int> RunAsync(string[] args)
@@ -44,7 +49,7 @@ public static class Program
         builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
             builder.Environment,
-            telemetryServiceName: "ArchLucid.Jobs.Cli");
+            "ArchLucid.Jobs.Cli");
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, ArchLucidHostingRole.Worker);
 
         WebApplication app = builder.Build();
@@ -60,7 +65,6 @@ public static class Program
             foreach (string error in configurationErrors)
 
                 app.Logger.LogError("Startup configuration error: {Error}", error);
-
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }
