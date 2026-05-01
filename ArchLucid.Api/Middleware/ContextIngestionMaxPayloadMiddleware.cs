@@ -23,22 +23,18 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
         if (!HttpMethods.IsPost(context.Request.Method))
             return next(context);
 
-
         PathString path = context.Request.Path;
 
         if (!LooksLikeArchitectureCreateRun(path))
             return next(context);
-
 
         long? len = context.Request.ContentLength;
 
         if (len is null or <= 0)
             return next(context);
 
-
         if (len <= _max)
             return next(context);
-
 
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -66,7 +62,8 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
         if (string.IsNullOrEmpty(p))
             return false;
 
-        return p.Contains("/architecture/request", StringComparison.OrdinalIgnoreCase) || EndsWithVersionedRequests(p.TrimEnd('/'));
+        return p.Contains("/architecture/request", StringComparison.OrdinalIgnoreCase) ||
+               EndsWithVersionedRequests(p.TrimEnd('/'));
     }
 
     internal static bool EndsWithVersionedRequests(string trimmedNoTrailingSlash)
@@ -83,13 +80,11 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
         if (lastSlash < 0 || lastSlash >= s.Length - 1)
             return false;
 
-
         ReadOnlySpan<char> segment = s[(lastSlash + 1)..];
 
         if (segment.Length < 2 || segment[0] != 'v')
 
             return false;
-
 
         return SegmentHasVersionDigits(segment[1..]);
     }
@@ -100,12 +95,10 @@ public sealed class ContextIngestionMaxPayloadMiddleware(
 
             return false;
 
-
         foreach (char c in afterV)
         {
             if (char.IsDigit(c) || c == '.')
                 continue;
-
 
             return false;
         }

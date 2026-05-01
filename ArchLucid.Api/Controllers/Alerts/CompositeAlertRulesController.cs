@@ -62,7 +62,6 @@ public sealed class CompositeAlertRulesController(
 
             c.ConditionId = Guid.NewGuid();
 
-
         await repository.CreateAsync(rule, ct);
 
         await auditService.LogAsync(

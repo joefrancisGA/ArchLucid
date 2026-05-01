@@ -18,7 +18,6 @@ public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
 
             return true;
 
-
         return path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||

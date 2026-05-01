@@ -30,11 +30,17 @@ public static class RlsBypassPolicyBootstrap
         ArchLucidInstrumentation.SetRlsBypassProductionLikeEnabled(gaugeValue);
         ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
 
-        if (!enabled || !logger.IsEnabled(LogLevel.Warning))
+        if (!enabled)
             return;
 
-        logger.LogWarning(
-            "SQL RLS break-glass is enabled (ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true). "
-            + "SqlRowLevelSecurityBypassAmbient.Enter may set al_rls_bypass=1 when session context is applied.");
+
+        if (logger.IsEnabled(LogLevel.Warning))
+
+            logger.LogWarning(
+                "SQL RLS break-glass is enabled (ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true). "
+                + "SqlRowLevelSecurityBypassAmbient.Enter may set al_rls_bypass=1 when session context is applied.");
+
+        ArchLucidInstrumentation.RecordStartupConfigWarning(
+            StartupValidationWarningRuleNames.RlsBreakGlassEnabled);
     }
 }

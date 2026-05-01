@@ -8,14 +8,16 @@ Items here are **greenlit in principle** — the decision has been made and cont
 
 | ID | Title | Priority driver | Size |
 |----|-------|----------------|------|
-| TB-001 | Harden async audit write paths (never block users) | Correctness — runs can be mislabelled `Failed` | ~2 h |
-| TB-002 | OTel counter + log for production config validation warnings | Ops visibility — config misconfigurations are invisible without log polling | ~1 h |
+| TB-001 | Harden async audit write paths (never block users) | **Complete** — landed + regression tests | Done |
+| TB-002 | OTel counter + log for production config validation warnings | **Complete** — counter + Host.Core startup paths + Composition.Tests + alerts module stub | Done |
 | TB-003 | Performance regression sentinel — named-query allowlist CI gate | CI quality — prevent slow-query regressions from reaching production | ~3 h |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
 
 ---
 
 ## TB-001 — Harden async audit write paths to best-effort (never block users)
+
+**Status:** **Shipped** in mainline (`DurableAuditLogRetry.TryLogAsync` on all three paths, `archlucid_audit_write_failures_total`, `ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests`, `ArchitectureRunCreateOrchestratorInformationalAuditBestEffortTests`, `DurableAuditLogRetryTests`). Retained verbatim below as the specification audit trail.
 
 **Decision (2026-04-29):** Audit write failures on async / fire-and-forget paths must not surface to the user or degrade their experience. Log the failure as a structured warning (include correlation ID and event type), increment a counter, and continue. Fail-closed behaviour is reserved for synchronous, user-visible paths where the audit record is part of the response contract (e.g. governance approval submission). See `docs/PENDING_QUESTIONS.md` — *Resolved 2026-04-29 (audit coverage on async paths)*.
 
@@ -40,6 +42,8 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 ---
 
 ## TB-002 — OTel counter + log for production config validation warnings
+
+**Status:** **Shipped** in mainline (`archlucid_startup_config_warnings_total`, `RecordStartupConfigWarning`, `StartupValidationWarningRuleNames`, `infra/modules/alerts/`). **`Startup/Validation/Rules/*.cs`** use error collection (no `LogWarning` today); advisory metrics are wired on **`AuthSafetyGuard`**, **`LlmPromptRedactionProductionWarningPostConfigure`**, **`RlsBypassPolicyBootstrap`**, **`ArchLucidPersistenceStartup`** (missing SQL connection string), plus existing **`ProductionLikeHostingMisconfigurationAdvisor`** / **`ArchLucidLegacyConfigurationWarnings`**.
 
 **Decision (2026-04-29):** Startup config validation warnings should emit both a structured log line (status quo) **and** increment an OTel counter so operators can alert on them in Azure Monitor / Prometheus without grepping logs. Cardinality is bounded — rule names are code constants, not runtime strings (~8–10 rules today).
 

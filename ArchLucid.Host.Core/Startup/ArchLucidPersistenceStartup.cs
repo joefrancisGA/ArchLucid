@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -26,10 +27,13 @@ public static class ArchLucidPersistenceStartup
             string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
             if (string.IsNullOrWhiteSpace(connectionString))
-
+            {
                 app.Logger.LogWarning(
                     "Startup: ConnectionStrings:ArchLucid is not set; skipping DbUp migrations.");
 
+                ArchLucidInstrumentation.RecordStartupConfigWarning(
+                    StartupValidationWarningRuleNames.SqlConnectionStringMissingSkipMigrations);
+            }
             else
             {
                 app.Logger.LogInformation(

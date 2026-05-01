@@ -36,12 +36,10 @@ public sealed class DemoController(
                 "Demo seed is available only in Development environment.",
                 ProblemTypes.ResourceNotFound);
 
-
         if (!demoOptions.Value.Enabled)
             return this.BadRequestProblem(
                 "Demo seeding is disabled. Set Demo:Enabled to true in configuration.",
                 ProblemTypes.BadRequest);
-
 
         await demoSeedService.SeedAsync(cancellationToken);
         return NoContent();

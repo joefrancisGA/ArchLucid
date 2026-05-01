@@ -45,7 +45,6 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
 
             themeById[distinctThemeIds[i]] = themeRows[i];
 
-
         List<LearningPlanListItemResponse> plans = rows
             .Select(p => MapPlanListItem(p,
                 themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
@@ -64,7 +63,6 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
 
         if (plan is null)
             return null;
-
 
         ProductLearningImprovementThemeRecord? theme =
             await planningRepository.GetThemeAsync(plan.ThemeId, scope, cancellationToken);

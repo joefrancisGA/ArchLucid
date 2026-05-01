@@ -42,7 +42,8 @@ internal static class PipelineExtensions
                         logger.LogErrorUnhandledWorkerHttpRequest(
                             ex,
                             context.Request.Method,
-                            context.Request.Path.Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
+                            context.Request.Path
+                                .Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
                     }
                 }
 
@@ -80,7 +81,6 @@ internal static class PipelineExtensions
                     app.Logger.LogWarning(
                         "DeveloperExperience:EnableApiExplorer is true in a non-Development environment. " +
                         "Ensure this is intentional and restrict access at the network perimeter.");
-
 
             app.MapOpenApi().AllowAnonymous();
             app.UseSwagger();

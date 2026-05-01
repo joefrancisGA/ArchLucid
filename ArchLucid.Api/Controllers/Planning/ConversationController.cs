@@ -107,7 +107,6 @@ public sealed class ConversationController(
                 $"Conversation thread '{threadId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
-
         IReadOnlyList<ConversationMessage>
             messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
         return Ok(messages);

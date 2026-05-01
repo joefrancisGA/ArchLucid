@@ -135,7 +135,6 @@ public sealed class PolicyPacksController(
                 $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
                 ProblemTypes.PolicyPackVersionNotFound);
 
-
         return Ok(assignment);
     }
 
@@ -155,7 +154,6 @@ public sealed class PolicyPacksController(
             return this.NotFoundProblem(
                 $"Assignment '{assignmentId}' was not found or is already archived for this tenant.",
                 ProblemTypes.ResourceNotFound);
-
 
         return NoContent();
     }
@@ -196,7 +194,6 @@ public sealed class PolicyPacksController(
             return this.NotFoundProblem(
                 $"Policy pack '{policyPackId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
-
 
         IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
         return Ok(versions);

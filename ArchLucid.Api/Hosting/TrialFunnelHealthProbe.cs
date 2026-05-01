@@ -55,7 +55,6 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
             return b.Uri.GetLeftPart(UriPartial.Authority);
         b.Host = "127.0.0.1";
         return b.Uri.GetLeftPart(UriPartial.Authority);
-
     }
 
     internal string ResolveBaseUrl()
@@ -72,14 +71,17 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         }
 
         if (_logger.IsEnabled(LogLevel.Warning))
-            _logger.LogWarning("Trial funnel health probe: no usable Kestrel address; defaulting to http://127.0.0.1:5000.");
+            _logger.LogWarning(
+                "Trial funnel health probe: no usable Kestrel address; defaulting to http://127.0.0.1:5000.");
 
         return "http://127.0.0.1:5000";
     }
 
     /// <summary>Single GET for tests (Core suite) — no periodic loop.</summary>
-    internal async Task<bool> RunSingleProbeForTestsAsync(CancellationToken cancellationToken = default) =>
-        await RunProbeRequestAsync(ResolveBaseUrl(), cancellationToken).ConfigureAwait(false);
+    internal async Task<bool> RunSingleProbeForTestsAsync(CancellationToken cancellationToken = default)
+    {
+        return await RunProbeRequestAsync(ResolveBaseUrl(), cancellationToken).ConfigureAwait(false);
+    }
 
     private async Task<bool> RunProbeRequestAsync(string baseUrl, CancellationToken cancellationToken)
     {
@@ -109,7 +111,8 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         if (lifetime.ApplicationStarted.IsCancellationRequested)
             return;
         TaskCompletionSource tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        await using (lifetime.ApplicationStarted.Register(static state => ((TaskCompletionSource)state!).TrySetResult(), tcs))
+        await using (lifetime.ApplicationStarted.Register(static state => ((TaskCompletionSource)state!).TrySetResult(),
+                         tcs))
         {
             await tcs.Task.WaitAsync(stoppingToken).ConfigureAwait(false);
         }
@@ -130,7 +133,9 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
         int consecutiveFailures = 0;
         string baseUrl = ResolveBaseUrl();
         if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Trial funnel health probe: starting against base {BaseUrl} every {Interval} (demo preview {Path}).", baseUrl, ProbeInterval, DemoPreviewRelativePath);
+            _logger.LogInformation(
+                "Trial funnel health probe: starting against base {BaseUrl} every {Interval} (demo preview {Path}).",
+                baseUrl, ProbeInterval, DemoPreviewRelativePath);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -145,7 +150,8 @@ public sealed class TrialFunnelHealthProbe : BackgroundService
                         && _logger.IsEnabled(LogLevel.Information))
                     {
                         _logger.LogInformation(
-                            "Trial funnel health probe: recovered after {N} prior consecutive failure(s).", consecutiveFailures);
+                            "Trial funnel health probe: recovered after {N} prior consecutive failure(s).",
+                            consecutiveFailures);
                     }
 
                     consecutiveFailures = 0;

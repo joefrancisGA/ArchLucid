@@ -1,6 +1,6 @@
-using Asp.Versioning;
-
 using ArchLucid.Core.Authorization;
+
+using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

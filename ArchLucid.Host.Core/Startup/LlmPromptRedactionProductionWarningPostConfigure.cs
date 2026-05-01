@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -37,5 +38,8 @@ public sealed class LlmPromptRedactionProductionWarningPostConfigure(
 
             _logger.LogWarning(
                 "LlmPromptRedaction:Enabled=false on a production-like host. Outbound prompts and trace blobs are not deny-list redacted.");
+
+        ArchLucidInstrumentation.RecordStartupConfigWarning(
+            StartupValidationWarningRuleNames.LlmPromptRedactionDisabledProductionLike);
     }
 }

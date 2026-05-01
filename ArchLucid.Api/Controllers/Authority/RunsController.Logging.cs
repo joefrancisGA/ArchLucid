@@ -16,5 +16,4 @@ public sealed partial class RunsController
             "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}")]
     private partial void LogRunCommitted(string runId, string? manifestVersion, int warningCount, string user,
         string correlationId);
-
 }

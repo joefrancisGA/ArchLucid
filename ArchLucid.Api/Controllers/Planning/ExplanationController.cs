@@ -80,7 +80,6 @@ public sealed class ExplanationController(
                     runId.ToString("D"));
             }
 
-
         ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
 

@@ -26,7 +26,8 @@ public class ArchLucidAuthOptions
     } = string.Empty;
 
     /// <summary>
-    ///     When true and <see cref="JwtSigningPublicKeyPemPath" /> is empty, JWT issuer must be a Microsoft Entra ID v2.0 issuer
+    ///     When true and <see cref="JwtSigningPublicKeyPemPath" /> is empty, JWT issuer must be a Microsoft Entra ID v2.0
+    ///     issuer
     ///     (<c>login.microsoftonline.com/{tid}/v2.0</c>) and optional <see cref="AllowedEntraTenantIds" /> restricts
     ///     <c>tid</c>.
     /// </summary>

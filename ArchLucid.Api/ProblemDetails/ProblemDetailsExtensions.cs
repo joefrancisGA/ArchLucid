@@ -99,7 +99,6 @@ public static class ProblemDetailsExtensions
 
             problem.Extensions["policyPackId"] = result.PolicyPackId;
 
-
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);

@@ -38,8 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\archlucid-ui\public\logo\icon-512.png" Link="Branding\icon-512.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\archlucid-ui\public\logo\icon-512.png" Link="Branding\icon-512.png"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

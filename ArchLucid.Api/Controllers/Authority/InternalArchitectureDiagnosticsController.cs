@@ -99,8 +99,8 @@ public sealed class InternalArchitectureDiagnosticsController(
                         resolvedExecutionMode = result.ExecutionMode,
                         requestedExecutionMode = request.ExecutionMode,
                         request.CommitReplay,
-                        request.ManifestVersionOverride,
-                    }),
+                        request.ManifestVersionOverride
+                    })
                 },
                 cancellationToken);
 
@@ -168,8 +168,8 @@ public sealed class InternalArchitectureDiagnosticsController(
                         result.IsDeterministic,
                         result.Iterations,
                         result.ExecutionMode,
-                        result.BaselineReplayRunId,
-                    }),
+                        result.BaselineReplayRunId
+                    })
                 },
                 cancellationToken);
 
@@ -218,7 +218,7 @@ public sealed class InternalArchitectureDiagnosticsController(
                 ProjectId = scope.ProjectId,
                 RunId = auditRunId,
                 CorrelationId = HttpContext.TraceIdentifier,
-                DataJson = JsonSerializer.Serialize(new { result.ResultCount, pilotTryRealModeFellBack }),
+                DataJson = JsonSerializer.Serialize(new { result.ResultCount, pilotTryRealModeFellBack })
             },
             cancellationToken);
 

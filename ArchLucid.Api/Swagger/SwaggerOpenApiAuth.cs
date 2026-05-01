@@ -17,10 +17,8 @@ internal static class SwaggerOpenApiAuth
         if (string.IsNullOrWhiteSpace(mode))
             return null;
 
-
         if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
             return BearerSchemeId;
-
 
         return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ? ApiKeySchemeId : null;
     }

@@ -7,7 +7,8 @@ using ArchLucid.Host.Core.Services.Delivery;
 namespace ArchLucid.Api.Services;
 
 /// <summary>
-///     POSTs CloudEvents-shaped JSON aligned with CLI webhooks test; signs with <see cref="WebhookSignature" /> when secret is set.
+///     POSTs CloudEvents-shaped JSON aligned with CLI webhooks test; signs with <see cref="WebhookSignature" /> when
+///     secret is set.
 /// </summary>
 public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutboundWebhookDryRunService
 {
@@ -33,7 +34,6 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
         using HttpRequestMessage request = new(HttpMethod.Post, targetUrl);
         request.Content = new ByteArrayContent(bodyUtf8);
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
-
 
         string? trimmedSecret = sharedSecret?.Trim();
 
@@ -66,12 +66,9 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
         {
             return new OutboundWebhookDryRunResult
             {
-                TransportSucceeded = false,
-                StatusCode = 0,
-                Error = $"{ex.GetType().Name}: {ex.Message}"
+                TransportSucceeded = false, StatusCode = 0, Error = $"{ex.GetType().Name}: {ex.Message}"
             };
         }
-
     }
 
     internal static byte[] BuildSyntheticWebhookBodyUtf8()
@@ -81,35 +78,21 @@ public sealed class OutboundWebhookDryRunService(HttpClient httpClient) : IOutbo
             ["specversion"] = "1.0",
             ["type"] = "com.archlucid.finding.created.sample",
             ["source"] = "https://api.archlucid.local/v1/webhooks/dry-run",
-
             ["id"] = Guid.NewGuid().ToString("D"),
-
             ["time"] = DateTime.UtcNow.ToString("O"),
-
             ["datacontenttype"] = "application/json",
-
             ["data"] = new Dictionary<string, object?>
             {
                 ["tenantId"] = Guid.Empty.ToString("D"),
-
                 ["findingId"] = Guid.NewGuid().ToString("D"),
-
                 ["runId"] = Guid.NewGuid().ToString("D"),
-
                 ["note"] =
                     "Synthetic webhook dry-run (no persistence); validate signature + payload at your subscriber."
             }
-
         };
 
         string json = JsonSerializer.Serialize(envelope, JsonCamel);
 
         return Encoding.UTF8.GetBytes(json);
-
-
-
     }
-
-
-
 }

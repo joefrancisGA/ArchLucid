@@ -155,7 +155,6 @@ public sealed class BillingCheckoutController(
         if (string.IsNullOrWhiteSpace(label))
             return BillingCheckoutTier.Team;
 
-
         return label.Trim() switch
         {
             "Pro" => BillingCheckoutTier.Pro,

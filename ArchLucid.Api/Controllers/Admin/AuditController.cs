@@ -56,9 +56,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
 
         AuditEventFilter filter = new()
         {
-            Take = clampedTake + 1,
-            BeforeUtc = cursorPair?.OccurredUtc,
-            BeforeEventId = cursorPair?.EventId
+            Take = clampedTake + 1, BeforeUtc = cursorPair?.OccurredUtc, BeforeEventId = cursorPair?.EventId
         };
 
         IReadOnlyList<AuditEvent> rows =
@@ -68,8 +66,10 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     }
 
     /// <summary>Filtered audit query within the current tenant/workspace/project scope.</summary>
-    /// <param name="cursor">Opaque keyset token from <see cref="CursorPagedResponse{T}.NextCursor" />; supersedes bare
-    /// <paramref name="beforeUtc" /> / <paramref name="beforeEventId" /> when both are present.</param>
+    /// <param name="cursor">
+    ///     Opaque keyset token from <see cref="CursorPagedResponse{T}.NextCursor" />; supersedes bare
+    ///     <paramref name="beforeUtc" /> / <paramref name="beforeEventId" /> when both are present.
+    /// </param>
     /// <param name="beforeUtc">Keyset cursor: only events at or before this instant per ordering (ISO-8601).</param>
     /// <param name="beforeEventId">
     ///     Optional tie-break when multiple events share the same <paramref name="beforeUtc" /> — pass the previous page’s
@@ -146,15 +146,10 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
 
         return new CursorPagedResponse<AuditEvent>
         {
-            Items = materialized,
-
-            NextCursor = nextCursor,
-
-            HasMore = hasMore,
-
-            RequestedTake = clampedTake
+            Items = materialized, NextCursor = nextCursor, HasMore = hasMore, RequestedTake = clampedTake
         };
     }
+
     /// <summary>Lists distinct Core <see cref="AuditEventTypes" /> string constants (dropdown support).</summary>
     [HttpGet("event-types")]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
@@ -196,12 +191,10 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
                 "fromUtc must be strictly before toUtc.",
                 ProblemTypes.ValidationFailed);
 
-
         if (to - from > TimeSpan.FromDays(90))
             return this.BadRequestProblem(
                 "The requested date range must not exceed 90 days.",
                 ProblemTypes.ValidationFailed);
-
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 

@@ -16,7 +16,6 @@ internal static class OpenApiAuthDocumentMutator
         if (string.IsNullOrEmpty(schemeId))
             return;
 
-
         swaggerDoc.Components ??= new OpenApiComponents();
 
         if (string.Equals(schemeId, SwaggerOpenApiAuth.BearerSchemeId, StringComparison.Ordinal))

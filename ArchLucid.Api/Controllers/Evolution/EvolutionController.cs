@@ -136,7 +136,6 @@ public sealed class EvolutionController(
                     $"Candidate change set '{candidateId}' was not found in the current scope.",
                     ProblemTypes.EvolutionCandidateChangeSetNotFound);
 
-
             EvolutionSimulateResponse body = new()
             {
                 Candidate = candidate.ToResponse(),
@@ -172,7 +171,6 @@ public sealed class EvolutionController(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
 
-
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
 
@@ -200,7 +198,6 @@ public sealed class EvolutionController(
         if (!ProductLearningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
 
-
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
         EvolutionCandidateChangeSetRecord? row =
@@ -210,7 +207,6 @@ public sealed class EvolutionController(
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-
 
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
@@ -242,7 +238,6 @@ public sealed class EvolutionController(
         if (!LearningPlanningQueryParser.TryParseMaxItems(max, "max", out int take, out string? maxError))
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
-
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
         IReadOnlyList<EvolutionCandidateChangeSetRecord> rows =
@@ -272,7 +267,6 @@ public sealed class EvolutionController(
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-
 
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);

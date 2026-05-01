@@ -4,9 +4,9 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence;
 

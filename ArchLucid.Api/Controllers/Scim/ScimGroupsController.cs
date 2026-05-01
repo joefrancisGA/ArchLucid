@@ -47,7 +47,9 @@ public sealed class ScimGroupsController(
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-        return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+        return g is null
+            ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.")
+            : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
     }
 
     [HttpPost]
@@ -59,7 +61,8 @@ public sealed class ScimGroupsController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -87,7 +90,8 @@ public sealed class ScimGroupsController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -99,7 +103,9 @@ public sealed class ScimGroupsController(
             await _groups.ReplaceAsync(tenantId, id, body, cancellationToken);
             ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-            return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+            return g is null
+                ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.")
+                : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
         }
         catch (ScimNotFoundException)
         {
@@ -120,7 +126,8 @@ public sealed class ScimGroupsController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -132,7 +139,9 @@ public sealed class ScimGroupsController(
             await _groups.PatchMembersAsync(tenantId, id, body, cancellationToken);
             ScimGroupRecord? g = await _groups.GetAsync(tenantId, id, cancellationToken);
 
-            return g is null ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
+            return g is null
+                ? ScimErrorResultFactory.Create(404, "notFound", "Group not found.")
+                : ScimResourceSerializer.JsonContent(ScimResourceSerializer.Group(g));
         }
         catch (ScimNotFoundException)
         {

@@ -44,8 +44,7 @@ public sealed class ArtifactExportController(
 {
     private static readonly JsonSerializerOptions ExportJsonOptions = new()
     {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <summary>
@@ -86,7 +85,6 @@ public sealed class ArtifactExportController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         if (detail.Run.GoldenManifestId is null)
             return this.NotFoundProblem(
                 $"Run '{runId}' has no golden manifest in the current scope.",
@@ -109,7 +107,6 @@ public sealed class ArtifactExportController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         if (detail.Run.GoldenManifestId is null)
             return this.NotFoundProblem(
                 $"Run '{runId}' has no golden manifest in the current scope.",
@@ -131,7 +128,6 @@ public sealed class ArtifactExportController(
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
 
         if (detail.Run.GoldenManifestId is null)
             return this.NotFoundProblem(
@@ -203,9 +199,7 @@ public sealed class ArtifactExportController(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.ArtifactDownloaded,
-                ManifestId = manifestId,
-                ArtifactId = artifactId
+                EventType = AuditEventTypes.ArtifactDownloaded, ManifestId = manifestId, ArtifactId = artifactId
             },
             ct);
 

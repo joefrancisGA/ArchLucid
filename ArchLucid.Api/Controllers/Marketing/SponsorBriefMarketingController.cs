@@ -22,11 +22,11 @@ public sealed class SponsorBriefMarketingController(
     IWebHostEnvironment hostEnvironment,
     ExecutiveSponsorBriefPdfBuilder pdfBuilder) : ControllerBase
 {
-    private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
-        pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
-
     private readonly IWebHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+
+    private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
+        pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
 
     /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
     [HttpGet("sponsor-brief.pdf")]

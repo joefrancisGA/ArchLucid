@@ -26,14 +26,16 @@ public sealed class ScimTokensAdminController(
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService) : ControllerBase
 {
-    private readonly IScimTokenIssuer _tokenIssuer = tokenIssuer ?? throw new ArgumentNullException(nameof(tokenIssuer));
-
-    private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IScimTokenIssuer
+        _tokenIssuer = tokenIssuer ?? throw new ArgumentNullException(nameof(tokenIssuer));
+
+    private readonly IScimTenantTokenRepository _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
 
     [HttpPost]
     [Produces("application/json")]
@@ -51,7 +53,10 @@ public sealed class ScimTokensAdminController(
                 TenantId = tenantId,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
                 ProjectId = ScopeIds.DefaultProject,
-                DataJson = JsonSerializer.Serialize(new { tokenId = issued.TokenId, publicLookupKey = issued.PublicLookupKey })
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    tokenId = issued.TokenId, publicLookupKey = issued.PublicLookupKey
+                })
             },
             cancellationToken);
 
@@ -91,10 +96,7 @@ public sealed class ScimTokensAdminController(
                 });
         }
 
-        JsonObject body = new()
-        {
-            ["tokens"] = arr
-        };
+        JsonObject body = new() { ["tokens"] = arr };
 
         return Content(
             body.ToJsonString(new JsonSerializerOptions { WriteIndented = false }),
@@ -108,7 +110,8 @@ public sealed class ScimTokensAdminController(
         bool ok = await _tokens.TryRevokeByIdAsync(tenantId, id, cancellationToken);
 
         if (!ok)
-            return this.NotFoundProblem("The SCIM token was not found or could not be revoked.", type: ProblemTypes.ResourceNotFound);
+            return this.NotFoundProblem("The SCIM token was not found or could not be revoked.",
+                ProblemTypes.ResourceNotFound);
 
         await _auditService.LogAsync(
             new AuditEvent

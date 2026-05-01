@@ -1,8 +1,10 @@
 namespace ArchLucid.Api.Marketing;
 
 /// <summary>
-/// Resolves Markdown under the repository <c>docs</c> folder by walking up from <see cref="Microsoft.AspNetCore.Hosting.IWebHostEnvironment.ContentRootPath" />.
-/// Test hosts and <c>dotnet run</c> disagree on ContentRoot depth; fixed <c>..\..\docs\…</c> chains can 404 in integration tests otherwise.
+///     Resolves Markdown under the repository <c>docs</c> folder by walking up from
+///     <see cref="Microsoft.AspNetCore.Hosting.IWebHostEnvironment.ContentRootPath" />.
+///     Test hosts and <c>dotnet run</c> disagree on ContentRoot depth; fixed <c>..\..\docs\…</c> chains can 404 in
+///     integration tests otherwise.
 /// </summary>
 internal static class RepositoryDocsMarkdownPath
 {
@@ -12,7 +14,8 @@ internal static class RepositoryDocsMarkdownPath
     {
         ArgumentNullException.ThrowIfNull(hostEnvironment);
         if (relativeUnderDocs is null || relativeUnderDocs.Length == 0)
-            throw new ArgumentException("At least one path segment under docs/ is required.", nameof(relativeUnderDocs));
+            throw new ArgumentException("At least one path segment under docs/ is required.",
+                nameof(relativeUnderDocs));
 
         string[] relativePathParts =
             relativeUnderDocs.Where(static s => !string.IsNullOrWhiteSpace(s)).ToArray();

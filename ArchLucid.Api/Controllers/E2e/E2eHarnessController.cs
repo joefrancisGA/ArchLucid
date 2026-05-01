@@ -54,12 +54,10 @@ public sealed class E2EHarnessController(
                 "E2E harness is not available or the request is not authorized.",
                 ProblemTypes.ResourceNotFound);
 
-
         if (body is null || body.TenantId == Guid.Empty)
             return this.NotFoundProblem(
                 "Invalid or missing request body for E2E harness endpoint.",
                 ProblemTypes.ResourceNotFound);
-
 
         await _tenantRepository.E2eHarnessSetTrialExpiresUtcAsync(body.TenantId, body.ExpiresUtc, cancellationToken);
 
@@ -77,7 +75,6 @@ public sealed class E2EHarnessController(
                 "E2E harness is not available or the request is not authorized.",
                 ProblemTypes.ResourceNotFound);
 
-
         if (body is null ||
             body.TenantId == Guid.Empty ||
             body.WorkspaceId == Guid.Empty ||
@@ -88,11 +85,9 @@ public sealed class E2EHarnessController(
                 "Invalid or missing request body for E2E harness endpoint.",
                 ProblemTypes.ResourceNotFound);
 
-
         if (!Enum.TryParse(body.CheckoutTier.Trim(), true, out BillingCheckoutTier tier))
 
             tier = BillingCheckoutTier.Team;
-
 
         string tierStorageCode = BillingTierCode.FromCheckoutTier(tier);
         string checkoutLabel = BillingTierCode.CheckoutTierLabel(tier);
@@ -122,18 +117,15 @@ public sealed class E2EHarnessController(
         if (_environment.IsProduction())
             return false;
 
-
         E2EHarnessOptions o = _harnessOptions.CurrentValue;
 
         if (!_environment.IsDevelopment() && !o.Enabled)
             return false;
 
-
         string? configured = o.SharedSecret?.Trim();
 
         if (string.IsNullOrEmpty(configured))
             return false;
-
 
         string? header = Request.Headers["X-ArchLucid-E2e-Harness-Secret"].FirstOrDefault();
 

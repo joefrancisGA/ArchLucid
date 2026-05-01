@@ -25,8 +25,8 @@ public sealed class ImportRequestFileController(
     private const long MaxMultipartBodyBytes = 512 * 1024 + 32 * 1024;
 
     /// <summary>
-    /// Upload a UTF-8 .toml or .json file (max 512 KB). Returns 202 with import id when the draft is stored; 422 on
-    /// validation, parse, or content-safety failure.
+    ///     Upload a UTF-8 .toml or .json file (max 512 KB). Returns 202 with import id when the draft is stored; 422 on
+    ///     validation, parse, or content-safety failure.
     /// </summary>
     [HttpPost("request/import")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -41,12 +41,7 @@ public sealed class ImportRequestFileController(
 
         if (result.Succeeded)
         {
-            return Accepted(value: new
-            {
-                importId = result.ImportedRequestId,
-                result.Status,
-                result.Warnings,
-            });
+            return Accepted(new { importId = result.ImportedRequestId, result.Status, result.Warnings });
         }
 
         string detail = BuildFailureDetail(result);

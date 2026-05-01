@@ -1,4 +1,3 @@
-
 namespace ArchLucid.Api.Services;
 
 /// <summary>HTTP probe for outbound webhook integrations (no durable audit).</summary>

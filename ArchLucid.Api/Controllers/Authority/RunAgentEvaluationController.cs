@@ -46,7 +46,6 @@ public sealed class RunAgentEvaluationController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         IReadOnlyList<AgentExecutionTrace> traces =
             await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 

@@ -79,7 +79,6 @@ public sealed class TenantTrialController(
                     IdentityHandoffPending = ComputeIdentityHandoffPending(tenant)
                 });
 
-
         int? daysRemaining = null;
 
         if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) &&
@@ -148,7 +147,6 @@ public sealed class TenantTrialController(
                 "LocalEmail and EntraOid must both be supplied together, or both omitted.",
                 ProblemTypes.ValidationFailed);
 
-
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
@@ -164,7 +162,8 @@ public sealed class TenantTrialController(
                 await _trialIdentityUsers.GetByNormalizedEmailAsync(normalizedLocal, cancellationToken);
 
             if (localRow is null)
-                return this.BadRequestProblem("No local trial identity exists for that email.", ProblemTypes.ValidationFailed);
+                return this.BadRequestProblem("No local trial identity exists for that email.",
+                    ProblemTypes.ValidationFailed);
 
             string requestedOid = body.EntraOid!.Trim();
 
@@ -174,13 +173,13 @@ public sealed class TenantTrialController(
                     ProblemTypes.Conflict);
         }
 
-        bool bound = await _tenantRepository.UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken);
+        bool bound =
+            await _tenantRepository.UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken);
 
         if (!bound)
             return this.ConflictProblem(
                 "Entra directory could not be bound (already bound to a different directory, or directory id is held by another tenant).",
                 ProblemTypes.Conflict);
-
 
         string actor = User.Identity?.Name ?? "admin";
 
@@ -209,7 +208,6 @@ public sealed class TenantTrialController(
                 return this.ConflictProblem(
                     "Entra directory was bound, but updating the local identity row failed (retry or contact support).",
                     ProblemTypes.Conflict);
-
 
             await _auditService.LogAsync(
                 new AuditEvent
@@ -285,14 +283,13 @@ public sealed class TenantTrialController(
     private static bool ComputeIdentityHandoffPending(TenantRecord tenant)
     {
         return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)
-            && tenant.EntraTenantId is null;
+               && tenant.EntraTenantId is null;
     }
 
     private static TenantTier? MapRequestTier(string? label)
     {
         if (string.IsNullOrWhiteSpace(label))
             return null;
-
 
         return string.Equals(label.Trim(), nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase)
             ? TenantTier.Enterprise

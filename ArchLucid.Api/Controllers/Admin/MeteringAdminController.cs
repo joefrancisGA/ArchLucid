@@ -36,7 +36,6 @@ public sealed class MeteringAdminController(IUsageMeteringService metering) : Co
                 "periodEnd must be greater than periodStart.",
                 ProblemTypes.ValidationFailed);
 
-
         IReadOnlyList<TenantUsageSummary> rows =
             await _metering.GetSummaryAsync(tenantId, periodStart, periodEnd, cancellationToken);
 

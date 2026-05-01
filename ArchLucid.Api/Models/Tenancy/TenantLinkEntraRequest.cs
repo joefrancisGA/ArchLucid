@@ -11,7 +11,7 @@ public sealed class TenantLinkEntraRequest
     }
 
     /// <summary>
-    /// Optional: admin email matching <c>dbo.IdentityUsers</c> for trial local handoff; requires <see cref="EntraOid" />.
+    ///     Optional: admin email matching <c>dbo.IdentityUsers</c> for trial local handoff; requires <see cref="EntraOid" />.
     /// </summary>
     public string? LocalEmail
     {

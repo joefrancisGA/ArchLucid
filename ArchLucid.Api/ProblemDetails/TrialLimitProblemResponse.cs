@@ -20,7 +20,6 @@ internal static class TrialLimitProblemResponse
         if (body.Value is Microsoft.AspNetCore.Mvc.ProblemDetails p)
             await httpContext.Response.WriteAsJsonAsync(p, httpContext.RequestAborted);
 
-
         await TryLogAuditAsync(httpContext, ex, httpContext.RequestAborted);
     }
 

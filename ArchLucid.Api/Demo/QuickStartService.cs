@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Orchestration;
-
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -32,29 +31,32 @@ public sealed class QuickStartService(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<QuickStartService> logger)
 {
+    private readonly IActorContext
+        _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
+        architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
+
     private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator =
         architectureRunCreateOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCreateOrchestrator));
+
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<QuickStartService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
+        publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
 
     private readonly QuickStartForcedSimulatorExecuteOrchestrator _quickStartForcedSimulatorExecuteOrchestrator =
         quickStartForcedSimulatorExecuteOrchestrator
         ?? throw new ArgumentNullException(nameof(quickStartForcedSimulatorExecuteOrchestrator));
 
-    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
-        architectureRunCommitOrchestrator ?? throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
-        publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
-
-    private readonly ILogger<QuickStartService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-    public async Task<DemoQuickStartResponse> RunAsync(DemoQuickStartRequest request, CancellationToken cancellationToken)
+    public async Task<DemoQuickStartResponse> RunAsync(DemoQuickStartRequest request,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -66,7 +68,7 @@ public sealed class QuickStartService(
 
         CreateRunResult created =
             await _architectureRunCreateOrchestrator
-                .CreateRunAsync(architectureRequest, idempotency: null, cancellationToken)
+                .CreateRunAsync(architectureRequest, null, cancellationToken)
                 .ConfigureAwait(false);
 
         string runId = created.Run.RunId;
@@ -84,7 +86,7 @@ public sealed class QuickStartService(
             .ConfigureAwait(false);
 
         string manifestVersion = committed.Manifest.Metadata.ManifestVersion;
-        string trimmedBaseUrl = (_publicSiteOptions.CurrentValue.BaseUrl).TrimEnd('/');
+        string trimmedBaseUrl = _publicSiteOptions.CurrentValue.BaseUrl.TrimEnd('/');
         string runDetailUrl = $"{trimmedBaseUrl}/runs/{Uri.EscapeDataString(runId)}";
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -94,13 +96,12 @@ public sealed class QuickStartService(
                 runId,
                 manifestVersion);
 
-
         return new DemoQuickStartResponse
         {
             RunId = runId,
             ManifestId = manifestVersion,
-            TopFindings = SelectTopFindingSummaries(executed.Results, limit: 3),
-            RunDetailUrl = runDetailUrl,
+            TopFindings = SelectTopFindingSummaries(executed.Results, 3),
+            RunDetailUrl = runDetailUrl
         };
     }
 
@@ -135,7 +136,6 @@ public sealed class QuickStartService(
             body = rawDescription;
         }
 
-
         List<string> capabilityAccumulator = [];
 
         if (preset?.RequiredCapabilities is { Count: > 0 })
@@ -162,9 +162,8 @@ public sealed class QuickStartService(
         else
             constraints =
             [
-                .. preset.Constraints.Where(static s => !string.IsNullOrWhiteSpace(s)),
+                .. preset.Constraints.Where(static s => !string.IsNullOrWhiteSpace(s))
             ];
-
 
         List<string> topologyHints =
         [
@@ -178,7 +177,6 @@ public sealed class QuickStartService(
             "Centralize cryptographic key custody"
         ];
 
-
         return new ArchitectureRequest
         {
             RequestId = $"qs-{Guid.NewGuid():N}",
@@ -191,12 +189,11 @@ public sealed class QuickStartService(
             TopologyHints = topologyHints,
             SecurityBaselineHints = securityHints,
             RequiredCapabilities = distinctCapabilities,
-
             Constraints =
             [
                 .. constraints.Where(static s => !string.IsNullOrWhiteSpace(s))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
-            ],
+            ]
         };
     }
 
@@ -223,11 +220,9 @@ public sealed class QuickStartService(
             if (picked.Count >= limit)
                 break;
 
-
             string title = DisplayTitle(finding);
-            picked.Add(new DemoQuickStartFindingSummary { Title = title, Severity = finding.Severity.ToString(), });
+            picked.Add(new DemoQuickStartFindingSummary { Title = title, Severity = finding.Severity.ToString() });
         }
-
 
         return picked;
     }
@@ -236,7 +231,6 @@ public sealed class QuickStartService(
     {
         if (!string.IsNullOrWhiteSpace(finding.Message))
             return finding.Message.Trim();
-
 
         return string.IsNullOrWhiteSpace(finding.Category) ? "Finding" : finding.Category.Trim();
     }
@@ -279,11 +273,7 @@ public sealed class QuickStartService(
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        source = "demo-quickstart"
-                    },
+                    new { runId, source = "demo-quickstart" },
                     AuditJsonSerializationOptions.Instance)
             },
             cancellationToken).ConfigureAwait(false);
@@ -293,7 +283,6 @@ public sealed class QuickStartService(
     {
         if (Guid.TryParseExact(runId, "N", out Guid parsed))
             return parsed;
-
 
         return Guid.TryParse(runId, out parsed) ? parsed : null;
     }

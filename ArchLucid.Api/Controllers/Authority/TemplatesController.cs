@@ -23,6 +23,8 @@ public sealed class TemplatesController : ControllerBase
     /// <summary>Returns template ids, titles, and short descriptions for the New Run wizard.</summary>
     [HttpGet("templates")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureRequestTemplateSummary>), StatusCodes.Status200OK)]
-    public ActionResult<IReadOnlyList<ArchitectureRequestTemplateSummary>> GetTemplates() =>
-        Ok(ArchitectureRequestTemplates.Summaries);
+    public ActionResult<IReadOnlyList<ArchitectureRequestTemplateSummary>> GetTemplates()
+    {
+        return Ok(ArchitectureRequestTemplates.Summaries);
+    }
 }
