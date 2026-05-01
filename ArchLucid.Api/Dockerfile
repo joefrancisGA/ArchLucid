@@ -19,7 +19,11 @@
 # MCR intermittently returns 403 on HEAD manifest probes — CI prefetches bases (scripts/ci/prefetch-docker-dotnet-base-images.sh).
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
 
+# Declare all FROM-time ARGs here (before first FROM); mid-file ARG-before-FROM is invalid for BuildKit /
+# Hadolint — base name can expand empty. Optional overrides:
+#   --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=... (omit or set a non-empty tag)
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23
 FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
@@ -118,7 +122,6 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
 
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23
 FROM ${DOTNET_ASPNET_IMAGE} AS runtime
 
 # ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).

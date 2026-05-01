@@ -10,6 +10,8 @@ ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostClientError
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostFirstTenantFunnelEvent
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostSponsorBannerFirstCommitBadge
 ArchLucid.Api.Controllers.Admin.DemoController.SeedAsync
+# Durable audit: QuickStartService logs RunSubmitted + RunCompleted (demo-quickstart) via IAuditService.LogAsync.
+ArchLucid.Api.Controllers.Demo.QuickStartController.QuickStartAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.ProvisionAsync
 ArchLucid.Api.Controllers.Advisory.AdvisorySchedulingController.RunNow
 ArchLucid.Api.Controllers.Alerts.AlertsController.AcknowledgeBatch

@@ -17,9 +17,9 @@ internal static class IntegrationEventServiceBusMessageDispatch
         ILogger logger,
         CancellationToken cancellationToken)
     {
-        string eventType = ResolveEventType(message);
+        string rawEventType = ResolveEventType(message);
 
-        if (string.IsNullOrWhiteSpace(eventType))
+        if (string.IsNullOrWhiteSpace(rawEventType))
         {
             await settlement.DeadLetterAsync(
                     message,
@@ -30,6 +30,8 @@ internal static class IntegrationEventServiceBusMessageDispatch
 
             return;
         }
+
+        string eventType = IntegrationEventTypes.MapToCanonical(rawEventType);
 
         IReadOnlyList<IIntegrationEventHandler> resolved = ResolveHandlers(handlers, eventType);
 
