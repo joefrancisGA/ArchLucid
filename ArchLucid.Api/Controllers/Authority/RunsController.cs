@@ -75,7 +75,6 @@ public sealed partial class RunsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
@@ -105,10 +104,7 @@ public sealed partial class RunsController(
                 return CreatedAtAction(
                     nameof(RunQueryController.GetRun),
                     "RunQuery",
-                    new
-                    {
-                        runId = result.Run.RunId
-                    },
+                    new { runId = result.Run.RunId },
                     response);
 
             Response.Headers.Append("Idempotency-Replayed", "true");
@@ -135,7 +131,6 @@ public sealed partial class RunsController(
             string.IsNullOrWhiteSpace(raw.ToString()))
 
             return null;
-
 
         string trimmed = raw.ToString().Trim();
 
@@ -182,7 +177,8 @@ public sealed partial class RunsController(
                     cancellationToken);
             }
 
-            ExecuteRunResult result = await architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
+            ExecuteRunResult result =
+                await architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
@@ -330,7 +326,8 @@ public sealed partial class RunsController(
 
     private bool IsPilotTryRealModeRequest()
     {
-        return Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw) && string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
+        return Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw) &&
+               string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
     }
 
     private async Task LogPilotTryRealModeAuditAsync(
@@ -360,7 +357,6 @@ public sealed partial class RunsController(
     {
         if (Guid.TryParseExact(runId, "N", out Guid g))
             return g;
-
 
         return Guid.TryParse(runId, out g) ? g : null;
     }

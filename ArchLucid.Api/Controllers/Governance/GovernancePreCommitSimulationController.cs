@@ -40,12 +40,10 @@ public sealed class GovernancePreCommitSimulationController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-
         if (!TryParseRunId(body.RunId.Trim(), out string runIdNormalized))
             return this.BadRequestProblem(
                 $"Run ID '{body.RunId}' is not valid.",
                 ProblemTypes.BadRequest);
-
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
             runIdNormalized,

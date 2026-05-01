@@ -2,28 +2,55 @@ using ArchLucid.Application.Billing;
 
 namespace ArchLucid.Api.Models.Tenancy;
 
-/// <summary>HTTP projection of <see cref="TenantCostEstimate"/>.</summary>
+/// <summary>HTTP projection of <see cref="TenantCostEstimate" />.</summary>
 public sealed class TenantCostEstimateResponse
 {
-    public string Currency { get; init; } = "USD";
-
-    public string Tier { get; init; } = "";
-
-    public decimal EstimatedMonthlyUsdLow { get; init; }
-
-    public decimal EstimatedMonthlyUsdHigh { get; init; }
-
-    public IReadOnlyList<string> Factors { get; init; } = [];
-
-    public string MethodologyNote { get; init; } = "";
-
-    public static TenantCostEstimateResponse FromDomain(TenantCostEstimate estimate) => new()
+    public string Currency
     {
-        Currency = estimate.Currency,
-        Tier = estimate.Tier.ToString(),
-        EstimatedMonthlyUsdLow = estimate.EstimatedMonthlyUsdLow,
-        EstimatedMonthlyUsdHigh = estimate.EstimatedMonthlyUsdHigh,
-        Factors = estimate.Factors,
-        MethodologyNote = estimate.MethodologyNote,
-    };
+        get;
+        init;
+    } = "USD";
+
+    public string Tier
+    {
+        get;
+        init;
+    } = "";
+
+    public decimal EstimatedMonthlyUsdLow
+    {
+        get;
+        init;
+    }
+
+    public decimal EstimatedMonthlyUsdHigh
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<string> Factors
+    {
+        get;
+        init;
+    } = [];
+
+    public string MethodologyNote
+    {
+        get;
+        init;
+    } = "";
+
+    public static TenantCostEstimateResponse FromDomain(TenantCostEstimate estimate)
+    {
+        return new TenantCostEstimateResponse
+        {
+            Currency = estimate.Currency,
+            Tier = estimate.Tier.ToString(),
+            EstimatedMonthlyUsdLow = estimate.EstimatedMonthlyUsdLow,
+            EstimatedMonthlyUsdHigh = estimate.EstimatedMonthlyUsdHigh,
+            Factors = estimate.Factors,
+            MethodologyNote = estimate.MethodologyNote
+        };
+    }
 }

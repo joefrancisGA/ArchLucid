@@ -4,8 +4,9 @@ namespace ArchLucid.Api.Models.Pilots;
 
 public static class PilotInProductScorecardMapper
 {
-    public static PilotInProductScorecardResponse ToResponse(PilotInProductScorecardResult r) =>
-        new()
+    public static PilotInProductScorecardResponse ToResponse(PilotInProductScorecardResult r)
+    {
+        return new PilotInProductScorecardResponse
         {
             TenantId = r.TenantId,
             TotalRunsCommitted = r.TotalRunsCommitted,
@@ -30,9 +31,11 @@ public static class PilotInProductScorecardMapper
                 : new PilotInProductRoiEstimateResponse
                 {
                     AnnualReviewCostStatusQuoUsd = r.RoiEstimate.AnnualReviewCostStatusQuoUsd,
-                    AnnualReviewSavingsFromReviewTimeLeverUsd = r.RoiEstimate.AnnualReviewSavingsFromReviewTimeLeverUsd,
+                    AnnualReviewSavingsFromReviewTimeLeverUsd =
+                        r.RoiEstimate.AnnualReviewSavingsFromReviewTimeLeverUsd,
                     ModelReference = r.RoiEstimate.ModelReference,
                     Currency = r.RoiEstimate.Currency
                 }
         };
+    }
 }

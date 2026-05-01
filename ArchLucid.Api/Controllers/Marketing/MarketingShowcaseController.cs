@@ -34,12 +34,14 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
         if (!TryResolveRunId(runKey, out Guid runId))
             return this.NotFoundProblem(
                 "The showcase run key is not recognized.",
-                type: ProblemTypes.ResourceNotFound);
+                ProblemTypes.ResourceNotFound);
 
         DemoCommitPagePreviewResponse? payload =
             await _showcaseClient.GetShowcaseCommitPageAsync(runId, cancellationToken);
 
-        return payload is null ? this.NotFoundProblem("The showcase was not found.", type: ProblemTypes.ResourceNotFound) : Ok(payload);
+        return payload is null
+            ? this.NotFoundProblem("The showcase was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(payload);
     }
 
     private static bool TryResolveRunId(string runKey, out Guid runId)

@@ -15,7 +15,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Deferred ROI baseline (manual prep hours, people per review) for the tenant in <see cref="IScopeContextProvider" /> scope.</summary>
+/// <summary>
+///     Deferred ROI baseline (manual prep hours, people per review) for the tenant in
+///     <see cref="IScopeContextProvider" /> scope.
+/// </summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
@@ -25,13 +28,14 @@ public sealed class TenantBaselineController(
     IScopeContextProvider scopeProvider,
     IAuditService auditService) : ControllerBase
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     [HttpGet]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -133,12 +137,7 @@ public sealed class TenantBaselineController(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        manualPrepHoursPerReview = prep,
-                        peoplePerReview = people,
-                        capturedUtc = captured
-                    })
+                    new { manualPrepHoursPerReview = prep, peoplePerReview = people, capturedUtc = captured })
             },
             cancellationToken);
 

@@ -18,25 +18,21 @@ public sealed class ApiDeprecationHeadersMiddleware(
         if (!options.Enabled)
             return next(context);
 
-
         context.Response.OnStarting(() =>
         {
             if (options.EmitDeprecationTrue)
 
                 context.Response.Headers.Append("Deprecation", "true");
 
-
             string? sunset = options.SunsetHttpDate?.Trim();
             if (!string.IsNullOrEmpty(sunset))
 
                 context.Response.Headers.Append("Sunset", sunset);
 
-
             string? link = options.Link?.Trim();
             if (!string.IsNullOrEmpty(link))
 
                 context.Response.Headers.Append("Link", link);
-
 
             return Task.CompletedTask;
         });

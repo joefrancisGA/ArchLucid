@@ -34,17 +34,17 @@ public sealed class DemoViewerController(
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IAuthorityCompareService authorityCompareService) : ControllerBase
 {
-    private readonly IOptions<DemoOptions> _demoOptions =
-        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
-
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
-
     private readonly IArchitectureRunProvenanceService _architectureRunProvenanceService =
         architectureRunProvenanceService ?? throw new ArgumentNullException(nameof(architectureRunProvenanceService));
 
     private readonly IAuthorityCompareService _authorityCompareService =
         authorityCompareService ?? throw new ArgumentNullException(nameof(authorityCompareService));
+
+    private readonly IOptions<DemoOptions> _demoOptions =
+        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <summary>Lists recent runs in the Contoso demo scope.</summary>
     [HttpGet("runs")]
@@ -119,7 +119,9 @@ public sealed class DemoViewerController(
         ArchitectureRunProvenanceGraph? graph =
             await _architectureRunProvenanceService.GetProvenanceAsync(runId, cancellationToken);
 
-        return graph is null ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(graph);
+        return graph is null
+            ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(graph);
     }
 
     /// <summary>
@@ -161,7 +163,8 @@ public sealed class DemoViewerController(
                 LeftRunId = result.LeftRunId,
                 RightRunId = result.RightRunId,
                 RunLevelDiffs = result.RunLevelDiffs.Select(MapDiffItem).ToList(),
-                ManifestComparison = result.ManifestComparison is null ? null : MapManifestResponse(result.ManifestComparison),
+                ManifestComparison =
+                    result.ManifestComparison is null ? null : MapManifestResponse(result.ManifestComparison),
                 RunLevelDiffCount = result.RunLevelDiffs.Count,
                 HasManifestComparison = result.ManifestComparison is not null
             });
@@ -175,9 +178,15 @@ public sealed class DemoViewerController(
     [AcceptVerbs("POST")]
     [Route("{*catchAll}")]
     [ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
-    public IActionResult PostNotAllowed() => StatusCode(StatusCodes.Status405MethodNotAllowed);
+    public IActionResult PostNotAllowed()
+    {
+        return StatusCode(StatusCodes.Status405MethodNotAllowed);
+    }
 
-    private bool IsViewerAllowed() => _demoOptions.Value.AnonymousViewer.Enabled;
+    private bool IsViewerAllowed()
+    {
+        return _demoOptions.Value.AnonymousViewer.Enabled;
+    }
 
     private static DiffItemResponse MapDiffItem(DiffItem item)
     {

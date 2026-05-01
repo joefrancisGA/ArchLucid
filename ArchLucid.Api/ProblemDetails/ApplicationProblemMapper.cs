@@ -1,8 +1,8 @@
 using System.Data.Common;
 
 using ArchLucid.Application;
-using ArchLucid.Core;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Core;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Repositories;
@@ -269,7 +269,6 @@ public static class ApplicationProblemMapper
 
             if (e is SqlException sql && sql.Number == number)
                 return sql;
-
 
         return null;
     }

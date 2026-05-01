@@ -45,12 +45,10 @@ public class ApiKeyAuthenticationHandler(
                         "API key authentication is disabled. Set Authentication:ApiKey:Enabled to true and configure keys, " +
                         "or set Authentication:ApiKey:DevelopmentBypassAll=true only in non-Production for intentional open access."));
 
-
             if (environment.IsProduction())
                 return Task.FromResult(
                     AuthenticateResult.Fail(
                         "Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
-
 
             ClaimsIdentity bypassIdentity = new(
                 BuildSyntheticAdminClaims(),
@@ -63,7 +61,6 @@ public class ApiKeyAuthenticationHandler(
 
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
-
 
         string key = providedKey.ToString();
 
@@ -101,7 +98,6 @@ public class ApiKeyAuthenticationHandler(
         else
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
 
-
         ClaimsIdentity successIdentity = new(claims, Scheme.Name);
         ClaimsPrincipal successPrincipal = new(successIdentity);
         AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
@@ -117,7 +113,6 @@ public class ApiKeyAuthenticationHandler(
     {
         if (string.IsNullOrWhiteSpace(raw))
             return false;
-
 
         ReadOnlySpan<char> span = raw.AsSpan();
         int start = 0;
@@ -139,7 +134,6 @@ public class ApiKeyAuthenticationHandler(
                 start = i + 1;
             }
 
-
         return false;
     }
 
@@ -150,7 +144,6 @@ public class ApiKeyAuthenticationHandler(
     {
         if (string.IsNullOrEmpty(provided) || string.IsNullOrEmpty(expected))
             return false;
-
 
         ReadOnlySpan<byte> a = SHA256.HashData(Encoding.UTF8.GetBytes(provided));
         ReadOnlySpan<byte> b = SHA256.HashData(Encoding.UTF8.GetBytes(expected));

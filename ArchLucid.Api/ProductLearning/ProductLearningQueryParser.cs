@@ -44,7 +44,6 @@ internal static class ProductLearningQueryParser
         if (string.IsNullOrWhiteSpace(raw))
             return true;
 
-
         string f = raw.Trim();
 
         if (string.Equals(f, "markdown", StringComparison.OrdinalIgnoreCase))
@@ -107,7 +106,6 @@ internal static class ProductLearningQueryParser
 
         if (string.IsNullOrWhiteSpace(since))
             return true;
-
 
         if (!DateTimeOffset.TryParse(
                 since,

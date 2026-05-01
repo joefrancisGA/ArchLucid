@@ -110,7 +110,6 @@ public sealed class AdvisoryController(
                 findings,
                 ct);
 
-
         await recommendationWorkflowService.PersistPlanAsync(
             plan,
             scope.TenantId,

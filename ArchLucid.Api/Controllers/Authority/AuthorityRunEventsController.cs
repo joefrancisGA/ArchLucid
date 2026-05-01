@@ -100,7 +100,6 @@ public sealed class AuthorityRunEventsController(
 
             sb.Append(line).Append('\n');
 
-
         sb.Append('\n');
         byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());
         await Response.Body.WriteAsync(bytes, cancellationToken);

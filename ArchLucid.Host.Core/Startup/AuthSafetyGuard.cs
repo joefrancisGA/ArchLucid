@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Core.Configuration;
 
@@ -71,6 +72,8 @@ public static class AuthSafetyGuard
             logger?.LogWarning(
                 "DevelopmentBypass auth mode is active. All requests are authenticated as {DevUserId}. Do not use in production.",
                 devUserId);
+
+            ArchLucidInstrumentation.RecordStartupConfigWarning(StartupValidationWarningRuleNames.DevelopmentBypassAuthModeActive);
         }
         else if (!hostEnvironment.IsDevelopment())
         {

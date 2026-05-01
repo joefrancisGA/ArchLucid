@@ -33,7 +33,6 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
             rawBody = await reader.ReadToEndAsync(cancellationToken);
 
-
         string signature = Request.Headers["Stripe-Signature"].ToString();
 
         BillingWebhookInbound inbound = new()
@@ -46,7 +45,6 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
 
         if (result.DuplicateIgnored || result.Succeeded)
             return Ok();
-
 
         return this.BadRequestProblem(result.ErrorDetail ?? "Stripe webhook rejected.", ProblemTypes.BadRequest);
     }

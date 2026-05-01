@@ -3,14 +3,26 @@ using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Api.Models.Tenancy;
 
-/// <summary>HTTP projection of <see cref="TenantMeasuredRoiSummary"/> for <c>GET /v1/tenant/measured-roi</c>.</summary>
+/// <summary>HTTP projection of <see cref="TenantMeasuredRoiSummary" /> for <c>GET /v1/tenant/measured-roi</c>.</summary>
 public sealed class TenantMeasuredRoiResponse
 {
-    public WhyArchLucidSnapshotResponse Snapshot { get; init; } = new();
+    public WhyArchLucidSnapshotResponse Snapshot
+    {
+        get;
+        init;
+    } = new();
 
-    public TenantCostEstimateResponse? MonthlyCostEstimate { get; init; }
+    public TenantCostEstimateResponse? MonthlyCostEstimate
+    {
+        get;
+        init;
+    }
 
-    public string Disclaimer { get; init; } = "";
+    public string Disclaimer
+    {
+        get;
+        init;
+    } = "";
 
     public static TenantMeasuredRoiResponse FromDomain(TenantMeasuredRoiSummary summary)
     {
@@ -23,7 +35,7 @@ public sealed class TenantMeasuredRoiResponse
             MonthlyCostEstimate = summary.MonthlyCostBand is null
                 ? null
                 : TenantCostEstimateResponse.FromDomain(summary.MonthlyCostBand),
-            Disclaimer = summary.Disclaimer,
+            Disclaimer = summary.Disclaimer
         };
     }
 }

@@ -23,10 +23,10 @@ public sealed class ScimUsersController(
     IScimUserService users,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
-    private readonly IScimUserService _users = users ?? throw new ArgumentNullException(nameof(users));
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IScimUserService _users = users ?? throw new ArgumentNullException(nameof(users));
 
     [HttpGet]
     [Produces("application/scim+json")]
@@ -62,7 +62,9 @@ public sealed class ScimUsersController(
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
         ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-        return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+        return u is null
+            ? ScimErrorResultFactory.Create(404, "notFound", "User not found.")
+            : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
     }
 
     [HttpPost]
@@ -74,7 +76,8 @@ public sealed class ScimUsersController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -85,7 +88,8 @@ public sealed class ScimUsersController(
         {
             ScimUserRecord created = await _users.CreateAsync(tenantId, body, cancellationToken);
 
-            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(created), StatusCodes.Status201Created);
+            return ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(created),
+                StatusCodes.Status201Created);
         }
         catch (ScimConflictException ex)
         {
@@ -110,7 +114,8 @@ public sealed class ScimUsersController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -122,7 +127,9 @@ public sealed class ScimUsersController(
             await _users.ReplaceAsync(tenantId, id, body, cancellationToken);
             ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-            return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+            return u is null
+                ? ScimErrorResultFactory.Create(404, "notFound", "User not found.")
+                : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
         }
         catch (ScimNotFoundException)
         {
@@ -147,7 +154,8 @@ public sealed class ScimUsersController(
         JsonElement body;
         try
         {
-            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body, cancellationToken: cancellationToken);
+            body = await JsonSerializer.DeserializeAsync<JsonElement>(Request.Body,
+                cancellationToken: cancellationToken);
         }
         catch
         {
@@ -159,7 +167,9 @@ public sealed class ScimUsersController(
             await _users.PatchAsync(tenantId, id, body, cancellationToken);
             ScimUserRecord? u = await _users.GetAsync(tenantId, id, cancellationToken);
 
-            return u is null ? ScimErrorResultFactory.Create(404, "notFound", "User not found.") : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
+            return u is null
+                ? ScimErrorResultFactory.Create(404, "notFound", "User not found.")
+                : ScimResourceSerializer.JsonContent(ScimResourceSerializer.User(u));
         }
         catch (ScimNotFoundException)
         {

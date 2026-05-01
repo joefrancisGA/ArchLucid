@@ -118,11 +118,7 @@ public sealed class AuthorityQueryController(
         return Ok(
             new CursorPagedResponse<RunSummaryResponse>
             {
-                Items = mapped,
-                NextCursor = nextCursor,
-                HasMore = keysetPage.HasMore,
-                RequestedTake = effectiveTake
-
+                Items = mapped, NextCursor = nextCursor, HasMore = keysetPage.HasMore, RequestedTake = effectiveTake
             });
     }
 
@@ -189,7 +185,7 @@ public sealed class AuthorityQueryController(
             })
             .ToList();
 
-        await LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, manifestId: null, ct);
+        await LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
 
         return Ok(body);
     }
@@ -289,7 +285,7 @@ public sealed class AuthorityQueryController(
             completeness.CoverageRatio,
             new KeyValuePair<string, object?>("surface", "authority_query"));
 
-        await LogRunScopedAuditAsync(AuditEventTypes.ProvenanceAccessed, runId, manifestId: null, ct);
+        await LogRunScopedAuditAsync(AuditEventTypes.ProvenanceAccessed, runId, null, ct);
 
         return Ok(graph);
     }
@@ -317,7 +313,7 @@ public sealed class AuthorityQueryController(
         await LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,
             runId,
-            manifestId: detail.GoldenManifest.ManifestId,
+            detail.GoldenManifest.ManifestId,
             ct);
 
         return Ok(detail.GoldenManifest);

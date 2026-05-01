@@ -38,10 +38,8 @@ public sealed class OutboundWebhookDryRunController(
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-
         OutboundWebhookDryRunResult outcome =
             await probe.ProbeAsync(body.TargetUrl, body.SharedSecret, cancellationToken);
-
 
         OutboundWebhookDryRunResponse response = new()
         {

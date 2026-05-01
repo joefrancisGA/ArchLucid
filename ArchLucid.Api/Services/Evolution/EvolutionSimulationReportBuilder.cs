@@ -91,7 +91,6 @@ public static class EvolutionSimulationReportBuilder
         if (string.IsNullOrWhiteSpace(json))
             return null;
 
-
         try
         {
             return JsonSerializer.Deserialize<EvolutionSimulationPlanSnapshotPayload>(json, JsonOptions);
@@ -118,7 +117,6 @@ public static class EvolutionSimulationReportBuilder
         if (planLinkedRunIds.Count > 0)
 
             lines.Add($"Before: plan snapshot links {planLinkedRunIds.Count} baseline architecture run id(s).");
-
 
         if (string.Equals(shadowKind, "none", StringComparison.Ordinal) ||
             string.Equals(shadowKind, "invalid", StringComparison.Ordinal) ||
@@ -153,7 +151,6 @@ public static class EvolutionSimulationReportBuilder
                     shadow.HasManifest,
                     shadow.SummaryLength,
                     shadow.WarningCount));
-
 
         AppendEvaluationSummaryLines(lines, evaluation);
 

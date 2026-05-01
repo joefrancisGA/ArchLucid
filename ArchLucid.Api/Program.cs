@@ -1,18 +1,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 
-using ArchLucid.Api.Demo;
-using ArchLucid.Api.Hosting;
-
-using ArchLucid.Core.Hosting;
-
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Configuration;
+using ArchLucid.Api.Demo;
+using ArchLucid.Api.Hosting;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
@@ -130,7 +128,6 @@ public partial class Program
                         "Startup configuration error: {Error}",
                         LogSanitizer.Sanitize(error));
 
-
             throw new InvalidOperationException(
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
@@ -152,7 +149,6 @@ public partial class Program
 
                 app.Logger.LogWarning(
                     "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
-
 
         StartupConfigurationDiagnostics.LogIfEnabled(
             app.Logger,

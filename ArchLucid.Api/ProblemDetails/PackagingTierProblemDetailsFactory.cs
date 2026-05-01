@@ -12,7 +12,8 @@ namespace ArchLucid.Api.ProblemDetails;
 internal static class PackagingTierProblemDetailsFactory
 {
     /// <summary>
-    ///     Returns <see cref="StatusCodes.Status404NotFound"/> so callers cannot infer hidden admin / entitlement-gated capabilities.
+    ///     Returns <see cref="StatusCodes.Status404NotFound" /> so callers cannot infer hidden admin / entitlement-gated
+    ///     capabilities.
     /// </summary>
     internal static ObjectResult CreateObfuscatedNotFound(HttpContext httpContext, string? instancePath)
     {
@@ -31,13 +32,13 @@ internal static class PackagingTierProblemDetailsFactory
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 
     /// <summary>
-    ///     Returns <see cref="StatusCodes.Status403Forbidden"/> with Problem Details for tenant-visible routes so operators can correlate denials without disclosing gated admin URLs.
+    ///     Returns <see cref="StatusCodes.Status403Forbidden" /> with Problem Details for tenant-visible routes so operators
+    ///     can correlate denials without disclosing gated admin URLs.
     /// </summary>
     internal static ObjectResult CreateTenantProductInsufficientTier(
         HttpContext httpContext,
@@ -62,8 +63,7 @@ internal static class PackagingTierProblemDetailsFactory
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 }

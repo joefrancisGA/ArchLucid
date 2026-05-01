@@ -22,9 +22,12 @@ public sealed class TenantPilotValueReportController(IPilotValueReportService pi
         pilotValueReportService ?? throw new ArgumentNullException(nameof(pilotValueReportService));
 
     /// <summary>
-    ///     Pilot value report: committed-run aggregates, findings, audit-backed governance/recommendation tallies, and a markdown option.
-    ///     Query window: <paramref name="fromUtc" /> inclusive; <paramref name="toUtc" /> exclusive (matches audit export semantics). When
-    ///     <paramref name="fromUtc" /> is omitted, defaults to tenant creation (UTC). When <paramref name="toUtc" /> is omitted, defaults to now (UTC).
+    ///     Pilot value report: committed-run aggregates, findings, audit-backed governance/recommendation tallies, and a
+    ///     markdown option.
+    ///     Query window: <paramref name="fromUtc" /> inclusive; <paramref name="toUtc" /> exclusive (matches audit export
+    ///     semantics). When
+    ///     <paramref name="fromUtc" /> is omitted, defaults to tenant creation (UTC). When <paramref name="toUtc" /> is
+    ///     omitted, defaults to now (UTC).
     /// </summary>
     [HttpGet("pilot-value-report")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]

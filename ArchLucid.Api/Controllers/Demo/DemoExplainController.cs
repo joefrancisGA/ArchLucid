@@ -67,7 +67,6 @@ public sealed class DemoExplainController(IDemoReadModelClient demoReadModelClie
                 "No committed demo-seed run is available on this host. Run `archlucid try` or POST /v1/demo/seed and retry.",
                 ProblemTypes.RunNotFound);
 
-
         return Ok(response);
     }
 }

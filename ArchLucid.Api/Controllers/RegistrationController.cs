@@ -27,8 +27,11 @@ public sealed class RegistrationController(
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap) : ControllerBase
 {
-    private const string FriendlyValidation = "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
-    private const string FriendlyInternal = "We could not complete your registration. Please try again in a few minutes. If the problem continues, share the correlationId field on this error response (or the X-Correlation-ID response header) with your administrator.";
+    private const string FriendlyValidation =
+        "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
+
+    private const string FriendlyInternal =
+        "We could not complete your registration. Please try again in a few minutes. If the problem continues, share the correlationId field on this error response (or the X-Correlation-ID response header) with your administrator.";
 
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
 
@@ -238,8 +241,8 @@ public sealed class RegistrationController(
                 : null;
 
             bool hasCompanyProfile = body.CompanySize is not null
-                || body.ArchitectureTeamSize is not null
-                || !string.IsNullOrWhiteSpace(body.IndustryVertical);
+                                     || body.ArchitectureTeamSize is not null
+                                     || !string.IsNullOrWhiteSpace(body.IndustryVertical);
 
             TrialSignupCompanyProfileCapture? companyProfile = hasCompanyProfile
                 ? new TrialSignupCompanyProfileCapture(
@@ -301,7 +304,10 @@ public sealed class RegistrationController(
                 {
                     EventType = AuditEventTypes.TrialRegistrationFailed,
                     ActorUserId = actorEmail,
-                    ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                    ActorUserName =
+                        string.IsNullOrWhiteSpace(body.AdminDisplayName)
+                            ? actorEmail
+                            : body.AdminDisplayName.Trim(),
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
@@ -327,17 +333,13 @@ public sealed class RegistrationController(
                 {
                     EventType = AuditEventTypes.TrialRegistrationFailed,
                     ActorUserId = actorEmail,
-                    ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                    ActorUserName =
+                        string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            reason = "internal",
-                            type = ex.GetType().Name,
-                            message = ex.Message
-                        })
+                        new { reason = "internal", type = ex.GetType().Name, message = ex.Message })
                 },
                 cancellationToken);
 
@@ -370,12 +372,7 @@ public sealed class RegistrationController(
                 TenantId = Guid.Empty,
                 WorkspaceId = Guid.Empty,
                 ProjectId = Guid.Empty,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    reason = reasonLabel,
-                    code,
-                    message = logMessage
-                })
+                DataJson = JsonSerializer.Serialize(new { reason = reasonLabel, code, message = logMessage })
             },
             cancellationToken);
 

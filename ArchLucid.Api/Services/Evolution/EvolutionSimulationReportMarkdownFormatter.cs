@@ -42,7 +42,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
             md.AppendLine($"- **Created by:** {EscapeInline(c.CreatedByUserId)}");
 
-
         md.AppendLine();
     }
 
@@ -75,7 +74,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
             md.AppendLine($"- **Priority explanation (expected impact):** {EscapeInline(p.PriorityExplanation)}");
 
-
         md.AppendLine($"- **Plan status:** {EscapeInline(p.Status)}");
         md.AppendLine($"- **Action step count:** {p.ActionStepCount.ToString(CultureInfo.InvariantCulture)}");
         md.AppendLine("- **Linked baseline architecture run IDs:**");
@@ -89,7 +87,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
             foreach (string id in p.LinkedArchitectureRunIds)
 
                 md.AppendLine($"  - `{id}`");
-
 
         md.AppendLine();
     }
@@ -129,7 +126,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
                 md.AppendLine($"- {EscapeInline(line)}");
 
-
             md.AppendLine();
 
             md.AppendLine("#### Evaluation scores");
@@ -159,7 +155,6 @@ public static class EvolutionSimulationReportMarkdownFormatter
                     foreach (string s in e.RegressionSignals)
 
                         md.AppendLine($"- {EscapeInline(s)}");
-
 
                     md.AppendLine();
                 }

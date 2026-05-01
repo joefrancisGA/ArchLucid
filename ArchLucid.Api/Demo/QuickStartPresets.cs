@@ -26,7 +26,6 @@ public static class QuickStartPresets
                     "Zero-trust service-to-service identity"
                 ],
                 ["Regional HA", "Autoscaling workloads", "Message-driven choreography"]),
-
             ["monolith-migration"] = new PresetPayload(
                 "Strangler-fig modernization from a modular monolith (.NET Core) toward incrementally carved "
                 + "domains on Azure Kubernetes Service while retaining the core OLTP relational database during "
@@ -38,8 +37,6 @@ public static class QuickStartPresets
                     "Preserve existing SLAs until cutover checkpoints"
                 ],
                 ["Incremental extraction", "Data synchronization", "Backwards-compatible APIs"]),
-
-
             ["event-driven"] = new PresetPayload(
                 "Event-driven architecture leveraging Azure Event Hubs ingestion, Functions-based processors, "
                 + "Materialized CQRS views in Cosmos DB with denormalized read models for dashboards, saga-style "
@@ -53,13 +50,7 @@ public static class QuickStartPresets
                 ["Replay", "Temporal ordering safeguards", "Compensating actions"])
         };
 
-    public sealed record PresetPayload(
-        string ArchitectureDescription,
-        string SystemDisplayName,
-        IReadOnlyList<string> Constraints,
-        IReadOnlyList<string> RequiredCapabilities);
-
-    /// <returns><see langword="false"/> when <paramref name="presetId"/> is null/empty or unknown.</returns>
+    /// <returns><see langword="false" /> when <paramref name="presetId" /> is null/empty or unknown.</returns>
     public static bool TryGet(string? presetId, out PresetPayload payload)
     {
         payload = null!;
@@ -74,4 +65,10 @@ public static class QuickStartPresets
 
         return true;
     }
+
+    public sealed record PresetPayload(
+        string ArchitectureDescription,
+        string SystemDisplayName,
+        IReadOnlyList<string> Constraints,
+        IReadOnlyList<string> RequiredCapabilities);
 }

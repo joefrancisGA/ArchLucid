@@ -191,9 +191,7 @@ public sealed class LearningController(
         return Ok(
             new LearningPlanningReportExportResponse
             {
-                Format = "markdown",
-                FileName = "learning-planning-report-59r.md",
-                Content = markdown
+                Format = "markdown", FileName = "learning-planning-report-59r.md", Content = markdown
             });
     }
 

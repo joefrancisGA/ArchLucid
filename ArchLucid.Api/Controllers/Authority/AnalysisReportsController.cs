@@ -11,8 +11,8 @@ using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;

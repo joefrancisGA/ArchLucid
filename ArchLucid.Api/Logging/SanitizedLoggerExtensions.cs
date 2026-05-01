@@ -22,6 +22,7 @@ internal static class SanitizedLoggerExtensions
     {
         string safe = LogSanitizer.Sanitize(userDerivedValue);
 
-        logger.LogWarning(exception, messageTemplate, safe); // codeql[cs/log-forging]: sanitized above; params boxing breaks custom barrier at sink (see CODEQL_TRIAGE.md, LoggerExtensions LogWarning boxing).
+        logger.LogWarning(exception, messageTemplate,
+            safe); // codeql[cs/log-forging]: sanitized above; params boxing breaks custom barrier at sink (see CODEQL_TRIAGE.md, LoggerExtensions LogWarning boxing).
     }
 }

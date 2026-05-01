@@ -206,7 +206,6 @@ public sealed class RunComparisonController(
                 string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
 
-
         return null;
     }
 

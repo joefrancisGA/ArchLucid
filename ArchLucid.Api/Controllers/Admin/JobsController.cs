@@ -68,14 +68,12 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
                 $"Job '{jobId}' has not completed successfully (state: {info.State}).",
                 ProblemTypes.Conflict);
 
-
         BackgroundJobFile? file = await jobs.GetFileAsync(jobId, cancellationToken);
 
         if (file is null)
             return this.ConflictProblem(
                 $"Job '{jobId}' succeeded but no result file is available.",
                 ProblemTypes.Conflict);
-
 
         return File(file.Bytes, file.ContentType, file.FileName);
     }

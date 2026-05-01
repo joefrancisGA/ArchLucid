@@ -50,7 +50,6 @@ public sealed class TrialLimitAuthorizationHandler : AuthorizationHandler<TrialA
             else
                 await gate.GuardWriteAsync(scope, httpContext.RequestAborted);
 
-
             context.Succeed(requirement);
         }
         catch (TrialLimitExceededException ex)

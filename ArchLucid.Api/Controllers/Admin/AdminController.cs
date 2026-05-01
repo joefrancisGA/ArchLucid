@@ -29,12 +29,13 @@ public sealed class AdminController(
     IFeatureManager featureManager) : ControllerBase
 {
     private readonly IConfiguration _configuration =
-      configuration ?? throw new ArgumentNullException(nameof(configuration));
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
     private readonly IAdminDiagnosticsService _diagnostics =
         diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
 
     private readonly IFeatureManager _featureManager =
-      featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+        featureManager ?? throw new ArgumentNullException(nameof(featureManager));
 
     /// <summary>Non-secret <c>IsSet</c> snapshot of catalog keys for <c>archlucid config check</c> and operators.</summary>
     [HttpGet("config-summary")]
@@ -42,13 +43,13 @@ public sealed class AdminController(
     public ActionResult<AdminConfigSummaryResponse> GetConfigSummary()
     {
         List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
-        keys.AddRange(ConfigurationKeyCatalog.All.Select(e => new ConfigSummaryKeyRow { ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(_configuration, e.ConfigPath) }));
+        keys.AddRange(ConfigurationKeyCatalog.All.Select(e => new ConfigSummaryKeyRow
+        {
+            ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(_configuration, e.ConfigPath)
+        }));
 
         return Ok(
-          new AdminConfigSummaryResponse
-          {
-              Keys = keys
-          });
+            new AdminConfigSummaryResponse { Keys = keys });
     }
 
     /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>
@@ -175,10 +176,8 @@ public sealed class AdminController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-
         if (body.CreatedBeforeUtc == default)
             return this.BadRequestProblem("CreatedBeforeUtc must be set.", ProblemTypes.ValidationFailed);
-
 
         RunArchiveBatchResult result =
             await _diagnostics.ArchiveRunsCreatedBeforeAsync(body.CreatedBeforeUtc, cancellationToken);
@@ -198,15 +197,12 @@ public sealed class AdminController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-
         if (body.RunIds.Count == 0)
             return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
-
 
         if (body.RunIds.Count > 100)
             return this.BadRequestProblem("At most 100 run ids are allowed per request.",
                 ProblemTypes.ValidationFailed);
-
 
         RunArchiveByIdsResult result =
             await _diagnostics.ArchiveRunsByIdsAsync(body.RunIds, cancellationToken);
@@ -228,7 +224,6 @@ public sealed class AdminController(
             return this.NotFoundProblem(
                 $"Integration outbox dead-letter row '{outboxId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
-
 
         return NoContent();
     }

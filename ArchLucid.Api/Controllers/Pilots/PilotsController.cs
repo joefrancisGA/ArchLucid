@@ -112,12 +112,7 @@ public sealed class PilotsController(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string actor = actorContext.GetActor();
         string payload = JsonSerializer.Serialize(
-            new
-            {
-                baselineHoursPerReview = h,
-                baselineReviewsPerQuarter = q,
-                baselineArchitectHourlyCost = c
-            });
+            new { baselineHoursPerReview = h, baselineReviewsPerQuarter = q, baselineArchitectHourlyCost = c });
 
         await auditService.LogAsync(
             new AuditEvent

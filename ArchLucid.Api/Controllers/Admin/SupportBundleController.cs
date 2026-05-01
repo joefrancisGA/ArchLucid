@@ -24,7 +24,6 @@ namespace ArchLucid.Api.Controllers.Admin;
 ///     <b>Why a separate controller (not <c>AdminController</c>)?</b> <c>AdminController</c>
 ///     mixes diagnostics routes with the same class-level <see cref="ArchLucidPolicies.AdminAuthority" />; this
 ///     controller keeps the support-bundle action isolated for documentation and contract tests.
-///
 ///     <b>Streaming.</b> The assembler returns the full ZIP in memory because the bundle
 ///     is small (a handful of JSON sections + a README). When future redaction work
 ///     forces larger bundles (e.g. recent run summaries, last 200 audit events — see
@@ -56,8 +55,8 @@ public sealed class SupportBundleController(
     public async Task<IActionResult> DownloadSupportBundle(CancellationToken cancellationToken = default)
     {
         SupportBundleRequest request = new(
-            RequesterDisplayId: User.Identity?.Name,
-            TenantDisplayName: null);
+            User.Identity?.Name,
+            null);
 
         SupportBundleArtifact artifact = await _assembler.AssembleAsync(request, cancellationToken);
 
@@ -66,11 +65,7 @@ public sealed class SupportBundleController(
             {
                 EventType = AuditEventTypes.SupportBundleDownloaded,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        fileName = artifact.FileName,
-                        sizeBytes = artifact.Bytes.Length
-                    })
+                    new { fileName = artifact.FileName, sizeBytes = artifact.Bytes.Length })
             },
             cancellationToken);
 

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Logging;
@@ -20,8 +22,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Primitives;
-
-using System.Text.Json;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
@@ -54,8 +54,8 @@ public sealed class GovernanceController(
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
-    private readonly IPolicyPackDryRunService _policyPackDryRunService =
-        policyPackDryRunService ?? throw new ArgumentNullException(nameof(policyPackDryRunService));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
         complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
@@ -69,11 +69,11 @@ public sealed class GovernanceController(
     private readonly IGovernanceRationaleService _governanceRationaleService =
         governanceRationaleService ?? throw new ArgumentNullException(nameof(governanceRationaleService));
 
+    private readonly IPolicyPackDryRunService _policyPackDryRunService =
+        policyPackDryRunService ?? throw new ArgumentNullException(nameof(policyPackDryRunService));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -292,7 +292,6 @@ public sealed class GovernanceController(
                         body.ReviewComment,
                         cancellationToken);
 
-
                 results.Add(
                     new GovernanceBatchReviewItemResult { ApprovalRequestId = approvalRequestId, Succeeded = true });
             }
@@ -341,7 +340,6 @@ public sealed class GovernanceController(
                         Message = ex.Message
                     });
             }
-
 
         return Ok(new GovernanceBatchReviewResponse { Results = results });
     }
@@ -458,10 +456,8 @@ public sealed class GovernanceController(
         if (fromUtc >= toUtc)
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
 
-
         if (bucketMinutes is < 60 or > 43_200)
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
-
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
@@ -492,7 +488,6 @@ public sealed class GovernanceController(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
-
         return Ok(result);
     }
 
@@ -511,7 +506,6 @@ public sealed class GovernanceController(
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-
 
         return Ok(result);
     }
@@ -595,13 +589,11 @@ public sealed class GovernanceController(
         if (!required)
             return (null, null);
 
-
         if (!Request.Headers.TryGetValue("Idempotency-Key", out StringValues raw) ||
             string.IsNullOrWhiteSpace(raw.ToString()))
             return (this.BadRequestProblem(
                 "Idempotency-Key header is required for persisted governance mutations (use dryRun=true on approval or promotion calls to validate without persisting).",
                 ProblemTypes.ValidationFailed), null);
-
 
         string trimmed = raw.ToString().Trim();
         if (trimmed.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
@@ -646,7 +638,6 @@ public sealed class GovernanceController(
     {
         if (Guid.TryParseExact(runId, "N", out Guid g))
             return g;
-
 
         return Guid.TryParse(runId, out g) ? g : null;
     }

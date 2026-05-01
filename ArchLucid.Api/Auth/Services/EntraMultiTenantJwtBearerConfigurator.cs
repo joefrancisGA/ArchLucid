@@ -21,14 +21,12 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         if (!auth.MultiTenantEntra)
             return;
 
-
         options.TokenValidationParameters.IssuerValidator = ValidateIssuer;
 
         IReadOnlyList<Guid> allowList = ParseAllowedEntraTenantIds(auth.AllowedEntraTenantIds);
 
         if (allowList.Count == 0)
             return;
-
 
         JwtBearerEvents prior = options.Events;
 
@@ -41,7 +39,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
             OnTokenValidated = async ctx =>
             {
                 await prior.OnTokenValidated(ctx).ConfigureAwait(false);
-
 
                 if (!TryGetTenantId(ctx.Principal, out Guid tid))
                 {
@@ -66,7 +63,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         if (string.IsNullOrWhiteSpace(issuer))
             throw new SecurityTokenInvalidIssuerException("Issuer is missing.");
 
-
         string trimmed = issuer.Trim();
 
         return !AzureAdIssuerV2.IsMatch(trimmed)
@@ -79,7 +75,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
         if (string.IsNullOrWhiteSpace(raw))
             return [];
 
-
         List<Guid> list = [];
 
         foreach (string part in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -87,7 +82,6 @@ internal static class EntraMultiTenantJwtBearerConfigurator
             if (Guid.TryParse(part, out Guid g))
 
                 list.Add(g);
-
 
         return list;
     }

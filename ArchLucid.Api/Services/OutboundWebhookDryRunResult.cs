@@ -1,4 +1,3 @@
-
 namespace ArchLucid.Api.Services;
 
 /// <summary>Resolved HTTP probe outcome.</summary>

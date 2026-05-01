@@ -278,12 +278,10 @@ public sealed class ManifestsController(
                     : []
             });
 
-
         if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
             return this.BadRequestProblem(
                 $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
                 ProblemTypes.ValidationFailed);
-
 
         ManifestSummaryOptions options = new()
         {

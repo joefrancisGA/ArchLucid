@@ -43,11 +43,11 @@ public sealed class TrustCenterEvidencePackController(
     /// <summary>Cache key used by the in-process memory cache for the built artifact.</summary>
     public const string CacheKey = "trust-center-evidence-pack-v1";
 
-    /// <summary>How long a built artifact is reused before the next request triggers a rebuild.</summary>
-    public static readonly TimeSpan CacheLifetime = TimeSpan.FromHours(1);
-
     /// <summary>File name buyers see in their download dialog.</summary>
     public const string DownloadFileName = "archlucid-trust-center-evidence-pack.zip";
+
+    /// <summary>How long a built artifact is reused before the next request triggers a rebuild.</summary>
+    public static readonly TimeSpan CacheLifetime = TimeSpan.FromHours(1);
 
     private readonly IEvidencePackBuilder _evidencePackBuilder =
         evidencePackBuilder ?? throw new ArgumentNullException(nameof(evidencePackBuilder));
@@ -83,8 +83,7 @@ public sealed class TrustCenterEvidencePackController(
 
         MemoryCacheEntryOptions options = new()
         {
-            AbsoluteExpirationRelativeToNow = CacheLifetime,
-            Size = built.Bytes.LongLength,
+            AbsoluteExpirationRelativeToNow = CacheLifetime, Size = built.Bytes.LongLength
         };
 
         _memoryCache.Set(CacheKey, built, options);

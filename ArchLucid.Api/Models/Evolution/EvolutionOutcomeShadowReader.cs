@@ -22,7 +22,6 @@ internal static class EvolutionOutcomeShadowReader
         if (string.IsNullOrWhiteSpace(outcomeJson))
             return;
 
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(outcomeJson);

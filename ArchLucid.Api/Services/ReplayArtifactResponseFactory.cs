@@ -25,7 +25,6 @@ public static class ReplayArtifactResponseFactory
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 result.FileName);
 
-
         throw new InvalidOperationException($"Unsupported replay format '{result.Format}'.");
     }
 
@@ -46,7 +45,6 @@ public static class ReplayArtifactResponseFactory
                 result.BinaryContent,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 result.FileName);
-
 
         return string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase)
             ? ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName)

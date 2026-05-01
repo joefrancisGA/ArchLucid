@@ -71,8 +71,7 @@ public sealed class FeatureGateFilter(
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
     }
 }

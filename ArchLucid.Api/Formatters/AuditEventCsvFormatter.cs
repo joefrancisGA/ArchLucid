@@ -44,7 +44,6 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
             throw new InvalidOperationException(
                 $"{nameof(AuditEventCsvFormatter)} expected {nameof(IEnumerable<>)}.");
 
-
         if (context.HttpContext.Items.TryGetValue(CsvAttachmentFileNameItemKey, out object? nameObj)
             && nameObj is string fileName
             && !string.IsNullOrWhiteSpace(fileName))
@@ -58,7 +57,6 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         writer.NewLine = "\n";
 
         await writer.WriteLineAsync(HeaderLine);
-
 
         foreach (AuditEvent auditEvent in events)
         {
@@ -107,7 +105,6 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         if (string.IsNullOrEmpty(value))
             return string.Empty;
 
-
         bool mustQuote =
             value.Contains(',')
             || value.Contains('"')
@@ -116,7 +113,6 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
 
         if (!mustQuote)
             return value;
-
 
         return "\"" + value.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
     }

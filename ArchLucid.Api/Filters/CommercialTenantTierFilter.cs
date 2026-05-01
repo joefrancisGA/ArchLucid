@@ -75,6 +75,8 @@ public sealed class CommercialTenantTierFilter(
         await next();
     }
 
-    private static bool MinimumTierDeniedShouldObfuscate(TenantTier minimumTier) =>
-        minimumTier == TenantTier.Enterprise;
+    private static bool MinimumTierDeniedShouldObfuscate(TenantTier minimumTier)
+    {
+        return minimumTier == TenantTier.Enterprise;
+    }
 }

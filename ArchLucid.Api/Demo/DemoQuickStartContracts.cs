@@ -26,7 +26,7 @@ public sealed class DemoQuickStartFindingSummary
         init;
     } = string.Empty;
 
-    /// <summary><see cref="Contracts.Findings.FindingSeverity"/> name.</summary>
+    /// <summary><see cref="Contracts.Findings.FindingSeverity" /> name.</summary>
     public string Severity
     {
         get;

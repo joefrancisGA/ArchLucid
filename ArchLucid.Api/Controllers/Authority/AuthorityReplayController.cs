@@ -3,8 +3,8 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Core.Audit;
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -23,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Authority;
 ///     scope.
 /// </summary>
 /// <remarks>
-///     POST <c>/v1/internal/authority/replay</c> (legacy: <c>/v1/authority/replay</c>); uses <see cref="ReplayMode" /> strings from the request body. Emits
+///     POST <c>/v1/internal/authority/replay</c> (legacy: <c>/v1/authority/replay</c>); uses <see cref="ReplayMode" />
+///     strings from the request body. Emits
 ///     <see cref="AuditEventTypes.ReplayExecuted" /> on success.
 /// </remarks>
 [ApiController]

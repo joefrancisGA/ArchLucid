@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -64,12 +66,10 @@ public sealed class RunQueryController(
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
             return this.NotFoundProblem(
                 $"Manifest referenced by run '{runId}' could not be found.",
                 ProblemTypes.ResourceNotFound);
-
 
         RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
             detail.Run,
@@ -93,7 +93,6 @@ public sealed class RunQueryController(
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
 
         RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
 
@@ -119,7 +118,6 @@ public sealed class RunQueryController(
                 $"Run '{runId}' was not found, or its manifest reference is broken.",
                 ProblemTypes.RunNotFound);
 
-
         return Ok(graph);
     }
 
@@ -137,14 +135,12 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (decisions.Count == 0)
             return this.NotFoundProblem(
                 $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
                 ProblemTypes.ResourceNotFound);
-
 
         return Ok(new DecisionNodeResponse { Decisions = decisions.ToList() });
     }
@@ -163,7 +159,9 @@ public sealed class RunQueryController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
-        return evidence is null ? this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(new AgentEvidencePackageResponse { Evidence = evidence });
+        return evidence is null
+            ? this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(new AgentEvidencePackageResponse { Evidence = evidence });
     }
 
     /// <summary>
@@ -190,11 +188,7 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        PagingParameters paging = new()
-        {
-            PageNumber = pageNumber,
-            PageSize = pageSize
-        };
+        PagingParameters paging = new() { PageNumber = pageNumber, PageSize = pageSize };
         (int skip, int take) = paging.Normalize();
 
         (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) =
@@ -258,17 +252,8 @@ public sealed class RunQueryController(
 
         return Ok(
             new CursorPagedResponse<RunListItemResponse>
-
             {
-
-                Items = mapped,
-
-                NextCursor = nextCursor,
-
-                HasMore = hasMore,
-
-                RequestedTake = effectiveTake
-
+                Items = mapped, NextCursor = nextCursor, HasMore = hasMore, RequestedTake = effectiveTake
             });
     }
 
@@ -394,10 +379,12 @@ public sealed class RunQueryController(
     {
         return string.Equals(
             Norm(routeRunId),
-            Norm(payloadRunId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)),
+            Norm(payloadRunId.ToString("D", CultureInfo.InvariantCulture)),
             StringComparison.Ordinal);
 
-        static string Norm(string value) =>
-            value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
+        static string Norm(string value)
+        {
+            return value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
+        }
     }
 }

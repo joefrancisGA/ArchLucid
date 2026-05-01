@@ -2,6 +2,7 @@ using ArchLucid.Application.Import;
 using ArchLucid.Contracts.Requests;
 
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace ArchLucid.Api.Validators;
 
@@ -11,10 +12,11 @@ public sealed class FluentArchitectureRequestImportValidator(IValidator<Architec
     private readonly IValidator<ArchitectureRequest> _validator =
         validator ?? throw new ArgumentNullException(nameof(validator));
 
-    public async Task<ArchitectureRequestImportValidationResult> ValidateAsync(ArchitectureRequest request, CancellationToken ct)
+    public async Task<ArchitectureRequestImportValidationResult> ValidateAsync(ArchitectureRequest request,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(request);
-        FluentValidation.Results.ValidationResult result = await _validator.ValidateAsync(request, ct);
+        ValidationResult result = await _validator.ValidateAsync(request, ct);
 
         if (result.IsValid)
             return new ArchitectureRequestImportValidationResult { IsValid = true };

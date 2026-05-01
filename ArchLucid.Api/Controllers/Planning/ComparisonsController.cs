@@ -68,7 +68,6 @@ public sealed class ComparisonsController(
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         IReadOnlyList<ComparisonRecord> records =
             await comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
@@ -87,7 +86,6 @@ public sealed class ComparisonsController(
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
-
         IReadOnlyList<ComparisonRecord> records =
             await comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
 
@@ -105,7 +103,6 @@ public sealed class ComparisonsController(
         if (record is null)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-
 
         return Ok(new ComparisonRecordResponse { Record = record });
     }
@@ -136,7 +133,6 @@ public sealed class ComparisonsController(
                     $"Comparison record '{comparisonRecordId}' was not found.",
                     ProblemTypes.ResourceNotFound);
 
-
             return Ok(ComparisonReplayCostEstimateResponse.FromDomain(estimate));
         }
         catch (ArgumentException ex)
@@ -157,7 +153,6 @@ public sealed class ComparisonsController(
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.",
                 ProblemTypes.ResourceNotFound);
 
-
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
             return Ok(new ComparisonSummaryResponse
             {
@@ -166,7 +161,6 @@ public sealed class ComparisonsController(
                 Format = "markdown",
                 Summary = record.SummaryMarkdown
             });
-
 
         ReplayComparisonResult replay = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ForSummaryMarkdown(comparisonRecordId),
@@ -194,7 +188,6 @@ public sealed class ComparisonsController(
             return this.BadRequestProblem(
                 string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
-
 
         if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
                 out string? cursorError))
@@ -243,7 +236,6 @@ public sealed class ComparisonsController(
                 query.Skip,
                 limit,
                 cancellationToken);
-
 
         string? nextCursor =
             records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
@@ -454,7 +446,6 @@ public sealed class ComparisonsController(
 
                 processedIds.Add(id);
 
-
         List<(string Id, ReplayComparisonResult Result)> successes = [];
         List<BatchReplayManifestFailureEntry> failed = [];
 
@@ -486,12 +477,10 @@ public sealed class ComparisonsController(
                 });
             }
 
-
         if (successes.Count == 0 && processedIds.Count > 0)
             return this.UnprocessableEntityProblem(
                 "No comparison replays succeeded for the requested comparisonRecordIds. Adjust IDs or replay parameters and retry.",
                 ProblemTypes.BatchReplayAllFailed);
-
 
         List<BatchReplayManifestSuccessEntry> succeededManifest = [];
 
@@ -506,7 +495,6 @@ public sealed class ComparisonsController(
                 if (string.IsNullOrWhiteSpace(entryName))
 
                     entryName = $"comparison_{id}.{result.Format}";
-
 
                 string folder = BatchReplayZipPathSanitizer.FolderForComparisonRecordId(id);
                 string zipEntryPath = $"{folder}/{entryName}";
@@ -540,7 +528,6 @@ public sealed class ComparisonsController(
         if (failed.Count > 0 && successes.Count > 0)
 
             Response.Headers[ArchLucidHttpHeaders.BatchReplayPartial] = "true";
-
 
         ms.Position = 0;
         return File(ms, "application/zip", "comparison_replays.zip");

@@ -49,7 +49,6 @@ internal static class EvolutionOutcomeParser
         if (string.IsNullOrWhiteSpace(outcomeJson))
             return;
 
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(outcomeJson);
@@ -57,12 +56,10 @@ internal static class EvolutionOutcomeParser
             if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement ver))
                 return;
 
-
             string? v = ver.GetString();
 
             if (!string.Equals(v, SchemaV2, StringComparison.Ordinal))
                 return;
-
 
             schemaVersion = SchemaV2;
 
@@ -70,7 +67,6 @@ internal static class EvolutionOutcomeParser
                 es.ValueKind == JsonValueKind.String)
 
                 explanationSummary = es.GetString();
-
 
             if (!doc.RootElement.TryGetProperty("evaluation", out JsonElement ev) ||
                 ev.ValueKind is not (JsonValueKind.Object or JsonValueKind.Null))

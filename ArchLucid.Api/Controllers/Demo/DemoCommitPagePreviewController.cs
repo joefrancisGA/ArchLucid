@@ -4,8 +4,8 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Serialization;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Caching;
 
@@ -69,8 +69,10 @@ public sealed class DemoCommitPagePreviewController(
     [ProducesResponseType(typeof(DemoCommitPagePreviewResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    public Task<IActionResult> GetPublicDemoSampleRun(CancellationToken cancellationToken = default) =>
-        GetDemoCommitPagePreview(cancellationToken);
+    public Task<IActionResult> GetPublicDemoSampleRun(CancellationToken cancellationToken = default)
+    {
+        return GetDemoCommitPagePreview(cancellationToken);
+    }
 
     /// <summary>Returns the bundled commit-page preview JSON for the latest committed demo-seed run.</summary>
     [HttpGet("preview")]

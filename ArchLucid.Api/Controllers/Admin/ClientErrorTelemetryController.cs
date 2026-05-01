@@ -35,14 +35,14 @@ public sealed class ClientErrorTelemetryController(
         "30+"
     ];
 
+    private readonly IFirstTenantFunnelEmitter _firstTenantFunnelEmitter =
+        firstTenantFunnelEmitter ?? throw new ArgumentNullException(nameof(firstTenantFunnelEmitter));
+
     private readonly ILogger<ClientErrorTelemetryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IFirstTenantFunnelEmitter _firstTenantFunnelEmitter =
-        firstTenantFunnelEmitter ?? throw new ArgumentNullException(nameof(firstTenantFunnelEmitter));
 
     /// <summary>Records sponsor-banner first-commit badge render (low-cardinality counter).</summary>
     [HttpPost("sponsor-banner-first-commit-badge")]
@@ -55,14 +55,12 @@ public sealed class ClientErrorTelemetryController(
                 "daysSinceFirstCommitBucket is required.",
                 ProblemTypes.ValidationFailed);
 
-
         string bucket = body.DaysSinceFirstCommitBucket.Trim();
 
         if (!SponsorBannerDayBuckets.Contains(bucket))
             return this.BadRequestProblem(
                 "daysSinceFirstCommitBucket must be one of: 0, 1-3, 4-7, 8-30, 30+.",
                 ProblemTypes.ValidationFailed);
-
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchLucidInstrumentation.RecordSponsorBannerFirstCommitBadgeRendered(scope.TenantId, bucket);
@@ -111,18 +109,15 @@ public sealed class ClientErrorTelemetryController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-
         string message = body.Message.Trim();
 
         if (message.Length == 0)
             return this.BadRequestProblem("Message is required.", ProblemTypes.ValidationFailed);
 
-
         if (message.Length > ClientErrorTelemetryIngestLimits.MaxMessageLength)
             return this.BadRequestProblem(
                 $"Message must be at most {ClientErrorTelemetryIngestLimits.MaxMessageLength} characters.",
                 ProblemTypes.ValidationFailed);
-
 
         string? stack = TruncateNullable(body.Stack, ClientErrorTelemetryIngestLimits.MaxStackLength);
         string? pathname = TruncateNullable(body.Pathname, ClientErrorTelemetryIngestLimits.MaxPathnameLength);
@@ -135,7 +130,6 @@ public sealed class ClientErrorTelemetryController(
                 return this.BadRequestProblem(
                     $"Context may contain at most {ClientErrorTelemetryIngestLimits.MaxContextEntries} entries.",
                     ProblemTypes.ValidationFailed);
-
 
             foreach (KeyValuePair<string, string> pair in body.Context)
 
@@ -157,7 +151,6 @@ public sealed class ClientErrorTelemetryController(
     {
         if (string.IsNullOrEmpty(value))
             return null;
-
 
         string trimmed = value.Trim();
 

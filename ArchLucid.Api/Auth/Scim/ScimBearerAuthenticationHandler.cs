@@ -6,6 +6,7 @@ using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Auth.Scim;
 
@@ -21,7 +22,7 @@ public sealed class ScimBearerAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.TryGetValue("Authorization", out Microsoft.Extensions.Primitives.StringValues header))
+        if (!Request.Headers.TryGetValue("Authorization", out StringValues header))
             return AuthenticateResult.Fail("Missing Authorization header.");
 
         string raw = header.ToString();
