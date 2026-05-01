@@ -585,9 +585,9 @@ export default async function RunDetailPage({
       </section>
 
       {!manifestId && (
-        <OperatorEmptyState title="Manifest review not available yet">
+        <OperatorEmptyState title="Review package not ready yet">
           <p className="m-0">
-            This run has not been finalized yet. Once the pipeline completes and the run is finalized, the{" "}
+            This architecture review has not been finalized yet. After the pipeline completes and you finalize, the{" "}
             <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip>, artifacts, and exports will appear here.
           </p>
         </OperatorEmptyState>

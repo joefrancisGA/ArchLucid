@@ -118,7 +118,8 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
 
       const wizardStep1 = page
         .getByTestId("operator-first-run-wizard-step-1")
-        .or(page.getByRole("heading", { name: /first run/i }));
+        .or(page.getByRole("heading", { name: /first run/i }))
+        .or(page.getByRole("heading", { name: /your first architecture review/i }));
       await expect(wizardStep1).toBeVisible({ timeout: 60_000 });
 
       const finalizeManifestCue = page.getByRole("button", { name: /finalize manifest/i });

@@ -5,6 +5,11 @@
     "scenario-microservices-no-gateway.json",
     "scenario-db-no-backup.json",
     "scenario-overprovisioned-vm.json",
-    "scenario-multi-region-no-dr.json"
+    "scenario-multi-region-no-dr.json",
+    "scenario-azure-web-app.json",
+    "scenario-regulated-data-workflow.json",
+    "scenario-cost-constrained-modernization.json",
+    "scenario-governance-heavy-review.json",
+    "scenario-b2b-api-integration.json"
   ]
 }

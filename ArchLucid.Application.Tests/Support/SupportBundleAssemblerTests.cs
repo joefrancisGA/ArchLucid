@@ -104,6 +104,18 @@ public sealed class SupportBundleAssemblerTests
     }
 
     [Fact]
+    public async Task AssembleAsync_ReferencesJson_lists_pilot_rescue_playbook()
+    {
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
+
+        SupportBundleArtifact artifact = await assembler.AssembleAsync(new SupportBundleRequest("op", "tenant"));
+
+        string references = ReadEntryAsText(artifact.Bytes, SupportBundleAssembler.ReferencesFileName);
+
+        references.Should().Contain(SupportBundleDocLinks.PilotRescuePlaybookRelativePath);
+    }
+
+    [Fact]
     public async Task AssembleAsync_CancellationTokenAlreadyCancelled_ThrowsOperationCanceled()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());

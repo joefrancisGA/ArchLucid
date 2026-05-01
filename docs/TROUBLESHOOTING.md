@@ -7,6 +7,8 @@
 
 **Goal:** Faster triage without reading the whole codebase.
 
+**Symptom index:** [Pilot rescue playbook](runbooks/PILOT_RESCUE_PLAYBOOK.md) maps common stuck states (API down, health, auth, trial limits, commit readiness, governance gate, artifacts, real-mode AI, bundle redaction) to first commands and deeper docs.
+
 ## First-line steps (try in order)
 
 1. See **[Common operator errors (top 10)](runbooks/COMMON_ERRORS.md)** for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks.

@@ -56,14 +56,14 @@
 
 **Goal:** Bridge CloudEvents from ArchLucid to **Atlassian** or **ServiceNow** HTTP APIs using **Microsoft** automation **you** deploy and maintain — not first-party ArchLucid connectors.
 
-**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Those recipes are **interim** until **V1.1** first-party connectors (Jira, Confluence, ServiceNow) described in [V1_SCOPE.md §3](V1_SCOPE.md) and [V1_DEFERRED.md §6](V1_DEFERRED.md). They do **not** mean ArchLucid ships managed Atlassian/ServiceNow connectors in **V1**.
+**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Start with **ServiceNow**, then **Jira** (Power Automate), then **Confluence** (Logic Apps) as listed in Recipe 3 below. Those recipes are **interim** until **V1.1** first-party connectors (ServiceNow first in engineering sequencing, then Atlassian suite) described in [V1_SCOPE.md §3](V1_SCOPE.md) and [V1_DEFERRED.md §6](V1_DEFERRED.md). They do **not** mean ArchLucid ships managed Atlassian/ServiceNow connectors in **V1**.
 
 | Entry | Use |
 |-------|-----|
 | Index + platform matrix | [recipes/README.md](../integrations/recipes/README.md) |
-| Jira (Power Automate) | [JIRA_ISSUE_VIA_POWER_AUTOMATE.md](../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md) |
+| **ServiceNow (Power Automate)** | [SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md](../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) |
+| **Jira (Power Automate)** | [JIRA_ISSUE_VIA_POWER_AUTOMATE.md](../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md) |
 | Confluence (Logic Apps) | [CONFLUENCE_PAGE_VIA_LOGIC_APPS.md](../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md) |
-| ServiceNow (Power Automate) | [SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md](../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) |
 
 Developer-oriented alternatives (Azure Functions, HMAC, custom code) remain in [`templates/integrations/`](../../templates/integrations/) as referenced from [recipes/README.md](../integrations/recipes/README.md).
 

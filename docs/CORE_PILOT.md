@@ -4,9 +4,21 @@
 
 **Audience:** Operators and design partners completing their first pilot.
 
-**Purpose:** Define the default, minimal journey from an empty tenant to a reviewed, exportable architecture run — without requiring any advanced features.
+**Purpose:** Define the default, minimal journey from an empty tenant to a reviewed, exportable **architecture review package** — without requiring any advanced features.
 
 This document is the operator-facing first-pilot path. The sponsor-facing narrative lives in the executive brief. C4 context, route maps, and UI seam rules are linked below when your work touches layout, nav, or API policy alignment.
+
+<a id="first-session-checklist"></a>
+
+## First session checklist (buyer / evaluator)
+
+| Question | Answer |
+| --- | --- |
+| **What do I do first?** | Follow the **four steps** in §3: create an architecture **request**, let the **pipeline** finish, **finalize** when ready, then **review outputs** on review detail. Entry from [START_HERE.md](START_HERE.md) → this doc — no deep architecture reading required. |
+| **What output proves value?** | A **finalized** architecture review: manifest summary, ranked findings, and **exportable artifacts** (table + bundle). That bundle is the **review package** you can walk a sponsor through. |
+| **What do I send a sponsor?** | Narrative: [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md). Artifacts: export from review detail after finalization. Optional pilot metrics: [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md). |
+| **What should I ignore for now?** | **Compare**, **replay**, **graph**, advisory-heavy flows, governance dashboards, alerts tuning, and anything labeled extended/advanced in §4 — until the first package is done. |
+| **Why do I still see “run” in the UI?** | Same four steps: the product stores each architecture review as one **run** (run ID, APIs, telemetry). **Architecture review** / **review package** is the buyer outcome; **run** is the technical spine. |
 
 ---
 
@@ -27,16 +39,16 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 
 ## 1. What "Core Pilot" means
 
-The Core Pilot path is **four steps**. Completing them produces a committed golden manifest and a downloadable artifact bundle — the primary deliverable of an ArchLucid pilot.
+The Core Pilot path is **four steps**. Completing them produces a committed **golden manifest** (technical term) and a downloadable **artifact bundle** — together, the **architecture review package** that is the primary deliverable of a pilot.
 
 ```
-1. Create request
+1. Create architecture request
       ↓
-2. Execute run  (pipeline fills automatically)
+2. Pipeline runs  (coordinator fills steps automatically — UI shows review/progress)
       ↓
-3. Commit manifest
+3. Finalize / commit manifest
       ↓
-4. Review manifest and artifacts
+4. Review manifest summary and artifacts
 ```
 
 Everything in ArchLucid beyond these four steps — graph, compare, replay, advisory, alerts, governance, export packages, DOCX — is **available but secondary**. Pilots do not need to touch any of it to demonstrate value.

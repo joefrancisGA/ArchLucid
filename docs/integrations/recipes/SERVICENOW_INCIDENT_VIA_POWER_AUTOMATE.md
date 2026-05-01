@@ -4,9 +4,11 @@
 
 **Audience:** V1 customers who need ServiceNow incidents from ArchLucid findings or alerts but do not want to write an Azure Function or custom webhook receiver.
 
-**V1 interim bridge.** A first-party ServiceNow connector is planned for **V1.1** — see [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) and [INTEGRATION_CATALOG.md §2](../../go-to-market/INTEGRATION_CATALOG.md). This recipe bridges the gap using **Microsoft Power Automate** (Premium license required for HTTP connector).
+**V1 interim bridge.** A first-party ServiceNow connector is planned for **V1.1** — see [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) and [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md). This recipe bridges the gap using **Microsoft Power Automate** (Premium license required for HTTP connector).
 
-**Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+> **Customer-owned:** This flow runs in **your** Microsoft 365 / Power Platform tenant and calls **your** ServiceNow Table API. It is **not** a ServiceNow Store or ArchLucid-certified integration pack. ArchLucid only delivers signed CloudEvents webhooks per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
+
+**Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) · [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)  
 **Event catalog (code):** [`IntegrationEventTypes.cs`](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs)
 
 ---
@@ -285,14 +287,27 @@ When V1.1 ships, migrate by:
 
 ---
 
+## 8. Test steps (smoke and acceptance)
+
+Use these steps in a **non-production** ArchLucid tenant and ServiceNow subproduction instance first.
+
+1. **Configure webhook** — In ArchLucid, point digest/alert outbound delivery at your Power Automate HTTP trigger URL (or at an APIM/Function front door that validates HMAC per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) before forwarding). Enable CloudEvents envelope if this recipe’s schema applies.
+2. **Probe signing** — Run `archlucid webhooks test --url <your-entrypoint-url> [--secret …]` (or equivalent) so the trigger receives a realistic POST; confirm the flow parses `specversion`, `type`, and `data`.
+3. **`alert.fired` path** — Emit or simulate an alert that produces `com.archlucid.alert.fired`; verify one `incident` row with `correlation_id` matching `deduplicationKey` (or your chosen key) and expected severity mapping.
+4. **`authority.run.completed` path** — Complete a run that emits `com.archlucid.authority.run.completed`; confirm the flow’s `GET /v1/authority/runs/{runId}` succeeds and creates up to your capped number of incidents with stable `correlation_id` values.
+5. **Retry** — Intentionally fail a ServiceNow POST (wrong ACL), confirm Power Automate retries then dead-letters per your Scope branch; replay from the dead-letter store once fixed.
+6. **Idempotency** — Re-send the same CloudEvents `id` (or replay body); confirm deduplication query prevents duplicate incidents if you implemented section 6 dedup.
+
+---
+
 ## Related documents
 
 | Doc | Use |
 |-----|-----|
 | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) | Event delivery, CloudEvents envelope, HMAC signing |
 | [INTEGRATION_EVENT_CATALOG.md](../../library/INTEGRATION_EVENT_CATALOG.md) | Full event type catalog |
-| [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) | V1.1 ServiceNow connector commitment |
-| [INTEGRATION_CATALOG.md §2](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
+| [V1_DEFERRED.md](../../library/V1_DEFERRED.md) | V1.1 ServiceNow connector commitment (section 6) |
+| [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
 | [servicenow-incident-recipe.md](../../../templates/integrations/servicenow/servicenow-incident-recipe.md) | Developer-oriented bridge (custom code, Azure Function) |
 | [JIRA_ISSUE_VIA_POWER_AUTOMATE.md](JIRA_ISSUE_VIA_POWER_AUTOMATE.md) | Companion recipe — Jira via Power Automate |
 | [CONFLUENCE_PAGE_VIA_LOGIC_APPS.md](CONFLUENCE_PAGE_VIA_LOGIC_APPS.md) | Companion recipe — Confluence via Logic Apps |
@@ -300,4 +315,4 @@ When V1.1 ships, migrate by:
 
 ---
 
-*Last reviewed: 2026-04-26 — event types from [IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs) and [catalog.json](../../../schemas/integration-events/catalog.json).*
+*Last reviewed: 2026-05-01 — customer-owned disclaimer, test steps, catalog cross-links.*

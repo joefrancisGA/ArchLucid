@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-cost-constrained-modernization",
+  "metadata": {
+    "title": "Cost-constrained modernization",
+    "complexity": "medium",
+    "primaryAgents": ["Cost", "Topology"]
+  },
+  "inputSummary": "Enterprise wants to exit a leased datacenter within 18 months with a hard quarterly spend cap. Priority is rehost to Azure VMs first, then selectively refactor into App Service and managed SQL. FinOps requires showback by cost center.",
+  "recording": "recordings/corpus-cost-modernization.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Cost",
+    "agentResultPath": "agent-results/corpus-cost-modernization.simulator.json",
+    "notes": "Simulator output; real-mode runs need AOAI per AGENT_EVAL_CORPUS.md."
+  },
+  "expectedFindings": [
+    {
+      "id": "e right-sizing",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["right-size", "SKU"]
+    },
+    {
+      "id": "e reserved",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["reserved", "baselines"]
+    },
+    {
+      "id": "e idle resources",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["sandbox", "automation"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["ignore budgets", "unlimited spend"] },
+    { "category": "Critic", "ifContainsAny": ["halt modernization", "zero cloud adoption"] }
+  ]
+}

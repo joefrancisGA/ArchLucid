@@ -4,9 +4,11 @@
 
 **Audience:** V1 customers who need Jira issues from ArchLucid findings or alerts but do not want to write an Azure Function or custom webhook receiver.
 
-**V1 interim bridge.** A first-party Jira connector is planned for **V1.1** — see [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) and [INTEGRATION_CATALOG.md §2](../../go-to-market/INTEGRATION_CATALOG.md). This recipe bridges the gap using **Microsoft Power Automate** (Premium license required for HTTP connector).
+**V1 interim bridge.** A first-party Jira connector is planned for **V1.1** — see [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) and [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md). This recipe bridges the gap using **Microsoft Power Automate** (Premium license required for HTTP connector).
 
-**Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+> **Customer-owned:** This flow runs in **your** Microsoft tenant and calls **your** Jira Cloud REST API with **your** Atlassian identity. It is **not** an Atlassian Marketplace “ArchLucid” app or first-party ArchLucid connector in V1.
+
+**Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) · [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)  
 **Event catalog (code):** [`IntegrationEventTypes.cs`](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs)
 
 ---
@@ -279,7 +281,7 @@ After the outermost condition, add a **Response** action:
 | `severity` | `fields.priority.name` | Same mapping as above. |
 | `alertId`, `ruleId`, `category`, `deduplicationKey` | `fields.description` | Machine-readable context for triage. |
 | `runId` (optional) | `fields.description` | Include only when present. |
-| `deduplicationKey` | `fields.labels` or custom field | For deduplication logic (see §6). |
+| `deduplicationKey` | `fields.labels` or custom field | For deduplication logic (section 6). |
 
 ---
 
@@ -342,19 +344,32 @@ When V1.1 ships, migrate by:
 
 ---
 
+## 8. Test steps (smoke and acceptance)
+
+Validate in **non-production** ArchLucid and Jira project space first.
+
+1. **Configure webhook** — Point ArchLucid outbound delivery at your Power Automate URL (or HMAC-validating APIM/Function per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)). Use CloudEvents envelope matching the trigger schema in section 4.
+2. **Probe signing** — Run `archlucid webhooks test --url <entrypoint> [--secret …]`; confirm `type` and `data` parse in the flow run history.
+3. **`alert.fired` path** — Trigger `com.archlucid.alert.fired`; verify one Jira issue with expected priority and summary prefix `[ArchLucid Alert]`.
+4. **`authority.run.completed` path** — Emit `com.archlucid.authority.run.completed`; confirm `GET /v1/authority/runs/{runId}` returns findings and issues are created up to your loop cap.
+5. **Retry / dead-letter** — Force a 401 from Jira; confirm retry policy and failure branch (section 6) capture payload for replay.
+6. **Idempotency** — Replay the same webhook body; confirm JQL-based dedup (section 6) prevents duplicates when implemented.
+
+---
+
 ## Related documents
 
 | Doc | Use |
 |-----|-----|
 | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) | Event delivery, CloudEvents envelope, HMAC signing |
 | [INTEGRATION_EVENT_CATALOG.md](../../library/INTEGRATION_EVENT_CATALOG.md) | Full event type catalog |
-| [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) | V1.1 Jira connector commitment |
-| [INTEGRATION_CATALOG.md §2](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
+| [V1_DEFERRED.md](../../library/V1_DEFERRED.md) | V1.1 Jira connector commitment (section 6) |
+| [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
 | [JIRA_WEBHOOK_BRIDGE.md](../JIRA_WEBHOOK_BRIDGE.md) | Runnable Node + PowerShell bridges under `scripts/integrations/jira/` (this repo) |
-
 | [jira-webhook-bridge-recipe.md](../../../templates/integrations/jira/jira-webhook-bridge-recipe.md) | Long-form developer-oriented bridge (Azure Function sketch) |
+| [SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) | Companion recipe — ServiceNow via Power Automate |
 | [Recipes README](README.md) | Index of all no-code recipes |
 
 ---
 
-*Last reviewed: 2026-04-26 — event types from [IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs) and [catalog.json](../../../schemas/integration-events/catalog.json).*
+*Last reviewed: 2026-05-01 — customer-owned disclaimer, test steps, ServiceNow companion link.*

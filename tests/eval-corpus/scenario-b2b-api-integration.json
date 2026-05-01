@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-b2b-api-integration",
+  "metadata": {
+    "title": "B2B API integration platform",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "inputSummary": "Partners consume REST APIs through Azure API Management. Requirements include per-tenant rate limits, OAuth-backed subscriptions, optional mutual TLS for strategic accounts, and isolation between developer sandboxes and production gateways.",
+  "recording": "recordings/corpus-b2b-api-integration.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Topology",
+    "agentResultPath": "agent-results/corpus-b2b-api-integration.simulator.json",
+    "notes": "Simulator path only in CI; real AOAI evidence is manual per docs."
+  },
+  "expectedFindings": [
+    {
+      "id": "e apim front",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["api management", "microservices"]
+    },
+    {
+      "id": "e jwt throttle",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["JWT", "throttl"]
+    },
+    {
+      "id": "e mtls",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["certificate", "client"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["disable authentication", "open anonymous APIs"] },
+    { "category": "Compliance", "ifContainsAny": ["share partner keys in email"] }
+  ]
+}

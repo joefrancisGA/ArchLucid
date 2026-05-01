@@ -1,6 +1,7 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Composition.Demo;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Archival;
@@ -31,8 +32,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
-        // Demo quick-start (POST /v1/demo/quickstart): QuickStartForcedSimulatorExecuteOrchestrator + QuickStartService
-        // are registered in ArchLucid.Api Program (composition must not reference the Api assembly).
+        // Demo quick-start (POST /v1/demo/quickstart): forced-simulator execute step lives in composition;
+        // QuickStartService stays in ArchLucid.Api (Api assembly).
+        services.AddScoped<QuickStartForcedSimulatorExecuteOrchestrator>();
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);

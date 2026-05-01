@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-wa-sim-01",
+  "taskId": "corp-wa-task-01",
+  "runId": "corp-wa-run-01",
+  "agentType": 1,
+  "claims": [
+    {
+      "evidenceRefs": ["cat-app-service", "pattern-front-door"],
+      "detail": "Simulator topology claim: App Service sits behind Front Door with managed TLS."
+    }
+  ],
+  "evidenceRefs": ["cat-app-service"],
+  "confidence": 0.82,
+  "findings": [
+    {
+      "severity": "Low",
+      "category": "Topology",
+      "description": "HTTPS terminates at Azure Front Door with health probes before App Service slots.",
+      "recommendation": "Keep WAF managed rules enabled and validate origin certificates yearly."
+    },
+    {
+      "severity": "Low",
+      "category": "Compliance",
+      "description": "Key Vault references supply connection strings; RBAC limits secret access to the web app identity.",
+      "recommendation": "Rotate secrets on a schedule and alert on abnormal Key Vault access patterns."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-01T12:00:00Z"
+}

@@ -93,7 +93,6 @@ public partial class Program
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
-        builder.Services.AddScoped<QuickStartForcedSimulatorExecuteOrchestrator>();
         builder.Services.AddScoped<QuickStartService>();
 
         if (builder.Configuration.GetValue("Demo:Enabled", false))

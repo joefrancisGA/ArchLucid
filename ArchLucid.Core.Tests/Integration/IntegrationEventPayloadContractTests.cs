@@ -270,7 +270,9 @@ public sealed class IntegrationEventPayloadContractTests
             ["seat-reservation-released.v1.schema.json"] = IntegrationEventTypes.SeatReservationReleasedV1,
             ["trial-lifecycle-email.v1.schema.json"] = IntegrationEventTypes.TrialLifecycleEmailV1,
             ["billing-marketplace-webhook-received.v1.schema.json"] =
-                IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1
+                IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1,
+            ["data-consistency-check-completed.v1.schema.json"] =
+                IntegrationEventTypes.DataConsistencyCheckCompletedV1
         };
 
         HashSet<string> catalogSchemaFiles = new(StringComparer.Ordinal);

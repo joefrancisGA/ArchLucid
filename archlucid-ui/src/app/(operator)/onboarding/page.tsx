@@ -11,7 +11,7 @@ type OnboardingPageProps = {
 
 /**
  * Canonical onboarding orientation: trial card when `?source=registration` is set,
- * followed by the core first-manifest checklist wizard.
+ * followed by the core first-review checklist wizard.
  */
 export default async function OnboardingPage({ searchParams }: OnboardingPageProps) {
   const p = await searchParams;
