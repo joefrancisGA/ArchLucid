@@ -1,4 +1,4 @@
-using ArchLucid.Application.Architecture;
+﻿using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests;
 
 public sealed class CommittedManifestTraceabilityRulesTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetLinkageGaps_WhenManifestAndTracesAlign_ReturnsEmpty()
     {
         RunEventTracePayload ev = new()
@@ -40,7 +40,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
         gaps.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetLinkageGaps_WhenTraceMissingFromManifest_ReturnsGap()
     {
         RunEventTracePayload ev = new()
@@ -70,7 +70,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
             .Which.Should().Contain("missing");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetLinkageGaps_FromDetail_WhenNotCommitted_ReturnsEmpty()
     {
         ArchitectureRunDetail detail = new()

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Identity;
+﻿using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Identity;
 [Trait("Category", "Unit")]
 public sealed class PwnedPasswordRangeClientTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task IsPasswordPwnedAsync_when_disabled_skips_http()
     {
         CountingHandler handler = new();
@@ -28,13 +28,13 @@ public sealed class PwnedPasswordRangeClientTests
         handler.SendCount.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void RangeResponseCacheDuration_is_24_hours()
     {
         PwnedPasswordRangeClient.RangeResponseCacheDuration.Should().Be(TimeSpan.FromHours(24));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task IsPasswordPwnedAsync_reuses_range_cache_per_prefix()
     {
         CountingHandler handler = new();

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -23,7 +23,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task RunCreated_emits_Run_Created_with_scope_and_payload()
     {
         Guid runGuid = Guid.NewGuid();
@@ -58,7 +58,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunExecuteSucceeded_emits_Run_ExecuteSucceeded_with_resultCount()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -87,7 +87,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunCompleted_without_commitPath_uses_legacy_three_field_DataJson()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -119,7 +119,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunCompleted_with_commitPath_includes_authority_fields_in_DataJson()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -149,7 +149,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunFailed_emits_Run_Failed()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -178,7 +178,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_LogAsync_throws_completes_without_propagating()
     {
         string runId = Guid.NewGuid().ToString("N");

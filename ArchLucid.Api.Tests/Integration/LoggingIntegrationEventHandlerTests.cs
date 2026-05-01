@@ -1,4 +1,4 @@
-using ArchLucid.Core.Integration;
+﻿using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Integration;
 
 using FluentAssertions;
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests.Integration;
 [Trait("Category", "Unit")]
 public sealed class LoggingIntegrationEventHandlerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task HandleAsync_completes_for_utf8_payload()
     {
         LoggingIntegrationEventHandler sut = new(NullLogger<LoggingIntegrationEventHandler>.Instance);
@@ -22,7 +22,7 @@ public sealed class LoggingIntegrationEventHandlerTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EventType_is_wildcard()
     {
         LoggingIntegrationEventHandler sut = new(NullLogger<LoggingIntegrationEventHandler>.Instance);

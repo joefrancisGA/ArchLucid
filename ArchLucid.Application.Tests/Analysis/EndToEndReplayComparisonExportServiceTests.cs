@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Analysis;
 [Trait("Suite", "Core")]
 public sealed class EndToEndReplayComparisonExportServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_short_profile_returns_header_and_summary_only()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -37,7 +37,7 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         md.Should().NotContain("Interpretation Notes");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_default_profile_includes_separator_run_metadata_and_top_level_lists()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -63,7 +63,7 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         md.Should().Contain("warn-b");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateHtml_short_profile_omits_run_metadata_and_interpretation_sections()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();

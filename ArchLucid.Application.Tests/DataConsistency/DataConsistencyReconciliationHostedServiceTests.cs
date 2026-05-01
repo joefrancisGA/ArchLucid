@@ -1,4 +1,4 @@
-using ArchLucid.Application.DataConsistency;
+﻿using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Persistence;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests.DataConsistency;
 
 public sealed class DataConsistencyReconciliationHostedServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Loop_invokes_reconciliation_and_records_success()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -95,7 +95,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         await sut.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Loop_records_failure_when_reconciliation_throws()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -162,7 +162,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
 
 public sealed class DataConsistencyHealthCheckTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Unhealthy_when_last_report_has_critical()
     {
         DataConsistencyReconciliationHealthState state = new();
@@ -179,7 +179,7 @@ public sealed class DataConsistencyHealthCheckTests
         r.Status.Should().Be(HealthStatus.Unhealthy);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Unhealthy_when_never_run()
     {
         DataConsistencyReconciliationHealthState state = new();
@@ -190,7 +190,7 @@ public sealed class DataConsistencyHealthCheckTests
         r.Status.Should().Be(HealthStatus.Unhealthy);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Degraded_when_last_report_has_warning()
     {
         DataConsistencyReconciliationHealthState state = new();
@@ -207,7 +207,7 @@ public sealed class DataConsistencyHealthCheckTests
         r.Status.Should().Be(HealthStatus.Degraded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Healthy_when_only_info_findings()
     {
         DataConsistencyReconciliationHealthState state = new();

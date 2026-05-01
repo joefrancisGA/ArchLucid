@@ -1,4 +1,4 @@
-using ArchLucid.Application.Support;
+﻿using ArchLucid.Application.Support;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Support;
 [Trait("Category", "Unit")]
 public sealed class SupportBundleSensitivePatternRedactorTests
 {
-    [Fact]
+    [SkippableFact]
     public void RedactSensitivePatterns_ReplacesBearerToken()
     {
         const string input = "Authorization: Bearer abc.def.ghi-secret";
@@ -16,7 +16,7 @@ public sealed class SupportBundleSensitivePatternRedactorTests
         redacted.Should().Be("Authorization: Bearer [REDACTED]");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RedactSensitivePatterns_ReplacesXApiKeyHeader()
     {
         const string input = "X-Api-Key: super-secret-key-value";
@@ -25,7 +25,7 @@ public sealed class SupportBundleSensitivePatternRedactorTests
         redacted.Should().Be("X-Api-Key: [REDACTED]");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RedactSensitivePatterns_ReplacesPasswordKeyValuePair()
     {
         const string input = "Server=db;Password=hunter2;Database=test";
@@ -35,7 +35,7 @@ public sealed class SupportBundleSensitivePatternRedactorTests
         redacted.Should().Contain("Server=db");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RedactSensitivePatterns_NullOrEmpty_ReturnsEmpty()
     {
         SupportBundleSensitivePatternRedactor.RedactSensitivePatterns(null).Should().Be(string.Empty);
@@ -54,14 +54,14 @@ public sealed class SupportBundleSensitivePatternRedactorTests
         SupportBundleSensitivePatternRedactor.IsSensitiveEnvironmentVariableName(name).Should().Be(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void RedactHttpUrl_StripsUserInfo()
     {
         SupportBundleSensitivePatternRedactor.RedactHttpUrl("https://user:pass@api.example.com/v1/foo")
             .Should().Be("https://api.example.com/v1/foo");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RedactHttpUrl_NullOrEmpty_ReturnsEmpty()
     {
         SupportBundleSensitivePatternRedactor.RedactHttpUrl(null).Should().Be(string.Empty);

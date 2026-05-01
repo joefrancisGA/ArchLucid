@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Tenancy;
+﻿using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
@@ -21,7 +21,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantTrialControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_returns_not_found_when_tenant_missing()
     {
         ScopeContext scope = new()
@@ -52,7 +52,7 @@ public sealed class TenantTrialControllerTests
         problem.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_returns_none_when_trial_status_blank()
     {
         ScopeContext scope = new()
@@ -96,7 +96,7 @@ public sealed class TenantTrialControllerTests
         body.FirstCommitUtc.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_echoes_first_commit_utc_on_none_branch_when_set()
     {
         ScopeContext scope = new()
@@ -141,7 +141,7 @@ public sealed class TenantTrialControllerTests
         body.FirstCommitUtc.Should().Be(committed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_echoes_first_commit_utc_on_active_branch()
     {
         ScopeContext scope = new()
@@ -191,7 +191,7 @@ public sealed class TenantTrialControllerTests
         body.FirstCommitUtc.Should().Be(committed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_identity_handoff_pending_true_when_converted_and_entra_unbound()
     {
         ScopeContext scope = new()
@@ -240,7 +240,7 @@ public sealed class TenantTrialControllerTests
         body.IdentityHandoffPending.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_identity_handoff_pending_false_when_converted_and_entra_bound()
     {
         ScopeContext scope = new()
@@ -289,7 +289,7 @@ public sealed class TenantTrialControllerTests
         body.IdentityHandoffPending.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrialStatusAsync_returns_active_payload_with_days_remaining()
     {
         ScopeContext scope = new()

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ public sealed class TenantTrialLinkEntraEndpointTests
 {
     private const string EndpointPath = "/v1/tenant/link-entra";
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_WithReaderRole_Returns403_BecauseAdminAuthorityIsRequired()
     {
         await using ReaderRoleArchLucidApiFactory factory = new();

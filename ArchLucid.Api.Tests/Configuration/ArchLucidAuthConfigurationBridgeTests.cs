@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+﻿using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Configuration;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests.Configuration;
 
 public sealed class ArchLucidAuthConfigurationBridgeTests
 {
-    [Fact]
+    [SkippableFact]
     public void Resolve_merges_ArchLucidAuth_over_legacy()
     {
         IConfiguration configuration = new ConfigurationBuilder()

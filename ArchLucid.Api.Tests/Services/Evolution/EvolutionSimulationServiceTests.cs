@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Services.Evolution;
@@ -30,7 +30,7 @@ public sealed class EvolutionSimulationServiceTests
         WriteIndented = false
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateCandidateFromImprovementPlanAsync_throws_when_plan_not_found()
     {
         Mock<IProductLearningPlanningRepository> planning = new();
@@ -72,7 +72,7 @@ public sealed class EvolutionSimulationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunShadowEvaluationAsync_with_empty_linked_run_ids_marks_simulated_and_skips_analysis()
     {
         Guid candidateId = Guid.NewGuid();

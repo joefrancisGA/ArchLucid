@@ -1,4 +1,4 @@
-using ArchLucid.Application.Explanation;
+﻿using ArchLucid.Application.Explanation;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -20,7 +20,7 @@ namespace ArchLucid.AgentRuntime.Tests.Explanation;
 [Trait("Category", "Unit")]
 public sealed class CachingRunExplanationSummaryServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_cache_hit_second_call_does_not_invoke_inner()
     {
         Guid runId = Guid.NewGuid();
@@ -59,7 +59,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_first_call_invokes_inner_once()
     {
         Guid runId = Guid.NewGuid();
@@ -93,7 +93,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_when_run_detail_null_returns_null_without_inner()
     {
         Guid runId = Guid.NewGuid();
@@ -121,7 +121,7 @@ public sealed class CachingRunExplanationSummaryServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_different_RowVersion_invokes_inner_twice()
     {
         Guid runId = Guid.NewGuid();

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Marketing;
+﻿using ArchLucid.Application.Marketing;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Marketing;
 [Trait("Category", "Unit")]
 public sealed class EmbeddedResourceEvidencePackSourceProviderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetEntriesAsync_ReturnsEveryCanonicalEntryInOrderWithNonEmptyContent()
     {
         EmbeddedResourceEvidencePackSourceProvider sut = new();
@@ -24,7 +24,7 @@ public sealed class EmbeddedResourceEvidencePackSourceProviderTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void OrderedZipNames_ContainsTheNineExpectedProcurementArtefacts()
     {
         IReadOnlyList<string> ordered = EmbeddedResourceEvidencePackSourceProvider.OrderedZipNames;
@@ -32,7 +32,7 @@ public sealed class EmbeddedResourceEvidencePackSourceProviderTests
         ordered.Should().Equal("DPA-template.md", "SUBPROCESSORS.md", "SLA-summary.md", "security.txt", "CAIQ-Lite.md", "SIG-Core.md", "OWNER_SECURITY_ASSESSMENT_2026_Q2.md", "PEN_TEST_SOW_2026_Q2.md", "AUDIT_COVERAGE_MATRIX.md");
     }
 
-    [Fact]
+    [SkippableFact]
     public void OrderedZipNames_DoesNotIncludeStopAndAskBoundaryArtefacts()
     {
         IReadOnlyList<string> ordered = EmbeddedResourceEvidencePackSourceProvider.OrderedZipNames;

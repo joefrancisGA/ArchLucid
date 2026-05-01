@@ -1,4 +1,4 @@
-using ArchLucid.Application.Explanation;
+﻿using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Scoping;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests.Explanation;
 [Trait("Suite", "Core")]
 public sealed class FindingEvidenceChainServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenRunIdNotGuid_ReturnsNull()
     {
         FindingEvidenceChainService sut = CreateSut(out _, out _);
@@ -26,7 +26,7 @@ public sealed class FindingEvidenceChainServiceTests
         chain.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenAuthorityDetailMissing_ReturnsNull()
     {
         FindingEvidenceChainService sut = CreateSut(out Mock<IAuthorityQueryService> authority, out _);
@@ -38,7 +38,7 @@ public sealed class FindingEvidenceChainServiceTests
         chain.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenFindingMissing_ReturnsNull()
     {
         Guid runGuid = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -52,7 +52,7 @@ public sealed class FindingEvidenceChainServiceTests
         chain.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenHappyPath_ReturnsPointersAndDistinctTraceIds()
     {
         Guid runGuid = Guid.Parse("33333333-3333-3333-3333-333333333333");

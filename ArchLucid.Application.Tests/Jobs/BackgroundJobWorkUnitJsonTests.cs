@@ -1,4 +1,4 @@
-using ArchLucid.Application.Jobs;
+﻿using ArchLucid.Application.Jobs;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Jobs;
 [Trait("Category", "Unit")]
 public sealed class BackgroundJobWorkUnitJsonTests
 {
-    [Fact]
+    [SkippableFact]
     public void RoundTrip_AnalysisReportDocxWorkUnit_PreservesPayload()
     {
         AnalysisReportDocxWorkUnit original = new(
@@ -26,7 +26,7 @@ public sealed class BackgroundJobWorkUnitJsonTests
         typed.ContentType.Should().Contain("wordprocessingml");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RoundTrip_ConsultingDocxWorkUnit_PreservesPayload()
     {
         ConsultingDocxWorkUnit original = new(

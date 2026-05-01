@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -17,7 +17,7 @@ namespace ArchLucid.Application.Tests.Evolution;
 [Trait("Category", "Unit")]
 public sealed class ShadowExecutionServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_missing_run_throws_RunNotFoundException()
     {
         Mock<IRunDetailQueryService> detail = new();
@@ -37,7 +37,7 @@ public sealed class ShadowExecutionServiceTests
         await act.Should().ThrowAsync<RunNotFoundException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_clones_detail_applies_steps_and_does_not_mutate_source_aggregate()
     {
         ArchitectureRunDetail source = new()
@@ -112,7 +112,7 @@ public sealed class ShadowExecutionServiceTests
         captured.PreloadedRunDetail.Manifest.Metadata.ChangeDescription.Should().Contain("original");
     }
 
-    [Fact]
+    [SkippableFact]
     public Task ArchitectureRunDetailIsolatingCloner_produces_detached_copy()
     {
         try

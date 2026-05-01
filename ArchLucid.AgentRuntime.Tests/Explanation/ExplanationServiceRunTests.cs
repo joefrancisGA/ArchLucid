@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Explanation;
+﻿using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -41,7 +41,7 @@ public sealed class ExplanationServiceRunTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExplainRunAsync_valid_structured_json_populates_structured_and_raw_text()
     {
         const string llmJson =
@@ -85,7 +85,7 @@ public sealed class ExplanationServiceRunTests
         result.Summary.Should().Be("Paragraph one.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExplainRunAsync_plain_text_wraps_structured_and_keeps_raw_text()
     {
         const string prose = "We chose the hub pattern because latency budgets require it.";
@@ -108,7 +108,7 @@ public sealed class ExplanationServiceRunTests
         result.DetailedNarrative.Should().Be(prose);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExplainRunAsync_legacy_summary_and_narrative_json_maps_to_structured_reasoning()
     {
         const string legacy = """{"summary":"Short","detailedNarrative":"Longer body here."}""";
@@ -132,7 +132,7 @@ public sealed class ExplanationServiceRunTests
         result.DetailedNarrative.Should().Be("Longer body here.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExplainRunAsync_schemaVersion1_missing_reasoning_uses_deterministic_fallback()
     {
         const string invalidV1 = """{"schemaVersion":1}""";

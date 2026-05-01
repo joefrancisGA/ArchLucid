@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests.ValueReports;
 
 public sealed class DocxValueReportRendererTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RenderAsync_includes_key_roi_sections_in_document_xml()
     {
         DocxValueReportRenderer sut = new(NullLogger<DocxValueReportRenderer>.Instance);
@@ -63,7 +63,7 @@ public sealed class DocxValueReportRendererTests
         using StreamReader reader = new(await entry.OpenAsync(), Encoding.UTF8);
         string xml = await reader.ReadToEndAsync();
 
-        xml.Should().Contain("ArchLucid — tenant value report");
+        xml.Should().Contain("ArchLucid â€” tenant value report");
         xml.Should().Contain("ROI vs ROI_MODEL.md baseline");
         xml.Should().Contain("Governance-class audit events");
         xml.Should().Contain("Drift / alert-class audit events");

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Audit;
+﻿using ArchLucid.Application.Audit;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Audit;
 [Trait("Category", "Unit")]
 public sealed class RunPipelineAuditTimelineServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetTimelineAsync_returns_null_when_run_missing()
     {
         Guid runId = Guid.NewGuid();
@@ -42,7 +42,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTimelineAsync_orders_oldest_first()
     {
         Guid runId = Guid.NewGuid();

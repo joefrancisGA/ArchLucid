@@ -1,4 +1,4 @@
-using ArchLucid.Application.Architecture;
+﻿using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.Architecture;
 
 public sealed class AuthorityCommitTraceabilityRulesTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetLinkageGaps_returns_empty_when_trace_ids_align_with_RuleAudit()
     {
         Guid decisionTraceId = Guid.Parse("AABBCCDDEEFF00112233445566778899");
@@ -39,7 +39,7 @@ public sealed class AuthorityCommitTraceabilityRulesTests
         gaps.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetLinkageGaps_reports_mismatch()
     {
         GoldenManifest m = new()

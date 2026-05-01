@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evolution;
@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Evolution;
 [Trait("Category", "Unit")]
 public sealed class SimulationEvaluationServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_twice_same_inputs_yields_identical_scores()
     {
         SimulationEvaluationService sut = CreateSut();
@@ -30,7 +30,7 @@ public sealed class SimulationEvaluationServiceTests
         a.ExplanationSummary.Should().Be(b.ExplanationSummary);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_supplied_determinism_non_deterministic_sets_score_zero_and_signal()
     {
         Mock<IManifestDiffService> manifestDiff = new();
@@ -70,7 +70,7 @@ public sealed class SimulationEvaluationServiceTests
         result.Score.RegressionSignals.Should().Contain("Determinism.ReplayDrift");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_computes_manifest_diff_when_not_preloaded()
     {
         GoldenManifest left = MinimalManifest("r1", "v1");

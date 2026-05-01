@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ public sealed class ScimBearerSecurityIntegrationTests : IClassFixture<JwtLocalS
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Scim_discovery_requires_authentication()
     {
         HttpClient client = _factory.CreateClient();

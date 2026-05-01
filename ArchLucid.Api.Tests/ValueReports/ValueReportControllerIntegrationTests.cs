@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -68,7 +68,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_generate_returns_docx_when_operator_jwt_and_standard_tier()
     {
         string token = MintJwt(

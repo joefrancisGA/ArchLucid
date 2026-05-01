@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Api.Tests;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests.Planning;
 
 /// <summary>
 ///     Covers authenticated Planning (<see cref="ArchLucid.Api.Controllers.Planning.GraphController" />) and Governance
-///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) commercial-tier gated routes —
+///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) commercial-tier gated routes â€”
 ///     complements <see cref="CommercialTenantTierFilterTests" /> against the default DevelopmentBypass scoped host.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -24,7 +24,7 @@ public sealed class PlanningGovernanceCommercialSmokeIntegrationTests : IClassFi
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_graph_run_returns_404_when_no_snapshot_exists()
     {
         HttpClient client = _factory.CreateClient();
@@ -38,7 +38,7 @@ public sealed class PlanningGovernanceCommercialSmokeIntegrationTests : IClassFi
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_governance_dashboard_returns_200_when_tenant_meets_standard_tier()
     {
         HttpClient client = _factory.CreateClient();

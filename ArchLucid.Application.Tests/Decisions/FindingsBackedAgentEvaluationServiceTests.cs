@@ -1,4 +1,4 @@
-using ArchLucid.Application.Decisions;
+﻿using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -36,7 +36,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
 
     private readonly FindingsBackedAgentEvaluationService _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_when_no_findings_returns_empty()
     {
         IReadOnlyList<AgentEvaluation> evaluations = await _sut.EvaluateAsync(
@@ -50,7 +50,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluations.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_critical_compliance_opposes_topology_task()
     {
         List<AgentTask> tasks =
@@ -96,7 +96,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluation.Rationale.Should().Contain("private");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_error_compliance_opposes_with_weaker_delta()
     {
         List<AgentTask> tasks =
@@ -137,7 +137,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         opposition.TargetAgentTaskId.Should().Be("T-topo");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_critical_critic_opposes_topology_task()
     {
         List<AgentTask> tasks =
@@ -171,7 +171,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluations.Should().ContainSingle().Subject.TargetAgentTaskId.Should().Be("T-topo");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_warning_from_cost_yields_caution()
     {
         List<AgentTask> tasks =
@@ -205,7 +205,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         caution.TargetAgentTaskId.Should().Be("T-topo");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_info_from_topology_yields_support()
     {
         List<AgentTask> tasks =
@@ -237,7 +237,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         support.ConfidenceDelta.Should().Be(0.05);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_info_from_compliance_is_skipped()
     {
         List<AgentTask> tasks =
@@ -268,7 +268,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluations.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_without_topology_task_targets_source_task()
     {
         List<AgentTask> tasks =
@@ -301,7 +301,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         evaluations.Should().ContainSingle().Subject.TargetAgentTaskId.Should().Be("T-comp");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_run_id_invalid()
     {
         Func<Task> act = () => _sut.EvaluateAsync(" ", SampleRequest, SampleEvidence, [], [], CancellationToken.None);

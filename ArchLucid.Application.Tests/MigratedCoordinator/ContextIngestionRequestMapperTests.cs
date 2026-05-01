@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Mapping;
+﻿using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -8,12 +8,12 @@ using FluentAssertions;
 namespace ArchLucid.Application.Tests.MigratedCoordinator;
 
 /// <summary>
-/// <see cref="ContextIngestionRequestMapper.FromArchitectureRequest"/> — the bridge from coordinator/API request to ingestion pipeline input.
+/// <see cref="ContextIngestionRequestMapper.FromArchitectureRequest"/> â€” the bridge from coordinator/API request to ingestion pipeline input.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ContextIngestionRequestMapperTests
 {
-    [Fact]
+    [SkippableFact]
     public void FromArchitectureRequest_maps_system_name_to_project_id_and_collections()
     {
         ArchitectureRequest request = new()
@@ -61,7 +61,7 @@ public sealed class ContextIngestionRequestMapperTests
         mapped.InfrastructureDeclarations.Should().ContainSingle(d => d.Name == "main.tf" && d.Format == "terraform");
     }
 
-    [Fact]
+    [SkippableFact]
     public void FromArchitectureRequest_throws_when_request_null()
     {
         Action act = () => ContextIngestionRequestMapper.FromArchitectureRequest(null!);

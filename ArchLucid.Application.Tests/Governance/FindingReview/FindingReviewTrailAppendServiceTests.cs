@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance.FindingReview;
+﻿using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using PersistenceFindingReviewEventRecord = ArchLucid.Persistence.Models.FindingReviewEventRecord;
@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Tests.Governance.FindingReview;
 /// <seealso cref="FindingReviewTrailAppendService" />
 public sealed class FindingReviewTrailAppendServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task AppendAsync_calls_trail_then_audit_for_approve_action()
     {
         Mock<IFindingReviewTrailRepository> trails = new();
@@ -47,7 +47,7 @@ public sealed class FindingReviewTrailAppendServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AppendAsync_throws_when_action_unknown()
     {
         FindingReviewTrailAppendService sut = new(Mock.Of<IFindingReviewTrailRepository>(), Mock.Of<IAuditService>());

@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Explanation;
+﻿using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.AgentRuntime.Tests.Explanation;
 [Trait("Category", "Unit")]
 public sealed class DeterministicExplanationServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public void ExtractMajorChanges_maps_decision_deltas()
     {
         DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
@@ -30,7 +30,7 @@ public sealed class DeterministicExplanationServiceTests
             && s.Contains("added", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildComparisonExplanation_uses_heuristic_when_json_empty_object()
     {
         DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);

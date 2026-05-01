@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs;
+﻿using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 
@@ -34,7 +34,7 @@ public sealed class ManifestVersionIncrementPropertyTests
         lower.Should().Be(upper);
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildManifestVersionForCommit_uses_v1_runId_when_no_current_version()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -52,7 +52,7 @@ public sealed class ManifestVersionIncrementPropertyTests
         built.Should().Be("v1-" + runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public void IncrementManifestVersion_throws_for_non_vN_strings()
     {
         Action act1 = () => ManifestVersionIncrementRules.IncrementManifestVersion("1.0.0");
@@ -66,14 +66,14 @@ public sealed class ManifestVersionIncrementPropertyTests
         act4.Should().Throw<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IncrementManifestVersion_empty_yields_v1()
     {
         ManifestVersionIncrementRules.IncrementManifestVersion(string.Empty).Should().Be("v1");
         ManifestVersionIncrementRules.IncrementManifestVersion("   ").Should().Be("v1");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildManifestVersionForCommit_increments_when_current_version_set()
     {
         string runId = Guid.NewGuid().ToString("N");

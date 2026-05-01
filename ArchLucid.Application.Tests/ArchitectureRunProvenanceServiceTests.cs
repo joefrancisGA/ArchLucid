@@ -1,4 +1,4 @@
-using ArchLucid.Application.Architecture;
+﻿using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests;
 
 public sealed class ArchitectureRunProvenanceServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetProvenanceAsync_WhenRunMissing_ReturnsNull()
     {
         Mock<IRunDetailQueryService> detail = new();
@@ -33,7 +33,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
         graph.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetProvenanceAsync_BuildsRequestRunTaskResultAndTimeline()
     {
         const string runId = "run1";

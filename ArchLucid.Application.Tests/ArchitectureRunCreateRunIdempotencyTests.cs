@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -38,7 +38,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
         ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRunAsync_when_idempotency_replay_matches_skips_coordinator_and_marks_replay()
     {
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
@@ -128,7 +128,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRunAsync_when_fingerprint_mismatch_throws_ConflictException_without_coordination()
     {
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();

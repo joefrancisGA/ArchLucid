@@ -1,4 +1,4 @@
-using ArchLucid.Application.ExecDigest;
+﻿using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Governance;
@@ -17,7 +17,7 @@ namespace ArchLucid.Application.Tests.ExecDigest;
 [Trait("Category", "Unit")]
 public sealed class ExecDigestComposerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ComposeAsync_includes_compliance_table_when_service_returns_points()
     {
         Mock<IComplianceDriftTrendService> compliance = new();

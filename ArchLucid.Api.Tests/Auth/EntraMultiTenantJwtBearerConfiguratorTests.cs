@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using ArchLucid.Api.Auth.Models;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests.Auth;
 [Trait("Suite", "Core")]
 public sealed class EntraMultiTenantJwtBearerConfiguratorTests
 {
-    [Fact]
+    [SkippableFact]
     public void ApplyIfEnabled_when_multi_tenant_disabled_leaves_default_issuer_validation()
     {
         JwtBearerOptions options = new();
@@ -27,7 +27,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         options.TokenValidationParameters.IssuerValidator.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ApplyIfEnabled_when_multi_tenant_enabled_validates_v2_issuer()
     {
         JwtBearerOptions options = new();
@@ -44,7 +44,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         validated.Should().Be(issuer);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ApplyIfEnabled_when_multi_tenant_enabled_rejects_non_entra_issuer()
     {
         JwtBearerOptions options = new();
@@ -60,7 +60,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         act.Should().Throw<SecurityTokenInvalidIssuerException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ApplyIfEnabled_when_allowlist_configured_accepts_matching_tid()
     {
         Guid tid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -86,7 +86,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         ctx.Result?.Failure.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ApplyIfEnabled_when_allowlist_configured_fails_without_tid()
     {
         Guid tid = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -111,7 +111,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         ctx.Result?.Failure?.Message.Should().NotBeNull().And.ContainEquivalentOf("tid");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ApplyIfEnabled_when_allowlist_configured_fails_for_unlisted_tid()
     {
         Guid allowed = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");

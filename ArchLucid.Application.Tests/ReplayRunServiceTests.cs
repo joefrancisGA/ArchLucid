@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
@@ -77,7 +77,7 @@ public sealed class ReplayRunServiceTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_when_run_missing_throws_RunNotFoundException()
     {
         Mock<IAgentExecutorResolver> resolver = new();
@@ -115,7 +115,7 @@ public sealed class ReplayRunServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_commitReplay_false_does_not_update_run_to_committed()
     {
         string originalRunId = Guid.NewGuid().ToString("N");
@@ -245,7 +245,7 @@ public sealed class ReplayRunServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_commitReplay_true_persists_manifest_and_saves_authority_run()
     {
         string originalRunId = Guid.NewGuid().ToString("N");

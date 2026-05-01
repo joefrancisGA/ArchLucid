@@ -1,4 +1,4 @@
-using ArchLucid.Application.Notifications.Email;
+﻿using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Notifications.Email;
 [Trait("Category", "Unit")]
 public sealed class TrialScheduledLifecycleEmailScannerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task PublishDueAsync_logic_app_owner_skips_without_querying_tenants()
     {
         Mock<ITenantRepository> tenants = new();

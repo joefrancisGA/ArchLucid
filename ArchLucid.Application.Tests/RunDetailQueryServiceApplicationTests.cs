@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Architecture;
+﻿using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -36,7 +36,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ProjectId = Guid.NewGuid()
         };
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_when_manifest_version_set_but_manifest_missing_sets_HasBrokenManifestReference()
     {
         ScopeContext scope = NewScope();
@@ -91,7 +91,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_when_manifest_resolved_and_authority_trace_present_loads_trace()
     {
         ScopeContext scope = NewScope();

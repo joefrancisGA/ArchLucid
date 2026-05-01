@@ -1,4 +1,4 @@
-using ArchLucid.Application.Notifications.Email;
+﻿using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Contracts.Marketing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
@@ -17,7 +17,7 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
     private static MarketingPricingQuoteRequestInsertResult SampleInsert =>
         new(Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"), new DateTime(2026, 4, 27, 12, 0, 0, DateTimeKind.Utc));
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAsync_when_email_provider_is_noop_does_not_send_and_does_not_throw()
     {
         Mock<IEmailProvider> email = new();
@@ -44,7 +44,7 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAsync_when_inbox_empty_does_not_send()
     {
         Mock<IEmailProvider> email = new();
@@ -71,7 +71,7 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAsync_when_smtp_provider_sends_to_configured_inbox()
     {
         Mock<IEmailProvider> email = new();

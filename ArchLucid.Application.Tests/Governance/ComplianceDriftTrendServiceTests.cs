@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -12,7 +12,7 @@ public sealed class ComplianceDriftTrendServiceTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrendAsync_EmptyRange_ProducesZeroBuckets()
     {
         Mock<IPolicyPackChangeLogRepository> repo = new();
@@ -34,7 +34,7 @@ public sealed class ComplianceDriftTrendServiceTests
         points.Should().OnlyContain(p => p.ChangeCount == 0 && p.ChangesByType.Count == 0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrendAsync_GroupsByChangeType()
     {
         Mock<IPolicyPackChangeLogRepository> repo = new();
@@ -94,7 +94,7 @@ public sealed class ComplianceDriftTrendServiceTests
         points[1].ChangesByType["Assigned"].Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTrendAsync_InvalidTenant_Throws()
     {
         ComplianceDriftTrendService sut = new(Mock.Of<IPolicyPackChangeLogRepository>());

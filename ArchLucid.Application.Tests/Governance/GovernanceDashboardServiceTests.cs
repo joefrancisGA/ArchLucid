@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Data.Repositories;
@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceDashboardServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetDashboard_ReturnsPendingAndDecisionsAndChanges()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -62,7 +62,7 @@ public sealed class GovernanceDashboardServiceTests
         summary.PendingCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDashboard_EmptyState_ReturnsEmptyLists()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");

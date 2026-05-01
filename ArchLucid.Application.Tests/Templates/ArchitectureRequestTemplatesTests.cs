@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Templates;
@@ -25,7 +25,7 @@ public sealed class ArchitectureRequestTemplatesTests
         ArchitectureRequestTemplates.RegulatedHealthcareSystem
     };
 
-    [Fact]
+    [SkippableFact]
     public void Summaries_has_five_unique_template_ids_aligned_with_catalog()
     {
         ArchitectureRequestTemplates.Summaries.Should().HaveCount(5);
@@ -112,7 +112,7 @@ public sealed class ArchitectureRequestTemplatesTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void Summary_titles_are_non_empty_and_match_template_intent()
     {
         foreach (ArchitectureRequestTemplateSummary s in ArchitectureRequestTemplates.Summaries)

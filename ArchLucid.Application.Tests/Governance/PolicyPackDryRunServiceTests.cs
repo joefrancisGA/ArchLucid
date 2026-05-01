@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text.Json;
 
 using ArchLucid.Application.Governance;
@@ -23,7 +23,7 @@ public sealed class PolicyPackDryRunServiceTests
 {
     private static readonly Guid PolicyPackId = Guid.Parse("11112222-3333-4444-5555-666677778888");
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_DefaultsPageSizeTo20WhenNotProvided()
     {
         PolicyPackDryRunService sut = BuildSutWithRunCount(50);
@@ -41,7 +41,7 @@ public sealed class PolicyPackDryRunServiceTests
         response.Items.Should().HaveCount(20);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_ClampsPageSizeToServerMaximum()
     {
         PolicyPackDryRunService sut = BuildSutWithRunCount(120);
@@ -59,7 +59,7 @@ public sealed class PolicyPackDryRunServiceTests
         response.Items.Should().HaveCount(100);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_ClampsPageBelowOneToFirstPage()
     {
         PolicyPackDryRunService sut = BuildSutWithRunCount(5);
@@ -76,7 +76,7 @@ public sealed class PolicyPackDryRunServiceTests
         response.Items.Should().HaveCount(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_ProposedThresholdsRunThroughRedactor()
     {
         StubRedactor redactor = new();
@@ -104,7 +104,7 @@ public sealed class PolicyPackDryRunServiceTests
         response.ProposedThresholdsRedactedJson.Should().NotContain("111-22-3333");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_TalliesWouldBlockUsingProposedThresholds()
     {
         FakeRunDetailQueryService runs = new();
@@ -144,7 +144,7 @@ public sealed class PolicyPackDryRunServiceTests
             .Which.WouldBreach.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_MarksUnknownRunIdsAsMissingAndExcludesFromTallies()
     {
         FakeRunDetailQueryService runs = new();
@@ -172,7 +172,7 @@ public sealed class PolicyPackDryRunServiceTests
         response.Items.Should().Contain(i => i.RunId == "ghost-run" && i.RunMissing);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_PersistsAuditRowWithRedactedPayload()
     {
         StubAuditService audit = new();

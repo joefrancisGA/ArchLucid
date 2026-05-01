@@ -189,7 +189,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
 
     private static DateTimeOffset FirstInstantOfNextUtcMonth(int year, int month)
     {
-        DateTime firstNext = new(year, month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(1);
+        DateTime firstNext = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(1);
 
         return new DateTimeOffset(firstNext, TimeSpan.Zero);
     }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.GoldenCorpus;
 
@@ -9,21 +9,21 @@ namespace ArchLucid.Application.Tests.GoldenCohort;
 /// </summary>
 public sealed class GoldenCohortRealLlmGateTests
 {
-    [Fact]
+    [SkippableFact]
     public void Cohort_contract_fixture_still_present_for_gate_job()
     {
         string cohortPath = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
-        Assert.True(File.Exists(cohortPath), $"Missing {cohortPath} — gate job assumes cohort contract tests passed.");
+        Assert.True(File.Exists(cohortPath), $"Missing {cohortPath} â€” gate job assumes cohort contract tests passed.");
 
         GoldenCohortDocument document = GoldenCohortDocument.Load(cohortPath);
         Assert.Equal(20, document.Items.Count);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Usage_mtd_ledger_template_is_valid_json()
     {
         string ledgerPath = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "usage-mtd.json");
-        Assert.True(File.Exists(ledgerPath), $"Missing {ledgerPath} — copy from tests/golden-cohort via csproj link.");
+        Assert.True(File.Exists(ledgerPath), $"Missing {ledgerPath} â€” copy from tests/golden-cohort via csproj link.");
 
         using JsonDocument doc = JsonDocument.Parse(File.ReadAllText(ledgerPath));
         Assert.Equal(1, doc.RootElement.GetProperty("schemaVersion").GetInt32());

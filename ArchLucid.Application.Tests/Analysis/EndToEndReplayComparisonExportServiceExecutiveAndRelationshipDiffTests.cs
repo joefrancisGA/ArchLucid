@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 
 using FluentAssertions;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Analysis;
 [Trait("Suite", "Core")]
 public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests
 {
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_executive_profile_emits_key_counts_not_full_run_metadata_section()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -42,7 +42,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         md.Should().Contain("### Interpretation Notes");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_null_report_throws_ArgumentNullException()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -53,7 +53,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         act.Should().Throw<ArgumentNullException>().WithParameterName("report");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateHtml_executive_profile_includes_key_counts_and_omits_agent_result_headings()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -75,7 +75,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         html.Should().NotContain("Agent Result Diff");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_detailed_includes_relationship_subsections_when_populated()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
@@ -108,7 +108,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         md.Should().Contain("s2 -> t2 (reads)");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GeneratePdfAsync_throws_when_cancellation_requested_before_render()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();

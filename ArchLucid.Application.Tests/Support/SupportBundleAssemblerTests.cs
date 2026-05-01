@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.Application.Support;
@@ -23,7 +23,7 @@ public sealed class SupportBundleAssemblerTests
         return mock.Object;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_NullRequest_Throws()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
@@ -33,7 +33,7 @@ public sealed class SupportBundleAssemblerTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_ContainsCanonicalEntryNames()
     {
         SupportBundleAssembler assembler = new(new FakeTimeProvider(new DateTimeOffset(2026, 4, 24, 10, 15, 30, TimeSpan.Zero)), StubOptions());
@@ -49,7 +49,7 @@ public sealed class SupportBundleAssemblerTests
         entryNames.Should().Contain(SupportBundleLayout.NextStepsFileName);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_FileNameUsesGeneratedTimestamp()
     {
         FakeTimeProvider time = new(new DateTimeOffset(2026, 4, 24, 10, 15, 30, TimeSpan.Zero));
@@ -63,7 +63,7 @@ public sealed class SupportBundleAssemblerTests
         artifact.RetentionDiscardAfterUtc.Should().Be(time.GetUtcNow().AddDays(30));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_ReadmeRedactsEmailRequester_and_keeps_tenant_display()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
@@ -77,7 +77,7 @@ public sealed class SupportBundleAssemblerTests
         readme.Should().Contain("Acme Inc");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_NullRequesterAndTenant_FallBackToPlaceholders()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
@@ -90,7 +90,7 @@ public sealed class SupportBundleAssemblerTests
         readme.Should().Contain("(no tenant context)");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_ManifestDeclaresServerSourceAndBundleFormatVersion()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
@@ -103,7 +103,7 @@ public sealed class SupportBundleAssemblerTests
         manifest.Should().Contain($"\"bundleFormatVersion\": \"{SupportBundleAssembler.BundleFormatVersion}\"");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_ReferencesJson_lists_pilot_rescue_playbook()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
@@ -115,7 +115,7 @@ public sealed class SupportBundleAssemblerTests
         references.Should().Contain(SupportBundleDocLinks.PilotRescuePlaybookRelativePath);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssembleAsync_CancellationTokenAlreadyCancelled_ThrowsOperationCanceled()
     {
         SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());

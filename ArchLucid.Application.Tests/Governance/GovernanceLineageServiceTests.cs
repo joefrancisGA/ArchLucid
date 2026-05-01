@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -19,7 +19,7 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceLineageServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestLineageAsync_When_missing_Returns_null()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
@@ -39,7 +39,7 @@ public sealed class GovernanceLineageServiceTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestLineageAsync_When_run_id_is_not_32_char_hex_does_not_query_authority()
     {
         Mock<IGovernanceApprovalRequestRepository> approvals = new();
@@ -72,7 +72,7 @@ public sealed class GovernanceLineageServiceTests
         result.TopFindings.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestLineageAsync_Orders_equal_severity_by_title_then_maps_top_findings()
     {
         Guid runGuid = Guid.NewGuid();

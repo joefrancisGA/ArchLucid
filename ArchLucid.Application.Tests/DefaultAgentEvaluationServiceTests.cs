@@ -1,4 +1,4 @@
-using ArchLucid.Application.Decisions;
+﻿using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -19,7 +19,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class DefaultAgentEvaluationServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_returns_empty_list()
     {
         Mock<ILogger<DefaultAgentEvaluationService>> logger = new();
@@ -50,7 +50,7 @@ public sealed class DefaultAgentEvaluationServiceTests
         evaluations.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_run_id_invalid()
     {
         DefaultAgentEvaluationService sut = new(new Mock<ILogger<DefaultAgentEvaluationService>>().Object);
@@ -74,7 +74,7 @@ public sealed class DefaultAgentEvaluationServiceTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_cancelled()
     {
         DefaultAgentEvaluationService sut = new(new Mock<ILogger<DefaultAgentEvaluationService>>().Object);
@@ -100,7 +100,7 @@ public sealed class DefaultAgentEvaluationServiceTests
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_request_null()
     {
         DefaultAgentEvaluationService sut = new(new Mock<ILogger<DefaultAgentEvaluationService>>().Object);
@@ -115,7 +115,7 @@ public sealed class DefaultAgentEvaluationServiceTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_throws_when_evidence_null()
     {
         DefaultAgentEvaluationService sut = new(new Mock<ILogger<DefaultAgentEvaluationService>>().Object);

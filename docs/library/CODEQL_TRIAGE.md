@@ -74,6 +74,16 @@ Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) 
 
 If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**), route **`LogWarning`** + user string through **`LogWarningWithSanitizedUserArg`** (see § boxing above), or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
 
+### Coordinator lease names and `cs/exposure-of-sensitive-information`
+
+**`cs/exposure-of-sensitive-information`** may treat well-known **coordinator lease strings** (for example **`HostElectionLeaseNames.TrialLifecycleEmailPolling`**) as private when they flow into **`ILogger`**, even though they are **stable operational keys** (not passwords, tokens, or PII).
+
+**Mitigation:** log only **`LogSanitizer.Sanitize(leaseName)`** and **`LogSanitizer.Sanitize(instanceId)`** (CWE-117 scrub). The built-in query does not treat **`LogSanitizer`** as stripping sensitivity. Use **`// codeql[cs/exposure-of-sensitive-information]`** on the sink (same line as the closing **`);`**, per **`cs/log-forging`** practice) or dismiss in code scanning with: *operational lease identifiers, sanitized for log injection; not credentials.*
+
+| Location | Notes |
+| -------- | ----- |
+| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Lease / instance log sinks carry suppressions; constants live in **`HostElectionLeaseNames`**. |
+
 ---
 
 ## Related documents

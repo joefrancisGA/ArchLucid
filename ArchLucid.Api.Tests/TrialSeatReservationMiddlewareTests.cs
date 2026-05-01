@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
@@ -78,7 +78,7 @@ public sealed class TrialSeatReservationMiddlewareTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_anonymous_user_calls_next_without_seat_check()
     {
         Mock<ITenantRepository> tenants = new();
@@ -100,7 +100,7 @@ public sealed class TrialSeatReservationMiddlewareTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_authenticated_without_principal_key_calls_next_without_seat_check()
     {
         Mock<ITenantRepository> tenants = new();
@@ -125,7 +125,7 @@ public sealed class TrialSeatReservationMiddlewareTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_reserves_seat_using_sub_when_present()
     {
         Mock<ITenantRepository> tenants = new();
@@ -155,7 +155,7 @@ public sealed class TrialSeatReservationMiddlewareTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_reserves_seat_using_object_identifier_when_sub_absent()
     {
         Mock<ITenantRepository> tenants = new();
@@ -187,7 +187,7 @@ public sealed class TrialSeatReservationMiddlewareTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_trial_limit_exceeded_writes_402_and_skips_next()
     {
         Mock<ITenantRepository> tenants = new();

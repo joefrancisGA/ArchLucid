@@ -1,4 +1,4 @@
-using ArchLucid.Core.GoldenCorpus;
+﻿using ArchLucid.Core.GoldenCorpus;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.GoldenCohort;
 [Trait("Suite", "Core")]
 public sealed class GoldenCohortDriftMarkdownTests
 {
-    [Fact]
+    [SkippableFact]
     public void BuildReport_includes_table_and_summary()
     {
         GoldenCohortDriftRow[] rows =

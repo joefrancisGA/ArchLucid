@@ -1,4 +1,4 @@
-using System.Diagnostics.Metrics;
+﻿using System.Diagnostics.Metrics;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -24,7 +24,7 @@ namespace ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder;
 [Trait("Suite", "Core")]
 public sealed class AgentExecutionTraceRecorderReproTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_persists_prompt_repro_fields()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -53,7 +53,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.PromptReleaseLabel.Should().Be("pilot-a");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_model_metadata_null_uses_unspecified_sentinels()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -76,7 +76,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.ModelVersion.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedModelVersion);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_persists_token_counts_and_estimated_cost_when_enabled()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -110,7 +110,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.EstimatedCostUsd.Should().Be(2m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_sets_blob_keys_when_store_succeeds()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -135,7 +135,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.BlobUploadFailed.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_simulator_execution_skips_blob_writes()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -166,7 +166,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullResponseBlobKey.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_blob_writes_fail_persists_inline_text_for_missing_blobs()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -200,7 +200,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullResponseInline.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_blob_writes_fail_sets_blob_upload_failed_and_audits()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -238,7 +238,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         spyAudit.LastEvent.DataJson.Should().Contain("upload_failed");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_retries_blob_write_three_times_before_abandoning_failed_part()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -289,7 +289,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             Times.Once());
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task
         RecordAsync_when_each_blob_exhausts_retries_increments_archlucid_agent_trace_blob_upload_failures_total()
     {
@@ -329,7 +329,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_all_blobs_fail_increments_prompt_inline_fallback_total_per_blob_type()
     {
         _ = ArchLucidInstrumentation.AgentTracePromptInlineFallbacksTotal;
@@ -368,7 +368,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_when_inline_sql_patch_throws_sets_inline_fallback_failed_and_audits()
     {
         InlinePatchThrowsRepository repo = new();

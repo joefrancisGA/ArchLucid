@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diffs;
+﻿using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ManifestDiffServiceApplicationTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compare_detects_added_and_removed_relationships()
     {
         GoldenManifest left = BaseManifest("v1");
@@ -42,7 +42,7 @@ public sealed class ManifestDiffServiceApplicationTests
         diff.RemovedRelationships.Should().ContainSingle(r => r.SourceId == "a" && r.TargetId == "b");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compare_emits_warnings_when_system_name_or_run_id_differ()
     {
         GoldenManifest left = BaseManifest("v1");

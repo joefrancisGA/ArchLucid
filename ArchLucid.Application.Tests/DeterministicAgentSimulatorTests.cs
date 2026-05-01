@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+﻿using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Application.Runs.Coordination;
@@ -25,7 +25,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Category", "Slow")]
 public sealed class DeterministicAgentSimulatorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Simulator_ShouldProduceDeterministicStarterResultsAsync()
     {
         ArchitectureRequest request = new()
@@ -87,7 +87,7 @@ public sealed class DeterministicAgentSimulatorTests
         ]);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Simulator_AndDecisionEngine_ShouldProduceManifestAsync()
     {
         ArchitectureRequest request = new()

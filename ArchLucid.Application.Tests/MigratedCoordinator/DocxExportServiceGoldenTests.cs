@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diagrams;
+﻿using ArchLucid.Application.Diagrams;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -23,7 +23,7 @@ namespace ArchLucid.Application.Tests.MigratedCoordinator;
 [Trait("Category", "Slow")]
 public sealed class DocxExportServiceGoldenTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExportAsync_produces_valid_docx_with_title_and_stable_summary_anchor()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -48,7 +48,7 @@ public sealed class DocxExportServiceGoldenTests
             Metadata = new ManifestMetadata
             {
                 Name = "Golden manifest",
-                Summary = "GOLDEN_DOCX_SUMMARY_ANCHOR — deterministic advisory blurb for snapshot tests.",
+                Summary = "GOLDEN_DOCX_SUMMARY_ANCHOR â€” deterministic advisory blurb for snapshot tests.",
                 Version = "1.0.0",
                 Status = "Resolved"
             }
@@ -100,7 +100,7 @@ public sealed class DocxExportServiceGoldenTests
         xml.Should().Contain(manifestId.ToString());
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAsync_embeds_mermaid_source_when_diagram_enabled_and_mermaid_artifact_present()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -180,7 +180,7 @@ public sealed class DocxExportServiceGoldenTests
         xml.Should().Contain("flowchart TD");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAsync_embeds_drawing_blip_when_mermaid_renderer_returns_png_bytes()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");

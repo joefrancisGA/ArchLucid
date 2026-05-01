@@ -1,4 +1,4 @@
-using ArchLucid.Application.Determinism;
+﻿using ArchLucid.Application.Determinism;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.Determinism;
 [Trait("Category", "Unit")]
 public sealed class DeterminismCheckRequestExecutionModeDefaultTests
 {
-    [Fact]
+    [SkippableFact]
     public void ExecutionMode_defaults_to_ExecutionModes_Current()
     {
         DeterminismCheckRequest sut = new();

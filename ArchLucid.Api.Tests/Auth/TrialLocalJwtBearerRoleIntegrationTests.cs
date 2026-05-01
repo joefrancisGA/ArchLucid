@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Tests.Auth;
 [Trait("Category", "Integration")]
 public sealed class TrialLocalJwtBearerRoleIntegrationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Reader_jwt_allows_read_authority_jobs_route()
     {
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();
@@ -36,7 +36,7 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Reader_jwt_forbidden_on_execute_authority_create_run()
     {
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();
@@ -65,7 +65,7 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Admin_jwt_passes_execute_authority_role_gate_for_create_run()
     {
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();

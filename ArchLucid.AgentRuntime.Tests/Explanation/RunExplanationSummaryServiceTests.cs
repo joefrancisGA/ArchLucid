@@ -1,4 +1,4 @@
-using ArchLucid.Application.Explanation;
+﻿using ArchLucid.Application.Explanation;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
@@ -29,14 +29,14 @@ public sealed class RunExplanationSummaryServiceTests
         return new ManifestIssue { IssueType = "Test", Title = "t", Description = "d", Severity = severity };
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildThemeSummaries_groups_decision_key_drivers_by_category_and_collects_other_lines()
     {
         List<string> drivers =
         [
-            "Cost: Pick SKU → A",
-            "Cost: Pick region → East",
-            "Security: TLS → 1.3",
+            "Cost: Pick SKU â†’ A",
+            "Cost: Pick region â†’ East",
+            "Security: TLS â†’ 1.3",
             "3 topology resource(s) recorded."
         ];
 
@@ -47,20 +47,20 @@ public sealed class RunExplanationSummaryServiceTests
         themes.Should().Contain(t => t.Contains("Additional signals:", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseDecisionDriverLine_recognizes_explanation_service_key_driver_shape()
     {
         bool ok = RunExplanationSummaryService.TryParseDecisionDriverLine(
-            "Reliability: Use multi-AZ → enabled",
+            "Reliability: Use multi-AZ â†’ enabled",
             out string category,
             out string rest);
 
         ok.Should().BeTrue();
         category.Should().Be("Reliability");
-        rest.Should().Be("Use multi-AZ → enabled");
+        rest.Should().Be("Use multi-AZ â†’ enabled");
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeriveRiskPosture_no_unresolved_issues_is_Low()
     {
         ManifestDocument manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
@@ -68,7 +68,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Low");
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeriveRiskPosture_critical_issue_is_Critical()
     {
         ManifestDocument manifest = new()
@@ -79,7 +79,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Critical");
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeriveRiskPosture_medium_issue_is_Medium()
     {
         ManifestDocument manifest = new()
@@ -90,7 +90,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Medium");
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeriveRiskPosture_mixed_severities_picks_highest()
     {
         ManifestDocument manifest = new()
@@ -104,7 +104,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Critical");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_returns_null_when_run_detail_missing()
     {
         Guid runId = Guid.NewGuid();
@@ -139,7 +139,7 @@ public sealed class RunExplanationSummaryServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_surfaces_explanation_confidence_and_counts()
     {
         Guid runId = Guid.NewGuid();
@@ -169,7 +169,7 @@ public sealed class RunExplanationSummaryServiceTests
         ExplanationResult explained = new()
         {
             Summary = "Exec summary.",
-            KeyDrivers = ["Cost: SKU → A"],
+            KeyDrivers = ["Cost: SKU â†’ A"],
             Structured = new StructuredExplanation { Reasoning = "Body", Confidence = 0.82m },
             Confidence = 0.82m
         };
@@ -255,7 +255,7 @@ public sealed class RunExplanationSummaryServiceTests
         summary.ThemeSummaries.Should().Contain(t => t.StartsWith("Cost:", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummaryAsync_swaps_to_deterministic_when_faithfulness_support_ratio_is_low()
     {
         Guid runId = Guid.NewGuid();
@@ -288,14 +288,14 @@ public sealed class RunExplanationSummaryServiceTests
         {
             Summary = "Hallucinated summary not grounded in findings.",
             DetailedNarrative = "Narrative without overlap.",
-            KeyDrivers = ["Cost: SKU → A"]
+            KeyDrivers = ["Cost: SKU â†’ A"]
         };
 
         ExplanationResult deterministicLayer = new()
         {
             Summary = "Deterministic headline",
             DetailedNarrative = "Deterministic body from manifest signals.",
-            KeyDrivers = ["Cost: SKU → A"],
+            KeyDrivers = ["Cost: SKU â†’ A"],
             Structured = new StructuredExplanation
             {
                 SchemaVersion = 1, Reasoning = "Deterministic body from manifest signals."
@@ -334,7 +334,7 @@ public sealed class RunExplanationSummaryServiceTests
         Mock<IDeterministicExplanationService> deterministic = new();
         deterministic
             .Setup(d => d.ExtractRunKeyDrivers(manifest, null))
-            .Returns(["Cost: SKU → A"]);
+            .Returns(["Cost: SKU â†’ A"]);
         deterministic
             .Setup(d => d.ExtractRiskImplications(manifest))
             .Returns(["No unresolved issues recorded."]);

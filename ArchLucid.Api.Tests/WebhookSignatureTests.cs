@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Services.Delivery;
+﻿using ArchLucid.Host.Core.Services.Delivery;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class WebhookSignatureTests
 {
-    [Fact]
+    [SkippableFact]
     public void ComputeSha256Hex_produces_lowercase_hex_prefixed_by_algorithm()
     {
         byte[] body = "hello"u8.ToArray();
@@ -17,7 +17,7 @@ public sealed class WebhookSignatureTests
         hex.Should().MatchRegex("^[0-9a-f]+$");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeSha256Hex_same_inputs_produce_same_output()
     {
         byte[] body = "{\"a\":1}"u8.ToArray();
@@ -28,7 +28,7 @@ public sealed class WebhookSignatureTests
         a.Should().Be(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeSha256Hex_throws_when_secret_empty()
     {
         Action act = () => WebhookSignature.ComputeSha256Hex("", [1]);
@@ -36,7 +36,7 @@ public sealed class WebhookSignatureTests
         act.Should().Throw<ArgumentException>().WithParameterName("sharedSecret");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeSha256Hex_throws_when_body_null()
     {
         Action act = () => WebhookSignature.ComputeSha256Hex("s", null!);

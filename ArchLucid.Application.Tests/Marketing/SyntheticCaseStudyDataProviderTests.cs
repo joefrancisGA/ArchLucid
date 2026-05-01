@@ -1,4 +1,4 @@
-using ArchLucid.Application.Marketing;
+﻿using ArchLucid.Application.Marketing;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.Marketing;
 [Trait("Suite", "Core")]
 public sealed class SyntheticCaseStudyDataProviderTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetContosoRetailSyntheticMetrics_review_cycle_roi_matches_baseline_delta()
     {
         SyntheticCaseStudyDataProvider sut = new();
@@ -25,7 +25,7 @@ public sealed class SyntheticCaseStudyDataProviderTests
         roiPct.Should().BeApproximately(70m, 0.001m);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetContosoRetailSyntheticMetrics_iteration_and_evidence_deltas_are_internally_consistent()
     {
         decimal iterBase = SyntheticCaseStudyDataProvider.BaselineReviewIterations;

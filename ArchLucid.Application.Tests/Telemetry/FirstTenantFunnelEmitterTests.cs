@@ -1,4 +1,4 @@
-using System.Diagnostics.Metrics;
+﻿using System.Diagnostics.Metrics;
 
 using ArchLucid.Application.Telemetry;
 using ArchLucid.Core.Configuration;
@@ -13,16 +13,16 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Tests.Telemetry;
 
 /// <summary>
-///     Improvement 12 — verifies the privacy-sensitive flag toggles between aggregated emission
+///     Improvement 12 â€” verifies the privacy-sensitive flag toggles between aggregated emission
 ///     (no <c>tenant_id</c> tag, no SQL row) and per-tenant emission (tag + row). The default of
 ///     <c>FirstTenantFunnelOptions.PerTenantEmission</c> is <c>false</c> per pending question 40 and
-///     <c>docs/security/PRIVACY_NOTE.md</c> §3.A.
+///     <c>docs/security/PRIVACY_NOTE.md</c> Â§3.A.
 /// </summary>
 public sealed class FirstTenantFunnelEmitterTests
 {
     private const string FunnelCounterName = "archlucid_first_tenant_funnel_events_total";
 
-    [Fact]
+    [SkippableFact]
     public async Task Emit_DefaultFlag_RecordsAggregatedCounterWithoutTenantTagAndDoesNotPersistRow()
     {
         FirstTenantFunnelOptions options = new()
@@ -46,7 +46,7 @@ public sealed class FirstTenantFunnelEmitterTests
         store.Appended.Should().BeEmpty("no per-tenant rows are written when the flag is off");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Emit_FlagOn_RecordsTenantTagAndPersistsRow()
     {
         FirstTenantFunnelOptions options = new()
@@ -75,7 +75,7 @@ public sealed class FirstTenantFunnelEmitterTests
         store.Appended[0].OccurredUtc.Should().Be(now);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Emit_FlagOnButStoreFails_StillRecordsAggregatedCounterAndDoesNotThrow()
     {
         FirstTenantFunnelOptions options = new()
@@ -95,7 +95,7 @@ public sealed class FirstTenantFunnelEmitterTests
         recorder.MeasurementsForEvent(distinctEvent).Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Emit_UnknownEventName_Throws()
     {
         FirstTenantFunnelEmitter emitter = CreateEmitter(new FirstTenantFunnelOptions { PerTenantEmission = false });
@@ -105,7 +105,7 @@ public sealed class FirstTenantFunnelEmitterTests
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Emit_FlagOnAndCancelled_PropagatesCancellation()
     {
         FirstTenantFunnelOptions options = new()
