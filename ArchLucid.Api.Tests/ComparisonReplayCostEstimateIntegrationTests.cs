@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -19,7 +19,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
 {
     private readonly ArchLucidApiFactory _factory = factory;
 
-    [Fact]
+    [SkippableFact]
     public async Task CostEstimate_existing_record_returns_200_with_band()
     {
         string id = "cmp_cost_est_" + Guid.NewGuid().ToString("N");
@@ -53,7 +53,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFac
         body.ReplayMode.Should().Be("artifact");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CostEstimate_unknown_record_returns_404()
     {
         HttpResponseMessage response = await Client.GetAsync(

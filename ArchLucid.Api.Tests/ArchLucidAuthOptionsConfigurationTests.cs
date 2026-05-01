@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.Auth.Models;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ArchLucidAuthOptionsConfigurationTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetSection_binds_name_claim_type_from_configuration()
     {
         Dictionary<string, string?> data = new()
@@ -28,7 +28,7 @@ public sealed class ArchLucidAuthOptionsConfigurationTests
         options.NameClaimType.Should().Be("preferred_username");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetSection_omitted_name_claim_type_defaults_to_claim_types_name()
     {
         Dictionary<string, string?> data = new() { ["ArchLucidAuth:Mode"] = "JwtBearer" };

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security.Claims;
 
 using ArchLucid.Core.Audit;
@@ -35,7 +35,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         ActivitySource.AddActivityListener(listener);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_SetsCorrelationId_FromActivityTag_WhenAvailable()
     {
         Mock<IAuditRepository> repo = new();
@@ -85,7 +85,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured!.CorrelationId.Should().Be("test-corr-123");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_SetsCorrelationId_FromHttpTraceIdentifier_WhenNoActivity()
     {
         Mock<IAuditRepository> repo = new();
@@ -131,7 +131,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured!.CorrelationId.Should().Be("http-trace-456");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_PreservesExplicitCorrelationId_WhenAlreadySet()
     {
         Mock<IAuditRepository> repo = new();
@@ -182,7 +182,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured!.CorrelationId.Should().Be("explicit-789");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_CircuitBreakerPath_SetsCorrelationId_FromActivity()
     {
         Mock<IAuditRepository> repo = new();
@@ -214,7 +214,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured!.CorrelationId.Should().Be("breaker-corr-99");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_fills_Tenant_scope_from_ambient_scope_when_ids_are_empty()
     {
         Mock<IAuditRepository> repo = new();
@@ -261,7 +261,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured.ProjectId.Should().Be(scope.ProjectId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_preserves_explicit_tenant_scope_when_already_non_empty()
     {
         Mock<IAuditRepository> repo = new();

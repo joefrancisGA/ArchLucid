@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ArchLucidConfigurationRulesTests
 {
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndExplicitInMemoryStorage_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -36,7 +36,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenStagingAndExplicitInMemoryStorage_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -56,7 +56,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndInMemoryStorage_skips_production_like_ephemeral_storage_error()
     {
         Dictionary<string, string?> data = new()
@@ -76,7 +76,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("must not use ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndArchLucidStagingAndInMemory_skips_ephemeral_storage_error()
     {
         Dictionary<string, string?> data = new()
@@ -97,7 +97,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("must not use ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndArchLucidProductionAndInMemory_contains_ephemeral_storage_error()
     {
         Dictionary<string, string?> data = new()
@@ -118,7 +118,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndDevelopmentBypass_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -141,7 +141,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("DevelopmentBypass", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndAuthModeUnrecognized_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -166,7 +166,7 @@ public sealed class ArchLucidConfigurationRulesTests
                  && e.Contains("Unrecognized", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndJwtBearerWithoutAuthority_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -190,7 +190,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Authority", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndJwtBearerWithPemMissingIssuer_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -211,7 +211,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("JwtLocalIssuer", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndJwtBearerWithLocalPem_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -238,7 +238,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("JwtSigningPublicKeyPemPath", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyModeButKeysDisabled_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -263,7 +263,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Authentication:ApiKey:Enabled", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyDevelopmentBypassAll_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -289,7 +289,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("Authentication:ApiKey:DevelopmentBypassAll", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyEnabledWithPlaceholderAdminKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -316,7 +316,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Authentication:ApiKey:AdminKey", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyEnabledWithPlaceholderReadOnlyKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -344,7 +344,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionWorkerAndApiKeyEnabledWithPlaceholderAdminKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -371,7 +371,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Authentication:ApiKey:AdminKey", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndApiKeyEnabledWithPlaceholder_does_not_add_production_placeholder_error()
     {
         Dictionary<string, string?> data = new()
@@ -393,7 +393,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyEnabledWithStrongKeys_has_no_placeholder_error()
     {
         const string strongAdmin = "a7f3c9e2b1d80456n8m0k2j4h6g8f0e2";
@@ -424,7 +424,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyEnabledWithTwentyCharAdminKey_has_no_placeholder_error()
     {
         Dictionary<string, string?> data = new()
@@ -452,7 +452,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyEnabledWithReadOnlyKeyTest_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -480,7 +480,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndApiKeyDisabled_weakAdminKey_does_not_add_placeholder_error()
     {
         Dictionary<string, string?> data = new()
@@ -507,7 +507,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndDevelopmentBypassAndInMemory_is_empty_when_schema_files_exist()
     {
         Dictionary<string, string?> data = new()
@@ -525,7 +525,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenSqlStorageWithoutConnectionString_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -544,7 +544,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ConnectionStrings:ArchLucid", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenInMemoryWithoutConnectionString_is_empty_when_schema_files_exist()
     {
         Dictionary<string, string?> data = new()
@@ -562,7 +562,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenStorageProviderIsNotInMemoryOrSql_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -581,7 +581,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenAgentExecutionModeIsInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -600,7 +600,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("AgentExecution:Mode", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenAgentExecutionModeIsRealWithoutAzureOpenAi_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -619,7 +619,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenAgentExecutionModeRealWithoutAzureOpenAi_error_namesShellEnvVars()
     {
         Dictionary<string, string?> data = new()
@@ -641,7 +641,7 @@ public sealed class ArchLucidConfigurationRulesTests
         msg.Should().Contain("AZURE_OPENAI_DEPLOYMENT_NAME");
     }
 
-    [Fact]
+    [SkippableFact]
     public void LogAgentExecutionRealModeInformation_WhenRealWithAzureOpenAiConfigured_doesNotThrow()
     {
         Dictionary<string, string?> data = new()
@@ -663,7 +663,7 @@ public sealed class ArchLucidConfigurationRulesTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRealModeWithEchoCompletionClient_allows_missing_AzureOpenAi()
     {
         Dictionary<string, string?> data = new()
@@ -686,7 +686,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenTransactionalOutboxEnabledWithInMemory_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -708,7 +708,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("TransactionalOutboxEnabled", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRealModeAndMaxCompletionTokensNegative_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -734,7 +734,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("MaxCompletionTokens", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmCompletionCacheMaxEntriesZero_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -756,7 +756,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("LlmCompletionCache:MaxEntries", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmCompletionCacheDistributedWithoutRedis_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -781,7 +781,7 @@ public sealed class ArchLucidConfigurationRulesTests
                 StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void
         CollectErrors_WhenLlmCompletionCacheDistributedAndHotPathRedisConfigured_has_no_distributed_redis_error()
     {
@@ -812,7 +812,7 @@ public sealed class ArchLucidConfigurationRulesTests
                 StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDurableJobsAndProcessorReceiveBatchSizeInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -839,7 +839,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("ProcessorReceiveBatchSize", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenSchemaPathIsRooted_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -859,7 +859,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenSchemaPathEscapesBase_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -879,7 +879,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenBatchMaxBelowMinimum_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -899,7 +899,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDeprecationEnabledAndSunsetUnparseable_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -919,7 +919,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("ApiDeprecation:SunsetHttpDate", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDataArchivalIntervalInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -938,7 +938,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("DataArchival:IntervalHours", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRateLimitingFixedWindowPermitLimitNegative_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -958,7 +958,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("PermitLimit", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRateLimitingExpensiveWindowMinutesZero_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -978,7 +978,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("WindowMinutes", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndCorsOriginsEmpty_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1001,7 +1001,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndHostingRoleWorker_does_not_require_cors_origins()
     {
         Dictionary<string, string?> data = new()
@@ -1025,7 +1025,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndCorsWildcard_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1049,7 +1049,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("wildcard", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndWebhookHttpWithoutSecret_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1075,7 +1075,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRetrievalVectorIndexInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1094,7 +1094,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Retrieval:VectorIndex", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndWebhookSecretTooShort_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1121,7 +1121,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("32", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRateLimitingReplayLightQueueLimitNegative_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1143,7 +1143,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("QueueLimit", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenApiKeyEnabledButNoKeysConfigured_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1165,7 +1165,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("Authentication:ApiKey:Enabled is true", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenRetrievalEmbeddingCapsInvalid_contains_errors()
     {
         Dictionary<string, string?> data = new()
@@ -1188,7 +1188,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDataArchivalRunsRetentionOutOfRange_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1207,7 +1207,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("DataArchival:RunsRetentionDays", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenBatchReplayMaxIdsAbove500_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1227,7 +1227,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenSchemaPathEmpty_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1247,7 +1247,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      && e.Contains("missing", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiKeyModeButBothKeysMissing_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1273,7 +1273,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Production ApiKey auth requires", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHotPathCacheEnabledWithInvalidProvider_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1293,7 +1293,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("HotPathCache:Provider", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHotPathCacheRedisWithoutConnectionString_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1315,7 +1315,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHotPathCacheTtlAbove3600_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1336,7 +1336,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInProduction_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1366,7 +1366,7 @@ public sealed class ArchLucidConfigurationRulesTests
             && e.Contains("ExpectedApiReplicaCount", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void
         CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInDevelopment_does_not_add_replica_redis_error()
     {
@@ -1390,7 +1390,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("greater than 1 outside Development", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHostLeaderElectionRenewNotLessThanLease_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1412,7 +1412,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("HostLeaderElection:RenewIntervalSeconds", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenHostLeaderElectionDisabled_allows_renew_equal_to_lease_in_config()
     {
         Dictionary<string, string?> data = new()
@@ -1433,7 +1433,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("HostLeaderElection", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenOtlpEnabledWithoutEndpoint_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1452,7 +1452,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Observability:Otlp:Endpoint", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenOtlpProtocolInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1473,7 +1473,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Observability:Otlp:Protocol", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenPrometheusEnabledWithoutScrapeCredentials_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1492,7 +1492,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("ScrapeUsername", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenPrometheusEnabledWithScrapeCredentials_has_no_observability_error()
     {
         Dictionary<string, string?> data = new()
@@ -1513,7 +1513,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("Observability:Prometheus", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenPrometheusRequireAuthDisabled_allows_missing_scrape_credentials()
     {
         Dictionary<string, string?> data = new()
@@ -1533,7 +1533,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("ScrapeUsername", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndSqlWithoutRlsSessionContext_has_no_row_level_security_error()
     {
         Dictionary<string, string?> data = new()
@@ -1557,7 +1557,7 @@ public sealed class ArchLucidConfigurationRulesTests
                              && e.Contains("RowLevelSecurity", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndSqlWithoutRlsSessionContext_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1582,7 +1582,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndSqlWithRlsSessionContext_has_no_row_level_security_error()
     {
         Dictionary<string, string?> data = new()
@@ -1608,7 +1608,7 @@ public sealed class ArchLucidConfigurationRulesTests
                 StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionWorkerAndSqlWithoutRlsSessionContext_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1633,7 +1633,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenStagingAndSqlWithoutRlsSessionContext_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1656,7 +1656,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmTokenQuotaEnabledWithoutPositiveMax_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1679,7 +1679,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("LlmTokenQuota:MaxPromptTokensPerTenantPerWindow", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmTokenQuotaEnabledWithInvalidWindow_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1701,7 +1701,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("LlmTokenQuota:WindowMinutes", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmTokenQuotaDisabled_skips_quota_validation()
     {
         Dictionary<string, string?> data = new()
@@ -1722,7 +1722,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("LlmTokenQuota", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmDailyTenantBudgetEnabledWithoutPositiveMax_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1744,7 +1744,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenLlmDailyTenantBudgetDisabled_skips_daily_budget_validation()
     {
         Dictionary<string, string?> data = new()
@@ -1812,7 +1812,7 @@ public sealed class ArchLucidConfigurationRulesTests
             e.Contains("HardCutoffUsdPerUtcMonth", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenCosmosFeatureEnabledWithoutConnectionString_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1833,7 +1833,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("CosmosDb:ConnectionString", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndCosmosEmulatorEndpoint_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1859,7 +1859,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Cosmos Emulator", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithApiKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1885,7 +1885,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("RequireJwtBearerInProduction", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void
         CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithJwtBearer_allows_when_authority_configured()
     {
@@ -1911,7 +1911,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("RequireJwtBearerInProduction", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndMsaExternalIdWithoutExternalIdTenantId_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1937,7 +1937,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("ExternalIdTenantId", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndMsaExternalIdWithExternalIdTenantId_allows()
     {
         Dictionary<string, string?> data = new()
@@ -1963,7 +1963,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("ExternalIdTenantId", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndAcsEmailWithoutEndpoint_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -1989,7 +1989,7 @@ public sealed class ArchLucidConfigurationRulesTests
             .Contain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionWorkerAndAcsEmailWithoutEndpoint_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2015,7 +2015,7 @@ public sealed class ArchLucidConfigurationRulesTests
             .Contain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndAcsEmailWithConfiguredEndpoint_does_not_add_acs_endpoint_error()
     {
         Dictionary<string, string?> data = new()
@@ -2042,7 +2042,7 @@ public sealed class ArchLucidConfigurationRulesTests
             .NotContain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndStripeBillingWithoutSecretKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2067,7 +2067,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionWorkerAndStripeBillingWithoutSecretKey_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2092,7 +2092,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndStripeBillingWithSecretKey_has_no_billing_secret_error()
     {
         Dictionary<string, string?> data = new()
@@ -2106,7 +2106,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.Stripe,
-            // Intentionally not sk_test_/sk_live_ shaped — gitleaks flags those as real Stripe tokens.
+            // Intentionally not sk_test_/sk_live_ shaped â€” gitleaks flags those as real Stripe tokens.
             ["Billing:Stripe:SecretKey"] = "unit-test-keyvault-ref-stripe-secret-not-a-real-key"
         };
 
@@ -2119,7 +2119,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().NotContain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndStripeLiveKeyWithoutWebhookSigningSecret_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2146,7 +2146,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("sk_live_", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndAzureMarketplaceGaWithoutOfferId_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2174,7 +2174,7 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("MarketplaceOfferId", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndAzureMarketplaceLocalhostLanding_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2203,7 +2203,7 @@ public sealed class ArchLucidConfigurationRulesTests
                                      || e.Contains("localhost", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndAzureDevOpsEnabledWithRawPat_contains_key_vault_reference_error()
     {
         Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
@@ -2222,7 +2222,7 @@ public sealed class ArchLucidConfigurationRulesTests
             .Contain(e => e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndAzureDevOpsEnabledWithKeyVaultPat_does_not_add_raw_pat_error()
     {
         Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
@@ -2243,7 +2243,7 @@ public sealed class ArchLucidConfigurationRulesTests
                 e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenDevelopmentAndAzureDevOpsEnabledWithRawPat_does_not_add_key_vault_reference_error()
     {
         Dictionary<string, string?> data = new()
@@ -2266,7 +2266,7 @@ public sealed class ArchLucidConfigurationRulesTests
                 e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionAndAzureDevOpsDisabledWithRawPat_does_not_add_key_vault_reference_error()
     {
         Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())

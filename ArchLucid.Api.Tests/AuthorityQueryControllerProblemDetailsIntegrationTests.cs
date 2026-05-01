@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -30,7 +30,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
         body.ToLowerInvariant().Should().Contain("projectid");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunSummary_unknown_run_returns_404_problem()
     {
         Guid missing = Guid.Parse("00000000-0000-0000-0000-00000000cc01");
@@ -43,7 +43,7 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
         problem.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunProvenance_when_run_lacks_snapshot_chain_returns_422_problem()
     {
         Guid runId =

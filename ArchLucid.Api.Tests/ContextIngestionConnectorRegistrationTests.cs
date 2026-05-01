@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Connectors;
+﻿using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFactory factory)
     : IClassFixture<ArchLucidApiFactory>
 {
-    [Fact]
+    [SkippableFact]
     public void Services_Resolve_IEnumerable_IContextConnector_InPipelineOrder()
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -46,7 +46,7 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
     ///     Catches accidental duplicate registrations (e.g. <c>AddSingleton&lt;IContextConnector, X&gt;</c>
     ///     alongside the pipeline factory) that would silently alter enumeration count or order.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void Services_Resolve_IEnumerable_IContextConnector_CountMatchesPipelineFactory()
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -62,7 +62,7 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
             "a direct AddSingleton<IContextConnector, ...> would break this invariant");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Services_Resolve_IReadOnlyList_IContextDocumentParser_InPipelineOrder()
     {
         using IServiceScope scope = factory.Services.CreateScope();

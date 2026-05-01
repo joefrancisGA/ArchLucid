@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class AuthDebugControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public void Me_returns_ok_with_name_and_claims_from_principal()
     {
         ClaimsIdentity identity = new(
@@ -40,7 +40,7 @@ public sealed class AuthDebugControllerTests
         body.Claims.Should().ContainSingle(c => c.Type == "tid" && c.Value == "tenant-1");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Me_returns_ok_when_identity_name_is_null()
     {
         ClaimsIdentity identity = new([], "test");

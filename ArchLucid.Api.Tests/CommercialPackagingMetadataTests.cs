@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Admin;
@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class CommercialPackagingMetadataTests
 {
-    [Fact]
+    [SkippableFact]
     public void Controllers_that_declare_requires_commercial_tier_at_class_level_use_valid_metadata()
     {
         Assembly asm = typeof(RequiresCommercialTenantTierAttribute).Assembly;
@@ -52,7 +52,7 @@ public sealed class CommercialPackagingMetadataTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void Pilots_post_sponsor_one_pager_declares_standard_commercial_tier()
     {
         MethodInfo? methodCandidate = typeof(PilotsController).GetMethod(
@@ -70,7 +70,7 @@ public sealed class CommercialPackagingMetadataTests
         attr.Arguments[0].Should().Be(TenantTier.Standard);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Pilots_get_sponsor_evidence_pack_declares_standard_commercial_tier()
     {
         MethodInfo? methodCandidate = typeof(PilotsController).GetMethod(
@@ -94,7 +94,7 @@ public sealed class CommercialPackagingMetadataTests
             a.Type == typeof(SponsorEvidencePackResponse));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Audit_export_audit_declares_enterprise_commercial_tier()
     {
         MethodInfo? methodCandidate = typeof(AuditController).GetMethod(

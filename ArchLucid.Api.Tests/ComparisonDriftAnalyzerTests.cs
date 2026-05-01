@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ public sealed class ComparisonDriftAnalyzerTests
 {
     private readonly ComparisonDriftAnalyzer _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_IdenticalObjects_NoDrift()
     {
         object payload = new { Name = "ArchLucid", Version = 1 };
@@ -22,7 +22,7 @@ public sealed class ComparisonDriftAnalyzerTests
         result.Summary.Should().Contain("No drift");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_ChangedScalarProperty_DetectsValueChange()
     {
         object stored = new { Name = "old" };
@@ -38,7 +38,7 @@ public sealed class ComparisonDriftAnalyzerTests
             i.RegeneratedValue == "new");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_AddedProperty_DetectsAdded()
     {
         object stored = new { Name = "x" };
@@ -50,7 +50,7 @@ public sealed class ComparisonDriftAnalyzerTests
         result.Items.Should().Contain(i => i.Category == "Added" && i.Path == "$.Extra");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_RemovedProperty_DetectsRemoved()
     {
         object stored = new { Name = "x", Old = "gone" };
@@ -62,7 +62,7 @@ public sealed class ComparisonDriftAnalyzerTests
         result.Items.Should().Contain(i => i.Category == "Removed" && i.Path == "$.Old");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_ArrayLengthChange_DetectsArrayLengthDrift()
     {
         object stored = new { Items = new[] { 1, 2, 3 } };
@@ -77,7 +77,7 @@ public sealed class ComparisonDriftAnalyzerTests
             i.RegeneratedValue == "2");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_ArrayElementChange_DetectsValueChange()
     {
         object stored = new { Tags = new[] { "a", "b" } };
@@ -91,7 +91,7 @@ public sealed class ComparisonDriftAnalyzerTests
             i.Path == "$.Tags[1]");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_TypeChange_DetectsTypeChange()
     {
         // Force JSON type difference: string vs number at same path.
@@ -104,7 +104,7 @@ public sealed class ComparisonDriftAnalyzerTests
         result.Items.Should().Contain(i => i.Category == "TypeChange" && i.Path == "$.Value");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_NestedObjectDrift_ReportsNestedPath()
     {
         object stored = new { Outer = new { Inner = "a" } };
@@ -116,7 +116,7 @@ public sealed class ComparisonDriftAnalyzerTests
         result.Items.Should().Contain(i => i.Path == "$.Outer.Inner");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Analyze_SummaryIncludesDriftCount()
     {
         object stored = new { A = 1, B = 2 };

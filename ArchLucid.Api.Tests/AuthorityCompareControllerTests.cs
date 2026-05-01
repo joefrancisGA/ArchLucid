@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Authority;
+﻿using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Compare;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AuthorityCompareControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompareManifests_returns_409_when_manifests_exist_in_different_scopes()
     {
         Guid leftManifestId = Guid.NewGuid();

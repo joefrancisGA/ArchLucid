@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Sixteen_parallel_posts_same_idempotency_key_single_distinct_run_id()
     {
         await using ArchLucidApiFactory factory = new();

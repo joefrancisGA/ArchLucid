@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Startup.Validation;
+﻿using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Collection("ArchLucidEnvMutation")]
 public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
 {
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenStagingAndSqlWithoutRlsButAllowBypass_skips_row_level_security_error()
     {
         string? prior = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");
@@ -49,7 +49,7 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void CollectErrors_WhenProductionApiAndSqlWithoutRlsButAllowBypass_skips_row_level_security_error()
     {
         string? prior = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");

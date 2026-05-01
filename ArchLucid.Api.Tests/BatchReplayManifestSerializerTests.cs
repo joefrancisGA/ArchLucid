@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Services;
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class BatchReplayManifestSerializerTests
 {
-    [Fact]
+    [SkippableFact]
     public void ToUtf8Bytes_IncludesCamelCaseProperties()
     {
         BatchReplayManifestDocument doc = new()
@@ -31,7 +31,7 @@ public sealed class BatchReplayManifestSerializerTests
         json.Should().Contain("a/report.md");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ProblemErrorCodes_MapsBatchReplayAllFailedType()
     {
         string code = ProblemErrorCodes.ResolveFromProblemType(ProblemTypes.BatchReplayAllFailed);

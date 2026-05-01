@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -14,9 +14,9 @@ using JetBrains.Annotations;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create → execute → commit
-///     yields committed demo shape and stable <c>GET …/pilot-run-deltas</c> fields. Volatile clock fields,
-///     wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded — see
+///     ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create â†’ execute â†’ commit
+///     yields committed demo shape and stable <c>GET â€¦/pilot-run-deltas</c> fields. Volatile clock fields,
+///     wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded â€” see
 ///     <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -36,7 +36,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Authority_commit_path_cohort_produces_committed_demo_shape()
     {
         CohortArtifacts cohort = await CaptureCohortAsync();

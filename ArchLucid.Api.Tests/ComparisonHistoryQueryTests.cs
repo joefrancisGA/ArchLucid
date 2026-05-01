@@ -1,4 +1,4 @@
-using ArchLucid.Api.Models;
+﻿using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ComparisonHistoryQueryTests
 {
-    [Fact]
+    [SkippableFact]
     public void NormalizeTagList_merges_tag_and_tags_distinct_case_insensitive()
     {
         List<string> list = ComparisonHistoryQuery.NormalizeTagList("a,B", ["b", "c"]);
@@ -17,7 +17,7 @@ public sealed class ComparisonHistoryQueryTests
         list.Should().Contain(x => string.Equals(x, "c", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizeTagList_splits_commas_in_tag_and_array()
     {
         List<string> list = ComparisonHistoryQuery.NormalizeTagList("x,y", ["y,z"]);

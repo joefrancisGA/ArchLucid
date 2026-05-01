@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -56,7 +56,7 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
 {
     private readonly HttpClient _client = factory.CreateClient();
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
         string body =

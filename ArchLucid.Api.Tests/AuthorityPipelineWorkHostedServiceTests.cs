@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Hosted;
+﻿using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Orchestration;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AuthorityPipelineWorkHostedServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_exits_cleanly_when_stopped_during_delay()
     {
         Mock<IAuthorityPipelineWorkProcessor> processor = new();
@@ -37,7 +37,7 @@ public sealed class AuthorityPipelineWorkHostedServiceTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_continues_after_processor_throws()
     {
         int callCount = 0;

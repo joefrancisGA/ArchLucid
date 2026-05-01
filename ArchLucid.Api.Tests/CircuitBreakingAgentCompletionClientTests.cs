@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime;
+﻿using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class CircuitBreakingAgentCompletionClientTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Success_delegates_to_inner()
     {
         Mock<IAgentCompletionClient> inner = new();
@@ -43,7 +43,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         result.Should().Be("{}");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Inner_failure_opens_circuit_after_threshold()
     {
         Mock<IAgentCompletionClient> inner = new();
@@ -74,7 +74,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             sut.CompleteJsonAsync("s", "u", CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Retry_TransientFailure_SucceedsBeforeCBTrip()
     {
         int callCount = 0;
@@ -111,7 +111,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         callCount.Should().Be(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Retry_ExhaustedThenCBTrips()
     {
         Mock<IAgentCompletionClient> inner = new();
@@ -149,7 +149,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             Times.Exactly(4));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Retry_UserCancellation_DoesNotTripCircuit_UserBearerCancelled()
     {
         int calls = 0;

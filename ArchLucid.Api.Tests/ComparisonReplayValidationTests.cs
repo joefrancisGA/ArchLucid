@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
@@ -27,7 +27,7 @@ public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory)
         body.Should().ContainEquivalentOf("ReplayMode");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BatchReplay_EmptyComparisonRecordIdsAndInvalidFormat_Returns400WithValidationErrors()
     {
         var invalidBody = new { comparisonRecordIds = Array.Empty<string>(), format = "invalid", replayMode = "bad" };

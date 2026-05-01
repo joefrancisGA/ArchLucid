@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Scoping;
@@ -26,7 +26,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class CommercialTenantTierFilterTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task OnActionExecutionAsync_unauthenticated_invokes_next_without_tenant_lookup()
     {
         Mock<ITenantRepository> tenants = new();
@@ -52,7 +52,7 @@ public sealed class CommercialTenantTierFilterTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OnActionExecutionAsync_free_tier_minimum_standard_returns_403_packaging_problem()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -102,7 +102,7 @@ public sealed class CommercialTenantTierFilterTests
         problem.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OnActionExecutionAsync_standard_tier_minimum_enterprise_denial_returns_404()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-999999999999");
@@ -152,7 +152,7 @@ public sealed class CommercialTenantTierFilterTests
         problem.Type.Should().Be(ProblemTypes.ResourceNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OnActionExecutionAsync_standard_tier_meets_minimum_standard_invokes_next()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Resilience;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>Unit tests for <see cref="CircuitBreakerAuditBridge" /> (async audit scheduling).</summary>
 public sealed class CircuitBreakerAuditBridgeTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateCallback_StateTransition_EmitsAuditEvent()
     {
         TaskCompletionSource<AuditEvent> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -55,7 +55,7 @@ public sealed class CircuitBreakerAuditBridgeTests
         doc.RootElement.GetProperty("toState").GetString().Should().Be("Open");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateCallback_Rejection_SetsCorrectEventType()
     {
         TaskCompletionSource<AuditEvent> tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -84,7 +84,7 @@ public sealed class CircuitBreakerAuditBridgeTests
         captured.EventType.Should().Be(AuditEventTypes.CircuitBreakerRejection);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateCallback_AuditFailure_DoesNotThrow_and_logs_warning()
     {
         Mock<IAuditService> audit = new();

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -10,7 +10,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer →
+///     End-to-end: seed authority run â†’ POST <c>v1/ask</c> with fake LLM â†’ verify response includes thread and answer â†’
 ///     list conversations via <c>GET v1/conversations</c>.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -22,7 +22,7 @@ public sealed class AskThreadIntegrationTests
         PropertyNameCaseInsensitive = true
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Ask_with_seeded_run_returns_answer_and_creates_thread()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -57,7 +57,7 @@ public sealed class AskThreadIntegrationTests
         threads.Should().Contain(t => t.ThreadId == result.ThreadId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Ask_follow_up_continues_same_thread()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -104,7 +104,7 @@ public sealed class AskThreadIntegrationTests
         messages.Should().HaveCountGreaterThanOrEqualTo(4, "two user + two assistant messages expected");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Ask_without_question_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -119,7 +119,7 @@ public sealed class AskThreadIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Ask_without_runId_or_threadId_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();

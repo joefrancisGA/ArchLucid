@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
@@ -32,7 +32,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
         ProjectId = Guid.Parse("99999999-9999-9999-9999-999999999993")
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRun_RunNotFound_RecordsRunFailedThenThrows()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -75,7 +75,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRun_PropagatesRunNotFoundFromOrchestrator()
     {
         IArchitectureRunCommitOrchestrator commit = BuildCommitOrchestratorThatThrowsRunNotFound();

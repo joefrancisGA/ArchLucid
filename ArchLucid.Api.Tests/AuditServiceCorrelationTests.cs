@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -31,7 +31,7 @@ public sealed class AuditServiceCorrelationTests
         ActivitySource.AddActivityListener(listener);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_UsesLogicalCorrelationFromAncestor_WhenCurrentActivityIsChild()
     {
         AuditEvent? captured = null;
@@ -67,7 +67,7 @@ public sealed class AuditServiceCorrelationTests
         captured!.CorrelationId.Should().Be("client-supplied-corr");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LogAsync_UsesHttpTraceIdentifier_WhenNoActivityTagAndHttpPresent()
     {
         AuditEvent? captured = null;

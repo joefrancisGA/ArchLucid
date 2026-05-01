@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -7,14 +7,14 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> — quarterly board pack (
+///     HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> â€” quarterly board pack (
 ///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />, Standard+ tier).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class BoardPackPdfEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task PostBoardPackPdf_WhenQuarterOutOfRange_Returns400Problem()
     {
         using HttpResponseMessage res = await Client.PostAsync(
@@ -24,7 +24,7 @@ public sealed class BoardPackPdfEndpointTests(ArchLucidApiFactory factory) : Int
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostBoardPackPdf_WhenValidQuarter_ReturnsPdf()
     {
         HttpRequestMessage request = new(HttpMethod.Post, "/v1/pilots/board-pack.pdf")

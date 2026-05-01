@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class BaselineMutationAuditServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_WhenInformationEnabled_InvokesLoggerLog()
     {
         Mock<ILogger<BaselineMutationAuditService>> logger = new();
@@ -38,7 +38,7 @@ public sealed class BaselineMutationAuditServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_EmptyActor_ThrowsArgumentException()
     {
         BaselineMutationAuditService sut = new(
@@ -51,7 +51,7 @@ public sealed class BaselineMutationAuditServiceTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordAsync_DetailsWithNewline_LogsSanitizedNoRawNewline()
     {
         Mock<ILogger<BaselineMutationAuditService>> logger = new();

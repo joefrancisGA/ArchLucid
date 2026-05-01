@@ -1,4 +1,4 @@
-using ArchLucid.Api.Mapping;
+﻿using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Analysis;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ConsultingDocxAnalysisRequestFactoryTests
 {
-    [Fact]
+    [SkippableFact]
     public void Create_maps_include_flags_and_compare_fields()
     {
         ConsultingDocxExportRequest req = new()

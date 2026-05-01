@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -38,7 +38,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Five_parallel_archive_by_ids_all_200_and_run_drops_off_active_project_list()
     {
         await using ArchLucidApiFactory factory = new();
