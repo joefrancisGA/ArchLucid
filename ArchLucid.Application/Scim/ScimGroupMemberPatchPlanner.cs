@@ -74,17 +74,14 @@ internal static class ScimGroupMemberPatchPlanner
             return;
         }
 
-        if (string.Equals(opName, "replace", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(opName, "replace", StringComparison.OrdinalIgnoreCase))
+            throw new ScimUserResourceParseException("invalidSyntax", $"Unsupported op '{opName}'.");
         {
             working.Clear();
 
             foreach (Guid id in ids)
                 working.Add(id);
-
-            return;
         }
-
-        throw new ScimUserResourceParseException("invalidSyntax", $"Unsupported op '{opName}'.");
     }
 
     private static void ApplyFilteredOp(
@@ -96,13 +93,13 @@ internal static class ScimGroupMemberPatchPlanner
         Guid target = filtered.ReferenceUserId;
 
         if (filtered.SubAttribute is null)
-            ApplyFilteredWholeMember(working, opName, op, target);
+            ApplyFilteredWholeMember(working, opName, target);
 
         else
             ApplyFilteredActive(working, opName, op, target);
     }
 
-    private static void ApplyFilteredWholeMember(HashSet<Guid> working, string opName, JsonElement op, Guid target)
+    private static void ApplyFilteredWholeMember(HashSet<Guid> working, string opName, Guid target)
     {
         if (string.Equals(opName, "remove", StringComparison.OrdinalIgnoreCase))
         {

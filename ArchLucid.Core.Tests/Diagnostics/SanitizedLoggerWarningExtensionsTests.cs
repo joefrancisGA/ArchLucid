@@ -178,4 +178,57 @@ public sealed class SanitizedLoggerWarningExtensionsTests
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("ex");
     }
+
+    [Fact]
+    public void LogWarningOperatorShellClientError_sanitizes_all_placeholders()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogWarningOperatorShellClientError(
+            "msg\n1",
+            "/p\tth",
+            "ua\rx",
+            "ts\n2",
+            "st\tack");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("Operator shell client error:");
+        text.Should().Contain("msg_1");
+        text.Should().Contain("p_th");
+        text.Should().Contain("ua_x");
+        text.Should().Contain("ts_2");
+        text.Should().Contain("st_ack");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\t");
+        text.Should().NotContain("\r");
+    }
+
+    [Fact]
+    public void LogWarningOperatorShellClientError_throws_when_logger_null()
+    {
+        ILogger logger = null!;
+
+        Action act = () => logger.LogWarningOperatorShellClientError("m", "p", "u", "t", "s");
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+    }
 }

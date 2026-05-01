@@ -148,15 +148,7 @@ public sealed class ClientErrorTelemetryController(
         }
 
         if (_logger.IsEnabled(LogLevel.Warning))
-
-            _logger.LogWarning(
-                "Operator shell client error: {ClientErrorMessage} | Path={ClientErrorPathname} | UA={ClientErrorUserAgent} | At={ClientErrorTimestamp} | Stack={ClientErrorStack}",
-                LogSanitizer.Sanitize(message),
-                LogSanitizer.Sanitize(pathname ?? string.Empty),
-                LogSanitizer.Sanitize(userAgent ?? string.Empty),
-                LogSanitizer.Sanitize(timestampUtc ?? string.Empty),
-                LogSanitizer.Sanitize(stack ?? string.Empty));
-
+            _logger.LogWarningOperatorShellClientError(message, pathname, userAgent, timestampUtc, stack);
 
         return NoContent();
     }

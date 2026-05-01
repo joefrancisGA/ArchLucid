@@ -143,7 +143,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IDecisionEngine>(),
             Mock.Of<IDecisionTraceRepository>(),
             Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IManifestHashService>(),
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<IManifestFinalizationService>(),
             Mock.Of<IPreCommitGovernanceGate>(),
