@@ -53,6 +53,19 @@ export default async function RunProvenancePage({
     }
   }
 
+  if (provenanceResponse !== null) {
+    const nodes = provenanceResponse.data.nodes;
+
+    if (nodes.length === 0) {
+      const demoGraph = tryStaticDemoProvenanceGraph(runId);
+
+      if (demoGraph !== null && demoGraph.nodes.length > 0) {
+        provenanceResponse = { data: demoGraph, traceId: provenanceResponse.traceId };
+        loadFailure = null;
+      }
+    }
+  }
+
   if (loadFailure || !provenanceResponse) {
     if (loadFailure !== null && isApiNotFoundFailure(loadFailure)) {
       notFound();

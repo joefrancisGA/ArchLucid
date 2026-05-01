@@ -169,7 +169,18 @@ export default function AuditPage() {
       setHasMoreResults(injectDemo ? false : page.hasMore);
       setAuditNextCursor(injectDemo ? null : page.nextCursor);
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      const emptyFilters = currentFilters();
+      const injectOnError =
+        auditDemoSampleInjectEnabled() && shouldInjectDemoAuditSample(emptyFilters);
+
+      if (injectOnError) {
+        setEvents(getDemoSampleAuditTrailEvents());
+        setHasMoreResults(false);
+        setAuditNextCursor(null);
+        setFailure(null);
+      } else {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
       setSearching(false);
     }

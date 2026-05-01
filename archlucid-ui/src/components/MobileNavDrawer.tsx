@@ -20,6 +20,8 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
@@ -31,12 +33,15 @@ export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const demoUi = isNextPublicDemoMode();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
     showAdvanced,
   );
 
+  const extendedForShell = demoUi ? true : shellShowExtended;
+  const advancedForShell = demoUi ? true : shellShowAdvanced;
   return (
     <>
       <Button
@@ -59,10 +64,15 @@ export function MobileNavDrawer() {
           <div className="flex flex-col gap-4 px-3 py-3">
             {listNavGroupsVisibleInOperatorShell(
               NAV_GROUPS,
-              shellShowExtended,
-              shellShowAdvanced,
+              extendedForShell,
+              advancedForShell,
               callerAuthorityRank,
-            ).map(({ group, visibleLinks }) => (
+            ).map(({ group, visibleLinks }) => {
+              const linksAfterDemo = demoUi
+                ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
+                : visibleLinks;
+
+              return (
               <div key={group.id}>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   <span className="block">{group.label}</span>
@@ -74,7 +84,7 @@ export function MobileNavDrawer() {
                   {group.id === "operate-governance" ? <OperateCapabilityNavGroupHint /> : null}
                 </div>
                 <nav className="flex flex-col gap-0.5" aria-label={group.label}>
-                  {visibleLinks.map((link) => {
+                  {linksAfterDemo.map((link) => {
                     const active = isNavLinkActive(pathname, link.href);
                     const Icon = link.icon;
 
@@ -105,7 +115,8 @@ export function MobileNavDrawer() {
                   })}
                 </nav>
               </div>
-            ))}
+              );
+            })}
             <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
               Press Shift+? for help and keyboard shortcuts
             </p>

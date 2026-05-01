@@ -26,6 +26,12 @@ import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footno
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
+function authorityRunIdsAlignForDemo(urlRunId: string, payloadRunId: string): boolean {
+  const norm = (s: string): string => s.replace(/-/g, "").toLowerCase();
+
+  return norm(urlRunId) === norm(payloadRunId);
+}
+
 /**
  * Finding detail: severity and narrative first; technical identifiers and export tools collapsed.
  */
@@ -62,6 +68,15 @@ export default async function RunFindingExplainPage({
       inspectFailure = null;
     } else if (isApiNotFoundFailure(inspectFailure)) {
       notFound();
+    }
+  }
+
+  if (inspectPayload !== null) {
+    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
+
+    if (staticInspect !== null && !authorityRunIdsAlignForDemo(runId, inspectPayload.runId)) {
+      inspectPayload = staticInspect;
+      inspectFailure = null;
     }
   }
 

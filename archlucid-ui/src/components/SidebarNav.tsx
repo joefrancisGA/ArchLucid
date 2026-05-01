@@ -123,6 +123,7 @@ export function SidebarNav() {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const demoUi = isNextPublicDemoMode();
+  const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
@@ -164,8 +165,8 @@ export function SidebarNav() {
       <SidebarRecentActivityCard />
       {listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        shellShowExtended,
-        shellShowAdvanced,
+        demoUi ? true : shellShowExtended,
+        demoUi ? true : shellShowAdvanced,
         callerAuthorityRank,
       ).map(({ group, visibleLinks }) => {
         const linksAfterDemoFilter = demoUi
@@ -175,8 +176,8 @@ export function SidebarNav() {
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
-          shellShowExtended,
-          shellShowAdvanced,
+          demoUi ? true : shellShowExtended,
+          demoUi ? true : shellShowAdvanced,
           callerAuthorityRank,
         );
 
@@ -288,31 +289,32 @@ export function SidebarNav() {
                 })}
               </nav>
             </CollapsibleContent>
-            {hiddenByDisclosure > 0 ? (
+            {showProgressiveDisclosureChrome && hiddenByDisclosure > 0 ? (
               <button
                 type="button"
                 className="auth-panel-focus ml-2 mt-1 flex items-center gap-1 text-left text-xs font-medium text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
-                aria-label={`${hiddenByDisclosure} more in ${group.label} — open navigation settings`}
+                aria-label={`${hiddenByDisclosure} more in ${group.label}`}
                 onClick={() => {
                   setSettingsOpen(true);
                 }}
               >
                 <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 {group.id === "operate-analysis"
-                  ? `${hiddenByDisclosure} more analysis links — open navigation settings`
+                  ? `${hiddenByDisclosure} more analysis links`
                   : group.id === "operate-governance"
-                    ? `${hiddenByDisclosure} more governance links — open navigation settings`
+                    ? `${hiddenByDisclosure} more governance links`
                     : group.id === "operator-admin"
-                      ? `${hiddenByDisclosure} more admin links — open navigation settings`
+                      ? `${hiddenByDisclosure} more admin links`
                       : group.id === "pilot"
-                        ? `${hiddenByDisclosure} more pilot links — open navigation settings`
-                        : `${hiddenByDisclosure} more — open navigation settings`}
+                        ? `${hiddenByDisclosure} more pilot links`
+                        : `${hiddenByDisclosure} more links`}
               </button>
             ) : null}
           </Collapsible>
         );
       })}
 
+      {showProgressiveDisclosureChrome ? (
       <div className="mt-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button
           type="button"
@@ -328,7 +330,9 @@ export function SidebarNav() {
           Navigation settings
         </Button>
       </div>
+      ) : null}
 
+      {showProgressiveDisclosureChrome ? (
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -385,6 +389,7 @@ export function SidebarNav() {
           </div>
         </DialogContent>
       </Dialog>
+      ) : null}
     </div>
   );
 }
