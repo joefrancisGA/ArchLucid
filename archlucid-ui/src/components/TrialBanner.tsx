@@ -117,7 +117,10 @@ export function TrialBanner() {
         <span className="mx-2 text-amber-800 dark:text-amber-200">·</span>
         <span>{daysLabel}</span>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button type="button" size="sm" className="bg-amber-800 text-white hover:bg-amber-900" onClick={onConvert}>
+          <Button asChild type="button" size="sm" className="bg-teal-800 text-white hover:bg-teal-900 dark:bg-teal-700 dark:hover:bg-teal-600">
+            <Link href="/pricing#pricing-quote-request">Request quote</Link>
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={onConvert}>
             Convert to paid
           </Button>
           <Button asChild type="button" size="sm" variant="outline">

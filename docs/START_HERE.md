@@ -5,6 +5,17 @@
 Use this page to pick **one** door. **[`CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md)** remains a shortcut table for engineers who already know they only need install + verify commands.
 
 ```text
+Five-doc evaluator spine (read in order — everything else is lookup):
+1. START_HERE.md (this page)
+2. CORE_PILOT.md
+3. EXECUTIVE_SPONSOR_BRIEF.md
+4. runbooks/PILOT_RESCUE_PLAYBOOK.md
+5. library/PILOT_ROI_MODEL.md (optional metrics only after you have a committed review)
+```
+
+Deep reference lives in [`library/START_HERE_DEPTH.md`](library/START_HERE_DEPTH.md) and [`NAVIGATOR.md`](NAVIGATOR.md); do not start there on day one.
+
+```text
 START_HERE.md (you are here)
 │
 ├─ Buyer / evaluator — no Docker / SQL / .NET install

@@ -107,12 +107,12 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
   return (
     <CommandGroup heading="Quick open">
       <CommandItem
-        value={`open-run-${trimmed}`}
+        value={`open-review-${trimmed}`}
         onSelect={() => {
           onNavigate(`/reviews/${trimmed}`);
         }}
       >
-        Open review detail for {trimmed}
+        Open architecture review detail ({trimmed})
       </CommandItem>
     </CommandGroup>
   );

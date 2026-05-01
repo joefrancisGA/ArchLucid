@@ -185,18 +185,18 @@ export default async function RunsPage({
             className="mt-4 max-w-prose rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-200"
             data-testid="runs-empty-core-pilot-hint"
           >
-            <strong className="font-semibold">Core Pilot first:</strong> use{" "}
-            <strong className="font-semibold">New request</strong> here, then execute, commit, and review on run detail
-            (see{" "}
+            <strong className="font-semibold">Start your first architecture review:</strong> use{" "}
+            <strong className="font-semibold">New review</strong> (or onboarding), run the pipeline, finalize, then review the package on
+            architecture review detail (see{" "}
             <a
               href={toDocsBlobUrl("/docs/CORE_PILOT.md")}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-teal-800 underline dark:text-teal-300"
             >
-              Core Pilot path
+              CORE_PILOT.md
             </a>
-            ). You do not need Compare, Replay, or Governance until after your first committed manifest.
+            ). Compare, Replay, and heavy governance surfaces can wait until after your first committed package.
           </div>
           <EmptyState {...RUNS_EMPTY} />
         </>

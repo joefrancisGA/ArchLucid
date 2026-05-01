@@ -21,7 +21,7 @@ export function OperatorBrandedNotFound() {
           Home
         </Link>
         <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
-          Runs
+          Reviews
         </Link>
         <Link className="text-teal-800 underline dark:text-teal-300" href="/governance/findings">
           Findings

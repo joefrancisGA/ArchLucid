@@ -18,9 +18,8 @@ export type PricingDoc = {
   effectiveDate: string;
   currency: string;
   /**
-   * When set (non-empty), the Team tier card shows “Subscribe with Stripe” linking here.
-   * The repo may ship with `https://checkout.stripe.com/placeholder-replace-before-launch` from
-   * `PRICING_PHILOSOPHY.md` locked-prices — replace with a real Stripe URL before launch, or omit to hide the button.
+   * When set to a **usable** URL (see `isUsableTeamStripeCheckoutUrl` in `team-stripe-checkout-url.ts`), the Team tier
+   * card shows “Subscribe with Stripe”. Placeholder URLs from `PRICING_PHILOSOPHY.md` must not render the button.
    */
   teamStripeCheckoutUrl?: string | null;
   packages: PricingPackage[];

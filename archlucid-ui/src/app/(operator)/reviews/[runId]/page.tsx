@@ -89,7 +89,7 @@ function ManifestSummarySection({
       <Card>
         <CardHeader>
           <h3 className={sectionHeadingClass}>
-            <GlossaryTooltip termKey="architecture_manifest">Manifest</GlossaryTooltip> summary
+            Review package summary (<GlossaryTooltip termKey="architecture_manifest">manifest</GlossaryTooltip>)
           </h3>
         </CardHeader>
         <CardContent className="space-y-4">

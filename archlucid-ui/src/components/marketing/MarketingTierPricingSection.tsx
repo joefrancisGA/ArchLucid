@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { PricingDoc } from "@/lib/pricing-types";
+import { isUsableTeamStripeCheckoutUrl } from "@/lib/team-stripe-checkout-url";
 
 function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, {
@@ -118,15 +119,22 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 </dl>
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (
-                    <Button asChild variant="primary" className="w-full">
-                      <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
-                    </Button>
+                    <>
+                      <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
+                        Request quote
+                      </Button>
+                      <Button asChild variant="outline" className="w-full">
+                        <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
+                      </Button>
+                    </>
                   ) : null}
-                  {pkg.id === "team" &&
-                  typeof pricing.teamStripeCheckoutUrl === "string" &&
-                  pricing.teamStripeCheckoutUrl.trim().length > 0 ? (
+                  {pkg.id === "team" && isUsableTeamStripeCheckoutUrl(pricing.teamStripeCheckoutUrl) ? (
                     <Button asChild className="w-full" variant="outline">
-                      <a href={pricing.teamStripeCheckoutUrl.trim()} rel="noopener noreferrer" target="_blank">
+                      <a
+                        href={(pricing.teamStripeCheckoutUrl ?? "").trim()}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
                         Subscribe with Stripe
                       </a>
                     </Button>

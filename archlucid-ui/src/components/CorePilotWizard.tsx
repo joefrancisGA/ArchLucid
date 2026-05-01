@@ -36,18 +36,16 @@ type WizardBlueprintStep = {
 const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   {
     id: "welcome",
-    title: "Welcome to the Core Pilot",
+    title: "Welcome — your first architecture review",
     body: (
       <p className="m-0 leading-relaxed text-neutral-700 dark:text-neutral-200">
-        This guided path follows <strong>docs/library/V1_SCOPE.md (section Core operator happy path, Pilot)</strong> — the shortest journey every pilot must complete
-        (configure → readiness → structured request → execute → commit → review). Experts can dismiss anytime; progress is remembered
-        in this browser.
+        This short guide matches <strong>docs/CORE_PILOT.md</strong> (the V1 happy path): readiness → structured request → pipeline → finalization → review outputs. Close anytime; your place is saved in this browser.
       </p>
     ),
   },
   {
     id: "configure",
-    title: "Configure storage, connection string, and auth",
+    title: "Connect storage, database, and authentication",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
@@ -86,10 +84,10 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     title: "Create a structured architecture request",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
-        <p className="m-0">Use the operator wizard to capture identity, constraints, and advanced inputs (`POST /v1/architecture/request`).</p>
+        <p className="m-0">Capture identity, constraints, and evidence through the wizard (same payload as POST /v1/architecture/request).</p>
         <p className="m-0">
           <Link href="/reviews/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
-            Launch new-request wizard →
+            Launch new-review wizard →
           </Link>
         </p>
       </div>
@@ -97,18 +95,18 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   },
   {
     id: "execute",
-    title: "Execute the pipeline and watch progress",
+    title: "Run the pipeline and watch progress",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          The coordinator hydrates snapshots and authority phases. Simulator mode finishes quickly; tracked mode surfaces the Pipeline timeline inside run detail.
+          The coordinator runs each stage; simulator mode completes quickly while tracked mode surfaces the Pipeline timeline inside review detail.
         </p>
         <p className="m-0">
           <Link
             href="/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
-            Open Runs → choose your run →
+            Open Reviews → pick your review →
           </Link>
         </p>
       </div>
@@ -116,18 +114,18 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   },
   {
     id: "commit",
-    title: "Commit the reviewed manifest",
+    title: "Finalize the architecture review package",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          Finalize commits the reviewed manifest and synthesizes artifacts — nothing comparable until this succeeds via the Architecture run commit route on your API host.
+          Finalization commits the reviewed manifest and materializes artifacts — it is required before sponsors can consume the package from review detail.
         </p>
         <p className="m-0">
           <Link
             href="/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
-            Navigate to Runs → finalize from run detail →
+            Open Reviews → finalize from review detail →
           </Link>
         </p>
       </div>
@@ -135,11 +133,11 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
   },
   {
     id: "review",
-    title: "Review manifest + artifact bundle exports",
+    title: "Review outputs and exports",
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          After finalize, skim manifest summary + artifact previews, then optionally export bundle ZIP off run detail — this satisfies the Pilot deliverable in CORE_PILOT.md.
+          After finalization, review the manifest summary and artifact previews, then export bundle ZIP from review detail when you need a portable package — CORE_PILOT.md calls this step the pilot deliverable.
         </p>
       </div>
     ),
@@ -257,8 +255,8 @@ export function CorePilotWizardLauncher() {
 
   const resumeLabel =
     state.status === "completed"
-      ? "Core Pilot recap"
-      : `Core Pilot wizard (${Math.min(state.stepIndex + 1, CORE_PILOT_WIZARD_STEP_COUNT)}/${CORE_PILOT_WIZARD_STEP_COUNT})`;
+      ? "Guided review recap"
+      : `Guided review (${Math.min(state.stepIndex + 1, CORE_PILOT_WIZARD_STEP_COUNT)}/${CORE_PILOT_WIZARD_STEP_COUNT})`;
 
   return (
     <>
@@ -268,7 +266,7 @@ export function CorePilotWizardLauncher() {
         data-core-pilot-wizard-trigger=""
         aria-haspopup="dialog"
         aria-expanded={dialogOpen}
-        title={`Open guided Core Pilot (${state.stepIndex + 1}/${CORE_PILOT_WIZARD_STEP_COUNT})`}
+        title={`Open guided review checklist (${state.stepIndex + 1}/${CORE_PILOT_WIZARD_STEP_COUNT})`}
         className={`fixed bottom-5 right-4 z-40 h-11 gap-2 rounded-full px-4 shadow-lg print:!hidden lg:bottom-7 ${
           dialogOpen ? "ring-2 ring-teal-500/70" : ""
         }`}
@@ -325,7 +323,7 @@ export function CorePilotWizardLauncher() {
                     setSuppressFabOffer(e.target.checked);
                   }}
                 />
-                Don&apos;t show the Core Pilot launcher again (preference stored on this browser)
+                Don&apos;t show the guided review launcher again (preference stored on this browser)
               </label>
             ) : (
               <span className="text-xs text-neutral-500 dark:text-neutral-400">Close anytime — your step resumes from the Compass button.</span>
