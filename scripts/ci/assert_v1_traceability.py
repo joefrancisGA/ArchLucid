@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate V1 traceability matrix filters discover at least one test (docs/V1_REQUIREMENTS_TEST_TRACEABILITY.md).
+"""Validate V1 traceability matrix filters discover at least one test (docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md).
 
 Run from repo root after a Release build:
   dotnet build ArchLucid.sln -c Release --nologo
@@ -118,7 +118,7 @@ def main() -> int:
         pass
 
     root = _repo_root()
-    md = root / "docs" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
+    md = root / "docs" / "library" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
 
     if not md.is_file():
         print(f"ERROR: {md} not found", file=sys.stderr)

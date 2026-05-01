@@ -1,6 +1,5 @@
 using System.Diagnostics.Metrics;
 
-using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -181,7 +180,6 @@ public sealed class CachingLlmCompletionClientTests
         public T CurrentValue
         {
             get;
-            set;
         } = initialValue ?? throw new ArgumentNullException(nameof(initialValue));
 
         public IDisposable OnChange(Action<T, string?> listener)

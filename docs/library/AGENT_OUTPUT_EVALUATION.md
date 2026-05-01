@@ -113,6 +113,8 @@ Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSeman
 - **Local Development (`appsettings.Development.json`):** matches the same threshold block with **`Enabled: true`** so **`dotnet run`** and API tests observe the same OTel gate counters and warning logs as staging—set **`Enabled: false`** only when you are intentionally mutating agent JSON without gate noise.
 - **`appsettings.Advanced.json`:** does not need to repeat the block unless you override thresholds per environment.
 
+**Release credibility posture (owner, 2026-05-01):** Buyers who design on Azure and for AI systems should see a **high bar**. **Release candidates must not ship** when **reference** real-mode or (once required) golden-cohort real-LLM evidence shows **insufficient** structural/semantic scores or a **material rate** of **rejected** gate outcomes at the configured floors—**warn-only** is not enough for perceived credibility. Operational follow-up: name the **reference Azure OpenAI deployment**, then tune **`StructuralWarnBelow` / `SemanticWarnBelow` / `StructuralRejectBelow` / `SemanticRejectBelow`** **conservatively** (often **tighter** than initial defaults) and wire failing gates into **required** release or branch-protection automation. **Manual QA** lay definitions, threshold discipline, and operator actions: [`docs/quality/MANUAL_QA_CHECKLIST.md`](../quality/MANUAL_QA_CHECKLIST.md) § **8.4**.
+
 When enabled, **`AgentOutputEvaluationRecorder`** increments **`archlucid_agent_output_quality_gate_total`** (labels `agent_type`, `outcome`) and logs **warn** for **warned**/**rejected** outcomes. The gate does **not** change persisted traces or block merges by itself.
 
 ## Golden-set trace fixtures (regression)
@@ -134,3 +136,28 @@ Add a new JSON file per scenario (minimal fields only); keep fixtures **small** 
 - **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram), **`archlucid_agent_output_semantic_score`** (histogram), **`archlucid_agent_output_parse_failures_total`** (counter), and optional **`archlucid_agent_output_quality_gate_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
 - **Low score logs**: Recorder warns below **0.5** completeness for both structural and semantic scores (configurable in code if product asks).
 - **Evolution**: Per-**`AgentType`** key lists live in **`GetExpectedKeys`** for future stricter Topology/Cost/Critic profiles.
+
+## 9. Trending, reports, and email alerts
+
+**What the product emits today**
+
+- After each **successful** architecture **`execute`**, **`AgentOutputEvaluationRecorder`** records **OpenTelemetry** histograms and counters documented in **`OBSERVABILITY.md`**: **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, **`archlucid_agent_output_parse_failures_total`** (labels include **`agent_type`**; gate counter includes **`outcome`**).
+- **Per run (no warehouse required):** **`GET /v1/architecture/run/{runId}/agent-evaluation`** returns the same scoring for that run’s traces (averages per row + summary).
+
+**There is no first-party “weekly agent score email” in the API** — trending and notifications are expected to come from whatever receives **OTel** (Azure Monitor / Application Insights + **Metric alerts**, **Grafana** + **Alerting**, Prometheus + **Alertmanager**, etc.).
+
+**See trends (charts)**
+
+| Approach | What you do |
+|----------|-------------|
+| **Grafana** (or similar) | Panels on the histograms above: **p50/p90/p95** over time, split by **`agent_type`**; separate stat panel for **`rate(archlucid_agent_output_quality_gate_total{outcome="rejected"}[1d])`**. Pair with **`OBSERVABILITY.md`** naming. |
+| **Azure Monitor / App Insights** | If the host exports OTLP or **custom metrics** land in App Insights, use **Metrics** explorer or a **Workbook** (pattern: golden cohort cost workbook in **`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`** §5). **KQL** (when custom metrics are in `customMetrics`) can time-series **`archlucid_agent_output_semantic_score`** and **`archlucid_agent_output_structural_completeness_ratio`** — exact field names depend on exporter mapping. |
+| **Manual / pilot** | For a single tenant, call **`agent-evaluation`** after important runs and paste aggregates into your pilot log (see **`docs/quality/MANUAL_QA_CHECKLIST.md`** §8.3–8.4). |
+
+**Get email when something is wrong (or on a schedule)**
+
+1. **Threshold alert (recommended first):** In Azure Monitor or Grafana, define an alert when, for example, **semantic score p10** over **24h** drops below your release bar, or **`rejected`** gate **`rate()`** exceeds a small baseline. Attach an **Action group** → **Email** to yourself.
+2. **Scheduled summary:** **Azure Monitor scheduled query alert** or **Grafana report** (if licensed) on a saved query that aggregates last **7 days** of the same metrics — less common for histograms; often easier to alert on **SLO-style** thresholds than “digest of percentiles.”
+3. **DIY:** Small scheduled job (Logic App, GitHub Action, or **Azure Function**) that calls **`agent-evaluation`** for a **fixture run id** or queries your metrics API and emails JSON — use only if hosted metrics are not available yet.
+
+**Prerequisite:** OTel from **`ArchLucid.Api`** must export to a backend; see **`OBSERVABILITY.md`** § **Export path configuration (OpenTelemetry)** (Application Insights connection string, OTLP endpoint, or Prometheus scrape). Local **`dotnet run`** with no exporter may only show the **console** in Development. Without any export path, use the **HTTP API** per run until observability is wired.

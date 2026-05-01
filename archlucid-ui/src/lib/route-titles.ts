@@ -17,7 +17,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/replay": "Replay",
   "/audit": "Audit",
   "/planning": "Planning",
-  "/getting-started": "Getting started",
+  "/onboarding": "Onboarding",
   "/digests": "Digests",
   "/executive/reviews": "Executive reviews",
 };

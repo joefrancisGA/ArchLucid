@@ -29,6 +29,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  alertsInboxGettingStartedOperator,
+  alertsInboxGettingStartedReader,
+} from "@/lib/alerts-hub-empty-guidance";
 import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
 import {
   alertsFilteredEmptyDescriptionOperator,
@@ -145,27 +149,23 @@ export function AlertsInboxContent() {
 
     const actions = canMutateAlertInbox
       ? [
-          { label: "View runs list", href: "/reviews?projectId=default" },
-          {
-            label: "Alert tooling (rules, routing, tuning)",
-            href: "/alerts?tab=rules",
-            variant: "outline" as const,
-          },
+          { label: "Set up alert rules", href: "/alerts?tab=rules" },
+          { label: "Add routing (optional)", href: "/alerts?tab=routing", variant: "outline" as const },
+          { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" as const },
         ]
       : [
-          { label: "View runs list", href: "/reviews?projectId=default" },
-          {
-            label: "Review alert tooling (read-only)",
-            href: "/alerts?tab=rules",
-            variant: "outline" as const,
-          },
+          { label: "Review alert rules", href: "/alerts?tab=rules" },
+          { label: "View reviews", href: "/reviews?projectId=default", variant: "outline" as const },
         ];
+
+    const gettingStarted = canMutateAlertInbox ? alertsInboxGettingStartedOperator : alertsInboxGettingStartedReader;
 
     return {
       ...ALERTS_EMPTY_FILTERED,
       title: "No alerts match this filter",
       description,
       actions,
+      gettingStarted,
     };
   }, [canMutateAlertInbox]);
 

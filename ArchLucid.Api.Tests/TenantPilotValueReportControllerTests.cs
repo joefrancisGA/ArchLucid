@@ -57,7 +57,7 @@ public sealed class TenantPilotValueReportControllerTests
         problem.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         Microsoft.AspNetCore.Mvc.ProblemDetails? pd = problem.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         pd.Should().NotBeNull();
-        pd!.Detail.Should().Be("Tenant was not found for the current scope.");
+        pd.Detail.Should().Be("Tenant was not found for the current scope.");
     }
 
     [Fact]
@@ -92,7 +92,10 @@ public sealed class TenantPilotValueReportControllerTests
         DefaultHttpContext http = new();
         http.Request.Headers.Accept = "text/markdown";
 
-        TenantPilotValueReportController sut = new(svc.Object) { ControllerContext = new ControllerContext { HttpContext = http } };
+        TenantPilotValueReportController sut = new(svc.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = http }
+        };
 
         IActionResult result = await sut.GetPilotValueReport(null, null, CancellationToken.None);
 

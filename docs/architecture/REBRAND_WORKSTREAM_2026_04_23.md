@@ -6,7 +6,7 @@
 
 [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q6 / Q7 (Resolved 2026-04-23, sixth pass) scheduled the rebrand from **"AI Architecture Intelligence"** to **"AI Architecture Review Board"** for V1, with the explicit stipulation that the workstream consumes **separate session(s)** and is sequenced **after the brand-neutral content seam ships** so each surface flip is a one-line change.
 
-This file is the running checklist for the seven PRs that complete the workstream. It is the working surface — the normative inputs are owner Q6 / Q7 in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), Improvement 4 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3, and Prompt 4 in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md).
+This file is the running checklist for the seven PRs that complete the workstream. It is the working surface — the normative inputs are owner Q6 / Q7 in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md), Improvement 4 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3, and Prompt 4 in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](../archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md).
 
 ## Architecture (decomposition)
 

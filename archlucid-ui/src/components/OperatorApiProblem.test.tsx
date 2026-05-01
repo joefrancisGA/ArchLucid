@@ -32,9 +32,8 @@ describe("OperatorApiProblem", () => {
       <OperatorApiProblem problem={null} fallbackMessage="Plain error" correlationId="abc-123" />,
     );
 
-    expect(
-      screen.getByText(/Reference \(correlation ID — use with API logs and support bundle\): abc-123/),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Provide correlation ID")).toBeInTheDocument();
+    expect(screen.getByText("abc-123")).toBeInTheDocument();
   });
 
   it("does not surface ERR reference text to the user (logged to console only)", () => {

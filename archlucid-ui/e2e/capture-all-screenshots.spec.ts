@@ -51,7 +51,7 @@ const HREFS: string[] = [
   "/digests",
   "/evolution-review",
   "/example-roi-bulletin",
-  "/getting-started",
+  "/onboarding",
   "/governance",
   "/governance/dashboard",
   "/governance/findings",

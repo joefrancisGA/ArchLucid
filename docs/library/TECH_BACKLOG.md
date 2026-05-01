@@ -11,6 +11,7 @@ Items here are **greenlit in principle** — the decision has been made and cont
 | TB-001 | Harden async audit write paths (never block users) | Correctness — runs can be mislabelled `Failed` | ~2 h |
 | TB-002 | OTel counter + log for production config validation warnings | Ops visibility — config misconfigurations are invisible without log polling | ~1 h |
 | TB-003 | Performance regression sentinel — named-query allowlist CI gate | CI quality — prevent slow-query regressions from reaching production | ~3 h |
+| TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar — conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1–2 h |
 
 ---
 
@@ -104,5 +105,30 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 - Unit test for `assert_query_performance.py`: green case (all under threshold), red case (one over), missing-query-name case (script should warn, not fail, for unknown names so new queries don't silently break CI).
 
 **Size estimate:** ~3 h, zero blast radius, no API or schema changes.
+
+---
+
+## TB-004 — Wire OTel exporters + verify agent-output metrics; add Azure alerts
+
+**Decision / context (2026-05-01):** Product stance for agent quality favors a **conservative** release bar; **`archlucid_agent_output_*`** histograms and **`archlucid_agent_output_quality_gate_total`** must reach a backend before **trend charts** or **email alerts** are possible. Code already emits metrics after successful execute; **`ObservabilityExtensions`** exports when App Insights connection string, OTLP endpoint, or Prometheus scrape is configured (`docs/library/OBSERVABILITY.md` § *Export path configuration*).
+
+**What to do (checklist):**
+
+1. **Per environment (staging → production):** Set **at least one** of:
+   - **`APPLICATIONINSIGHTS_CONNECTION_STRING`** (preferred on Azure), or **`ApplicationInsights:ConnectionString`**, or **`Observability:AzureMonitor:ApplicationInsightsConnectionString`** on the **API** host; or
+   - Non-empty **`Observability:Otlp:Endpoint`** (+ **`Protocol`** / **`Headers`** as needed); or
+   - **`Observability:Prometheus:Enabled`** with scrape auth credentials and a scraper pointing at **`/metrics`** (trusted network only).
+
+2. **`ArchLucid.Worker`:** If running Worker in the same subscription, apply the **same** exporter settings so worker-originated telemetry is not orphaned.
+
+3. **Smoke verification:** After deploy, run **one full execute**; in **Application Insights → Metrics** (or OTLP sink), confirm **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_structural_completeness_ratio`**, and **`archlucid_agent_output_quality_gate_total`** appear (Azure may normalize names — search by meter / namespace).
+
+4. **Alerts:** Create **Azure Monitor metric alerts** (or Grafana rules) + **Action group → email** — e.g. semantic **p10** over 24h below agreed floor, or elevated **`rejected`** rate on **`quality_gate_total`**. Product does not ship pre-built rules.
+
+5. **Optional:** Deploy **`infra/terraform-otel-collector`** for tail sampling; lower **`Observability:Tracing:SamplingRatio`** affects **traces**, not the agent-output **metric** path — document any sampling choice for on-call.
+
+**Reference docs:** `docs/library/AGENT_OUTPUT_EVALUATION.md` §9; `docs/quality/MANUAL_QA_CHECKLIST.md` §8.4.
+
+**Size estimate:** ~1–2 h of ops / Terraform / portal work (no mandatory code change unless exporter wiring gaps are found).
 
 ---

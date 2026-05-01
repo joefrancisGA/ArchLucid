@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -52,6 +53,38 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => corePilotSteps.map(() => false));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [hasAnyRun, setHasAnyRun] = useState(false);
+  const [latestRunId, setLatestRunId] = useState<string | null>(exploreCompletedOutput ? SHOWCASE_STATIC_DEMO_RUN_ID : null);
+  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(
+    exploreCompletedOutput ? SHOWCASE_STATIC_DEMO_RUN_ID : null,
+  );
+
+  useEffect(() => {
+    if (exploreCompletedOutput) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const ctx = await fetchCorePilotCommitContext();
+
+        if (!cancelled) {
+          setLatestRunId(ctx.latestRunId);
+          setFirstCommittedRunId(ctx.firstCommittedRunId);
+        }
+      } catch {
+        if (!cancelled) {
+          setLatestRunId(null);
+          setFirstCommittedRunId(null);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [exploreCompletedOutput]);
 
   useEffect(() => {
     const nextDone: boolean[] = [];
@@ -453,7 +486,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                       <p className="m-0 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
                       <div className="mt-1.5">
                         <Button asChild variant="outline" size="sm" className="h-7 text-xs font-medium">
-                          <Link className="no-underline" href={step.primaryHref}>
+                          <Link className="no-underline" href={index === 2 && latestRunId !== null ? `/reviews/${encodeURIComponent(latestRunId)}` : index === 3 && firstCommittedRunId !== null ? `/reviews/${encodeURIComponent(firstCommittedRunId)}` : step.primaryHref}>
                             {step.primaryLabel}
                           </Link>
                         </Button>

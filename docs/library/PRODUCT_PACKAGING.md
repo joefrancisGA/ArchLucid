@@ -48,6 +48,16 @@ Two layers explain **how to understand the product**:
 
 This section names and sequences layers for buyers. **Sponsor-level narrative** (why a pilot matters, what success sounds like, what not to claim) lives in **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)**; this document stays the **capability inventory**—what ships where—so packaging detail does not replace the brief.
 
+### Buyer vocabulary — explicit hybrid (V1 Pilot)
+
+**Owner decision (2026-05-01):** **Architecture review** is the dominant buyer-facing phrase. **Explicit hybrid** means:
+
+1. **Pilot surfaces (default path):** Use **architecture review** language for primary headings, hero CTAs, and nav labels that denote the Core Pilot workflow (start/list/review an architecture review).
+2. **Technical spine:** Keep **run** where it matches the API, persisted identifiers, support bundles, logs, and precise diagnostics; show **Run ID** (or equivalent) in metadata or secondary text, not as the only hero label.
+3. **Bridge copy:** In first-session or empty-state context, include **one plain sentence** that **each architecture review is tracked as one run** in the product so reviewers do not treat the two words as different objects.
+
+**Scope:** Copy and presentation only — **do not** rename REST paths, DTO field names, or database entities for this rule.
+
 ### 2. UI progressive disclosure
 
 The operator shell uses **progressive disclosure** so users do not see the full product surface by default.
@@ -142,6 +152,8 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **run detail** copy keep **Operate (analysis workloads)** and **Operate (governance and trust)** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
 **Marketing proof (no operator install):** the public **`/demo/preview`** page (and **`GET /v1/demo/preview`**) shows a read-only commit-page projection of the latest committed **demo seed** run — complementing the operator-shell **`/demo/explain`** route, which focuses on provenance + citations side-by-side. See **`docs/DEMO_PREVIEW.md`**.
+
+**Real-tenant proof / PoV packs:** before any run-sourced artifact crosses the customer trust boundary, assign a redaction profile from **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** (default external posture: **`customer-approved-external`** with written approver + checklist).
 
 **Anti-creep rule:** **Pilot** is the default wedge and first buying motion. **Operate** should only be introduced when the next analytical or governance question actually requires it.
 

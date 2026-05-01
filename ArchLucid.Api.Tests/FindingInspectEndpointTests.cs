@@ -144,7 +144,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
         body.Should().NotBeNull();
 
-        body!.FindingId.Should().Be(DemoPrimaryFindingId);
+        body.FindingId.Should().Be(DemoPrimaryFindingId);
 
         body.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId);
 
@@ -188,7 +188,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
         body.Should().NotBeNull();
 
-        body!.RunId.Should().Be(baselineRunGuid);
+        body.RunId.Should().Be(baselineRunGuid);
 
         body.FindingId.Should().Be(DemoPrimaryFindingId);
 

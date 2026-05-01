@@ -6,7 +6,7 @@ export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" |
 
 const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/": "demo-ready",
-  "/getting-started": "demo-ready",
+  "/onboarding": "demo-ready",
   "/reviews/new": "demo-ready",
   "/reviews?projectId=default": "demo-ready",
   "/help": "demo-ready",

@@ -23,7 +23,7 @@ Each subsection follows the GDPR Art. 30 record shape: purpose, legal basis, cat
 
 ### 3.A — First-tenant onboarding funnel (Improvement 12)
 
-**Purpose.** Measure the time-to-first-finding for newly provisioned tenants so the marketing claim "first finding inside 30 minutes" can be substantiated with first-party evidence rather than anecdote. See [`docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3 Improvement 12 for the assessment finding that motivated the work.
+**Purpose.** Measure the time-to-first-finding for newly provisioned tenants so the marketing claim "first finding inside 30 minutes" can be substantiated with first-party evidence rather than anecdote. See [`docs/archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../archive/root-superseded-2026-05-01/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3 Improvement 12 for the assessment finding that motivated the work.
 
 **Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller (ArchLucid) in measuring product onboarding success without distorting the result by asking each tenant for opt-in consent at the moment of signup (which would itself depress the funnel and bias the measurement).
 

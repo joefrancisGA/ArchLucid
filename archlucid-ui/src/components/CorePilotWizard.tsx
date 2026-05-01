@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useReducer, useState } from "react";
 
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { HelpLink } from "@/components/HelpLink";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,12 +51,12 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          Stand up Sql + credential wiring for your scope (see PILOT_GUIDE). When unsure, anchor on tenant isolation expectations and documented
+          Stand up Sql + credential wiring for your <GlossaryTooltip termKey="scope">scope</GlossaryTooltip> (see PILOT_GUIDE). When unsure, anchor on tenant isolation expectations and documented
           private endpoints.
         </p>
         <p className="m-0">
           <Link
-            href="/getting-started"
+            href="/onboarding"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Getting started →

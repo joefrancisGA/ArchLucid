@@ -69,7 +69,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         AuditEventCursorPage? startedPage = await auditStarted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
             JsonOptions);
         startedPage.Should().NotBeNull();
-        startedPage!.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
+        startedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
 
         HttpResponseMessage auditCompleted = await client.GetAsync(
             $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");
@@ -78,6 +78,6 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         AuditEventCursorPage? completedPage = await auditCompleted.Content.ReadFromJsonAsync<AuditEventCursorPage>(
             JsonOptions);
         completedPage.Should().NotBeNull();
-        completedPage!.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
+        completedPage.Items.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
     }
 }

@@ -5,9 +5,11 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { StatusPill } from "@/components/StatusPill";
@@ -46,6 +48,14 @@ import {
   submitApprovalRequest,
 } from "@/lib/api";
 import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
+import {
+  governanceActivationsEmptyGettingStartedOperator,
+  governanceActivationsEmptyGettingStartedReader,
+  governanceNoApprovalsGettingStartedOperator,
+  governanceNoApprovalsGettingStartedReader,
+  governancePromotionsEmptyGettingStartedOperator,
+  governancePromotionsEmptyGettingStartedReader,
+} from "@/lib/governance-workflow-empty-guidance";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -718,11 +728,18 @@ function GovernanceWorkflowPageInner() {
 
           {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
             <OperatorEmptyState title="No approval requests for this run">
-              <p className="text-sm">
-                {canMutateWorkflow
-                  ? governanceWorkflowNoApprovalsOperatorHint
-                  : governanceWorkflowNoApprovalsReaderHint}
-              </p>
+              <div className="grid gap-3">
+                <p className="text-sm">
+                  {canMutateWorkflow
+                    ? governanceWorkflowNoApprovalsOperatorHint
+                    : governanceWorkflowNoApprovalsReaderHint}
+                </p>
+                <GettingStartedSteps
+                  {...(canMutateWorkflow
+                    ? governanceNoApprovalsGettingStartedOperator
+                    : governanceNoApprovalsGettingStartedReader)}
+                />
+              </div>
             </OperatorEmptyState>
           ) : null}
 
@@ -896,12 +913,13 @@ function GovernanceWorkflowPageInner() {
 
       <Separator className="mb-10" />
 
-      <section className="mb-10">
-        <h3 className="mb-4 text-lg font-semibold">
-          {canMutateWorkflow
-            ? governanceWorkflowPromotionsActivationsHeadingOperator
-            : governanceWorkflowPromotionsActivationsHeadingReader}
-        </h3>
+      <AdvancedOptionsAccordion className="mb-10">
+        <section className="mb-0">
+          <h3 className="mb-4 text-lg font-semibold">
+            {canMutateWorkflow
+              ? governanceWorkflowPromotionsActivationsHeadingOperator
+              : governanceWorkflowPromotionsActivationsHeadingReader}
+          </h3>
         <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           {canMutateWorkflow
             ? governanceWorkflowPromotionsActivationsSectionLeadOperator
@@ -913,11 +931,18 @@ function GovernanceWorkflowPageInner() {
 
         {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
           <OperatorEmptyState title="No promotions recorded yet">
-            <p className="text-sm">
-              {canMutateWorkflow
-                ? governanceWorkflowPromotionsEmptyOperatorHint
-                : governanceWorkflowPromotionsEmptyReaderHint}
-            </p>
+            <div className="grid gap-3">
+              <p className="text-sm">
+                {canMutateWorkflow
+                  ? governanceWorkflowPromotionsEmptyOperatorHint
+                  : governanceWorkflowPromotionsEmptyReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governancePromotionsEmptyGettingStartedOperator
+                  : governancePromotionsEmptyGettingStartedReader)}
+              />
+            </div>
           </OperatorEmptyState>
         ) : null}
 
@@ -988,11 +1013,18 @@ function GovernanceWorkflowPageInner() {
 
         {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
           <OperatorEmptyState title="No activations recorded yet">
-            <p className="text-sm">
-              {canMutateWorkflow
-                ? governanceWorkflowActivationsEmptyOperatorHint
-                : governanceWorkflowActivationsEmptyReaderHint}
-            </p>
+            <div className="grid gap-3">
+              <p className="text-sm">
+                {canMutateWorkflow
+                  ? governanceWorkflowActivationsEmptyOperatorHint
+                  : governanceWorkflowActivationsEmptyReaderHint}
+              </p>
+              <GettingStartedSteps
+                {...(canMutateWorkflow
+                  ? governanceActivationsEmptyGettingStartedOperator
+                  : governanceActivationsEmptyGettingStartedReader)}
+              />
+            </div>
           </OperatorEmptyState>
         ) : null}
 
@@ -1012,7 +1044,8 @@ function GovernanceWorkflowPageInner() {
             </Card>
           ))}
         </div>
-      </section>
+        </section>
+      </AdvancedOptionsAccordion>
 
       <ConfirmationDialog
         open={pendingPromote !== null}

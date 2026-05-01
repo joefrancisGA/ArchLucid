@@ -33,7 +33,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         result.StatusCode.Should().Be(404);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ResourceNotFound);
+        problem.Type.Should().Be(ProblemTypes.ResourceNotFound);
         problem.Title.Should().Be("Not Found");
         problem.Detail.Should().Be("The requested resource was not found.");
         problem.Extensions.Should().NotContainKey("upgradeUrl");

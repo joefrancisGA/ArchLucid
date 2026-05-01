@@ -3,7 +3,6 @@ using System.Reflection;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Controllers.Pilots;
-using ArchLucid.Api.Controllers.Tenancy;
 
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Tenancy;
@@ -12,7 +11,6 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
 
 namespace ArchLucid.Api.Tests;
 
@@ -48,9 +46,9 @@ public sealed class CommercialPackagingMetadataTests
                 t.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
 
             attr.Should().NotBeNull($"{t.Name} must carry the attribute directly on the controller type.");
-            attr!.Arguments.Should().HaveCount(1);
+            attr.Arguments.Should().HaveCount(1);
 
-            TenantTier tier = (TenantTier)attr!.Arguments[0]!;
+            TenantTier tier = (TenantTier)attr.Arguments[0];
             Assert.True((int)tier > (int)TenantTier.Free, $"{t.FullName} should require Standard or Enterprise.");
         }
     }
@@ -69,7 +67,7 @@ public sealed class CommercialPackagingMetadataTests
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
 
         attr.Should().NotBeNull($"{nameof(PilotsController.PostSponsorOnePager)} must stay Standard-gated.");
-        attr!.Arguments.Should().HaveCount(1);
+        attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Standard);
     }
 
@@ -87,7 +85,7 @@ public sealed class CommercialPackagingMetadataTests
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
 
         attr.Should().NotBeNull($"{nameof(PilotsController.GetSponsorEvidencePack)} must stay Standard-gated.");
-        attr!.Arguments.Should().HaveCount(1);
+        attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Standard);
 
         ProducesResponseTypeAttribute[] produces = method.GetCustomAttributes<ProducesResponseTypeAttribute>().ToArray();
@@ -111,7 +109,7 @@ public sealed class CommercialPackagingMetadataTests
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
 
         attr.Should().NotBeNull($"{nameof(AuditController.ExportAudit)} must stay Enterprise-gated.");
-        attr!.Arguments.Should().HaveCount(1);
+        attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Enterprise);
     }
 }

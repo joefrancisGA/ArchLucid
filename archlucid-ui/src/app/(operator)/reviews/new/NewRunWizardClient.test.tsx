@@ -201,8 +201,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     fireEvent.change(systemName, { target: { value: "" } });
     fireEvent.blur(systemName);
 
+    await clickPrimaryForward();
+    
     expect(progressLine()).toHaveTextContent(/Step 2:/);
-    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/Required/i);
   });
@@ -252,8 +253,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     });
     fireEvent.blur(prior);
 
+    await clickPrimaryForward();
+
     expect(progressLine()).toHaveTextContent(/Step 2:/);
-    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
   });
 
@@ -269,8 +271,9 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     fireEvent.change(description, { target: { value: "short" } });
     fireEvent.blur(description);
 
+    await clickPrimaryForward();
+
     expect(progressLine()).toHaveTextContent(/Step 2:/);
-    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
   });
 

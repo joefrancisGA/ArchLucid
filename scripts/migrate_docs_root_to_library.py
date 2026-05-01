@@ -4,7 +4,8 @@ One-time (2026-04-23) documentation layout migration:
 
 - Move superseded quality / Cursor prompt packs under ``docs/archive/quality/``.
 - Move most ``docs/*.md`` root files to ``docs/library/`` while keeping a small
-  canonical root set (buyer spine + CI-pinned paths).
+  canonical root set (buyer spine + CI-pinned paths). The V1 RTM lives at
+  ``docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md`` (not kept at ``docs/`` root).
 - Rewrite relative markdown links across **markdown only** so post-move paths
   resolve (uses post-move source + target directories to avoid ``library/library``).
 
@@ -26,7 +27,7 @@ UTF8_BOM = "\ufeff"
 LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^()]*(?:\([^()]*\))*[^()]*)\)")
 ARCHIVE_BANNER = (
     "> Archived 2026-04-23 — superseded by [docs/START_HERE.md](../START_HERE.md) "
-    "and the current assessment pair under ``docs/``. Kept for audit trail.\n\n"
+    "and current assessments under ``docs/library/``. Kept for audit trail.\n\n"
 )
 
 
@@ -87,7 +88,6 @@ def main() -> int:
         "ARCHITECTURE_ON_ONE_PAGE.md",
         "PENDING_QUESTIONS.md",
         "CONCEPTS.md",
-        "V1_REQUIREMENTS_TEST_TRACEABILITY.md",
         "CHANGELOG.md",
         "ARCHLUCID_RENAME_CHECKLIST.md",
         "AZURE_MARKETPLACE_SAAS_OFFER.md",

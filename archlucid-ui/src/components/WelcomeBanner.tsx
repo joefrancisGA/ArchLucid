@@ -6,6 +6,7 @@ import { useEffect, useId, useState } from "react";
 import type { CSSProperties } from "react";
 
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
@@ -121,12 +122,20 @@ export function WelcomeBanner() {
   const trialActive = trial?.status === "Active";
   const days = trial?.daysRemaining;
   const returningUser = hasExistingRuns;
-  const headingText = returningUser
+    const headingText = returningUser
     ? "Architecture manifest workspace"
     : "Turn architecture proposals into governed, evidence-backed review packages.";
   const subheadingText = returningUser
-    ? "Monitor active reviews, finalize manifests, and review governance findings."
-    : "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
+    ? (
+      <>
+        Monitor active runs, finalize <GlossaryTooltip termKey="golden_manifest">manifests</GlossaryTooltip>, and review governance <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+      </>
+    )
+    : (
+      <>
+        Turn architecture intent into a governed, reviewable <GlossaryTooltip termKey="golden_manifest">manifest</GlossaryTooltip> with supporting artifacts and <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+      </>
+    );
 
   const setWelcomeDismissed = (nextCompact: boolean) => {
     if (nextCompact) {
@@ -265,7 +274,7 @@ export function WelcomeBanner() {
                 [
                   { label: "Governed manifest" as const, Icon: FileCheck2 },
                   { label: "Actionable findings" as const, Icon: Target },
-                  { label: "Exportable artifact bundle" as const, Icon: Package },
+                  { label: <><GlossaryTooltip termKey="artifact_bundle">artifact bundle</GlossaryTooltip></> as const, Icon: Package },
                   { label: "Review trail" as const, Icon: ClipboardCheck },
                 ] as const
               ).map(({ label, Icon }) => (

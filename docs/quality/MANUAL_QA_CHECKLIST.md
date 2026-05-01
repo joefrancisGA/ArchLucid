@@ -4,6 +4,8 @@
 
 This checklist focuses **exclusively** on scenarios that are either impossible, extremely brittle, or computationally infeasible to automate. These tests rely on human judgment, subjective evaluation, empathy, and complex out-of-band interactions. Everything else (API contracts, state mutations, RBAC enforcement, standard UI flows) should be handled by automated tests (e.g., unit, integration, Playwright).
 
+**Agent output quality (structural / semantic scores, release bar):** A **key** part of manual QA for AI-backed runs is understanding what those metrics mean, why numeric floors should not be pushed toward 1.0 without calibration, and what you can do in prompts and briefs to keep scores legitimately high. See **§8.4** (and canonical technical detail in [`docs/library/AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)).
+
 Each test includes a justification for why human intervention is strictly necessary.
 
 ---
@@ -130,6 +132,51 @@ Each test includes a justification for why human intervention is strictly necess
   - Optionally: run a **second** run with **simulator** mode on the **same** or equivalent request to **feel** the difference in usefulness (simulator = deterministic for CI; real LLM = what pilots experience).
 - **Record (for you):** date, **environment URL**, model/deployment id if known, and one line: **“acceptable for pilot” / “not yet”** and why. This is your **manual** answer to the independent assessment **Q7** (agent eval / “last green” narrative) when you do **not** yet rely on a **published** 30-day rollup from `agent-eval-datasets-nightly` (`.github/workflows/agent-eval-datasets-nightly.yml`) or other automation.
 - **Justification:** Scheduled jobs can assert JSON shape and thresholds; they **cannot** stand in for a human judgment that **this** pipeline output is **credible and safe to show a sponsor** on a real engagement. This step turns anxiety into a **finite, repeatable** session you control.
+
+### 8.4. Agent output scores — layperson meaning, threshold discipline, and keeping scores high (key)
+
+Use this subsection whenever you run **real** Azure OpenAI paths (§8.3) or interpret **`archlucid_agent_output_*`** telemetry. Product stance: a **conservative** release bar for buyers who design on Azure and for AI systems — **block** releases on insufficient **reference** evidence, not **warn-only**; see [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md) § **Quality gate** and **Release credibility posture**.
+
+#### What the numbers mean (plain English)
+
+| Metric | Range | Lay meaning |
+|--------|-------|-------------|
+| **Structural completeness** | 0–1 | “Did the model fill the **expected JSON fields**?” **1.0** ≈ all expected keys present and non-empty; **~0.55** ≈ about half; **~0.35** ≈ mostly empty or broken shape. |
+| **Semantic score** | 0–1 | “Is the **content** substantive, not hollow?” Built from **claims** (fraction with real **evidence** refs or evidence text) and **findings** (each needs severity, description **>** 10 chars, recommendation **>** 5 chars). Formula: **Claims × 0.4 + Findings × 0.6** (see [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)). |
+
+**Quality gate outcomes** (same config family as `ArchLucid:AgentOutput:QualityGate`): **accepted** = above warn floors; **warned** = soft fail band; **rejected** = catastrophic band. Shipped **defaults** in code use **warn below ~0.55** and **reject below ~0.35** on structural and semantic — those are **starting calibration points**, not the final “Azure architect credibility” bar if you tighten for release.
+
+#### Why you should **not** only “raise everything toward 1.0”
+
+- **LLMs are variable.** Even good models occasionally emit a claim without a citation or a slightly short finding. Floors in the **0.90+** range on **real** briefs often create **noise** (blocked releases for **non-regressions**) rather than signal.
+- **The checks are minimal by design.** “Description > 10 characters” is a **floor**, not proof of depth. A high numeric **target** does not, by itself, mean prose is **good** — only that it cleared a cheap detector.
+- **Simulator vs real differ.** Simulator runs may score **very high** deterministically; **real AOAI** is the distribution that matters for pilots. Calibrate thresholds on **reference deployment + realistic corpus**, not on wishful 1.0.
+- **Credibility is process + published bar**, not a magic number. Buyers care that you **name a reference model**, **run the gate**, and **do not ship when it fails** — not that your internal reject line is 0.92.
+
+#### Practical starting calibration (manual QA + release planning)
+
+After the **reference Azure OpenAI deployment** is fixed and you have **~10–20** real-mode runs on **realistic** briefs:
+
+- Consider **release-blocking** floors around **0.70 / 0.70** (structural / semantic) as a **first** tight bar — meaningfully **above** the shipped **reject** default (**0.35**), which is really a **catastrophic** detector.
+- **Tighten** toward **0.80+** only when **measured** pilot runs routinely sit there (prompt and corpus improvements landed).
+
+Record in your pilot notes: **date**, **deployment id**, **brief id**, and whether scores **passed your chosen bar**.
+
+#### What **you** can do to help scores stay **legitimately** high (not gaming the metric)
+
+- **Prompts:** Require **every claim** to cite evidence; require **every finding** to include a **concrete** recommendation. That directly feeds **semantic** scoring.
+- **Architecture briefs:** Well-structured briefs (named components, constraints, technologies) yield **better** structure and citations than one-line asks.
+- **Eval corpus:** Keep synthetic / pilot-safe briefs **realistic and well-formed** (see assessment prompt on eval corpus). Garbage-in produces garbage-out and unstable scores.
+- **Model & temperature:** Prefer **lower temperature** on reference / release paths for **repeatable** completeness; align **golden cohort real-LLM** with the same deployment you advertise.
+- **Future refinement:** **Per-`agent_type` floors** (Topology vs Compliance, etc.) allow a **true** bar per agent without forcing one average to satisfy every shape.
+
+#### Manual QA checklist actions (tie to §8.3)
+
+On each **real-LLM** validation session (§8.3), verify **at least**:
+
+- [ ] You can **explain** structural and semantic scores to a **non-engineer** using the table above.
+- [ ] You are **not** treating “warn” as “ship anyway” if your **release policy** says **block** — open a defect or defer the release.
+- [ ] You logged **one** concrete improvement when scores dipped (prompt gap, thin brief, wrong deployment, or agent-specific issue).
 
 ---
 

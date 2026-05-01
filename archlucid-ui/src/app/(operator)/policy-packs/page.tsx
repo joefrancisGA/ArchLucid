@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -442,7 +443,8 @@ export default function PolicyPacksPage() {
         </label>
       </section>
 
-      <section className="mb-8" aria-labelledby="policy-packs-content-heading">
+      <AdvancedOptionsAccordion className="mb-8">
+        <section className="mb-0" aria-labelledby="policy-packs-content-heading">
         <h3 id="policy-packs-content-heading">
           {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
         </h3>
@@ -567,10 +569,9 @@ export default function PolicyPacksPage() {
           <p className="text-red-700 dark:text-red-400">Selected versions are no longer in the list; refresh and try again.</p>
         ) : null}
       </section>
-      </div>
 
       {isStaticDemoPayloadFallbackEnabled() ? null : (
-      <section className="mb-8" aria-labelledby="policy-packs-lifecycle-heading">
+      <section className="mb-0" aria-labelledby="policy-packs-lifecycle-heading">
         <h3 id="policy-packs-lifecycle-heading">
           {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
         </h3>
@@ -819,6 +820,8 @@ export default function PolicyPacksPage() {
         </div>
       </section>
       )}
+      </AdvancedOptionsAccordion>
+      </div>
     </main>
   );
 }

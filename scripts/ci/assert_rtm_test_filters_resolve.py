@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ensure FullyQualifiedName~ tokens in docs/V1_REQUIREMENTS_TEST_TRACEABILITY.md resolve to test source files."""
+"""Ensure FullyQualifiedName~ tokens in docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md resolve to test source files."""
 
 from __future__ import annotations
 
@@ -107,7 +107,7 @@ def _suffix_resolves(root: Path, suffix: str) -> bool:
 
 def main() -> int:
     root = _repo_root()
-    doc_path = root / "docs" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
+    doc_path = root / "docs" / "library" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
 
     if not doc_path.is_file():
         print(f"::error::Missing {doc_path}")

@@ -61,7 +61,7 @@ describe("nav-config structure", () => {
 
   /**
    * Pilot essentials intentionally omit `requiredAuthority` so bootstrap / conservative ranks still see the
-   * default path (`nav-config` Authority block). A stray Read/Execute label on Home or Runs would regress first pilots.
+   * default path (`docs/NAV_CONFIG_CONTRACT.md`). A stray Read/Execute label on Home or Runs would regress first pilots.
    */
   it("keeps requiredAuthority unset on Pilot essential-tier links", () => {
     const core = NAV_GROUPS.find((group) => group.id === "pilot");

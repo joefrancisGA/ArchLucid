@@ -82,6 +82,7 @@ Deliver a reproducible dossier tying four independent signals:
 - Never attach raw API keys, PATs, or Azure OpenAI endpoint keys.
 - If sharing HTTP captures, strip cookies and auth headers.
 - Treat committed manifest excerpts as **confidential** unless the customer approves distribution.
+- Select a **redaction profile** before building or forwarding any pack — **[PROOF_PACK_REDACTION_PROFILES.md](PROOF_PACK_REDACTION_PROFILES.md)** (`internal-pilot`, `customer-approved-external`, `anonymous-benchmark`).
 
 ---
 
@@ -94,6 +95,7 @@ Deliver a reproducible dossier tying four independent signals:
 
 ## 9. References
 
+- **`PROOF_PACK_REDACTION_PROFILES.md`** — operational redaction profiles for sponsor and benchmark packs.
 - **`REAL_MODE_BENCHMARK.md`** — PowerShell schema + k6 JSON format.
 - **`LOAD_TEST_BASELINE.md`** — k6 scenarios, thresholds, baseline table conventions.
 - **`PILOT_ROI_MODEL.md`**, **`docs/go-to-market/ROI_MODEL.md`** — measurement + business case linkage.

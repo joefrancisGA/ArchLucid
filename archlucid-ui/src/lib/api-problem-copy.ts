@@ -25,7 +25,23 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
 };
 
 /**
- * Builds operator-facing copy: prefers API `supportHint`, then maps `errorCode`, then ProblemDetails title/detail.
+ * Common, actionable remediation steps for stable `errorCode` values.
+ * Used as a fallback if the API does not provide a specific `supportHint`.
+ */
+const ERROR_CODE_REMEDIATION: Record<string, string> = {
+  DATABASE_TIMEOUT: "The database took too long to respond. Wait a minute and try again. If the issue persists, check the database health in the admin dashboard.",
+  DATABASE_UNAVAILABLE: "The database is currently unreachable. Verify your connection strings and ensure the database server is running.",
+  CIRCUIT_BREAKER_OPEN: "The AI service is currently overwhelmed or unavailable. Please wait a few minutes before retrying your request.",
+  VALIDATION_FAILED: "Review the highlighted fields above and correct any invalid inputs before resubmitting.",
+  CONFLICT: "Another user or process may have modified this resource. Please refresh the page to see the latest changes.",
+  COMPARISON_VERIFICATION_FAILED: "The runs you selected cannot be compared. Ensure they belong to the same project and have compatible manifests.",
+  INVALID_RUN_STATE: "This run is not in a valid state for this action. Refresh the page to check its current progress.",
+  POLICY_PACK_VERSION_NOT_FOUND: "The requested policy pack version is missing. It may have been deleted or archived.",
+  INTERNAL_ERROR: "An unexpected server error occurred. Try your action again in a few moments.",
+};
+
+/**
+ * Builds operator-facing copy: prefers API `supportHint`, then fallback remediation by `errorCode`, then ProblemDetails title/detail.
  */
 export function operatorCopyForProblem(
   problem: ApiProblemDetails | null,
@@ -43,7 +59,9 @@ export function operatorCopyForProblem(
   const body =
     problem.detail?.trim() ?? problem.title?.trim() ?? trimmedFallback;
 
-  const hint = problem.supportHint?.trim();
+  const apiHint = problem.supportHint?.trim();
+  const fallbackHint = code ? ERROR_CODE_REMEDIATION[code] : undefined;
+  const hint = apiHint || fallbackHint;
 
   if (hint) {
     return { heading, body, hint };

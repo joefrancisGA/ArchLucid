@@ -6,7 +6,7 @@ export type BreadcrumbItem = {
 };
 
 const SEGMENT_LABELS: Record<string, string> = {
-  "getting-started": "Getting started",
+  "onboarding": "Onboarding",
   onboarding: "Onboarding",
   reviews: "Architecture reviews",
   new: "New request",

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -12,6 +13,7 @@ import {
   alertSimulationPageLead,
   alertSimulationRunControlTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { alertSimulationOutcomesEmptyGettingStarted } from "@/lib/alerts-hub-empty-guidance";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
@@ -50,7 +52,16 @@ const TABS = ["simple", "composite", "compare"] as const;
 type Tab = (typeof TABS)[number];
 
 function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
-  if (outcomes.length === 0) return <p className="text-neutral-500 dark:text-neutral-400">No per-run rows.</p>;
+  if (outcomes.length === 0) {
+    return (
+      <div className="grid max-w-xl gap-3">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Run a simulation above — per-run outcomes explain matches, suppression, and dedupe.
+        </p>
+        <GettingStartedSteps {...alertSimulationOutcomesEmptyGettingStarted} />
+      </div>
+    );
+  }
   return (
     <div className="overflow-x-auto">
       <table className="mt-2 w-full border-collapse text-[13px]">

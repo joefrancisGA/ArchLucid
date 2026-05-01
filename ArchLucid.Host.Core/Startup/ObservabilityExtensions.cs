@@ -32,8 +32,9 @@ public static class ObservabilityExtensions
     /// an endpoint string is present (kill-switch). When the endpoint is empty, OTLP is always off.
     /// </para>
     /// <para>
-    /// <strong>Azure Monitor / Application Insights:</strong> When <c>APPLICATIONINSIGHTS_CONNECTION_STRING</c> or
-    /// <c>ApplicationInsights:ConnectionString</c> is set, trace and metric exporters are registered <b>in addition</b> to
+    /// <strong>Azure Monitor / Application Insights:</strong> When <c>APPLICATIONINSIGHTS_CONNECTION_STRING</c>,
+    /// <c>ApplicationInsights:ConnectionString</c>, or <c>Observability:AzureMonitor:ApplicationInsightsConnectionString</c>
+    /// is set, trace and metric exporters are registered <b>in addition</b> to
     /// OTLP / console (dual export). Prefer private ingestion paths in regulated environments.
     /// </para>
     /// </remarks>
@@ -68,6 +69,10 @@ public static class ObservabilityExtensions
 
         if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
             applicationInsightsConnectionString = configuration["ApplicationInsights:ConnectionString"]?.Trim();
+
+        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+            applicationInsightsConnectionString =
+                configuration["Observability:AzureMonitor:ApplicationInsightsConnectionString"]?.Trim();
 
         bool useAzureMonitorExporter = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
 

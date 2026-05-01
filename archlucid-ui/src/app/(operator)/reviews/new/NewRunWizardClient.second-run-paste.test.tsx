@@ -82,6 +82,10 @@ components = ["api"]
     });
 
     await waitFor(() => {
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 2:/);
+    });
+
+    await waitFor(() => {
       expect(screen.getByLabelText("System name")).toHaveValue("Pasted.Service");
     });
   });

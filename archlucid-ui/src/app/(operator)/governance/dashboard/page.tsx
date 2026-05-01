@@ -1,10 +1,12 @@
 import Link from "next/link";
 
-import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { GettingStartedSteps } from "@/components/GettingStartedSteps";
+import { HelpLink } from "@/components/HelpLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { governanceDashboardPlaceholderGettingStarted } from "@/lib/governance-workflow-empty-guidance";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 
 /**
@@ -36,12 +38,13 @@ export default function GovernanceDashboardPage() {
       </p>
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardContent className="space-y-4 px-6 py-8">
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-            When ready, this view will summarize pending approvals and traceability across reviews in one place.
-          </p>
+          <GettingStartedSteps {...governanceDashboardPlaceholderGettingStarted} />
           <div className="flex flex-wrap gap-3">
             <Button asChild type="button" variant="default">
               <Link href="/governance">Open governance workflow</Link>
+            </Button>
+            <Button asChild type="button" variant="outline">
+              <Link href="/governance/findings">Open governance findings</Link>
             </Button>
             <Button asChild type="button" variant="outline">
               <Link href="/audit">Open audit log</Link>

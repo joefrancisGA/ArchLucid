@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate docs/V1_REQUIREMENTS_TEST_TRACEABILITY.md maps each V1 row to existing test evidence paths."""
+"""Validate docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md maps each V1 row to existing test evidence paths."""
 
 from __future__ import annotations
 
@@ -99,7 +99,7 @@ def _token_exists(root: Path, token: str) -> bool:
 
 def main() -> int:
     root = _repo_root()
-    doc_path = root / "docs" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
+    doc_path = root / "docs" / "library" / "V1_REQUIREMENTS_TEST_TRACEABILITY.md"
 
     if not doc_path.is_file():
         print(f"::error::Missing {doc_path}")

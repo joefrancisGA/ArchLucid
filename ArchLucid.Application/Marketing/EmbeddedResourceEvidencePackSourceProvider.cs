@@ -30,7 +30,7 @@ public sealed class EmbeddedResourceEvidencePackSourceProvider : IEvidencePackSo
 
     /// <summary>
     ///     Canonical evidence-pack entry order. Mirrors the list in
-    ///     <c>docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md</c> § Prompt 6
+    ///     <c>docs/archive/root-superseded-2026-05-01/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md</c> § Prompt 6
     ///     (DPA → SUBPROCESSORS → SLA → security.txt → CAIQ → SIG → Owner Sec Assessment →
     ///     Pen-test SoW → Audit Coverage Matrix). README.md is NOT in this list — the
     ///     <see cref="EvidencePackBuilder" /> auto-generates that and prepends it.

@@ -200,14 +200,10 @@ export function NewRunWizardClient() {
   const watchedValues = useWatch({ control });
 
   const stepHasValidationErrors = useMemo(() => {
-    if (stepIndex < 1 || stepIndex > 3) {
-      return false;
-    }
-
-    return validateWizardStep(stepIndex, watchedValues as WizardFormValues).length > 0;
+    return false; // let react-hook-form handle validation on Next
   }, [stepIndex, watchedValues]);
 
-  const canProceed = !submitting && (stepIndex === 0 || stepIndex === 4 || !stepHasValidationErrors);
+  const canProceed = !submitting;
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
@@ -251,7 +247,7 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.max(0, current - 1));
   };
 
-  const goNext = () => {
+  const goNext = async () => {
     if (stepIndex === 0) {
       setStepIndex(1);
       return;
@@ -259,19 +255,11 @@ export function NewRunWizardClient() {
 
     const fieldGroup = WIZARD_STEP_FIELD_GROUPS[stepIndex];
     if (fieldGroup != null) {
-      for (const f of fieldGroup) {
-        clearErrors(f);
+      const ok = await trigger(fieldGroup, { shouldFocus: true });
+      if (!ok) {
+        showToast("err", "Fix the highlighted fields before continuing.");
+        return;
       }
-    }
-
-    const list = validateWizardStep(stepIndex, getValues());
-    if (list.length > 0) {
-      for (const e of list) {
-        setError(e.field as FieldPath<WizardFormValues>, { type: "validate", message: e.message });
-      }
-
-      showToast("err", "Fix the highlighted fields before continuing.");
-      return;
     }
 
     setStepIndex((current) => Math.min(STEP_INDEX_MAX, current + 1));
