@@ -30,14 +30,7 @@ type TrialStatusPayload = {
  * (headers; full workspace list remains on the API roadmap).
  */
 export default function TenantSettingsPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Tenant settings not available in demo mode.</p>
-        <p className="m-0 mt-1">Workspace configuration is available to administrators with a live API connection.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const { callerAuthorityRank, currentPrincipal } = useOperatorNavAuthority();
   const canEditDigest = operateCapabilityFromRank(callerAuthorityRank);
@@ -79,8 +72,21 @@ export default function TenantSettingsPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [isDemo, load]);
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Tenant settings not available in demo mode.</p>
+        <p className="m-0 mt-1">Workspace configuration is available to administrators with a live API connection.</p>
+      </div>
+    );
+  }
 
   async function onSaveDigest(e: React.FormEvent): Promise<void> {
     e.preventDefault();

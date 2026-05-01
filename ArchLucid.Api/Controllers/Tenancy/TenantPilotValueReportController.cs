@@ -46,7 +46,7 @@ public sealed class TenantPilotValueReportController(IPilotValueReportService pi
                 ProblemTypes.ResourceNotFound);
         }
 
-        string? accept = Request.Headers.Accept.ToString();
+        string accept = Request.Headers.Accept.ToString();
 
         if (accept.Contains("text/markdown", StringComparison.OrdinalIgnoreCase))
             return Content(PilotValueReportMarkdown.Format(report), "text/markdown; charset=utf-8");

@@ -24,14 +24,8 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
  * and onboarding funnel counters (`/v1/diagnostics/operator-task-success-rates`).
  */
 export default function AdminHealthPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Diagnostics not available in demo mode.</p>
-        <p className="m-0 mt-1">Platform health is visible to operators with a live API connection.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
   const [readyError, setReadyError] = useState<string | null>(null);
@@ -105,8 +99,21 @@ export default function AdminHealthPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void refresh();
-  }, [refresh]);
+  }, [isDemo, refresh]);
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Diagnostics not available in demo mode.</p>
+        <p className="m-0 mt-1">Platform health is visible to operators with a live API connection.</p>
+      </div>
+    );
+  }
 
   const internalTestBuildDisclosure =
     version !== null &&

@@ -29,14 +29,7 @@ type AdminUsersNote = "api_unavailable" | "empty_response" | "load_failed";
  * the page stays read-only until GET/PUT admin user endpoints are available.
  */
 export default function AdminUsersPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">User management not available in demo mode.</p>
-        <p className="m-0 mt-1">Manage users and access through your identity provider.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<UserRow[]>([]);
@@ -76,8 +69,21 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [isDemo, load]);
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">User management not available in demo mode.</p>
+        <p className="m-0 mt-1">Manage users and access through your identity provider.</p>
+      </div>
+    );
+  }
 
   function emptyStateTitle(kind: AdminUsersNote): string {
     if (kind === "api_unavailable") {

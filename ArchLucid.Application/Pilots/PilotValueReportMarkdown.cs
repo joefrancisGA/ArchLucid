@@ -97,17 +97,11 @@ public static class PilotValueReportMarkdown
         if (s >= 3600)
             return $"{s / 3600:0.##} h";
 
-        if (s >= 60)
-            return $"{s / 60:0.##} min";
-
-        return $"{s:0.##} s";
+        return s >= 60 ? $"{s / 60:0.##} min" : $"{s:0.##} s";
     }
 
     private static string EscapeCell(string value)
     {
-        if (string.IsNullOrEmpty(value))
-            return "—";
-
-        return value.Replace("|", "\\|", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(value) ? "—" : value.Replace("|", "\\|", StringComparison.Ordinal);
     }
 }

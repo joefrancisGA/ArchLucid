@@ -82,4 +82,110 @@ public static class SanitizedLoggerWarningExtensions
             metadataOnly,
             safeErrorMessage); // codeql[cs/log-forging]: strings sanitized immediately above; bools cannot inject log lines.
     }
+
+    /// <summary>
+    ///     Warns when agent output structural completeness falls below product threshold (run/trace identifiers may be externally influenced — CWE-117).
+    /// </summary>
+    public static void LogWarningAgentOutputStructuralScoreBelowThreshold(
+        this ILogger logger,
+        double structuralCompletenessRatio,
+        string? runId,
+        string? traceId,
+        string? agentLabel,
+        int missingKeyCount)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeTraceId = LogSanitizer.Sanitize(traceId);
+        string safeAgent = LogSanitizer.Sanitize(agentLabel);
+
+        logger.LogWarning(
+            "Agent output structural score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; missing key count {MissingCount}.",
+            structuralCompletenessRatio,
+            safeRunId,
+            safeTraceId,
+            safeAgent,
+            missingKeyCount); // codeql[cs/log-forging]: string placeholders sanitized immediately above; score and MissingCount are value types.
+    }
+
+    /// <summary>
+    ///     Warns when the agent output quality gate rejects scores for a trace.
+    /// </summary>
+    public static void LogWarningAgentOutputQualityGateRejected(
+        this ILogger logger,
+        string? runId,
+        string? traceId,
+        string? agentLabel,
+        double structuralCompletenessRatio,
+        double overallSemanticScore)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeTraceId = LogSanitizer.Sanitize(traceId);
+        string safeAgent = LogSanitizer.Sanitize(agentLabel);
+
+        logger.LogWarning(
+            "Agent output quality gate rejected run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
+            safeRunId,
+            safeTraceId,
+            safeAgent,
+            structuralCompletenessRatio,
+            overallSemanticScore); // codeql[cs/log-forging]: string placeholders sanitized immediately above; floats cannot inject CRLF lines.
+    }
+
+    /// <summary>
+    ///     Warns when the agent output quality gate warns (non-reject outcome) on a trace.
+    /// </summary>
+    public static void LogWarningAgentOutputQualityGateWarned(
+        this ILogger logger,
+        string? runId,
+        string? traceId,
+        string? agentLabel,
+        double structuralCompletenessRatio,
+        double overallSemanticScore)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeTraceId = LogSanitizer.Sanitize(traceId);
+        string safeAgent = LogSanitizer.Sanitize(agentLabel);
+
+        logger.LogWarning(
+            "Agent output quality gate warned for run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
+            safeRunId,
+            safeTraceId,
+            safeAgent,
+            structuralCompletenessRatio,
+            overallSemanticScore); // codeql[cs/log-forging]: string placeholders sanitized immediately above; floats cannot inject CRLF lines.
+    }
+
+    /// <summary>
+    ///     Warns when semantic score is critically low for a persisted agent trace (run/trace/agent labels sanitized).
+    /// </summary>
+    public static void LogWarningAgentOutputSemanticScoreBelowThreshold(
+        this ILogger logger,
+        double overallSemanticScore,
+        string? runId,
+        string? traceId,
+        string? agentLabel,
+        int emptyClaimCount,
+        int incompleteFindingCount)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeTraceId = LogSanitizer.Sanitize(traceId);
+        string safeAgent = LogSanitizer.Sanitize(agentLabel);
+
+        logger.LogWarning(
+            "Agent output semantic score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; empty claims {EmptyClaims}, incomplete findings {IncompleteFindings}.",
+            overallSemanticScore,
+            safeRunId,
+            safeTraceId,
+            safeAgent,
+            emptyClaimCount,
+            incompleteFindingCount); // codeql[cs/log-forging]: string placeholders sanitized immediately above; counts are value types.
+    }
 }
