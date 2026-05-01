@@ -1,7 +1,7 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Options;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Scoping;
@@ -16,13 +16,15 @@ internal static class Program
 {
     private static async Task<int> Main(string[] args)
     {
-        if (args.Any(static a => a.Equals("--help", StringComparison.OrdinalIgnoreCase) || a.Equals("-h", StringComparison.OrdinalIgnoreCase)))
+        if (args.Any(static a => a.Equals("--help", StringComparison.OrdinalIgnoreCase) ||
+                                 a.Equals("-h", StringComparison.OrdinalIgnoreCase)))
         {
             PrintHelp();
             return 0;
         }
 
-        if (!TryParseConnectionString(args, out string? connectionString) || string.IsNullOrWhiteSpace(connectionString))
+        if (!TryParseConnectionString(args, out string? connectionString) ||
+            string.IsNullOrWhiteSpace(connectionString))
         {
             await Console.Error.WriteLineAsync(
                 "Set ARCHLUCID_SQL, or pass --connection \"...\", or a positional connection string. Use --help for scope flags.");
@@ -47,15 +49,15 @@ internal static class Program
         services.AddSingleton<SqlGoldenManifestRepository>();
         services.AddSingleton<SqlArtifactBundleRepository>();
         services.AddSingleton<SqlRelationalBackfillService>();
-        services.AddSingleton<ISqlRelationalBackfillService>(sp => sp.GetRequiredService<SqlRelationalBackfillService>());
+        services.AddSingleton<ISqlRelationalBackfillService>(sp =>
+            sp.GetRequiredService<SqlRelationalBackfillService>());
         services.AddSingleton<SqlCutoverReadinessService>();
         services.AddSingleton<ICutoverReadinessService>(sp => sp.GetRequiredService<SqlCutoverReadinessService>());
-        services.AddLogging(
-            builder =>
-            {
-                builder.AddConsole();
-                builder.SetMinimumLevel(LogLevel.Information);
-            });
+        services.AddLogging(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
 
         await using ServiceProvider provider = services.BuildServiceProvider();
 
@@ -95,7 +97,8 @@ internal static class Program
         foreach (CutoverSliceReadiness slice in report.Slices)
         {
             string status = slice.IsReady ? "READY" : "NOT READY";
-            Console.WriteLine($"{slice.SliceName,-45} {slice.TotalHeaderRows,7} {slice.HeadersWithRelationalRows,7} {slice.HeadersMissingRelationalRows,9} {status,10}");
+            Console.WriteLine(
+                $"{slice.SliceName,-45} {slice.TotalHeaderRows,7} {slice.HeadersWithRelationalRows,7} {slice.HeadersMissingRelationalRows,9} {status,10}");
         }
 
         Console.WriteLine(new string('-', 80));
@@ -150,7 +153,8 @@ internal static class Program
         for (int i = 0; i < args.Length; i++)
         {
             string a = args[i];
-            if (a.Equals("--connection", StringComparison.OrdinalIgnoreCase) || a.Equals("-c", StringComparison.OrdinalIgnoreCase))
+            if (a.Equals("--connection", StringComparison.OrdinalIgnoreCase) ||
+                a.Equals("-c", StringComparison.OrdinalIgnoreCase))
             {
                 if (i + 1 < args.Length)
                     connectionString = args[++i];
@@ -205,15 +209,15 @@ internal static class Program
                 GraphSnapshots = !skipGraph,
                 FindingsSnapshots = !skipFindings,
                 GoldenManifestsPhase1 = !skipGolden,
-                ArtifactBundles = !skipArtifact,
+                ArtifactBundles = !skipArtifact
             };
 
         HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
-        foreach (string part in onlyList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (string part in onlyList.Split(',',
+                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 
             if (TryMapStage(part, out string key))
                 stages.Add(key);
-
 
         return new SqlRelationalBackfillOptions
         {
@@ -221,9 +225,8 @@ internal static class Program
             GraphSnapshots = stages.Contains("graph"),
             FindingsSnapshots = stages.Contains("findings"),
             GoldenManifestsPhase1 = stages.Contains("golden"),
-            ArtifactBundles = stages.Contains("artifact"),
+            ArtifactBundles = stages.Contains("artifact")
         };
-
     }
 
     private static bool TryMapStage(string token, out string key)
@@ -236,7 +239,7 @@ internal static class Program
             "golden" => "golden",
             "artifact" => "artifact",
             "artifacts" => "artifact",
-            _ => null,
+            _ => null
         };
 
         if (mapped is null)
