@@ -210,7 +210,6 @@ public static class FakeScenarioFactory
 
             requiredControls.Add("Encryption At Rest");
 
-
         return new AgentResult
         {
             ResultId = StableHexId(runId, taskId, "compliance-result"),
