@@ -6,10 +6,14 @@ Primary navigation includes **Runs**. When `listRunsByProjectPaged` throws or re
 
 ## Behavior
 
-`tryStaticDemoRunSummariesPaged(projectId)` in `src/lib/operator-static-demo.ts` returns a single **Claims Intake Modernization** row when **any** of:
+`tryStaticDemoRunSummariesPaged(projectId[, options])` in `src/lib/operator-static-demo.ts` returns a single **Claims Intake Modernization** row when **any** of:
 
 - `NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true`
 - `NEXT_PUBLIC_DEMO_MODE=true` / `=1`
+
+**Or** callers pass `{ afterAuthorityListFailure: true }`: when `listRunsByProjectPaged` **throws** or coercion fails (reviews page, home dashboard snapshot, merged pickers, executive error paths, runs grid error boundary), the same curated row appears **without** needing demo env vars (`OpenAI UI assessment 2026-05-01`).
+
+Review detail, manifest summary, findings inspect, explanation, artifacts, timeline, provenance graph, and governance approval/promotion static payloads for known showcase URL tokens activate via `isStaticDemoPayloadFallbackActiveForRun` **without** those env vars when live authority APIs fail.
 
 The runs page clears `loadFailure` / `malformedMessage` after applying this fallback and shows `OperatorDemoStaticBanner`.
 
