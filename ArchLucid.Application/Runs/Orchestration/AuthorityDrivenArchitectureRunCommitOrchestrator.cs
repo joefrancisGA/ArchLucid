@@ -45,7 +45,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IDecisionEngine decisionEngine,
     DecisioningIdTraceRepository decisionTraceRepository,
     DecisioningIGoldenManifestRepository goldenManifestRepository,
-    IManifestHashService manifestHashService,
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,

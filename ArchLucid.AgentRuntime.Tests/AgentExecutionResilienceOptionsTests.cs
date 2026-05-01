@@ -1,5 +1,3 @@
-using Xunit;
-
 namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class AgentExecutionResilienceOptionsTests
@@ -12,7 +10,10 @@ public sealed class AgentExecutionResilienceOptionsTests
             new()
             {
                 PerHandlerTimeoutSeconds = 0,
-                PerAgentTimeoutSeconds = new() { ["topology"] = 120 }
+                PerAgentTimeoutSeconds = new()
+                {
+                    ["topology"] = 120
+                }
             };
 
         Assert.Equal(0, o.ResolveTimeoutSecondsForAgent("topology"));

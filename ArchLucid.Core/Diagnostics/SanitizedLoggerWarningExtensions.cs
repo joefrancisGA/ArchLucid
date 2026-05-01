@@ -188,4 +188,36 @@ public static class SanitizedLoggerWarningExtensions
             emptyClaimCount,
             incompleteFindingCount); // codeql[cs/log-forging]: string placeholders sanitized immediately above; counts are value types.
     }
+
+    /// <summary>
+    ///     Operator-shell client error telemetry: all placeholders are externally influenced strings (CWE-117).
+    /// </summary>
+    /// <remarks>
+    ///     Keeps <see cref="LogSanitizer.Sanitize" /> adjacent to the <see cref="ILogger" /> sink so
+    ///     <c>cs/log-forging</c> does not trip on <c>params object?[]</c> boxing from controller call sites.
+    /// </remarks>
+    public static void LogWarningOperatorShellClientError(
+        this ILogger logger,
+        string? clientMessage,
+        string? pathname,
+        string? userAgent,
+        string? timestampUtc,
+        string? stackTrace)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeMessage = LogSanitizer.Sanitize(clientMessage);
+        string safePath = LogSanitizer.Sanitize(pathname);
+        string safeUserAgent = LogSanitizer.Sanitize(userAgent);
+        string safeTimestamp = LogSanitizer.Sanitize(timestampUtc);
+        string safeStack = LogSanitizer.Sanitize(stackTrace);
+
+        logger.LogWarning(
+            "Operator shell client error: {ClientErrorMessage} | Path={ClientErrorPathname} | UA={ClientErrorUserAgent} | At={ClientErrorTimestamp} | Stack={ClientErrorStack}",
+            safeMessage,
+            safePath,
+            safeUserAgent,
+            safeTimestamp,
+            safeStack); // codeql[cs/log-forging]: string placeholders sanitized immediately above.
+    }
 }
