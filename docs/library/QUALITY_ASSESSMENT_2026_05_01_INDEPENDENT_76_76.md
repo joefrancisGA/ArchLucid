@@ -20,7 +20,7 @@ The enterprise posture is unusually developed for a V1 product: Entra/JWT, API k
 
 ### Engineering Picture
 
-The engineering shape is solid: bounded .NET projects, lightweight Dapper persistence, DbUp migrations, OpenAPI snapshots, SQL integration tests, UI live E2E coverage, k6 smoke, ZAP/Schemathesis, Stryker infrastructure, OTel metrics, Grafana dashboards, and Terraform modules. The main engineering risk is complexity: many surfaces, many docs, several test modes, simulator-vs-real execution nuance, and a current Release fast-core build failure from `CS9113` in `AuthorityDrivenArchitectureRunCommitOrchestrator.cs`. That failure is fixable but it matters because V1 confidence depends on boring repeatability.
+The engineering shape is solid: bounded .NET projects, lightweight Dapper persistence, DbUp migrations, OpenAPI snapshots, SQL integration tests, UI live E2E coverage, k6 smoke, ZAP/Schemathesis, Stryker infrastructure, OTel metrics, Grafana dashboards, and Terraform modules. The main engineering risk is **complexity**: many surfaces, many docs, several test modes, simulator-vs-real execution nuance, and keeping **Release** builds and the fast-core test filter green after every change. (A historical `CS9113` unread-parameter issue in `AuthorityDrivenArchitectureRunCommitOrchestrator` is **resolved** in tree; re-run the fast-core Release command after large merges for confidence.)
 
 ## 3. Weighted Quality Assessment
 
@@ -109,7 +109,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 - **Weight:** 4
 - **Weighted impact on readiness:** 3.06 percentage points
 - **Weighted deficiency signal:** 88
-- **Justification:** There is broad unit, integration, contract, property, SQL, and UI test coverage. Correctness is still limited by real-LLM variability, quality-gate configuration, and the current Release fast-core build failure (`CS9113` unread parameter). Simulator correctness is stronger than real-world architecture judgment correctness.
+- **Justification:** There is broad unit, integration, contract, property, SQL, and UI test coverage. Correctness is still limited by real-LLM variability, quality-gate configuration, and the need to **re-verify** broad changes against the Release fast-core filter. Simulator correctness is stronger than real-world architecture judgment correctness.
 - **Tradeoffs:** Determinism supports CI and demos; real mode needs ongoing evals and tolerance bands.
 - **Improvement recommendations:** Fix the build warning/error; expand real-mode and golden-corpus scoring around customer-like briefs; make quality gates visible in proof packs.
 - **Fixability:** Fixable in V1 for build and eval expansion; continuous model-quality work remains ongoing.
@@ -208,7 +208,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 - **Weight:** 2
 - **Weighted impact on readiness:** 1.45 percentage points
 - **Weighted deficiency signal:** 52
-- **Justification:** The system is modular and well documented, but the repo is large, documentation-heavy, and has many guard scripts, scopes, and modes. The current build failure from an unread primary-constructor parameter shows standards are strict enough to catch issues, but also that small hygiene breaks can block validation.
+- **Justification:** The system is modular and well documented, but the repo is large, documentation-heavy, and has many guard scripts, scopes, and modes. Strict rules (e.g. **CS9113** on unread primary-constructor parameters) catch small hygiene breaks early — they are good guardrails if fixed quickly.
 - **Tradeoffs:** Strict rules improve long-term quality but increase contributor burden.
 - **Improvement recommendations:** Fix build hygiene quickly; reduce duplicate concept maps; keep "where to change X" docs short and authoritative.
 - **Fixability:** V1.
@@ -428,7 +428,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 - **Weight:** 1
 - **Weighted impact on readiness:** 0.76 percentage points
 - **Weighted deficiency signal:** 22
-- **Justification:** Docker Compose, Container Apps, Terraform, DbUp, readiness checks, release scripts, and CI/CD workflows exist. Deployability is reduced by optional/customer-specific roots and the current build failure.
+- **Justification:** Docker Compose, Container Apps, Terraform, DbUp, readiness checks, release scripts, and CI/CD workflows exist. Deployability is reduced by optional/customer-specific roots and the **operational** need to validate each target environment explicitly.
 - **Tradeoffs:** Multiple deployment profiles aid development and pilots but complicate the standard path.
 - **Improvement recommendations:** Keep one reference SaaS stack order as the canonical deploy path and make all others clearly optional.
 - **Fixability:** V1.
@@ -516,9 +516,9 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 - **Weight:** 1
 - **Weighted impact on readiness:** 0.86 percentage points
 - **Weighted deficiency signal:** 12
-- **Justification:** Testability is a major strength: fast core, full regression, SQL integration, live UI E2E, OpenAPI snapshots, property tests, mutation testing, k6, ZAP, Schemathesis, and benchmark jobs. Current build failure prevents a clean validation pass, but the testing architecture itself is strong.
+- **Justification:** Testability is a major strength: fast core, full regression, SQL integration, live UI E2E, OpenAPI snapshots, property tests, mutation testing, k6, ZAP, Schemathesis, and benchmark jobs. Keep the **Release** fast-core command in routine use so regressions are caught before narrative readiness claims drift from CI.
 - **Tradeoffs:** Many tiers require clear operator discipline.
-- **Improvement recommendations:** Fix the current build failure and keep release-readiness commands short.
+- **Improvement recommendations:** Keep Release fast-core green after substantive changes; keep release-readiness commands short and documented.
 - **Fixability:** V1.
 
 ### Azure Ecosystem Fit
@@ -537,7 +537,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 1. **The product is deeper than the first buyer journey can absorb.** The first session still asks evaluators to understand too much internal vocabulary before value becomes obvious.
 2. **Proof-of-value is instrumented but not fully packaged.** Metrics exist, but a buyer-ready evidence bundle still requires too much manual assembly.
 3. **The sales-led V1 path is not clean enough.** Quote path, pricing, trial, proof pack, order form, and procurement pack exist but do not yet feel like one decision lane.
-4. **Current Release fast-core validation fails at build time.** `CS9113` on `manifestHashService` blocks a clean confidence signal.
+4. **First-line pilot triage still lacks a single rescue playbook.** Support bundles now ship advisory **`next-steps.json`** / README bullets; **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`** and explicit **`doctor`** pointers remain open (see §9.8).
 5. **Trust materials are transparent but still heavily self-attested.** That is acceptable for V1 pilots, but it slows serious enterprise procurement.
 6. **The UI leaks internal operating concepts.** Terms such as runs, manifests, raw IDs, raw JSON, and admin/demo surfaces can distract from architecture review value.
 7. **Workflow embedding is generic rather than turnkey.** REST/webhooks/Service Bus are solid, but customers must still wire common enterprise systems themselves.
@@ -563,7 +563,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 
 ## 7. Top 5 Engineering Risks
 
-1. **Build hygiene can block confidence.** The current `CS9113` Release failure is small but release-blocking.
+1. **Build and fast-core regression hygiene.** Small compile or analyzer regressions can block the Release fast-core filter; treat **green fast-core** as a routine merge bar (historical **`CS9113`** in commit orchestration is resolved in tree as of **2026-05-01**).
 2. **Simulator confidence may exceed real-mode confidence.** Deterministic tests are strong; real LLM quality needs visible, repeated eval evidence.
 3. **Sensitive trace retention can become a privacy hazard.** Full prompts/responses are valuable for forensics but need strict access, retention, and buyer-safe defaults.
 4. **Dashboard-grade stale reads must stay bounded.** Intentional `NOLOCK` use is acceptable only where freshness is not authoritative.
@@ -575,13 +575,29 @@ ArchLucid is technically credible for V1 pilots, but its next readiness jump dep
 
 ## 9. Top Improvement Opportunities
 
+The **plan revision log** below reflects a **2026-05-01** cross-check of this section against the repository. **Original Cursor prompts** remain underneath as specifications; treat the log as **execution precedence** when the two differ.
+
+### Plan revision log (2026-05-01)
+
+| # | Working title | Plan status | What to do next |
+|---|----------------|------------|-----------------|
+| 1 | Buyer first-run / review package | **In progress** | §10 owner decisions landed (architecture review noun, hybrid UI framing). **Remaining:** verify one evaluator path **`docs/START_HERE.md` → first review output** matches the prompt acceptance criteria; add/keep focused tests for any copy changes. |
+| 2 | Proof-of-value pack | **Superseded shape** | Canonical implementation path is **`archlucid reference-evidence`** (run or tenant admin ZIP), **`ReferenceEvidenceAdminExportService`** (first-value **Markdown/PDF** in ZIP), sponsor/board-pack PDF builders, and **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`**. Treat **`archlucid proof-pack`** in the prompt as **optional alias only** if product still wants that verb — do **not** duplicate export logic. |
+| 3 | Sales-led CTAs | **Largely complete** | §10 + changelog decisions; keep regression tests for placeholder Stripe suppression vs real URLs. |
+| 4 | Procurement pack classification | **Partial** | **`scripts/procurement_pack_canonical.json`** carries per-file **descriptions** (template vs deferred vs posture). **Remaining prompt gap:** explicit **artifact-status index** in the **generated** pack README (or structured field per entry) if buyers still confuse template vs attestation; placeholder strictness per §10 for **release/procurement** builds. |
+| 5 | CS9113 / fast-core | **Build addressed** | Historical **`manifestHashService` / CS9113** on commit orchestrator **no longer applies** in current sources. **Remaining:** optional **hygiene** — add or document an analyzer/CI expectation so unread primary-constructor parameters do not recur; **re-run** Release fast-core filter after large merges. |
+| 6 | Real-mode agent evidence | **Partial** | **`tests/eval-corpus`** + **`eval_agent_quality.py`** + CI exist. **Remaining:** any **gaps** vs 3–5 named synthetic brief archetypes in the prompt, a **check-in Markdown** summary artifact for releases, and §10 **reference AOAI** deployment name. |
+| 7 | Workflow recipes | **Largely complete** | **`docs/integrations/recipes/`** includes ServiceNow, Jira, Confluence, ADO (Logic Apps), Event Grid hardening. **Optional polish:** add or retitle **Logic Apps–first** variants for ServiceNow/Jira to match owner **Azure Logic Apps** preference (recipes index still lists **Power Automate** for some rows). |
+| 8 | Pilot rescue + CLI | **Split** | **Done:** advisory **`next-steps.json`** + README in CLI + API support bundles (**`SupportBundleNextStepsBuilder`**). **Open:** **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`**, **`doctor`** / reference list pointers to that playbook — still per original prompt. |
+
 ### 1. Compress the Buyer First-Run Journey Around One Review Package
 
 - **Why it matters:** Adoption friction and time-to-value are the largest weighted deficits. The first user should see "architecture review package" before "run/manifest/authority."
 - **Expected impact:** A clearer first session should improve trial completion, sponsor comprehension, and demo conversion.
 - **Affected qualities:** Adoption Friction, Time-to-Value, Usability, Cognitive Load, Marketability, Executive Value Visibility.
-- **Status:** Fully actionable now.
+- **Status:** In progress — see **Plan revision log (2026-05-01)**; §10 decisions landed; audit `START_HERE` path + tests.
 - **Impact of running the prompt:** Directly improves Adoption Friction (+6-9 pts), Time-to-Value (+4-6 pts), Usability (+4-6 pts), Cognitive Load (+8-12 pts). Weighted readiness impact: +0.9-1.4%.
+- **Plan revision (2026-05-01):** §10 captures the **dominant noun** and **hybrid** framing. Before closing this item, **audit** `START_HERE` → first review path and **tests** against the acceptance criteria in the prompt below.
 
 **Cursor prompt:**
 
@@ -613,8 +629,9 @@ Constraints:
 - **Why it matters:** ROI and executive value are instrumented but not packaged tightly enough for purchase decisions.
 - **Expected impact:** Gives sponsors a concrete artifact they can forward without assembling metrics manually.
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility, Trustworthiness, Decision Velocity, Marketability.
-- **Status:** Fully actionable now.
+- **Status:** Execution path revised — see **Plan revision log (2026-05-01)**; extend **`reference-evidence`** / exports; optional CLI alias only.
 - **Impact of running the prompt:** Directly improves Proof-of-ROI Readiness (+8-12 pts), Executive Value Visibility (+4-6 pts), Decision Velocity (+3-5 pts), Trustworthiness (+2-4 pts). Weighted readiness impact: +0.7-1.1%.
+- **Plan revision (2026-05-01):** Align execution with **`reference-evidence`**, PDF/export services, and **`PROOF_PACK_REDACTION_PROFILES.md`** (§10); treat this prompt as **gap-fill** (manifest of sources, doc links, tests) rather than a greenfield command.
 
 **Cursor prompt:**
 
@@ -623,7 +640,7 @@ Add a V1 proof-of-value pack generator that assembles existing run evidence into
 
 Scope:
 - Use existing pilot/run data sources already documented in docs/library/PILOT_ROI_MODEL.md, docs/library/PROOF_OF_VALUE_SNAPSHOT.md, and docs/library/API_CONTRACTS.md.
-- Prefer extending the CLI if an appropriate command exists; otherwise add a narrowly scoped command such as `archlucid proof-pack --run <runId> --out <dir>`.
+- Prefer extending the CLI if an appropriate command exists; the **canonical** path in-repo is **`archlucid reference-evidence`** (and admin export endpoints) assembling ZIP + first-value artifacts — extend/document that path first. Only add `archlucid proof-pack` as a **thin alias** if naming consistency with buyers matters.
 - Include: run metadata, time to committed manifest, findings by severity, audit row count, LLM call count when available, top-severity evidence chain, explanation completeness/faithfulness indicators when available, and a demo-data warning when applicable.
 - Output Markdown plus a JSON manifest of source endpoints/fields used.
 
@@ -645,8 +662,9 @@ Constraints:
 - **Why it matters:** V1 can be sales-led, but visible placeholder checkout/contact artifacts reduce buyer confidence.
 - **Expected impact:** Improves decision velocity without depending on deferred live commerce un-hold.
 - **Affected qualities:** Commercial Packaging Readiness, Decision Velocity, Marketability, Adoption Friction.
-- **Status:** Fully actionable now.
+- **Status:** Largely complete — see **Plan revision log (2026-05-01)**; keep prompt for regression verification.
 - **Impact of running the prompt:** Directly improves Commercial Packaging Readiness (+6-8 pts), Decision Velocity (+4-6 pts), Marketability (+2-4 pts). Weighted readiness impact: +0.4-0.7%.
+- **Plan revision (2026-05-01):** **Largely executed** per §10 and pricing/trial changelog work; keep as **regression playbook** only.
 
 **Cursor prompt:**
 
@@ -680,6 +698,7 @@ Constraints:
 - **Affected qualities:** Procurement Readiness, Compliance Readiness, Trustworthiness, Auditability, Customer Self-Sufficiency.
 - **Status:** Fully actionable now.
 - **Impact of running the prompt:** Directly improves Procurement Readiness (+6-9 pts), Compliance Readiness (+3-5 pts), Trustworthiness (+2-4 pts). Weighted readiness impact: +0.4-0.8%.
+- **Plan revision (2026-05-01):** Canonical manifest entries describe artifact **status** in prose. **Remaining:** machine-readable **artifact-status index** in generated pack output (if still needed for buyer confusion); keep release-only placeholder strictness per §10.
 
 **Cursor prompt:**
 
@@ -707,26 +726,25 @@ Constraints:
 
 ### 5. Fix Release Fast-Core Build Failure and Add a Hygiene Guard for Unused Primary-Constructor Dependencies
 
-- **Why it matters:** A small build failure undermines confidence in every other readiness claim.
+- **Why it matters:** Compile/analyzer regressions on the Release fast-core path undermine confidence in every other readiness claim — even when the underlying testing architecture is strong.
 - **Expected impact:** Restores a clean validation signal and prevents recurrence.
 - **Affected qualities:** Correctness, Testability, Maintainability, Deployability, Reliability.
-- **Status:** Fully actionable now.
+- **Status:** Historical **`CS9113`** issue **resolved** in tree (2026-05-01); optional follow-up for **recurrence prevention** and routine fast-core runs.
 - **Impact of running the prompt:** Directly improves Correctness (+2-4 pts), Testability (+1-2 pts), Deployability (+2-3 pts), Maintainability (+1-2 pts). Weighted readiness impact: +0.2-0.4%.
+- **Plan revision (2026-05-01):** Use the prompt below for **verification + hygiene** only — the specific **`manifestHashService`** / **`AuthorityDrivenArchitectureRunCommitOrchestrator`** failure described was **fixed**; do not re-litigate removed parameters.
 
 **Cursor prompt:**
 
 ```text
-Fix the current Release fast-core build failure and add focused coverage or analyzer expectations so unused primary-constructor dependencies do not recur.
+Verify Release fast-core health and optionally harden against recurrence of unread primary-constructor parameters (CS9113).
 
-Observed failure:
-- `dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" -c Release`
-- Fails with CS9113: parameter `manifestHashService` is unread in `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs`.
+Historical note (resolved in tree as of 2026-05-01):
+- A prior failure referenced an unread `manifestHashService` parameter in `AuthorityDrivenArchitectureRunCommitOrchestrator.cs`. Current sources should compile; confirm with build + tests.
 
 Scope:
-- Inspect `AuthorityDrivenArchitectureRunCommitOrchestrator.cs` and nearby orchestration classes.
-- Determine whether `manifestHashService` is a mistakenly unused dependency or should be used in manifest hash generation.
-- Either use it correctly or remove it from the primary constructor and DI wiring if genuinely unnecessary.
-- Run the same fast-core Release command after the fix.
+- Run: `dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" -c Release`
+- If CS9113 or similar appears on **other** types, either use the dependency correctly or remove it from the primary constructor and DI wiring.
+- Optionally document or automate the fast-core command in release checklists.
 
 Acceptance criteria:
 - The Release fast-core command completes successfully or reaches only unrelated pre-existing test failures that are documented.
@@ -745,8 +763,9 @@ Constraints:
 - **Why it matters:** The product's AI trust depends on showing quality across realistic briefs, not only deterministic demo behavior.
 - **Expected impact:** Improves correctness, trustworthiness, AI readiness, and proof-of-value credibility.
 - **Affected qualities:** Correctness, AI/Agent Readiness, Trustworthiness, Explainability, Proof-of-ROI Readiness.
-- **Status:** Fully actionable now.
+- **Status:** Partial — offline corpus + scripts exist; extend per plan revision.
 - **Impact of running the prompt:** Directly improves AI/Agent Readiness (+5-8 pts), Correctness (+3-5 pts), Trustworthiness (+2-4 pts), Explainability (+2-3 pts). Weighted readiness impact: +0.5-0.8%.
+- **Plan revision (2026-05-01):** **`tests/eval-corpus`**, **`eval_agent_quality.py`**, **`AGENT_EVAL_CORPUS.md`**, and CI jobs already exist. **Remaining:** close gaps vs the prompt’s brief archetypes, add a **check-in Markdown** summary artifact for releases if missing, and name the §10 **reference AOAI** deployment for manual real-mode runs.
 
 **Cursor prompt:**
 
@@ -754,7 +773,7 @@ Constraints:
 Add a V1-realistic agent quality evidence slice that reports existing quality metrics across a small curated corpus of customer-like architecture briefs.
 
 Scope:
-- Use existing eval infrastructure under tests/eval-corpus, docs/library/AGENT_EVAL_CORPUS.md, scripts/ci/eval_agent_quality.py, and agent output evaluation classes.
+- Use existing eval infrastructure under tests/eval-corpus, tests/eval-datasets, docs/library/AGENT_EVAL_CORPUS.md, scripts/ci/eval_agent_quality.py, and agent output evaluation classes.
 - Add 3-5 non-customer, synthetic but realistic briefs covering: Azure web app, regulated data workflow, cost-constrained modernization, and governance-heavy review.
 - Generate a Markdown summary artifact with structural completeness, semantic score, parse failures, quality gate outcome, and explanation trace completeness where available.
 - Keep simulator and real-mode paths clearly labeled.
@@ -778,8 +797,9 @@ Constraints:
 - **Why it matters:** First-party connectors are deferred, but customers still need a practical path into their workflows during V1.
 - **Expected impact:** Improves workflow embeddedness and adoption without violating deferred scope.
 - **Affected qualities:** Workflow Embeddedness, Interoperability, Adoption Friction, Customer Self-Sufficiency, Stickiness.
-- **Status:** Fully actionable now.
+- **Status:** Largely satisfied in docs; keep for **gap-fill** and Logic Apps alignment only.
 - **Impact of running the prompt:** Directly improves Workflow Embeddedness (+6-9 pts), Interoperability (+3-5 pts), Adoption Friction (+2-4 pts). Weighted readiness impact: +0.4-0.7%.
+- **Plan revision (2026-05-01):** **`docs/integrations/recipes/`** already satisfies ServiceNow + Jira + further samples. Use the prompt for **gap-fill** (links, accuracy, test steps) or **Logic Apps–first** variants per §10 owner preference — not a greenfield folder.
 
 **Cursor prompt:**
 
@@ -809,8 +829,9 @@ Constraints:
 - **Why it matters:** Self-sufficiency needs more than comprehensive docs; it needs quick triage when a pilot gets stuck.
 - **Expected impact:** Reduces support burden and improves buyer/operator confidence.
 - **Affected qualities:** Customer Self-Sufficiency, Supportability, Adoption Friction, Reliability, Manageability.
-- **Status:** Fully actionable now.
+- **Status:** **Partially complete** — support-bundle **`next-steps.json`** + README (**`SupportBundleNextStepsBuilder`**) shipped; playbook + **`doctor`** links still open.
 - **Impact of running the prompt:** Directly improves Customer Self-Sufficiency (+7-10 pts), Supportability (+2-4 pts), Adoption Friction (+2-3 pts), Manageability (+2-3 pts). Weighted readiness impact: +0.3-0.6%.
+- **Plan revision (2026-05-01):** Execute **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`** + **`references.json`** / **`doctor`** pointers; do **not** duplicate the support-bundle next-steps work.
 
 **Cursor prompt:**
 
@@ -876,7 +897,7 @@ Constraints:
 
 ### Fix Release Fast-Core Build Failure and Add a Hygiene Guard for Unused Primary-Constructor Dependencies
 
-- None blocking. The implementation choice is technical: use the dependency if behavior requires it, otherwise remove it.
+- **Resolved in tree (2026-05-01):** The historical **`CS9113` / unread `manifestHashService`** issue on **`AuthorityDrivenArchitectureRunCommitOrchestrator`** no longer applies in current sources. **Ongoing:** run the Release **fast-core** filter after substantive merges; optional hygiene to prevent recurrence on **other** types (see §9.5 prompt).
 
 ### Expand Real-Mode Agent Quality Evidence Without Making It a V1.1 Feature
 
@@ -892,10 +913,15 @@ Constraints:
 
 - **Resolved (2026-05-01):** Support escalation — show **e-mail and URL** in V1 pilot artifacts.
 - **Resolved (2026-05-01):** Support bundles include a generated **advisory** **`next-steps.json`** plus the same bullets in **`README.txt`**, built by **`SupportBundleNextStepsBuilder`** (CLI: probe-driven; API host: correlation/redaction guidance + light env hints). Operators must still confirm against **`health.json`** (CLI) and docs.
+- **Open:** **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`** and **`doctor`** output pointers to that playbook (§9.8).
 
 ## Verification Notes
 
 - Static assessment used the current repository materials available during this run, including V1 scope/deferred docs, buyer docs, API/security/observability/test docs, workflow files, source search, and UI/source indicators.
 - Explicit deferred items were located in `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md`; no deferred-scope uncertainty was found.
-- A Release fast-core verification command was attempted: `dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" -c Release`.
-- The command failed during build with `CS9113` for unread parameter `manifestHashService` in `ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs`.
+- **2026-05-01 engineering note:** **`dotnet build ArchLucid.Cli`** and **`dotnet build ArchLucid.Application`** succeed **`Release`** with **0 errors / 0 warnings**. The historical **`CS9113`** failure on **`AuthorityDrivenArchitectureRunCommitOrchestrator`** is **not** reproduced in current sources.
+- **Recommended:** Re-run the fast-core filter after large changes: `dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" -c Release` (outcome may still fail on **tests** unrelated to the historical compile issue).
+
+## Revision index (2026-05-01)
+
+**Plan + narrative refreshed** to match repository reality: §2 engineering paragraph; §3 Correctness, Maintainability, Deployability, Testability; §4 weakness **#4**; §7 engineering risk **#1**; §9 **plan revision log** + per-opportunity **Plan revision** lines + updated §9.5 prompt; §10 fast-core subsection; §Verification Notes; this index.

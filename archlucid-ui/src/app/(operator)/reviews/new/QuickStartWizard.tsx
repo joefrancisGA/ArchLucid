@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { FieldPath } from "react-hook-form";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -14,7 +13,6 @@ import { createArchitectureRun } from "@/lib/api";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
-import { validateWizardStep } from "@/lib/wizard-step-validate";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
@@ -40,8 +38,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [presetId, setPresetId] = useState<string>("greenfield-web-app");
 
-  const { trigger, getValues, setError, clearErrors, control, reset } = useFormContext<WizardFormValues>();
-  const watched = useWatch({ control });
+  const { trigger, getValues, reset } = useFormContext<WizardFormValues>();
 
   const selectedPreset: WizardPreset | undefined = useMemo(
     () => wizardPresets.find((p) => p.id === presetId),
@@ -58,10 +55,6 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     const merged = applyWizardPreset(buildDefaultWizardValues(), preset.values);
     reset(merged);
   }, [presetId, reset]);
-
-  const stepHasErrors = useMemo(() => {
-    return false; // let react-hook-form handle validation on 'Next' click
-  }, [quickStep, watched]);
 
   const canProceed = !submitting;
   const showToast = useCallback((kind: "ok" | "err", message: string) => {

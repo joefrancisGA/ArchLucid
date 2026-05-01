@@ -3,8 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FieldPath } from "react-hook-form";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
@@ -21,7 +20,6 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
-import { validateWizardStep } from "@/lib/wizard-step-validate";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
@@ -144,7 +142,7 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, setError, clearErrors, control, setValue } = form;
+  const { trigger, getValues, setValue } = form;
 
   const operatorHomeExampleKey = useMemo(() => {
     const raw = searchParams?.get("example")?.trim().toLowerCase() ?? "";
@@ -196,12 +194,6 @@ export function NewRunWizardClient() {
       setValue("description", OPERATOR_HOME_EXAMPLE_DESCRIPTION, { shouldValidate: true, shouldDirty: true });
     }
   }, [operatorHomeExampleKey, setValue, stepIndex]);
-
-  const watchedValues = useWatch({ control });
-
-  const stepHasValidationErrors = useMemo(() => {
-    return false; // let react-hook-form handle validation on Next
-  }, [stepIndex, watchedValues]);
 
   const canProceed = !submitting;
 
