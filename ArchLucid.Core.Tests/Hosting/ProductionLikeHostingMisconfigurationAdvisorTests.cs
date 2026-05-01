@@ -13,7 +13,7 @@ public sealed class ProductionLikeHostingMisconfigurationAdvisorTests
     [Fact]
     public void DescribeWarnings_pure_development_and_safe_archlucid_env_returns_empty()
     {
-        Dictionary<string, string?> data = new();
+        Dictionary<string, string?> data = [];
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
 
         IReadOnlyList<string> warnings = ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(

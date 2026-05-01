@@ -8,8 +8,11 @@ public sealed class IntegrationEventTypesTests
 {
     private const string LegacyVendorPrefix = "com." + "arch" + "iforge" + ".";
 
-    public static TheoryData<string> AllCanonicalIntegrationEventTypes { get; } = new()
+    public static TheoryData<string> AllCanonicalIntegrationEventTypes
     {
+        get;
+    } =
+    [
         IntegrationEventTypes.AuthorityRunCompletedV1,
         IntegrationEventTypes.DataConsistencyCheckCompletedV1,
         IntegrationEventTypes.ManifestFinalizedV1,
@@ -21,8 +24,8 @@ public sealed class IntegrationEventTypesTests
         IntegrationEventTypes.ComplianceDriftEscalatedV1,
         IntegrationEventTypes.SeatReservationReleasedV1,
         IntegrationEventTypes.TrialLifecycleEmailV1,
-        IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1,
-    };
+        IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1
+    ];
 
     [Theory]
     [MemberData(nameof(AllCanonicalIntegrationEventTypes))]
