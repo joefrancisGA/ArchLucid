@@ -85,9 +85,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly DecisioningIGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
 
-    private readonly IManifestHashService _manifestHashService =
-        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
-
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 

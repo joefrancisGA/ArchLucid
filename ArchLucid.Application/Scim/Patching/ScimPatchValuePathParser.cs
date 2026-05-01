@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace ArchLucid.Application.Scim.Patching;
 
 /// <summary>
@@ -11,7 +9,8 @@ public static class ScimPatchValuePathParser
     /// <summary>Interprets a path for SCIM Group membership PATCH handlers.</summary>
     public static ScimPatchPathParseOutcome ParseForGroupMemberPath(string path)
     {
-        if (path is null) throw new ArgumentNullException(nameof(path));
+        if (path is null)
+            throw new ArgumentNullException(nameof(path));
 
         string trimmed = path.Trim();
 
@@ -43,7 +42,8 @@ public static class ScimPatchValuePathParser
     /// </summary>
     public static string ParseForUserFlatPatchPath(string path)
     {
-        if (path is null) throw new ArgumentNullException(nameof(path));
+        if (path is null)
+            throw new ArgumentNullException(nameof(path));
 
         string trimmed = path.Trim();
 
@@ -97,14 +97,14 @@ public static class ScimPatchValuePathParser
         if (attrPath.Length is 0)
             throw new ScimPatchException("invalidPath", "Missing attribute path before '['.");
 
-        if (requireMembersAttribute && !MemoryExtensions.Equals(attrPath, "members".AsSpan(), StringComparison.OrdinalIgnoreCase))
+        if (requireMembersAttribute && !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
             return new ScimPatchPathNotImplementedOutcome(
                 $"Complex selectors on attribute '{attrPath.ToString()}' are not implemented (only 'members[value eq \"…\"]').");
         }
 
         if (!requireMembersAttribute &&
-            !MemoryExtensions.Equals(attrPath, "members".AsSpan(), StringComparison.OrdinalIgnoreCase))
+            !attrPath.Equals("members".AsSpan(), StringComparison.OrdinalIgnoreCase))
         {
             ReadOnlySpan<char> filterProbe = path.AsSpan(open + 1, close - open - 1).Trim();
 
@@ -148,17 +148,16 @@ public static class ScimPatchValuePathParser
                 $"Sub-attribute '{subAttr}' on group members is not implemented (only '.active').");
         }
 
-        if (!TryParseValueEqFilter(filter, out Guid memberId))
-        {
-            if (LooksLikeRichScimFilter(filter))
-                return new ScimPatchPathNotImplementedOutcome("Only 'value eq \"…\"' member filters are implemented.");
+        if (TryParseValueEqFilter(filter, out Guid memberId))
+            return new ScimPatchMembersFilteredPathOutcome(memberId, subAttr);
 
-            throw new ScimPatchException(
-                "invalidPath",
-                "Member filter must be 'value eq \"<guid>\"' (RFC 7644 subset).");
-        }
+        if (LooksLikeRichScimFilter(filter))
+            return new ScimPatchPathNotImplementedOutcome("Only 'value eq \"…\"' member filters are implemented.");
 
-        return new ScimPatchMembersFilteredPathOutcome(memberId, subAttr);
+        throw new ScimPatchException(
+            "invalidPath",
+            "Member filter must be 'value eq \"<guid>\"' (RFC 7644 subset).");
+
     }
 
     internal static bool TryParseValueEqFilter(ReadOnlySpan<char> filterTrimmed, out Guid memberId)
@@ -181,10 +180,7 @@ public static class ScimPatchValuePathParser
         if (rest.Length is 0)
             return false;
 
-        if (!TryReadCompValue(rest, out string? raw))
-            return false;
-
-        return Guid.TryParse(raw, out memberId);
+        return TryReadCompValue(rest, out string? raw) && Guid.TryParse(raw, out memberId);
     }
 
     private static bool TryReadCompValue(ReadOnlySpan<char> rest, out string? value)
@@ -247,9 +243,6 @@ public static class ScimPatchValuePathParser
     {
         string f = filter.ToString();
 
-        static bool ContainsI(string s, string needle) =>
-            s.Contains(needle, StringComparison.OrdinalIgnoreCase);
-
         if (ContainsI(f, " and "))
             return true;
 
@@ -271,5 +264,8 @@ public static class ScimPatchValuePathParser
                || ContainsI(f, " ge ")
                || ContainsI(f, " le ")
                || ContainsI(f, " pr");
+
+        static bool ContainsI(string s, string needle) =>
+            s.Contains(needle, StringComparison.OrdinalIgnoreCase);
     }
 }

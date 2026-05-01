@@ -25,14 +25,7 @@ import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/type
  * 59R planning list: top themes, prioritized plans, and evidence-style counts (read-only browsing).
  */
 export default function PlanningPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Planning not available in demo mode.</p>
-        <p className="m-0 mt-1">59R planning themes and prioritized plans require a live API connection.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const [summary, setSummary] = useState<Awaited<ReturnType<typeof fetchLearningPlanningListBundle>>["summary"] | null>(
     null,
@@ -88,8 +81,12 @@ export default function PlanningPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [isDemo, load]);
 
   const sortedThemes = useMemo(() => sortThemesForPlanningDisplay(themes), [themes]);
   const sortedPlans = useMemo(() => sortPlansForPlanningDisplay(plans), [plans]);
@@ -115,6 +112,15 @@ export default function PlanningPage() {
     selectedThemeId !== null ? themeTitleById.get(selectedThemeId) ?? selectedThemeId : null;
 
   const empty = summary !== null && summary.themeCount === 0 && summary.planCount === 0;
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Planning not available in demo mode.</p>
+        <p className="m-0 mt-1">59R planning themes and prioritized plans require a live API connection.</p>
+      </div>
+    );
+  }
 
   return (
     <main className="max-w-5xl">

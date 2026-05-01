@@ -23,14 +23,7 @@ import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } fr
  * 60R simulation review: browse candidate change sets, plan-derived expectations, and per-baseline before/after diffs.
  */
 export default function EvolutionReviewPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Evolution review not available in demo mode.</p>
-        <p className="m-0 mt-1">60R simulation review requires a live API connection with baseline data.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const [candidates, setCandidates] = useState<EvolutionCandidateChangeSetResponse[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -82,10 +75,18 @@ export default function EvolutionReviewPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void loadList();
-  }, [loadList]);
+  }, [isDemo, loadList]);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     if (selectedId === null || selectedId === "") {
       setDetail(null);
 
@@ -93,7 +94,7 @@ export default function EvolutionReviewPage() {
     }
 
     void loadDetail(selectedId);
-  }, [selectedId, loadDetail]);
+  }, [isDemo, selectedId, loadDetail]);
 
   const planSnapshot = useMemo(() => {
     if (detail === null) {
@@ -121,6 +122,15 @@ export default function EvolutionReviewPage() {
       setSimulateBusy(false);
     }
   }, [selectedId, loadDetail, loadList]);
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Evolution review not available in demo mode.</p>
+        <p className="m-0 mt-1">60R simulation review requires a live API connection with baseline data.</p>
+      </div>
+    );
+  }
 
   const emptyList = !listLoading && candidates.length === 0 && listFailure === null;
 

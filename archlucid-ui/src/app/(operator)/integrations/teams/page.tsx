@@ -66,14 +66,7 @@ function describeTrigger(eventType: string): { label: string; helpText: string }
 }
 
 export default function TeamsNotificationsIntegrationPage() {
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Teams integration not available in demo mode.</p>
-        <p className="m-0 mt-1">Microsoft Teams notifications can be configured with a live API connection.</p>
-      </div>
-    );
-  }
+  const isDemo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const canMutate = useEnterpriseMutationCapability();
   // Start true so first paint shows loading; paired with `loading && conn === null` below so API failures
@@ -108,8 +101,21 @@ export default function TeamsNotificationsIntegrationPage() {
   }, []);
 
   useEffect(() => {
+    if (isDemo) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [isDemo, load]);
+
+  if (isDemo) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Teams integration not available in demo mode.</p>
+        <p className="m-0 mt-1">Microsoft Teams notifications can be configured with a live API connection.</p>
+      </div>
+    );
+  }
 
   function toggleTrigger(eventType: string, checked: boolean) {
     setEnabledTriggers((prev) => {

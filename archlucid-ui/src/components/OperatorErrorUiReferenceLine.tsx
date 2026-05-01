@@ -18,7 +18,7 @@ export type OperatorErrorUiReferenceLineProps = {
 /**
  * Logs a per-mount support reference for triage. Does not render buyer-facing “ERR-…” text.
  */
-export function OperatorErrorUiReferenceLine(_props: OperatorErrorUiReferenceLineProps = {}): null {
+export function OperatorErrorUiReferenceLine({}: OperatorErrorUiReferenceLineProps = {}): null {
   const segment = useMemo(makeUiReferenceSegment, []);
 
   useEffect(() => {

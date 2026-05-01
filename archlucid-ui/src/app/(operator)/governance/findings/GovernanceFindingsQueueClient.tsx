@@ -220,7 +220,7 @@ export default function GovernanceFindingsQueueClient() {
                     <th className="px-3 py-2">Manifest</th>
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2">Recommended action</th>
-                    <th className="px-3 py-2"> </th>
+                    <th className="px-3 py-2">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
