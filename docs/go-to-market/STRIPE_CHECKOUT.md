@@ -9,12 +9,14 @@
 
 Provide a **low-friction conversion path** from self-serve trial to paid Team tier using **Stripe Checkout**, in parallel with Azure Marketplace SaaS.
 
+**Operator checklist (configuration + webhook + proof):** [`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md). Independent assessments should link that file whenever commercial gaps cite Stripe.
+
 ## Configuration
 
 1. Populate Stripe secrets per `ArchLucid.Api` billing configuration (`Billing:Stripe:*` in Key Vault / environment).
-2. Set `teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json` to the Stripe **Payment Link** or **Checkout Session** URL once issued.
-3. Optional: continue using **`POST /v1/tenant/billing/checkout`** (`BillingCheckoutController`) for API-driven checkout when `Billing:Provider` selects Stripe.
-
+2. Create or select a Stripe **Product**/**Price** for Team with the recurring USD amount recorded in **`PRICING_PHILOSOPHY.md` § 3.2**, and bind it to **`Billing:Stripe:PriceIdTeam`**.
+3. Set `teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json` to the Stripe **Payment Link** or **Checkout Session** URL once issued.
+4. Optional: continue using **`POST /v1/tenant/billing/checkout`** (`BillingCheckoutController`) for API-driven checkout when `Billing:Provider` selects Stripe.
 ## Webhooks
 
 `BillingStripeWebhookController` receives Stripe events — configure the **public HTTPS** endpoint and signing secret per environment.

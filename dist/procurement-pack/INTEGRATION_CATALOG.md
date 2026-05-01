@@ -7,7 +7,7 @@
 
 **Audience:** Technical evaluators and integration engineers assessing how ArchLucid connects to their ecosystem.
 
-**Last reviewed:** 2026-04-27 (V1.1 first-party build order: **ServiceNow** before Jira/Confluence — [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*; Atlassian suite V1.1 confirmed 2026-04-24)
+**Last reviewed:** 2026-04-29 (V1 copy-paste recipes: Logic Apps→ADO + Event Grid hardening checklist under `docs/integrations/recipes/`; V1.1 first-party build order unchanged — ServiceNow before Jira/Confluence — [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*; Atlassian suite V1.1 confirmed 2026-04-24)
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. All integrations operate via the hosted API, webhooks, or managed connectors.
 
@@ -39,6 +39,17 @@
 
 **V1.1 first-party sequencing (Resolved 2026-04-27):** Among **ServiceNow**, **Jira**, and **Confluence**, **ServiceNow** is built **first** in the V1.1 window ([PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*). Does not change which connectors are in-V1.1 vs later.
 
+### V1 supported patterns (copy-paste recipes)
+
+These are **customer-operated** integration patterns that consume CloudEvents-style payloads — they **do not** change connector status rows below (for example, **Azure DevOps Work Items** remains **[Planned]** until a first-party connector ships).
+
+| Pattern | Document |
+|---------|----------|
+| Azure Logic Apps webhook → Azure DevOps work item | [recipe-azure-logic-apps-webhook-to-ado-work-item.md](../integrations/recipes/recipe-azure-logic-apps-webhook-to-ado-work-item.md) |
+| Event Grid / HTTPS subscriber hardening checklist | [recipe-event-grid-webhook-hardening-checklist.md](../integrations/recipes/recipe-event-grid-webhook-hardening-checklist.md) |
+
+Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md) · No-code folder index: [integrations/recipes/README.md](../integrations/recipes/README.md).
+
 | Category | Connector | Description | Status |
 |----------|-----------|-------------|--------|
 | **Identity** | SCIM provisioning | Sync users and groups from Okta, Entra ID, or other IdPs | **Available today** — see [`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md) |
@@ -59,6 +70,8 @@
 ---
 
 ## 3. Build your own
+
+**End-to-end recipe hub (Azure DevOps PR decoration, CloudEvents consumer outline, Power Automate / Logic Apps):** see **[ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md)** — three consolidated walkthroughs with exact doc and repo paths; **V1.1** first-party Jira / ServiceNow / Confluence connectors remain out of scope for **V1** per [V1_SCOPE.md §3](../library/V1_SCOPE.md).
 
 ArchLucid's architecture is designed for extensibility:
 

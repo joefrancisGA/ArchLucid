@@ -9,7 +9,8 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
     public static readonly string[] SupportedFormats =
     [
         "json",
-        "simple-terraform"
+        "simple-terraform",
+        "terraform-show-json"
     ];
 
     public InfrastructureDeclarationRequestValidator()
@@ -22,7 +23,8 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
             .NotEmpty().WithMessage("Infrastructure declaration Format is required.")
             .MaximumLength(64)
             .Must(f => SupportedFormats.Contains(f, StringComparer.OrdinalIgnoreCase))
-            .WithMessage("Format must be 'json' or 'simple-terraform'.");
+            .WithMessage(
+                $"Format must be one of: {string.Join(", ", SupportedFormats.Select(s => $"'{s}'"))}.");
 
         RuleFor(x => x.Content)
             .NotNull().WithMessage("Infrastructure declaration Content must not be null.")

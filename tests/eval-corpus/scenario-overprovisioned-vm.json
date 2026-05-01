@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "overprovisioned-vm-cluster",
+  "metadata": {
+    "title": "Compute cluster materially oversized",
+    "complexity": "low",
+    "primaryAgents": ["Cost", "Topology"]
+  },
+  "inputSummary": "Batch workers sized for peak holiday traffic running 24/7 with <15% avg CPU.",
+  "recording": "recordings/overprovisioned-vm-cluster.findings.json",
+  "expectedFindings": [
+    {
+      "id": "e right-size",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["right-sizing", "utilization"]
+    },
+    {
+      "id": "e scale dynamics",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["autoscale", "batch"]
+    },
+    {
+      "id": "e metering",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["FinOps", "chargeback"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["cluster is optimally sized today"] },
+    { "category": "Critic", "ifContainsAny": ["security-critical need for constant peak footprint"] }
+  ]
+}

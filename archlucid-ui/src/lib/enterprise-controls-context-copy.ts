@@ -12,7 +12,7 @@
  * Shared one-liner under alert-tooling “Change configuration” sections — replaces repeating “Configuration surface…”
  * on every page (`alert-rules`, `alert-routing`, `alert-tuning`, `composite-alert-rules`).
  */
-export const alertToolingConfigureSectionSubline = "Inspect above · configure below (Execute+, API).";
+export const alertToolingConfigureSectionSubline = "Configure alert rules and routing — write actions require elevated permissions.";
 
 /** Alert tooling — configure block **`h3`** (`alert-rules`, `alert-routing`, `composite-alert-rules`; tuning uses operator string only). */
 export const alertToolingChangeConfigurationHeadingOperator = "Change configuration";
@@ -41,9 +41,9 @@ export const enterpriseNavHintOperatorRank =
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:
  * below Execute → reader framing).
  */
-export const layerHeaderEnterpriseReaderRankLine = "Inspect first; writes need Execute+ (API).";
+export const layerHeaderEnterpriseReaderRankLine = "Governance controls — inspect view.";
 
-export const layerHeaderEnterpriseOperatorRankLine = "Execute+ writes (API-enforced).";
+export const layerHeaderEnterpriseOperatorRankLine = "Governance controls — write actions are permission-gated.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank = "Writes need Execute+ here (API).";
@@ -454,21 +454,21 @@ export const governanceWorkflowActivationsEmptyOperatorHint =
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =
-  "No rows for this filter. Adjust or refresh; triage writes need operator on the API.";
+  "No alerts match your current filters. Adjust filters or wait for new activity.";
 
 export const alertsFilteredEmptyDescriptionOperator =
-  "No rows. Change filter or refresh—empty means no match.";
+  "No alerts match your current filters. Clear filters or adjust the date range.";
 
 /** Audit log — zero rows after a successful search. */
-export const auditSearchNoResultsReaderLine = "No matches. CSV stays Auditor/Admin on the API.";
+export const auditSearchNoResultsReaderLine = "No audit events match your search.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
-export const auditSearchSectionLeadReaderLine = "CSV uses same From/To; Auditor/Admin on API.";
+export const auditSearchSectionLeadReaderLine = "Export requires Auditor or Admin access.";
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
-export const auditExportSectionSupportingLine = "Same From/To as search; Auditor or Admin on the API.";
+export const auditExportSectionSupportingLine = "CSV export requires Auditor or Admin access.";
 
 /** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
 export const auditExportCsvButtonLabelWindowIncomplete = "Export CSV (set From/To)";
@@ -570,7 +570,7 @@ export const policyPacksPackSelectReaderTitle =
 
 /** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
 export const auditExportExecuteRankAuditorRoleNote =
-  "CSV still needs Auditor or Admin on the API—Execute rank alone is not enough for export.";
+  "CSV export requires Auditor or Admin access — your current role does not include export.";
 
 /** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
 export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";

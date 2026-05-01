@@ -58,8 +58,8 @@ export type LayerGuidanceBlock = {
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
     layerBadge: "Operate",
-    headline: "Answers: what changed between two finalized runs?",
-    useWhen: "Use after you have two runs with reviewed manifests when you need a structured diff or narrative.",
+    headline: "Answers: what changed between two finalized reviews?",
+    useWhen: "Use after you have two reviews with reviewed manifests when you need a structured diff or narrative.",
     firstPilotNote:
       "Optional until first Pilot proof unless you deliberately compare two committed outcomes.",
   },
@@ -85,10 +85,10 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-findings": {
     layerBadge: "Operate",
     headline: "Findings from architecture reviews and governance scans.",
-    useWhen: "Open a run for snapshot and explainability; use governance dashboard for cross-run queue context.",
+    useWhen: "Open a review for snapshot and explainability; use governance dashboard for cross-review queue context.",
     firstPilotNote:
-      "After Pilot proof, use run detail for drill-down; dashboard queues cross-run findings.",
-    enterpriseFootnote: "Run-scoped detail; cross-run queue on governance dashboard.",
+      "After Pilot proof, use review detail for drill-down; dashboard queues cross-review findings.",
+    enterpriseFootnote: "Review-scoped detail; cross-review queue on governance dashboard.",
   },
   alerts: {
     layerBadge: "Operate",
@@ -100,7 +100,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   audit: {
     layerBadge: "Operate",
     headline: "Tenant audit trail—who did what, when.",
-    useWhen: "Search first; CSV reuses the same From/To window (Auditor/Admin on API).",
+    useWhen: "Search and filter audit events; export requires Auditor or Admin access.",
     firstPilotNote: "Bounded export after Pilot proof when audit window and roles are clear.",
     enterpriseFootnote: "Search + bounded CSV export.",
   },

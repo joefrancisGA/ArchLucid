@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-05-01 — Pricing: interim Stripe Team self-serve **$249** / month USD + grandfathering
+
+**Outcome.** [`PRICING_PHILOSOPHY.md`](docs/go-to-market/PRICING_PHILOSOPHY.md) § **3.2** records bundled Team Checkout (**$249** recurring) alongside unchanged § **5.2** list decomposition for quotes/order forms; **grandfather** subscribers who start at **$249** until an explicit ArchLucid billing change or voluntary cancel/resubscribe; net-new post-cutoff rate **TBD**. Operational wiring unchanged (`Billing:Stripe:PriceIdTeam`). **Owner strike list:** new [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md); cross-linked from [`STRIPE_CHECKOUT.md`](docs/go-to-market/STRIPE_CHECKOUT.md), [`BILLING.md`](docs/library/BILLING.md), [`PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) item **22**, and library assessments **`QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_68_20.md`** + **`QUALITY_ASSESSMENT_2026_04_30_INDEPENDENT_82_40.md`**.
+
+---
+
 ## 2026-04-30 — Quality batch: tier **403**/**404** split, SCIM audit + rotation telemetry, TB-002/**TB-003** gates
 
 **Outcome.** **`CommercialTenantTierFilter`** returns **`403`** (**`PackagingTierInsufficient`**) for **`TenantTier.Standard`** minimum gates and keeps **`404`** obfuscation for **`Enterprise`** (**`PackagingTierProblemDetailsFactory`**). **`RoleOverriddenByScim`** durable audit plus **`AUDIT_COVERAGE_MATRIX.md`** anchor **`audit-core-const-count:146`**. **`archlucid_startup_config_warnings_total`** (**TB-002**) and **`archlucid_query_p95_ms`** + **`tests/performance/query-allowlist.json`** + **`scripts/ci/assert_query_performance.py`** (**TB-003**, CI dry-run **`continue-on-error`**). Docs: **`TENANT_TIER_AND_ROUTE_ENUMERATION.md`**, **`COMMERCIAL_ENFORCEMENT_DEBT.md`**, **`OBSERVABILITY.md`**. SCIM token rotation reminder job and admin-notification plumbing as in session (migrations/hosted service).

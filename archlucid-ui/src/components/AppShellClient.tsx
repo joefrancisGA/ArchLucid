@@ -44,10 +44,31 @@ export function AppShellClient({ children }: AppShellClientProps) {
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
+  /** Auth flow pages (sign-in, callback) render without nav/workspace chrome to avoid confusion. */
+  const isAuthRoute = pathname.startsWith("/auth/");
+
   /** `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits. */
   useLayoutEffect(() => {
     shellRootRef.current?.setAttribute("data-app-ready", "true");
   }, []);
+
+  if (isAuthRoute) {
+    return (
+      <div
+        ref={shellRootRef}
+        className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950"
+      >
+        <div className="mb-8">
+          <ArchLucidWordmarkLink href="/" aria-label="ArchLucid" variant="operator" />
+        </div>
+        <div className="w-full max-w-md">
+          {children}
+        </div>
+        <AppToaster />
+        <RouteAnnouncer />
+      </div>
+    );
+  }
 
   return (
     <OperatorNavAuthorityProvider>

@@ -4,7 +4,7 @@ info:
   version: 1.5.1
   description: |
     ArchLucid **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
-    This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
+    This is **not** the primary REST API (canonical HTTP contract: OpenAPI **`/openapi/v1.json`**; **`/swagger/v1/swagger.json`** is explorer-only).
 
     When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
     header `X-ArchLucid-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).

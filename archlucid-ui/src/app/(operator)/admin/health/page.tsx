@@ -16,12 +16,22 @@ import {
   type CircuitGateRow,
 } from "@/lib/health-dashboard-types";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
 /**
  * In-app diagnostics: readiness (`/health/ready`), authenticated circuit data (`/health`), build identity (`/version`),
  * and onboarding funnel counters (`/v1/diagnostics/operator-task-success-rates`).
  */
 export default function AdminHealthPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Diagnostics not available in demo mode.</p>
+        <p className="m-0 mt-1">Platform health is visible to operators with a live API connection.</p>
+      </div>
+    );
+  }
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
   const [readyError, setReadyError] = useState<string | null>(null);

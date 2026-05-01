@@ -15,6 +15,7 @@ import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/l
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -117,7 +118,7 @@ function runRowOutputReadinessLine(run: RunSummary): string {
 
 function inspectorTitle(run: RunSummary | null): string {
   if (run === null) {
-    return "Run preview";
+    return "Review preview";
   }
 
   const d = run.description?.trim() ?? "";
@@ -126,7 +127,7 @@ function inspectorTitle(run: RunSummary | null): string {
     return d;
   }
 
-  return "Untitled run";
+  return "Untitled review";
 }
 
 function runListPrimaryTitle(run: RunSummary): string {
@@ -153,7 +154,7 @@ function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: R
 }
 
 function displayRelativeCreated(run: RunSummary): string {
-  if (isNextPublicDemoMode()) {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || run.runId === SHOWCASE_STATIC_DEMO_RUN_ID) {
     return new Date(run.createdUtc).toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",

@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime;
+using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -21,11 +23,6 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
-
-using Microsoft.Extensions.Logging;
-
-using ArchLucid.AgentRuntime;
-using ArchLucid.AgentSimulator.Services;
 
 namespace ArchLucid.Api.Demo;
 

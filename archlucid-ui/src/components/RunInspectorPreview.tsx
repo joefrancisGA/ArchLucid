@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
@@ -31,6 +32,7 @@ export type RunInspectorPreviewProps = {
  * Read-only run preview for list inspectors — uses only {@link RunSummary} fields from the list payload.
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
+  const [moreOpen, setMoreOpen] = useState(false);
   const demo = isNextPublicDemoMode();
   const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
   const createdLabel =
@@ -45,6 +47,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       : run.hasArtifactBundle
         ? "Artifact bundle attached — see run detail"
         : "Artifact bundle not reported in list payload";
+
+  const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
+  const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
@@ -99,50 +104,68 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         </ul>
       </div>
 
+      {/* Primary action */}
+      <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        <Button variant="primary" size="sm" className="w-full" asChild>
+          <Link href={`/reviews/${encodeURIComponent(run.runId)}`}>Open review</Link>
+        </Button>
+      </div>
+
+      {/* 4 primary quick links: Manifest, Findings, Artifacts, Timeline */}
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Quick navigation
+          Quick links
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Finalized manifest</Link>
+            <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
           </Button>
-          {run.hasFindingsSnapshot === true || showcaseStory ? (
+          {hasFindingsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/reviews/${encodeURIComponent(run.runId)}#run-explanation`}>Findings &amp; explanation</Link>
+              <Link href={`/reviews/${encodeURIComponent(run.runId)}#run-explanation`}>Findings</Link>
             </Button>
           ) : null}
-          {showcaseStory ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={findingHref}>Primary finding</Link>
-            </Button>
-          ) : null}
-          {run.hasArtifactBundle === true || showcaseStory ? (
+          {hasArtifactsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
               <Link href={`/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`}>Artifacts</Link>
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Review trail timeline</Link>
-          </Button>
-          <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/reviews/${encodeURIComponent(run.runId)}/provenance`}>Review trail graph</Link>
+            <Link href={`/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Timeline</Link>
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        <Button variant="primary" size="sm" className="w-full sm:w-auto" asChild>
-          <Link href={`/reviews/${encodeURIComponent(run.runId)}`}>Open review</Link>
-        </Button>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={compareHref}>Compare</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={replayHref}>Replay</Link>
-          </Button>
-        </div>
+      {/* Secondary actions collapsed behind "More actions" */}
+      <div>
+        <button
+          type="button"
+          className="text-xs text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+          onClick={() => setMoreOpen((v) => !v)}
+          aria-expanded={moreOpen}
+        >
+          {moreOpen ? "▾ Less" : "▸ More actions"}
+        </button>
+        {moreOpen ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+          {showcaseStory ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={findingHref}>Primary finding</Link>
+            </Button>
+          ) : null}
+          {run.hasGraphSnapshot === true || showcaseStory ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={`/reviews/${encodeURIComponent(run.runId)}/provenance`}>Trail graph</Link>
+            </Button>
+          ) : null}
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={compareHref}>Compare</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={replayHref}>Replay</Link>
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

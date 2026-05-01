@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { PlanningExportReadinessNote } from "@/components/planning/PlanningExportReadinessNote";
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
@@ -23,6 +25,15 @@ import type { LearningPlanListItemResponse, LearningThemeResponse } from "@/type
  * 59R planning list: top themes, prioritized plans, and evidence-style counts (read-only browsing).
  */
 export default function PlanningPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Planning not available in demo mode.</p>
+        <p className="m-0 mt-1">59R planning themes and prioritized plans require a live API connection.</p>
+      </div>
+    );
+  }
+
   const [summary, setSummary] = useState<Awaited<ReturnType<typeof fetchLearningPlanningListBundle>>["summary"] | null>(
     null,
   );

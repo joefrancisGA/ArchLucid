@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:117 -->
+<!-- audit-core-const-count:146 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -29,6 +29,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scri
 | **Single Core catalog for baseline + durable** | Application references `ArchLucid.Core.Audit.AuditEventTypes.Baseline` so operators and developers have one file for all event-type strings; nested `Baseline` preserves namespaced baseline values without colliding with authority `RunStarted` / `RunCompleted`. |
 | **Coordinator orchestration durable echo** | The coordinator orchestrators (`Create`, `Execute`, `Commit`) call `IBaselineMutationAuditService.RecordAsync` for baseline `Architecture.*` events; `BaselineMutationAuditService` appends one durable `dbo.AuditEvents` row per signal using **`AuditEventTypes.Run.*`** via `BaselineMutationAuditArchitectureDurableWriter` (legacy `CoordinatorRun*` constants were removed). Pre-commit governance warnings/blocks on commit still call `IAuditService.LogAsync` directly from `ArchitectureRunCommitOrchestrator`. Failures on the durable echo path are swallowed — audit must not break orchestration. |
 | **Critical-path durable audit retry** | `Run.Created`, `Run.ExecuteStarted`, `Run.ExecuteSucceeded`, and `Run.CommitCompleted` echoes use `ArchLucid.Core.Audit.DurableAuditLogRetry` (short exponential backoff, default 3 attempts). `Run.Failed` uses a single attempt with inner `try/catch` in the writer. After exhaustion, failures are logged only — orchestration still completes. |
+| **Non-coordinator provisioning audit** | SCIM, token admin, and other non-run flows call `IAuditService.LogAsync` without `DurableAuditLogRetry` — a failed append does not strand pipeline state; exhaustion on retried coordinator paths surfaces via **`archlucid_audit_write_failures_total`**. |
 | **Database-level append-only on `dbo.AuditEvents`** | Migration **`051_AuditEvents_DenyUpdateDelete.sql`** (and the same idempotent **`DENY`** block in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** after the table DDL) issues **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** to the database role **`ArchLucidApp`** when that role exists. This closes the gap where code only `INSERT`s but ad-hoc SQL or bugs could mutate rows. **`dbo` / `db_owner`** are unaffected for break-glass. Local dev often has no **`ArchLucidApp`** role (app runs as **`dbo`** / SQL auth admin) — the migration **skips** until operators create the role and add the managed identity or SQL user (see **`docs/security/MANAGED_IDENTITY_SQL_BLOB.md`**). Deployments that only use **`db_datawriter`** without **`ArchLucidApp`** should create the role and move the app principal into it, or apply an environment-specific **`DENY`** to **`[db_datawriter]`** for this table. |
 
 ### Indexes on `dbo.AuditEvents`
@@ -78,14 +79,17 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Alert tuning API | `AlertTuningController` | `AlertThresholdRecommendationExecuted` | — | tuning context |
 | Policy packs (host) | `PolicyPacksAppService` | `PolicyPackCreated`, `PolicyPackVersionPublished`, `PolicyPackAssigned`, `PolicyPackAssignmentCreated`, `PolicyPackAssignmentArchived` | — | pack / version ids |
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
-| Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `attemptedReviewerBy` |
+| Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `requestedByActorKey`, `attemptedReviewerBy`, `attemptedReviewerActorKey` |
 | Governance approval SLA breach | `ApprovalSlaMonitor` | `GovernanceApprovalSlaBreached` | — | `approvalRequestId`, `runId`, `requestedBy`, `slaDeadlineUtc`, `breachedByMinutes` |
 | Governance policy-pack dry-run (what-if) | `PolicyPackDryRunService` (`POST /v1/governance/policy-packs/{id}/dry-run`) | `GovernanceDryRunRequested` | Tenant/Workspace/Project from ambient scope | `{ policyPackId, proposedThresholdsRedacted (string — proposedThresholds JSON after `LlmPromptRedaction`), evaluatedRunIds[], deltaCounts: { evaluated, wouldBlock, wouldAllow, runMissing } }` — payload **must** flow through the redaction pipeline (PENDING_QUESTIONS Q37); read-auth gated, no real commit. |
+| Pre-commit synthetic simulation (what-if) | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) | `GovernancePreCommitSimulationEvaluated` | RunId when parseable | `runId`, synthetic parameters, gate outcome summary (`blocked`, `warnOnly`, counts, sample blocking finding ids — no manifest commit) |
+| Outbound webhook URL probe (no persistence) | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) | `OutboundWebhookDryRunProbeExecuted` | — | Target authority/path and scheme only (no query string), `hasSharedSecret` flag, transport/status — **no** shared secret or response body in payload |
 | Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
 | Architecture package DOCX download | `DocxExportController` | `ArchitectureDocxExportGenerated` | RunId, ManifestId | `runId`, `compareWithRunId`, `byteCount` |
+| Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
 | Comparison summary persisted (export diff) | `ExportsController` (`POST .../run/exports/compare/summary`, `persist: true`) | `ComparisonSummaryPersisted` | RunId when parseable | `comparisonId`, `sourceExportRecordId`, `leftExportRecordId`, `rightExportRecordId` |
@@ -98,6 +102,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Coordinator run execution succeeded (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
 | Coordinator run commit completed (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
 | Coordinator run failed (baseline → durable) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
@@ -115,6 +120,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Microsoft Teams incoming-webhook connection upsert | `TeamsIncomingWebhookConnectionsController` (`POST /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionUpserted` | Tenant + default workspace/project from scope | Key Vault reference metadata (no secret material) |
 | Microsoft Teams incoming-webhook connection remove | `TeamsIncomingWebhookConnectionsController` (`DELETE /v1/integrations/teams/connections`) | `TenantTeamsIncomingWebhookConnectionRemoved` | Tenant + default workspace/project from scope | connection id / scope fields |
 | Weekly executive digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
+| Entra directory bound to tenant (commercial `tid` after paid conversion) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TenantEntraDirectoryBound` | Tenant from ambient scope | `{ entraTenantId }` |
+| Trial local identity linked to Entra `oid` (optional; same request as directory bind when `LocalEmail` + `EntraOid` set) | `TenantTrialController` (`POST …/tenant/link-entra`) | `TrialLocalIdentityLinkedToEntra` | Tenant from ambient scope | `{ normalizedEmail }` |
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
 | Trial lifecycle automation (expiry → read-only → export-only → purge) | `TrialLifecycleTransitionEngine` (Worker) | `TrialLifecycleTransition` | Tenant + default workspace when known | `{ fromStatus, toStatus, reason }` JSON |
 | LLM tenant daily budget warn (fire-and-forget) | `LlmDailyTenantBudgetTracker` | `AuditEventTypes.LlmTenantDailyBudgetApproaching` | Tenant/Workspace/Project from ambient scope | `{ utcDay, usedTotal, warnAt, maxTotal }` — emitted at most **once per tenant per UTC day**; scheduled on the thread pool with exception swallowing so the LLM completion path is never blocked. |
@@ -125,9 +132,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | SCIM user deactivated | `ScimUserService` (deprovision / `Active=false`) | `ScimUserDeactivated` | Tenant from scope | user id |
 | SCIM group provisioned | `ScimGroupService` | `ScimGroupProvisioned` | Tenant from scope | group id / displayName |
 | SCIM group membership changed | `ScimGroupService` (`members` replace / patch) | `ScimGroupMembershipChanged` | Tenant from scope | `{ groupId }` and membership delta summary |
+| SCIM resolved role overridden by group mapping | `ScimUserService` (flat PATCH `manualResolvedRole` loses to group-derived role) | `RoleOverriddenByScim` | Tenant from scope | prior vs resolved role + **`ScimResolvedRoleOrigin`** (manual vs group) |
 | Pilot `try --real` execute started (Development; real AOAI path) | `RunsController` (`POST .../execute`) when pilot real headers present | `FirstRealValueRunStarted` | RunId | pilot / real-mode context (JSON) |
 | Pilot `try --real` execute completed without fallback | `RunsController` | `FirstRealValueRunCompleted` | RunId | completion summary (JSON) |
 | Pilot `try --real` seed after AOAI fallback | `ArchitectureApplicationService` (`SeedFakeResultsAsync` with `PilotSeedFakeResultsOptions.MarkRealModeFellBackToSimulator`) | `FirstRealValueRunFellBackToSimulator` | RunId | marks run row + deployment snapshot; see [`docs/library/FIRST_REAL_VALUE.md`](FIRST_REAL_VALUE.md) |
+| Legacy run header promoted post-execute (`dbo.Runs.LegacyRunStatus` → `ReadyForCommit` when Topology/Cost/Compliance/Critic each yielded one result — ADR-0012) | `ArchitectureRunExecuteOrchestrator.TryPromoteRunLegacyStatusIfAllResultsPresentAsync` | `RunLegacyReadyForCommitPromoted` | RunId | `{ runId, previousLegacyRunStatus, newLegacyRunStatus }` — direct `IAuditService` (distinct from coordinator `Run.*` durable echo baseline path; applies when promotion mutates SQL) |
 
 ---
 
@@ -145,19 +154,39 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-04-23.
+**Last reviewed:** 2026-04-30.
 
-**Open gaps: 0** as of 2026-04-23. Architecture coordinator durable rows are emitted from `BaselineMutationAuditService` (not necessarily in the same file as each `RecordAsync`). Other `RecordAsync` call sites remain paired with a sibling durable call in-file **or** are explicitly allowed in `BaselineMutationAuditDualWritePairingTests`. The pairing rule is asserted by the test below.
+### Mutating / lifecycle — risk acceptance (verified in repository)
 
-**2026-04-23 addendum (implicit gap closed).** `IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync` (demo trusted-baseline seed + replay commit) previously wrote authority SQL rows without a durable audit row; it now emits **`AuthorityCommittedChainPersisted`** from `DemoSeedService` / `ReplayRunService` after successful persistence (replay: after `IArchLucidUnitOfWork.CommitAsync`). See `docs/CHANGELOG.md` § 2026-04-23 — durable audit for authority committed manifest chain.
+| Gap | Provable state | Owner / policy |
+|-----|----------------|----------------|
+| **`ManifestSuperseded`** | `AuditEventTypes.ManifestSuperseded` and `GoldenManifestLifecycleStatus.Superseded` exist in contracts, but **no** C# mutation path assigns `GoldenManifestLifecycleStatus.Superseded` to a persisted golden manifest today (enum value is unused in writers). | **Product / architecture backlog** — when supersession ships, emit **`IAuditService.LogAsync`** from the **application service or orchestrator** that performs the lifecycle transition (not inside Dapper repositories), using this constant. **Risk acceptance:** until then the event type is **catalogue-only**; absence of rows is expected. |
+
+### Read-path / reserved observability (not an append-only weakness)
+
+| Item | Provable state | Policy |
+|------|----------------|--------|
+| **`FindingsListAccessed`** | Core constant exists; **no** `IAuditService.LogAsync` call site. Public read APIs expose **per-finding** inspect/evidence routes (see OpenAPI: `/v1/architecture/run/{runId}/findings/{findingId}/…`, `/v1/findings/{findingId}/inspect`), not a dedicated bulk “list findings” route tied to this name. | **Deferred** — add durable audit only when a stable list endpoint is defined; until then, rely on run/manifest lifecycle audits and per-finding reads. |
+
+**Open catalogued-only items: 2** (tables above). Neither item weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_DenyUpdateDelete.sql`](../../ArchLucid.Persistence/Migrations/051_AuditEvents_DenyUpdateDelete.sql) / consolidated DDL).
+
+**Layered enforcement shipped 2026-04-29**
+
+| Layer | Mechanism |
+|-------|-----------|
+| Pairing (#2) | `ArchLucid.Application.Tests/Audit/BaselineMutationAuditDualWritePairingTests.cs` — every `RecordAsync(` usage in `ArchLucid.Application` must pair with durable `LogAsync`/`TryLogAsync` unless file allowlisted |
+| Wiring echo CI (#3) | `scripts/ci/assert_layered_audit_wiring_echo.py` — asserts critical `AuditEventTypes.*` substrings survive refactors (`Request.*`, retry, finding-review façade, artifact synthesis, admin archival) |
+| Controllers (#existing) | `scripts/ci/assert_controller_mutations_have_audit.py` unchanged |
 
 | Surface previously flagged | Resolution | Verification |
 |---------------------------|-----------|--------------|
-| `ConversationController` | Read-only (GET endpoints only); no state to audit | Controller surface review |
-| `GovernanceController` | All POST actions delegate to `GovernanceWorkflowService`, which already dual-writes | Five `RecordAsync` ↔ `LogAsync` pairs in `GovernanceWorkflowService.cs` |
-| Coordinator orchestrators (`Create`, `Execute`, `Commit`) | Architecture durable `Run.*` echo centralized in `BaselineMutationAuditService`; commit orchestrators still emit pre-commit governance rows directly | `BaselineMutationAuditService.cs`, `BaselineMutationAuditArchitectureDurableWriter.cs`, orchestrator `RecordAsync` call sites |
+| `FindingReviewApproved` / `FindingReviewRejected` / `FindingReviewOverridden` | `FindingReviewTrailAppendService` delegates `IFindingReviewTrailRepository.AppendAsync` and emits durable audits | Pairing passes for orchestrators touching `FindingReview`/trail only via façade when API lands |
+| `ManifestArchived` cascades (`dbo.GoldenManifests.ArchivedUtc` via bulk run archival) | `AdminDiagnosticsService` logs `AuditEventTypes.ManifestArchived` after successful `ArchiveRuns*` calls | Wiring echo CI + orchestration review |
+| `RequestCreated` / `RequestLocked` / `RequestReleased` | `ArchitectureRunCreateOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` + `IRunRepository.CountActiveRunsForArchitectureRequestAsync` | Wiring echo CI |
+| Pipeline synthesis / findings sealing | `AuthorityPipelineStagesExecutor` | Wiring echo CI |
+| Run retry durability | `ArchitectureRunExecuteOrchestrator` emits `AuditEventTypes.Run.RetryRequested` | Wiring echo CI + unit `ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests` (`ArchLucid.Application.Tests`) |
 
-**Future-drift signal.** Most `RecordAsync` call sites must still show an obvious durable sibling **or** be listed in `BaselineMutationAuditDualWritePairingTests.AllowedBaselineOnlyFiles`. Architecture coordinator create/execute orchestrators are exempt: durable rows are centralized in `BaselineMutationAuditService` + `BaselineMutationAuditArchitectureDurableWriter`. Governance and commit orchestrators retain in-file `LogAsync` where applicable. The pairing test is a static assertion against `ArchLucid.Application` source.
+**Future-drift signal.** Governance repository writes should continue to funnel through audited application services wherever possible; pairing + layering scripts are regression tripwires, not substitutes for semantic tests.
 
 ---
 
@@ -165,10 +194,10 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 117 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
+| **Core `AuditEventTypes` `public const string` rows** | 145 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
+| **Known-gap catalogued-only items** | 2 — `ManifestSuperseded` (no supersession writer), `FindingsListAccessed` (no list route wiring) — see **Known gaps** |
 
 ---
 
@@ -179,8 +208,28 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RunStarted` | `RunStarted` | `AuthorityRunOrchestrator` |
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
+| `ManifestFinalized` | `ManifestFinalized` | `ManifestFinalizationService` (`sp_FinalizeManifest` transactional path — see `MANIFEST_FINALIZATION_TRANSACTION.md`) |
+| `RunSubmitted` | `RunSubmitted` | `RunsController` (`POST /v1/architecture/run/{runId}/execute`, `POST /v1/runs/{runId}/submit`) |
+| `ManifestViewed` | `ManifestViewed` | `AuthorityQueryController` (`GET …/manifest` / `GET /v1/runs/{runId}/manifest`) |
+| `ReviewTrailAccessed` | `ReviewTrailAccessed` | `AuthorityQueryController` (`GET …/pipeline-timeline`, `GET /v1/runs/{runId}/review-trail`) |
+| `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
+| `FindingsListAccessed` | `FindingsListAccessed` | — (constant reserved; no bulk list route + no `LogAsync` yet — see **Known gaps**) |
+| `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
+| `ArtifactSynthesisFailed` | `ArtifactSynthesisFailed` | `AuthorityPipelineStagesExecutor` (artifact stage `catch` before rethrow) |
+| `ArtifactSynthesisPartial` | `ArtifactSynthesisPartial` | `AuthorityPipelineStagesExecutor` (partial bundle branch) |
+| `RequestCreated` | `Request.Created` | `ArchitectureRunCreateOrchestrator` |
+| `RequestLocked` | `Request.Locked` | `ArchitectureRunCreateOrchestrator` |
+| `RequestReleased` | `Request.Released` | `AuthorityDrivenArchitectureRunCommitOrchestrator` |
+| `ManifestSuperseded` | `ManifestSuperseded` | — (catalogue-only until supersession writer exists — see **Known gaps**) |
+| `ManifestArchived` | `ManifestArchived` | `AdminDiagnosticsService` (`ArchiveRuns*` / cascade — batch `ManifestArchived`) |
+| `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | `AuthorityPipelineStagesExecutor` |
+| `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |
+| `FindingReviewRejected` | `FindingReviewRejected` | `FindingReviewTrailAppendService` |
+| `FindingReviewOverridden` | `FindingReviewOverridden` | `FindingReviewTrailAppendService` |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
+| `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
+| `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |
 | `AuthorityCommittedChainPersisted` | `AuthorityCommittedChainPersisted` | `DemoSeedService`, `ReplayRunService` |
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
@@ -188,11 +237,13 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
 | `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController` |
+| `RequestFileImported` | `RequestFileImported` | `ImportRequestFileService` (`ImportRequestFileController`) |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |
 | `GovernancePreCommitBlocked` | `GovernancePreCommitBlocked` | `ArchitectureRunCommitOrchestrator` (optional pre-commit gate) |
 | `GovernancePreCommitWarned` | `GovernancePreCommitWarned` | `ArchitectureRunCommitOrchestrator` (warn-only severity in pre-commit gate) |
+| `GovernancePreCommitSimulationEvaluated` | `GovernancePreCommitSimulationEvaluated` | `GovernancePreCommitSimulationController` (`POST /v1/governance/pre-commit/simulate`) |
 | `GovernanceApprovalSlaBreached` | `GovernanceApprovalSlaBreached` | `ApprovalSlaMonitor` (pending approval request past SLA deadline) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
@@ -222,6 +273,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AlertRuleSimulationExecuted` | `AlertRuleSimulationExecuted` | `AlertSimulationController` |
 | `AlertRuleCandidateComparisonExecuted` | `AlertRuleCandidateComparisonExecuted` | `AlertSimulationController` |
 | `AlertThresholdRecommendationExecuted` | `AlertThresholdRecommendationExecuted` | `AlertTuningController` |
+| `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunProbeExecuted` | `OutboundWebhookDryRunController` (`POST /v1/webhooks/dry-run`) |
 | `PolicyPackCreated` | `PolicyPackCreated` | `PolicyPacksAppService` |
 | `PolicyPackVersionPublished` | `PolicyPackVersionPublished` | `PolicyPacksAppService` |
 | `PolicyPackAssigned` | `PolicyPackAssigned` | `PolicyPacksAppService` |
@@ -237,6 +289,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
 | `GovernanceEnvironmentActivated` | `GovernanceEnvironmentActivated` | `GovernanceWorkflowService` |
 | `GovernanceDryRunRequested` | `GovernanceDryRunRequested` | `PolicyPackDryRunService` (POST `/v1/governance/policy-packs/{id}/dry-run`; redaction-pipeline mandatory per Q37) |
+| `GovernanceDryRunValidationAttempted` | `GovernanceDryRunValidationAttempted` | `GovernanceWorkflowService` (approval / promotion path with `dryRun=true`; validates write path without committing row/outbox/integration publish) |
 | `DataArchivalHostLoopFailed` | `DataArchivalHostLoopFailed` | `DataArchivalHostIteration` |
 | `CircuitBreakerStateTransition` | `CircuitBreakerStateTransition` | `CircuitBreakerAuditBridge` |
 | `CircuitBreakerRejection` | `CircuitBreakerRejection` | `CircuitBreakerAuditBridge` |
@@ -258,9 +311,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `TenantTeamsIncomingWebhookConnectionUpserted` | `TenantTeamsIncomingWebhookConnectionUpserted` | `TeamsIncomingWebhookConnectionsController` |
 | `TenantTeamsIncomingWebhookConnectionRemoved` | `TenantTeamsIncomingWebhookConnectionRemoved` | `TeamsIncomingWebhookConnectionsController` |
 | `ExecDigestPreferencesUpdated` | `ExecDigestPreferencesUpdated` | `TenantExecDigestPreferencesController` |
+| `TenantEntraDirectoryBound` | `TenantEntraDirectoryBound` | `TenantTrialController` (`POST …/tenant/link-entra`) |
 | `TenantTrialConverted` | `TenantTrialConverted` | `TenantTrialController` |
 | `TrialLifecycleTransition` | `TrialLifecycleTransition` | `TrialLifecycleTransitionEngine` |
 | `TrialLimitExceeded` | `TrialLimitExceeded` | `TrialLimitExceededAuditFilter`, `TrialLimitProblemResponse.TryLogAuditAsync` (on `TrialLimitExceededException`) |
+| `TrialLocalIdentityLinkedToEntra` | `TrialLocalIdentityLinkedToEntra` | `TenantTrialController` (`POST …/tenant/link-entra`; when local link succeeds) |
 | `ComparisonRecordOrphansRemediated` | `ComparisonRecordOrphansRemediated` | `AdminDiagnosticsService` (orphan comparison-record remediation execute) |
 | `GoldenManifestOrphansRemediated` | `GoldenManifestOrphansRemediated` | `AdminDiagnosticsService` (orphan golden-manifest remediation execute) |
 | `FindingsSnapshotOrphansRemediated` | `FindingsSnapshotOrphansRemediated` | `AdminDiagnosticsService` (orphan findings-snapshot remediation execute) |
@@ -275,9 +330,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ScimUserDeactivated` | `ScimUserDeactivated` | `ScimUserService` |
 | `ScimGroupProvisioned` | `ScimGroupProvisioned` | `ScimGroupService` |
 | `ScimGroupMembershipChanged` | `ScimGroupMembershipChanged` | `ScimGroupService` |
+| `RoleOverriddenByScim` | `RoleOverriddenByScim` | `ScimUserService` (group-derived role replaces manual PATCH resolution; provenance payload) |
 | `FirstRealValueRunStarted` | `FirstRealValueRunStarted` | `RunsController` (pilot real execute) |
 | `FirstRealValueRunCompleted` | `FirstRealValueRunCompleted` | `RunsController` (pilot real execute success) |
 | `FirstRealValueRunFellBackToSimulator` | `FirstRealValueRunFellBackToSimulator` | `ArchitectureApplicationService` (pilot seed after real-mode fallback) |
+| `RunLegacyReadyForCommitPromoted` | `RunLegacyReadyForCommitPromoted` | `ArchitectureRunExecuteOrchestrator` (post-execute LegacyRunStatus promotion — ADR-0012) |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
 
@@ -292,6 +349,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
 | `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
+| `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 
@@ -313,3 +371,9 @@ When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 | `Baseline.Governance.EnvironmentActivated` | `Governance.EnvironmentActivated` | `GovernanceWorkflowService` |
 
 When adding a `Baseline` constant, add a row here and bump `audit-core-const-count`.
+
+---
+
+## Quality assessment verification (2026-04-28)
+
+Independent quality readiness review (weighted score **66.25%**) re-traced this matrix against orchestrator call sites. **No net-new durable audit gaps** were opened beyond the intentional baseline-vs-durable dual-channel split documented above — coordinator durable echoes remain on the critical path (`BaselineMutationAuditArchitectureDurableWriter`), and **explicit** `dbo.AuditEvents` rows for **silent** coordinator SQL mutations (`RunLegacyReadyForCommitPromoted` on `dbo.Runs.LegacyRunStatus` promotion) are layered per ADR-0012 traceability.

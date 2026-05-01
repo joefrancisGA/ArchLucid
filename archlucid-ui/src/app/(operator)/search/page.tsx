@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SEARCH_EMPTY } from "@/lib/search-empty-preset";
 
 type RetrievalHit = {
@@ -25,6 +27,15 @@ type RetrievalHit = {
 };
 
 export default function SearchPage() {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    return (
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Semantic search not available in demo mode.</p>
+        <p className="m-0 mt-1">Full-text search across reviews requires a live API connection.</p>
+      </div>
+    );
+  }
+
   const [query, setQuery] = useState("");
   const [runId, setRunId] = useState("");
   const [results, setResults] = useState<RetrievalHit[]>([]);
@@ -80,7 +91,7 @@ export default function SearchPage() {
               className="font-mono text-sm"
               value={runId}
               onChange={(e) => setRunId(e.target.value)}
-              placeholder="Optional Run ID filter"
+              placeholder="Optional Review ID filter"
               autoComplete="off"
             />
           </div>

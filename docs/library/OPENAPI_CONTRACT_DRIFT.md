@@ -11,7 +11,8 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 ## 2. Assumptions
 
-- The canonical contract check uses **Microsoft.AspNetCore.OpenApi** output at **`GET /openapi/v1.json`** (not Swashbuckle’s `/swagger/v1/swagger.json`, which is covered by separate smoke tests).
+- The canonical contract check uses **Microsoft.AspNetCore.OpenApi** output at **`GET /openapi/v1.json`** (not Swashbuckle’s `/swagger/v1/swagger.json`, which is explorer-only and covered by separate smoke tests).
+- **Azure APIM:** set **`apim_openapi_spec_url`** to **`https://<api-host>/openapi/v1.json`** (`infra/terraform/README.md`), not `/swagger/v1/swagger.json`.
 - Contributors run **.NET** tests before pushing; CI runs the same **fast core** filter as local “corset” runs.
 
 ## 3. Constraints

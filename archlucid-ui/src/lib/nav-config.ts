@@ -38,6 +38,8 @@ export type NavLinkItem = {
   title: string;
   /** Progressive disclosure: essential always; extended after “Show more”; advanced after gear toggle. */
   tier: NavTier;
+  /** When sidebar is in default collapsed pilot mode (“fewer sidebar links”), only links with **true** here stay visible before “Show all features”. Omit = hidden when collapsed (after tier ∩ authority). See **docs/PRODUCT_PACKAGING.md** §3 Improvement 7. */
+  defaultVisibleInCollapsedSidebar?: boolean;
   /**
    * Minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
    * **Pilot essentials** omit this (broad default path). **Operate** nav links in `NAV_GROUPS` set it — see the module **Authority** section.
@@ -157,6 +159,15 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+h",
         icon: Home,
         tier: "essential",
+        defaultVisibleInCollapsedSidebar: true,
+      },
+      {
+        href: "/getting-started",
+        label: "Getting started",
+        title: "Getting started — onboarding checklist",
+        tier: "essential",
+        icon: ClipboardList,
+        defaultVisibleInCollapsedSidebar: true,
       },
       {
         href: "/reviews/new",
@@ -168,6 +179,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+n",
         icon: Rocket,
         tier: "essential",
+        defaultVisibleInCollapsedSidebar: true,
       },
       {
         href: "/reviews?projectId=default",
@@ -176,6 +188,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+r",
         icon: ListOrdered,
         tier: "essential",
+        defaultVisibleInCollapsedSidebar: true,
       },
       {
         href: "/governance/findings",
@@ -195,6 +208,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: "Help — using ArchLucid and reference documentation",
         icon: LifeBuoy,
         tier: "essential",
+        defaultVisibleInCollapsedSidebar: true,
       },
       {
         href: "/scorecard",
@@ -421,6 +435,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: Building2,
         tier: "extended",
         requiredAuthority: "ExecuteAuthority",
+        defaultVisibleInCollapsedSidebar: true,
       },
       {
         href: "/admin/support",

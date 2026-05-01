@@ -125,7 +125,7 @@ export function WelcomeBanner() {
     ? "Architecture manifest workspace"
     : "Turn architecture proposals into governed, evidence-backed review packages.";
   const subheadingText = returningUser
-    ? "Monitor active runs, finalize manifests, and review governance findings."
+    ? "Monitor active reviews, finalize manifests, and review governance findings."
     : "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
 
   const setWelcomeDismissed = (nextCompact: boolean) => {

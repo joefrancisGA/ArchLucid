@@ -2,6 +2,8 @@
 
 > **Naming:** Saves as [`QUALITY_ASSESSMENT_<date>_INDEPENDENT_<pct>.md`](.) alongside other archived passes in `docs/library/`.
 
+> **Progress note (owner, 2026-05-01 — not a rescore):** Stripe Team **Product/Price** (**$249**/mo per **`PRICING_PHILOSOPHY.md`** § **3.2**) + **`Billing:Stripe:PriceIdTeam`** wired in operator configuration. **Live** `sk_live_`/`whsec_` **unchanged** deferred per **`PENDING_QUESTIONS.md`**; **webhook→SQL paid proof** remains the next commercial evidence bar — **[`STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)** § **B–D**.
+
 ---
 
 # ArchLucid Assessment – Weighted Readiness 82.40%
@@ -22,11 +24,11 @@
 
 **Overall readiness**
 
-The ArchLucid V1 codebase is functionally complete and technically sound for initial pilot deployments. The architecture isolates concerns, establishes governance boundaries, and implements a clear happy path. Overall readiness (**82.40%**) is constrained less by engineering depth than by pending executive commercial posture (Stripe / Marketplace **un-hold**, formal SOC 2 / pen-test **execution** tracked as owner-driven).
+The ArchLucid V1 codebase is functionally complete and technically sound for initial pilot deployments. The architecture isolates concerns, establishes governance boundaries, and implements a clear happy path. Overall readiness (**82.40%**) is constrained less by engineering depth than by pending executive commercial posture (**Stripe live-key un-hold**, **Marketplace Published**, formal SOC 2 / pen-test **execution**). **Owner progress (2026-05-01):** Stripe Team catalogue + **`Billing:Stripe:PriceIdTeam`** — **`STRIPE_OPERATOR_CHECKLIST.md`** § **A–partial B**; webhook + E2E receipts + live cutover still gated.
 
 **Commercial picture**
 
-Commercial plumbing is technically present but operationally paused in places: quick starts and pilot ROI models support time-to-value; monetization and marketability lag where live keys, public pricing motion, and published reference narratives remain owner-gated ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)).
+Commercial plumbing is technically present but operationally paused in places: quick starts and pilot ROI models support time-to-value; monetization and marketability lag where **live** keys, **recorded** webhook→paid proof, public pricing motion, and published reference narratives remain owner-gated ([`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). **Stripe:** Team **`price_…` + `PriceIdTeam` complete (2026-05-01); **finish** [`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md) **B–D** before treating self-serve GA as closed.
 
 **Enterprise picture**
 
@@ -109,7 +111,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 7. **Differentiability** — **85**, **4**, **60**. Manifest + governance product story is differentiated; formal third-party attestation publication is deferred **V1.1** ([`V1_SCOPE.md`](V1_SCOPE.md) §3 pen-test row). Tradeoff: cost vs credibility. **Owner funding (**DEFERRED**)**.
 
-8. **Commercial Packaging Readiness** — **70**, **2**, **60**. Billing wiring + staging trial path shipped; Stripe live + Marketplace Published are explicit **V1.1**/owner gates ([`V1_SCOPE.md`](V1_SCOPE.md) §3 commerce row). **Owner cutover (**DEFERRED**)**.
+8. **Commercial Packaging Readiness** — **70**, **2**, **60**. Billing wiring + staging trial path shipped; **Stripe Team `price_…` + operator `PriceIdTeam` landed (2026-05-01)** — webhook/E2E proof + **live `sk_live_`** remain **owner gates** with Marketplace Published ([`V1_SCOPE.md`](V1_SCOPE.md) §3 commerce row). **Owner cutover (**DEFERRED**)**.
 
 9. **Usability** — **80**, **3**, **60**. Progressive disclosure documented ([`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md)); 404-vs-403 split for enumeration vs debugging is evolving — [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md). Tradeoff: security through obscurity vs operator debuggability. **Improve:** route-classified denial mapping. **Fixable in V1.**
 
@@ -155,7 +157,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 ## Top 10 Most Important Weaknesses
 
-1. **Commercial go-live not fully exercised** — live Stripe/Marketplace still owner-cutover gated while technical wiring exists.
+1. **Commercial go-live not fully exercised** — **Stripe catalogue + `PriceIdTeam` progressed (2026-05-01)**; **live** Stripe/Marketplace + **documented** paid webhook path still owner-gated.
 2. **Connector depth vs enterprise buying motion** — first-party ITSM deferred; pilots must assemble webhook/integration glue.
 3. **Strangler / dual-pipeline transitional state** — engineering attention tax until Phase 3 PR A completes.
 4. **Owner-queue concentration** — reference publication, privacy finalization, ARR-triggered SOC2, pen-test funded execution.
@@ -170,7 +172,7 @@ Legend: **Weighted impact on readiness** = (score × weight) ÷ **Σw**. **Σw =
 
 ## Top 5 Monetization Blockers
 
-1. Stripe **live** keys + production webhook pairing not executed ([`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md)).
+1. Stripe **`sk_live_` + production webhook pairing** not executed; **TEST-mode path + `PriceIdTeam` progressed** ([`STRIPE_CHECKOUT.md`](../go-to-market/STRIPE_CHECKOUT.md), [`STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)).
 2. Azure Marketplace offer not **Published** / transactable at scale ([`PROCUREMENT_EVIDENCE_PACK_INDEX.md`](../go-to-market/PROCUREMENT_EVIDENCE_PACK_INDEX.md)).
 3. Public price list cadence coupled to go-live discretion ([`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md), [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **13**).
 4. Named design-partner narrative still placeholder row ([`DESIGN_PARTNER_NEXT_CASE_STUDY.md`](../go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md)).
@@ -213,7 +215,7 @@ Ranked by leverage. **Eight** actionable items include full Cursor prompts; **fo
 - **Why it matters:** Revenue capture requires production-grade billing surfaces.
 - **Expected impact:** Unblocks purchasing motion and reference SOX-light controls for cash.
 - **Affected qualities:** Commercial Packaging Readiness, Marketability, Stickiness.
-- **Actionable:** **DEFERRED** — Partner Center payout profile, SKU alignment, Stripe `sk_live_`/`whsec_` injection ownership ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **8**–**9**, **22**).
+- **Actionable:** **DEFERRED** — Partner Center payout profile, SKU alignment, Stripe `sk_live_`/`whsec_` injection ownership ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **8**–**9**, **22**); **pre-cutover:** Team **`price_…` + `PriceIdTeam`** done (**2026-05-01**) per [`STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md) § **A**; **staging E2E § B–D still recommended before live flip**.
 - **Input needed:** Cutover calendar, webhook registration confirmation, authorised seller identity artefacts.
 
 ### DEFERRED: Approve first-tenant funnel privacy + retention stance

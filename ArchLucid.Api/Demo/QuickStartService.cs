@@ -14,7 +14,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Serialization;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Demo;
@@ -279,7 +278,11 @@ public sealed class QuickStartService(
                 ProjectId = scope.ProjectId,
                 RunId = runGuid,
                 DataJson = JsonSerializer.Serialize(
-                    new { runId, source = "demo-quickstart" },
+                    new
+                    {
+                        runId,
+                        source = "demo-quickstart"
+                    },
                     AuditJsonSerializationOptions.Instance)
             },
             cancellationToken).ConfigureAwait(false);

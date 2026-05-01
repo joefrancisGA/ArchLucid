@@ -4,6 +4,7 @@ import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   countLinksHiddenByProgressiveDisclosure,
+  countSidebarLinksHiddenByCollapsedPilot,
   filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
 } from "@/lib/nav-shell-visibility";
@@ -291,6 +292,52 @@ describe("countLinksHiddenByProgressiveDisclosure", () => {
 
     const n = countLinksHiddenByProgressiveDisclosure(enterprise, false, false, AUTHORITY_RANK.ReadAuthority);
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe("collapsed pilot sidebar filter", () => {
+  it("shows at most eight visible links for default Reader shell when collapsed filter is applied", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+    );
+    const count = rows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+
+    expect(count).toBeGreaterThan(0);
+    expect(count).toBeLessThanOrEqual(8);
+  });
+
+  it("exposes more links when collapsed filter is off at the same tier and rank", () => {
+    const collapsed = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      true,
+    );
+    const full = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+    );
+    let c = 0;
+    let f = 0;
+
+    for (const row of collapsed) {
+      c += row.visibleLinks.length;
+    }
+
+    for (const row of full) {
+      f += row.visibleLinks.length;
+    }
+
+    expect(f).toBeGreaterThanOrEqual(c);
+    expect(countSidebarLinksHiddenByCollapsedPilot(NAV_GROUPS, false, false, AUTHORITY_RANK.ReadAuthority)).toBe(f - c);
   });
 });
 

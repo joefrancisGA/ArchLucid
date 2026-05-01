@@ -47,7 +47,7 @@ describe("ScopeSwitcher", () => {
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
     expect(trigger).toHaveTextContent("Workspace");
-    expect(trigger).toHaveTextContent("Default project");
+    expect(trigger).toHaveTextContent("Default");
   });
 
   it("opens the panel and surfaces workspace list API guidance when list is empty", async () => {

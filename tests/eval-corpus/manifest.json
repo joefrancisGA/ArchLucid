@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    "scenario-three-tier-web.json",
+    "scenario-microservices-no-gateway.json",
+    "scenario-db-no-backup.json",
+    "scenario-overprovisioned-vm.json",
+    "scenario-multi-region-no-dr.json"
+  ]
+}

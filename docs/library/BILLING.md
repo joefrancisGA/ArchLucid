@@ -51,6 +51,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 
 ## Operational considerations
 
+- Stripe **configuration + verification** checklist ([`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](../runbooks/STRIPE_OPERATOR_CHECKLIST.md)) — canonical owner strike list surfaced from independent assessments (`QUALITY_ASSESSMENT_*_INDEPENDENT_*.md` Executive Summary commercial notes).
 - Register webhook URLs in Stripe Dashboard / Partner Center:
   - `POST /v1/billing/webhooks/stripe`
   - `POST /v1/billing/webhooks/marketplace`

@@ -1,11 +1,12 @@
 import Link from "next/link";
 
+import { DemoPreviewGuidedCallouts } from "@/app/(marketing)/demo/preview/DemoPreviewGuidedCallouts";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip";
 import { ShowcasePipelineReviewTrailCards } from "@/components/showcase/ShowcasePipelineReviewTrailCards";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
-import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactBusinessLabel, getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
@@ -167,6 +168,8 @@ export function DemoPreviewMarketingBody({
 
       {suppressStatusBanner ? null : <DemoStatusBanner payload={payload} />}
 
+      <DemoPreviewGuidedCallouts />
+
       <section data-testid="demo-preview-run">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           {demoMode ? "Sample review" : "Run"}
@@ -309,9 +312,9 @@ export function DemoPreviewMarketingBody({
             <thead className="bg-neutral-100 text-xs uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
               <tr>
                 <th className="px-3 py-2">Name</th>
+                <th className="px-3 py-2">Artifact</th>
                 <th className="px-3 py-2">Type</th>
-                <th className="px-3 py-2">Format</th>
-                <th className="px-3 py-2">Created (UTC)</th>
+                <th className="px-3 py-2">Created</th>
               </tr>
             </thead>
             <tbody>
@@ -323,7 +326,16 @@ export function DemoPreviewMarketingBody({
 
                 const typeLabel =
                   typeof a.artifactType === "string" && a.artifactType.trim().length > 0
-                    ? getArtifactTypeLabel(a.artifactType)
+                    ? getArtifactBusinessLabel(a.artifactType)
+                    : "—";
+
+                const createdLabel =
+                  typeof a.createdUtc === "string"
+                    ? new Date(a.createdUtc).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })
                     : "—";
 
                 return (
@@ -332,15 +344,41 @@ export function DemoPreviewMarketingBody({
                     className="border-t border-neutral-200 dark:border-neutral-800"
                     title={typeof a.contentHash === "string" ? `Content hash: ${a.contentHash}` : undefined}
                   >
-                    <td className="px-3 py-2">{a.name ?? "—"}</td>
                     <td className="px-3 py-2">{typeLabel}</td>
-                    <td className="px-3 py-2">{a.format ?? "—"}</td>
-                    <td className="px-3 py-2">{typeof a.createdUtc === "string" ? a.createdUtc : "—"}</td>
+                    <td className="px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400" title={a.format ?? undefined}>
+                      {getArtifactTypeLabel(a.artifactType)}
+                    </td>
+                    <td className="px-3 py-2">{createdLabel}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section data-testid="demo-preview-signup-cta" className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
+        <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">
+          Try with your own architecture
+        </h2>
+        <p className="mt-2 m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          Start a free workspace trial — bring your manifests, repos, or requirements and run the full pipeline behind this
+          sample.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/signup"
+            className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+            data-testid="demo-preview-cta-signup"
+          >
+            Start free trial
+          </Link>
+          <Link
+            href="/get-started"
+            className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+          >
+            Getting started
+          </Link>
         </div>
       </section>
 

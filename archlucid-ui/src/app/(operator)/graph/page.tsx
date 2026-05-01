@@ -26,7 +26,7 @@ import {
 } from "@/lib/graph-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import type { GraphViewModel } from "@/types/graph";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,7 @@ type GraphMode =
 export default function GraphPage() {
   const workspaceRun = useWorkspaceActiveRun();
   const [runId, setRunId] = useState(() =>
-    isNextPublicDemoMode() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
   );
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
@@ -84,7 +84,7 @@ export default function GraphPage() {
   }, [workspaceRun?.activeRunId, runId]);
 
   useEffect(() => {
-    if (!isNextPublicDemoMode()) {
+    if (!isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled()) {
       return;
     }
 
@@ -228,7 +228,7 @@ export default function GraphPage() {
   const showIdleCard =
     !graph && !loading && loadFailure === null && malformedMessage === null;
 
-  const demoUi = isNextPublicDemoMode();
+  const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const graphIdlePreset = useMemo(() => {
     if (demoUi && showIdleCard) {

@@ -1,9 +1,8 @@
 # Import Existing Architecture into ArchLucid
 
-**Pattern:** turn **infrastructure that already exists** (Terraform state, Azure Resource Manager (ARM) template, or a **CSV business brief**) into a **V1** `POST /v1/architecture/request` call. No new C# in your fork is required: the product already ingests `infrastructureDeclarations` on the run request; the **JSON** form maps to `ResourceDeclarationDocument` in the context-ingestion layer (see [CONTEXT_INGESTION.md](../../../docs/library/CONTEXT_INGESTION.md) § `json` / `simple-terraform` / `terraform-show-json`).
+**Pattern:** turn **infrastructure that already exists** (Terraform state, Azure Resource Manager (ARM) template, or a **CSV business brief**) into a **V1** `POST /v1/architecture/request` call. No new C# in your fork is required: the product already ingests `infrastructureDeclarations` on the run request; the **JSON** form maps to `ResourceDeclarationDocument` in the context-ingestion layer (see [CONTEXT_INGESTION.md](../../../docs/library/CONTEXT_INGESTION.md) § `json` / `simple-terraform`). **Alternatively**, pass **`format` = `terraform-show-json`** (full `terraform show -json`) — see **`docs/integrations/TERRAFORM_STATE_IMPORT.md`**.
 
-**Server-side reference (read-only in this recipe):**  
-[`ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs`](../../../ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs) parses the **full** `terraform show -json` document when a declaration is marked `terraform-show-json` on the **host**. The **public** `POST` validator today accepts `json` and `simple-terraform` only ([`ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs`](../../../ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs)), so this recipe **converts** Terraform/ARM into the **`json`** public contract.
+**Server-side:** [`ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs`](../../../ArchLucid.ContextIngestion/Infrastructure/TerraformShowJsonInfrastructureDeclarationParser.cs) parses **full** `terraform show -json` when **`format`** is **`terraform-show-json`** (public **`POST`** validator permits this format — **`ArchLucid.Api/Validators/InfrastructureDeclarationRequestValidator.cs`**).
 
 **Integration events (outbound webhooks, CloudEvent types):** Canonical type list in [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json); narrative and HMAC patterns in [`docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 
@@ -93,7 +92,7 @@ A **201** (or idempotent **200** with the right headers) on create and a **200**
 | Symptom | What to check |
 |--------|----------------|
 | **400** on create | `description` length, `requestId` uniqueness, `cloudProvider` = `Azure` in V1 |
-| **400** on `infrastructureDeclarations` | `format` must be `json` or `simple-terraform` on the public API; inner JSON must match `json` parser expectations |
+| **400** on `infrastructureDeclarations` | **`format`** must be **`json`**, **`simple-terraform`**, or **`terraform-show-json`** (case-insensitive); inner JSON expectations depend on **`format`** (see **`CONTEXT_INGESTION.md`**) |
 | **403** on POST | **Execute** policy missing for this key (Reader-only keys can list runs but not create) |
 
 **Correlation:** record `requestId` from the create response; it appears in `GET /v1/architecture/run/{runId}.run` as part of the run metadata. Match `runId` to your CI logs and Application Insights.
@@ -102,6 +101,4 @@ A **201** (or idempotent **200** with the right headers) on create and a **200**
 
 ## How this maps to the Terraform parser in code
 
-- **`terraform show -json` →** full state document.  
-- **`terraform-show-json` (host)** — parser walks `values.root_module` (and child modules) into **CanonicalObject** graph (see the **C#** file).  
-- **This recipe** flattens **root** **resources** into the **`json` DTO** the API accepts, so the same import works **today** on the V1 public surface. If a future product version **allows** the `terraform-show-json` string directly on the wire, you can drop the conversion step and set `content` to the file text from `terraform show -json` and `format` to `terraform-show-json` (watch release notes; do **not** depend on that here).
+- **Direct `terraform show -json`:** set `infrastructureDeclarations[].format` to **`terraform-show-json`** and **`content`** to raw state JSON (**`POST /v1/architecture/request`**); see **`docs/integrations/TERRAFORM_STATE_IMPORT.md`**. This recipe converts to **`json`** for callers that prefer a smaller DTO projection.

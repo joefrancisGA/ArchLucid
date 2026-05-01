@@ -8,6 +8,7 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**
@@ -27,6 +28,7 @@ export default function RunDetailSegmentError({
 
   const digest = error.digest?.trim() ?? "";
   const isDev = process.env.NODE_ENV === "development";
+  const isStaticFallback = isStaticDemoPayloadFallbackEnabled();
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
@@ -57,10 +59,12 @@ export default function RunDetailSegmentError({
         ) : null}
       </OperatorErrorCallout>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="primary" onClick={() => reset()}>
-          Retry
-        </Button>
-        <Button type="button" variant="outline" asChild>
+        {!isStaticFallback ? (
+          <Button type="button" variant="primary" onClick={() => reset()}>
+            Retry
+          </Button>
+        ) : null}
+        <Button type="button" variant={isStaticFallback ? "primary" : "outline"} asChild>
           <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Sample manifest</Link>
         </Button>
         <Button type="button" variant="outline" asChild>

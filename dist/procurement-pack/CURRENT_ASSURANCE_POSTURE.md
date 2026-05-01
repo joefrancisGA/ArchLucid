@@ -1,6 +1,8 @@
+> **Scope:** Buyers and security reviewers: repository-linked snapshot of current assurance claims; not legal advice, CPA attestation, or customer-specific commitments.
+
 # ArchLucid — Current Assurance Posture
 
-**Date:** 2026-04-28
+**Date:** 2026-04-27
 **Classification:** Buyer-facing (include in procurement pack ZIP)
 
 This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Items are categorized as **Completed**, **In-flight**, or **Planned** — no over-claiming.
@@ -73,6 +75,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 | CAIQ Lite pre-fill (CSA STAR) | **Completed** | [`docs/security/CAIQ_LITE_2026.md`](../security/CAIQ_LITE_2026.md) |
 | SIG Core pre-fill (Shared Assessments) | **Completed** | [`docs/security/SIG_CORE_2026.md`](../security/SIG_CORE_2026.md) |
 | Compliance control matrix | **Completed** | [`docs/security/COMPLIANCE_MATRIX.md`](../security/COMPLIANCE_MATRIX.md) |
+| VPAT® 2.5–style WCAG 2.1 A/AA Accessibility Conformance Report | **Completed** (honest, evidence-based; not legal certification) | [`docs/security/VPAT_2_5_WCAG_2_1_AA.md`](../security/VPAT_2_5_WCAG_2_1_AA.md); evidence map: [`docs/security/VPAT_EVIDENCE_MAP.md`](../security/VPAT_EVIDENCE_MAP.md) |
 | Data Processing Agreement template | **Completed** (requires legal review) | [`docs/go-to-market/DPA_TEMPLATE.md`](DPA_TEMPLATE.md) |
 | GDPR DSAR process | **Completed** | [`docs/security/DSAR_PROCESS.md`](../security/DSAR_PROCESS.md) |
 | Subprocessors register | **Completed** | [`docs/go-to-market/SUBPROCESSORS.md`](SUBPROCESSORS.md) |

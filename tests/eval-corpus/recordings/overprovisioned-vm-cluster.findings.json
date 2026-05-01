@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-vm-1",
+      "category": "Cost",
+      "severity": "High",
+      "title": "Right-sizing opportunity",
+      "detail": "Average CPU utilization stays under fifteen percent for three months; consider burstable SKUs or scheduled scale-in for right-sizing wins."
+    },
+    {
+      "findingId": "f-vm-2",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Autoscale coverage",
+      "detail": "Batch pools lack autoscale profiles tied to queue depth; workers remain at max scale."
+    },
+    {
+      "findingId": "f-vm-3",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "Showback granularity",
+      "detail": "FinOps dashboards aggregate entire subscription; SKU-level chargeback unavailable to teams."
+    }
+  ]
+}

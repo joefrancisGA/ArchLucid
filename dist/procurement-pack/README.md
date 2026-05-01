@@ -2,9 +2,9 @@
 
 # ArchLucid
 
-[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+**Repository entry:** **[docs/START_HERE.md](docs/START_HERE.md)** — buyer / evaluator (`archlucid.net` + sponsor brief + Core Pilot), contributor (`INSTALL_ORDER`, `FIRST_30_MINUTES`, `ARCHITECTURE_INDEX`), security (`trust-center.md`). Contributor persona detail: **[docs/library/CONTRIBUTOR_PERSONA_TABLE.md](docs/library/CONTRIBUTOR_PERSONA_TABLE.md)**.
 
-**New here?** **[docs/START_HERE.md](docs/START_HERE.md)** is the only entry point (decision tree: buyer → archlucid.net + §2, contributor → §3, security → trust center). Contributor persona detail: **[docs/library/CONTRIBUTOR_PERSONA_TABLE.md](docs/library/CONTRIBUTOR_PERSONA_TABLE.md)**.
+[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package, helping teams ship committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
@@ -77,6 +77,8 @@ Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/library/PRODUCT_PA
 **Product boundary (V1):** [docs/V1_SCOPE.md](docs/library/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/library/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/library/OPERATOR_QUICKSTART.md). **Measurement companion and success criteria:** [docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md). **Layer decision guidance:** [docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md). **Canonical buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/library/RELEASE_LOCAL.md).
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/library/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
+
+> **Release smoke vs live Playwright:** **`release-smoke.ps1`** (with or without **`-RunPlaywright`**) does **not** replace CI’s **`live-api-*.spec.ts`** (**SQL-backed browser**) gates — **`-RunPlaywright`** runs **mock-backed** **`npm run test:e2e`**, separate from the smoke API process. Table: **[docs/library/RELEASE_SMOKE.md](docs/library/RELEASE_SMOKE.md#release-smoke-ui-sql-parity)** · live path **[docs/library/LIVE_E2E_HAPPY_PATH.md](docs/library/LIVE_E2E_HAPPY_PATH.md)**.
 
 **Hosted SaaS URLs:** staging funnel `https://staging.archlucid.net`; production `https://archlucid.net` when Front Door hostnames are wired (see [docs/REFERENCE_SAAS_STACK_ORDER.md](docs/library/REFERENCE_SAAS_STACK_ORDER.md), `infra/apply-saas.ps1`). **Public liveness (hosted):** `Invoke-RestMethod https://staging.archlucid.net/health/live` (or `/health/ready`). **`release-smoke.ps1`** still starts a **local** API for the E2E block; use **`-ApiBaseUrl`** / **`-BaseUrl`** only when that process is not on the default `http://localhost:5128` ([docs/RELEASE_SMOKE.md](docs/library/RELEASE_SMOKE.md)).
 
@@ -206,7 +208,7 @@ Full **54R** tier list, copy-paste commands, SQL variables, and **`archlucid-ui`
 **Common entry points (repo root):**
 
 ```bash
-dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord"
 ```
 
 ```bash

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
@@ -96,11 +96,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           {firstArtifacts.length ? (
             firstArtifacts.map((artifact) => (
               <li key={artifact.artifactId}>
-                <span className="font-medium">{artifact.name}</span>
-                <span className="text-neutral-600 dark:text-neutral-400">
-                  {" "}
-                  · {getArtifactTypeLabel(artifact.artifactType)}
-                </span>
+                <span className="font-medium">{getArtifactBusinessLabel(artifact.artifactType)}</span>
               </li>
             ))
           ) : (
