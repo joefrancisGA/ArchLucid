@@ -451,7 +451,7 @@ export default function PolicyPacksPage() {
           <div className="mb-5">
             {isStaticDemoPayloadFallbackEnabled() ? (
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                {effective.effectivePacks?.length ?? 0} pack(s) resolved for this scope. Connect a live API to inspect raw configuration.
+                {effective.packs?.length ?? 0} pack(s) resolved for this scope. Connect a live API to inspect raw configuration.
               </p>
             ) : (
               <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
