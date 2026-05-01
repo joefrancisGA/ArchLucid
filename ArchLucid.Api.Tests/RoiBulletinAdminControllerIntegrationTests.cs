@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -16,7 +16,7 @@ public sealed class RoiBulletinAdminControllerIntegrationTests : IClassFixture<G
         _fixture = fixture;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Preview_invalid_quarter_returns_400()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -27,7 +27,7 @@ public sealed class RoiBulletinAdminControllerIntegrationTests : IClassFixture<G
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Preview_below_min_tenants_returns_400()
     {
         using HttpClient client = _fixture.CreateClient();

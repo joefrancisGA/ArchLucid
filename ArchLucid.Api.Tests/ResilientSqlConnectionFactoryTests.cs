@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
@@ -19,7 +19,7 @@ public sealed class ResilientSqlConnectionFactoryTests
     private readonly ILogger<ResilientSqlConnectionFactory> _logger =
         NullLogger<ResilientSqlConnectionFactory>.Instance;
 
-    [Fact]
+    [SkippableFact]
     public async Task Success_OnFirstAttempt_ReturnsConnection()
     {
         SqlConnection expected = new();
@@ -37,7 +37,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Verify(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TransientFailure_ThenSuccess_RetriesAndReturns()
     {
         SqlConnection expected = new();
@@ -62,7 +62,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         callCount.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TransientFailure_ExhaustsRetries_ThrowsLastException()
     {
         Mock<ISqlConnectionFactory> inner = new();
@@ -81,7 +81,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Verify(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Exactly(3));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NonTransientFailure_ThrowsImmediately()
     {
         Mock<ISqlConnectionFactory> inner = new();
@@ -99,7 +99,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Verify(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Cancellation_DuringRetryDelay_PropagatesOperationCanceledException()
     {
         Mock<ISqlConnectionFactory> inner = new();
@@ -122,7 +122,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_NullInner_ThrowsArgumentNullException()
     {
         Action act = () =>
@@ -135,7 +135,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("inner");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Constructor_NullPipeline_ThrowsArgumentNullException()
     {
         Action act = () =>
@@ -146,7 +146,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("sqlOpenRetryPipeline");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ZeroRetries_FailsImmediatelyOnTransient()
     {
         Mock<ISqlConnectionFactory> inner = new();

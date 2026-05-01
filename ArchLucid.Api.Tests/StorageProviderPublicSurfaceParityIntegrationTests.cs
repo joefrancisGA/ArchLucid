@@ -33,7 +33,7 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InMemory_host_exposes_live_ready_and_openapi()
     {
         await using OpenApiContractWebAppFactory factory = new();
@@ -44,10 +44,10 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
         (await client.GetAsync("/openapi/v1.json")).StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Sql_greenfield_host_exposes_live_ready_and_openapi()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

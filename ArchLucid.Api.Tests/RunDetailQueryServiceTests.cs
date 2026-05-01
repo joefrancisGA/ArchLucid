@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
@@ -17,7 +17,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Unit tests for <see cref="RunDetailQueryService" /> — the canonical run detail assembly path.
+///     Unit tests for <see cref="RunDetailQueryService" /> â€” the canonical run detail assembly path.
 /// </summary>
 /// <remarks>
 ///     ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> was deleted.
@@ -113,7 +113,7 @@ public sealed class RunDetailQueryServiceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_RunNotFound_ReturnsNull()
     {
         Guid missing = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -125,7 +125,7 @@ public sealed class RunDetailQueryServiceTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_CommittedRunWithManifest_ReturnsFullDetail()
     {
         Guid traceId = Guid.NewGuid();
@@ -167,7 +167,7 @@ public sealed class RunDetailQueryServiceTests
         result.IsCommitted.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_CommittedRunWithoutDecisionTraceId_ReturnsEmptyTraces()
     {
         RunRecord record = CommittedRunRecord(decisionTraceId: null);
@@ -192,7 +192,7 @@ public sealed class RunDetailQueryServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_RunNotYetCommitted_ReturnsDetailWithoutManifest()
     {
         RunRecord record = InProgressRunRecord();
@@ -222,7 +222,7 @@ public sealed class RunDetailQueryServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_ManifestMissing_ReturnsDetailWithNullManifest()
     {
         RunRecord record = CommittedRunRecord();
@@ -247,14 +247,14 @@ public sealed class RunDetailQueryServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_NullOrWhitespaceRunId_Throws()
     {
         Func<Task> act = () => _sut.GetRunDetailAsync(string.Empty);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunDetailAsync_InvalidRunId_ReturnsNull()
     {
         ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("not-a-guid");
@@ -262,7 +262,7 @@ public sealed class RunDetailQueryServiceTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRunSummariesAsync_ReturnsMappedSummaries()
     {
         Guid g1 = Guid.Parse("33333333-3333-3333-3333-333333333333");
@@ -312,7 +312,7 @@ public sealed class RunDetailQueryServiceTests
         second.CurrentManifestVersion.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRunSummariesAsync_EmptyRepository_ReturnsEmptyList()
     {
         _runRepo.Setup(r => r.ListRecentInScopeAsync(_scope, 200, It.IsAny<CancellationToken>()))

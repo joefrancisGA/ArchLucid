@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class PrometheusTrialFunnelMetricsSmokeTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Metrics_endpoint_lists_trial_funnel_series_after_emissions()
     {
         await using PrometheusEnabledArchLucidApiFactory factory = new();

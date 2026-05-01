@@ -1,4 +1,4 @@
-using ArchLucid.Api.Mapping;
+﻿using ArchLucid.Api.Mapping;
 using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonResultHeadersTests
 {
-    [Fact]
+    [SkippableFact]
     public void ApplyFull_writes_expected_core_and_optional_headers()
     {
         DefaultHttpContext context = new();
@@ -49,7 +49,7 @@ public sealed class ReplayComparisonResultHeadersTests
         context.Response.Headers["X-ArchLucid-PersistedReplayRecordId"].ToString().Should().Be("cmp-new");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ApplyMetadata_writes_only_metadata_subset_headers()
     {
         DefaultHttpContext context = new();

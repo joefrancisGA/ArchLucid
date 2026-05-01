@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Tenancy;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantMeasuredRoiEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetTenantMeasuredRoi_returns_200_with_snapshot_and_disclaimer()
     {
         HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.TenantMeasuredRoi}");

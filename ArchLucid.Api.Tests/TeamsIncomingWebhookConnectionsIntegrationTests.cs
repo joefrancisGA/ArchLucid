@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -30,7 +30,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_connections_with_reader_jwt_returns_forbidden()
     {
         string token = MintJwt(
@@ -55,7 +55,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_connections_with_https_body_returns_bad_request()
     {
         string token = MintJwt(
@@ -80,7 +80,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_post_delete_round_trip_with_operator_jwt()
     {
         string token = MintJwt(
@@ -107,7 +107,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
         {
             KeyVaultSecretName = "kv-teams-webhook-ref",
-            Label = "demo tenant — replace before publishing",
+            Label = "demo tenant â€” replace before publishing",
             EnabledTriggers =
             [
                 "com.archlucid.authority.run.completed",
@@ -137,7 +137,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         del.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_connections_with_unknown_trigger_returns_bad_request()
     {
         string token = MintJwt(
@@ -165,7 +165,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         text.Should().Contain("com.archlucid.does.not.exist");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_triggers_catalog_returns_v1_default_set()
     {
         string token = MintJwt(

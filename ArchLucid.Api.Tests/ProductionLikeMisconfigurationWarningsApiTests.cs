@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 using ArchLucid.Core.Hosting;
@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ProductionLikeMisconfigurationWarningsApiTests
 {
-    [Fact]
+    [SkippableFact]
     public void Development_host_with_archlucid_staging_env_surfaces_jwt_authority_advisory_from_bound_configuration()
     {
         using WebApplicationFactory<Program> factory = new OpenApiContractWebAppFactory().WithWebHostBuilder(

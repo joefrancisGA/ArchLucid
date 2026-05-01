@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ScopeDebugControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetScope_returns_current_scope_from_provider()
     {
         ScopeContext expected = new()

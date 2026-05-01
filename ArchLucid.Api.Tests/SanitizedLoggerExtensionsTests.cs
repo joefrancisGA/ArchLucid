@@ -1,4 +1,4 @@
-using ArchLucid.Api.Logging;
+﻿using ArchLucid.Api.Logging;
 
 using FluentAssertions;
 
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class SanitizedLoggerExtensionsTests
 {
-    [Fact]
+    [SkippableFact]
     public void LogWarningWithSanitizedUserArg_substitutes_sanitized_value_in_message()
     {
         Mock<ILogger> mock = new();
@@ -44,7 +44,7 @@ public sealed class SanitizedLoggerExtensionsTests
         rendered.Should().Be("Promote failed for run 'run_id'.");
     }
 
-    [Fact]
+    [SkippableFact]
     public void LogWarningWithSanitizedUserArg_null_user_value_renders_empty_placeholder()
     {
         Mock<ILogger> mock = new();

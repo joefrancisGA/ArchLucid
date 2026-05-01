@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -39,13 +39,13 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_NullSqlException_ReturnsFalse()
     {
         SqlTransientDetector.IsTransient(null!).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_TimeoutException_ReturnsTrue()
     {
         Exception ex = new TimeoutException("timed out");
@@ -53,7 +53,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_GenericException_ReturnsFalse()
     {
         Exception ex = new InvalidOperationException("not transient");
@@ -61,13 +61,13 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_NullException_ReturnsFalse()
     {
         SqlTransientDetector.IsTransient((Exception)null!).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_InnerSqlException_TransientCode_ReturnsTrue()
     {
         SqlException inner = SqlExceptionTestFactory.Create(-2);
@@ -76,7 +76,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(outer).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_InnerSqlException_NonTransientCode_ReturnsFalse()
     {
         SqlException inner = SqlExceptionTestFactory.Create(18456);
@@ -85,7 +85,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(outer).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_DeepNestedSqlException1205_ReturnsTrue()
     {
         SqlException deadlock = SqlExceptionTestFactory.Create(1205);

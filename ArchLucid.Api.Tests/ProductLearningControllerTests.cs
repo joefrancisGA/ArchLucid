@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("ChangeSet", "58R")]
 public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetSummary_ReturnsOk_WithCountsAndNotes()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/summary");
@@ -32,7 +32,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         body.TopAggregateCount.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummary_InvalidSince_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/summary?since=not-a-date");
@@ -45,7 +45,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         problem.Detail.Should().Contain("since");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetImprovementOpportunities_InvalidMax_Returns400Problem()
     {
         HttpResponseMessage response =
@@ -59,7 +59,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         problem.Detail.Should().Contain("maxOpportunities");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetArtifactOutcomeTrends_ValidSince_ReturnsOk()
     {
         HttpResponseMessage response =
@@ -74,7 +74,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         body.Trends.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTriageQueue_Default_ReturnsOk()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/triage-queue");
@@ -88,7 +88,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         body.Items.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetReport_FormatJson_ReturnsStructuredDocument()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=json");
@@ -105,7 +105,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         doc.TriageQueuePreview.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetReport_FormatMarkdown_ReturnsExportWrapper()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=markdown");
@@ -121,7 +121,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         body.FileName.Should().EndWith(".md");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetReport_InvalidFormat_Returns400()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=xml");
@@ -129,7 +129,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetReportFile_Markdown_ReturnsMarkdownContentType()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report/file?format=markdown");
@@ -140,7 +140,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         text.Should().Contain("# Pilot feedback");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetImprovementOpportunities_MaxOpportunities_respects_upper_bound_contract()
     {
         HttpResponseMessage response =
@@ -155,7 +155,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         body.Opportunities.Count.Should().BeLessThanOrEqualTo(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetReport_InvalidMaxReportArtifacts_Returns400()
     {
         HttpResponseMessage response =
@@ -164,7 +164,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetArtifactOutcomeTrends_InvalidSince_Returns400Problem()
     {
         HttpResponseMessage response =
@@ -178,7 +178,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         problem.Detail.Should().Contain("since");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTriageQueue_InvalidMaxTriageItems_Returns400Problem()
     {
         HttpResponseMessage response =
@@ -191,7 +191,7 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadTriageReport_File_Json_ReturnsJsonContentType()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report/file?format=json");

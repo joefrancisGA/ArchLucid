@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Tenancy;
+﻿using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
@@ -23,7 +23,7 @@ public sealed class TenantCustomerSuccessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task GetHealthScoreAsync_returns_not_calculated_when_repository_returns_null()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new();
@@ -46,7 +46,7 @@ public sealed class TenantCustomerSuccessControllerTests
         body.IsCalculated.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetHealthScoreAsync_returns_scores_when_repository_has_row()
     {
         DateTimeOffset updated = DateTimeOffset.Parse("2026-04-19T12:00:00Z");
@@ -84,7 +84,7 @@ public sealed class TenantCustomerSuccessControllerTests
         body.UpdatedUtc.Should().Be(updated);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_returns_bad_request_when_body_null()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new();
@@ -105,7 +105,7 @@ public sealed class TenantCustomerSuccessControllerTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostProductFeedbackAsync_persists_and_returns_no_content()
     {
         ProductFeedbackSubmission? captured = null;

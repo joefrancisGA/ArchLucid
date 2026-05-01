@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Scim;
 using ArchLucid.Core.Audit;
@@ -19,7 +19,7 @@ public sealed class ScimGroupServicePatchMembersTests
     private static readonly Guid User2 = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid User3 = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-    [Fact]
+    [SkippableFact]
     public async Task Remove_member_by_value_path_drops_only_matching_user()
     {
         (ScimGroupService sut, InMemoryScimGroupRepository repo, Guid groupId) = await CreateSutWithGroupAndMembersAsync(
@@ -36,7 +36,7 @@ public sealed class ScimGroupServicePatchMembersTests
         after.Should().Equal(User2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Replace_members_dot_active_false_removes_member()
     {
         (ScimGroupService sut, InMemoryScimGroupRepository repo, Guid groupId) =
@@ -53,7 +53,7 @@ public sealed class ScimGroupServicePatchMembersTests
         after.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Bulk_add_keeps_prior_members()
     {
         (ScimGroupService sut, InMemoryScimGroupRepository repo, Guid groupId) =
@@ -70,7 +70,7 @@ public sealed class ScimGroupServicePatchMembersTests
         after.Should().Equal(User1, User2, User3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Value_ne_operator_throws_not_implemented_Scim_parse_exception()
     {
         (ScimGroupService sut, _, Guid groupId) =
@@ -86,7 +86,7 @@ public sealed class ScimGroupServicePatchMembersTests
         ex.ScimType.Should().Be("notImplemented");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Bulk_replace_replaces_membership_exactly()
     {
         (ScimGroupService sut, InMemoryScimGroupRepository repo, Guid groupId) =

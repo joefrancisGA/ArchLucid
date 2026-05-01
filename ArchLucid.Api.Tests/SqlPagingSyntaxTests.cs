@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class SqlPagingSyntaxTests
 {
-    [Fact]
+    [SkippableFact]
     public void FirstRowsOnly_UsesOffsetFetchSyntax()
     {
         string clause = SqlPagingSyntax.FirstRowsOnly(200);

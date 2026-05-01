@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class SponsorEvidencePackEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetSponsorEvidencePack_returns_ok_with_process_and_governance_slice()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/pilots/sponsor-evidence-pack");

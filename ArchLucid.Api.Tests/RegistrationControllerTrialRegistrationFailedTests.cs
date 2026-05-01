@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers;
+﻿using ArchLucid.Api.Controllers;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class RegistrationControllerTrialRegistrationFailedTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RegisterAsync_null_body_emits_TrialRegistrationFailed_and_400()
     {
         Mock<IAuditService> audit = new();
@@ -47,7 +47,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RegisterAsync_duplicate_org_emits_TrialRegistrationFailed_conflict()
     {
         Guid t = Guid.NewGuid();
@@ -96,7 +96,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RegisterAsync_provision_throws_invalid_operation_emits_TrialRegistrationFailed_validation()
     {
         Mock<IAuditService> audit = new();

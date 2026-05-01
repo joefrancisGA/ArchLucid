@@ -1,10 +1,10 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/marketing/sponsor-brief.pdf</c> — anonymous PDF from Executive Sponsor Brief.</summary>
+/// <summary>HTTP coverage for <c>GET /v1/marketing/sponsor-brief.pdf</c> â€” anonymous PDF from Executive Sponsor Brief.</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class SponsorBriefMarketingEndpointTests : IClassFixture<ArchLucidApiFactory>
@@ -16,7 +16,7 @@ public sealed class SponsorBriefMarketingEndpointTests : IClassFixture<ArchLucid
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSponsorBriefPdf_returns_pdf_bytes()
     {
         HttpClient client = _factory.CreateClient();

@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
@@ -55,7 +55,7 @@ public sealed class ReplayRunServiceTests
             .ReturnsAsync((RunRecord?)null);
 
         // ADR 0030 PR A3 (2026-04-24): ICoordinatorDecisionTraceRepository was removed from
-        // ReplayRunService — decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
+        // ReplayRunService â€” decision traces are persisted via IAuthorityCommittedManifestChainWriter only.
         _sut = new ReplayRunService(
             _executorResolver.Object,
             _decisionEngine.Object,
@@ -105,7 +105,7 @@ public sealed class ReplayRunServiceTests
         return mock;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_WhenRunDetailMissing_ThrowsRunNotFoundException()
     {
         _runDetailQueryService
@@ -119,7 +119,7 @@ public sealed class ReplayRunServiceTests
             r => r.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_WhenNoTasks_ThrowsInvalidOperationException()
     {
         _runDetailQueryService
