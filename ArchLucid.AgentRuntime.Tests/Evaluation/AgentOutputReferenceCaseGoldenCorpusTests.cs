@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -31,11 +32,8 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         File.Exists(file).Should().BeTrue($"Copy tests/golden-corpus to output (see .csproj): {file}");
 
         string json = File.ReadAllText(file);
-        JsonSerializerOptions options = new()
-        {
-            PropertyNameCaseInsensitive = true
-        };
-        options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+        options.Converters.Add(new JsonStringEnumConverter());
         List<AgentOutputReferenceCaseDefinition>? list =
             JsonSerializer.Deserialize<List<AgentOutputReferenceCaseDefinition>>(json, options);
 
@@ -52,8 +50,7 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         options.Setup(o => o.CurrentValue).Returns(
             new AgentExecutionReferenceEvaluationOptions
             {
-                Enabled = true,
-                ReferenceCasesPath = GoldenCorpusRelativePath
+                Enabled = true, ReferenceCasesPath = GoldenCorpusRelativePath
             });
 
         AgentOutputReferenceCaseCatalog catalog = new(
@@ -92,8 +89,7 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         catalogOpts.Setup(o => o.CurrentValue).Returns(
             new AgentExecutionReferenceEvaluationOptions
             {
-                Enabled = true,
-                ReferenceCasesPath = GoldenCorpusRelativePath
+                Enabled = true, ReferenceCasesPath = GoldenCorpusRelativePath
             });
 
         AgentOutputReferenceCaseCatalog catalog = new(

@@ -66,25 +66,12 @@ public sealed class RealAgentExecutorTests
         RealAgentExecutor sut = CreateSut(topology, compliance);
         ArchitectureRequest request = new()
         {
-            RequestId = "r1",
-            Description = "1234567890ab",
-            SystemName = "S",
-            Environment = "prod"
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
         };
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask taskZ = new()
-        {
-            TaskId = "tz",
-            RunId = runId,
-            AgentType = AgentType.Topology
-        };
-        AgentTask taskC = new()
-        {
-            TaskId = "tc",
-            RunId = runId,
-            AgentType = AgentType.Compliance
-        };
+        AgentTask taskZ = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+        AgentTask taskC = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
 
         IReadOnlyList<AgentResult> results =
             await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
@@ -100,18 +87,8 @@ public sealed class RealAgentExecutorTests
     public async Task ExecuteAsync_when_handler_missing_throws()
     {
         RealAgentExecutor sut = CreateSut();
-        ArchitectureRequest request = new()
-        {
-            RequestId = "r1",
-            Description = "1234567890ab",
-            SystemName = "S"
-        };
-        AgentTask task = new()
-        {
-            TaskId = "t",
-            RunId = "run",
-            AgentType = AgentType.Cost
-        };
+        ArchitectureRequest request = new() { RequestId = "r1", Description = "1234567890ab", SystemName = "S" };
+        AgentTask task = new() { TaskId = "t", RunId = "run", AgentType = AgentType.Cost };
 
         Func<Task> act = async () =>
             await sut.ExecuteAsync("run", request, new AgentEvidencePackage(), [task], CancellationToken.None);
@@ -132,31 +109,17 @@ public sealed class RealAgentExecutorTests
 
         ActivitySource.AddActivityListener(listener);
 
-
         IAgentHandler topology = new StubAgentHandler(AgentType.Topology);
         IAgentHandler compliance = new StubAgentHandler(AgentType.Compliance);
         RealAgentExecutor sut = CreateSut(topology, compliance);
         ArchitectureRequest request = new()
         {
-            RequestId = "r1",
-            Description = "1234567890ab",
-            SystemName = "S",
-            Environment = "prod"
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
         };
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask taskZ = new()
-        {
-            TaskId = "tz",
-            RunId = runId,
-            AgentType = AgentType.Topology
-        };
-        AgentTask taskC = new()
-        {
-            TaskId = "tc",
-            RunId = runId,
-            AgentType = AgentType.Compliance
-        };
+        AgentTask taskZ = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+        AgentTask taskC = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
 
         await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
@@ -183,25 +146,12 @@ public sealed class RealAgentExecutorTests
         RealAgentExecutor sut = CreateSut(topology, compliance);
         ArchitectureRequest request = new()
         {
-            RequestId = "r1",
-            Description = "1234567890ab",
-            SystemName = "S",
-            Environment = "prod"
+            RequestId = "r1", Description = "1234567890ab", SystemName = "S", Environment = "prod"
         };
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
-        AgentTask taskTopology = new()
-        {
-            TaskId = "tz",
-            RunId = runId,
-            AgentType = AgentType.Topology
-        };
-        AgentTask taskCompliance = new()
-        {
-            TaskId = "tc",
-            RunId = runId,
-            AgentType = AgentType.Compliance
-        };
+        AgentTask taskTopology = new() { TaskId = "tz", RunId = runId, AgentType = AgentType.Topology };
+        AgentTask taskCompliance = new() { TaskId = "tc", RunId = runId, AgentType = AgentType.Compliance };
 
         using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(5));
 

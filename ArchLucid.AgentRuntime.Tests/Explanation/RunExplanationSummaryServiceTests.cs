@@ -1,5 +1,5 @@
-﻿using ArchLucid.Application.Explanation;
-using ArchLucid.AgentRuntime.Explanation;
+﻿using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;

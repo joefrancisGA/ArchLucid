@@ -33,7 +33,8 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         string? failureReasonCode = null,
         CancellationToken cancellationToken = default)
     {
-        Calls.Add((runId, taskId, agentType, modelDeploymentName, modelVersion, isSimulatorExecution, failureReasonCode));
+        Calls.Add(
+            (runId, taskId, agentType, modelDeploymentName, modelVersion, isSimulatorExecution, failureReasonCode));
 
         return Task.CompletedTask;
     }

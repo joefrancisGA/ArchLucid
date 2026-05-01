@@ -17,11 +17,13 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 {
-    /// <summary>Matches <see cref="AgentResultParser" />: web defaults + string enums for <see cref="AgentResult" /> round-trip.</summary>
+    /// <summary>
+    ///     Matches <see cref="AgentResultParser" />: web defaults + string enums for <see cref="AgentResult" />
+    ///     round-trip.
+    /// </summary>
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly IAgentOutputEvaluationHarness _harness = new AgentOutputEvaluationHarness(

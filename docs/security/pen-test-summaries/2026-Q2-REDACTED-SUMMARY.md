@@ -1,9 +1,9 @@
-> **Scope:** Penetration test — redacted summary (customer template) - full detail, tables, and links in the sections below. Repository procurement anchor (not a finding): [`2026-Q2-SOW.md`](2026-Q2-SOW.md). Replace every `TODO` only from assessor-approved customer-shareable text — **do not invent severities, counts, or themes.**
+> **Scope:** Penetration test — redacted summary (customer template) — for use after a **V2** third-party assessor delivers a report. **V1** does not require this artefact for readiness scoring ([`V1_DEFERRED.md`](../../library/V1_DEFERRED.md) §6c, owner 2026-05-01). Repository procurement anchor (template): [`2026-Q2-SOW.md`](2026-Q2-SOW.md). Replace every `TODO` only from assessor-approved customer-shareable text — **do not invent severities, counts, or themes.**
 
 > **Spine doc:** [Five-document onboarding spine](../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
-**Status:** Awaiting assessor delivery — DO NOT PUBLISH
+**Status:** Awaiting **V2** third-party assessor delivery — DO NOT PUBLISH as findings until then
 
 # Penetration test — redacted summary (customer template)
 

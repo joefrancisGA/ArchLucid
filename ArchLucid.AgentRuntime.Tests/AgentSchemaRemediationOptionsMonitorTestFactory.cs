@@ -7,15 +7,13 @@ namespace ArchLucid.AgentRuntime.Tests;
 internal static class AgentSchemaRemediationOptionsMonitorTestFactory
 {
     /// <summary>
-    ///     Returns a frozen <see cref="IOptionsMonitor{T}" /> snapshot for handlers under test. Defaults to a single completion
+    ///     Returns a frozen <see cref="IOptionsMonitor{T}" /> snapshot for handlers under test. Defaults to a single
+    ///     completion
     ///     attempt so tests behave like pre-remediation callers (no retry loop unless configured).
     /// </summary>
     internal static IOptionsMonitor<AgentSchemaRemediationOptions> Create(int maxCompletionAttempts = 1)
     {
-        AgentSchemaRemediationOptions options = new()
-        {
-            MaxCompletionAttempts = maxCompletionAttempts
-        };
+        AgentSchemaRemediationOptions options = new() { MaxCompletionAttempts = maxCompletionAttempts };
         options.Normalize();
 
         Mock<IOptionsMonitor<AgentSchemaRemediationOptions>> mock = new();

@@ -24,7 +24,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         {
             AssessmentCode = "2026-Q2",
             SummaryReference = "docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md",
-            AssessorDisplayName = "Aeronova Red Team LLC",
+            AssessorDisplayName = "ArchLucid internal",
             PublishedOn = "2026-07-29"
         };
 

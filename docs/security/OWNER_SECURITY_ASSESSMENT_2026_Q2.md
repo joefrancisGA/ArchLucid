@@ -49,7 +49,7 @@
 
 When this document is ready for external readers, move a **sanitized** copy (or this file, fully de-scrubbed) to a buyer-visible path linked from the Trust Center and archive the working notes separately if they contain internal-only detail.
 
-This self-assessment will be superseded by the Aeronova third-party penetration test (SoW awarded 2026-04-21, V1.1 scope). Until then, this document represents the product team's internal security review based on automated CI gates and manual ASVS-oriented checklist review.
+A **future** third-party penetration test ( **`V2`** vendor programme, [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c — owner 2026-05-01) will provide independent validation alongside this owner-conducted work. Until then, this document represents the product team's internal security review based on automated CI gates and manual ASVS-oriented checklist review.
 
 ---
 
@@ -57,5 +57,5 @@ This self-assessment will be superseded by the Aeronova third-party penetration 
 
 - This assessment is **owner-conducted** — it has **not** been independently validated by an external auditor or assessor firm.
 - It does **not** substitute for SOC 2 Type II, ISO 27001 certification, or a completed third-party penetration test report.
-- A redacted third-party penetration test summary publication remains **V1.1-scheduled** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c and buyer messaging in [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
+- A redacted **third-party** penetration test summary publication is **V2-scheduled** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01) and buyer messaging in [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md). **V1** quality assessments must not penalize the product for lacking it.
 

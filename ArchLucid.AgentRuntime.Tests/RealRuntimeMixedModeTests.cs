@@ -1,9 +1,9 @@
 ﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -297,7 +297,6 @@ public sealed class RealRuntimeMixedModeTests
         foreach (AgentTask task in coordination.Tasks)
 
             task.RunId = "RUN-001";
-
 
         AgentEvidencePackage evidence = new()
         {

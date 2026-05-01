@@ -29,9 +29,7 @@ public sealed class ExplanationServiceComparisonTests
             NullLogger<ExplanationService>.Instance);
         ComparisonResult comparison = new()
         {
-            BaseRunId = Guid.NewGuid(),
-            TargetRunId = Guid.NewGuid(),
-            SummaryHighlights = ["Highlight A"]
+            BaseRunId = Guid.NewGuid(), TargetRunId = Guid.NewGuid(), SummaryHighlights = ["Highlight A"]
         };
 
         ComparisonExplanationResult result = await svc.ExplainComparisonAsync(comparison, CancellationToken.None);

@@ -43,8 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
-    <None Include="..\tests\golden-corpus\agent-output-reference-cases.json" CopyToOutputDirectory="PreserveNewest" Link="golden-corpus\agent-output-reference-cases.json" />
+    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest"
+          Link="golden-cohort\cohort.json" />
+    <None Include="..\tests\golden-corpus\agent-output-reference-cases.json" CopyToOutputDirectory="PreserveNewest"
+          Link="golden-corpus\agent-output-reference-cases.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,7 +63,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\scripts\ci\prompt_regression_baseline.json" Link="Fixtures\Regression\prompt_regression_baseline.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\scripts\ci\prompt_regression_baseline.json"
+          Link="Fixtures\Regression\prompt_regression_baseline.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="AgentPromptTemplateHashesBaseline.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

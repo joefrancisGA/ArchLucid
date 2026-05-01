@@ -1,4 +1,4 @@
-> **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-Q2 update:** pen-test SoW awarded; CAIQ/SIG pre-filled; Type I scoping funded as a **readiness** milestone (not yet an opinion).
+> **Scope:** SOC 2 Trust Services Criteria — **self-assessment only** (not CPA attestation). **2026-05-01:** third-party pen test is **V2**; V1 uses owner-conducted testing per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. CAIQ/SIG pre-filled; Type I scoping funded as a **readiness** milestone (not yet an opinion).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
@@ -25,7 +25,7 @@
 | ID | Gap | Owner | Target | Status |
 |----|-----|-------|--------|--------|
 | G-001 | No CPA SOC 2 report | CFO / Security | Fund external readiness consultant + CPA firm; Type I observation window | **Open** — requires external readiness consultant shortlist and budget line (see Pending Questions) |
-| G-002 | Pen-test summary not yet published | Security | Complete 2026-Q2 engagement | **Closed (process)** — SoW awarded to **Aeronova Red Team LLC**; kickoff **2026-05-06**; redacted summary path [`pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`](pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md); publication audit via `SecurityAssessmentPublished` |
+| G-002 | Third-party pen-test redacted summary not yet published | Security | Execute **V2** vendor programme when funded | **Open** — **V1** uses owner-conducted testing ([`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)); SoW **template** [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md); **independent V1 assessments must not** treat this gap as a V1 deficit ([`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c, owner 2026-05-01); publication audit via `SecurityAssessmentPublished` when executed |
 | G-003 | CAIQ / SIG not pre-filled | Security | Publish alongside trust center | **Closed (artifacts)** — [`CAIQ_LITE_2026.md`](CAIQ_LITE_2026.md), [`SIG_CORE_2026.md`](SIG_CORE_2026.md) |
 
 ## SOC 2 Type I — funded scoping (Q2–Q3 2026)
