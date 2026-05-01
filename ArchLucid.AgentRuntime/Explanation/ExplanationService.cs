@@ -119,7 +119,6 @@ public sealed class ExplanationService(
         if (string.IsNullOrWhiteSpace(json))
             return json;
 
-
         string trimmed = json.Trim();
 
         if (!trimmed.StartsWith("{", StringComparison.Ordinal))
@@ -153,7 +152,6 @@ public sealed class ExplanationService(
                 "Run explanation LLM JSON failed schema validation; using deterministic fallback. Errors: {Errors}",
                 string.Join("; ", schemaResult.Errors));
 
-
         return null;
     }
 
@@ -161,7 +159,6 @@ public sealed class ExplanationService(
     {
         if (string.IsNullOrWhiteSpace(json))
             return json;
-
 
         string trimmed = json.Trim();
 
@@ -188,7 +185,6 @@ public sealed class ExplanationService(
             logger.LogWarning(
                 "Comparison explanation LLM JSON failed schema validation; using heuristic fallback. Errors: {Errors}",
                 string.Join("; ", schemaResult.Errors));
-
 
         return null;
     }

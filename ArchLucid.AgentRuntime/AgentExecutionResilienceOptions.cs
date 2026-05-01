@@ -30,7 +30,11 @@ public sealed class AgentExecutionResilienceOptions
     ///     Optional overrides keyed by <see cref="ArchLucid.Contracts.Common.AgentTypeKeys" /> (e.g. <c>topology</c>). 0 in
     ///     map falls back to <see cref="PerHandlerTimeoutSeconds" />.
     /// </summary>
-    public Dictionary<string, int> PerAgentTimeoutSeconds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, int> PerAgentTimeoutSeconds
+    {
+        get;
+        set;
+    } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Retry attempts before a failure is recorded against the circuit breaker. Default 3. 0 = no retry.</summary>
     public int LlmCallMaxRetryAttempts
@@ -73,11 +77,9 @@ public sealed class AgentExecutionResilienceOptions
         if (PerHandlerTimeoutSeconds <= 0)
             return 0;
 
-
         if (string.IsNullOrWhiteSpace(dispatchKey) ||
             !PerAgentTimeoutSeconds.TryGetValue(dispatchKey.Trim(), out int raw))
             return PerHandlerTimeoutSeconds;
-
 
         int clamped = Math.Clamp(raw, 0, 86400);
 

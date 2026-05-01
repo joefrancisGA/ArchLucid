@@ -97,7 +97,6 @@ public sealed class RunExplanationSummaryService(
                 1,
                 new KeyValuePair<string, object?>("kind", c.Kind.ToString()));
 
-
         List<string> themeSummaries = BuildThemeSummaries(explanation.KeyDrivers);
         string riskPosture = AuthorityManifestRiskPosture.Derive(manifest);
         string overallAssessment = BuildOverallAssessment(explanation, manifest, riskPosture);
@@ -132,7 +131,6 @@ public sealed class RunExplanationSummaryService(
 
             return
                 "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";
-
 
         return faithReport.SupportRatio < 0.5 - 1e-9
             ? "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph."

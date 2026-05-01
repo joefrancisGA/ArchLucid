@@ -27,7 +27,6 @@ public sealed class AgentHandlerConcurrencyGate : IAgentHandlerConcurrencyGate
         if (_semaphore is null)
             return await action(cancellationToken);
 
-
         await _semaphore.WaitAsync(cancellationToken);
 
         try

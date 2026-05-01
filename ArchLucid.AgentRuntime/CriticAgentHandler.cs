@@ -111,7 +111,6 @@ public sealed class CriticAgentHandler(
                     modelDeploy,
                     modelVer);
 
-
             await traceRecorder.RecordAsync(
                 runId,
                 task.TaskId,
@@ -165,7 +164,6 @@ public sealed class CriticAgentHandler(
 
                 sb.AppendLine($"- {constraint}");
 
-
             sb.AppendLine();
         }
 
@@ -176,7 +174,6 @@ public sealed class CriticAgentHandler(
 
                 sb.AppendLine($"- {capability}");
 
-
             sb.AppendLine();
         }
 
@@ -186,7 +183,6 @@ public sealed class CriticAgentHandler(
             foreach (string assumption in request.Assumptions)
 
                 sb.AppendLine($"- {assumption}");
-
 
             sb.AppendLine();
         }
@@ -252,14 +248,12 @@ public sealed class CriticAgentHandler(
 
             sb.AppendLine($"- {tool}");
 
-
         sb.AppendLine();
 
         sb.AppendLine("Allowed Sources:");
         foreach (string source in task.AllowedSources)
 
             sb.AppendLine($"- {source}");
-
 
         sb.AppendLine();
         sb.AppendLine("Important guidance:");

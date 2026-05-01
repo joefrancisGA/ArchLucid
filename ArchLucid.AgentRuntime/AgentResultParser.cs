@@ -22,8 +22,7 @@ public sealed class AgentResultParser : IAgentResultParser
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly ILogger<AgentResultParser> _logger;
@@ -128,7 +127,9 @@ public sealed class AgentResultParser : IAgentResultParser
         if (result.EvidenceRefs is null)
             throw new InvalidOperationException("AgentResult.EvidenceRefs is required.");
 
-        return result.Confidence is < 0.0 or > 1.0 ? throw new InvalidOperationException("AgentResult.Confidence must be between 0 and 1.") : result;
+        return result.Confidence is < 0.0 or > 1.0
+            ? throw new InvalidOperationException("AgentResult.Confidence must be between 0 and 1.")
+            : result;
     }
 
     private static string TruncateJson(string json)

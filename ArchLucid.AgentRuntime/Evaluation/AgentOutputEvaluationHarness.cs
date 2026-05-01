@@ -29,13 +29,11 @@ public sealed class AgentOutputEvaluationHarness(
 
             failures.Add("Structural evaluation reported JSON parse failure.");
 
-
         if (expected.MinimumStructuralCompleteness > 0
             && structural.StructuralCompletenessRatio + 1e-9 < expected.MinimumStructuralCompleteness)
 
             failures.Add(
                 $"Structural completeness {structural.StructuralCompletenessRatio:F3} below minimum {expected.MinimumStructuralCompleteness:F3}.");
-
 
         if (expected.MinimumSemanticScore > 0
             && semantic.OverallSemanticScore + 1e-9 < expected.MinimumSemanticScore)
@@ -43,12 +41,10 @@ public sealed class AgentOutputEvaluationHarness(
             failures.Add(
                 $"Semantic score {semantic.OverallSemanticScore:F3} below minimum {expected.MinimumSemanticScore:F3}.");
 
-
         if (expected.MinimumFindingCount > 0 && actual.Findings.Count < expected.MinimumFindingCount)
 
             failures.Add(
                 $"Finding count {actual.Findings.Count} below minimum {expected.MinimumFindingCount}.");
-
 
         if (expected.RequiredJsonKeys.Count > 0)
 
@@ -68,7 +64,6 @@ public sealed class AgentOutputEvaluationHarness(
 
                         names.Add(p.Name);
 
-
                     failures.AddRange(from key in expected.RequiredJsonKeys
                         where !string.IsNullOrWhiteSpace(key)
                         where !names.Contains(key.Trim())
@@ -79,7 +74,6 @@ public sealed class AgentOutputEvaluationHarness(
             {
                 failures.Add("Could not parse serialized AgentResult for required JSON keys.");
             }
-
 
         HashSet<string> findingCategories = actual.Findings
             .Select(f => f.Category.Trim())
@@ -93,7 +87,6 @@ public sealed class AgentOutputEvaluationHarness(
         {
             if (string.IsNullOrWhiteSpace(cat))
                 continue;
-
 
             if (findingCategories.Contains(cat.Trim().ToUpperInvariant()))
 

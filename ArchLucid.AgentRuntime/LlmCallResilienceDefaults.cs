@@ -35,7 +35,6 @@ public static class LlmCallResilienceDefaults
         if (maxRetryAttempts <= 0)
             return ResiliencePipeline.Empty;
 
-
         TimeSpan delay = baseDelay ?? TimeSpan.FromMilliseconds(500);
         TimeSpan cap = maxDelay ?? TimeSpan.FromSeconds(10);
 
@@ -56,7 +55,6 @@ public static class LlmCallResilienceDefaults
 
                         metricTags.Add("gate", gateName);
 
-
                     metricTags.Add("attempt", args.AttemptNumber);
                     metricTags.Add(
                         "exception_type",
@@ -73,7 +71,6 @@ public static class LlmCallResilienceDefaults
                             maxRetryAttempts,
                             args.RetryDelay);
 
-
                     return ValueTask.CompletedTask;
                 }
             })
@@ -86,18 +83,14 @@ public static class LlmCallResilienceDefaults
         if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true })
             return false;
 
-
         if (ex is CircuitBreakerOpenException)
             return false;
-
 
         if (ex is InvalidOperationException)
             return false;
 
-
         if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false })
             return true;
-
 
         if (ex is HttpRequestException hre)
         {

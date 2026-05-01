@@ -54,11 +54,7 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
         if (string.IsNullOrWhiteSpace(text))
             return Allowed;
 
-
-        AnalyzeTextOptions request = new(text)
-        {
-            OutputType = AnalyzeTextOutputType.FourSeverityLevels
-        };
+        AnalyzeTextOptions request = new(text) { OutputType = AnalyzeTextOutputType.FourSeverityLevels };
 
         try
         {
@@ -74,7 +70,6 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
                 _logger.LogWarning(ex, "Content safety {Kind} analysis failed; FailClosedOnSdkError={FailClosed}.",
                     kind, options.FailClosedOnSdkError);
 
-
             return options.FailClosedOnSdkError
                 ? new ContentSafetyResult(false, "Content safety service error.", "SdkError", null)
                 : Allowed;
@@ -88,14 +83,12 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
         if (analyses is null || analyses.Count == 0)
             return Allowed;
 
-
         foreach (TextCategoriesAnalysis row in analyses)
         {
             int? severity = row.Severity;
 
             if (!severity.HasValue)
                 continue;
-
 
             if (severity.Value < blockSeverityThreshold)
                 continue;

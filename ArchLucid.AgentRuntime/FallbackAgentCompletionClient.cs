@@ -68,7 +68,6 @@ public sealed class FallbackAgentCompletionClient(
 
             primaryDisposable.Dispose();
 
-
         if (_secondary is IDisposable secondaryDisposable)
 
             secondaryDisposable.Dispose();
@@ -79,7 +78,6 @@ public sealed class FallbackAgentCompletionClient(
     {
         if (ex.StatusCode is not { } statusCode)
             return false;
-
 
         int code = (int)statusCode;
 

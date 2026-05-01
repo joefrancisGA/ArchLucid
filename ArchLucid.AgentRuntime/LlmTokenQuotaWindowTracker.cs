@@ -20,10 +20,8 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
         if (!opts.Enabled || tenantId == Guid.Empty)
             return;
 
-
         if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 })
             return;
-
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
         DateTime utcNow = DateTime.UtcNow;
@@ -70,10 +68,8 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
         if (!opts.Enabled || tenantId == Guid.Empty)
             return;
 
-
         if (promptTokens < 1 && completionTokens < 1)
             return;
-
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
         DateTime utcNow = DateTime.UtcNow;

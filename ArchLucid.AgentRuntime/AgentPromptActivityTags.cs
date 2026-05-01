@@ -16,7 +16,6 @@ public static class AgentPromptActivityTags
         if (activity is null)
             return;
 
-
         activity.SetTag("archlucid.agent.prompt_template_id", resolved.TemplateId);
         activity.SetTag("archlucid.agent.prompt_template_version", resolved.TemplateVersion);
         activity.SetTag("archlucid.agent.prompt_content_sha256", resolved.ContentSha256Hex);

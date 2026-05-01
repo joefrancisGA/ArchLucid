@@ -7,7 +7,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.AgentRuntime.Caching;
 
 /// <summary>
-///     Decorator around <see cref="IAgentCompletionClient" /> that caches successful JSON completions in-process with OTel counters.
+///     Decorator around <see cref="IAgentCompletionClient" /> that caches successful JSON completions in-process with OTel
+///     counters.
 /// </summary>
 public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 {
@@ -16,9 +17,9 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
 
     private readonly ILogger<CachingLlmCompletionClient> _logger;
     private readonly IOptionsMonitor<LlmCompletionCacheOptions> _optionsMonitor;
-    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _telemetryLabels;
     private readonly IScopeContextProvider _scopeProvider;
     private readonly bool _simulator;
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _telemetryLabels;
 
     /// <summary>Creates the caching decorator.</summary>
     public CachingLlmCompletionClient(
@@ -89,7 +90,6 @@ public sealed class CachingLlmCompletionClient : IAgentCompletionClient
                     agentType,
                     modelName,
                     _simulator);
-
 
             ArchLucidInstrumentation.RecordLlmCompletionCacheHit(agentType);
 

@@ -76,7 +76,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 AgentExecutionTraceModelMetadata.SimulatorDeploymentName,
                 AgentExecutionTraceModelMetadata.SimulatorModelVersion,
                 true,
-                failureReasonCode: null,
+                null,
                 cancellationToken);
         }
 

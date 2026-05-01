@@ -106,7 +106,6 @@ public sealed class AgentExecutionTraceRecorder(
 
             estimated = _costEstimator.EstimateUsd(inTok, outTok);
 
-
         if (estimated is { } estUsd and > 0m)
         {
             ScopeContext costScope = _scopeContextProvider.GetCurrentScope();
@@ -169,7 +168,6 @@ public sealed class AgentExecutionTraceRecorder(
 
         if (isSimulatorExecution)
             return;
-
 
         await PersistFullPromptsAsync(
             trace.TraceId,
@@ -249,7 +247,6 @@ public sealed class AgentExecutionTraceRecorder(
         {
             if (cancellationToken.IsCancellationRequested)
                 throw;
-
 
             timedOut = true;
         }
@@ -528,20 +525,16 @@ public sealed class AgentExecutionTraceRecorder(
 
             RecordPromptInlineFallback(agentType, "system_prompt");
 
-
         if (userInline is not null)
 
             RecordPromptInlineFallback(agentType, "user_prompt");
-
 
         if (responseInline is not null)
 
             RecordPromptInlineFallback(agentType, "response");
 
-
         if (systemInline is null && userInline is null && responseInline is null)
             return Task.CompletedTask;
-
 
         return _repository.PatchInlinePromptFallbackAsync(
             traceId,
@@ -645,7 +638,6 @@ public sealed class AgentExecutionTraceRecorder(
                     await Task.Delay(retryDelayMs, cancellationToken);
             }
 
-
         ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(1, tags);
 
         return null;
@@ -659,16 +651,13 @@ public sealed class AgentExecutionTraceRecorder(
 
             failed.Add("system_prompt");
 
-
         if (userKey is null)
 
             failed.Add("user_prompt");
 
-
         if (responseKey is null)
 
             failed.Add("response");
-
 
         return failed;
     }

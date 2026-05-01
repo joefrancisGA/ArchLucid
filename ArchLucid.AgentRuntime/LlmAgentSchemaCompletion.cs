@@ -13,7 +13,8 @@ namespace ArchLucid.AgentRuntime;
 public static class LlmAgentSchemaCompletion
 {
     /// <summary>
-    ///     Calls <paramref name="completionClient" />; on <see cref="AgentResultSchemaViolationException" /> retries with remediation
+    ///     Calls <paramref name="completionClient" />; on <see cref="AgentResultSchemaViolationException" /> retries with
+    ///     remediation
     ///     text until attempts are exhausted or output validates.
     /// </summary>
     public static async Task<(string RawJson, AgentResult Parsed)> CompleteAsync(
@@ -65,7 +66,6 @@ public static class LlmAgentSchemaCompletion
                 if (!moreAttemptsRemain)
                     throw;
 
-
                 ArchLucidInstrumentation.RecordAgentSchemaRemediationRetry(agentType.ToString());
 
                 lastViolation = ex;
@@ -81,10 +81,10 @@ public static class LlmAgentSchemaCompletion
         if (violation is null)
             return baseUserPrompt;
 
-
         IEnumerable<string> lines = violation.SchemaErrors.Select(static e =>
             "- " + e.Trim());
 
-        return $"{baseUserPrompt.TrimEnd()}\n\nRemediation: Correct the JSON ONLY. Previous output failed validation.\n{string.Join("\n", lines)}";
+        return
+            $"{baseUserPrompt.TrimEnd()}\n\nRemediation: Correct the JSON ONLY. Previous output failed validation.\n{string.Join("\n", lines)}";
     }
 }

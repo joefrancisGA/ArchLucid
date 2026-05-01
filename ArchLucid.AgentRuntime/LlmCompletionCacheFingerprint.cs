@@ -32,7 +32,6 @@ public static class LlmCompletionCacheFingerprint
             scopePart =
                 $"{scope.TenantId:N}|{scope.WorkspaceId:N}|{scope.ProjectId:N}|";
 
-
         string payload =
             scopePart
             + deploymentName

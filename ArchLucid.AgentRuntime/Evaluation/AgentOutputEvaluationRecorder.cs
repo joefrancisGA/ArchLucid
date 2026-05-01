@@ -47,7 +47,6 @@ public sealed class AgentOutputEvaluationRecorder(
             if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
                 continue;
 
-
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
 
@@ -71,7 +70,6 @@ public sealed class AgentOutputEvaluationRecorder(
                     trace.TraceId,
                     agentLabel,
                     score.MissingKeys.Count);
-
 
             AgentOutputSemanticScore semanticScore =
                 semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
@@ -104,7 +102,6 @@ public sealed class AgentOutputEvaluationRecorder(
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
 
-
             if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
 
                 logger.LogWarningAgentOutputSemanticScoreBelowThreshold(
@@ -114,7 +111,6 @@ public sealed class AgentOutputEvaluationRecorder(
                     agentLabel,
                     semanticScore.EmptyClaimCount,
                     semanticScore.IncompleteFindingCount);
-
 
             await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
         }
