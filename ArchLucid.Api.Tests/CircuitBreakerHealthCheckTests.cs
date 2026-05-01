@@ -1,4 +1,4 @@
-using ArchLucid.Core.Resilience;
+﻿using ArchLucid.Core.Resilience;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Resilience;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class CircuitBreakerHealthCheckTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task AllClosed_Returns_Healthy()
     {
         ServiceCollection services = [];
@@ -54,7 +54,7 @@ public sealed class CircuitBreakerHealthCheckTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OneOpen_Returns_Degraded()
     {
         ServiceCollection services = [];
@@ -87,7 +87,7 @@ public sealed class CircuitBreakerHealthCheckTests
         completionRow["lastStateChangeUtc"].Should().BeOfType<string>().Which.Should().NotBe("never");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NullGates_Returns_Healthy()
     {
         ServiceCollection services = [];

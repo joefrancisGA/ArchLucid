@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Persistence.Conversation;
 
@@ -18,7 +18,7 @@ public sealed class ConversationServiceTests
     private readonly Guid _tenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private readonly Guid _workspace = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateThreadAsync_creates_new_thread_when_id_null()
     {
         Mock<IConversationThreadRepository> threads = new();
@@ -50,7 +50,7 @@ public sealed class ConversationServiceTests
                 It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateThreadAsync_returns_existing_when_id_matches_scope()
     {
         Guid existingId = Guid.NewGuid();
@@ -88,7 +88,7 @@ public sealed class ConversationServiceTests
         threads.Verify(x => x.CreateAsync(It.IsAny<ConversationThread>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateThreadAsync_throws_when_thread_scope_mismatches()
     {
         Guid existingId = Guid.NewGuid();
@@ -122,7 +122,7 @@ public sealed class ConversationServiceTests
             .WithMessage("*not found for the current scope*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AppendUserMessageAsync_adds_message_and_updates_thread_timestamp()
     {
         Guid threadId = Guid.NewGuid();
@@ -155,7 +155,7 @@ public sealed class ConversationServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AppendAssistantMessageAsync_adds_message_with_metadata_and_updates_thread()
     {
         Guid threadId = Guid.NewGuid();
@@ -189,7 +189,7 @@ public sealed class ConversationServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetHistoryAsync_delegates_to_repository()
     {
         Guid threadId = Guid.NewGuid();

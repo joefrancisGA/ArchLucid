@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
@@ -34,7 +34,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
         payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportRunsEndToEndComparisonDocx_ReturnsDocx()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
@@ -51,7 +51,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
         bytes.Length.Should().BeGreaterThan(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(

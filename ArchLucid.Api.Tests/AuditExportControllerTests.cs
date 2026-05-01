@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -20,7 +20,7 @@ public sealed class AuditExportControllerTests
         "/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-02T00:00:00.0000000Z",
         UriKind.Relative);
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAudit_AsJson_ReturnsArray()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -63,7 +63,7 @@ public sealed class AuditExportControllerTests
         doc.RootElement[0].GetProperty("eventId").GetString().Should().Be("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAudit_AsCsv_NegotiatesTextCsv_AndAttachment()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -115,7 +115,7 @@ public sealed class AuditExportControllerTests
             "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAudit_InvalidRange_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -127,7 +127,7 @@ public sealed class AuditExportControllerTests
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAudit_RangeOver90Days_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -139,7 +139,7 @@ public sealed class AuditExportControllerTests
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAudit_ClampsMaxRows_BeforeCallingRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();

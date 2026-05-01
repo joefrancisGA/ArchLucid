@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_InvalidDocumentContentType_Returns400_WithFieldScopedError()
     {
         JsonNode root = JsonSerializer.SerializeToNode(

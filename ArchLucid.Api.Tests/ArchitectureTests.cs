@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -19,7 +19,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
 {
     private static readonly DecisionEngineService Engine = new(new PassthroughSchemaValidationService());
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateArchitectureRun_ShouldReturnRunId()
     {
         var request = new
@@ -42,7 +42,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         body.Should().Contain("runId");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GoldenPath_ShouldProduceManifest()
     {
         var request = new
@@ -90,7 +90,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
         manifest.EnsureSuccessStatusCode();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DecisionEngine_FixtureScenario_ProducesExpectedArchitecture()
     {
         ArchitectureRequest request =

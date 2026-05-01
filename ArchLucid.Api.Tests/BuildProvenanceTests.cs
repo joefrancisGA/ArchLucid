@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Core.Diagnostics;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class BuildProvenanceTests
 {
-    [Fact]
+    [SkippableFact]
     public void FromAssembly_returns_non_empty_versions_for_api_host()
     {
         Assembly api = typeof(Program).Assembly;
@@ -35,7 +35,7 @@ public sealed class BuildProvenanceTests
         result.Should().Be(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildInfoResponse_FromProvenance_maps_all_fields()
     {
         BuildProvenance provenance = new(
@@ -56,7 +56,7 @@ public sealed class BuildProvenanceTests
         response.Environment.Should().Be("Staging");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildInfoResponse_FromProvenance_handles_null_optionals()
     {
         BuildProvenance provenance = new(

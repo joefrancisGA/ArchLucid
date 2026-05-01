@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestSummary_ReturnsMarkdown()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

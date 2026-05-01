@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Metadata;
@@ -25,7 +25,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Five_parallel_persisted_compares_produce_five_distinct_in_memory_record_ids()
     {
         await using ArchLucidApiFactory factory = new();

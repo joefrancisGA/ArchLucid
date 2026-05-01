@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
         string runId =
@@ -40,7 +40,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         payload.Manifest.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Authority;
@@ -38,7 +38,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AnalysisReportsControllerAuditTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task AnalyzeRun_AfterSuccessfulBuild_LogsArchitectureAnalysisReportGeneratedWithDataJson()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -109,7 +109,7 @@ public sealed class AnalysisReportsControllerAuditTests
 [Trait("Category", "Unit")]
 public sealed class DocxExportControllerAuditTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExportRunDocx_AfterSuccessfulExport_LogsArchitectureDocxExportGeneratedWithDataJson()
     {
         Guid runId = Guid.NewGuid();
@@ -206,7 +206,7 @@ public sealed class DocxExportControllerAuditTests
 [Trait("Category", "Unit")]
 public sealed class ExportsControllerReplayExportAuditTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReplayExportRecord_WhenReplayPersisted_LogsReplayExportRecordedWithDataJson()
     {
         Mock<IExportReplayService> replay = new();

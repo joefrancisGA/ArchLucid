@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(

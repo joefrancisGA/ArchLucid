@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task BatchReplay_AllUnknownIds_Returns422WithBatchReplayAllFailedMarkers()
     {
         object body = new
@@ -32,7 +32,7 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
         json.Should().ContainEquivalentOf("BATCH_REPLAY_ALL_FAILED");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BatchReplay_MixedValidAndInvalid_ReturnsZipWithManifestAndPartialHeader()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(

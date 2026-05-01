@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ComparisonReplayCostEstimatorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryEstimateAsync_missing_record_returns_null()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -26,7 +26,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryEstimateAsync_end_to_end_artifact_markdown_is_low_band()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -45,7 +45,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         result.ReplayMode.Should().Be("artifact");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryEstimateAsync_invalid_replay_mode_throws_ArgumentException()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -59,7 +59,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryEstimateAsync_persistReplay_adds_score_and_factor()
     {
         Mock<IComparisonRecordRepository> repo = new();
@@ -81,7 +81,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         withPersist.Factors.Should().Contain(f => f.Contains("PersistReplay", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryEstimateAsync_large_payload_adds_factor()
     {
         Mock<IComparisonRecordRepository> repo = new();

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class AuthorityQueryControllerAnonymousIntegrationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListRunsByProject_anonymous_returns_401()
     {
         await using HealthEndpointSecurityApiFactory factory = new();

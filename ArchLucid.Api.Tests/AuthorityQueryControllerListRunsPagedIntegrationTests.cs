@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" /> —
+///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" /> â€”
 ///     non-paged array vs. paged envelope after a committed authority run exists.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListRunsByProject_without_page_returns_json_array()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -42,7 +42,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         doc.RootElement.GetArrayLength().Should().BeGreaterThan(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRunsByProject_with_page_returns_paged_envelope()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

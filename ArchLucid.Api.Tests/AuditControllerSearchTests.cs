@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Reflection;
 
 using ArchLucid.Core.Audit;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class AuditControllerSearchTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_WithEventType_PassesFilterToRepo()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -42,7 +42,7 @@ public sealed class AuditControllerSearchTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_WithBeforeEventId_without_BeforeUtc_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -54,7 +54,7 @@ public sealed class AuditControllerSearchTests
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_WithBeforeUtc_PassesFilterToRepo()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -87,7 +87,7 @@ public sealed class AuditControllerSearchTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_ClampsTake()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -115,7 +115,7 @@ public sealed class AuditControllerSearchTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_WithCorrelationId_PassesFilterToRepo()
     {
         await using AuditControllerSearchApiFactory factory = new();
@@ -143,7 +143,7 @@ public sealed class AuditControllerSearchTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAudit_WithRunId_PassesFilterToRepo()
     {
         Guid runId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
@@ -173,7 +173,7 @@ public sealed class AuditControllerSearchTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetEventTypes_ReturnsAllConstants()
     {
         await using ArchLucidApiFactory plain = new();

@@ -1,4 +1,4 @@
-using ArchLucid.Api.Validators;
+﻿using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
@@ -20,7 +20,7 @@ public sealed class ContextDocumentRequestValidatorTests
         return new ContextDocumentRequest { Name = "notes.md", ContentType = "text/markdown", Content = "REQ: sample" };
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Succeeds_WhenAllRulesSatisfied()
     {
         ValidationResult result = _validator.Validate(ValidDocument());
@@ -45,7 +45,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("Name", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenNameExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -75,7 +75,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.Errors.Should().Contain(e => e.ErrorMessage.Contains("ContentType", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenContentTypeIsUnsupported()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -90,7 +90,7 @@ public sealed class ContextDocumentRequestValidatorTests
             && e.ErrorMessage.Contains("text/markdown", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenContentTypeExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -104,7 +104,7 @@ public sealed class ContextDocumentRequestValidatorTests
             e.ErrorMessage.Contains("255", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenContentIsNull()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -116,7 +116,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.Content));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenContentExceedsMaxLength()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -130,7 +130,7 @@ public sealed class ContextDocumentRequestValidatorTests
             e.ErrorMessage.Contains("500000", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Succeeds_WhenContentIsEmptyString()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -141,7 +141,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Succeeds_When_SourceDocumentUrl_IsNullOrWhitespace()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -152,7 +152,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Succeeds_When_SourceDocumentUrl_IsPublicHttps()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -163,7 +163,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_When_SourceDocumentUrl_IsHttp()
     {
         ContextDocumentRequest doc = ValidDocument();
@@ -175,7 +175,7 @@ public sealed class ContextDocumentRequestValidatorTests
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.SourceDocumentUrl));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_When_SourceDocumentUrl_TargetsLoopbackHttps()
     {
         ContextDocumentRequest doc = ValidDocument();

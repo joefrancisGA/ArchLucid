@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -31,7 +31,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Parallel_commits_after_execute_all_succeed_with_same_manifest_version()
     {
         await using ArchLucidApiFactory factory = new();

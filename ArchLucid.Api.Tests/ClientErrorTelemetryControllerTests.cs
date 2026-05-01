@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
 using ArchLucid.Application.Telemetry;
 using ArchLucid.Core.Diagnostics;
@@ -35,7 +35,7 @@ public sealed class ClientErrorTelemetryControllerTests
     }
 
     /// <summary>
-    ///     Improvement 12 — captures the calls the controller makes to <see cref="IFirstTenantFunnelEmitter"/>
+    ///     Improvement 12 â€” captures the calls the controller makes to <see cref="IFirstTenantFunnelEmitter"/>
     ///     so the tests can assert that the controller never sends a tenant id in the request body
     ///     (it must always be inferred from the scope) and never extends the body shape beyond the event name.
     /// </summary>
@@ -70,7 +70,7 @@ public sealed class ClientErrorTelemetryControllerTests
         return mock.Object;
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostClientError_valid_report_returns_204()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -88,7 +88,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeOfType<NoContentResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostClientError_null_body_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -98,7 +98,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostClientError_empty_message_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -108,7 +108,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostClientError_context_too_many_entries_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -126,7 +126,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostSponsorBannerFirstCommitBadge_valid_bucket_returns_204()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -137,7 +137,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeOfType<NoContentResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostSponsorBannerFirstCommitBadge_invalid_bucket_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -148,7 +148,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PostSponsorBannerFirstCommitBadge_null_body_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -159,10 +159,10 @@ public sealed class ClientErrorTelemetryControllerTests
     }
 
     /// <summary>
-    ///     Improvement 12 — happy path. Controller infers tenantId from scope and forwards exactly the
+    ///     Improvement 12 â€” happy path. Controller infers tenantId from scope and forwards exactly the
     ///     event name to the emitter; the request body never carries a tenant id.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_valid_event_returns_204_and_emits_with_scoped_tenant()
     {
         Guid scopeTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -181,11 +181,11 @@ public sealed class ClientErrorTelemetryControllerTests
     }
 
     /// <summary>
-    ///     Improvement 12 — the request DTO has no tenant id field, so even if a malicious client wrapped
+    ///     Improvement 12 â€” the request DTO has no tenant id field, so even if a malicious client wrapped
     ///     a tenant id into JSON, it would be ignored. Smoke-test that an unknown tenant in scope still
     ///     produces a 204; emitter receives the scoped tenant id only.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_unauthenticated_scope_uses_empty_tenant_and_still_returns_204()
     {
         Mock<IScopeContextProvider> scope = new();
@@ -208,7 +208,7 @@ public sealed class ClientErrorTelemetryControllerTests
             "signup-time funnel events fire before auth; emitter must tolerate Guid.Empty");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_unknown_event_name_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -220,7 +220,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_null_body_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();
@@ -230,7 +230,7 @@ public sealed class ClientErrorTelemetryControllerTests
         result.Should().BeAssignableTo<ObjectResult>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstTenantFunnelEvent_missing_event_returns_400()
     {
         ClientErrorTelemetryController controller = CreateController();

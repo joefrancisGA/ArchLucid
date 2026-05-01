@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Api.Formatters;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class AuditEventCsvFormatterTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task WriteResponseBodyAsync_WritesHeaderRow()
     {
         AuditEventCsvFormatter formatter = new();
@@ -39,7 +39,7 @@ public sealed class AuditEventCsvFormatterTests
             "EventId,OccurredUtc,EventType,ActorUserId,ActorUserName,RunId,ManifestId,CorrelationId,DataJson");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteResponseBodyAsync_WritesIso8601Utc_ForOccurredUtc()
     {
         AuditEventCsvFormatter formatter = new();
