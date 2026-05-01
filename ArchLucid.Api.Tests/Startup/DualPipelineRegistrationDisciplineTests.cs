@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Decisioning.Interfaces;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests.Startup;
 
 /// <summary>
-///     ADR 0030 PR A3 (2026-04-24) closure invariant — the original ADR 0010 dual-pipeline boundary
+///     ADR 0030 PR A3 (2026-04-24) closure invariant â€” the original ADR 0010 dual-pipeline boundary
 ///     has fully collapsed onto the authority side. <c>ICoordinatorGoldenManifestRepository</c> and
 ///     <c>ICoordinatorDecisionTraceRepository</c> were deleted, the legacy
 ///     <c>ArchitectureRunCommitOrchestrator</c> + <c>RunCommitPathSelector</c> +
@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Tests.Startup;
 public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAppFactory factory)
     : IClassFixture<OpenApiContractWebAppFactory>
 {
-    [Fact]
+    [SkippableFact]
     public void AuthorityGoldenManifestRepository_resolves_to_Decisioning_or_Persistence_concrete()
     {
         IGoldenManifestRepository instance = factory.Services.GetRequiredService<IGoldenManifestRepository>();
@@ -42,7 +42,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
             $"authority IGoldenManifestRepository must resolve from ArchLucid.Decisioning or ArchLucid.Persistence; got {concrete.FullName}");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AuthorityDecisionTraceRepository_resolves_to_Decisioning_or_Persistence_concrete()
     {
         IDecisionTraceRepository instance = factory.Services.GetRequiredService<IDecisionTraceRepository>();
@@ -58,7 +58,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
             $"authority IDecisionTraceRepository must resolve from ArchLucid.Decisioning or ArchLucid.Persistence; got {concrete.FullName}");
     }
 
-    [Fact]
+    [SkippableFact]
     public void IArchitectureRunCommitOrchestrator_resolves_to_AuthorityDriven_concrete()
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -69,7 +69,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
             "ADR 0030 PR A3 retired RunCommitPathSelector + ArchitectureRunCommitOrchestrator; AuthorityDrivenArchitectureRunCommitOrchestrator is the single implementation");
     }
 
-    [Fact]
+    [SkippableFact]
     public void UnifiedGoldenManifestReader_resolves_from_Persistence_namespace()
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -78,7 +78,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         instance.Should().NotBeNull();
         (instance.GetType().Namespace ?? string.Empty).Should().StartWith("ArchLucid.Persistence",
-            "the read façade still lives in the persistence layer next to the authority repositories");
+            "the read faÃ§ade still lives in the persistence layer next to the authority repositories");
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     ///     No production assembly may reintroduce a type with those simple names under any persistence
     ///     namespace.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void Production_assemblies_do_not_define_legacy_coordinator_repository_interfaces()
     {
         IEnumerable<Assembly> productionAssemblies = ProductionAssembliesReachableFromApi();
@@ -115,7 +115,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     ///     shadowing the authority interface) was eliminated by the 2026-04-05 rename. Pin that the data-layer
     ///     namespace does not re-introduce the unprefixed names.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void DataLayer_namespace_does_not_redefine_unprefixed_interface_names_anymore()
     {
         Assembly persistenceAssembly = typeof(IUnifiedGoldenManifestReader).Assembly;

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.Bootstrap;
 [Trait("Category", "Unit")]
 public sealed class ContosoRetailDemoIdsTests
 {
-    [Fact]
+    [SkippableFact]
     public void ForTenant_default_tenant_matches_canonical_baseline_run()
     {
         ContosoRetailDemoIds ids = ContosoRetailDemoIds.ForTenant(ScopeIds.DefaultTenant);
@@ -19,7 +19,7 @@ public sealed class ContosoRetailDemoIdsTests
         ids.RequestId.Should().Be(ContosoRetailDemoIdentifiers.RequestContoso);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ForTenant_other_tenant_uses_distinct_baseline_run()
     {
         Guid other = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -30,7 +30,7 @@ public sealed class ContosoRetailDemoIdsTests
         ids.RequestId.Should().NotBe(ContosoRetailDemoIdentifiers.RequestContoso);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ForTenant_is_stable_for_same_tenant()
     {
         Guid tenant = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

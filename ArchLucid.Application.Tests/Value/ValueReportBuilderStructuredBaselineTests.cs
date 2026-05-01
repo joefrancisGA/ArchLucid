@@ -1,4 +1,4 @@
-using ArchLucid.Application.Value;
+﻿using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Value;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Value;
 [Trait("Category", "ValueReportBuilderStructuredBaseline")]
 public sealed class ValueReportBuilderStructuredBaselineTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_uses_tenant_manual_prep_for_manifest_hours_when_set()
     {
         ValueReportRawMetrics raw = new(
@@ -68,7 +68,7 @@ public sealed class ValueReportBuilderStructuredBaselineTests
         snap.EstimatedArchitectHoursSavedFromManifests.Should().Be(3m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_falls_back_to_model_constant_when_tenant_manual_prep_null()
     {
         ValueReportRawMetrics raw = new(
@@ -120,7 +120,7 @@ public sealed class ValueReportBuilderStructuredBaselineTests
         snap.EstimatedArchitectHoursSavedFromManifests.Should().Be(8m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_scales_hourly_value_when_people_per_review_set()
     {
         ValueReportRawMetrics raw = new(

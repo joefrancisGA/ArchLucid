@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests.Billing;
 [Trait("Category", "Integration")]
 public sealed class BillingMarketplaceWebhookHttpTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlan_ga_disabled_returns_202_and_does_not_mutate_tier()
     {
         BillingMarketplaceWebhookDeferredApiFactory factory = new();
@@ -41,7 +41,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         tier.Should().Be("Standard");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlan_ga_enabled_updates_tier_via_sp_Billing_ChangePlan()
     {
         BillingMarketplaceWebhookGaOnApiFactory factory = new();
@@ -70,7 +70,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         tier.Should().Be("Enterprise");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChangeQuantity_ga_enabled_updates_seats_via_sp_Billing_ChangeQuantity()
     {
         BillingMarketplaceWebhookGaOnApiFactory factory = new();
@@ -99,7 +99,7 @@ public sealed class BillingMarketplaceWebhookHttpTests
         seats.Should().Be(42);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChangeQuantity_ga_disabled_returns_202_and_does_not_mutate_seats()
     {
         BillingMarketplaceWebhookDeferredApiFactory factory = new();

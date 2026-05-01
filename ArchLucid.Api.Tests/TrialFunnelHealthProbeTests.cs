@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Api.Hosting;
 
@@ -17,28 +17,28 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TrialFunnelHealthProbeTests
 {
-    [Fact]
+    [SkippableFact]
     public void TryMapToLoopbackBase_maps_wildcard_ipv4_to_127_0_0_1()
     {
         string? u = TrialFunnelHealthProbe.TryMapToLoopbackBase("http://0.0.0.0:5000");
         u.Should().Be("http://127.0.0.1:5000");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapToLoopbackBase_preserves_explicit_localhost()
     {
         string? u = TrialFunnelHealthProbe.TryMapToLoopbackBase("http://127.0.0.1:9");
         u.Should().Be("http://127.0.0.1:9");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapToLoopbackBase_maps_bracket_any_ipv6_to_127_0_0_1()
     {
         string? u = TrialFunnelHealthProbe.TryMapToLoopbackBase("http://[::]:5000");
         u.Should().Be("http://127.0.0.1:5000");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunSingleProbeForTestsAsync_returns_true_on_200()
     {
         using TestHttpMessageHandler handler = new(
@@ -64,7 +64,7 @@ public sealed class TrialFunnelHealthProbeTests
         ok.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunSingleProbeForTestsAsync_returns_false_on_non_200()
     {
         using TestHttpMessageHandler handler = new(

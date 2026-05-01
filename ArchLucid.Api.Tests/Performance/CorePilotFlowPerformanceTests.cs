@@ -5,6 +5,8 @@ using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
+using Xunit.Abstractions;
+
 
 namespace ArchLucid.Api.Tests.Performance;
 
@@ -20,7 +22,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
     private const int ManifestP95MaxMs = 500;
     private const int ManifestSamples = 10;
 
-    [Fact]
+    [SkippableFact]
     public async Task CorePilotFlow_CompletesWithinTarget()
     {
         Stopwatch total = Stopwatch.StartNew();
@@ -66,7 +68,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             .BeLessThan(TotalCapMs, "E2E pilot path should stay under the in-process regression cap.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ManifestRetrieval_CompletesWithin500ms()
     {
         (string manifestVersion, _, _) = await CreateCommittedRunAsync();

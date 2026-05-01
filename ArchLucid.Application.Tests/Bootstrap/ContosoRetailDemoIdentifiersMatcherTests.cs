@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 
 using FluentAssertions;
 
@@ -16,15 +16,15 @@ public sealed class ContosoRetailDemoIdentifiersMatcherTests
     public void IsDemoRunId_rejects_unknown_runs(string? runId, bool expected) =>
         ContosoRetailDemoIdentifiers.IsDemoRunId(runId).Should().Be(expected);
 
-    [Fact]
+    [SkippableFact]
     public void IsDemoRunId_matches_canonical_baseline_run()
         => ContosoRetailDemoIdentifiers.IsDemoRunId(ContosoRetailDemoIdentifiers.RunBaseline).Should().BeTrue();
 
-    [Fact]
+    [SkippableFact]
     public void IsDemoRunId_matches_canonical_hardened_run()
         => ContosoRetailDemoIdentifiers.IsDemoRunId(ContosoRetailDemoIdentifiers.RunHardened).Should().BeTrue();
 
-    [Fact]
+    [SkippableFact]
     public void IsDemoRunId_matches_case_insensitively()
         => ContosoRetailDemoIdentifiers.IsDemoRunId(ContosoRetailDemoIdentifiers.RunBaseline.ToUpperInvariant()).Should().BeTrue();
 
@@ -35,11 +35,11 @@ public sealed class ContosoRetailDemoIdentifiersMatcherTests
     public void IsDemoRequestId_rejects_unknown_requests(string? requestId, bool expected) =>
         ContosoRetailDemoIdentifiers.IsDemoRequestId(requestId).Should().Be(expected);
 
-    [Fact]
+    [SkippableFact]
     public void IsDemoRequestId_matches_canonical_request()
         => ContosoRetailDemoIdentifiers.IsDemoRequestId(ContosoRetailDemoIdentifiers.RequestContoso).Should().BeTrue();
 
-    [Fact]
+    [SkippableFact]
     public void IsDemoRequestId_matches_multi_tenant_prefix_with_suffix()
         => ContosoRetailDemoIdentifiers.IsDemoRequestId("req-contoso-demo-abc123def456").Should().BeTrue();
 }

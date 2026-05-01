@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Ga_disabled_returns_deferred_without_ledger_mutation()
     {
         BillingOptions billing = new()
@@ -44,7 +44,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Ga_enabled_invokes_change_plan_with_mapped_tier()
     {
         BillingOptions billing = new()
@@ -76,7 +76,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
         ledger.Verify(l => l.ChangePlanAsync(tenantId, nameof(TenantTier.Enterprise), raw, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled()
     {
         BillingOptions billing = new()

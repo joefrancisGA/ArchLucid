@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using Xunit;
 
@@ -17,14 +17,14 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Multiline | RegexOptions.Compiled);
 
     /// <summary>
-    ///     Escalation only: add filenames here when a file cannot carry an in-file <c>LogAsync</c> sibling (rare —
+    ///     Escalation only: add filenames here when a file cannot carry an in-file <c>LogAsync</c> sibling (rare â€”
     ///     coordinator orchestrators normally route durable echoes through <see cref="ArchLucid.Application.Common.BaselineMutationAuditService" />).
     /// </summary>
     private static readonly IReadOnlySet<string> AllowedBaselineOnlyFiles =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    ///     Implementation / interface files — not call sites pairing against governance workflow.
+    ///     Implementation / interface files â€” not call sites pairing against governance workflow.
     /// </summary>
     private static readonly IReadOnlySet<string> IgnoredFilenames =
         new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -33,7 +33,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
             "IBaselineMutationAuditService.cs",
         };
 
-    [Fact]
+    [SkippableFact]
     public void BaselineMutationAudit_RecordAsync_call_sites_have_durable_pair_or_allowlist()
     {
         DirectoryInfo root = LocateArchLucidApplicationProjectDirectory();

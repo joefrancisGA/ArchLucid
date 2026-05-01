@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Tenancy;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests.Filters;
 [Trait("Suite", "Core")]
 public sealed class TrialLimitFilterTests
 {
-    [Fact]
+    [SkippableFact]
     public void Trial_limit_problem_json_contains_required_extensions()
     {
         DefaultHttpContext http = new()

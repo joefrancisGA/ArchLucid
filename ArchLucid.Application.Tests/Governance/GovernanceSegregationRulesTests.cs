@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceSegregationRulesTests
 {
-    [Fact]
+    [SkippableFact]
     public void SameActor_JwtMatchingKeys_returns_true_even_when_displays_differ()
     {
         const string canon = $"{ActorContext.JwtActorKeyPrefix}tid-guid:object-guid-user";
@@ -27,7 +27,7 @@ public sealed class GovernanceSegregationRulesTests
         same.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void SameActor_DisplaysMatching_when_no_jwt_requested_key_uses_requested_by_comparison()
     {
         GovernanceApprovalRequest req = new()
@@ -41,7 +41,7 @@ public sealed class GovernanceSegregationRulesTests
         same.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void SameActor_DisplaysDiffer_but_jwt_both_sid_and_equal_returns_true()
     {
         const string k = $"{ActorContext.JwtActorKeyPrefix}s-t-id:o-id";

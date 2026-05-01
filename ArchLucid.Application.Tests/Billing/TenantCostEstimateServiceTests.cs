@@ -1,4 +1,4 @@
-using ArchLucid.Application.Billing;
+﻿using ArchLucid.Application.Billing;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.Billing;
 
 public sealed class TenantCostEstimateServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryGetEstimateAsync_missing_tenant_returns_null()
     {
         Mock<ITenantRepository> tenants = new();
@@ -25,7 +25,7 @@ public sealed class TenantCostEstimateServiceTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryGetEstimateAsync_standard_tenant_returns_band()
     {
         Mock<ITenantRepository> tenants = new();

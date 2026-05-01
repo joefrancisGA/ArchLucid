@@ -1,4 +1,4 @@
-using ArchLucid.Application.Notifications.Email;
+﻿using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Notifications.Email.Models;
 
 using FluentAssertions;
@@ -11,7 +11,7 @@ public sealed class TrialEmailTemplateRenderingTests
 {
     private readonly RazorLightEmailTemplateRenderer _renderer = new();
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialWelcome_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -24,7 +24,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("Contoso");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialWelcome_renders_logo_when_LogoImageUrl_set()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -36,7 +36,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("alt=\"ArchLucid\"");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialFirstRunComplete_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -48,7 +48,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("https://app.example/welcome");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialMidTrialDay7_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -60,7 +60,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("https://app.example/");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialApproachingRunLimit_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -72,7 +72,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("10");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialExpiringSoon_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -83,7 +83,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("2");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialExpired_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -95,7 +95,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("https://app.example/welcome");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TrialConverted_renders_valid_html()
     {
         string html = await _renderer.RenderHtmlAsync(
@@ -106,7 +106,7 @@ public sealed class TrialEmailTemplateRenderingTests
         html.Should().Contain("paid Professional");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TemplateKey_matches_embedded_resource_naming()
     {
         string key = RazorLightEmailTemplateRenderer.TemplateKey(EmailTemplateIds.TrialWelcome);

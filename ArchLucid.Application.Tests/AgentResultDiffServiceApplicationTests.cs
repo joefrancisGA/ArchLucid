@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diffs;
+﻿using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class AgentResultDiffServiceApplicationTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compare_uses_latest_result_per_agent_type_by_CreatedUtc()
     {
         DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
@@ -63,7 +63,7 @@ public sealed class AgentResultDiffServiceApplicationTests
         diff.AgentDeltas[0].AddedClaims.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compare_when_no_results_emits_warning()
     {
         AgentResultDiffService sut = new();
@@ -73,7 +73,7 @@ public sealed class AgentResultDiffServiceApplicationTests
         diff.Warnings.Should().Contain("No agent results were available to compare.");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compare_agent_only_on_right_marks_left_missing()
     {
         AgentResult[] right =

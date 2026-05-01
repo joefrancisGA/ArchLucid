@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 using ArchLucid.AgentRuntime.Caching;
 
@@ -15,7 +15,7 @@ public sealed class LlmCompletionResponseCacheTests
     private static string HashBytes(byte discriminator)
         => Convert.ToHexString(SHA256.HashData([discriminator]));
 
-    [Fact]
+    [SkippableFact]
     public void ToMemoryKey_includes_simulator_partition()
     {
         string promptHash = HashBytes(9);
@@ -29,7 +29,7 @@ public sealed class LlmCompletionResponseCacheTests
         LlmCompletionResponseCache.ToMemoryKey(notSim).Should().NotBe(LlmCompletionResponseCache.ToMemoryKey(sim));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryGetAsync_returns_cached_value_before_ttl_elapses()
     {
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor = new(new LlmCompletionCacheOptions
@@ -53,7 +53,7 @@ public sealed class LlmCompletionResponseCacheTests
         hit.JsonBody.Should().Be("{\"x\":1}");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryGetAsync_returns_null_after_ttl_expiry()
     {
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor =
@@ -75,7 +75,7 @@ public sealed class LlmCompletionResponseCacheTests
         miss.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolveTtl_prefers_TTL_seconds_when_positive()
     {
         LlmCompletionCacheOptions options = new()
@@ -87,7 +87,7 @@ public sealed class LlmCompletionResponseCacheTests
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(42));
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolveTtl_derives_from_TTLMinutes_when_TTL_seconds_unset()
     {
         LlmCompletionCacheOptions options = new()
@@ -99,7 +99,7 @@ public sealed class LlmCompletionResponseCacheTests
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1800));
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolveTtl_floor_is_one_second()
     {
         LlmCompletionCacheOptions options = new()
@@ -110,7 +110,7 @@ public sealed class LlmCompletionResponseCacheTests
 
         LlmCompletionResponseCache.ResolveTtl(options).Should().Be(TimeSpan.FromSeconds(1));
     }
-    [Fact]
+    [SkippableFact]
     public async Task Concurrent_writes_and_reads_stay_consistent()
     {
         MutableOptionsMonitor<LlmCompletionCacheOptions> optionsMonitor =

@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -25,7 +25,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Checkout_without_bearer_returns_401()
     {
         HttpClient client = _factory.CreateClient();
@@ -44,7 +44,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Checkout_with_reader_jwt_returns_403()
     {
         string token = MintJwt(
@@ -71,7 +71,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Checkout_with_admin_jwt_returns_200()
     {
         string token = MintJwt(

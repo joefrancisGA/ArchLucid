@@ -1,4 +1,4 @@
-using ArchLucid.Application.Value;
+﻿using ArchLucid.Application.Value;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Value;
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Value;
 
 public sealed class ValueReportBuilderReviewCycleDeltaTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_NoMeasurementYet_when_no_committed_manifests_in_window()
     {
         ValueReportRawMetrics raw = new(
@@ -40,7 +40,7 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
         snap.ReviewCycleHoursDeltaPercent.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_TenantSupplied_provenance_and_deltas()
     {
         ValueReportRawMetrics raw = new(
@@ -67,7 +67,7 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
         snap.ReviewCycleHoursDeltaPercent.Should().BeApproximately(40m, 0.0001m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_DefaultedFromRoiModel_when_tenant_baseline_null_but_measured_present()
     {
         ValueReportRawMetrics raw = new(
@@ -94,7 +94,7 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
         snap.ReviewCycleHoursDeltaPercent.Should().Be(50m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_DeltaPercent_null_when_effective_baseline_is_zero()
     {
         ValueReportRawMetrics raw = new(

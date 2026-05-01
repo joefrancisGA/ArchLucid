@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Import;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Requests;
@@ -29,7 +29,7 @@ public sealed class ImportRequestFileServiceTests
     private const string MinimalValidJson =
         """{"description":"123456789012","systemName":"Sys","environment":"prod","cloudProvider":"Azure","constraints":[],"requiredCapabilities":[],"assumptions":[],"inlineRequirements":[],"documents":[],"policyReferences":[],"topologyHints":[],"securityBaselineHints":[],"infrastructureDeclarations":[]}""";
 
-    [Fact]
+    [SkippableFact]
     public async Task ImportAsync_valid_json_persists_and_audits()
     {
         Mock<IImportedArchitectureRequestRepository> repo = new();
@@ -64,7 +64,7 @@ public sealed class ImportRequestFileServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ImportAsync_content_safety_blocks()
     {
         string payload = MinimalValidJson.Replace(
@@ -80,7 +80,7 @@ public sealed class ImportRequestFileServiceTests
         result.ContentSafetyReasons.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ImportAsync_rejects_wrong_extension()
     {
         ImportRequestFileService sut = CreateSut();

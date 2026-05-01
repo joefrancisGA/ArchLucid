@@ -1,4 +1,4 @@
-using ArchLucid.Application.Value;
+﻿using ArchLucid.Application.Value;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Value;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Value;
 
 public sealed class ValueReportBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_maps_raw_metrics_and_roi_fields()
     {
         ValueReportRawMetrics raw = new(

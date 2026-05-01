@@ -1,4 +1,4 @@
-using ArchLucid.Application.Determinism;
+﻿using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class DeterminismCheckServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunAsync_iterations_below_two_throws()
     {
         Mock<IReplayRunService> replay = new();
@@ -36,7 +36,7 @@ public sealed class DeterminismCheckServiceTests
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunAsync_when_replays_match_marks_deterministic()
     {
         List<AgentResult> results =
@@ -135,7 +135,7 @@ public sealed class DeterminismCheckServiceTests
         output.Warnings.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunAsync_when_agent_diff_reports_drift_marks_non_deterministic_and_warns()
     {
         List<AgentResult> baselineResults =

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Delivery;
+﻿using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Delivery;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class WebhookPosterTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task FakeWebhookPoster_PostJsonAsync_completes_without_secret()
     {
         FakeWebhookPoster poster = new(NullLogger<FakeWebhookPoster>.Instance);
@@ -25,7 +25,7 @@ public sealed class WebhookPosterTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FakeWebhookPoster_PostJsonAsync_with_secret_includes_signature_prefix_in_log_state()
     {
         Mock<ILogger<FakeWebhookPoster>> logger = new();
@@ -47,7 +47,7 @@ public sealed class WebhookPosterTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WebhookHmacEnvelopePoster_merges_config_secret_and_calls_inner()
     {
         Mock<IOptionsMonitor<WebhookDeliveryOptions>> opts = new();
@@ -66,7 +66,7 @@ public sealed class WebhookPosterTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WebhookHmacEnvelopePoster_call_secret_overrides_config()
     {
         Mock<IOptionsMonitor<WebhookDeliveryOptions>> opts = new();
@@ -89,7 +89,7 @@ public sealed class WebhookPosterTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WebhookHmacEnvelopePoster_preserves_telemetry_when_merging_hmac_secret_from_config()
     {
         Mock<IOptionsMonitor<WebhookDeliveryOptions>> opts = new();

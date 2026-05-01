@@ -39,10 +39,10 @@ public sealed class DemoViewerControllerTests
             || OperatingSystem.IsWindows();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_viewer_disabled_Get_runs_returns_401()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -52,10 +52,10 @@ public sealed class DemoViewerControllerTests
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_viewer_enabled_and_seeded_Get_runs_returns_demo_shape()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using DemoViewerEnabledSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -82,10 +82,10 @@ public sealed class DemoViewerControllerTests
         runIdEl.GetString().Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_viewer_enabled_Post_returns_405()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using DemoViewerEnabledSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -103,10 +103,10 @@ public sealed class DemoViewerControllerTests
         response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_viewer_enabled_Get_run_detail_returns_run()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using DemoViewerEnabledSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

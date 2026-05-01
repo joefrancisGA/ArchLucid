@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Architecture;
@@ -17,7 +17,7 @@ namespace ArchLucid.Application.Tests.Traceability;
 [Trait("Suite", "Core")]
 public sealed class TraceabilityBundleBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenRunMissing_ReturnsNullAndDoesNotQueryAudit()
     {
         Mock<IRunDetailQueryService> runDetail = new();
@@ -46,7 +46,7 @@ public sealed class TraceabilityBundleBuilderTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenRunPresent_ReturnsZipWithExpectedEntries()
     {
         Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
@@ -100,7 +100,7 @@ public sealed class TraceabilityBundleBuilderTests
         zip.GetEntry("README.txt").Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenZipExceedsMax_ThrowsTraceabilityBundleTooLargeException()
     {
         Guid runGuid = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");

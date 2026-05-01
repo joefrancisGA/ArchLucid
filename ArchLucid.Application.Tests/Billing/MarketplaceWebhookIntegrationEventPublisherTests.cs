@@ -1,4 +1,4 @@
-using ArchLucid.Application.Billing;
+﻿using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
 
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Billing;
 
 public sealed class MarketplaceWebhookIntegrationEventPublisherTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishAsync_uses_direct_publish_when_transactional_outbox_disabled()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();

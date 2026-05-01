@@ -1,4 +1,4 @@
-using ArchLucid.Api.Models;
+﻿using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests.Models;
 [Trait("Category", "Unit")]
 public sealed class ReplayRunRequestExecutionModeDefaultTests
 {
-    [Fact]
+    [SkippableFact]
     public void ExecutionMode_defaults_to_ExecutionModes_Current()
     {
         ReplayRunRequest sut = new();

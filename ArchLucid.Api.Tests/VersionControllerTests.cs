@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Diagnostics;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class VersionControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public void Get_returns_ok_with_expected_fields()
     {
         Mock<IHostEnvironment> env = new();
@@ -36,7 +36,7 @@ public sealed class VersionControllerTests
         response.RuntimeFramework.Should().Contain(".NET");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Get_response_serializes_to_expected_json_shape()
     {
         Mock<IHostEnvironment> env = new();

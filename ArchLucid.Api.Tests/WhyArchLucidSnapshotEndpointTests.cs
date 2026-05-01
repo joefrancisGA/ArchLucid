@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/pilots/why-archlucid-snapshot</c> — the read-only telemetry projection
+///     HTTP coverage for <c>GET /v1/pilots/why-archlucid-snapshot</c> â€” the read-only telemetry projection
 ///     that powers the operator-shell <c>/why-archlucid</c> Core Pilot proof page.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetWhyArchLucidSnapshot_returns_ok_with_canonical_demo_run_id_and_zero_baseline_counters()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/pilots/why-archlucid-snapshot");

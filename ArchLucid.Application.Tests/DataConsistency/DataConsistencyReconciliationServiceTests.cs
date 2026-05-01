@@ -1,4 +1,4 @@
-using ArchLucid.Application.DataConsistency;
+﻿using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Interfaces;
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.DataConsistency;
 
 public sealed class DataConsistencyReconciliationServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunReconciliationAsync_when_storage_is_in_memory_skips_sql_and_is_healthy()
     {
         Mock<IDbConnectionFactory> connectionFactory = new(MockBehavior.Strict);

@@ -2,6 +2,7 @@
 
 using ArchLucid.Core.GoldenCorpus;
 
+using Xunit.Abstractions;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
 
@@ -10,7 +11,7 @@ namespace ArchLucid.Application.Tests.GoldenCohort;
 /// </summary>
 public sealed class GoldenCohortContractTests(ITestOutputHelper output)
 {
-    [Fact]
+    [SkippableFact]
     public void Cohort_json_exists_has_twenty_items_and_valid_sha_fields()
     {
         string path = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");

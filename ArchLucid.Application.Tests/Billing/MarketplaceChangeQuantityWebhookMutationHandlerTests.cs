@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Ga_disabled_returns_deferred_without_ledger_mutation()
     {
         BillingOptions billing = new()
@@ -42,7 +42,7 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Ga_enabled_invokes_change_quantity_with_parsed_seats()
     {
         BillingOptions billing = new()

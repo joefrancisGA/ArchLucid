@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Evolution;
 [Trait("Category", "Unit")]
 public sealed class SimulationEngineTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SimulateAsync_SinglePass_CallsBuildAsyncOnce_AndNeverEnablesDeterminism()
     {
         Mock<IArchitectureAnalysisService> analysis = new();
@@ -48,7 +48,7 @@ public sealed class SimulationEngineTests
         result.Diff!.Summary.Should().Contain("Single read-only pass");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SimulateAsync_TwoProfiles_CallsBuildAsyncTwice_AndPrefixesWarnings()
     {
         Mock<IArchitectureAnalysisService> analysis = new();
@@ -96,7 +96,7 @@ public sealed class SimulationEngineTests
         result.Scores!.RegressionRiskScore.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SimulateAsync_NullCandidate_Throws()
     {
         SimulationEngine sut = new(Mock.Of<IArchitectureAnalysisService>());

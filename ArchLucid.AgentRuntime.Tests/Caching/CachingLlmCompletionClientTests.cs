@@ -1,4 +1,4 @@
-using System.Diagnostics.Metrics;
+﻿using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.Core.Diagnostics;
@@ -15,7 +15,7 @@ namespace ArchLucid.AgentRuntime.Tests.Caching;
 [Trait("Category", "Unit")]
 public sealed class CachingLlmCompletionClientTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_when_hit_does_not_call_inner()
     {
         CountingCompletionClient inner = new();
@@ -51,7 +51,7 @@ public sealed class CachingLlmCompletionClientTests
         inner.CallCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_when_disabled_invokes_inner_each_time()
     {
         CountingCompletionClient inner = new();
@@ -88,7 +88,7 @@ public sealed class CachingLlmCompletionClientTests
         inner.CallCount.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Hit_and_miss_increment_llm_counter_metrics_with_agent_type_label()
     {
         _ = ArchLucidInstrumentation.LlmCompletionCacheHitsTotal;

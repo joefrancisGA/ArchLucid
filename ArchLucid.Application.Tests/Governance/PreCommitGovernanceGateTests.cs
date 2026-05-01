@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -28,7 +28,7 @@ public sealed class PreCommitGovernanceGateTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_blocks_when_critical_findings_and_assignment_enforces()
     {
         Guid runGuid = Guid.NewGuid();
@@ -106,7 +106,7 @@ public sealed class PreCommitGovernanceGateTests
         r.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-critical");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_no_critical_findings()
     {
         Guid runGuid = Guid.NewGuid();
@@ -183,7 +183,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_gate_disabled_in_options()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -200,7 +200,7 @@ public sealed class PreCommitGovernanceGateTests
         scopeProvider.Verify(s => s.GetCurrentScope(), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_runId_is_not_parseable_guid()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -217,7 +217,7 @@ public sealed class PreCommitGovernanceGateTests
         scopeProvider.Verify(s => s.GetCurrentScope(), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_run_has_no_findings_snapshot_id()
     {
         Guid runGuid = Guid.NewGuid();
@@ -268,7 +268,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_assignment_exists_but_BlockCommitOnCritical_is_false()
     {
         Guid runGuid = Guid.NewGuid();
@@ -345,7 +345,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_assignment_is_disabled()
     {
         Guid runGuid = Guid.NewGuid();
@@ -422,7 +422,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_snapshot_not_found_despite_id_being_set()
     {
         Guid runGuid = Guid.NewGuid();
@@ -474,7 +474,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_blocks_with_multiple_critical_findings_reports_all_ids()
     {
         Guid runGuid = Guid.NewGuid();
@@ -573,7 +573,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Reason.Should().Contain("3 Critical+");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_selects_most_recent_enforcing_assignment()
     {
         Guid runGuid = Guid.NewGuid();
@@ -669,7 +669,7 @@ public sealed class PreCommitGovernanceGateTests
         r.PolicyPackId.Should().Be(newerPackId.ToString("N"));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_blocks_when_older_assignment_non_enforcing_and_newer_enforces()
     {
         Guid runGuid = Guid.NewGuid();
@@ -764,7 +764,7 @@ public sealed class PreCommitGovernanceGateTests
         r.PolicyPackId.Should().Be(newerPackId.ToString("N"));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_blocks_when_BlockCommitMinimumSeverity_matches_error_findings()
     {
         Guid runGuid = Guid.NewGuid();
@@ -845,7 +845,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Reason.Should().Contain("Error+");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_allows_when_BlockCommitMinimumSeverity_is_error_but_only_warnings_exist()
     {
         Guid runGuid = Guid.NewGuid();
@@ -923,7 +923,7 @@ public sealed class PreCommitGovernanceGateTests
         r.Blocked.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_blocks_on_critical_only_when_null_minimum_severity_and_BlockCommitOnCritical_true()
     {
         Guid runGuid = Guid.NewGuid();
@@ -1013,7 +1013,7 @@ public sealed class PreCommitGovernanceGateTests
         r.MinimumBlockingSeverity.Should().Be((int)FindingSeverity.Critical);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAsync_warns_only_when_severity_is_in_WarnOnlySeverities()
     {
         Guid runGuid = Guid.NewGuid();

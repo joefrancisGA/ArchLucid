@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -58,7 +58,7 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
             null);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RenderAsync_NoMeasurementYet_shows_heading_and_italic_stub()
     {
         DocxValueReportRenderer sut = new(NullLogger<DocxValueReportRenderer>.Instance);
@@ -78,7 +78,7 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
         xml.Should().Contain("No committed manifests in this window");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RenderAsync_Defaulted_shows_safety_valve_sentence()
     {
         DocxValueReportRenderer sut = new(NullLogger<DocxValueReportRenderer>.Instance);
@@ -98,7 +98,7 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
         xml.Should().Contain("Numbers are illustrative, not customer-specific");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RenderAsync_TenantSupplied_shows_capture_and_source_lines()
     {
         DocxValueReportRenderer sut = new(NullLogger<DocxValueReportRenderer>.Instance);

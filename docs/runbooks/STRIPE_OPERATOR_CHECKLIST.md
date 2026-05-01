@@ -38,9 +38,28 @@ Copy this checklist into tickets or strike items as you go.
 - [ ] After a real test Checkout: **`dbo.BillingWebhookEvents`**, **`dbo.BillingSubscriptions`**, and tenant trial-conversion audits per [`BILLING.md`](../library/BILLING.md).
 - [ ] Optional smoke: **`archlucid trial smoke`** / nightly trial-funnel workflows as in [`TRIAL_FUNNEL_END_TO_END.md`](TRIAL_FUNNEL_END_TO_END.md).
 
-## E. Marketing UX (optional)
+## E. Marketing UX (`pricing.json` → Team “Subscribe with Stripe”)
 
-- [ ] **`teamStripeCheckoutUrl`** in **`archlucid-ui/public/pricing.json`** — Stripe **Payment Link** or Checkout URL selling the **same** **`price_…`** (`generate_pricing_json.py` emits from locked block in **`PRICING_PHILOSOPHY.md`**; URL may still be pasted by hand).
+The UI hides **Subscribe with Stripe** until `teamStripeCheckoutUrl` is non-empty **and** not a placeholder (`placeholder-replace-before-launch` / `checkout-placeholder` are rejected in `archlucid-ui/src/lib/team-stripe-checkout-url.ts`).
+
+**Do not invent URLs.** Create one hosted buyer URL in Stripe Dashboard that sells the **same** recurring **`price_…`** as **`Billing:Stripe:PriceIdTeam`** (§ B), then paste it into JSON.
+
+**Option 1 — Payment Link (simplest stable URL)**
+
+1. Stripe Dashboard → **Product catalog** → select the Team Product → **Create payment link** (or **Payment Links** in the left nav → **New**).
+2. Attach the **monthly USD Price** whose id matches **`Billing:Stripe:PriceIdTeam`**.
+3. Publish and copy the hosted link — it normally starts with **`https://buy.stripe.com/`**.
+4. Set **`teamStripeCheckoutUrl`** in **`archlucid-ui/public/pricing.json`** to that exact string (trimmed, no trailing junk).
+
+**Option 2 — Checkout deep link**
+
+If your process uses Checkout Session URLs copied from Dashboard/tests, ensure the final buyer-facing URL starts with **`https://checkout.stripe.com/`** (or redirects there). Paste that URL into **`teamStripeCheckoutUrl`**.
+
+**Verification**
+
+- [ ] **`teamStripeCheckoutUrl`** updated in **`archlucid-ui/public/pricing.json`** (still valid JSON; run `npm run test` / Vitest pricing fixtures if you touch generators).
+- [ ] **`npm run build`** (or CI) — marketing **`/pricing`** shows **Subscribe with Stripe** on the Team card.
+- [ ] Playwright: **`npx playwright test live-api-marketing-pricing-stripe-checkout.spec.ts`** (live stack) — opens Stripe host in a new tab when configured; with placeholder URL the link stays hidden (see spec comments).
 
 ## F. Production cutover (owner calendar)
 

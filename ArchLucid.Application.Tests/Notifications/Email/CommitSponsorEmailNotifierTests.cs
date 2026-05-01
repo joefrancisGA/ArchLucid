@@ -1,4 +1,4 @@
-using ArchLucid.Application.Notifications.Email;
+﻿using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
@@ -18,7 +18,7 @@ public sealed class CommitSponsorEmailNotifierTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_admin_email_missing_does_not_send()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();
@@ -43,7 +43,7 @@ public sealed class CommitSponsorEmailNotifierTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_admin_email_resolved_sends_with_run_link()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();
@@ -76,7 +76,7 @@ public sealed class CommitSponsorEmailNotifierTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_when_send_fails_does_not_throw()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();

@@ -1,4 +1,4 @@
-using ArchLucid.Core.GoToMarket;
+﻿using ArchLucid.Core.GoToMarket;
 
 using FluentAssertions;
 
@@ -24,7 +24,7 @@ public sealed class RoiBulletinQuarterParserTests
         window.EndUtcExclusive.Should().Be(new DateTimeOffset(yEnd, moEnd, dEnd, 0, 0, 0, TimeSpan.Zero));
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParse_rejects_invalid_format()
     {
         bool ok = RoiBulletinQuarterParser.TryParse("2026-Q1", out _, out string? error);
@@ -33,7 +33,7 @@ public sealed class RoiBulletinQuarterParserTests
         error.Should().Contain("Invalid quarter");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParse_rejects_empty()
     {
         bool ok = RoiBulletinQuarterParser.TryParse("   ", out _, out string? error);

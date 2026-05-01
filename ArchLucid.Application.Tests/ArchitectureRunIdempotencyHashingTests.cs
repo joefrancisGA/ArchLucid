@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs;
+﻿using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureRunIdempotencyHashingTests
 {
-    [Fact]
+    [SkippableFact]
     public void HashIdempotencyKey_same_string_produces_same_digest()
     {
         byte[] a = ArchitectureRunIdempotencyHashing.HashIdempotencyKey("my-key");
@@ -19,7 +19,7 @@ public sealed class ArchitectureRunIdempotencyHashingTests
         a.Should().Equal(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void HashIdempotencyKey_when_null_or_whitespace_throws()
     {
         Action actNull = () => ArchitectureRunIdempotencyHashing.HashIdempotencyKey(null!);
@@ -29,7 +29,7 @@ public sealed class ArchitectureRunIdempotencyHashingTests
         actEmpty.Should().Throw<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void FingerprintRequest_same_logical_request_produces_same_fingerprint()
     {
         ArchitectureRequest a = NewRequest();
@@ -41,7 +41,7 @@ public sealed class ArchitectureRunIdempotencyHashingTests
         fa.Should().Equal(fb);
     }
 
-    [Fact]
+    [SkippableFact]
     public void FingerprintRequest_different_description_produces_different_fingerprint()
     {
         ArchitectureRequest a = NewRequest();

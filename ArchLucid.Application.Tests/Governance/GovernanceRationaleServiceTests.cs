@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 
 using FluentAssertions;
@@ -10,7 +10,7 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceRationaleServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestRationaleAsync_returns_null_when_lineage_missing()
     {
         Mock<IGovernanceLineageService> lineage = new();
@@ -25,7 +25,7 @@ public sealed class GovernanceRationaleServiceTests
         r.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestRationaleAsync_builds_summary_and_bullets()
     {
         Mock<IGovernanceLineageService> lineage = new();

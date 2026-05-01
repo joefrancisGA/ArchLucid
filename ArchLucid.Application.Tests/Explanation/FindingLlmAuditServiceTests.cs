@@ -1,4 +1,4 @@
-using ArchLucid.Application.Explanation;
+﻿using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Llm.Redaction;
@@ -17,7 +17,7 @@ public sealed class FindingLlmAuditServiceTests
 {
     private static readonly Guid RunGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_uses_SourceAgentExecutionTraceId_when_present()
     {
         Finding finding = new()
@@ -65,7 +65,7 @@ public sealed class FindingLlmAuditServiceTests
         traces.Verify(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_falls_back_to_first_matching_AgentType()
     {
         Finding finding = new()

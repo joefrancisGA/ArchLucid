@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Safety;
+﻿using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Core.Safety;
 
 using Azure.AI.ContentSafety;
@@ -11,7 +11,7 @@ namespace ArchLucid.AgentRuntime.Tests.Safety;
 [Trait("Category", "Unit")]
 public sealed class AzureContentSafetyGuardMapResultTests
 {
-    [Fact]
+    [SkippableFact]
     public void MapResult_allows_when_no_categories()
     {
         AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult([], []);
@@ -21,7 +21,7 @@ public sealed class AzureContentSafetyGuardMapResultTests
         mapped.IsAllowed.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapResult_blocks_when_severity_meets_threshold()
     {
         AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
@@ -35,7 +35,7 @@ public sealed class AzureContentSafetyGuardMapResultTests
         mapped.Severity.Should().Be(6);
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapResult_allows_when_severity_below_threshold()
     {
         AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(

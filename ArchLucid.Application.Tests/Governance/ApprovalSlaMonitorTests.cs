@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
@@ -37,7 +37,7 @@ public sealed class ApprovalSlaMonitorTests
             _logger);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckAndEscalateAsync_emits_audit_for_breached_request()
     {
         GovernanceApprovalRequest request = new()
@@ -66,7 +66,7 @@ public sealed class ApprovalSlaMonitorTests
         updated!.SlaBreachNotifiedUtc.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckAndEscalateAsync_skips_request_before_deadline()
     {
         GovernanceApprovalRequest request = new()
@@ -90,7 +90,7 @@ public sealed class ApprovalSlaMonitorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckAndEscalateAsync_does_not_repeat_for_already_notified_request()
     {
         GovernanceApprovalRequest request = new()
@@ -115,7 +115,7 @@ public sealed class ApprovalSlaMonitorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckAndEscalateAsync_emits_audit_but_no_http_when_no_webhook_url()
     {
         GovernanceApprovalRequest request = new()
@@ -149,7 +149,7 @@ public sealed class ApprovalSlaMonitorTests
         _httpClientFactory.Verify(f => f.CreateClient(It.IsAny<string>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckAndEscalateAsync_does_nothing_when_sla_not_configured()
     {
         GovernanceApprovalRequest request = new()

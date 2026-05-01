@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Tenancy;
+﻿using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantPilotValueReportControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetPilotValueReport_returns_json_by_default()
     {
         Mock<IPilotValueReportService> svc = new();
@@ -40,7 +40,7 @@ public sealed class TenantPilotValueReportControllerTests
         ok.Value.Should().BeSameAs(body);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPilotValueReport_returns_problem_details_when_tenant_missing()
     {
         Mock<IPilotValueReportService> svc = new();
@@ -60,7 +60,7 @@ public sealed class TenantPilotValueReportControllerTests
         pd.Detail.Should().Be("Tenant was not found for the current scope.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPilotValueReport_returns_markdown_when_accept_contains_text_markdown()
     {
         Mock<IPilotValueReportService> svc = new();

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Abstractions.Agents;
+﻿using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
 
 using FluentAssertions;
@@ -44,7 +44,7 @@ public sealed class DefaultAgentExecutorResolverTests
         act.Should().Throw<ArgumentException>().WithParameterName("executionMode");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Resolve_unknown_mode_throws_with_parameter_name()
     {
         Mock<IAgentExecutor> executor = new();

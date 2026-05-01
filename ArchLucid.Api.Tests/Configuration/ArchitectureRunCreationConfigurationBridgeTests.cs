@@ -1,4 +1,4 @@
-using ArchLucid.Api.Configuration;
+﻿using ArchLucid.Api.Configuration;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests.Configuration;
 
 public sealed class ArchitectureRunCreationConfigurationBridgeTests
 {
-    [Fact]
+    [SkippableFact]
     public void Apply_copies_legacy_MaxPayloadBytes_when_modern_key_unset()
     {
         const string legacyKey = "ArchLucid:ContextIngestion:MaxPayloadBytes";
@@ -22,7 +22,7 @@ public sealed class ArchitectureRunCreationConfigurationBridgeTests
         configuration[ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey].Should().Be("2048");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Apply_leaves_modern_MaxPayloadBytes_when_already_set()
     {
         const string legacyKey = "ArchLucid:ContextIngestion:MaxPayloadBytes";

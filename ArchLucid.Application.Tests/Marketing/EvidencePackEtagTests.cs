@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests.Marketing;
 [Trait("Category", "Unit")]
 public sealed class EvidencePackEtagTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compute_ProducesQuotedHexSha256OfLengthPrefixedEntries()
     {
         EvidencePackEntry entry1 = new("a.md", "alpha"u8.ToArray());
@@ -25,7 +25,7 @@ public sealed class EvidencePackEtagTests
         actual.Length.Should().Be(2 + 64);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_IsDeterministicAcrossInvocations()
     {
         EvidencePackEntry entry = new("doc.md", "hello"u8.ToArray());
@@ -36,7 +36,7 @@ public sealed class EvidencePackEtagTests
         second.Should().Be(first);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_ChangesWhenContentBytesChange()
     {
         EvidencePackEntry original = new("doc.md", "hello"u8.ToArray());
@@ -48,7 +48,7 @@ public sealed class EvidencePackEtagTests
         after.Should().NotBe(before);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_ChangesWhenEntryNameChanges()
     {
         EvidencePackEntry original = new("doc.md", "x"u8.ToArray());
@@ -60,7 +60,7 @@ public sealed class EvidencePackEtagTests
         after.Should().NotBe(before);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_ChangesWhenEntryOrderChanges()
     {
         EvidencePackEntry a = new("a.md", "alpha"u8.ToArray());
@@ -72,11 +72,11 @@ public sealed class EvidencePackEtagTests
         ba.Should().NotBe(ab);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_LengthPrefixingPreventsBoundaryCollision()
     {
         // Two different (name, content) splits whose concatenated bytes are identical
-        // must NOT produce the same ETag — that is the whole reason for length prefixing.
+        // must NOT produce the same ETag â€” that is the whole reason for length prefixing.
         EvidencePackEntry split1 = new("ab", "cd"u8.ToArray());
         EvidencePackEntry split2 = new("a", "bcd"u8.ToArray());
 
@@ -86,14 +86,14 @@ public sealed class EvidencePackEtagTests
         right.Should().NotBe(left);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_ThrowsOnNullList()
     {
         Action act = () => EvidencePackEtag.Compute(null!);
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_ThrowsOnNullEntry()
     {
         EvidencePackEntry[] entries = [null!];

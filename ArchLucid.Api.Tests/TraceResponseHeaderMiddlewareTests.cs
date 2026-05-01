@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Api.Tests.Http;
 using ArchLucid.Host.Core.Middleware;
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class TraceResponseHeaderMiddlewareTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_ActivityCurrent_SetsTraceparentHeader()
     {
         Activity activity = new("test-traceparent");
@@ -44,7 +44,7 @@ public sealed class TraceResponseHeaderMiddlewareTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_ActivityCurrent_SetsXTraceIdHeader()
     {
         Activity activity = new("test-x-trace-id");
@@ -73,7 +73,7 @@ public sealed class TraceResponseHeaderMiddlewareTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_NoActivity_DoesNotSetHeaders()
     {
         Activity activity = new("stop-before-on-starting");
@@ -99,7 +99,7 @@ public sealed class TraceResponseHeaderMiddlewareTests
         context.Response.Headers.ContainsKey("X-Trace-Id").Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_InvokesNextDelegate()
     {
         DefaultHttpContext context = new();

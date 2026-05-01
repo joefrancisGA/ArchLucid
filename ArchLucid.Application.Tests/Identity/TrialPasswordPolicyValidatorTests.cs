@@ -1,4 +1,4 @@
-using ArchLucid.Application.Identity;
+﻿using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Identity;
 [Trait("Category", "Unit")]
 public sealed class TrialPasswordPolicyValidatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void Validate_null_password_fails()
     {
         TrialPasswordPolicyValidator sut = CreateSut(min: 8, max: 128);
@@ -24,7 +24,7 @@ public sealed class TrialPasswordPolicyValidatorTests
         r.ErrorMessage!.ToLowerInvariant().Should().Contain("required");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_below_minimum_length_fails()
     {
         TrialPasswordPolicyValidator sut = CreateSut(min: 12, max: 128);
@@ -35,7 +35,7 @@ public sealed class TrialPasswordPolicyValidatorTests
         r.ErrorMessage!.Should().Contain("12");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_above_maximum_length_fails()
     {
         TrialPasswordPolicyValidator sut = CreateSut(min: 8, max: 10);
@@ -46,7 +46,7 @@ public sealed class TrialPasswordPolicyValidatorTests
         r.ErrorMessage!.Should().Contain("10");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_length_only_accepts_password_without_composition_rules()
     {
         TrialPasswordPolicyValidator sut = CreateSut(min: 8, max: 128);

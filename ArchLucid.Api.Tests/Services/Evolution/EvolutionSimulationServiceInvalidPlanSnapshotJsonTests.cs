@@ -1,4 +1,4 @@
-using ArchLucid.Api.Services.Evolution;
+﻿using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Tests.Services.Evolution;
 [Trait("Suite", "Core")]
 public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunShadowEvaluationAsync_throws_when_plan_snapshot_json_is_invalid()
     {
         Guid candidateId = Guid.NewGuid();

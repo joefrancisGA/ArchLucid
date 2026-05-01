@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests.Billing;
 [Trait("Category", "Integration")]
 public sealed class BillingMarketplaceWebhookLedgerDispatchHttpTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlan_ga_on_records_sp_Billing_ChangePlan_on_ledger_dispatch()
     {
         BillingMarketplaceWebhookRecordedLedgerApiFactory factory = new();

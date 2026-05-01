@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests;
 
 public sealed class MarkdownExportFormattingTests
 {
-    [Fact]
+    [SkippableFact]
     public void MarkdownDriftReportFormatter_FormatMarkdown_includes_drift_and_table_rows()
     {
         MarkdownDriftReportFormatter fmt = new();
@@ -40,7 +40,7 @@ public sealed class MarkdownExportFormattingTests
         md.Should().Contain("d line");
     }
 
-    [Fact]
+    [SkippableFact]
     public void MarkdownDriftReportFormatter_FormatHtml_encodes_comparison_id()
     {
         MarkdownDriftReportFormatter fmt = new();
@@ -54,7 +54,7 @@ public sealed class MarkdownExportFormattingTests
         html.Should().Contain("&lt;b&gt;x&lt;/b&gt;");
     }
 
-    [Fact]
+    [SkippableFact]
     public void MarkdownExportRecordDiffSummaryFormatter_lists_sections()
     {
         MarkdownExportRecordDiffSummaryFormatter fmt = new();
@@ -80,7 +80,7 @@ public sealed class MarkdownExportFormattingTests
         md.Should().Contain("## Warnings");
     }
 
-    [Fact]
+    [SkippableFact]
     public void MarkdownArchitectureExportService_includes_diagram_fence_and_evidence_counts()
     {
         MarkdownArchitectureExportService svc = new();

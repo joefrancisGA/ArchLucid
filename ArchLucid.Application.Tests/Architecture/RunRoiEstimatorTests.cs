@@ -1,4 +1,4 @@
-using ArchLucid.Application.Architecture;
+﻿using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Architecture;
 [Trait("Category", "Unit")]
 public sealed class RunRoiEstimatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void Estimate_sums_inputs_with_configured_multipliers()
     {
         RunRoiEstimatorOptions opts = new()

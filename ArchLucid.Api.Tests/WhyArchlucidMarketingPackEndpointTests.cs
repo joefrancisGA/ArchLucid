@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Explanation;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> — anonymous, demo-gated PDF bundle for the public
+///     HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> â€” anonymous, demo-gated PDF bundle for the public
 ///     <c>/why</c> page.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -29,7 +29,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetWhyArchlucidPackPdf_returns_404_when_demo_not_enabled()
     {
         HttpClient client = _factory.CreateClient();
@@ -40,7 +40,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetWhyArchlucidPackPdf_returns_404_when_demo_enabled_but_preview_unavailable()
     {
         WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
@@ -63,7 +63,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetWhyArchlucidPackPdf_returns_pdf_when_demo_enabled_and_preview_resolves()
     {
         StubPreviewClient stub = new();
@@ -120,7 +120,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
             {
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant — replace before publishing",
+                DemoStatusMessage = "demo tenant â€” replace before publishing",
                 Run =
                     new DemoPreviewRun
                     {
