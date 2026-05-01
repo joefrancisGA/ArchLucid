@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 
 using ArchLucid.Core.Hosting;
+using ArchLucid.Core.Support;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -88,6 +89,10 @@ internal static class DoctorCommand
             aggregateCode == 401
                 ? "Doctor finished: readiness OK (detailed /health skipped — no credentials)."
                 : "Doctor finished: readiness and detailed /health OK.");
+        Console.WriteLine();
+        Console.WriteLine(
+            "Stuck mid-pilot? Symptom index: " + SupportBundleDocLinks.PilotRescuePlaybookRelativePath +
+            " (from repository root, or your deployment doc mirror).");
 
         return CliExitCode.Success;
     }

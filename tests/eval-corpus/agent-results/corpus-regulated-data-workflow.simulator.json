@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-rd-sim-01",
+  "taskId": "corp-rd-task-01",
+  "runId": "corp-rd-run-01",
+  "agentType": 3,
+  "claims": [
+    {
+      "evidenceRefs": ["policy-regulatory-isolation"],
+      "detail": "Simulator compliance claim: data paths avoid public endpoints and honor regional boundaries."
+    }
+  ],
+  "evidenceRefs": ["policy-regulatory-isolation"],
+  "confidence": 0.78,
+  "findings": [
+    {
+      "severity": "High",
+      "category": "Compliance",
+      "description": "Encryption uses customer-managed keys in Key Vault; no cross-region replication for regulated indexes.",
+      "recommendation": "Document key rotation duties and test restore with CMK-disabled failure modes."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Diagnostic settings capture administrative actions on data stores into immutable retention storage.",
+      "recommendation": "Align retention with your records policy and validate analyst access through PIM."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-01T12:00:00Z"
+}

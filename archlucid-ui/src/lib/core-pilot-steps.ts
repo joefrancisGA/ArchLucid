@@ -7,7 +7,7 @@ export type CorePilotStepBase = {
 };
 
 /**
- * Core Pilot path titles and links — shared between the First Manifest checklist and diagnostics summary on operator home.
+ * Core Pilot path titles and links — shared between the first-review checklist and diagnostics summary on operator home.
  * No JSX here; `OperatorFirstRunWorkflowPanel` adds rich optional `secondary` for specific steps locally.
  */
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
@@ -28,18 +28,18 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     primaryLabel: "Open reviews list",
   },
   {
-    title: "Finalize the reviewed manifest",
-    shortBody: "On review detail, finalize when the pipeline is ready, or use the API/CLI for automation.",
+    title: "Finalize the review package",
+    shortBody: "On review detail, finalize when the pipeline is ready — this locks the manifest and unlocks exports.",
     detail:
-      "Until finalization, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
+      "Commit/finalize produces the golden manifest and artifacts. Until then, the manifest summary and artifact table are not available. See docs/OPERATOR_QUICKSTART.md for CLI/API.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Choose review → open detail",
   },
   {
-    title: "Review manifest and artifacts",
-    shortBody: "After finalization, review the manifest summary, artifact table, and export links on review detail.",
+    title: "Review outputs and exports",
+    shortBody: "After finalization, read the manifest summary and findings; download or share artifacts from review detail.",
     detail:
-      "Open the reviewed manifest link from review detail for the full page; use artifact actions for download and review.",
+      "Open the manifest link from review detail for the full page; use artifact actions for download and in-shell review.",
     primaryHref: "/reviews?projectId=default",
     primaryLabel: "Open a finalized review",
   },

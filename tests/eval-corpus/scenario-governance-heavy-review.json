@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-governance-heavy-review",
+  "metadata": {
+    "title": "Governance-heavy design review",
+    "complexity": "high",
+    "primaryAgents": ["Compliance", "Critic"]
+  },
+  "inputSummary": "Internal platform team requests a pre-production sign-off for a shared integration hub. Security architecture requires separation of duties, immutable audit evidence, CAB traceability, and peer critique of privileged access paths.",
+  "recording": "recordings/corpus-governance-heavy-review.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "agent-results/corpus-governance-heavy-review.simulator.json",
+    "notes": "Governance narrative is synthetic; verify real controls with your GRC program."
+  },
+  "expectedFindings": [
+    {
+      "id": "e cab",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["approval", "azure devops"]
+    },
+    {
+      "id": "e audit evidence",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["evidence", "audit"]
+    },
+    {
+      "id": "e segregation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["entra", "PIM"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["skip change control", "no audit trail"] },
+    { "category": "Critic", "ifContainsAny": ["approve without review"] }
+  ]
+}

@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Core.Support;
+
 namespace ArchLucid.Cli.Support;
 
 /// <summary>
@@ -263,6 +265,7 @@ public static class SupportBundleCollector
             ],
             Documentation =
             [
+                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
                 "Open README.txt in this folder first for triage order; manifest.json lists triageReadOrder as JSON.",
                 "Correlate failures: response header X-Correlation-ID and problem JSON correlationId (API and operator proxy) match structured logs on the API host.",
                 "docs/TROUBLESHOOTING.md",

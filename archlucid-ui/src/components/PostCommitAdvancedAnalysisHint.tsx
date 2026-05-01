@@ -8,7 +8,7 @@ type PostCommitAdvancedAnalysisHintProps = {
 
 /**
  * Shown on run detail only after a golden manifest exists. Suggests Advanced
- * Analysis surfaces without pulling operators off the first-manifest path before finalization.
+ * Analysis surfaces without pulling operators off the first-review path before finalization.
  */
 export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnalysisHintProps) {
   const encoded = encodeURIComponent(runId);
@@ -23,7 +23,7 @@ export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnal
       </p>
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
         This run has a finalized manifest. None of this is required to judge first-pilot value—only when you have a
-        concrete question the first-manifest path does not answer (diff two runs, re-validate the provenance chain, or explore a
+        concrete question the first-review path does not answer (diff two runs, re-validate the provenance chain, or explore a
         graph). Use the links below; enable <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar if needed.
       </p>
       <ul className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">

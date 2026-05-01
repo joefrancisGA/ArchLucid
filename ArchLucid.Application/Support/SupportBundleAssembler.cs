@@ -177,6 +177,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         },
         documentation = new[]
         {
+            SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
             "docs/TROUBLESHOOTING.md",
             "docs/OPERATOR_QUICKSTART.md",
             "docs/library/OPERATOR_ATLAS.md",

@@ -263,7 +263,7 @@ export function RunsDashboardPanel() {
                       <Link href="/reviews/new">Create your first request</Link>
                     </Button>
           <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href="/onboarding">First Manifest Guide</Link>
+            <Link href="/onboarding">First-review checklist</Link>
           </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/help">How this works</Link>

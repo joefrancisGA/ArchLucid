@@ -1,3 +1,5 @@
+using ArchLucid.Core.Support;
+
 namespace ArchLucid.Cli;
 
 /// <summary>
@@ -49,14 +51,15 @@ internal static class CliOperatorHints
     {
         stderr ??= Console.Error;
         stderr.WriteLine(
-            $"Next: Verify the API is listening at {baseUrl}, SQL/migrations succeeded, and GET /health/ready returns 200. Run: dotnet run --project ArchLucid.Cli -- doctor");
+            $"Next: Verify the API is listening at {baseUrl}, SQL/migrations succeeded, and GET /health/ready returns 200. Run: dotnet run --project ArchLucid.Cli -- doctor. Symptom index: {SupportBundleDocLinks.PilotRescuePlaybookRelativePath}");
     }
 
     public static void WriteAfterReadinessFailed(TextWriter? stderr = null)
     {
         stderr ??= Console.Error;
         stderr.WriteLine(
-            "Next: Open GET /health/ready in a browser or curl and fix the failing check (often ConnectionStrings:ArchLucid or DbUp). Capture GET /version for build identity when opening a ticket. See docs/TROUBLESHOOTING.md.");
+            "Next: Open GET /health/ready in a browser or curl and fix the failing check (often ConnectionStrings:ArchLucid or DbUp). Capture GET /version for build identity when opening a ticket. See docs/TROUBLESHOOTING.md and " +
+            SupportBundleDocLinks.PilotRescuePlaybookRelativePath + ".");
     }
 
     public static void WriteBriefMissingHint(string relativeBriefPath, TextWriter? stderr = null)

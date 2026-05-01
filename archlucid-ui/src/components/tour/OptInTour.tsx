@@ -29,20 +29,20 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "1. Operator home",
     body:
-      "Your starting point. The first-manifest checklist at the top walks you through your first run — follow it in order. " +
-      "The analysis and governance sections below are optional until your first run is finalized.",
+      "Your starting point. The first-review checklist at the top walks you through your first architecture review — follow it in order. " +
+      "The analysis and governance sections below are optional until your first review is finalized.",
   },
   {
-    title: "2. Start a run",
+    title: "2. Start a review",
     body:
       "Click New request (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
-      "constraints, then kicks off the analysis pipeline. You will see live progress on step 7.",
+      "constraints, then kicks off the analysis pipeline for this architecture review. You will see live progress on step 7.",
   },
   {
     title: "3. Review and finalize",
     body:
-      "When the pipeline finishes, open your run from the Runs list. Review the findings and evidence, then click " +
-      "Finalize manifest to produce the versioned manifest — the architecture package you can export and share.",
+      "When the pipeline finishes, open your review from the Runs list. Review findings and evidence, then click " +
+      "Finalize manifest to produce the versioned manifest — the review package you can export and share.",
   },
   {
     title: "4. Governance and alerts",

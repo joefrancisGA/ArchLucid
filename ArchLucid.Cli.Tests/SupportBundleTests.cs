@@ -92,6 +92,8 @@ public sealed class SupportBundleTests
             payload.Manifest.TriageReadOrder[1].File.Should().Be(SupportBundleArchiveWriter.HealthFileName);
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
+            payload.References.Documentation.Should()
+                .Contain(d => d.StartsWith(SupportBundleDocLinks.PilotRescuePlaybookRelativePath, StringComparison.Ordinal));
         }
         finally
         {

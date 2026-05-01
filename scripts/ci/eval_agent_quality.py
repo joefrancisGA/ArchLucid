@@ -3,6 +3,9 @@
 
 Shape-only checks (no live LLM or simulator runs). CI uses selective flags to keep
 failures localized to the dataset family under test.
+
+See also: ``scripts/ci/eval_agent_corpus.py`` for the synthetic **tests/eval-corpus**
+slice (recall + optional committed simulator AgentResult JSON).
 """
 
 from __future__ import annotations

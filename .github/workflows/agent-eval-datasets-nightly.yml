@@ -28,3 +28,6 @@ jobs:
 
       - name: Prompt-injection regression fixtures
         run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only
+
+      - name: Eval corpus (recall + simulator AgentResult quality)
+        run: python3 scripts/ci/eval_agent_corpus.py --markdown-report "${{ runner.temp }}/eval-corpus-nightly.md"

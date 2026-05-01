@@ -25,21 +25,21 @@ const STEPS: TourStep[] = [
     id: "welcome",
     title: "Welcome to ArchLucid",
     body:
-      "This checklist is your Core Pilot path — from an architecture request to a reviewed, exportable manifest. Complete the steps in order, or jump ahead when you are comfortable.",
+      "This checklist is your Core Pilot path — from an architecture request to a reviewed, exportable package. Complete the steps in order, or jump ahead when you are comfortable.",
     targetSelector: '[data-onboarding="tour-core-pilot"]',
   },
   {
     id: "new-run",
-    title: "Create your first run",
+    title: "Create your first architecture review",
     body:
-      "A run starts from an architecture request. Use New request in the sidebar (desktop) or the navigation menu on small screens to open the guided wizard.",
+      "Each review starts as an architecture request. Use New request in the sidebar (desktop) or the navigation menu on small screens to open the guided wizard.",
     targetSelector: '[data-onboarding="tour-new-run"]',
   },
   {
     id: "runs",
-    title: "Review your runs",
+    title: "Review your architecture reviews",
     body:
-      "Committed runs produce a reviewed manifest. Track recent activity here and open the full runs list when you need every run in the workspace.",
+      "Finalized reviews produce a manifest you can export. Track recent activity here and open the full list when you need every review in the workspace.",
     targetSelector: '[data-onboarding="tour-runs-dashboard"]',
   },
   {

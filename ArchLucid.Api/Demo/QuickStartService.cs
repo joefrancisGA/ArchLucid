@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Composition.Demo;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Serialization;
 

@@ -24,7 +24,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
-namespace ArchLucid.Api.Demo;
+namespace ArchLucid.Host.Composition.Demo;
 
 /// <summary>Forces deterministic simulator execution for anonymous marketing pipelines.</summary>
 public sealed class QuickStartForcedSimulatorExecuteOrchestrator(

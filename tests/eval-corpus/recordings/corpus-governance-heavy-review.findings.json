@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-gv-1",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "CAB alignment",
+      "detail": "Production releases require dual approval in Azure DevOps environments mapped to the enterprise change-advisory board records."
+    },
+    {
+      "findingId": "corp-gv-2",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Evidence packs",
+      "detail": "Architecture decisions bundle threat models, data-flow diagrams, and control mappings for internal audit sampling."
+    },
+    {
+      "findingId": "corp-gv-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Segregation",
+      "detail": "Operator roles and developer roles use separate Entra ID groups with PIM for emergency break-glass."
+    },
+    {
+      "findingId": "corp-gv-4",
+      "category": "Critic",
+      "severity": "Low",
+      "title": "Manual approvals",
+      "detail": "Some service connections still use long-lived tokens despite policy requiring workload identity federation."
+    }
+  ]
+}

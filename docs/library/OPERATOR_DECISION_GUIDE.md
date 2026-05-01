@@ -19,7 +19,7 @@
 
 ## 1. The default rule
 
-Start with **Core Pilot**.
+Start with **Core Pilot** — it is the shortest path to one **architecture review package** (finalized manifest + artifacts).
 
 Do **not** move into Operate (analysis workloads) or Operate (governance and trust) just because those features exist. Move only when a real question appears that the Core Pilot path does not answer well enough.
 

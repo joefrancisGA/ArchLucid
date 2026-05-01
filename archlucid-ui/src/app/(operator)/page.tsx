@@ -61,7 +61,7 @@ export default function HomePage() {
 
         <aside
           className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
-          aria-label="Explore completed output and first-manifest guide"
+          aria-label="Explore completed output and first-review checklist"
         >
           <HomeFirstRunWorkflowGate />
         </aside>

@@ -14,7 +14,7 @@ import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success
 
 /**
  * Progressive-disclosure checklist summary: aligns Core Pilot titles with `/v1/diagnostics/operator-task-success-rates`
- * counters (sessions / finalized runs) plus local checklist storage. Companion to the richer First Manifest Checklist sidebar.
+ * counters (sessions / finalized runs) plus local checklist storage. Companion to the richer first-review checklist sidebar.
  */
 export function OperatorCorePilotDiagnosticsChecklist() {
   const [rates, setRates] = useState<OperatorTaskSuccessRates | null>(null);
@@ -89,7 +89,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
   return (
     <details className="group rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
       <summary className="cursor-pointer select-none text-sm font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100">
-        First manifest guide (signals + checklist)
+        First architecture review checklist (signals + steps)
       </summary>
       <div className="mt-3 space-y-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <section aria-labelledby="core-pilot-signals-heading">
@@ -189,7 +189,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
           </ol>
 
           <p className="m-0 mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
-            The sidebar <strong className="font-medium text-neutral-700 dark:text-neutral-300">First Manifest Checklist</strong>
+            The sidebar <strong className="font-medium text-neutral-700 dark:text-neutral-300">first-review checklist</strong>
             {": "}
             checkbox progress is stored locally; finalization milestones also appear in server counters above once the pipeline persists.
           </p>
@@ -201,7 +201,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
               href="#first-run-workflow-panel"
               className="inline-flex rounded-md border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-950 dark:text-teal-200 dark:hover:bg-neutral-900"
             >
-              Jump to First Manifest checklist
+              Jump to first-review checklist
             </Link>
           </div>
         </section>

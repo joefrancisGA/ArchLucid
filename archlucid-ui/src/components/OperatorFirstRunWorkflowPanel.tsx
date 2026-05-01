@@ -9,10 +9,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import {
+  CORE_PILOT_FIRST_REVIEW_HEADING,
+  CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
+  CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
+  CORE_PILOT_RUN_BRIDGE_LINE,
+  CORE_PILOT_WORKFLOW_SUMMARY_LINE,
+} from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
@@ -41,7 +47,7 @@ const corePilotSteps: WorkflowStep[] = CORE_PILOT_STEPS.map((s, index) =>
 );
 
 /**
- * Collapsible first-manifest checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
+ * Collapsible first architecture-review checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
  * outline buttons so they do not compete with the main home CTAs.
  */
 export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: boolean } = {}) {
@@ -283,7 +289,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           aria-controls="first-run-workflow-panel"
           className="auth-panel-focus w-full cursor-pointer rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-left text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
         >
-          Show First Manifest Guide
+          {CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON}
         </button>
       </div>
     );
@@ -300,7 +306,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           What&apos;s next
         </h2>
         <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
-          Compare reviews, replay pipeline steps, and explore the architecture graph.
+          Optional: compare reviews, replay pipeline steps, or explore the architecture graph.
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
           <Link
@@ -375,7 +381,9 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         <div className="min-w-0">
           {exploreCompletedOutput ? (
             <>
-              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Explore completed output</h2>
+              <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                Explore completed output
+              </h2>
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
                 Claims Intake is the guided story — review detail, manifest, and showcase are the proof path. The checklist
                 below is optional.
@@ -398,17 +406,25 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             </>
           ) : !hasAnyRun ? (
             <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              First Manifest Guide
+              {CORE_PILOT_FIRST_REVIEW_HEADING}
             </h2>
           ) : (
-            <h2 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-              First Manifest Guide
+            <h2
+              id="first-run-workflow-heading"
+              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              {CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT}
             </h2>
           )}
           {!exploreCompletedOutput ? (
-            <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-              Create → <GlossaryTooltip termKey="run">Review</GlossaryTooltip> → Finalize → Outputs
-            </p>
+            <>
+              <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
+                {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
+              </p>
+              <p className="m-0 mt-1 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                {CORE_PILOT_RUN_BRIDGE_LINE}
+              </p>
+            </>
           ) : null}
         </div>
         <button
@@ -426,12 +442,11 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       </p>
       {allDone ? (
         <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
-          First manifest complete. You can hide this panel or revisit any step.
+          First review complete. You can hide this panel or revisit any step.
         </p>
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
-        Complete these four steps to get from an empty workspace to a reviewed, exportable{" "}
-        <GlossaryTooltip termKey="run">architecture review</GlossaryTooltip>.
+        Four steps to your first reviewed, exportable architecture review package.
       </p>
       <ol className="m-0 list-none space-y-2 p-0">
         {corePilotSteps.map((step, index) => {

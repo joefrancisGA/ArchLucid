@@ -59,7 +59,7 @@ Upload your architecture materials. ArchLucid's multi-agent analysis covers topo
                                       └─────────────────┘
 ```
 
-**Operator UI** — Next.js web console for runs, manifests, governance, graph exploration, and audit.
+**Operator UI** — Next.js console for the **architecture review** lifecycle (runs, manifests, governance, graph, audit), aligned with [CORE_PILOT.md](../../CORE_PILOT.md).
 **CLI** — `archlucid new`, `run`, `commit`, `artifacts`, `doctor`, `support-bundle`, `trace`.
 
 ---

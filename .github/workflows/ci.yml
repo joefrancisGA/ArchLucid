@@ -652,6 +652,13 @@ jobs:
       - name: Prompt injection eval datasets (shape)
         run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only
 
+      - name: Agent eval corpus (offline recall + simulator quality evidence)
+        run: |
+          set -euo pipefail
+          REP="${{ runner.temp }}/eval-corpus-report.md"
+          python3 scripts/ci/eval_agent_corpus.py --markdown-report "$REP"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$REP" >> "$GITHUB_STEP_SUMMARY"; fi
+
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py
 

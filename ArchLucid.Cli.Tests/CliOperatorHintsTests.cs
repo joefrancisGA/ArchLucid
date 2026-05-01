@@ -64,6 +64,7 @@ public sealed class CliOperatorHintsTests
         text.Should().Contain("/health/ready");
         text.Should().Contain("/version");
         text.Should().Contain("troubleshooting");
+        text.Should().Contain("pilot_rescue_playbook.md");
     }
 
     [Fact]
@@ -77,6 +78,7 @@ public sealed class CliOperatorHintsTests
         text.Should().Contain("http://localhost:5555");
         text.ToLowerInvariant().Should().Contain("health/ready");
         text.ToLowerInvariant().Should().Contain("doctor");
+        text.Should().Contain("PILOT_RESCUE_PLAYBOOK.md");
     }
 
     [Fact]

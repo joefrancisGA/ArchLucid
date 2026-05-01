@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-wa-1",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "App Service layout",
+      "detail": "Front-door pattern keeps Azure App Service behind Azure Front Door with HTTPS-only listeners and health probes."
+    },
+    {
+      "findingId": "corp-wa-2",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Secrets posture",
+      "detail": "Application settings pull connection strings from Key Vault references; no plaintext secrets in configuration."
+    },
+    {
+      "findingId": "corp-wa-3",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Observability",
+      "detail": "Application Insights ties request flows to dependency calls and exports availability tests for the public HTTPS endpoint."
+    },
+    {
+      "findingId": "corp-wa-4",
+      "category": "Critic",
+      "severity": "Low",
+      "title": "DR evidence",
+      "detail": "Runbooks mention quarterly failover drills but lack automated links to test results."
+    }
+  ]
+}

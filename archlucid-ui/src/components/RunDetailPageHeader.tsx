@@ -38,7 +38,7 @@ export function RunDetailPageHeader({
             </h1>
             <HelpLink
               docPath="/docs/CORE_PILOT.md"
-              label="Manifest review steps — core pilot guide on GitHub (new tab)"
+              label="Architecture review steps — Core Pilot guide on GitHub (new tab)"
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
