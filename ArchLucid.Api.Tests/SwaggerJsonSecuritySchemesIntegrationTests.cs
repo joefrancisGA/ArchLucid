@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBearerWebAppFactory factory)
     : IClassFixture<SwaggerJsonJwtBearerWebAppFactory>
 {
-    [Fact]
+    [SkippableFact]
     public void Swagger_document_with_JwtBearer_includes_Bearer_scheme_and_document_security()
     {
         using IServiceScope scope = factory.Services.CreateScope();
@@ -36,7 +36,7 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
         first.Keys.Should().ContainSingle(k => string.Equals(k.Reference.Id, "Bearer", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Swagger_json_with_JwtBearer_round_trips_over_http()
     {
         using HttpClient client = factory.CreateClient(
@@ -54,7 +54,7 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
             .Should().Be("bearer");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Swagger_json_with_DevelopmentBypass_omits_Bearer_security_scheme()
     {
         await using WebApplicationFactory<Program> defaultFactory = new OpenApiContractWebAppFactory();

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ScalarApiReferenceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Development_host_serves_scalar_reference()
     {
         await using WebApplicationFactory<Program> factory = new OpenApiContractWebAppFactory();

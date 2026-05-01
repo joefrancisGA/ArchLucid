@@ -1,4 +1,4 @@
-using ArchLucid.Api.Swagger;
+﻿using ArchLucid.Api.Swagger;
 
 using FluentAssertions;
 
@@ -23,7 +23,7 @@ public sealed class SwaggerOpenApiAuthTests
         id.Should().Be(expectedId);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolveSecuritySchemeId_returns_null_for_DevelopmentBypass()
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
@@ -32,7 +32,7 @@ public sealed class SwaggerOpenApiAuthTests
         SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration).Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ResolveSecuritySchemeId_returns_null_when_mode_missing()
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(

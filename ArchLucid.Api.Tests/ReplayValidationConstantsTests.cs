@@ -1,4 +1,4 @@
-using ArchLucid.Api.Validators;
+﻿using ArchLucid.Api.Validators;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayValidationConstantsTests
 {
-    [Fact]
+    [SkippableFact]
     public void ValidFormats_contains_expected_values_and_count()
     {
         string[] expected = ["markdown", "html", "docx", "json"];
@@ -19,7 +19,7 @@ public sealed class ReplayValidationConstantsTests
             ReplayValidationConstants.ValidFormats.Should().Contain(e);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ValidReplayModes_contains_expected_values_and_count()
     {
         string[] expected = ["artifact", "regenerate", "verify"];
@@ -28,7 +28,7 @@ public sealed class ReplayValidationConstantsTests
             ReplayValidationConstants.ValidReplayModes.Should().Contain(e);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ValidProfiles_contains_expected_values_and_count()
     {
         string[] expected = ["default", "short", "detailed", "executive"];
@@ -37,7 +37,7 @@ public sealed class ReplayValidationConstantsTests
             ReplayValidationConstants.ValidProfiles.Should().Contain(e);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ValidFormats_is_case_insensitive_for_lookup()
     {
         ReplayValidationConstants.ValidFormats.Should().Contain("MARKDOWN");

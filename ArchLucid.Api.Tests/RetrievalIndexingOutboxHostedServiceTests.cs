@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Hosted;
+﻿using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Coordination.Retrieval;
 
 using FluentAssertions;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class RetrievalIndexingOutboxHostedServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_exits_cleanly_when_stopped_during_delay()
     {
         Mock<IRetrievalIndexingOutboxProcessor> processor = new();
@@ -39,7 +39,7 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_continues_after_processor_throws()
     {
         int callCount = 0;

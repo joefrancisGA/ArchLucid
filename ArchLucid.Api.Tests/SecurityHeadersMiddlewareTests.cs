@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Middleware;
+﻿using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class SecurityHeadersMiddlewareTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_SetsBaselineSecurityHeaders_BeforeNext()
     {
         DefaultHttpContext context = new();
@@ -59,7 +59,7 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["Cross-Origin-Opener-Policy"].ToString().Should().Be("same-origin");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_DoesNotOverwriteExistingHeaders()
     {
         const string existingCsp = "default-src 'self'; frame-ancestors 'none'";

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Tenancy;
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class TenantCostEstimateEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetTenantCostEstimate_returns_200_with_band()
     {
         HttpResponseMessage response = await Client.GetAsync($"/{ApiV1Routes.TenantCostEstimate}");

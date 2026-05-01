@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -19,7 +19,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         _fixture = fixture;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_with_baseline_persists_to_trial_status()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -51,7 +51,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         DateTimeOffset.Parse(captured, CultureInfo.InvariantCulture).Should().NotBe(default);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_without_baseline_allows_trial_status()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -75,7 +75,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         h.ValueKind.Should().Be(JsonValueKind.Null);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_rejects_baseline_out_of_range()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -87,7 +87,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         bad.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_rejects_source_without_hours()
     {
         using HttpClient client = _fixture.CreateClient();

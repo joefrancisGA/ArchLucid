@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.
+///     End-to-end: index documents via DI â†’ query via <c>GET v1/retrieval/search</c> â†’ assert hits.
 ///     Uses <see cref="AlertLifecycleWebAppFactory" /> (InMemory storage + <c>FakeEmbeddingService</c> +
 ///     <c>InMemoryVectorIndex</c>).
 /// </summary>
@@ -25,7 +25,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         PropertyNameCaseInsensitive = true
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Index_documents_then_query_returns_matching_hits()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -45,7 +45,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         hits.Should().NotBeEmpty("indexed documents should produce at least one retrieval hit");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Query_without_q_returns_bad_request()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -58,7 +58,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Query_with_no_indexed_documents_returns_empty_list()
     {
         await using AlertLifecycleWebAppFactory factory = new();
@@ -76,7 +76,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         hits.Should().BeEmpty("no documents have been indexed");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TopK_clamps_result_count()
     {
         await using AlertLifecycleWebAppFactory factory = new();

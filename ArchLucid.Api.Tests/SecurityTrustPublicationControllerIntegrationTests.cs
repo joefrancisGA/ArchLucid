@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Post_publications_returns_204_and_audit_search_finds_event()
     {
         SecurityAssessmentPublicationRequest body = new()
@@ -51,7 +51,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         first.GetProperty("dataJson").GetString().Should().Contain("2026-07-29");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_publications_returns_400_when_published_on_is_not_a_date()
     {
         SecurityAssessmentPublicationRequest body = new()

@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayDiagnosticsRecorderTests
 {
-    [Fact]
+    [SkippableFact]
     public void Record_respects_capacity()
     {
         Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();
@@ -30,7 +30,7 @@ public sealed class ReplayDiagnosticsRecorderTests
         sut.GetRecent(10)[1].ComparisonRecordId.Should().Be("c");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Record_evicts_entries_older_than_retention_minutes()
     {
         Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();

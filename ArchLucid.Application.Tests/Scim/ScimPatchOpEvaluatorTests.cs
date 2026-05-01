@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Scim.Patching;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.Scim;
 [Trait("Suite", "Core")]
 public sealed class ScimPatchOpEvaluatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void Replace_sets_value()
     {
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)
@@ -24,7 +24,7 @@ public sealed class ScimPatchOpEvaluatorTests
         next["userName"].GetString().Should().Be("new");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Add_inserts_value()
     {
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -36,7 +36,7 @@ public sealed class ScimPatchOpEvaluatorTests
         next["active"].GetBoolean().Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Remove_deletes_key()
     {
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)
@@ -51,7 +51,7 @@ public sealed class ScimPatchOpEvaluatorTests
         next.ContainsKey("displayName").Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Invalid_member_filter_value_throws_invalid_path()
     {
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -64,7 +64,7 @@ public sealed class ScimPatchOpEvaluatorTests
         ex.ScimType.Should().Be("invalidPath");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Valid_guid_member_path_on_user_throws_not_implemented()
     {
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
@@ -76,7 +76,7 @@ public sealed class ScimPatchOpEvaluatorTests
         ScimPatchException ex = act.Should().Throw<ScimPatchException>().Which;
         ex.ScimType.Should().Be("notImplemented");
     }
-    [Fact]
+    [SkippableFact]
     public void Missing_value_on_replace_throws()
     {
         // ReSharper disable once CollectionNeverUpdated.Local
@@ -88,7 +88,7 @@ public sealed class ScimPatchOpEvaluatorTests
         act.Should().Throw<ScimPatchException>().Which.ScimType.Should().Be("invalidValue");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Sequential_ops_apply_in_order()
     {
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)

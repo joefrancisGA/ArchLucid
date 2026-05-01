@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProductLearning;
+﻿using ArchLucid.Api.ProductLearning;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("ChangeSet", "58R")]
 public sealed class ProductLearningQueryParserTests
 {
-    [Fact]
+    [SkippableFact]
     public void TryParseReportFormat_defaults_to_markdown()
     {
         bool ok = ProductLearningQueryParser.TryParseReportFormat(null, out string norm, out string? err);
@@ -20,7 +20,7 @@ public sealed class ProductLearningQueryParserTests
         norm.Should().Be("markdown");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseReportFormat_accepts_json_case_insensitively()
     {
         bool ok = ProductLearningQueryParser.TryParseReportFormat("JSON", out string norm, out string? err);
@@ -30,7 +30,7 @@ public sealed class ProductLearningQueryParserTests
         norm.Should().Be("json");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseReportFormat_rejects_unknown_values()
     {
         bool ok = ProductLearningQueryParser.TryParseReportFormat("yaml", out _, out string? err);
@@ -39,7 +39,7 @@ public sealed class ProductLearningQueryParserTests
         err.Should().Contain("format");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseMaxReportArtifacts_clamps_to_documented_bounds()
     {
         bool ok = ProductLearningQueryParser.TryParseMaxReportArtifacts("0", out _, out string? err);

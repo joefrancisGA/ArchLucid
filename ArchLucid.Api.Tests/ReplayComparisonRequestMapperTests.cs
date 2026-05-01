@@ -1,4 +1,4 @@
-using ArchLucid.Api.Mapping;
+﻿using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 
 using FluentAssertions;
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonRequestMapperTests
 {
-    [Fact]
+    [SkippableFact]
     public void ToApplicationForReplayEndpoint_prefers_query_format_when_body_is_blank()
     {
         ReplayComparisonRequest request = new()
@@ -29,7 +29,7 @@ public sealed class ReplayComparisonRequestMapperTests
         mapped.PersistReplay.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ToApplicationForReplayEndpoint_keeps_body_format_when_present()
     {
         ReplayComparisonRequest request = new() { Format = "docx" };
@@ -40,7 +40,7 @@ public sealed class ReplayComparisonRequestMapperTests
         mapped.Format.Should().Be("docx");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ForSummaryMarkdown_returns_expected_defaults()
     {
         Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ForSummaryMarkdown("cmp-3");
@@ -51,7 +51,7 @@ public sealed class ReplayComparisonRequestMapperTests
         mapped.PersistReplay.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ToApplicationForBatchEntry_maps_all_fields()
     {
         Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForBatchEntry(

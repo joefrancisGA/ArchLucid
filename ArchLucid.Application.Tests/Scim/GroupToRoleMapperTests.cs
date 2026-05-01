@@ -1,4 +1,4 @@
-using ArchLucid.Application.Scim.RoleMapping;
+﻿using ArchLucid.Application.Scim.RoleMapping;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 
@@ -23,7 +23,7 @@ public sealed class GroupToRoleMapperTests
         sut.TryMapGroupToRole(display, externalId).Should().Be(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Override_dictionary_wins_before_defaults()
     {
         ScimOptions opt = new()
@@ -38,7 +38,7 @@ public sealed class GroupToRoleMapperTests
         sut.TryMapGroupToRole("CustomAdmins", "ignored").Should().Be(ArchLucidRoles.Operator);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Unknown_group_returns_null()
     {
         GroupToRoleMapper sut = new(Options.Create(new ScimOptions()));

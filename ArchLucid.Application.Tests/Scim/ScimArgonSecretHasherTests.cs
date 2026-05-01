@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 using ArchLucid.Application.Scim.Tokens;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Application.Tests.Scim;
 [Trait("Suite", "Core")]
 public sealed class ScimArgonSecretHasherTests
 {
-    [Fact]
+    [SkippableFact]
     public void Hash_then_verify_round_trips()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -20,7 +20,7 @@ public sealed class ScimArgonSecretHasherTests
         CryptographicOperations.ZeroMemory(secret);
     }
 
-    [Fact]
+    [SkippableFact]
     public void VerifySecret_wrong_secret_returns_false()
     {
         Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -34,7 +34,7 @@ public sealed class ScimArgonSecretHasherTests
         CryptographicOperations.ZeroMemory(wrong);
     }
 
-    [Fact]
+    [SkippableFact]
     public void VerifySecret_wrong_tenant_salt_returns_false()
     {
         Guid t1 = Guid.Parse("33333333-3333-3333-3333-333333333333");

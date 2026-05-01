@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -21,7 +21,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
         _fixture = fixture;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_rejects_invalid_company_size()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -42,7 +42,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_rejects_non_positive_architecture_team_size()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -63,7 +63,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_rejects_other_industry_without_free_text()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -84,7 +84,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_succeeds_without_new_fields_backward_compatible()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -104,7 +104,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
         res.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.Conflict);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_persists_structured_baseline_on_valid_request()
     {
         using HttpClient client = _fixture.CreateClient();

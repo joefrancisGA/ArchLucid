@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Host.Core.Startup.Diagnostics;
 
@@ -15,7 +15,7 @@ public sealed class StartupConfigurationFactsReaderTests
 {
     private static Assembly ApiAssembly => typeof(Program).Assembly;
 
-    [Fact]
+    [SkippableFact]
     public void FromConfiguration_maps_expected_flags_and_counts()
     {
         Dictionary<string, string?> data = new()
@@ -74,7 +74,7 @@ public sealed class StartupConfigurationFactsReaderTests
         facts.CosmosDbConnectivitySummary.Should().Be("disabled");
     }
 
-    [Fact]
+    [SkippableFact]
     public void FromConfiguration_when_keys_missing_uses_placeholders_and_false_flags()
     {
         IConfiguration configuration =

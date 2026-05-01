@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -10,21 +10,21 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/pilots/runs/recent-deltas</c> — the aggregated proof-of-ROI endpoint
+///     HTTP coverage for <c>GET /v1/pilots/runs/recent-deltas</c> â€” the aggregated proof-of-ROI endpoint
 ///     behind the BeforeAfterDeltaPanel top / sidebar variants.
 /// </summary>
 /// <remarks>
 ///     The integration host runs against an empty-by-default scope (no seeded committed runs), so the
 ///     contract surface we can assert here is: 200 OK, well-formed JSON envelope, count clamped to the
 ///     server-side bounds, and ReadAuthority gating (the integration host's DevelopmentBypass already
-///     supplies a Read principal — a 401/403 here would mean we accidentally tightened the policy).
+///     supplies a Read principal â€” a 401/403 here would mean we accidentally tightened the policy).
 /// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltas_DefaultCount_ReturnsOkWithRequestedCountFive()
     {
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas");
@@ -44,7 +44,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         body.ReturnedCount.Should().Be(body.Items.Count);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltas_ExplicitCount_RespectedWhenInRange()
     {
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=3");
@@ -61,7 +61,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         body.RequestedCount.Should().Be(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltas_ExcessiveCount_ClampedToServerSideMax()
     {
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=9999");
@@ -79,7 +79,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         body.RequestedCount.Should().BeGreaterThan(5);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltas_ZeroOrNegativeCount_ClampedToOne()
     {
         HttpRequestMessage request = new(HttpMethod.Get, "/v1/pilots/runs/recent-deltas?count=-3");
@@ -96,7 +96,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
         body.RequestedCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltas_ResponseEnvelope_HasCamelCaseProperties()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/pilots/runs/recent-deltas?count=5");

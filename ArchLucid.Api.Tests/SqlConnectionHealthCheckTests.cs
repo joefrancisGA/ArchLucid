@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class SqlConnectionHealthCheckTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Healthy_WhenConnectionOpensSuccessfully()
     {
         Mock<DbConnection> mockConnection = new();
@@ -36,7 +36,7 @@ public sealed class SqlConnectionHealthCheckTests
         result.Status.Should().Be(HealthStatus.Healthy);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Healthy_WhenInMemoryStorage_SkipsDatabaseOpen()
     {
         Mock<IDbConnectionFactory> factory = new();
@@ -50,7 +50,7 @@ public sealed class SqlConnectionHealthCheckTests
         result.Description!.ToLowerInvariant().Should().Contain("inmemory");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Degraded_WhenTimeoutExceptionThrown()
     {
         Mock<IDbConnectionFactory> factory = new();
@@ -65,7 +65,7 @@ public sealed class SqlConnectionHealthCheckTests
         result.Description.Should().Contain("timed out");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Unhealthy_WhenGenericExceptionThrown()
     {
         Mock<IDbConnectionFactory> factory = new();

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -25,7 +25,7 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
         _fixture = fixture;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_creates_tenant_then_returns_conflict_for_same_organization()
     {
         using HttpClient client = _fixture.CreateClient();
@@ -44,7 +44,7 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
         duplicate.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Register_then_trial_status_returns_active_with_sample_run()
     {
         using HttpClient client = _fixture.CreateClient();

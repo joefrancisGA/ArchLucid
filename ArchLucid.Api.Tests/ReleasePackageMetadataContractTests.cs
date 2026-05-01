@@ -1,11 +1,11 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) — 56R
+///     Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) â€” 56R
 ///     handoff.
 /// </summary>
 [Trait("Category", "Unit")]
@@ -29,7 +29,7 @@ public sealed class ReleasePackageMetadataContractTests
                                               }
                                               """;
 
-    [Fact]
+    [SkippableFact]
     public void Release_metadata_json_v1_1_parses_with_expected_handoff_fields()
     {
         using JsonDocument doc = JsonDocument.Parse(MinimalMetadataV11);

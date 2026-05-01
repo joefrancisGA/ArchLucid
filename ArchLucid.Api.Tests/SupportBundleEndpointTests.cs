@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Net;
 
 using ArchLucid.Application.Support;
@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> — the in-product
+///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> â€” the in-product
 ///     support-bundle download (PENDING_QUESTIONS.md item 37, owner decisions F + G,
 ///     2026-04-23). Asserts the policy guard (
 ///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.AdminAuthority" />)
@@ -21,7 +21,7 @@ public sealed class SupportBundleEndpointTests
 {
     private const string EndpointPath = "/v1/admin/support-bundle";
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_WithReaderRole_Returns403_BecauseAdminAuthorityIsRequired()
     {
         await using ReaderRoleArchLucidApiFactory factory = new();
@@ -34,7 +34,7 @@ public sealed class SupportBundleEndpointTests
             "support-bundle is gated on AdminAuthority; Reader role lacks it.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_WithOperatorRole_Returns403_BecauseAdminAuthorityIsRequired()
     {
         await using OperatorRoleArchLucidApiFactory factory = new();
@@ -47,7 +47,7 @@ public sealed class SupportBundleEndpointTests
             "support-bundle is gated on AdminAuthority; Operator role lacks it.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_WithApiKeyAuthEnabledButNoKey_Returns401()
     {
         await using HealthEndpointSecurityApiFactory factory = new();
@@ -60,7 +60,7 @@ public sealed class SupportBundleEndpointTests
             "an unauthenticated caller must be rejected before policy evaluation.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_WithDevelopmentBypassDefaultRole_ReturnsZipBundle()
     {
         await using ArchLucidApiFactory factory = new();

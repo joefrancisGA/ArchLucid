@@ -1,4 +1,4 @@
-using ArchLucid.Application.Scim.Filtering;
+﻿using ArchLucid.Application.Scim.Filtering;
 
 using ArchLucid.Core.Scim.Filtering;
 
@@ -9,14 +9,14 @@ namespace ArchLucid.Application.Tests.Scim;
 [Trait("Suite", "Core")]
 public sealed class ScimFilterParserTests
 {
-    [Fact]
+    [SkippableFact]
     public void Parse_null_or_whitespace_returns_null()
     {
         ScimFilterParser.Parse(null).Should().BeNull();
         ScimFilterParser.Parse("   ").Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_simple_eq()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""alice""");
@@ -26,7 +26,7 @@ public sealed class ScimFilterParserTests
         c.Value.Should().Be("alice");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_active_eq_true()
     {
         ScimFilterNode? n = ScimFilterParser.Parse("active eq true");
@@ -35,14 +35,14 @@ public sealed class ScimFilterParserTests
         c.Value.Should().Be("true");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_gt_and_le()
     {
         ScimFilterParser.Parse(@"displayName gt ""b""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("gt");
         ScimFilterParser.Parse(@"externalId le ""z""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("le");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_co_sw_ew()
     {
         ScimFilterParser.Parse(@"userName co ""corp""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("co");
@@ -50,7 +50,7 @@ public sealed class ScimFilterParserTests
         ScimFilterParser.Parse(@"userName ew ""z""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("ew");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_pr()
     {
         ScimFilterNode? n = ScimFilterParser.Parse("displayName pr");
@@ -58,7 +58,7 @@ public sealed class ScimFilterParserTests
         p.AttributePath.Should().Be("displayName");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_and_left_associative()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""a"" and active eq true");
@@ -67,7 +67,7 @@ public sealed class ScimFilterParserTests
         a.Right.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_or()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""a"" or userName eq ""b""");
@@ -76,7 +76,7 @@ public sealed class ScimFilterParserTests
         o.Right.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_not()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"not (userName eq ""x"")");
@@ -84,7 +84,7 @@ public sealed class ScimFilterParserTests
         nn.Inner.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_nested_and_or()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(
@@ -94,7 +94,7 @@ public sealed class ScimFilterParserTests
         root.Right.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_triple_and()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(
@@ -104,7 +104,7 @@ public sealed class ScimFilterParserTests
         outer.Right.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_not_and_combo()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"(not (active eq ""false"")) and userName pr");
@@ -113,7 +113,7 @@ public sealed class ScimFilterParserTests
         a.Right.Should().BeOfType<ScimPresentNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_or_with_not_branch()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""a"" or (not (externalId eq ""e""))");
@@ -121,20 +121,20 @@ public sealed class ScimFilterParserTests
         o.Right.Should().BeOfType<ScimNotNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_deep_parentheses()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"((userName eq ""z""))");
         n.Should().BeOfType<ScimComparisonNode>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_ne()
     {
         ScimFilterParser.Parse(@"userName ne ""blocked""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("ne");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_externalId_eq_quoted_with_spaces()
     {
         ScimFilterNode? n = ScimFilterParser.Parse(@"externalId eq ""archlucid:admins""");
@@ -142,7 +142,7 @@ public sealed class ScimFilterParserTests
         c.Value.Should().Be("archlucid:admins");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_trailing_input_throws()
     {
         Action act = () => ScimFilterParser.Parse(@"userName eq ""a"" junk");

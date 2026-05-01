@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class SwaggerDocumentGenerationSmokeTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetSwagger_v1_succeeds_for_default_contract_test_host()
     {
         using WebApplicationFactory<Program> factory = new OpenApiContractWebAppFactory();

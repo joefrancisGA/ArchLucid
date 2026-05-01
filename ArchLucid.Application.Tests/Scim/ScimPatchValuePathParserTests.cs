@@ -1,4 +1,4 @@
-using ArchLucid.Application.Scim.Patching;
+﻿using ArchLucid.Application.Scim.Patching;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ public sealed class ScimPatchValuePathParserTests
 {
     private static readonly Guid SampleId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_flat_members_returns_flat_outcome()
     {
         ScimPatchPathParseOutcome o = ScimPatchValuePathParser.ParseForGroupMemberPath("members");
@@ -17,7 +17,7 @@ public sealed class ScimPatchValuePathParserTests
         flat.AttributePath.Should().Be("members");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_filtered_value_eq_returns_user_and_null_sub_attribute()
     {
         string path = $"""members[value eq "{SampleId:D}"]""";
@@ -27,7 +27,7 @@ public sealed class ScimPatchValuePathParserTests
         f.SubAttribute.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_filtered_value_eq_dot_active_sets_sub_attribute()
     {
         string path = $"""members[value eq "{SampleId:D}"].active""";
@@ -36,7 +36,7 @@ public sealed class ScimPatchValuePathParserTests
         f.SubAttribute.Should().Be("active");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_unclosed_bracket_invalid_path_outcome()
     {
         ScimPatchPathParseOutcome o =
@@ -46,7 +46,7 @@ public sealed class ScimPatchValuePathParserTests
         invalid.Detail.Should().Contain("Unclosed '['");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_members_value_ne_returns_not_implemented_outcome()
     {
         string path = $"""members[value ne "{SampleId:D}"]""";
@@ -56,7 +56,7 @@ public sealed class ScimPatchValuePathParserTests
         ni.Detail.Should().Contain("Only 'value eq");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForGroup_other_attribute_filtered_returns_not_implemented_when_eq_shape()
     {
         string path = $"""roles[value eq "{SampleId:D}"]""";
@@ -67,7 +67,7 @@ public sealed class ScimPatchValuePathParserTests
         ni.Detail.Should().Contain("roles");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForUser_filtered_members_throws_ScimPatchException_not_implemented()
     {
         string path = $"""members[value eq "{SampleId:D}"]""";
@@ -78,7 +78,7 @@ public sealed class ScimPatchValuePathParserTests
         ex.ScimType.Should().Be("notImplemented");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForUser_other_attribute_value_eq_guid_not_implemented()
     {
         string path = """emails[value eq "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"]""";
@@ -89,7 +89,7 @@ public sealed class ScimPatchValuePathParserTests
         ex.ScimType.Should().Be("notImplemented");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseForUser_invalid_guid_in_filter_invalid_path()
     {
         Action act = () => ScimPatchValuePathParser.ParseForUserFlatPatchPath(@"members[value eq ""x""]");

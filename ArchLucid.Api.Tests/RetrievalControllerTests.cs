@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Planning;
+﻿using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Queries;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class RetrievalControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Search_returns_bad_request_when_query_missing()
     {
         Mock<IRetrievalQueryService> retrieval = new();
@@ -33,7 +33,7 @@ public sealed class RetrievalControllerTests
         retrieval.Verify(r => r.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Search_clamps_top_k_below_one_to_eight()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -61,7 +61,7 @@ public sealed class RetrievalControllerTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Search_caps_top_k_at_fifty()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

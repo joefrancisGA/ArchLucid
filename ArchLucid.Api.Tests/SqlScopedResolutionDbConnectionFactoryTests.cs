@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Persistence.Connections;
@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class SqlScopedResolutionDbConnectionFactoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateOpenConnectionAsync_resolves_ISqlConnectionFactory_from_scope()
     {
         SqlConnection expected = new();
@@ -39,7 +39,7 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
         conn.Should().BeSameAs(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void CreateConnection_returns_unopened_SqlConnection()
     {
         ServiceCollection services = [];
