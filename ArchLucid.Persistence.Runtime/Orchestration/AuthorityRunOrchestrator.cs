@@ -355,6 +355,7 @@ public sealed class AuthorityRunOrchestrator(
 
         string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
         string publicBaseUrl = NormalizePublicSiteBaseUrl(publicSiteOptions.CurrentValue.BaseUrl);
+        Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);
         object[] findingLinks = BuildAuthorityRunCompletedFindingLinks(run.RunId, findingsSnapshot.Findings, publicBaseUrl);
         object integrationPayload = new
         {
@@ -364,6 +365,7 @@ public sealed class AuthorityRunOrchestrator(
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,
             projectId = scope.ProjectId,
+            previousRunId,
             findings = findingLinks
         };
 
@@ -430,6 +432,29 @@ public sealed class AuthorityRunOrchestrator(
         return trimmed.Length == 0 ? fallback : trimmed;
     }
 
+    private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
+    {
+        IReadOnlyList<RunRecord> recent = await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
+
+        foreach (RunRecord candidate in recent)
+        {
+            if (candidate.RunId == run.RunId)
+                continue;
+
+
+            if (candidate.ArchivedUtc is not null)
+                continue;
+
+
+            if (candidate.GoldenManifestId is null)
+                continue;
+
+            return candidate.RunId;
+        }
+
+        return null;
+    }
+
     /// <summary>Per-finding deep links for integration consumers (webhooks, SIEM enrichment).</summary>
     private static object[] BuildAuthorityRunCompletedFindingLinks(Guid runId, List<Finding> findings, string publicBaseUrl)
     {
@@ -448,7 +473,7 @@ public sealed class AuthorityRunOrchestrator(
 
             string id = f.FindingId.Trim();
             string deepLink = $"{publicBaseUrl}/runs/{runId:D}/findings/{Uri.EscapeDataString(id)}";
-            rows.Add(new { findingId = id, deepLinkUrl = deepLink });
+            rows.Add(new { findingId = id, deepLinkUrl = deepLink, severity = f.Severity.ToString() });
         }
 
         return [.. rows];

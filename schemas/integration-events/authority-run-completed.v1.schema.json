@@ -19,6 +19,11 @@
     "tenantId": { "type": "string", "format": "uuid" },
     "workspaceId": { "type": "string", "format": "uuid" },
     "projectId": { "type": "string", "format": "uuid" },
+    "previousRunId": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Prior committed run in the same tenant/workspace/project scope with a golden manifest, when one exists."
+    },
     "findings": {
       "type": "array",
       "description": "Optional per-finding deep links for operators and webhook consumers (additive; absent when no findings).",
@@ -27,7 +32,8 @@
         "required": ["findingId", "deepLinkUrl"],
         "properties": {
           "findingId": { "type": "string" },
-          "deepLinkUrl": { "type": "string", "format": "uri" }
+          "deepLinkUrl": { "type": "string", "format": "uri" },
+          "severity": { "type": "string", "description": "Finding severity name (e.g. High, Medium)." }
         },
         "additionalProperties": false
       }

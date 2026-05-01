@@ -30,4 +30,10 @@ public sealed class AzureDevOpsIntegrationOptions
 
     /// <summary>Optional link shown on PR status (e.g. operator run detail URL).</summary>
     public string StatusTargetUrl { get; set; } = string.Empty;
+
+    /// <summary>ArchLucid API base URL (no trailing slash), e.g. <c>https://api.contoso.archlucid.net</c> — used for <c>GET /v1/compare</c>.</summary>
+    public string ArchLucidApiBaseUrl { get; set; } = string.Empty;
+
+    /// <summary>API key for <c>X-Api-Key</c> when calling ArchLucid compare from the worker.</summary>
+    public string ArchLucidApiKey { get; set; } = string.Empty;
 }

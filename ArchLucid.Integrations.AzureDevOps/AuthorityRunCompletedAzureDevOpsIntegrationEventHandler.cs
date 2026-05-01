@@ -65,9 +65,45 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
 
         AzureDevOpsPullRequestTarget target = new(o.RepositoryId, o.PullRequestId);
 
-        await _decorator
-            .PostManifestDeltaAsync(payload.ManifestId, payload.RunId, target, cancellationToken)
-            .ConfigureAwait(false);
+        IReadOnlyList<AuthorityRunCompletedFindingLink> links = MapFindingLinks(payload.Findings);
+
+        AzureDevOpsManifestDeltaRequest request = new(
+            payload.ManifestId,
+            payload.RunId,
+            payload.TenantId,
+            payload.WorkspaceId,
+            payload.ProjectId,
+            payload.PreviousRunId,
+            links);
+
+        await _decorator.PostManifestDeltaAsync(request, target, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static IReadOnlyList<AuthorityRunCompletedFindingLink> MapFindingLinks(
+        IReadOnlyList<AuthorityRunCompletedFindingRow>? rows)
+    {
+        if (rows is null || rows.Count == 0)
+            return [];
+
+        List<AuthorityRunCompletedFindingLink> links = new(capacity: rows.Count);
+
+        foreach (AuthorityRunCompletedFindingRow row in rows)
+        {
+            if (row is null) continue;
+
+
+            if (string.IsNullOrWhiteSpace(row.FindingId)) continue;
+
+
+            if (string.IsNullOrWhiteSpace(row.DeepLinkUrl)) continue;
+
+            links.Add(new AuthorityRunCompletedFindingLink(
+                row.FindingId.Trim(),
+                row.DeepLinkUrl.Trim(),
+                string.IsNullOrWhiteSpace(row.Severity) ? null : row.Severity.Trim()));
+        }
+
+        return links;
     }
 
     private sealed record AuthorityRunCompletedPayload(
@@ -76,7 +112,11 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
         Guid ManifestId,
         Guid TenantId,
         Guid WorkspaceId,
-        Guid ProjectId);
+        Guid ProjectId,
+        Guid? PreviousRunId,
+        IReadOnlyList<AuthorityRunCompletedFindingRow>? Findings);
+
+    private sealed record AuthorityRunCompletedFindingRow(string FindingId, string DeepLinkUrl, string? Severity);
 }
 
 internal static class AuthorityRunCompletedPayloadJson

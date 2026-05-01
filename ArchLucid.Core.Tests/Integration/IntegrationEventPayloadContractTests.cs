@@ -27,13 +27,15 @@ public sealed class IntegrationEventPayloadContractTests
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
+            previousRunId = (Guid?)Guid.NewGuid(),
             findings = new[]
             {
                 new
                 {
                     findingId = "finding-primary",
                     deepLinkUrl = new Uri($"https://archlucid.net/runs/{runId:D}/findings/finding-primary")
-                        .ToString()
+                        .ToString(),
+                    severity = "High"
                 }
             }
         };

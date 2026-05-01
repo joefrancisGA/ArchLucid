@@ -4,11 +4,11 @@ namespace ArchLucid.Contracts.Abstractions.Integrations;
 public interface IAzureDevOpsPullRequestDecorator
 {
     /// <summary>
-    ///     After a golden manifest commit, posts a PR status and a thread comment summarizing the run/manifest ids.
+    ///     After a golden manifest commit, posts a PR status and a thread comment: golden-manifest delta Markdown when
+    ///     compare can be loaded, otherwise a run summary with finding counts and an optional operator deep link.
     /// </summary>
     Task PostManifestDeltaAsync(
-        Guid goldenManifestId,
-        Guid runId,
+        AzureDevOpsManifestDeltaRequest request,
         AzureDevOpsPullRequestTarget target,
         CancellationToken cancellationToken);
 }
