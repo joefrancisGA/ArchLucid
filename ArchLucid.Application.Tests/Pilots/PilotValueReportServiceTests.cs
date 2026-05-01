@@ -1,9 +1,8 @@
-﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -64,7 +63,7 @@ public sealed class PilotValueReportServiceTests
         PilotValueReport? r = await sut.BuildAsync(anchor.AddHours(2), anchor.AddHours(1), CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.TotalRunsCommitted.Should().Be(0);
+        r.TotalRunsCommitted.Should().Be(0);
         r.TotalFindings.Should().Be(0);
         r.GovernancePendingApprovalsNow.Should().Be(0);
     }
@@ -89,7 +88,7 @@ public sealed class PilotValueReportServiceTests
                     "c1"));
 
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync("c1", 100, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Array.Empty<RunSummary>(), false, (string?)null));
+            .ReturnsAsync((Array.Empty<RunSummary>(), false, null));
 
         runs.Setup(r => r.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Detail(RunA, from.AddDays(1), committedUtc: from.AddDays(1).AddMinutes(30), findings: []));
@@ -145,14 +144,14 @@ public sealed class PilotValueReportServiceTests
         PilotValueReport? r = await sut.BuildAsync(from, to, CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.TotalRunsCommitted.Should().Be(2);
+        r.TotalRunsCommitted.Should().Be(2);
         r.TotalFindings.Should().Be(2);
         r.FindingsBySeverity.Critical.Should().Be(1);
         r.FindingsBySeverity.Medium.Should().Be(1);
         r.TotalRecommendationsProduced.Should().Be(1);
         r.GovernanceApprovals.Should().Be(1);
         r.GovernancePendingApprovalsNow.Should().Be(3);
-        r.UniqueAgentTypes.Should().Contain(new[] { nameof(AgentType.Topology), nameof(AgentType.Compliance) });
+        r.UniqueAgentTypes.Should().Contain([nameof(AgentType.Topology), nameof(AgentType.Compliance)]);
         r.AveragePipelineCompletionSeconds.Should().NotBeNull();
     }
 
@@ -168,7 +167,7 @@ public sealed class PilotValueReportServiceTests
 
         Mock<IRunDetailQueryService> runs = new();
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(([inside, old], false, (string?)null));
+            .ReturnsAsync(([inside, old], false, null));
 
         runs.Setup(r => r.GetRunDetailAsync(RunIn, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Detail(RunIn, inside.CreatedUtc, inside.CreatedUtc.AddMinutes(5), []));
@@ -182,7 +181,7 @@ public sealed class PilotValueReportServiceTests
         PilotValueReport? r = await sut.BuildAsync(from, to, CancellationToken.None);
 
         r.Should().NotBeNull();
-        r!.TotalRunsCommitted.Should().Be(1);
+        r.TotalRunsCommitted.Should().Be(1);
         runs.Verify(x => x.GetRunDetailAsync(RunOld, It.IsAny<CancellationToken>()), Times.Never);
     }
 

@@ -2,9 +2,9 @@
 
 # ArchLucid Trust Center
 
-<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-04-27 -->
+<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-05-01 -->
 
-**Last reviewed (UTC):** 2026-04-27
+**Last reviewed (UTC):** 2026-05-01
 
 This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **V1.1-scheduled** work, **engagements in flight**, or **third-party confirmed** only where a linked file states that explicitly.
 
@@ -30,7 +30,7 @@ Procurement teams can pull every artefact below in one ZIP — generated on-dema
 
 > **[⬇ Download evidence pack (ZIP)](https://api.archlucid.net/v1/marketing/trust-center/evidence-pack.zip)**
 
-The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-conducted security self-assessment (not third-party audited), 2026-Q2 pen-test SoW, and the audit coverage matrix — plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted pen-test summary (V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10) and the PGP key (also V1.1).
+The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-conducted security self-assessment (not third-party audited), 2026-Q2 pen-test SoW **template** (reserved for a **V2** vendor cycle), and the audit coverage matrix — plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted **third-party** pen-test summary (**V2** per `docs/library/V1_DEFERRED.md` §6c) and the PGP key (V1.1).
 
 ---
 
@@ -39,8 +39,9 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 | Control | Status | Evidence | Last reviewed |
 |---------|--------|----------|---------------|
 | SOC 2 Common Criteria mapping (self-assessment, not attestation) | Self-asserted | [SOC2_SELF_ASSESSMENT_2026.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/SOC2_SELF_ASSESSMENT_2026.md), [SOC2_ROADMAP.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/SOC2_ROADMAP.md) | 2026-04-24 |
-| Independent penetration test programme (vendor-led) | V1.1-scheduled | [V1_DEFERRED.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_DEFERRED.md) | 2026-04-24 |
-| 2026-Q2 penetration test (Aeronova Red Team LLC) | Engagement in flight | [2026-Q2-SOW.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-SOW.md) | 2026-04-24 |
+| Independent penetration test programme (third-party vendor-led) | **V2-planned** — no vendor committed for V1 | [V1_DEFERRED.md §6c](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_DEFERRED.md), [V1_SCOPE.md §3](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_SCOPE.md) | 2026-05-01 |
+| 2026-Q2 owner-conducted penetration-style assessment | In progress / tracked | [2026-Q2-OWNER-CONDUCTED.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) | 2026-05-01 |
+| Third-party pen-test SoW template (no awarded vendor) | Template only — use when V2 vendor selected | [2026-Q2-SOW.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-SOW.md) | 2026-05-01 |
 | SOC 2 Type II attestation (CPA) — procurement status | Self-asserted | [SOC2_STATUS_PROCUREMENT.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/SOC2_STATUS_PROCUREMENT.md) (states **not yet issued**; interim evidence is the self-assessment above) | 2026-04-24 |
 | Durable audit catalog (append-only design) | Self-asserted | [AUDIT_COVERAGE_MATRIX.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/AUDIT_COVERAGE_MATRIX.md) | 2026-04-24 |
 | V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/BUYER_SCALABILITY_FAQ.md) | 2026-04-29 |
@@ -67,17 +68,17 @@ ArchLucid publishes internal analysis, architecture, and control-mapping documen
 
 ## V1.1-scheduled controls
 
-Work tracked for a future release window; see linked deferral register.
+Work tracked for a future release window; see linked deferral register (e.g. PGP coordinated-disclosure key). **Third-party** pen testing is **V2**, not V1.1 — see [V1_DEFERRED.md §6c](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_DEFERRED.md).
 
-- [Pen test and other deferred assurance items](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_DEFERRED.md)
+- [Deferred assurance and packaging (V1_DEFERRED)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_DEFERRED.md)
 
 ---
 
 ## Third-party engagements
 
-Formal vendor engagements are listed when awarded or in progress. Redacted findings are **not** published here.
+**V1:** There is **no** awarded third-party penetration-test vendor. **V1** assurance includes **owner-conducted** testing ([2026-Q2-OWNER-CONDUCTED.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)) plus CI and self-assessment evidence linked above.
 
-- **2026-Q2 — Aeronova Red Team LLC** — [Statement of work](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-SOW.md). Redacted summaries are NDA-gated; working copies stay under [pen-test-summaries/](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/README.md).
+**V2:** When a third-party programme is funded, publish the engagement here and use [2026-Q2-SOW.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/2026-Q2-SOW.md) / [pen-test-summaries/](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/README.md) as the working surface. Redacted findings remain **NDA-gated** until explicitly approved for wider distribution.
 
 ---
 

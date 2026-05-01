@@ -20,7 +20,7 @@
 
 ### 2. Can we see the latest penetration-test report?
 
-**Answer:** Formal third-party engagements follow an SoW (**[2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md)**). Redacted customer-facing summaries are distributed **under NDA** consistent with **`docs/PENDING_QUESTIONS.md`** posture on pen-test disclosures.
+**Answer:** **V1** uses **owner-conducted** penetration-style testing and internal assessments (see [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). **Third-party** vendor engagements are **V2** — when funded, they follow an SoW shaped like **[2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md)** (template until a vendor is selected). There is **no** awarded external vendor for V1 (**owner 2026-05-01**). Redacted assessor summaries, when they exist, are distributed **under NDA** per **`docs/PENDING_QUESTIONS.md`** and [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c. **V1 quality assessments must not** penalize the product for lacking a third-party report.
 
 ---
 
@@ -76,8 +76,8 @@
 
 | Window | Checkpoint |
 |--------|-----------|
-| Q2–Q3 FY26 | Aeronova **pen-test engagement** (**[Trust Center posture](../trust-center.md)**) |
-| Rolling | **Self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**) |
+| V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](../trust-center.md)**, **[V1_DEFERRED.md §6c](../library/V1_DEFERRED.md)** |
+| Rolling | **Owner-conducted** pen testing + **self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**), **[2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** |
 | Future (budgeted) | **SOC 2 Type I readiness** milestone |
 | Subsequent | **SOC 2 Type II** (~6–12 months operating effectiveness evidence) |
 

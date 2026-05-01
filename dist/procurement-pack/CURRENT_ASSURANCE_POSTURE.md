@@ -2,7 +2,7 @@
 
 # ArchLucid — Current Assurance Posture
 
-**Date:** 2026-04-27
+**Date:** 2026-05-01
 **Classification:** Buyer-facing (include in procurement pack ZIP)
 
 This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Items are categorized as **Completed**, **In-flight**, or **Planned** — no over-claiming.
@@ -86,7 +86,8 @@ ArchLucid runs automated security checks on every pull request and merge to main
 
 | Engagement | Status | Detail |
 |-----------|--------|--------|
-| 2026-Q2 third-party pen test (Aeronova Red Team LLC) | **In-flight** — SoW awarded 2026-04-21; kickoff 2026-05-06 | API, operator UI, hosted SaaS data plane |
+| 2026-Q2 third-party pen test (external vendor) | **V2-planned** — no vendor awarded; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, operator UI, hosted SaaS data plane — confirm in executed SoW |
+| 2026-Q2 owner-conducted penetration-style assessment | **In-flight** / tracked | [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) |
 | Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) |
 
 **Access to pen-test results:** Redacted summaries are available **under NDA only**. Contact `security@archlucid.net`.

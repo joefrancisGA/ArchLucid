@@ -1,5 +1,4 @@
-﻿using ArchLucid.Application.Common;
-using ArchLucid.Application.Runs;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -89,7 +88,10 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             Status = ArchitectureRunStatus.Created,
             CreatedUtc = DateTime.UtcNow,
         };
-        EvidenceBundle bundle = new() { EvidenceBundleId = "eb-audit-be" };
+        EvidenceBundle bundle = new()
+        {
+            EvidenceBundleId = "eb-audit-be"
+        };
         List<AgentTask> tasks =
         [
             new()

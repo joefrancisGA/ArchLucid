@@ -1,11 +1,10 @@
-﻿using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;

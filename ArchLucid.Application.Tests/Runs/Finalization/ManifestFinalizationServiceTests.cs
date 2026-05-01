@@ -1,12 +1,10 @@
-﻿using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence;
@@ -17,8 +15,6 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Moq;
-
-using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Tests.Runs.Finalization;
 
@@ -205,7 +201,7 @@ public sealed class ManifestFinalizationServiceTests
         Mock<IGoldenManifestRepository> golden = new();
         ManifestDocument persisted = CreateMinimalManifest(runId, findingsId, traceId);
         golden.Setup(g => g.SaveAsync(
-                It.IsAny<Cm.GoldenManifest>(),
+                It.IsAny<GoldenManifest>(),
                 scope,
                 It.IsAny<SaveContractsManifestOptions>(),
                 It.IsAny<IManifestHashService>(),
@@ -344,7 +340,7 @@ public sealed class ManifestFinalizationServiceTests
             ActorUserId = "u1",
             ActorUserName = "User One",
             ManifestModel = model,
-            Contract = new Cm.GoldenManifest
+            Contract = new GoldenManifest
             {
                 RunId = runId.ToString("N"),
                 SystemName = "Sys",

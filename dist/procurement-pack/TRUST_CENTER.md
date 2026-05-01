@@ -8,7 +8,7 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-04-22
+**Last reviewed:** 2026-05-01
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -31,16 +31,16 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ## Penetration testing and security assessments
 
-**Owner-conducted (interim):** until a funded third-party engagement completes, ArchLucid may publish an **internal security self-assessment** (not a pen test, not SOC 2). Canonical assessment: [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md).
+**Owner-conducted (V1):** **V1** penetration-style testing and related evidence are **owner-led** (not a third-party attestation). Track progress in [`../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md). **Independent quality assessments must not** penalize V1 for lacking an **external** third-party pen test — see [`../library/V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c (owner 2026-05-01).
 
-**Third-party (procurement-grade):** formal external pen tests are **scheduled per customer / release train**, not implied by CI smoke alone. Procurement-ready templates:
+**Third-party (V2, procurement-grade):** funded **external** vendor engagements are **not** committed in V1; they are **V2** — use procurement templates below when planning. Procurement posture: redacted customer summaries may be distributed **under NDA** per owner decisions in **`docs/PENDING_QUESTIONS.md`**.
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
-- [2026 Q2 — **awarded** SoW (Aeronova Red Team LLC)](../security/pen-test-summaries/2026-Q2-SOW.md)
+- [2026 Q2 — SoW **template** (vendor TBD; use when V2 vendor is selected)](../security/pen-test-summaries/2026-Q2-SOW.md)
 - [2026 Q2 — redacted summary working copy](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (assessor narrative — **not** a public artefact)
 
-**NDA-gated pen-test summaries (decision 2026-04-22 — [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 20):** Pen-test redacted summaries are made available **under NDA only**; the public Trust Center records the existence of the engagement and the high-level posture. To request the most recent redacted summary, contact **`security@archlucid.net`**. The discipline folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of Aeronova deliverables.
+**NDA-gated pen-test summaries:** When a **third-party** assessor delivers a report **(V2)**, redacted summaries are made available **under NDA** as agreed in that SoW; the public Trust Center records the existence of the engagement and the high-level posture. Contact **`security@archlucid.net`**. The folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of assessor deliverables.
 
 **Questionnaires (pre-filled):**
 
@@ -55,8 +55,8 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 | Engagement | Vendor | Scope | Completed (UTC) | Summary access |
 |------------|--------|-------|-----------------|----------------|
-| **2026-Q2 owner-conducted penetration-style assessment** | ArchLucid internal | Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage) — **distinct from Aeronova artefact deliverables** | Window tracked in **[`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** (stub until closed) | **NDA-aligned public stub** — quantitative findings withheld; procurement detail under **`security@archlucid.net`** alongside Trust Center paragraph above |
-| 2026-Q2 third-party penetration test | Aeronova Red Team LLC | API, operator UI, hosted SaaS data plane | Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight — see [`pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)) | NDA-only — email `security@archlucid.net` once assessor delivers redacted summary |
+| **2026-Q2 owner-conducted penetration-style assessment** | ArchLucid internal | Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage) | Window tracked in **[`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** (stub until closed) | **NDA-aligned public stub** — quantitative findings withheld; procurement detail under **`security@archlucid.net`** alongside Trust Center paragraph above |
+| Third-party penetration test (vendor TBD) | **V2-planned** — no vendor committed for V1 | API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW) | Not scheduled — use **[`2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)** template when engaging (**V2**) | NDA-only when executed — email `security@archlucid.net` after assessor delivers redacted summary |
 | Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
 | Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility` and root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) |
 | Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |

@@ -1,16 +1,12 @@
-﻿using System.Data;
+using System.Data;
 using System.Reflection;
 
-using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence;
@@ -23,8 +19,6 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 
 using Moq;
-
-using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Tests.Runs.Finalization;
 
@@ -136,7 +130,9 @@ public sealed class ManifestFinalizationConcurrencyTests
 
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -155,7 +151,7 @@ public sealed class ManifestFinalizationConcurrencyTests
 
         Mock<IGoldenManifestRepository> golden = new();
         golden.Setup(g => g.SaveAsync(
-                It.IsAny<Cm.GoldenManifest>(),
+                It.IsAny<GoldenManifest>(),
                 scope,
                 It.IsAny<SaveContractsManifestOptions>(),
                 It.IsAny<IManifestHashService>(),
@@ -165,7 +161,7 @@ public sealed class ManifestFinalizationConcurrencyTests
                 It.IsAny<ManifestDocument>()))
             .ReturnsAsync(
                 (
-                    Cm.GoldenManifest _,
+                    GoldenManifest _,
                     ScopeContext _,
                     SaveContractsManifestOptions _,
                     IManifestHashService _,
@@ -216,7 +212,9 @@ public sealed class ManifestFinalizationConcurrencyTests
 
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -336,7 +334,7 @@ public sealed class ManifestFinalizationConcurrencyTests
             ActorUserId = "u1",
             ActorUserName = "User One",
             ManifestModel = model,
-            Contract = new Cm.GoldenManifest
+            Contract = new GoldenManifest
             {
                 RunId = runId.ToString("N"),
                 SystemName = "Sys",

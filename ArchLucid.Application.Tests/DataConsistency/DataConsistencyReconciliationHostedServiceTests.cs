@@ -1,4 +1,4 @@
-﻿using ArchLucid.Application.DataConsistency;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Persistence;
@@ -45,7 +45,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             [],
             IsHealthy: true);
 
-        ServiceCollection sc = new();
+        ServiceCollection sc = [];
         sc.AddSingleton<DataConsistencyReconciliationHealthState>();
         sc.AddScoped<IDataConsistencyReconciliationService>(_ => new StubReconciliationService(expected));
         sc.AddScoped(_ => Mock.Of<IIntegrationEventOutboxRepository>());
@@ -81,7 +81,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         hasRun.Should().BeTrue();
         error.Should().BeNull();
         report.Should().NotBeNull();
-        report!.IsHealthy.Should().BeTrue();
+        report.IsHealthy.Should().BeTrue();
 
         publisher.Verify(
             p => p.PublishAsync(
@@ -108,7 +108,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             .Returns<string, Func<CancellationToken, Task>, CancellationToken>(
                 static (_, work, ct) => work(ct));
 
-        ServiceCollection sc = new();
+        ServiceCollection sc = [];
         sc.AddSingleton<DataConsistencyReconciliationHealthState>();
         sc.AddScoped<IDataConsistencyReconciliationService>(_ => new ThrowingReconciliationService());
         sc.AddScoped(_ => Mock.Of<IIntegrationEventOutboxRepository>());

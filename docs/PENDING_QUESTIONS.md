@@ -1,11 +1,12 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-05-01:** External **third-party** pen test release window → **V2**; **V1** = owner-conducted pen test; **no** vendor committed; V1 quality assessments **must not** penalize lack of third-party pen test — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 > **Updated 2026-04-27:** Resolved two long-standing deferred items:
 > 1. Authentication Strategy for SaaS/On-Prem default: Require Entra ID or explicit API keys (Resolved).
 > 2. Unified Error Responses for Hidden UI Features: 404 Not Found (Resolved).
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-29 (items **12**–**13** — **12** public `/accessibility` + `accessibility@archlucid.net`; **13** governance SoD OID columns; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open; **audit async path policy Resolved 2026-04-29**).
+**Last updated:** 2026-05-01 (**external third-party pen test** → **V2**; V1 = **owner-conducted** pen test; **no** vendor commitment; V1 quality assessments **must not** penalize lack of third-party pen test — see item **2**, **5**, **20** and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -162,10 +163,10 @@ Verbatim owner decision tables for **2026-04-22** (assessment + ADR 0030), **202
 
 1. **Design-partner row (`DESIGN_PARTNER_NEXT`)** — When a **named** design partner (not PLG) is authorized, replace `<<CUSTOMER_NAME>>` in [`DESIGN_PARTNER_NEXT_CASE_STUDY.md`](go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md) and move the table row through **Drafting → Customer review → Published** per [`reference-customers/README.md`](go-to-market/reference-customers/README.md).
 
-2. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
+2. **External pen-test vendor (third-party)** — **V2** — when funded, select vendor, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery. **Owner 2026-05-01:** there is **no** commitment to Aeronova or any other third-party vendor; **V1** pen testing is **owner-conducted** ([`2026-Q2-OWNER-CONDUCTED.md`](security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)). **Independent quality assessments must not** penalize V1 for lacking a third-party pen test.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`** is canonical. Trust Center, `SECURITY.md`, `INCIDENT_COMMUNICATIONS_POLICY.md`, and `security.txt` all aligned in this change set; the eventual PGP UID must use the same address.
-    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Pen-test execution + summary publication are no longer V1 obligations — see *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* Q10 in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. Trust Center "Recent assurance activity" wording stays unchanged in V1.
+    - **Release window (owner 2026-05-01):** **V2** for third-party engagement + assessor deliverables. Prior "V1.1" pen-test publication framing is **superseded** for external scope — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c and [`V1_SCOPE.md`](library/V1_SCOPE.md) §3.
 
 3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key. **Mailbox alignment (Resolved 2026-04-21): the UID is `security@archlucid.net`.** Items 10 / 21 still own the actual key generation.
 
@@ -192,7 +193,7 @@ Verbatim owner decision tables for **2026-04-22** (assessment + ADR 0030), **202
 
 These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md) § 9 and the six Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`](archive/quality/2026-04-21-assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md). Each is **owner-only** — the assistant cannot answer them from repository state.
 
-5. **External pen-test scope and budget** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window. Picks up where item 2 above leaves off.
+5. **External (third-party) pen-test scope and budget** — **V2** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window, funding. Picks up where item 2 above leaves off. **Does not** gate V1; V1 uses **owner-conducted** pen testing per [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 
 6. **SOC 2 Type I assessor + audit period start date** — **Stays deferred (Resolved 2026-04-21).** Interim posture: self-assessment + Trust Center honesty. **Revisit trigger:** owner-defined ARR threshold — assistant cannot set the dollar figure; the Trust Center compliance-and-certifications row was rewritten in this change set to make the trigger explicit. Sub-question still open: **what ARR figure?**
 
@@ -247,10 +248,10 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 19. **First-paying-tenant graduation owner** — who watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`? (Specific to Improvement 1 / Prompt 1.)
 
-20. **Pen-test execution window for the awarded Aeronova SoW** — schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. (Improvement 2 / Prompt 2.)
+20. **Third-party pen-test execution window (V2)** — when a vendor is selected under item **2**, schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. **Owner 2026-05-01:** no Aeronova or other vendor awarded; this item applies only to a **future V2** third-party cycle.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`**. All public surfaces aligned in this change set; assessor comms must use the same address.
-    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Pen-test execution + redacted summary publication are no longer V1 obligations — see Q10 / Q11 in *Resolved 2026-04-23 (sixth pass)* in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B).
+    - **Release window (owner 2026-05-01):** **V2** — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c. Historical Q10 / Q11 text in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) reflected an earlier posture; **external** pen test is **not** a V1.1 scoring obligation.
 
 21. **PGP key custodian for `security@archlucid.net`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
 
@@ -328,7 +329,7 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
 - **Next pass:** **2026-04-28.**
-- **Trigger to break cadence:** any of the three "score-moving" owner events (first PLG row `Published`, Marketplace listing live, Aeronova pen test summary published) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact.
+- **Trigger to break cadence:** any of these "score-moving" owner events — first PLG row `Published`, Marketplace listing live, or **V2** third-party pen-test summary published (when that programme completes) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact. **V1** does **not** require a third-party pen-test summary for scoring; owner-conducted V1 testing does **not** trigger this bullet by itself.
 - **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded Cursor/quality packs (except the latest **68.60** pair at repo root) live under **[`docs/archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**. Full path listing: **[`docs/library/DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md)**.
 
 ---

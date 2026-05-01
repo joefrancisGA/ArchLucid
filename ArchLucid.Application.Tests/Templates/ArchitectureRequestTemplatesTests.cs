@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Templates;
@@ -16,14 +16,14 @@ public sealed class ArchitectureRequestTemplatesTests
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public static TheoryData<Func<string?, ArchitectureRequest>> TemplateFactories => new()
-    {
+    public static TheoryData<Func<string?, ArchitectureRequest>> TemplateFactories =>
+    [
         ArchitectureRequestTemplates.MicroservicesWebPlatform,
         ArchitectureRequestTemplates.MonolithMigrationAssessment,
         ArchitectureRequestTemplates.EventDrivenProcessingPipeline,
         ArchitectureRequestTemplates.CloudNativeMigration,
         ArchitectureRequestTemplates.RegulatedHealthcareSystem
-    };
+    ];
 
     [SkippableFact]
     public void Summaries_has_five_unique_template_ids_aligned_with_catalog()
@@ -97,7 +97,7 @@ public sealed class ArchitectureRequestTemplatesTests
         ArchitectureRequest? restored = JsonSerializer.Deserialize<ArchitectureRequest>(json, JsonRoundTripOptions);
 
         restored.Should().NotBeNull();
-        restored!.RequestId.Should().Be(original.RequestId);
+        restored.RequestId.Should().Be(original.RequestId);
         restored.Description.Should().Be(original.Description);
         restored.SystemName.Should().Be(original.SystemName);
         restored.Environment.Should().Be(original.Environment);

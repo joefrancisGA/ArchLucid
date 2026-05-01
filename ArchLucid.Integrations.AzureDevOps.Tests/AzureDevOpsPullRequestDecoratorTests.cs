@@ -20,13 +20,13 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
     {
         List<HttpRequestMessage> captured = [];
         using HttpMessageHandler stub = new CapturingHandler(captured);
-        using HttpClient httpClient = new(stub, disposeHandler: false);
+        using HttpClient httpClient = new(stub, false);
 
         AzureDevOpsIntegrationOptions opt = new()
         {
             Organization = "contoso",
             Project = "Fabrikam",
-            PersonalAccessToken = "pat-test-token",
+            PersonalAccessToken = "pat-test-token"
         };
 
         AzureDevOpsPullRequestDecorator sut = new(
@@ -43,8 +43,8 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-            PreviousRunId: null,
-            Findings: []);
+            null,
+            []);
 
         await sut.PostManifestDeltaAsync(request, target, CancellationToken.None);
 
@@ -68,13 +68,13 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
     {
         List<HttpRequestMessage> captured = [];
         using HttpMessageHandler stub = new CapturingHandler(captured);
-        using HttpClient httpClient = new(stub, disposeHandler: false);
+        using HttpClient httpClient = new(stub, false);
 
         AzureDevOpsIntegrationOptions opt = new()
         {
             Organization = "o",
             Project = "p",
-            PersonalAccessToken = "",
+            PersonalAccessToken = ""
         };
 
         AzureDevOpsPullRequestDecorator sut = new(
@@ -91,7 +91,8 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             null,
             []);
 
-        await sut.PostManifestDeltaAsync(request, new AzureDevOpsPullRequestTarget(Guid.NewGuid(), 1), CancellationToken.None);
+        await sut.PostManifestDeltaAsync(request, new AzureDevOpsPullRequestTarget(Guid.NewGuid(), 1),
+            CancellationToken.None);
 
         Assert.Empty(captured);
     }
@@ -110,16 +111,14 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             BaseRunId = baseRun,
             TargetRunId = targetRun,
             TotalDeltaCount = 3,
-            SummaryHighlights = ["decisions tightened"],
+            SummaryHighlights = ["decisions tightened"]
         };
 
-        string compareJson = JsonSerializer.Serialize(compareBody, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        });
+        string compareJson = JsonSerializer.Serialize(compareBody,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
         using RoutingHandler stub = new(compareJson);
-        using HttpClient httpClient = new(stub, disposeHandler: false);
+        using HttpClient httpClient = new(stub, false);
 
         AzureDevOpsIntegrationOptions opt = new()
         {
@@ -128,7 +127,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             PersonalAccessToken = "pat-test-token",
             ArchLucidApiBaseUrl = "https://api.test",
             ArchLucidApiKey = "test-key",
-            StatusTargetUrl = "https://ops.example",
+            StatusTargetUrl = "https://ops.example"
         };
 
         AzureDevOpsPullRequestDecorator sut = new(
@@ -137,13 +136,13 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             NullLogger<AzureDevOpsPullRequestDecorator>.Instance);
 
         AzureDevOpsManifestDeltaRequest request = new(
-            ManifestId: Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-            RunId: targetRun,
-            TenantId: tenantId,
-            WorkspaceId: workspaceId,
-            ProjectId: projectId,
-            PreviousRunId: baseRun,
-            Findings: [new AuthorityRunCompletedFindingLink("f1", "https://ops.example/x", "High")]);
+            Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            targetRun,
+            tenantId,
+            workspaceId,
+            projectId,
+            baseRun,
+            [new AuthorityRunCompletedFindingLink("f1", "https://ops.example/x", "High")]);
 
         await sut.PostManifestDeltaAsync(
             request,
@@ -167,8 +166,6 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
     private sealed class RoutingHandler(string compareJson) : HttpMessageHandler
     {
-        private readonly string _compareJson = compareJson;
-
         internal int CallCount
         {
             get;
@@ -193,7 +190,8 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             private set;
         }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             CallCount++;
             string url = request.RequestUri?.AbsoluteUri ?? string.Empty;
@@ -207,7 +205,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
                 return new HttpResponseMessage(HttpStatusCode.OK)
                 {
-                    Content = new StringContent(_compareJson, Encoding.UTF8, "application/json"),
+                    Content = new StringContent(compareJson, Encoding.UTF8, "application/json")
                 };
             }
 
@@ -228,11 +226,12 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             _captured = captured;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             HttpRequestMessage snapshot = new(request.Method, request.RequestUri)
             {
-                Version = request.Version,
+                Version = request.Version
             };
 
             if (request.Headers.Authorization is not null)
@@ -240,7 +239,6 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
                 snapshot.Headers.Authorization = new AuthenticationHeaderValue(
                     request.Headers.Authorization.Scheme,
                     request.Headers.Authorization.Parameter);
-
 
             _captured.Add(snapshot);
 
