@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Core;
 
 using FluentAssertions;
@@ -8,7 +8,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class AgentHandlerExecutionFailureReasonTests
 {
-    [Fact]
+    [SkippableFact]
     public void ResolveFailureReasonCode_llm_quota()
     {
         LlmTokenQuotaExceededException ex = new("q", DateTimeOffset.UtcNow.AddHours(1));

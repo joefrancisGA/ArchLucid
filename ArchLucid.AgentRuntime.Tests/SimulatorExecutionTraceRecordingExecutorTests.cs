@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+﻿using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -13,7 +13,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class SimulatorExecutionTraceRecordingExecutorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_InvokesRecorderOncePerAgentResult()
     {
         const string runId = "run-test-001";

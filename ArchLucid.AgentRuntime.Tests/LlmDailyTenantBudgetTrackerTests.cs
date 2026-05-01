@@ -1,4 +1,4 @@
-using ArchLucid.Core;
+﻿using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -13,7 +13,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class LlmDailyTenantBudgetTrackerTests
 {
-    [Fact]
+    [SkippableFact]
     public void EnsureWithinBudgetBeforeCall_when_under_limit_does_not_throw()
     {
         LlmDailyTenantBudgetOptions opts = new()
@@ -38,7 +38,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         tracker.EnsureWithinBudgetBeforeCall(tenant, "azure-openai");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureWithinBudgetBeforeCall_when_would_exceed_throws()
     {
         LlmDailyTenantBudgetOptions opts = new()
@@ -65,7 +65,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
         act.Should().Throw<LlmTokenQuotaExceededException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void RecordUsageAndMaybeWarn_warns_at_most_once_per_utc_day_when_threshold_crossed()
     {
         LlmDailyTenantBudgetOptions opts = new()

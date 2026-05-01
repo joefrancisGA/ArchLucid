@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -15,7 +15,7 @@ public sealed class FallbackAgentCompletionClientTests
     private static readonly LlmProviderDescriptor PrimaryDescriptor =
         LlmProviderDescriptor.ForAzureOpenAi(new Uri("https://primary.example"), "primary");
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimarySucceeds_SecondaryNeverCalled()
     {
         Mock<IAgentCompletionClient> primary = new();
@@ -36,7 +36,7 @@ public sealed class FallbackAgentCompletionClientTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimaryThrows429_SecondaryCalledAndResultReturned()
     {
         Mock<IAgentCompletionClient> primary = new();
@@ -58,7 +58,7 @@ public sealed class FallbackAgentCompletionClientTests
         secondary.Verify(s => s.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimaryThrows500_SecondaryCalled()
     {
         Mock<IAgentCompletionClient> primary = new();
@@ -78,7 +78,7 @@ public sealed class FallbackAgentCompletionClientTests
         secondary.Verify(s => s.CompleteJsonAsync("a", "b", It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimaryThrows400_ExceptionPropagated_SecondaryNotCalled()
     {
         Mock<IAgentCompletionClient> primary = new();
@@ -100,7 +100,7 @@ public sealed class FallbackAgentCompletionClientTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimaryThrowsOperationCanceledException_NoFallback()
     {
         Mock<IAgentCompletionClient> primary = new();
@@ -122,7 +122,7 @@ public sealed class FallbackAgentCompletionClientTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PrimaryAndSecondaryThrow_SecondaryExceptionPropagated()
     {
         Mock<IAgentCompletionClient> primary = new();

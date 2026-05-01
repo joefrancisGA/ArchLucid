@@ -1,11 +1,11 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class EchoAgentCompletionClientTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_topology_prompt_returns_topology_agent_type()
     {
         EchoAgentCompletionClient sut = new();
@@ -26,7 +26,7 @@ public sealed class EchoAgentCompletionClientTests
         json.Should().Contain("TASK-Y");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_compliance_prompt_returns_compliance_agent_type()
     {
         EchoAgentCompletionClient sut = new();
@@ -45,7 +45,7 @@ public sealed class EchoAgentCompletionClientTests
         json.Should().Contain("\"agentType\":\"Compliance\"");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_critic_prompt_returns_critic_agent_type()
     {
         EchoAgentCompletionClient sut = new();

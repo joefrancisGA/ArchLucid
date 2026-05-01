@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.AgentRuntime.Prompts;
@@ -26,25 +26,25 @@ public sealed class AgentPromptRegressionTests
     private const string RegressionRunId = "regression-prompt-structural-001";
     private static readonly IAgentSystemPromptCatalog PromptCatalog = AgentPromptCatalogTestFactory.Create();
 
-    [Fact]
+    [SkippableFact]
     public void Topology_system_prompt_hash_matches_baseline()
     {
         AssertPromptHash(AgentType.Topology, "topology");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compliance_system_prompt_hash_matches_baseline()
     {
         AssertPromptHash(AgentType.Compliance, "compliance");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Critic_system_prompt_hash_matches_baseline()
     {
         AssertPromptHash(AgentType.Critic, "critic");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Cost_agent_has_no_cataloged_system_prompt_simulator_wires_still_valid_under_contract()
     {
         IAgentHandler handler = new CostAgentHandler();
@@ -52,7 +52,7 @@ public sealed class AgentPromptRegressionTests
         Action act = () => PromptCatalog.Resolve(AgentType.Cost);
         act.Should()
             .Throw<InvalidOperationException>(
-                "CostAgentHandler does not use IAgentSystemPromptCatalog — there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
+                "CostAgentHandler does not use IAgentSystemPromptCatalog â€” there is no built-in Cost template in CachedAgentSystemPromptCatalog.");
 
         AgentResult result = await handler.ExecuteAsync(
             RegressionRunId,
@@ -70,25 +70,25 @@ public sealed class AgentPromptRegressionTests
         AssertStructuralValidationPasses(AgentType.Cost, result);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Topology_deterministic_simulator_result_satisfies_structural_validator()
     {
         await RunSimulatorAndAssertStructureAsync(AgentType.Topology, "t-topo");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Cost_deterministic_simulator_result_satisfies_structural_validator()
     {
         await RunSimulatorAndAssertStructureAsync(AgentType.Cost, "t-cost");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Compliance_deterministic_simulator_result_satisfies_structural_validator()
     {
         await RunSimulatorAndAssertStructureAsync(AgentType.Compliance, "t-comp");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Critic_deterministic_simulator_result_satisfies_structural_validator()
     {
         await RunSimulatorAndAssertStructureAsync(AgentType.Critic, "t-crit");
@@ -170,7 +170,7 @@ public sealed class AgentPromptRegressionTests
     private static void AssertPromptHash(AgentType type, string baselineProperty)
     {
         string baselinePath = Path.Combine(AppContext.BaseDirectory, BaselineFileName);
-        File.Exists(baselinePath).Should().BeTrue("missing {0} — add it next to the test class and set CopyToOutputDirectory.", baselinePath);
+        File.Exists(baselinePath).Should().BeTrue("missing {0} â€” add it next to the test class and set CopyToOutputDirectory.", baselinePath);
 
         string raw = File.ReadAllText(baselinePath);
         using JsonDocument doc = JsonDocument.Parse(raw);

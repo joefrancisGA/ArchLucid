@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.Core.Resilience;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class LlmCallChaosEndToEndTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task EndToEnd_TransientChaos_RecoveryWithoutCBTrip()
     {
         int wave = 0;
@@ -58,7 +58,7 @@ public sealed class LlmCallChaosEndToEndTests
         wave.Should().Be(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EndToEnd_PersistentChaos_CBTripsAfterRetryExhaustion()
     {
         ChaosFaultStrategyOptions chaos = new()

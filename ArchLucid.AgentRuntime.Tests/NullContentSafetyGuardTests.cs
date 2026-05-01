@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Safety;
+﻿using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Core.Safety;
 
 using FluentAssertions;
@@ -8,7 +8,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class NullContentSafetyGuardTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CheckInputAsync_returns_allowed_without_categories()
     {
         NullContentSafetyGuard sut = new();
@@ -19,7 +19,7 @@ public sealed class NullContentSafetyGuardTests
         result.Category.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckOutputAsync_returns_allowed_without_categories()
     {
         NullContentSafetyGuard sut = new();

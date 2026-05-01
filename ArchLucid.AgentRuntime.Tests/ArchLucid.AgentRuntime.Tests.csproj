@@ -20,8 +20,9 @@
     <PackageReference Include="Polly.Extensions" />
     <PackageReference Include="System.ClientModel" />
     <PackageReference Include="xunit" />
+    <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="xunit.runner.visualstudio" />
-</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />

@@ -1,4 +1,4 @@
-using ArchLucid.Core;
+﻿using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
@@ -9,7 +9,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class LlmTokenQuotaWindowTrackerTests
 {
-    [Fact]
+    [SkippableFact]
     public void EnsureWithinQuotaBeforeCall_when_under_limit_does_not_throw()
     {
         LlmTokenQuotaOptions opts = new()
@@ -28,7 +28,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
         tracker.EnsureWithinQuotaBeforeCall(tenant);
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureWithinQuotaBeforeCall_when_over_limit_throws()
     {
         LlmTokenQuotaOptions opts = new()
@@ -51,7 +51,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
         ex.RetryAfterUtc!.Value.Should().BeAfter(DateTimeOffset.UtcNow.AddSeconds(-1));
     }
 
-    [Fact]
+    [SkippableFact]
     public void RecordUsage_ignores_empty_tenant()
     {
         LlmTokenQuotaOptions opts = new() { Enabled = true, WindowMinutes = 60, MaxPromptTokensPerTenantPerWindow = 1 };

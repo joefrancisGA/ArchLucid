@@ -1,11 +1,11 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class LlmProviderDescriptorTests
 {
-    [Fact]
+    [SkippableFact]
     public void ForAzureOpenAi_sets_kind_api_key_and_uri()
     {
         Uri uri = new("https://res.openai.azure.com/");
@@ -18,7 +18,7 @@ public sealed class LlmProviderDescriptorTests
         d.AuthScheme.Should().Be(LlmProviderAuthScheme.ApiKey);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ForAnthropic_and_ForBedrock_set_expected_auth()
     {
         Uri u = new("https://api.anthropic.com/");
@@ -33,7 +33,7 @@ public sealed class LlmProviderDescriptorTests
         b.ProviderKind.Should().Be("bedrock");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AzureOpenAiCompletionClient_exposes_matching_descriptor()
     {
         AzureOpenAiCompletionClient sut = new(

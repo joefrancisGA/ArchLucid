@@ -1,11 +1,11 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class DelegatingLlmCompletionProviderTests
 {
-    [Fact]
+    [SkippableFact]
     public void ctor_null_inner_throws()
     {
         Action act = () => _ = new DelegatingLlmCompletionProvider(null!, "p", "m");
@@ -13,7 +13,7 @@ public sealed class DelegatingLlmCompletionProviderTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("inner");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ProviderId_whitespace_becomes_unknown()
     {
         FakeAgentCompletionClient inner = new((_, _) => "{}");
@@ -23,7 +23,7 @@ public sealed class DelegatingLlmCompletionProviderTests
         sut.ProviderId.Should().Be("unknown");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ModelDeploymentLabel_whitespace_becomes_unknown()
     {
         FakeAgentCompletionClient inner = new((_, _) => "{}");
@@ -33,7 +33,7 @@ public sealed class DelegatingLlmCompletionProviderTests
         sut.ModelDeploymentLabel.Should().Be("unknown");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Descriptor_layers_provider_kind_and_model_over_inner_descriptor()
     {
         LlmProviderDescriptor innerDesc = LlmProviderDescriptor.ForOffline("inner", "inner-model");
@@ -46,7 +46,7 @@ public sealed class DelegatingLlmCompletionProviderTests
         sut.Descriptor.AuthScheme.Should().Be(innerDesc.AuthScheme);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteJsonAsync_delegates_to_inner()
     {
         FakeAgentCompletionClient inner = new((_, _) => """{"ok":true}""");

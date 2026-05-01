@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -30,7 +30,7 @@ public sealed class AgentExecutionResilienceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Bulkhead_max_concurrency_one_serializes_slow_handlers()
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
@@ -60,7 +60,7 @@ public sealed class AgentExecutionResilienceTests
         sw.Elapsed.Should().BeGreaterThan(TimeSpan.FromMilliseconds(200));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Bulkhead_unlimited_allows_parallel_slow_handlers()
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
@@ -91,7 +91,7 @@ public sealed class AgentExecutionResilienceTests
         sw.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(5000));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Per_handler_timeout_aborts_hanging_handler()
     {
         IOptions<AgentExecutionResilienceOptions> ro = Options.Create(

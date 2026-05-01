@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Prompts;
+﻿using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -29,7 +29,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Slow")]
 public sealed class RealRuntimeMixedModeTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RealTopologyAndCompliance_WithDeterministicCost_ShouldProduceManifest()
     {
         string topologyJson = """

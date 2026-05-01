@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Category", "Unit")]
 public sealed class LlmCompletionCacheFingerprintTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compute_when_partitionByScope_differs_by_tenant_produces_different_keys()
     {
         ScopeContext scopeA = new()
@@ -30,7 +30,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         keyA.Should().NotBe(keyB);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_when_partitionByScope_false_ignores_scope_ids()
     {
         ScopeContext scopeA = new()
@@ -49,7 +49,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         keyA.Should().Be(keyB);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_throws_when_deployment_name_null_or_whitespace()
     {
         ScopeContext scope = new()
@@ -64,7 +64,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         whitespace.Should().Throw<ArgumentException>().WithParameterName("deploymentName");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_throws_when_system_prompt_null()
     {
         ScopeContext scope = new()
@@ -77,7 +77,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("systemPrompt");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_throws_when_user_prompt_null()
     {
         ScopeContext scope = new()
@@ -90,7 +90,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("userPrompt");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compute_throws_when_scope_null()
     {
         Action act = () => LlmCompletionCacheFingerprint.Compute(false, "dep", "s", "u", null!);
@@ -98,7 +98,7 @@ public sealed class LlmCompletionCacheFingerprintTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("scope");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputePromptHash_returns_stable_hex_digest()
     {
         string digest = LlmCompletionCacheFingerprint.ComputePromptHash("a", "b");

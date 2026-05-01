@@ -1,8 +1,8 @@
-namespace ArchLucid.AgentRuntime.Tests;
+﻿namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class AgentExecutionResilienceOptionsTests
 {
-    [Fact]
+    [SkippableFact]
 
     public void ResolveTimeoutSecondsForAgent_ReturnsZero_WhenGlobalTimeoutDisabled()
     {
@@ -20,7 +20,7 @@ public sealed class AgentExecutionResilienceOptionsTests
 
     }
 
-    [Fact]
+    [SkippableFact]
 
     public void ResolveTimeoutSecondsForAgent_OverridesDispatchKey()
     {
@@ -39,7 +39,7 @@ public sealed class AgentExecutionResilienceOptionsTests
 
     }
 
-    [Fact]
+    [SkippableFact]
 
     public void ResolveTimeoutSecondsForAgent_FallsBack_WhenOverrideIsZero()
     {

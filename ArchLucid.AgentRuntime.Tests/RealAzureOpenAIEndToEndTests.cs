@@ -39,10 +39,10 @@ public sealed class RealAzureOpenAIEndToEndTests
             && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_REAL_AOAI_TEST_KEY"));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Live_pipeline_topology_compliance_cost_merge_produces_non_empty_manifest()
     {
-        Assert.SkipUnless(HasLiveAzureOpenAiCredentials(), "Set ARCHLUCID_REAL_AOAI_TEST_ENDPOINT and ARCHLUCID_REAL_AOAI_TEST_KEY.");
+        Skip.IfNot(HasLiveAzureOpenAiCredentials(), "Set ARCHLUCID_REAL_AOAI_TEST_ENDPOINT and ARCHLUCID_REAL_AOAI_TEST_KEY.");
 
         using CancellationTokenSource deadline = new(TimeSpan.FromSeconds(120));
         CancellationToken cancellationToken = deadline.Token;

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Validation;
 
@@ -17,7 +17,7 @@ public sealed class AgentResultParserTests
 {
     private readonly AgentResultParser _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_json_empty_throws()
     {
         Action act = () => _sut.ParseAndValidate("  ", "run", "task", AgentType.Topology);
@@ -25,7 +25,7 @@ public sealed class AgentResultParserTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*empty*");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_json_invalid_throws()
     {
         Action act = () => _sut.ParseAndValidate("{", "run", "task", AgentType.Topology);
@@ -33,7 +33,7 @@ public sealed class AgentResultParserTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*deserialize*");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_ids_mismatch_throws()
     {
         string json =
@@ -46,7 +46,7 @@ public sealed class AgentResultParserTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*RunId*");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_valid_returns_result()
     {
         string json =
@@ -61,7 +61,7 @@ public sealed class AgentResultParserTests
         result.Claims.Should().ContainSingle().Which.Should().Be("c");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_confidence_out_of_range_throws_InvalidOperationException()
     {
         string json =
@@ -74,7 +74,7 @@ public sealed class AgentResultParserTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*between 0 and 1*");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_schema_invalid_and_enforce_on_throws_SchemaViolationException()
     {
         Mock<ILogger<AgentResultParser>> logger = new();
@@ -95,7 +95,7 @@ public sealed class AgentResultParserTests
             .Which.SchemaErrors.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_when_schema_invalid_and_enforce_off_returns_result_and_logs_warning()
     {
         Mock<ILogger<AgentResultParser>> logger = new();
@@ -124,7 +124,7 @@ public sealed class AgentResultParserTests
             Times.AtLeastOnce);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ParseAndValidate_valid_json_passes_schema_and_returns_result()
     {
         SchemaValidationService schema = CreateSchemaService();
