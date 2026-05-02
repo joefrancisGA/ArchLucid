@@ -17,13 +17,14 @@ public sealed class ArchitectureRequestTemplatesTests
     };
 
     public static TheoryData<Func<string?, ArchitectureRequest>> TemplateFactories =>
-    [
-        ArchitectureRequestTemplates.MicroservicesWebPlatform,
-        ArchitectureRequestTemplates.MonolithMigrationAssessment,
-        ArchitectureRequestTemplates.EventDrivenProcessingPipeline,
-        ArchitectureRequestTemplates.CloudNativeMigration,
-        ArchitectureRequestTemplates.RegulatedHealthcareSystem
-    ];
+        new TheoryData<Func<string?, ArchitectureRequest>>
+        {
+            ArchitectureRequestTemplates.MicroservicesWebPlatform,
+            ArchitectureRequestTemplates.MonolithMigrationAssessment,
+            ArchitectureRequestTemplates.EventDrivenProcessingPipeline,
+            ArchitectureRequestTemplates.CloudNativeMigration,
+            ArchitectureRequestTemplates.RegulatedHealthcareSystem
+        };
 
     [SkippableFact]
     public void Summaries_has_five_unique_template_ids_aligned_with_catalog()

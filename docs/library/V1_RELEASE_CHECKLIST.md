@@ -25,6 +25,7 @@
 ## 2. Deployment readiness
 
 - [ ] **Release build** succeeds: `build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
+- [ ] **Merge-blocking .NET full regression (SQL)** on default branch is green before declaring release-ready — job **`.NET: full regression (SQL)`** (`dotnet-full-regression`) in `.github/workflows/ci.yml`; merged Cobertura + package-line gates per [CODE_COVERAGE.md](CODE_COVERAGE.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). If CI is red, record the blocking failure; do not imply "clean regression" without that job.
 - [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (use `-SkipUi` only if UI is out of scope for this handoff).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).

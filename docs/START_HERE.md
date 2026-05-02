@@ -42,3 +42,5 @@ START_HERE.md (you are here)
 2. **In the product:** complete the four steps — request → pipeline → finalize → review outputs — so you have a **review package** (findings, manifest summary, downloadable artifacts).
 3. **Proof for a sponsor:** use **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** and exports from review detail; optional metrics in **[library/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)**.
 4. **Defer until later:** compare, replay, graph, and heavy governance workflows — listed as secondary in **CORE_PILOT.md** §4.
+
+**Contributor guardrail:** buyer-first checklist copy is locked by **`archlucid-ui/src/lib/core-pilot-first-review-copy.test.ts`** (hybrid “architecture review” / “run” wording).

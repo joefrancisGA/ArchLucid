@@ -131,6 +131,7 @@ Each test includes a justification for why human intervention is strictly necess
   - If your environment exposes it (UI, diagnostics, or Grafana): note **structural completeness** and **semantic**-style signals so you are not flying blind compared to the **simulator** on the same shape of request.
   - Optionally: run a **second** run with **simulator** mode on the **same** or equivalent request to **feel** the difference in usefulness (simulator = deterministic for CI; real LLM = what pilots experience).
 - **Record (for you):** date, **environment URL**, model/deployment id if known, and one line: **“acceptable for pilot” / “not yet”** and why. This is your **manual** answer to the independent assessment **Q7** (agent eval / “last green” narrative) when you do **not** yet rely on a **published** 30-day rollup from `agent-eval-datasets-nightly` (`.github/workflows/agent-eval-datasets-nightly.yml`) or other automation.
+- **Release check-in stub:** [`REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md`](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md) (steps + pointers — optional committed summary path is owner-defined).
 - **Justification:** Scheduled jobs can assert JSON shape and thresholds; they **cannot** stand in for a human judgment that **this** pipeline output is **credible and safe to show a sponsor** on a real engagement. This step turns anxiety into a **finite, repeatable** session you control.
 
 ### 8.4. Agent output scores — layperson meaning, threshold discipline, and keeping scores high (key)

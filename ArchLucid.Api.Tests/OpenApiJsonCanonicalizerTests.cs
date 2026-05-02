@@ -23,6 +23,21 @@ public sealed class OpenApiJsonCanonicalizerTests
     }
 
     [SkippableFact]
+    public void Canonicalize_sorts_schema_required_property_name_arrays_when_order_differs_only()
+    {
+        JsonNode? left = JsonNode.Parse("""{"required":["zebra","alpha","moon"]}""");
+        JsonNode? right = JsonNode.Parse("""{"required":["alpha","moon","zebra"]}""");
+
+        left.Should().NotBeNull();
+        right.Should().NotBeNull();
+
+        JsonNode canonicalLeft = OpenApiJsonCanonicalizer.Canonicalize(left);
+        JsonNode canonicalRight = OpenApiJsonCanonicalizer.Canonicalize(right);
+
+        JsonNode.DeepEquals(canonicalLeft, canonicalRight).Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Canonicalize_sorts_operation_level_string_tag_arrays()
     {
         JsonNode? left = JsonNode.Parse("""{"paths":{"/x":{"get":{"tags":["Zulu","Alpha"]}}}}""");
