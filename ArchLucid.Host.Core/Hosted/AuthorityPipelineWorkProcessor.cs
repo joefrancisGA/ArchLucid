@@ -2,6 +2,7 @@ using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;

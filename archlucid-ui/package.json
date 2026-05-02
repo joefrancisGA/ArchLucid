@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:run": "vitest run",
+    "test:vitest-single-worker": "vitest run --pool=forks --maxWorkers=1",
     "test:axe-components": "vitest run src/accessibility",
     "test:e2e": "playwright test -c playwright.mock.config.ts",
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
