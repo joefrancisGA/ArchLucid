@@ -15,6 +15,8 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
   const chain = d.authorityChain;
 
   return {
+    executionFlavorBuyerSummary:
+      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,
@@ -39,6 +41,8 @@ export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
 /** Minimal run envelope that passes `coerceRunDetail` and matches operator run page expectations. */
 export function fixtureRunDetail(): RunDetail {
   return {
+    executionFlavorBuyerSummary:
+      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,

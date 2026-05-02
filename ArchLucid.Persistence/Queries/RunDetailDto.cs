@@ -30,6 +30,16 @@ public class RunDetailDto
         set;
     } = null!;
 
+    /// <summary>
+    ///     Sponsor-safe one-liner for agent execution (simulator vs live vs fallback), derived from <see cref="RunRecord" />
+    ///     and <c>AgentExecution:Mode</c> on the API host at request time.
+    /// </summary>
+    public string? ExecutionFlavorBuyerSummary
+    {
+        get;
+        set;
+    }
+
     /// <summary>Context payload when <see cref="RunRecord.ContextSnapshotId" /> resolves.</summary>
     public ContextSnapshot? ContextSnapshot
     {

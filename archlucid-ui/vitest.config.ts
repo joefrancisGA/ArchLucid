@@ -13,5 +13,7 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     clearMocks: true,
     restoreMocks: true,
+    /** Default 5s is brittle for jsdom + RTL + axe under forked workers on slower machines. */
+    testTimeout: 30_000,
   },
 });

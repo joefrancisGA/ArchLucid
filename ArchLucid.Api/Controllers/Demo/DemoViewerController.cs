@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Bootstrap;
@@ -18,6 +19,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Api.Controllers.Demo;
 
 /// <summary>
@@ -32,13 +35,17 @@ public sealed class DemoViewerController(
     IOptions<DemoOptions> demoOptions,
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunProvenanceService architectureRunProvenanceService,
-    IAuthorityCompareService authorityCompareService) : ControllerBase
+    IAuthorityCompareService authorityCompareService,
+    IConfiguration configuration) : ControllerBase
 {
     private readonly IArchitectureRunProvenanceService _architectureRunProvenanceService =
         architectureRunProvenanceService ?? throw new ArgumentNullException(nameof(architectureRunProvenanceService));
 
     private readonly IAuthorityCompareService _authorityCompareService =
         authorityCompareService ?? throw new ArgumentNullException(nameof(authorityCompareService));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly IOptions<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
@@ -100,6 +107,10 @@ public sealed class DemoViewerController(
             detail.Results,
             detail.Manifest,
             detail.DecisionTraces);
+
+        response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            detail.Run,
+            _configuration["AgentExecution:Mode"]);
 
         return Ok(response);
     }

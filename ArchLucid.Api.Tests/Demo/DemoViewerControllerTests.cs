@@ -127,5 +127,6 @@ public sealed class DemoViewerControllerTests
 
         body.Should().NotBeNull();
         body.Run.RunId.Should().NotBeNullOrWhiteSpace();
+        body.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
     }
 }

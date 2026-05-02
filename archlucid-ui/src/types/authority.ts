@@ -118,6 +118,8 @@ export type ReplayResponse = {
 
 /** Full run detail envelope containing the run summary and optional snapshot/manifest/trace/bundle data. */
 export type RunDetail = {
+  /** Sponsor-safe agent execution line from GET /v1/authority/runs/{runId} (simulator vs live vs fallback). */
+  executionFlavorBuyerSummary?: string | null;
   run: {
     runId: string;
     projectId: string;

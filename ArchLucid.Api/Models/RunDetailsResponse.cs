@@ -17,6 +17,16 @@ public sealed class RunDetailsResponse
         set;
     } = new();
 
+    /// <summary>
+    ///     Short sponsor-safe summary of agent execution (simulator vs real vs fallback), derived from the persisted run
+    ///     and <c>AgentExecution:Mode</c> on the host at request time.
+    /// </summary>
+    public string? ExecutionFlavorBuyerSummary
+    {
+        get;
+        set;
+    }
+
     public List<AgentTask> Tasks
     {
         get;

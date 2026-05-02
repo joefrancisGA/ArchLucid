@@ -45,6 +45,15 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.SystemName.Should().Be("EnterpriseRag");
         payload.DecisionTraces.Should().NotBeEmpty();
+        payload.ExecutionFlavorBuyerSummary.Should().NotBeNullOrWhiteSpace();
+
+        Guid authorityRunKey = Guid.Parse(runId);
+        HttpResponseMessage authorityDetailResponse =
+            await Client.GetAsync($"/v1/authority/runs/{authorityRunKey:D}");
+        authorityDetailResponse.EnsureSuccessStatusCode();
+        using JsonDocument authorityDetailDoc =
+            JsonDocument.Parse(await authorityDetailResponse.Content.ReadAsStringAsync());
+        authorityDetailDoc.RootElement.GetProperty("executionFlavorBuyerSummary").GetString().Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/roi");
         roiResponse.EnsureSuccessStatusCode();

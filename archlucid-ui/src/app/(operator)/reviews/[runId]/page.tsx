@@ -365,6 +365,7 @@ export default async function RunDetailPage({
         createdLabel={createdLabel}
         headline={headline}
         hasGoldenManifest={Boolean(manifestId)}
+        executionFlavorBuyerSummary={resolvedDetail.executionFlavorBuyerSummary}
       />
 
       <RunDetailOutcomeCards
