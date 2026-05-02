@@ -41,12 +41,8 @@ public class CostConstraintFindingEngine : IFindingEngine
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
                 RelatedNodeIds = [node.NodeId],
                 PayloadType = nameof(CostConstraintFindingPayload),
-                Payload = new CostConstraintFindingPayload
-                {
-                    BudgetName = budgetName ?? node.Label,
-                    MaxMonthlyCost = maxMonthly,
-                    CostRisk = costRisk ?? "unknown"
-                },
+                Payload =
+                    new CostConstraintFindingPayload { BudgetName = budgetName ?? node.Label, MaxMonthlyCost = maxMonthly, CostRisk = costRisk ?? "unknown" },
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [node.NodeId],

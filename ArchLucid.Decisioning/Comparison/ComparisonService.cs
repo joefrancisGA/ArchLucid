@@ -58,26 +58,17 @@ public sealed class ComparisonService : IComparisonService
 
             if (b is null)
 
-                result.DecisionChanges.Add(new DecisionDelta
-                {
-                    DecisionKey = key, TargetValue = t!.SelectedOption, ChangeType = "Added"
-                });
+                result.DecisionChanges.Add(new DecisionDelta { DecisionKey = key, TargetValue = t!.SelectedOption, ChangeType = "Added" });
 
             else if (t is null)
 
-                result.DecisionChanges.Add(new DecisionDelta
-                {
-                    DecisionKey = key, BaseValue = b.SelectedOption, ChangeType = "Removed"
-                });
+                result.DecisionChanges.Add(new DecisionDelta { DecisionKey = key, BaseValue = b.SelectedOption, ChangeType = "Removed" });
 
             else if (!string.Equals(b.SelectedOption, t.SelectedOption, StringComparison.Ordinal))
 
                 result.DecisionChanges.Add(new DecisionDelta
                 {
-                    DecisionKey = key,
-                    BaseValue = b.SelectedOption,
-                    TargetValue = t.SelectedOption,
-                    ChangeType = "Modified"
+                    DecisionKey = key, BaseValue = b.SelectedOption, TargetValue = t.SelectedOption, ChangeType = "Modified"
                 });
         }
     }
@@ -96,8 +87,7 @@ public sealed class ComparisonService : IComparisonService
             {
                 result.RequirementChanges.Add(new RequirementDelta
                 {
-                    RequirementName = name,
-                    ChangeType = t.Bucket == RequirementBucket.Covered ? "Covered" : "Uncovered"
+                    RequirementName = name, ChangeType = t.Bucket == RequirementBucket.Covered ? "Covered" : "Uncovered"
                 });
                 continue;
             }
@@ -115,8 +105,7 @@ public sealed class ComparisonService : IComparisonService
             {
                 result.RequirementChanges.Add(new RequirementDelta
                 {
-                    RequirementName = name,
-                    ChangeType = t.Bucket == RequirementBucket.Covered ? "Covered" : "Uncovered"
+                    RequirementName = name, ChangeType = t.Bucket == RequirementBucket.Covered ? "Covered" : "Uncovered"
                 });
                 continue;
             }
@@ -157,19 +146,13 @@ public sealed class ComparisonService : IComparisonService
 
             if (b is null && t is not null)
             {
-                result.SecurityChanges.Add(new SecurityDelta
-                {
-                    ControlName = t.ControlName, BaseStatus = null, TargetStatus = t.Status
-                });
+                result.SecurityChanges.Add(new SecurityDelta { ControlName = t.ControlName, BaseStatus = null, TargetStatus = t.Status });
                 continue;
             }
 
             if (b is not null && t is null)
             {
-                result.SecurityChanges.Add(new SecurityDelta
-                {
-                    ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = null
-                });
+                result.SecurityChanges.Add(new SecurityDelta { ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = null });
                 continue;
             }
 
@@ -178,10 +161,7 @@ public sealed class ComparisonService : IComparisonService
 
             if (!string.Equals(b.Status, t.Status, StringComparison.Ordinal))
 
-                result.SecurityChanges.Add(new SecurityDelta
-                {
-                    ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = t.Status
-                });
+                result.SecurityChanges.Add(new SecurityDelta { ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = t.Status });
         }
 
         return;

@@ -11,10 +11,7 @@ public sealed class DigestSlackWebhookDeliveryChannel(IWebhookPoster webhookPost
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        object body = new
-        {
-            text = $"*{payload.Digest.Title}*\n{payload.Digest.Summary}\n\n{payload.Digest.ContentMarkdown}"
-        };
+        object body = new { text = $"*{payload.Digest.Title}*\n{payload.Digest.Summary}\n\n{payload.Digest.ContentMarkdown}" };
 
         return webhookPoster.PostJsonAsync(
             payload.Subscription.Destination,

@@ -11,11 +11,33 @@ public interface IAuthorityPipelineWorkRepository
         string payloadJson,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch,
-        CancellationToken cancellationToken);
+    /// <summary>
+    ///     Claims up to <paramref name="maxBatch" /> actionable rows under an exclusive <paramref name="leaseDurationSeconds"/> lease.
+    /// </summary>
+    Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(
+        int maxBatch,
+        int leaseDurationSeconds,
+        CancellationToken cancellationToken = default);
 
-    Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken);
+    Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken = default);
 
-    /// <summary>Rows with <c>ProcessedUtc</c> null.</summary>
+    Task RecordBackoffAfterProcessingFailureAsync(
+        Guid outboxId,
+        DateTime nextAttemptUtc,
+        string failedAttemptErrorSummaryTruncatedTo400,
+        CancellationToken cancellationToken = default);
+
+    Task RecordDeadLetterAsync(
+        Guid outboxId,
+        string failedAttemptErrorSummaryTruncatedTo400,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Rows awaiting completion (excluding dead-letter rows).</summary>
     Task<long> CountPendingAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Rows eligible for dequeue right now (mirrors dequeue filter).</summary>
+    Task<long> CountActionablePendingAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Unprocessed poison rows promoted after retry exhaustion.</summary>
+    Task<long> CountDeadLetteredAsync(CancellationToken cancellationToken = default);
 }

@@ -33,9 +33,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                 PayloadType = nameof(PolicyCoverageFindingPayload),
                 Payload = new PolicyCoverageFindingPayload
                 {
-                    PolicyNodeCount = 0,
-                    PolicyApplicabilityEdgeCount = 0,
-                    UncoveredResources = result.UncoveredResources
+                    PolicyNodeCount = 0, PolicyApplicabilityEdgeCount = 0, UncoveredResources = result.UncoveredResources
                 },
                 Trace = new ExplainabilityTrace
                 {

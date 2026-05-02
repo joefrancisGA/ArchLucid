@@ -18349,6 +18349,8 @@ export interface components {
             /** Format: int64 */
             authorityPipelineWorkPending: number | string;
             /** Format: int64 */
+            authorityPipelineWorkDeadLetter: number | string;
+            /** Format: int64 */
             integrationEventOutboxDeadLetter: number | string;
             /** Format: int64 */
             integrationEventOutboxPublishPending: number | string;

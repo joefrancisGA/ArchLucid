@@ -29,10 +29,7 @@ public sealed class ThresholdRecommendationService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        ThresholdRecommendationResult result = new()
-        {
-            EvaluatedUtc = DateTime.UtcNow, RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType
-        };
+        ThresholdRecommendationResult result = new() { EvaluatedUtc = DateTime.UtcNow, RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType };
 
         string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug)
             ? DefaultProjectSlug
@@ -100,10 +97,7 @@ public sealed class ThresholdRecommendationService(
             result.Candidates.Add(
                 new ThresholdCandidateEvaluation
                 {
-                    Candidate = new ThresholdCandidate
-                    {
-                        ThresholdValue = threshold, Label = threshold.ToString("0.##")
-                    },
+                    Candidate = new ThresholdCandidate { ThresholdValue = threshold, Label = threshold.ToString("0.##") },
                     SimulationResult = simulation,
                     ScoreBreakdown = score
                 });

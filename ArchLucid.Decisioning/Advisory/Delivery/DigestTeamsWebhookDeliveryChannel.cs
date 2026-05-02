@@ -11,10 +11,7 @@ public sealed class DigestTeamsWebhookDeliveryChannel(IWebhookPoster webhookPost
     {
         ArgumentNullException.ThrowIfNull(payload);
 
-        object body = new
-        {
-            title = payload.Digest.Title, text = $"{payload.Digest.Summary}\n\n{payload.Digest.ContentMarkdown}"
-        };
+        object body = new { title = payload.Digest.Title, text = $"{payload.Digest.Summary}\n\n{payload.Digest.ContentMarkdown}" };
 
         return webhookPoster.PostJsonAsync(
             payload.Subscription.Destination,

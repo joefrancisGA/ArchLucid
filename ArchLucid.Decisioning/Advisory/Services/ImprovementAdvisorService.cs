@@ -33,9 +33,7 @@ public sealed class ImprovementAdvisorService(
 
         return new ImprovementPlan
         {
-            RunId = manifest.RunId,
-            Recommendations = recommendations.ToList(),
-            SummaryNotes = BuildSummary(recommendations, profile)
+            RunId = manifest.RunId, Recommendations = recommendations.ToList(), SummaryNotes = BuildSummary(recommendations, profile)
         };
     }
 

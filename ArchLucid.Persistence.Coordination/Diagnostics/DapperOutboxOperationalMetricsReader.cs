@@ -19,7 +19,15 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
         const string sql = """
                            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
                            FROM dbo.AuthorityPipelineWorkOutbox
-                           WHERE ProcessedUtc IS NULL;
+                           WHERE ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL
+                             AND (NextAttemptUtc IS NULL OR NextAttemptUtc <= SYSUTCDATETIME())
+                             AND (LockedUntilUtc IS NULL OR LockedUntilUtc <= SYSUTCDATETIME());
+
+                           SELECT COUNT_BIG(1) AS Cnt
+                           FROM dbo.AuthorityPipelineWorkOutbox
+                           WHERE DeadLetteredUtc IS NOT NULL
+                             AND ProcessedUtc IS NULL;
 
                            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
                            FROM dbo.RetrievalIndexingOutbox
@@ -42,21 +50,23 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
         SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
             new CommandDefinition(sql, cancellationToken: cancellationToken));
 
-        Row auth = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
+        Row authorityActionable = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
+        DeadRow authorityDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
         Row retrieval = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
         Row integration = (await multi.ReadAsync<Row>()).FirstOrDefault() ?? new Row();
-        DeadRow deadRow = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
+        DeadRow integrationDead = (await multi.ReadAsync<DeadRow>()).FirstOrDefault() ?? new DeadRow();
 
         DateTime utcNow = DateTime.UtcNow;
 
         return new OutboxOperationalMetricsSnapshot
         {
-            AuthorityPipelineWorkPending = auth.Cnt,
-            AuthorityPipelineWorkOldestPendingAgeSeconds = AgeSeconds(auth.OldestUtc, utcNow),
+            AuthorityPipelineWorkPending = authorityActionable.Cnt,
+            AuthorityPipelineWorkDeadLetter = authorityDead.Cnt,
+            AuthorityPipelineWorkOldestPendingAgeSeconds = AgeSeconds(authorityActionable.OldestUtc, utcNow),
             RetrievalIndexingOutboxPending = retrieval.Cnt,
             RetrievalIndexingOutboxOldestPendingAgeSeconds = AgeSeconds(retrieval.OldestUtc, utcNow),
             IntegrationEventOutboxPublishPending = integration.Cnt,
-            IntegrationEventOutboxDeadLetter = deadRow.Cnt,
+            IntegrationEventOutboxDeadLetter = integrationDead.Cnt,
             IntegrationEventOutboxOldestActionablePendingAgeSeconds = AgeSeconds(integration.OldestUtc, utcNow)
         };
     }

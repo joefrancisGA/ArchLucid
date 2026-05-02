@@ -76,9 +76,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 PayloadType = nameof(TopologyCoverageFindingPayload),
                 Payload = new TopologyCoverageFindingPayload
                 {
-                    TopologyNodeCount = result.TopologyNodeCount,
-                    PresentCategories = result.PresentCategories,
-                    MissingCategories = result.MissingCategories
+                    TopologyNodeCount = result.TopologyNodeCount, PresentCategories = result.PresentCategories, MissingCategories = result.MissingCategories
                 },
                 RecommendedActions =
                 [

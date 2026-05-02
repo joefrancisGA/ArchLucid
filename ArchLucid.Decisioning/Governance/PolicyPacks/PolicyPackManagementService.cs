@@ -37,10 +37,7 @@ public sealed class PolicyPackManagementService(
 {
     private const string InitialVersion = "1.0.0";
 
-    private static readonly JsonSerializerOptions ChangeLogJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false
-    };
+    private static readonly JsonSerializerOptions ChangeLogJsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false };
 
     /// <inheritdoc />
     public async Task<PolicyPack> CreatePackAsync(

@@ -61,13 +61,16 @@ public sealed class AdminDiagnosticsService(
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
     {
-        long authorityPending = await _authorityPipelineWork.CountPendingAsync(cancellationToken);
+        long authorityActionable =
+            await _authorityPipelineWork.CountActionablePendingAsync(cancellationToken);
+        long authorityDead = await _authorityPipelineWork.CountDeadLetteredAsync(cancellationToken);
         long retrievalPending = await _retrievalIndexingOutbox.CountPendingAsync(cancellationToken);
         long integrationPending =
             await _integrationEventOutbox.CountIntegrationOutboxPublishPendingAsync(cancellationToken);
         long integrationDead = await _integrationEventOutbox.CountIntegrationOutboxDeadLetterAsync(cancellationToken);
 
-        return new AdminOutboxSnapshot(authorityPending, retrievalPending, integrationPending, integrationDead);
+        return new AdminOutboxSnapshot(authorityActionable, authorityDead, retrievalPending, integrationPending,
+            integrationDead);
     }
 
     /// <inheritdoc />

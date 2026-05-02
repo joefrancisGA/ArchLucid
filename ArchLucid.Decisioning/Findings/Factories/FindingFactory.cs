@@ -29,12 +29,7 @@ public static class FindingFactory
             Rationale = rationale,
             RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
             PayloadType = nameof(RequirementFindingPayload),
-            Payload = new RequirementFindingPayload
-            {
-                RequirementName = requirementName,
-                RequirementText = requirementText,
-                IsMandatory = isMandatory
-            }
+            Payload = new RequirementFindingPayload { RequirementName = requirementName, RequirementText = requirementText, IsMandatory = isMandatory }
         };
     }
 
@@ -128,10 +123,7 @@ public static class FindingFactory
             PayloadType = nameof(PolicyApplicabilityFindingPayload),
             Payload = new PolicyApplicabilityFindingPayload
             {
-                PolicyName = policyNode.Label,
-                PolicyReference = policyReference,
-                ApplicableTopologyResourceCount = 0,
-                ApplicableTopologyNodeIds = []
+                PolicyName = policyNode.Label, PolicyReference = policyReference, ApplicableTopologyResourceCount = 0, ApplicableTopologyNodeIds = []
             },
             Trace = new ExplainabilityTrace
             {
