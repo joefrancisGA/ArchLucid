@@ -2,7 +2,7 @@
 
 # ArchLucid Assessment – Weighted Readiness 76.49%
 
-## 1. Executive Summary
+## 2. Executive Summary
 
 ### Overall readiness
 ArchLucid presents as a **credible V1 pilot product**: a bounded Core Pilot (request → execute → commit → artifacts), a large **Operate** surface for analysis and governance, strong **engineering hygiene** (versioned API, OpenAPI contract tests, ZAP/Schemathesis gates, SQL RLS story, audit event catalog), and unusually thorough **documentation**. Weighted readiness **76.49%** reflects real strength in interoperability, traceability, security controls, and packaging clarity, offset by **commercial headwinds** (category noise, sales-led motion, buyer cognitive load) and **residual trust/compliance gaps that are honest but not enterprise-credential-complete** within V1 scope (no third-party pen-test publication, no SOC 2 attestation—both documented as out of scope for V1 per deferred-scope rules).
@@ -21,7 +21,7 @@ Architecture is **coherent and modular** (C4 poster in [`ARCHITECTURE_ON_ONE_PAG
 
 ---
 
-## 2. Weighted Quality Assessment
+## 3. Weighted Quality Assessment
 
 **Method:** Score 1–100. Weight as given. Total weight **102**. Weighted readiness = Σ(score × weight) / 102 = **76.49%**. **Weighted deficiency signal** = (100 − score) × weight (higher = more urgent). **Weighted impact on readiness** = (score × weight) / 102 (percentage points toward the headline total).
 
@@ -178,7 +178,7 @@ For each: **Justification** · **Tradeoffs** · **Improvement recommendations** 
 
 ---
 
-## 3. Top 10 Most Important Weaknesses
+## 4. Top 10 Most Important Weaknesses
 
 1. **Buyer cognitive overload at first contact** — packaging power shows up as configuration and disclosure switches before value lands (high impact on Marketability + Adoption Friction).
 2. **Category sameness risk** —without a crisp, evidence-backed wedge, buyers lump ArchLucid with generic “AI architecture assistants.”
@@ -193,7 +193,7 @@ For each: **Justification** · **Tradeoffs** · **Improvement recommendations** 
 
 ---
 
-## 4. Top 5 Monetization Blockers
+## 5. Top 5 Monetization Blockers
 
 1. **Category noise + unclear decisive wedge** delaying champion formation (stalls paid pilot expansion).
 2. **Procurement calendar** when legal/infosec expects SOC 2 Type II or third-party pen test **even if** you correctly defer them—deal still slips.
@@ -203,7 +203,7 @@ For each: **Justification** · **Tradeoffs** · **Improvement recommendations** 
 
 ---
 
-## 5. Top 5 Enterprise Adoption Blockers
+## 6. Top 5 Enterprise Adoption Blockers
 
 1. **Independent assurance gap** (SOC 2 report, third-party pen-test summary—explicitly V2/V1.1 pathways) versus buyer policy “must-haves.”
 2. **Data residency / multi-region active/active expectations** vs stated V1 honesty in [`V1_SCOPE.md`](V1_SCOPE.md).
@@ -213,7 +213,7 @@ For each: **Justification** · **Tradeoffs** · **Improvement recommendations** 
 
 ---
 
-## 6. Top 5 Engineering Risks
+## 7. Top 5 Engineering Risks
 
 1. **Authorization confusion** if UI shaping is treated as entitlement proof—docs warn; regressions would be severe ([`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md)).
 2. **Drift between OpenAPI canonical and explorer OpenAPI** causing client breakage ([`API_CONTRACTS.md`](API_CONTRACTS.md)).

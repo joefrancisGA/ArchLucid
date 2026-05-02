@@ -161,6 +161,8 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
   const chain = d.authorityChain;
 
   return {
+    executionFlavorBuyerSummary:
+      "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).",
     run: {
       runId: d.run.runId,
       projectId: d.run.projectId,

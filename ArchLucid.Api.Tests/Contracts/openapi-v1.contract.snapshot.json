@@ -11272,6 +11272,12 @@
               }
             ]
           },
+          "executionFlavorBuyerSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "findingsSnapshot": {
             "oneOf": [
               {
@@ -11312,6 +11318,12 @@
         "properties": {
           "decisionTraces": {
             "type": "array"
+          },
+          "executionFlavorBuyerSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "manifest": {
             "oneOf": [

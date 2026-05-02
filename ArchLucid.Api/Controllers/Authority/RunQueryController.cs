@@ -23,6 +23,9 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
+
+using ArchLucid.Api.Support;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -48,7 +51,8 @@ public sealed class RunQueryController(
     IFindingEvidenceChainService findingEvidenceChainService,
     IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider,
-    ITraceabilityBundleBuilder traceabilityBundleBuilder) : ControllerBase
+    ITraceabilityBundleBuilder traceabilityBundleBuilder,
+    IConfiguration configuration) : ControllerBase
 {
     /// <summary>
     ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
@@ -77,6 +81,10 @@ public sealed class RunQueryController(
             detail.Results,
             detail.Manifest,
             detail.DecisionTraces);
+
+        response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            detail.Run,
+            configuration["AgentExecution:Mode"]);
 
         return Ok(response);
     }

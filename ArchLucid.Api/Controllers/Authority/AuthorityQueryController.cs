@@ -1,5 +1,6 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
@@ -20,6 +21,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
@@ -44,8 +46,12 @@ public sealed class AuthorityQueryController(
     IScopeContextProvider scopeProvider,
     IProvenanceBuilder provenanceBuilder,
     IAuditService auditService,
-    IActorContext actorContext) : ControllerBase
+    IActorContext actorContext,
+    IConfiguration configuration) : ControllerBase
 {
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
     /// <summary>
     ///     Lists runs for an authority project slug (e.g. <c>default</c>). Prefer <paramref name="cursor" /> +
     ///     <paramref name="take" /> (stable keyset). Legacy <paramref name="page" />/<paramref name="pageSize" /> is kept
@@ -153,9 +159,15 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
-        return result is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(result);
+
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            result.Run.RealModeFellBackToSimulator,
+            _configuration["AgentExecution:Mode"]);
+
+        return Ok(result);
     }
 
     /// <summary>

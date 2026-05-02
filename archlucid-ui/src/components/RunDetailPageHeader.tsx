@@ -15,6 +15,7 @@ export type RunDetailPageHeaderProps = {
   createdLabel: string;
   headline: string;
   hasGoldenManifest: boolean;
+  executionFlavorBuyerSummary?: string | null;
 };
 
 /**
@@ -28,6 +29,7 @@ export function RunDetailPageHeader({
   createdLabel,
   headline,
   hasGoldenManifest,
+  executionFlavorBuyerSummary,
 }: RunDetailPageHeaderProps) {
   return (
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
@@ -42,6 +44,11 @@ export function RunDetailPageHeader({
               label="Architecture review steps — Core Pilot guide on GitHub (new tab)"
             />
           </div>
+          {executionFlavorBuyerSummary ? (
+            <p className="m-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {executionFlavorBuyerSummary}
+            </p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <RunStatusBadge run={runSummary} />
           </div>

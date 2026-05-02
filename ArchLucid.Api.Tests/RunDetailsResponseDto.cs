@@ -13,6 +13,12 @@ public sealed class RunDetailsResponseDto
         set;
     } = new();
 
+    public string? ExecutionFlavorBuyerSummary
+    {
+        get;
+        set;
+    }
+
     public List<AgentTask> Tasks
     {
         get;

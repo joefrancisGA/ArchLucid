@@ -4,9 +4,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RunSummary } from "@/types/authority";
 
 const listRunsByProjectPaged = vi.fn();
+const loadProjectRunsMergedWithDemoFallbackMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/api", () => ({
   listRunsByProjectPaged: (...args: unknown[]) => listRunsByProjectPaged(...args),
+}));
+
+vi.mock("@/lib/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: (...args: unknown[]) =>
+    loadProjectRunsMergedWithDemoFallbackMock(...args),
 }));
 
 import { WelcomeBanner } from "./WelcomeBanner";
@@ -29,6 +35,7 @@ afterEach(() => {
 
 beforeEach(() => {
   listRunsByProjectPaged.mockResolvedValue(emptyRunsPage);
+  loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [], loadError: false });
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
@@ -95,6 +102,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       pageSize: 1,
       hasMore: false,
     });
+    loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [run], loadError: false });
 
     render(<WelcomeBanner />);
 
