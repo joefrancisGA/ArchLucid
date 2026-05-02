@@ -18,8 +18,8 @@ export type InspectorPanelProps = {
 };
 
 /**
- * Right-side inspector shell: title bar, close control, scrollable body. Not a modal — no focus trap.
- * Dock inside the main column (`lg:flex` sibling) or wrap in a fixed container for small-viewport sheets.
+ * Right-side inspector shell: title bar, close control, scrollable body. Not a modal — no trap when docked beside the table on large viewports.
+ * On narrow viewports the reviews list mounts a focus trap around the slide-over overlay so Tab stays inside the sheet until dismissed.
  */
 export function InspectorPanel({
   title,

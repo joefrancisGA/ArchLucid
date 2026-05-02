@@ -8,7 +8,14 @@ export interface A11yCheckOptions {
 }
 
 export async function runAxe(page: Page, options?: A11yCheckOptions): Promise<AxeResults> {
-  let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"]);
+  let builder = new AxeBuilder({ page }).withTags([
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa",
+    "best-practice",
+  ]);
 
   if (options?.disableRules?.length) {
     builder = builder.disableRules(options.disableRules);

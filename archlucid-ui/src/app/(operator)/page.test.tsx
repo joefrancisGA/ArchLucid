@@ -74,6 +74,10 @@ describe("HomePage (55R smoke — landing)", () => {
     expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
     expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
     expect(screen.getByText("Search & Insights")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start with sample review" })).toHaveAttribute(
+      "href",
+      "/reviews/claims-intake-modernization",
+    );
     expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();

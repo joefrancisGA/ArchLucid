@@ -7,36 +7,38 @@ BEGIN
 END;
 GO
 
-IF OBJECT_ID(N'dbo.sp_FinalizeManifest', N'P') IS NOT NULL
-BEGIN
-    ALTER PROCEDURE dbo.sp_FinalizeManifest
-        @TenantId UNIQUEIDENTIFIER,
-        @WorkspaceId UNIQUEIDENTIFIER,
-        @ScopeProjectId UNIQUEIDENTIFIER,
-        @RunId UNIQUEIDENTIFIER,
-        @ExpectedFindingsSnapshotId UNIQUEIDENTIFIER,
-        @ExpectedArtifactBundleId UNIQUEIDENTIFIER = NULL,
-        @ManifestId UNIQUEIDENTIFIER,
-        @DecisionTraceId UNIQUEIDENTIFIER,
-        @ManifestVersion NVARCHAR(128),
-        @ExpectedRowVersion VARBINARY(8),
-        @ActorUserId NVARCHAR(200),
-        @ActorUserName NVARCHAR(200),
-        @AuditEventId UNIQUEIDENTIFIER,
-        @OccurredUtc DATETIME2,
-        @AuditDataJson NVARCHAR(MAX),
-        @CorrelationId NVARCHAR(200) = NULL,
-        @OutboxId UNIQUEIDENTIFIER,
-        @IntegrationEventType NVARCHAR(256),
-        @OutboxMessageId NVARCHAR(128),
-        @OutboxPayloadUtf8 VARBINARY(MAX),
-        @OutboxPriority INT = 1
-    AS
-    BEGIN
-        SET NOCOUNT ON;
-        SET XACT_ABORT ON;
+IF OBJECT_ID(N'dbo.sp_FinalizeManifest', N'P') IS NULL
+    EXECUTE(N'CREATE PROCEDURE dbo.sp_FinalizeManifest AS BEGIN SET NOCOUNT ON; END;');
+GO
 
-        DECLARE @RowsUpdated INT;
+ALTER PROCEDURE dbo.sp_FinalizeManifest
+    @TenantId UNIQUEIDENTIFIER,
+    @WorkspaceId UNIQUEIDENTIFIER,
+    @ScopeProjectId UNIQUEIDENTIFIER,
+    @RunId UNIQUEIDENTIFIER,
+    @ExpectedFindingsSnapshotId UNIQUEIDENTIFIER,
+    @ExpectedArtifactBundleId UNIQUEIDENTIFIER = NULL,
+    @ManifestId UNIQUEIDENTIFIER,
+    @DecisionTraceId UNIQUEIDENTIFIER,
+    @ManifestVersion NVARCHAR(128),
+    @ExpectedRowVersion VARBINARY(8),
+    @ActorUserId NVARCHAR(200),
+    @ActorUserName NVARCHAR(200),
+    @AuditEventId UNIQUEIDENTIFIER,
+    @OccurredUtc DATETIME2,
+    @AuditDataJson NVARCHAR(MAX),
+    @CorrelationId NVARCHAR(200) = NULL,
+    @OutboxId UNIQUEIDENTIFIER,
+    @IntegrationEventType NVARCHAR(256),
+    @OutboxMessageId NVARCHAR(128),
+    @OutboxPayloadUtf8 VARBINARY(MAX),
+    @OutboxPriority INT = 1
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @RowsUpdated INT;
 
         UPDATE dbo.Runs
         SET LegacyRunStatus = N'Committed',
@@ -124,7 +126,6 @@ BEGIN
         IF @Status NOT IN (N'ReadyForCommit', N'TasksGenerated')
             THROW 50003, N'Run cannot be finalized in this status.', 1;
 
-        THROW 50006, N'Concurrency conflict or stale run row version.', 1;
-    END;
+    THROW 50006, N'Concurrency conflict or stale run row version.', 1;
 END;
 GO

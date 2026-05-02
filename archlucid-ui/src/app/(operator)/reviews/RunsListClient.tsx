@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunInspectorPreview } from "@/components/RunInspectorPreview";
@@ -10,6 +10,7 @@ import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary"
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
@@ -80,6 +81,19 @@ function runRowExplicitCountsLine(run: RunSummary): string | null {
   }
 
   return null;
+}
+
+function runRowAccessibleDescription(run: RunSummary, activeProjectId: string, countsLine: string | null): string {
+  const title = runListPrimaryTitle(run);
+  const created = new Date(run.createdUtc).toLocaleString();
+  const counts = countsLine !== null ? `${countsLine}. ` : "";
+  const readiness = runRowOutputReadinessLine(run);
+  const projectNote =
+    run.projectId !== activeProjectId
+      ? `Project ${formatOperatorProjectIdDisplay(run.projectId)}. `
+      : "";
+
+  return `${title}. ${projectNote}${counts}Created ${created}. ${readiness}. Press Enter or Space to open the review preview panel.`;
 }
 
 function runRowOutputReadinessLine(run: RunSummary): string {
@@ -195,7 +209,12 @@ export function RunsListClient({
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (safeRuns.length > 0 ? safeRuns[0] : null));
+  const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
+  const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
   const viewportNarrow = useViewportNarrow();
+  const mobileInspectorTrapActive = viewportNarrow && selectedRun !== null;
+
+  useFocusTrap(mobileInspectorShellRef, mobileInspectorTrapActive);
 
   useEffect(() => {
     if (safeRuns.length === 0) {
@@ -262,6 +281,12 @@ export function RunsListClient({
   );
 
   const pages = totalPages(totalCount, pageSize);
+  useEffect(() => {
+    const totalLabel = `${totalCount} review${totalCount === 1 ? "" : "s"} total`;
+
+    setPaginationAnnouncement(`Page ${page} of ${pages}. ${totalLabel}.`);
+  }, [page, pages, totalCount]);
+
   const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
   const previousHref = `/reviews?${baseQuery}&page=1`;
   const nextHref =
@@ -301,6 +326,7 @@ export function RunsListClient({
             className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             autoComplete="off"
             aria-label="Filter reviews by name or description"
+            aria-controls="runs-list-filter-status"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -319,8 +345,11 @@ export function RunsListClient({
           </select>
         </div>
         <p
+          id="runs-list-filter-status"
+          role="status"
           className="text-sm text-neutral-600 dark:text-neutral-400"
           aria-live="polite"
+          aria-relevant="additions text"
           aria-atomic="true"
         >
           Showing {filteredSorted.length} of {safeRuns.length} on this page
@@ -391,12 +420,14 @@ export function RunsListClient({
                           const title = runListPrimaryTitle(run);
                           const countsLine = runRowExplicitCountsLine(run);
                           const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+                          const describeRow = runRowAccessibleDescription(run, projectId, countsLine);
 
                           return (
                             <RunTableRowErrorBoundary key={run.runId} runId={run.runId}>
                               <tr
                                 data-testid={`runs-row-${run.runId}`}
                                 tabIndex={0}
+                                aria-label={describeRow}
                                 className={cn(
                                   "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
                                   isSelected
@@ -483,6 +514,9 @@ export function RunsListClient({
             })}
           </div>
 
+          <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {paginationAnnouncement}
+          </div>
           <nav
             className="mt-5 flex flex-wrap items-center gap-4 text-sm"
             aria-label="Reviews pagination"
@@ -543,11 +577,16 @@ export function RunsListClient({
       </div>
 
       {viewportNarrow && selectedRun !== null ? (
-        <div className="fixed inset-0 z-40 flex justify-end" role="presentation">
+        <div
+          ref={mobileInspectorShellRef}
+          className="fixed inset-0 z-40 flex justify-end"
+          role="presentation"
+        >
           <button
             type="button"
             className="absolute inset-0 bg-black/40"
-            aria-label="Dismiss inspector backdrop"
+            tabIndex={-1}
+            aria-hidden="true"
             onClick={closeInspector}
           />
           <div className="animate-in slide-in-from-right relative h-full w-full max-w-sm duration-200 ease-out">

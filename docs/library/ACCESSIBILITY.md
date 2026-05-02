@@ -5,7 +5,7 @@
 
 # Accessibility — operator UI patterns (supplement)
 
-**Purpose:** Operator-shell patterns that complement the repo-wide accessibility baseline in **[`ACCESSIBILITY.md`](../../ACCESSIBILITY.md)** (WCAG 2.1 AA target, axe Playwright gates, eslint-plugin-jsx-a11y).
+**Purpose:** Operator-shell patterns that complement the repo-wide accessibility baseline in **[`ACCESSIBILITY.md`](../../ACCESSIBILITY.md)** (WCAG 2.2 AA target, axe Playwright gates, eslint-plugin-jsx-a11y).
 
 ---
 

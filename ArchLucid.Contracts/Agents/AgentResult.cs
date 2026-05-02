@@ -94,6 +94,15 @@ public sealed class AgentResult
         set;
     }
 
+    /// <summary>
+    ///     Detailed reasoning trace explaining how the agent arrived at these claims and findings.
+    /// </summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
+
     /// <summary>UTC timestamp when this result was created.</summary>
     public DateTime CreatedUtc
     {

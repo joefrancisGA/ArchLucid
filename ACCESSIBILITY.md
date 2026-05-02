@@ -1,10 +1,12 @@
 # Accessibility
 
-Last reviewed: 2026-04-25
+Last reviewed: 2026-05-02
 
 ## Target compliance level
 
-**WCAG 2.1 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines 2.1](https://www.w3.org/TR/WCAG21/) at Level AA.
+**WCAG 2.2 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines (WCAG) 2.2](https://www.w3.org/TR/WCAG22/) at Level AA, including WCAG 2.0/2.1 success criteria retained at that level.
+
+Playwright axe runs attach the **`wcag22aa`** ruleset bundle alongside **`wcag21aa`** (see **`archlucid-ui/e2e/helpers/axe-helper.ts`**).
 
 ## Current status
 
@@ -41,7 +43,9 @@ The following **15** routes are the **priority operator coverage** set (wizard, 
 | **axe-core** via `@axe-core/playwright`   | Automated WCAG scan  | Playwright e2e suite  |
 | **eslint-plugin-jsx-a11y**                | Static JSX linting   | ESLint (via Next.js)  |
 
-CI enforcement: merge-blocking **`ui-e2e-live`** runs **`live-api-accessibility*.spec.ts`** (Playwright + **`@axe-core/playwright`**) against **live API + SQL**; critical/serious violations fail the job. Fast component-level checks run in **`ui-axe-components`** via Vitest + **jest-axe** on **`archlucid-ui/src/accessibility/**`**.
+CI enforcement: merge-blocking **`ui-e2e-live`** runs **`live-api-accessibility*.spec.ts`** (Playwright + **`@axe-core/playwright`**) against **live API + SQL**; critical/serious violations fail the job. Automation uses WCAG-aligned axe tags (**`wcag2a`/`wcag2aa`**, **`wcag21*`**, **`wcag22aa`**), not an exhaustive conformance claim against every 2.x Understanding footnote.
+
+Fast component-level checks run in **`ui-axe-components`** via Vitest + **jest-axe** on **`archlucid-ui/src/accessibility/**`** plus additional primitive smoke tests (**`interactive-primitives-axe.test.tsx`**).
 
 ## Existing accessibility controls
 
@@ -77,9 +81,11 @@ To add accessibility checks for a new page:
 
 ## Manual testing guidance
 
-Automated scanning catches roughly 30–40% of WCAG issues. Supplement with:
+Automated scanning catches roughly **30–40%** of accessibility issues encountered in audits. Supplement with:
 
-- **Keyboard navigation**: Tab, Shift+Tab, Enter, Escape through all interactive elements — verify visible focus indicators and logical tab order
-- **Screen reader**: NVDA (Windows) or VoiceOver (macOS) — verify headings, landmarks, and dynamic content announce correctly
+- **Keyboard navigation**: Tab, Shift+Tab, Enter, Escape through interactive elements — verify visible focus indicators, logical Tab order (including overlays such as narrow-viewport inspectors), and that focus returns sensibly after closing layers
+- **Screen reader**: NVDA (Windows) or VoiceOver (macOS) — spot-check headings, landmarks, tables, wizard steps, filter/pagination **`aria-live`** regions, and `role="dialog"`/`aria-modal` patterns where Radix dialogs are used
 - **Zoom**: 200% browser zoom — verify no clipping or overlapping
-- **Reduced motion**: `prefers-reduced-motion` — verify animations respect the preference (currently none are used)
+- **Reduced motion**: With **`prefers-reduced-motion: reduce`** enabled at the OS level, verify UI remains usable (**`globals.css`** coerces **`animation`** / **`transition`** durations toward zero for layered components)
+
+Pull requests that touch **`archlucid-ui/src/app/(operator)/`** or **`archlucid-ui/src/components/`** should include at least one author keyboard pass (minimum: open the touched route, Esc closes modals, Tab does not leak focus from open overlays where trapping is intentional).

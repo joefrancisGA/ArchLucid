@@ -823,12 +823,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ImportAsync(Body body);
+        System.Threading.Tasks.Task ImportAsync(FileParameter file);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ImportAsync(Body body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ImportAsync(FileParameter file, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -11184,29 +11184,36 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ImportAsync(Body body)
+        public virtual System.Threading.Tasks.Task ImportAsync(FileParameter file)
         {
-            return ImportAsync(body, System.Threading.CancellationToken.None);
+            return ImportAsync(file, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Accepted</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ImportAsync(Body body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ImportAsync(FileParameter file, System.Threading.CancellationToken cancellationToken)
         {
-            if (body == null)
-                throw new System.ArgumentNullException("body");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
-                    var dictionary_ = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, string>>(json_, JsonSerializerSettings);
-                    var content_ = new System.Net.Http.FormUrlEncodedContent(dictionary_);
-                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+                    var boundary_ = System.Guid.NewGuid().ToString();
+                    var content_ = new System.Net.Http.MultipartFormDataContent(boundary_);
+                    content_.Headers.Remove("Content-Type");
+                    content_.Headers.TryAddWithoutValidation("Content-Type", "multipart/form-data; boundary=" + boundary_);
+
+                    if (file == null)
+                        throw new System.ArgumentNullException("file");
+                    else
+                    {
+                        var content_file_ = new System.Net.Http.StreamContent(file.Data);
+                        if (!string.IsNullOrEmpty(file.ContentType))
+                            content_file_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse(file.ContentType);
+                        content_.Add(content_file_, "file", file.FileName ?? "file");
+                    }
                     request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
@@ -42183,6 +42190,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("fromNodeId")]
         public string? FromNodeId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("inferenceSource")]
+        public string? InferenceSource { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("label")]
         public string? Label { get; set; } = default!;
 
@@ -48936,40 +48946,6 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("runsCreatedTotal")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public long? RunsCreatedTotal { get; set; } = default!;
-
-        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Body
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("ContentDisposition")]
-        public string? ContentDisposition { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("ContentType")]
-        public string? ContentType { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("FileName")]
-        public string? FileName { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("Headers")]
-        public System.Collections.Generic.IDictionary<string, System.Collections.Generic.ICollection<string>>? Headers { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("Length")]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long? Length { get; set; } = default!;
-
-        [System.Text.Json.Serialization.JsonPropertyName("Name")]
-        public string? Name { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
