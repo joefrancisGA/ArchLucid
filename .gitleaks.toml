@@ -7,8 +7,13 @@ title = "ArchLucid"
 [extend]
 useDefault = true
 
-[allowlist]
+# v8.25+ requires [[allowlists]]; legacy [allowlist] is ignored (unlike rules.allowlist migration).
+[[allowlists]]
 description = "Documented non-production literals (SQL dev passwords, one retired Stripe-shaped test fixture in git history) — rotate SQL passwords if you reuse outside this repo"
+paths = [
+  # TB-003 named-query perf thresholds only; generic-api-key false-positive on *Keyset* in metric names (*key* keyword).
+  '''(?:^|/)tests/performance/query-allowlist\.json$''',
+]
 regexes = [
   "ArchiForge_Dev_Pass123!",
   "ArchLucid_Dev_Pass123!",
