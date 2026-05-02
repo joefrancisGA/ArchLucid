@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import {
   downloadFirstValueReportPdf,
@@ -260,6 +261,18 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           </a>
         </li>
       </ul>
+
+      <div className="mt-3">
+        <ProductLearningFeedbackControls
+          runId={runId}
+          subjectType="RunOutput"
+          artifactHint="pilot-scorecard-package"
+          patternKey="review-package:sponsor"
+          detail={{ runId, manifestId, surface: "EmailRunToSponsorBanner" }}
+          compact
+          title="Did this review package help your sponsor conversation?"
+        />
+      </div>
 
       {error !== null ? (
         <div className="mt-2">

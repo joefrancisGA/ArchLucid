@@ -16,9 +16,28 @@
 - Each **signal** is a **human judgment**: trust, reject, revise, follow-up, etc., plus **subject** (what was rated), optional **pattern key**, optional short **comment**, and optional link to an **architecture run**.
 - Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchLucid:StorageProvider` is **`Sql`**). Scope is always **tenant + workspace + project** (same headers/claims as other operator APIs: `x-tenant-id`, `x-workspace-id`, `x-project-id`, or defaults in Development).
 - **Nothing in 58R auto-changes** prompts, rule packs, or agents from this data.
-- **Insert path today** is through **application integration** (code that uses the product-learning repository). The shipped API focuses on **read**, dashboard, and **export**; a first-party **HTTP POST** for pilots may arrive in a later change. Until then, empty dashboards simply mean **no rows in scope**.
+- **Insert paths today:** operator UI feedback controls call **`POST /v1/product-learning/signals`** for findings, manifest artifacts, and sponsor/review packages. Application integration can also write through the product-learning repository. Empty dashboards mean no rows in scope or no users have submitted feedback yet.
 
 **Conventions:** Do not put secrets or credentials in free-text fields.
+
+### 1.1 In-product feedback controls
+
+The operator shell captures four dispositions:
+
+| UI label | Stored disposition | Use when |
+|----------|--------------------|----------|
+| **Trusted** | `Trusted` | The finding, artifact, or review package is usable as-is. |
+| **Needs revision** | `Revised` | The output is directionally useful but needs edits or clearer structure. |
+| **Rejected** | `Rejected` | The output is misleading, unusable, or not relevant. |
+| **Follow up** | `NeedsFollowUp` | The output raised a real question or action that product / architecture owners should triage. |
+
+Current pilot-facing surfaces:
+
+- Finding explainability rows and finding detail pages.
+- Manifest artifact rows on review detail.
+- The sponsor / pilot scorecard package banner after finalization.
+
+Each submission stores the current tenant/workspace/project scope, optional run identifiers when the run id is a GUID, subject type, artifact hint, pattern key, optional short comment, and actor display/key from the authenticated request. Comments are intentionally short and should not contain secrets, credentials, customer private data beyond the reviewed architecture context, or personal notes unrelated to product learning.
 
 ---
 

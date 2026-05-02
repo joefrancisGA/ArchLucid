@@ -23,7 +23,7 @@ Detect **churn risk** early, identify **expansion** opportunities, and give the 
 |-----------|--------|---------|-------------|
 | **Engagement** | 30% | Runs per week, unique active operators, login frequency | `dbo.Runs` (created dates), `dbo.AuditEvents` (actor diversity) |
 | **Breadth** | 20% | Finding engine types used, comparison runs, export frequency, workspaces active | Run metadata, audit events |
-| **Quality** | 15% | Average agent output quality score, explainability trace completeness ratio | OTel metrics (`archlucid.authority.agent_output_quality`, `archlucid.explanation_trace_completeness_ratio`) |
+| **Quality** | 15% | Average agent output quality score, explainability trace completeness ratio, product-learning disposition mix (`Trusted` vs `Revised` / `Rejected` / `NeedsFollowUp`) | OTel metrics (`archlucid.authority.agent_output_quality`, `archlucid.explanation_trace_completeness_ratio`), `dbo.ProductLearningPilotSignals` |
 | **Governance adoption** | 20% | Approval requests created/resolved, policy packs configured, segregation of duties active | `dbo.GovernanceApprovalRequests`, governance audit events |
 | **Support** | 15% | Ticket volume, severity distribution, time-to-resolution, CSAT | External support tool (placeholder) |
 
@@ -60,7 +60,7 @@ Each dimension has its own scale definition (adapt from template above). Documen
 | Phase | Scope | Effort |
 |-------|-------|--------|
 | **Phase 1 (manual)** | CS team fills in a spreadsheet monthly using SQL queries and support data. Review in team standup. | Low — spreadsheet + ad hoc SQL |
-| **Phase 2 (semi-automated)** | Scheduled SQL report (stored procedure or Python script) emailed to CS weekly. Support data manually appended. | Medium — script + scheduled job |
+| **Phase 2 (semi-automated)** | Scheduled SQL report (stored procedure or Python script) emailed to CS weekly. Include product-learning feedback disposition counts; support data manually appended. | Medium — script + scheduled job |
 | **Phase 3 (in-product)** | Admin dashboard with health metrics per tenant/workspace. Alerting on Red accounts. Support integration via API. | High — UI + backend + integration |
 
 **Start with Phase 1.** The goal is to build the **habit** of reviewing health before building the tooling.

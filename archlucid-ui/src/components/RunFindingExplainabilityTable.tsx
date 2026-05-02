@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
+import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
 import { truncateForList } from "@/lib/truncate-for-list";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -43,7 +44,7 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 88,
+    estimateSize: () => 190,
     overscan: 10,
   });
 
@@ -154,6 +155,19 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                     </Button>
                   </div>
                   <CopyTraceRowWorkItemButton row={row} runId={runId} />
+                  <ProductLearningFeedbackControls
+                    runId={runId}
+                    subjectType="Finding"
+                    artifactHint={`finding:${row.findingId}`}
+                    patternKey={row.ruleId ? `finding-rule:${row.ruleId}` : "finding"}
+                    detail={{
+                      findingId: row.findingId,
+                      title: row.findingTitle,
+                      traceCompletenessRatio: row.traceCompletenessRatio,
+                    }}
+                    compact
+                    title="Useful?"
+                  />
                 </div>
               </div>
             );

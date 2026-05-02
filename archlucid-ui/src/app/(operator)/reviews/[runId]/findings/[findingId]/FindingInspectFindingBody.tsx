@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
@@ -52,6 +53,7 @@ function EvidenceExcerptBody({ text }: { readonly text: string }): ReactElement 
  */
 export function FindingInspectFindingBody({
   runId,
+  decodedFindingId,
   payload,
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {
@@ -111,20 +113,38 @@ export function FindingInspectFindingBody({
       </section>
 
       {variant === "detail" ? (
-        <section className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
-          <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
-          {structuredActions.length > 1 ? (
-            <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
-              {structuredActions.map((action, idx) => (
-                <li key={idx}>{action}</li>
-              ))}
-            </ol>
-          ) : (
-            <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
-              {recommendedActionParagraph.trim()}
-            </p>
-          )}
-        </section>
+        <>
+          <section className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-4 dark:border-teal-900 dark:bg-teal-950/30">
+            <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recommended action</h2>
+            {structuredActions.length > 1 ? (
+              <ol className="mb-0 mt-2 list-decimal space-y-1.5 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+                {structuredActions.map((action, idx) => (
+                  <li key={idx}>{action}</li>
+                ))}
+              </ol>
+            ) : (
+              <p className="m-0 mt-2 whitespace-pre-line text-sm text-neutral-800 dark:text-neutral-200">
+                {recommendedActionParagraph.trim()}
+              </p>
+            )}
+          </section>
+          <ProductLearningFeedbackControls
+            runId={runId}
+            manifestVersion={payload.manifestVersion}
+            subjectType="Finding"
+            artifactHint={`finding:${decodedFindingId}`}
+            patternKey={
+              payload.decisionRuleId
+                ? `finding-rule:${payload.decisionRuleId}`
+                : "finding"
+            }
+            detail={{
+              findingId: decodedFindingId,
+              decisionRuleId: payload.decisionRuleId,
+            }}
+            title="Was this finding useful?"
+          />
+        </>
       ) : null}
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">

@@ -267,6 +267,43 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   return JSON.parse(text) as T;
 }
 
+/** POSTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
+export async function apiPostNoContent(path: string, body: unknown): Promise<void> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    method: "POST",
+    headers: h,
+    cache: "no-store",
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+}
+
+export type ProductLearningDisposition = "Trusted" | "Rejected" | "Revised" | "NeedsFollowUp";
+
+export type ProductLearningSignalRequest = {
+  architectureRunId?: string;
+  authorityRunId?: string;
+  manifestVersion?: string;
+  subjectType: "Finding" | "ManifestArtifact" | "RunOutput" | "ComparisonSummary" | "AdvisoryRecommendation" | "Other";
+  disposition: ProductLearningDisposition;
+  patternKey?: string;
+  artifactHint?: string;
+  commentShort?: string;
+  detailJson?: string;
+};
+
+export async function submitProductLearningSignal(request: ProductLearningSignalRequest): Promise<void> {
+  await apiPostNoContent("/v1/product-learning/signals", request);
+}
+
 /** DELETEs a path; returns void on 2xx. Throws on HTTP errors. */
 export async function apiDelete(path: string): Promise<void> {
   await ensureOidcBearerReady();

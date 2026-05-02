@@ -2,8 +2,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Models.ProductLearning;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Authorization;
@@ -35,6 +37,8 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ProductLearningController(
     IProductLearningDashboardService dashboardService,
+    IProductLearningPilotSignalRepository pilotSignalRepository,
+    IActorContext actorContext,
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
@@ -78,6 +82,51 @@ public sealed class ProductLearningController(
         };
 
         return Ok(body);
+    }
+
+    /// <summary>Captures a scoped pilot feedback signal from a visible review output.</summary>
+    [HttpPost("signals")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostSignal(
+        [FromBody] ProductLearningSignalRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        string subjectType = NormalizeRequired(request.SubjectType);
+        string disposition = NormalizeRequired(request.Disposition);
+
+        if (string.IsNullOrWhiteSpace(subjectType)) return this.BadRequestProblem("SubjectType is required.", ProblemTypes.ValidationFailed);
+
+        if (!IsAllowedDisposition(disposition))
+            return this.BadRequestProblem(
+                "Disposition must be Trusted, Rejected, Revised, or NeedsFollowUp.",
+                ProblemTypes.ValidationFailed);
+
+        ScopeContext scopeContext = scopeProvider.GetCurrentScope();
+        ProductLearningPilotSignalRecord signal = new()
+        {
+            TenantId = scopeContext.TenantId,
+            WorkspaceId = scopeContext.WorkspaceId,
+            ProjectId = scopeContext.ProjectId,
+            ArchitectureRunId = NormalizeOptional(request.ArchitectureRunId, 64),
+            AuthorityRunId = request.AuthorityRunId,
+            ManifestVersion = NormalizeOptional(request.ManifestVersion, 128),
+            SubjectType = subjectType,
+            Disposition = disposition,
+            PatternKey = NormalizeOptional(request.PatternKey, 200),
+            ArtifactHint = NormalizeOptional(request.ArtifactHint, 512),
+            CommentShort = NormalizeOptional(request.CommentShort, 2000),
+            DetailJson = NormalizeOptional(request.DetailJson, 4000),
+            RecordedByUserId = actorContext.GetActorId(),
+            RecordedByDisplayName = actorContext.GetActor()
+        };
+
+        await pilotSignalRepository.InsertAsync(signal, cancellationToken);
+
+        return NoContent();
     }
 
     /// <summary>Top improvement opportunities after deterministic ranking (cap via <c>maxOpportunities</c>).</summary>
@@ -302,8 +351,7 @@ public sealed class ProductLearningController(
 
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
-        if (scopeContext is null)
-            throw new ArgumentNullException(nameof(scopeContext));
+        if (scopeContext is null) throw new ArgumentNullException(nameof(scopeContext));
 
         return new ProductLearningScope
         {
@@ -311,5 +359,22 @@ public sealed class ProductLearningController(
             WorkspaceId = scopeContext.WorkspaceId,
             ProjectId = scopeContext.ProjectId
         };
+    }
+
+    private static bool IsAllowedDisposition(string disposition) =>
+        disposition is ProductLearningDispositionValues.Trusted
+            or ProductLearningDispositionValues.Rejected
+            or ProductLearningDispositionValues.Revised
+            or ProductLearningDispositionValues.NeedsFollowUp;
+
+    private static string NormalizeRequired(string? value) => value?.Trim() ?? string.Empty;
+
+    private static string? NormalizeOptional(string? value, int maxLength)
+    {
+        string? trimmed = value?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmed)) return null;
+
+        return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength];
     }
 }

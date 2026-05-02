@@ -16,6 +16,7 @@
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "screenshots": "playwright test -c playwright.mock.config.ts capture-marketing-screenshots.spec.ts",
     "screenshots:all": "playwright test -c playwright.mock.config.ts capture-all-screenshots.spec.ts",
+    "screenshots:demo": "playwright test --project=chromium e2e/live-api-demo-screenshots.spec.ts",
     "screenshots:all:prebuilt": "node ./scripts/run-screenshots-all-prebuilt.mjs",
     "test:e2e:live": "playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",

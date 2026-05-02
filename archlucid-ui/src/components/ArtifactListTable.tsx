@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { getArtifactBusinessLabel, getArtifactFormatLabel, getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
@@ -89,6 +90,23 @@ export function ArtifactListTable(props: {
                   <Link href={reviewHref}>Preview</Link>
                   <span className="mx-2 text-neutral-300 dark:text-neutral-600">|</span>
                   <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
+                  {runId ? (
+                    <div className="mt-2 max-w-xs">
+                      <ProductLearningFeedbackControls
+                        runId={runId}
+                        subjectType="ManifestArtifact"
+                        artifactHint={`${artifact.artifactType}:${artifact.name}`}
+                        patternKey={`artifact:${artifact.artifactType}`}
+                        detail={{
+                          artifactId: artifact.artifactId,
+                          manifestId,
+                          format: artifact.format,
+                        }}
+                        compact
+                        title="Artifact useful?"
+                      />
+                    </div>
+                  ) : null}
                 </td>
               </tr>
             );
