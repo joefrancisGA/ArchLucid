@@ -6,6 +6,8 @@ namespace ArchLucid.Contracts.ProductLearning;
 /// </summary>
 public static class ProductLearningSubjectTypeValues
 {
+    public const string Finding = "Finding";
+
     public const string RunOutput = "RunOutput";
 
     public const string ManifestArtifact = "ManifestArtifact";
