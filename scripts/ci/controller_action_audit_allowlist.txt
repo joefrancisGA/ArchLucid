@@ -73,6 +73,7 @@ ArchLucid.Api.Controllers.Planning.ComparisonsController.ReplayComparisonsBatch
 ArchLucid.Api.Controllers.Planning.ComparisonsController.UpdateComparisonRecord
 ArchLucid.Api.Controllers.Planning.FindingFeedbackController.PostFindingFeedbackAsync
 ArchLucid.Api.Controllers.Tenancy.TenantCustomerSuccessController.PostProductFeedbackAsync
+ArchLucid.Api.Controllers.Tenancy.CorePilotTeamChecklistController.PutAsync
 # SCIM v2: IAuditService.LogAsync runs in ScimUserService / ScimGroupService (see docs/library/AUDIT_COVERAGE_MATRIX.md SCIM rows).
 ArchLucid.Api.Controllers.Scim.ScimGroupsController.CreateAsync
 ArchLucid.Api.Controllers.Scim.ScimGroupsController.ReplaceAsync

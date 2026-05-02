@@ -3,6 +3,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
@@ -159,6 +160,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ExecutiveSponsorBriefPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
         services.AddScoped<IPilotInProductScorecardService, PilotInProductScorecardService>();
+        services.AddScoped<IOperatorNextBestActionService, OperatorNextBestActionService>();
         services.AddScoped<PilotOutcomeSummaryService>();
         services.AddScoped<SponsorOnePagerPdfBuilder>();
         services.AddScoped<BoardPackPdfBuilder>();

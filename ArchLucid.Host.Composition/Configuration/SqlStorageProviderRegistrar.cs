@@ -218,6 +218,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();
         services.AddScoped<ITenantCustomerSuccessRepository, SqlTenantCustomerSuccessRepository>();
+        services.AddScoped<ICorePilotTeamChecklistRepository, SqlCorePilotTeamChecklistRepository>();
+        services.AddScoped<IOperatorStickinessSnapshotReader, SqlOperatorStickinessSnapshotReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
         services.AddScoped<IFindingReviewTrailRepository, SqlFindingReviewTrailRepository>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();

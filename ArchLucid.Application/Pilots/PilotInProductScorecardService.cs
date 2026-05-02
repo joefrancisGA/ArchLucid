@@ -38,7 +38,7 @@ public sealed class PilotInProductScorecardService(
 
         PilotInProductRoiEstimate? roi = TryBuildRoi(row);
 
-        return new PilotInProductScorecardResult
+        PilotInProductScorecardResult result = new()
         {
             TenantId = scope.TenantId,
             TotalRunsCommitted = m.TotalRunsCommitted,
@@ -50,8 +50,33 @@ public sealed class PilotInProductScorecardService(
             FirstCommitUtc = m.FirstCommitUtc,
             DaysSinceFirstCommit = daysSinceFirst,
             Baselines = baselines,
-            RoiEstimate = roi
+            RoiEstimate = roi,
+            MetricSources = BuildMetricSources(baselines, roi)
         };
+
+        return result;
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildMetricSources(
+        PilotInProductBaselinesView? baselines,
+        PilotInProductRoiEstimate? roi)
+    {
+        Dictionary<string, string> d = new(StringComparer.Ordinal)
+        {
+            ["tenantId"] = "measured",
+            ["totalRunsCommitted"] = "measured",
+            ["totalManifestsCreated"] = "measured",
+            ["totalFindingsResolved"] = "measured",
+            ["averageTimeToManifestMinutes"] = "measured",
+            ["totalAuditEventsGenerated"] = "measured",
+            ["totalGovernanceApprovalsCompleted"] = "measured",
+            ["firstCommitUtc"] = "measured",
+            ["daysSinceFirstCommit"] = "modeled",
+            ["baselines"] = baselines is null ? "manual (unset)" : "manual",
+            ["roiEstimate"] = roi is null ? "unavailable" : "modeled"
+        };
+
+        return d;
     }
 
     public async Task UpsertBaselinesAsync(

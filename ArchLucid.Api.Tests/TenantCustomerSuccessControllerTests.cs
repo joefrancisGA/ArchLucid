@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Api.Models.CustomerSuccess;
+using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 
@@ -23,6 +24,32 @@ public sealed class TenantCustomerSuccessControllerTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
+    private static TenantCustomerSuccessController BuildSut(
+        ITenantCustomerSuccessRepository repo,
+        IScopeContextProvider scopeProvider,
+        IOperatorNextBestActionService? next = null,
+        IOperatorStickinessSnapshotReader? stickiness = null)
+    {
+        Mock<IOperatorNextBestActionService> nextMock = new();
+        nextMock.Setup(n => n.GetActionsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<OperatorNextBestActionItem>());
+
+        Mock<IOperatorStickinessSnapshotReader> stickinessMock = new();
+        stickinessMock
+            .Setup(s => s.GetFunnelSnapshotAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotFunnelSnapshot(null, null, null, null, null, 0, 0, 0));
+
+        return new TenantCustomerSuccessController(
+                repo,
+                next ?? nextMock.Object,
+                stickiness ?? stickinessMock.Object,
+                scopeProvider)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+    }
+
     [SkippableFact]
     public async Task GetHealthScoreAsync_returns_not_calculated_when_repository_returns_null()
     {
@@ -34,15 +61,12 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
 
         IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        TenantHealthScoreResponse body = ok.Value.Should().BeOfType<TenantHealthScoreResponse>().Subject;
+        TenantHealthScoreResponse body = ok.Value.Should().BeAssignableTo<TenantHealthScoreResponse>().Subject;
         body.IsCalculated.Should().BeFalse();
     }
 
@@ -69,15 +93,11 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
-
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
         IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        TenantHealthScoreResponse body = ok.Value.Should().BeOfType<TenantHealthScoreResponse>().Subject;
+        TenantHealthScoreResponse body = ok.Value.Should().BeAssignableTo<TenantHealthScoreResponse>().Subject;
         body.IsCalculated.Should().BeTrue();
         body.EngagementScore.Should().Be(4.1M);
         body.CompositeScore.Should().Be(3.6M);
@@ -91,12 +111,9 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
 
-        IActionResult result = await sut.PostProductFeedbackAsync(null!, CancellationToken.None);
+        IActionResult result = await sut.PostProductFeedbackAsync(null, CancellationToken.None);
 
         ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -117,11 +134,7 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
-
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object);
         ProductFeedbackRequest request = new()
         {
             FindingRef = "finding-1",

@@ -67,6 +67,13 @@ public sealed class PilotInProductScorecardResponse
         get;
         set;
     }
+
+    /// <summary>Maps scorecard field keys to provenance: measured, manual, manual (unset), modeled, unavailable.</summary>
+    public Dictionary<string, string>? MetricSources
+    {
+        get;
+        set;
+    }
 }
 
 public sealed class PilotInProductBaselinesResponse

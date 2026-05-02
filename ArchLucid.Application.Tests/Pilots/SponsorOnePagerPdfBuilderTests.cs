@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -10,6 +11,7 @@ using ArchLucid.Persistence.Models;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -31,9 +33,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
         runs.Setup(r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
+        Mock<IOptionsMonitor<PublicSiteOptions>> site = new();
+        site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
         PilotScorecardBuilder scorecard = new(runs.Object, scope.Object, NullLogger<PilotScorecardBuilder>.Instance);
         Mock<IPilotRunDeltaComputer> deltas = new();
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object);
+        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, site.Object);
 
         byte[]? pdf = await sut.BuildPdfAsync("missing", "http://localhost:5000");
 
@@ -115,7 +120,10 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 IsDemoTenant = false,
             });
 
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object);
+        Mock<IOptionsMonitor<PublicSiteOptions>> site = new();
+        site.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
+        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, site.Object);
 
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-1", "http://localhost:5000");
 
@@ -189,7 +197,10 @@ public sealed class SponsorOnePagerPdfBuilderTests
                 IsDemoTenant = true,
             });
 
-        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object);
+        Mock<IOptionsMonitor<PublicSiteOptions>> siteDemo = new();
+        siteDemo.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
+        SponsorOnePagerPdfBuilder sut = new(query.Object, scorecard, deltas.Object, siteDemo.Object);
 
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-demo", "http://localhost:5000");
 

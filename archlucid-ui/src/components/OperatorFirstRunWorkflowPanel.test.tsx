@@ -23,6 +23,16 @@ vi.mock("@/lib/core-pilot-commit-context", () => ({
   })),
 }));
 
+vi.mock("@/lib/api", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");
+
+  return {
+    ...actual,
+    fetchCorePilotTeamChecklist: vi.fn(async () => []),
+    putCorePilotTeamChecklistStep: vi.fn(async () => {}),
+  };
+});
+
 describe("OperatorFirstRunWorkflowPanel", () => {
   afterEach(() => {
     localStorage.clear();

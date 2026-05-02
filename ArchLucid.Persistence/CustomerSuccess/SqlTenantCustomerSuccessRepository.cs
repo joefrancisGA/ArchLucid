@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -142,15 +144,58 @@ public sealed class SqlTenantCustomerSuccessRepository(
                     ct)
                 .ConfigureAwait(false);
 
-            decimal engagement = EngagementFromRunCount(runs7d);
+            int commits7d = await CountGoldenManifestsLastSevenDaysAsync(
+                    connection,
+                    tenant.Id,
+                    link.WorkspaceId,
+                    link.DefaultProjectId,
+                    ct)
+                .ConfigureAwait(false);
 
-            // Phase-1: other dimensions default to neutral until telemetry wiring lands (see docs/go-to-market/CUSTOMER_HEALTH_SCORING.md).
-            decimal breadth = 3.0M;
-            decimal quality = 3.0M;
-            decimal governance = 3.0M;
-            decimal support = 3.0M;
+            int actors7d = await CountDistinctAuditActorsLastSevenDaysAsync(
+                    connection,
+                    tenant.Id,
+                    link.WorkspaceId,
+                    link.DefaultProjectId,
+                    ct)
+                .ConfigureAwait(false);
 
-            decimal composite = CompositeScore(engagement, breadth, quality, governance, support);
+            int breadth30d = await CountBreadthSignalsLastThirtyDaysAsync(
+                    connection,
+                    tenant.Id,
+                    link.WorkspaceId,
+                    link.DefaultProjectId,
+                    ct)
+                .ConfigureAwait(false);
+
+            (int totalSignals90d, int trusted90d) = await CountProductLearningSignalsAsync(
+                    connection,
+                    tenant.Id,
+                    link.WorkspaceId,
+                    link.DefaultProjectId,
+                    ct)
+                .ConfigureAwait(false);
+
+            int govApproved30d = await CountGovernanceApprovalsLastThirtyDaysAsync(
+                    connection,
+                    tenant.Id,
+                    link.WorkspaceId,
+                    link.DefaultProjectId,
+                    ct)
+                .ConfigureAwait(false);
+
+            decimal engagement = TenantHealthScoringCalculator.EngagementScore(runs7d, commits7d, actors7d);
+            decimal breadth = TenantHealthScoringCalculator.BreadthScore(breadth30d);
+            decimal quality = TenantHealthScoringCalculator.QualityScore(totalSignals90d, trusted90d);
+            decimal governance = TenantHealthScoringCalculator.GovernanceScore(govApproved30d);
+            decimal support = TenantHealthScoringCalculator.NeutralSupportScore();
+
+            decimal composite = TenantHealthScoringCalculator.CompositeScore(
+                engagement,
+                breadth,
+                quality,
+                governance,
+                support);
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
@@ -198,33 +243,170 @@ public sealed class SqlTenantCustomerSuccessRepository(
         return (int)Math.Min(int.MaxValue, count);
     }
 
-    private static decimal EngagementFromRunCount(int runs7d)
+    private static async Task<int> CountGoldenManifestsLastSevenDaysAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
     {
-        return runs7d switch
-        {
-            0 => 1.0M,
-            <= 2 => 2.0M,
-            <= 5 => 3.0M,
-            <= 9 => 4.0M,
-            _ => 5.0M
-        };
+        const string sql = """
+                             SELECT COUNT_BIG(1)
+                             FROM dbo.GoldenManifests gm
+                             INNER JOIN dbo.Runs r ON r.RunId = gm.RunId
+                             WHERE r.TenantId = @TenantId
+                               AND r.WorkspaceId = @WorkspaceId
+                               AND r.ScopeProjectId = @ProjectId
+                               AND r.ArchivedUtc IS NULL
+                               AND gm.CreatedUtc >= DATEADD(DAY, -7, SYSUTCDATETIME());
+                             """;
+
+        long n = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                cancellationToken: ct));
+
+        return (int)Math.Min(int.MaxValue, n);
     }
 
-    private static decimal CompositeScore(
-        decimal engagement,
-        decimal breadth,
-        decimal quality,
-        decimal governance,
-        decimal support)
+    private static async Task<int> CountDistinctAuditActorsLastSevenDaysAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
     {
-        return Math.Round(
-            0.30M * engagement
-            + 0.20M * breadth
-            + 0.15M * quality
-            + 0.20M * governance
-            + 0.15M * support,
-            2,
-            MidpointRounding.AwayFromZero);
+        const string sql = """
+                             SELECT COUNT_BIG(DISTINCT ActorUserId)
+                             FROM dbo.AuditEvents
+                             WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND OccurredUtc >= DATEADD(DAY, -7, SYSUTCDATETIME());
+                             """;
+
+        long n = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                cancellationToken: ct));
+
+        return (int)Math.Min(int.MaxValue, n);
+    }
+
+    private static async Task<int> CountBreadthSignalsLastThirtyDaysAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+                             SELECT COUNT_BIG(1)
+                             FROM dbo.AuditEvents
+                             WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND OccurredUtc >= DATEADD(DAY, -30, SYSUTCDATETIME())
+                               AND EventType IN (
+                                   @Comparison,
+                                   @Replay,
+                                   @Provenance,
+                                   @ArtifactDl,
+                                   @BundleDl,
+                                   @RunExported,
+                                   @DocxExport,
+                                   @ReviewTrail,
+                                   @FindingsList);
+                             """;
+
+        long n = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Comparison = AuditEventTypes.ComparisonSummaryPersisted,
+                    Replay = AuditEventTypes.ReplayExecuted,
+                    Provenance = AuditEventTypes.ProvenanceAccessed,
+                    ArtifactDl = AuditEventTypes.ArtifactDownloaded,
+                    BundleDl = AuditEventTypes.BundleDownloaded,
+                    RunExported = AuditEventTypes.RunExported,
+                    DocxExport = AuditEventTypes.ArchitectureDocxExportGenerated,
+                    ReviewTrail = AuditEventTypes.ReviewTrailAccessed,
+                    FindingsList = AuditEventTypes.FindingsListAccessed
+                },
+                cancellationToken: ct));
+
+        return (int)Math.Min(int.MaxValue, n);
+    }
+
+    private static async Task<(int Total, int Trusted)> CountProductLearningSignalsAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+                             SELECT
+                                 COUNT_BIG(1) AS TotalCt,
+                                 SUM(CASE WHEN Disposition = @Trusted THEN 1 ELSE 0 END) AS TrustedCt
+                             FROM dbo.ProductLearningPilotSignals
+                             WHERE TenantId = @TenantId
+                               AND WorkspaceId = @WorkspaceId
+                               AND ProjectId = @ProjectId
+                               AND RecordedUtc >= DATEADD(DAY, -90, SYSUTCDATETIME());
+                             """;
+
+        SignalAggRow? row = await connection.QuerySingleOrDefaultAsync<SignalAggRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Trusted = ProductLearningDispositionValues.Trusted
+                },
+                cancellationToken: ct));
+
+        if (row is null)
+            return (0, 0);
+
+        int total = (int)Math.Min(int.MaxValue, row.TotalCt);
+        int trusted = (int)Math.Min(int.MaxValue, row.TrustedCt ?? 0L);
+
+        return (total, trusted);
+    }
+
+    private static async Task<int> CountGovernanceApprovalsLastThirtyDaysAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+                             SELECT COUNT_BIG(1)
+                             FROM dbo.GovernanceApprovalRequests g
+                             WHERE g.TenantId = @TenantId
+                               AND g.WorkspaceId = @WorkspaceId
+                               AND g.ProjectId = @ProjectId
+                               AND g.Status = N'Approved'
+                               AND g.ReviewedUtc >= DATEADD(DAY, -30, SYSUTCDATETIME());
+                             """;
+
+        long n = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                cancellationToken: ct));
+
+        return (int)Math.Min(int.MaxValue, n);
     }
 
     private sealed record TenantHealthScoreSqlRow(
@@ -236,4 +418,6 @@ public sealed class SqlTenantCustomerSuccessRepository(
         decimal SupportScore,
         decimal CompositeScore,
         DateTime UpdatedUtc);
+
+    private sealed record SignalAggRow(long TotalCt, long? TrustedCt);
 }

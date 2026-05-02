@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
 
 using QuestPDF;
 using QuestPDF.Fluent;
@@ -11,6 +12,8 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 using QuestPdfDocument = QuestPDF.Fluent.Document;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -26,12 +29,16 @@ namespace ArchLucid.Application.Pilots;
 public sealed class SponsorOnePagerPdfBuilder(
     IRunDetailQueryService runDetailQuery,
     PilotScorecardBuilder scorecardBuilder,
-    IPilotRunDeltaComputer deltaComputer)
+    IPilotRunDeltaComputer deltaComputer,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
     private const string DemoTenantBanner = "demo tenant — replace before publishing";
 
     private readonly IPilotRunDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+
+    private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
+        publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
 
     private readonly IRunDetailQueryService _runDetailQuery =
         runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -146,7 +153,12 @@ public sealed class SponsorOnePagerPdfBuilder(
                         .Text(
                             "Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
 
-                    column.Item().PaddingTop(10).Text($"Deep link: {footer}/v1/architecture/run/{run.RunId}");
+                    column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/run/{run.RunId}");
+
+                    string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
+                    column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
+                    column.Item().Text($"{ui}/reviews/{run.RunId}");
+                    column.Item().Text($"{ui}/scorecard");
                 });
             });
         });

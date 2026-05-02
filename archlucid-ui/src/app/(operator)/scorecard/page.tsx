@@ -14,6 +14,7 @@ type ScorecardJson = {
   totalGovernanceApprovalsCompleted: number;
   firstCommitUtc: string | null;
   daysSinceFirstCommit: number | null;
+  metricSources?: Record<string, string>;
   baselines: {
     baselineHoursPerReview: number | null;
     baselineReviewsPerQuarter: number | null;
@@ -28,7 +29,7 @@ type ScorecardJson = {
   } | null;
 };
 
-function MetricCard(props: { title: string; value: string; hint?: string }) {
+function MetricCard(props: { title: string; value: string; hint?: string; provenance?: string }) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{props.title}</p>
@@ -37,6 +38,11 @@ function MetricCard(props: { title: string; value: string; hint?: string }) {
       </p>
       {props.hint ? (
         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{props.hint}</p>
+      ) : null}
+      {props.provenance ? (
+        <p className="mt-1 text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+          Source: {props.provenance}
+        </p>
       ) : null}
     </div>
   );
@@ -131,31 +137,36 @@ export default function PilotScorecardPage() {
               Operational metrics
             </h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <MetricCard title="Runs committed" value={String(data.totalRunsCommitted)} />
-              <MetricCard title="Manifests created" value={String(data.totalManifestsCreated)} />
+              <MetricCard title="Runs committed" value={String(data.totalRunsCommitted)} provenance={data.metricSources?.totalRunsCommitted} />
+              <MetricCard title="Manifests created" value={String(data.totalManifestsCreated)} provenance={data.metricSources?.totalManifestsCreated} />
               <MetricCard
                 title="Findings affirmed"
                 value={String(data.totalFindingsResolved)}
                 hint="FindingFeedback score +1 (tenant scope)"
+                provenance={data.metricSources?.totalFindingsResolved}
               />
               <MetricCard
                 title="Avg. time to manifest"
                 value={
                   data.averageTimeToManifestMinutes === null ? "—" : `${data.averageTimeToManifestMinutes.toFixed(1)} min`
                 }
+                provenance={data.metricSources?.averageTimeToManifestMinutes}
               />
-              <MetricCard title="Audit events" value={String(data.totalAuditEventsGenerated)} />
+              <MetricCard title="Audit events" value={String(data.totalAuditEventsGenerated)} provenance={data.metricSources?.totalAuditEventsGenerated} />
               <MetricCard
                 title="Governance approvals completed"
                 value={String(data.totalGovernanceApprovalsCompleted)}
+                provenance={data.metricSources?.totalGovernanceApprovalsCompleted}
               />
               <MetricCard
                 title="First commit (UTC)"
                 value={data.firstCommitUtc ? new Date(data.firstCommitUtc).toISOString().slice(0, 19) + "Z" : "—"}
+                provenance={data.metricSources?.firstCommitUtc}
               />
               <MetricCard
                 title="Days since first commit"
                 value={data.daysSinceFirstCommit === null ? "—" : String(data.daysSinceFirstCommit)}
+                provenance={data.metricSources?.daysSinceFirstCommit}
               />
             </div>
           </section>

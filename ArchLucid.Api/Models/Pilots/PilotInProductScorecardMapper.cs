@@ -35,7 +35,10 @@ public static class PilotInProductScorecardMapper
                         r.RoiEstimate.AnnualReviewSavingsFromReviewTimeLeverUsd,
                     ModelReference = r.RoiEstimate.ModelReference,
                     Currency = r.RoiEstimate.Currency
-                }
+                },
+            MetricSources = r.MetricSources.Count > 0
+                ? r.MetricSources.ToDictionary(static kv => kv.Key, static kv => kv.Value, StringComparer.Ordinal)
+                : null
         };
     }
 }
