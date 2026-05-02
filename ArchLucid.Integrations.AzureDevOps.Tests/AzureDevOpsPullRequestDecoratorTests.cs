@@ -15,6 +15,11 @@ namespace ArchLucid.Integrations.AzureDevOps.Tests;
 
 public sealed class AzureDevOpsPullRequestDecoratorTests
 {
+    private static readonly JsonSerializerOptions CompareBodyJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     [Fact]
     public async Task PostManifestDeltaAsync_sends_status_and_thread_with_basic_auth()
     {
@@ -114,8 +119,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
             SummaryHighlights = ["decisions tightened"]
         };
 
-        string compareJson = JsonSerializer.Serialize(compareBody,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        string compareJson = JsonSerializer.Serialize(compareBody, CompareBodyJsonOptions);
 
         using RoutingHandler stub = new(compareJson);
         using HttpClient httpClient = new(stub, false);

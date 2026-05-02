@@ -19,7 +19,8 @@ internal static class ReferenceEvidenceCommand
         {
             Console.WriteLine(
                 "Usage: archlucid reference-evidence --run <runId> [--out <dir>] [--include-demo]\n"
-                + "       archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]");
+                + "       archlucid reference-evidence --tenant <tenantId> [--out <dir>] [--include-demo]\n"
+                + "       (alias: archlucid proof-pack — same options; buyer-facing name for the ZIP path)");
 
             return CliExitCode.UsageError;
         }

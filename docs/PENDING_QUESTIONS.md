@@ -6,7 +6,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-05-01 (**external third-party pen test** → **V2**; V1 = **owner-conducted** pen test; **no** vendor commitment; V1 quality assessments **must not** penalize lack of third-party pen test — see item **2**, **5**, **20** and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c).
+**Last updated:** 2026-05-01 — external third-party pen test → **V2**; V1 = **owner-conducted** pen test (**`V1_DEFERRED.md`** §6c). **API key lifecycle** Q3 resolved: Terraform create; semiannual rotation; secret-channel distribution; **no API keys in production**.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -56,9 +56,14 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | **Schema for canonical SoD keys** | **Option B (additive columns).** **`RequestedByActorKey`** and **`ReviewedByActorKey`** on **`dbo.GovernanceApprovalRequests`** store canonical keys; **`RequestedBy`** / review display fields stay human-readable. | [`ArchLucid.Persistence/Migrations/130_GovernanceApprovalRequests_ActorKeys.sql`](../ArchLucid.Persistence/Migrations/130_GovernanceApprovalRequests_ActorKeys.sql); [`ArchLucid.Application/Common/ActorContext.cs`](../ArchLucid.Application/Common/ActorContext.cs); [**ADR 0034**](adr/0034-segregation-of-duties-entra-oid-actor-keys.md) |
 | **Residual risk (organization-level)** | **Accepted with documentation.** A single natural person who holds **two Entra principals** (e.g. **user** + **separate** service principal) still has **two `oid` values** — SoD cannot merge those without org policy (e.g. privileged-access reviews) or future product work. **API-key-only** hosts keep **display-string** SoD only (no `oid`). | Compensating controls and scope called out in ADR 0034. |
 
-### Still open — same assessment thread (Assessor B §9)
+### Resolved 2026-05-01 (Assessor B §9 — Q3 API key lifecycle)
 
-1. **API key lifecycle (Q3)** — how keys are **created, rotated, distributed**, and **break-glass** for any path that still uses API keys (typically **non-production** or emergency while prod is JWT-only).
+| Sub-decision | Decision | Notes |
+|---|---|---|
+| **Creation** | **Terraform** | Keys used in **non-production** (and similar) are created/managed via IaC, not ad-hoc portal minting. |
+| **Rotation** | **Twice per year** | Calendar cadence (~six months). |
+| **Distribution** | **Secret channel only** | No plaintext email/Slack; approved secret stores / channels only. |
+| **Break-glass (production)** | **No API keys in production** | **Production** must **not** issue or rely on ArchLucid API keys; operator and automation access uses **JWT** (Entra / OIDC), including client-credentials for automation, consistent with **Resolved 2026-04-28** in this file. Emergency access does **not** bypass this via a prod API key—use identity/session recovery and infra controls. |
 
 **Resolved 2026-04-29 (performance regression sentinel approach)** — **Named-query allowlist (Option A).** SaaS product — no customer DBAs, team owns the full stack. SQL text snapshots produce high CI noise (false positives on every whitespace / ORM change) and erode gate trust; allowlist keeps the gate high-signal. A query name that crosses its p95 threshold fails CI; everything not in the allowlist is invisible until deliberately added. Allowlist grows organically as new critical paths are identified. Implementation deferred to **TB-003** in `docs/library/TECH_BACKLOG.md`.
 

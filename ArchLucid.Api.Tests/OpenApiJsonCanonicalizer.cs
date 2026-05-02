@@ -5,8 +5,9 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 ///     Normalizes Microsoft OpenAPI JSON for stable <see cref="JsonNode.DeepEquals(JsonNode?, JsonNode?)" /> across
-///     OS/runtime differences: <c>JsonObject</c> property order and <c>tags</c> array order (reflection-driven controller
-///     discovery order differs between Linux and Windows).
+///     OS/runtime differences: <c>JsonObject</c> property order, <c>tags</c> array order (reflection-driven controller
+///     discovery differs between Linux and Windows), and <c>required</c> arrays on schemas (reflection order for
+///     [Required]/required members can differ cross-platform despite identical sets).
 /// </summary>
 internal static class OpenApiJsonCanonicalizer
 {
@@ -45,8 +46,14 @@ internal static class OpenApiJsonCanonicalizer
         List<JsonNode?> items = arr.Select(static item =>
             item is null ? null : CanonicalizeCore(item, null)).ToList();
 
-        if (string.Equals(parentPropertyName, "tags", StringComparison.Ordinal) && items.Count > 0)
-            SortTagsArray(items);
+        if (items.Count > 0)
+        {
+            if (string.Equals(parentPropertyName, "tags", StringComparison.Ordinal))
+                SortTagsArray(items);
+            else if (string.Equals(parentPropertyName, "required", StringComparison.Ordinal)
+                     && RequiredArrayIsSortableStringOnly(items))
+                SortStringArrayAscendingByStringValue(items);
+        }
 
         JsonArray result = [];
 
@@ -54,6 +61,22 @@ internal static class OpenApiJsonCanonicalizer
             result.Add(item);
 
         return result;
+    }
+
+    // OpenAPI schema "required" is a set of property names (strings); order is insignificant.
+    private static bool RequiredArrayIsSortableStringOnly(List<JsonNode?> items)
+    {
+        return items.TrueForAll(static i =>
+            i is JsonValue v && v.GetValueKind() == JsonValueKind.String);
+    }
+
+    private static void SortStringArrayAscendingByStringValue(List<JsonNode?> items)
+    {
+        items.Sort(static (a, b) =>
+            string.Compare(
+                a!.GetValue<string>(),
+                b!.GetValue<string>(),
+                StringComparison.Ordinal));
     }
 
     private static void SortTagsArray(List<JsonNode?> items)

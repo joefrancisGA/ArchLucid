@@ -537,7 +537,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 1. **The product is deeper than the first buyer journey can absorb.** The first session still asks evaluators to understand too much internal vocabulary before value becomes obvious.
 2. **Proof-of-value is instrumented but not fully packaged.** Metrics exist, but a buyer-ready evidence bundle still requires too much manual assembly.
 3. **The sales-led V1 path is not clean enough.** Quote path, pricing, trial, proof pack, order form, and procurement pack exist but do not yet feel like one decision lane.
-4. **First-line pilot triage still lacks a single rescue playbook.** Support bundles now ship advisory **`next-steps.json`** / README bullets; **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`** and explicit **`doctor`** pointers remain open (see §9.8).
+4. **First-line pilot triage benefits from a single rescue playbook.** Shipped: **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`**, **`doctor`** output, support-bundle **`references.json`**, and runbooks index — remaining gap is **operator habit**, not missing files (see §9 plan log).
 5. **Trust materials are transparent but still heavily self-attested.** That is acceptable for V1 pilots, but it slows serious enterprise procurement.
 6. **The UI leaks internal operating concepts.** Terms such as runs, manifests, raw IDs, raw JSON, and admin/demo surfaces can distract from architecture review value.
 7. **Workflow embedding is generic rather than turnkey.** REST/webhooks/Service Bus are solid, but customers must still wire common enterprise systems themselves.
@@ -581,21 +581,21 @@ The **plan revision log** below reflects a **2026-05-01** cross-check of this se
 
 | # | Working title | Plan status | What to do next |
 |---|----------------|------------|-----------------|
-| 1 | Buyer first-run / review package | **In progress** | §10 owner decisions landed (architecture review noun, hybrid UI framing). **Remaining:** verify one evaluator path **`docs/START_HERE.md` → first review output** matches the prompt acceptance criteria; add/keep focused tests for any copy changes. |
-| 2 | Proof-of-value pack | **Superseded shape** | Canonical implementation path is **`archlucid reference-evidence`** (run or tenant admin ZIP), **`ReferenceEvidenceAdminExportService`** (first-value **Markdown/PDF** in ZIP), sponsor/board-pack PDF builders, and **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`**. Treat **`archlucid proof-pack`** in the prompt as **optional alias only** if product still wants that verb — do **not** duplicate export logic. |
+| 1 | Buyer first-run / review package | **Largely complete (2026-05-02)** | **`docs/START_HERE.md`** + **`docs/CORE_PILOT.md`** § first-session checklist + UI hybrid copy; contributor guardrail **`archlucid-ui/src/lib/core-pilot-first-review-copy.test.ts`**. Re-audit if first-session headings regress. |
+| 2 | Proof-of-value pack | **Superseded shape + alias (2026-05-02)** | Canonical path remains **`archlucid reference-evidence`**. **`archlucid proof-pack`** is now a **CLI alias** (same handler — no duplicate export logic). |
 | 3 | Sales-led CTAs | **Largely complete** | §10 + changelog decisions; keep regression tests for placeholder Stripe suppression vs real URLs. |
-| 4 | Procurement pack classification | **Partial** | **`scripts/procurement_pack_canonical.json`** carries per-file **descriptions** (template vs deferred vs posture). **Remaining prompt gap:** explicit **artifact-status index** in the **generated** pack README (or structured field per entry) if buyers still confuse template vs attestation; placeholder strictness per §10 for **release/procurement** builds. |
+| 4 | Procurement pack classification | **Largely complete (2026-05-02)** | Generated ZIP includes **`README.md`** (entry doc) + **`ARTIFACT_STATUS_INDEX.md`** / **`artifact_status_index.json`**. **Optional:** richer per-row machine fields if buyers still confuse template vs attestation; **`--strict`** remains for release drops. |
 | 5 | CS9113 / fast-core | **Build addressed** | Historical **`manifestHashService` / CS9113** on commit orchestrator **no longer applies** in current sources. **Remaining:** optional **hygiene** — add or document an analyzer/CI expectation so unread primary-constructor parameters do not recur; **re-run** Release fast-core filter after large merges. |
-| 6 | Real-mode agent evidence | **Partial** | **`tests/eval-corpus`** + **`eval_agent_quality.py`** + CI exist. **Remaining:** any **gaps** vs 3–5 named synthetic brief archetypes in the prompt, a **check-in Markdown** summary artifact for releases, and §10 **reference AOAI** deployment name. |
+| 6 | Real-mode agent evidence | **Partial** | **`tests/eval-corpus`** + **`eval_agent_quality.py`** + CI exist. **Stub:** **`docs/quality/REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md`** (release check-in steps). **Remaining:** name §10 **reference AOAI** deployment, optional committed summary artifact path, and any brief-archetype gaps vs the prompt. |
 | 7 | Workflow recipes | **Largely complete** | **`docs/integrations/recipes/`** includes ServiceNow, Jira, Confluence, ADO (Logic Apps), Event Grid hardening. **Optional polish:** add or retitle **Logic Apps–first** variants for ServiceNow/Jira to match owner **Azure Logic Apps** preference (recipes index still lists **Power Automate** for some rows). |
-| 8 | Pilot rescue + CLI | **Split** | **Done:** advisory **`next-steps.json`** + README in CLI + API support bundles (**`SupportBundleNextStepsBuilder`**). **Open:** **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`**, **`doctor`** / reference list pointers to that playbook — still per original prompt. |
+| 8 | Pilot rescue + CLI | **Done (2026-05-02)** | **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`**, **`doctor`** + **`references.json`** + operator hints; runbooks index row. |
 
 ### 1. Compress the Buyer First-Run Journey Around One Review Package
 
 - **Why it matters:** Adoption friction and time-to-value are the largest weighted deficits. The first user should see "architecture review package" before "run/manifest/authority."
 - **Expected impact:** A clearer first session should improve trial completion, sponsor comprehension, and demo conversion.
 - **Affected qualities:** Adoption Friction, Time-to-Value, Usability, Cognitive Load, Marketability, Executive Value Visibility.
-- **Status:** In progress — see **Plan revision log (2026-05-01)**; §10 decisions landed; audit `START_HERE` path + tests.
+- **Status:** Largely complete — see **Plan revision log (2026-05-02)**; **`core-pilot-first-review-copy.test.ts`** locks buyer-first headings; audit `START_HERE` path when copy changes.
 - **Impact of running the prompt:** Directly improves Adoption Friction (+6-9 pts), Time-to-Value (+4-6 pts), Usability (+4-6 pts), Cognitive Load (+8-12 pts). Weighted readiness impact: +0.9-1.4%.
 - **Plan revision (2026-05-01):** §10 captures the **dominant noun** and **hybrid** framing. Before closing this item, **audit** `START_HERE` → first review path and **tests** against the acceptance criteria in the prompt below.
 
@@ -829,7 +829,7 @@ Constraints:
 - **Why it matters:** Self-sufficiency needs more than comprehensive docs; it needs quick triage when a pilot gets stuck.
 - **Expected impact:** Reduces support burden and improves buyer/operator confidence.
 - **Affected qualities:** Customer Self-Sufficiency, Supportability, Adoption Friction, Reliability, Manageability.
-- **Status:** **Partially complete** — support-bundle **`next-steps.json`** + README (**`SupportBundleNextStepsBuilder`**) shipped; playbook + **`doctor`** links still open.
+- **Status:** **Complete (2026-05-02)** — playbook + **`doctor`** + **`references.json`**; see **Plan revision log**.
 - **Impact of running the prompt:** Directly improves Customer Self-Sufficiency (+7-10 pts), Supportability (+2-4 pts), Adoption Friction (+2-3 pts), Manageability (+2-3 pts). Weighted readiness impact: +0.3-0.6%.
 - **Plan revision (2026-05-01):** Execute **`docs/runbooks/PILOT_RESCUE_PLAYBOOK.md`** + **`references.json`** / **`doctor`** pointers; do **not** duplicate the support-bundle next-steps work.
 

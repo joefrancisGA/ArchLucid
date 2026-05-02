@@ -6,6 +6,7 @@ Canonical file list: scripts/procurement_pack_canonical.json (shared with CI:
 scripts/ci/assert_procurement_pack_buildable.py).
 
 Emits:
+  - README.md — buyer-facing entry (artifact index pointers; assessment 76_76 §9)
   - manifest.json — each packed file: pack_path, source_repo_path, bytes, sha256, artifact_status
   - versions.txt — git commit, build UTC, ArchLucid CLI version (from ArchLucid.Cli.csproj)
   - redaction_report.md — files intentionally not included and why
@@ -96,6 +97,32 @@ def write_artifact_status_index(stage: Path, entries: list[dict]) -> None:
 
     lines.append("")
     (stage / "ARTIFACT_STATUS_INDEX.md").write_text("\n".join(lines), encoding="utf-8")
+
+
+def write_pack_readme(stage: Path) -> None:
+    """Buyer-facing entrypoint inside the ZIP — points at artifact classification (assessment 76_76 §9 item 4)."""
+    body = """# ArchLucid procurement pack
+
+This bundle was produced by **`scripts/build_procurement_pack.py`** (or `archlucid procurement-pack`). **Start here**, then open the indexes below.
+
+## What to open next
+
+| File | Purpose |
+| --- | --- |
+| **`ARTIFACT_STATUS_INDEX.md`** | Table of **Evidence** vs **Template** vs **Self-assessment** vs **Deferred** — use this so templates are not mistaken for attestations. |
+| **`artifact_status_index.json`** | Same classification in JSON (automation / SIEM). |
+| **`manifest.json`** | Per-file **SHA-256**, size, and **`artifact_status`**. |
+| **`versions.txt`** | Git commit, build UTC, CLI package version. |
+| **`redaction_report.md`** | Repository paths **intentionally omitted** from the canonical pack and why. |
+
+## Operator reference
+
+- **How to regenerate:** in a full clone, see **`docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md`**.
+- **Strict placeholder scan:** **`--strict`** or **`PROCUREMENT_PACK_STRICT=1`** on release drops (same doc).
+
+**Do not** treat **Template** or **Self-assessment** artifacts as executed legal agreements or third-party certifications.
+"""
+    (stage / "README.md").write_text(body, encoding="utf-8")
 
 
 def repo_root() -> Path:
@@ -259,6 +286,7 @@ def main() -> int:
     write_versions_txt(stage, root)
     write_redaction_report(stage, excluded)
     write_artifact_status_index(stage, entries)
+    write_pack_readme(stage)
 
     out_zip = args.out if args.out is not None else root / "dist" / "procurement-pack.zip"
     out_zip.parent.mkdir(parents=True, exist_ok=True)

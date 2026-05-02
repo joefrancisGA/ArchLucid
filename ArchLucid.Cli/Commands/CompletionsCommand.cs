@@ -28,6 +28,7 @@ public static class CompletionsCommand
         "first-value-report",
         "sponsor-one-pager",
         "reference-evidence",
+        "proof-pack",
         "comparisons",
         "policy",
         "graph",

@@ -73,9 +73,9 @@
         },
         "required": [
           "authorityPipelineWorkPending",
-          "retrievalIndexingPending",
+          "integrationEventOutboxDeadLetter",
           "integrationEventOutboxPublishPending",
-          "integrationEventOutboxDeadLetter"
+          "retrievalIndexingPending"
         ],
         "type": "object"
       },
@@ -303,8 +303,8 @@
           }
         },
         "required": [
-          "mode",
-          "estimatedCostBasis"
+          "estimatedCostBasis",
+          "mode"
         ],
         "type": "object"
       },
@@ -674,12 +674,12 @@
           }
         },
         "required": [
-          "resultId",
-          "taskId",
-          "runId",
           "agentType",
           "claims",
-          "evidenceRefs"
+          "evidenceRefs",
+          "resultId",
+          "runId",
+          "taskId"
         ],
         "type": "object"
       },
@@ -874,11 +874,11 @@
           }
         },
         "required": [
-          "taskId",
-          "runId",
           "agentType",
           "objective",
-          "status"
+          "runId",
+          "status",
+          "taskId"
         ],
         "type": "object"
       },
@@ -1525,10 +1525,10 @@
           }
         },
         "required": [
-          "id",
-          "type",
           "fromNodeId",
-          "toNodeId"
+          "id",
+          "toNodeId",
+          "type"
         ],
         "type": "object"
       },
@@ -1555,9 +1555,9 @@
         },
         "required": [
           "id",
-          "type",
+          "name",
           "referenceId",
-          "name"
+          "type"
         ],
         "type": "object"
       },
@@ -1641,11 +1641,11 @@
           }
         },
         "required": [
-          "requestId",
+          "cloudProvider",
           "description",
-          "systemName",
           "environment",
-          "cloudProvider"
+          "requestId",
+          "systemName"
         ],
         "type": "object"
       },
@@ -1662,9 +1662,9 @@
           }
         },
         "required": [
+          "shortDescription",
           "templateId",
-          "title",
-          "shortDescription"
+          "title"
         ],
         "type": "object"
       },
@@ -1760,10 +1760,10 @@
           }
         },
         "required": [
-          "runId",
+          "createdUtc",
           "requestId",
-          "status",
-          "createdUtc"
+          "runId",
+          "status"
         ],
         "type": "object"
       },
@@ -2271,14 +2271,14 @@
           }
         },
         "required": [
-          "jobId",
-          "state",
-          "createdUtc",
-          "startedUtc",
           "completedUtc",
+          "contentType",
+          "createdUtc",
           "error",
           "fileName",
-          "contentType"
+          "jobId",
+          "startedUtc",
+          "state"
         ],
         "type": "object"
       },
@@ -2513,8 +2513,8 @@
           }
         },
         "required": [
-          "kind",
           "id",
+          "kind",
           "label",
           "runId"
         ],
@@ -2840,10 +2840,10 @@
         "required": [
           "comparisonRecordId",
           "comparisonType",
+          "factors",
           "format",
-          "replayMode",
           "relativeCostBand",
-          "factors"
+          "replayMode"
         ],
         "type": "object"
       },
@@ -3708,8 +3708,8 @@
           "comparisonRecordsLeftRunIdOrphans",
           "comparisonRecordsRightRunIdOrphans",
           "contextSnapshotsRunIdOrphans",
-          "goldenManifestsRunIdOrphans",
           "findingsSnapshotsRunIdOrphans",
+          "goldenManifestsRunIdOrphans",
           "graphSnapshotsRunIdOrphans"
         ],
         "type": "object"
@@ -3970,11 +3970,11 @@
           }
         },
         "required": [
-          "run",
-          "manifest",
-          "authorityChain",
           "artifacts",
+          "authorityChain",
+          "manifest",
           "pipelineTimeline",
+          "run",
           "runExplanation"
         ],
         "type": "object"
@@ -4008,8 +4008,8 @@
           }
         },
         "required": [
-          "runExplanation",
-          "provenanceGraph"
+          "provenanceGraph",
+          "runExplanation"
         ],
         "type": "object"
       },
@@ -4038,10 +4038,10 @@
         "required": [
           "artifactId",
           "artifactType",
-          "name",
-          "format",
+          "contentHash",
           "createdUtc",
-          "contentHash"
+          "format",
+          "name"
         ],
         "type": "object"
       },
@@ -4133,14 +4133,14 @@
           }
         },
         "required": [
-          "manifestId",
-          "runId",
           "createdUtc",
           "manifestHash",
+          "manifestId",
+          "operatorSummary",
           "ruleSetId",
           "ruleSetVersion",
-          "status",
-          "operatorSummary"
+          "runId",
+          "status"
         ],
         "type": "object"
       },
@@ -4164,9 +4164,9 @@
           }
         },
         "required": [
-          "runId",
+          "createdUtc",
           "projectId",
-          "createdUtc"
+          "runId"
         ],
         "type": "object"
       },
@@ -4193,10 +4193,10 @@
           }
         },
         "required": [
+          "actorUserName",
           "eventId",
-          "occurredUtc",
           "eventType",
-          "actorUserName"
+          "occurredUtc"
         ],
         "type": "object"
       },
@@ -4828,10 +4828,10 @@
           }
         },
         "required": [
+          "derivationRuleVersion",
           "status",
-          "title",
           "summary",
-          "derivationRuleVersion"
+          "title"
         ],
         "type": "object"
       },
@@ -5224,9 +5224,9 @@
         "required": [
           "agentType",
           "modelId",
+          "promptContentHash",
           "promptTemplateId",
-          "promptTemplateVersion",
-          "promptContentHash"
+          "promptTemplateVersion"
         ],
         "type": "object"
       },
@@ -5637,8 +5637,8 @@
           }
         },
         "required": [
-          "engineType",
           "category",
+          "engineType",
           "errorMessage",
           "exceptionType"
         ],
@@ -5730,9 +5730,9 @@
           }
         },
         "required": [
-          "evidenceRefs",
-          "conclusion",
           "alternativePathsConsidered",
+          "conclusion",
+          "evidenceRefs",
           "ruleId"
         ],
         "type": "object"
@@ -6188,13 +6188,13 @@
           }
         },
         "required": [
-          "runId",
-          "systemName",
-          "services",
           "datastores",
-          "relationships",
           "governance",
-          "metadata"
+          "metadata",
+          "relationships",
+          "runId",
+          "services",
+          "systemName"
         ],
         "type": "object"
       },
@@ -8205,9 +8205,9 @@
         },
         "required": [
           "relationshipId",
+          "relationshipType",
           "sourceId",
-          "targetId",
-          "relationshipType"
+          "targetId"
         ],
         "type": "object"
       },
@@ -8245,10 +8245,10 @@
           }
         },
         "required": [
+          "runtimePlatform",
           "serviceId",
           "serviceName",
-          "serviceType",
-          "runtimePlatform"
+          "serviceType"
         ],
         "type": "object"
       },
@@ -8392,9 +8392,9 @@
           }
         },
         "required": [
+          "comparisonRecordIds",
           "dryRun",
-          "rowCount",
-          "comparisonRecordIds"
+          "rowCount"
         ],
         "type": "object"
       },
@@ -8416,8 +8416,8 @@
         },
         "required": [
           "dryRun",
-          "rowCount",
-          "findingsSnapshotIds"
+          "findingsSnapshotIds",
+          "rowCount"
         ],
         "type": "object"
       },
@@ -8439,8 +8439,8 @@
         },
         "required": [
           "dryRun",
-          "rowCount",
-          "manifestIds"
+          "manifestIds",
+          "rowCount"
         ],
         "type": "object"
       },
@@ -11126,8 +11126,8 @@
           }
         },
         "required": [
-          "runId",
-          "reason"
+          "reason",
+          "runId"
         ],
         "type": "object"
       },
@@ -11401,9 +11401,9 @@
         },
         "required": [
           "explanation",
-          "themeSummaries",
           "overallAssessment",
-          "riskPosture"
+          "riskPosture",
+          "themeSummaries"
         ],
         "type": "object"
       },
@@ -11852,8 +11852,8 @@
           }
         },
         "required": [
-          "runId",
-          "computationNotes"
+          "computationNotes",
+          "runId"
         ],
         "type": "object"
       },
@@ -12916,8 +12916,8 @@
           }
         },
         "required": [
-          "organizationName",
-          "adminEmail"
+          "adminEmail",
+          "organizationName"
         ],
         "type": "object"
       },
