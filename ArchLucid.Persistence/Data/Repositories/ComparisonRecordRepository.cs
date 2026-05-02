@@ -26,6 +26,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     {
         ArgumentNullException.ThrowIfNull(record);
 
+        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(record.LeftRunId, nameof(record.LeftRunId));
+        ComparisonRecordRunIdSql.ThrowIfNonEmptyButNotGuid(record.RightRunId, nameof(record.RightRunId));
+        Guid? leftRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(record.LeftRunId);
+        Guid? rightRun = ComparisonRecordRunIdSql.ToNullableSqlGuid(record.RightRunId);
+
         const string sql = """
                            INSERT INTO ComparisonRecords
                            (
@@ -69,7 +74,24 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            record,
+            new
+            {
+                record.ComparisonRecordId,
+                record.ComparisonType,
+                LeftRunId = leftRun,
+                RightRunId = rightRun,
+                record.LeftManifestVersion,
+                record.RightManifestVersion,
+                record.LeftExportRecordId,
+                record.RightExportRecordId,
+                record.Format,
+                record.SummaryMarkdown,
+                record.PayloadJson,
+                record.Notes,
+                record.CreatedUtc,
+                record.Label,
+                record.Tags
+            },
             cancellationToken: cancellationToken));
     }
 
@@ -77,15 +99,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string comparisonRecordId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           SELECT TOP 1
-                               ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                               LeftManifestVersion, RightManifestVersion,
-                               LeftExportRecordId, RightExportRecordId,
-                               Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-                           FROM ComparisonRecords
-                           WHERE ComparisonRecordId = @ComparisonRecordId;
-                           """;
+        string sql = $"""
+                      SELECT TOP 1
+                          {ComparisonRecordRunIdSql.ProjectionRow}
+                      FROM ComparisonRecords
+                      WHERE ComparisonRecordId = @ComparisonRecordId;
+                      """;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -101,20 +120,21 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     {
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string sql = """
-                           SELECT TOP 200
-                               ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                               LeftManifestVersion, RightManifestVersion,
-                               LeftExportRecordId, RightExportRecordId,
-                               Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-                           FROM ComparisonRecords
-                           WHERE LeftRunId = @RunId OR RightRunId = @RunId
-                           ORDER BY CreatedUtc DESC;
-                           """;
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return [];
+
+
+        string sql = $"""
+                      SELECT TOP 200
+                          {ComparisonRecordRunIdSql.ProjectionRow}
+                      FROM ComparisonRecords
+                      WHERE LeftRunId = @RunId OR RightRunId = @RunId
+                      ORDER BY CreatedUtc DESC;
+                      """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new { RunId = runGuid },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -128,16 +148,13 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     {
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        const string sql = """
-                           SELECT TOP 200
-                               ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                               LeftManifestVersion, RightManifestVersion,
-                               LeftExportRecordId, RightExportRecordId,
-                               Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-                           FROM ComparisonRecords
-                           WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
-                           ORDER BY CreatedUtc DESC;
-                           """;
+        string sql = $"""
+                      SELECT TOP 200
+                          {ComparisonRecordRunIdSql.ProjectionRow}
+                      FROM ComparisonRecords
+                      WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+                      ORDER BY CreatedUtc DESC;
+                      """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -168,15 +185,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         // This query is intentionally generated at runtime because:
         // - filter predicates are optional
         // - tag matching is stored as JSON in an NVARCHAR column (OPENJSON)
-        const string baseSql = """
-                               SELECT
-                                   ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                                   LeftManifestVersion, RightManifestVersion,
-                                   LeftExportRecordId, RightExportRecordId,
-                                   Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-                               FROM ComparisonRecords
-                               WHERE 1 = 1
-                               """;
+        string baseSql = $"""
+                           SELECT
+                               {ComparisonRecordRunIdSql.ProjectionRow}
+                           FROM ComparisonRecords
+                           WHERE 1 = 1
+                           """;
 
         List<string> conditions = [];
         DynamicParameters parameters = new();
@@ -238,15 +252,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         int limit,
         CancellationToken cancellationToken = default)
     {
-        const string baseSql = """
-                               SELECT
-                                   ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                                   LeftManifestVersion, RightManifestVersion,
-                                   LeftExportRecordId, RightExportRecordId,
-                                   Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-                               FROM ComparisonRecords
-                               WHERE 1 = 1
-                               """;
+        string baseSql = $"""
+                           SELECT
+                               {ComparisonRecordRunIdSql.ProjectionRow}
+                           FROM ComparisonRecords
+                           WHERE 1 = 1
+                           """;
 
         List<string> conditions = [];
         DynamicParameters parameters = new();

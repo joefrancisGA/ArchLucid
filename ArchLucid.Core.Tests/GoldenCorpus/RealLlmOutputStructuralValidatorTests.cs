@@ -168,7 +168,12 @@ public sealed class RealLlmOutputStructuralValidatorTests
 
         for (int i = 0; i < findingCount; i++)
         {
-            Dictionary<string, object?> finding = new() { { "findingId", $"f{i.ToString(System.Globalization.CultureInfo.InvariantCulture)}" } };
+            Dictionary<string, object?> finding = new()
+            {
+                { "findingId", $"f{i.ToString(System.Globalization.CultureInfo.InvariantCulture)}" },
+                { "severity", "info" },
+                { "description", "minimal" }
+            };
 
             if (includeTrace)
             {

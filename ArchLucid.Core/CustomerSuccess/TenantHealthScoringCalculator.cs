@@ -54,9 +54,9 @@ public static class TenantHealthScoringCalculator
         return ratio switch
         {
             >= 0.75 => 5.0M,
-            >= 0.55 => 4.0M,
+            >= 0.50 => 4.0M,
             >= 0.35 => 3.0M,
-            >= 0.15 => 2.0M,
+            >= 0.10 => 2.0M,
             _ => 1.0M
         };
     }

@@ -55,20 +55,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);
 
-        long leftCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId,
-                "ComparisonRecords",
-                "LeftRunId",
-                cancellationToken)
-            .ConfigureAwait(false);
-        long rightCount = await LogAndCountOrphansAsync(
-                connection,
-                DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId,
-                "ComparisonRecords",
-                "RightRunId",
-                cancellationToken)
-            .ConfigureAwait(false);
         long goldenCount = await LogAndCountOrphansAsync(
                 connection,
                 DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
@@ -100,8 +86,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         await ApplyEnforcementAsync(
                 connection,
-                leftCount,
-                rightCount,
                 goldenCount,
                 findingsCount,
                 contextCount,
@@ -114,9 +98,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
 
         bool anyOrphans =
-            leftCount > 0
-            || rightCount > 0
-            || goldenCount > 0
+            goldenCount > 0
             || findingsCount > 0
             || contextCount > 0
             || graphCount > 0;
@@ -128,8 +110,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await LogRemediationDryRunSamplesAsync(
                 connection,
                 sampleCap,
-                leftCount,
-                rightCount,
                 goldenCount,
                 findingsCount,
                 cancellationToken)
@@ -138,8 +118,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
     private async Task ApplyEnforcementAsync(
         DbConnection connection,
-        long leftCount,
-        long rightCount,
         long goldenCount,
         long findingsCount,
         long contextCount,
@@ -155,8 +133,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         if (DataConsistencyEnforcementPolicy.UsesAlertCounters(enf.Mode))
         {
-            TryRecordAlert(leftCount, threshold, "ComparisonRecords", "LeftRunId");
-            TryRecordAlert(rightCount, threshold, "ComparisonRecords", "RightRunId");
             TryRecordAlert(goldenCount, threshold, "GoldenManifests", "RunId");
             TryRecordAlert(findingsCount, threshold, "FindingsSnapshots", "RunId");
             TryRecordAlert(contextCount, threshold, "ContextSnapshots", "RunId");
@@ -296,25 +272,10 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     private async Task LogRemediationDryRunSamplesAsync(
         DbConnection connection,
         int maxRows,
-        long leftCount,
-        long rightCount,
         long goldenCount,
         long findingsCount,
         CancellationToken ct)
     {
-        if (leftCount > 0 || rightCount > 0)
-        {
-            IReadOnlyList<string> ids = await ReadTopOrphanComparisonRecordIdsAsync(connection, maxRows, ct).ConfigureAwait(false);
-
-            if (ids.Count > 0)
-
-                _logger.LogInformation(
-                    "Data consistency orphan remediation dry-run (probe, no delete): ComparisonRecords sample (top {MaxRows}): {Ids}",
-                    maxRows,
-                    string.Join(", ", ids));
-
-        }
-
         if (goldenCount > 0)
         {
             IReadOnlyList<string> ids = await ReadTopOrphanGoldenManifestIdsAsync(connection, maxRows, ct).ConfigureAwait(false);
@@ -340,30 +301,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                     string.Join(", ", ids));
 
         }
-    }
-
-    private static async Task<IReadOnlyList<string>> ReadTopOrphanComparisonRecordIdsAsync(
-        DbConnection connection,
-        int maxRows,
-        CancellationToken ct)
-    {
-        await using DbCommand command = connection.CreateCommand();
-        command.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanComparisonRecordIds;
-        DbParameter maxRowsParameter = command.CreateParameter();
-        maxRowsParameter.ParameterName = "@MaxRows";
-        maxRowsParameter.Value = maxRows;
-        command.Parameters.Add(maxRowsParameter);
-
-        List<string> ids = [];
-
-        await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
-
-        while (await reader.ReadAsync(ct).ConfigureAwait(false))
-
-            ids.Add(reader.GetString(0));
-
-
-        return ids;
     }
 
     private static async Task<IReadOnlyList<string>> ReadTopOrphanGoldenManifestIdsAsync(

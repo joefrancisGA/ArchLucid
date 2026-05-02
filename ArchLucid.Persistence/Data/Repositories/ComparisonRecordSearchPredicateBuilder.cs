@@ -28,14 +28,30 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
         {
-            conditions.Add("LeftRunId = @LeftRunId");
-            parameters.Add("@LeftRunId", leftRunId);
+
+            if (!Guid.TryParse(leftRunId, out Guid leftGuid))
+            {
+                conditions.Add("1 = 0");
+            }
+            else
+            {
+                conditions.Add("LeftRunId = @LeftRunId");
+                parameters.Add("@LeftRunId", leftGuid);
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
         {
-            conditions.Add("RightRunId = @RightRunId");
-            parameters.Add("@RightRunId", rightRunId);
+
+            if (!Guid.TryParse(rightRunId, out Guid rightGuid))
+            {
+                conditions.Add("1 = 0");
+            }
+            else
+            {
+                conditions.Add("RightRunId = @RightRunId");
+                parameters.Add("@RightRunId", rightGuid);
+            }
         }
 
         if (createdFromUtc is not null)

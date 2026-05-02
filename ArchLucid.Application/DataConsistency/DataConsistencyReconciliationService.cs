@@ -62,26 +62,6 @@ public sealed class DataConsistencyReconciliationService(
 
             await AddCountAndFindingsAsync(
                     connection,
-                    DataConsistencyReconciliationSql.ComparisonRecordsLeftRunId,
-                    "orphan_comparison_records_left_run",
-                    "ComparisonRecords reference a LeftRunId with no dbo.Runs row.",
-                    DataConsistencyReconciliationSql.SampleComparisonRecordsLeftOrphans,
-                    list,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            await AddCountAndFindingsAsync(
-                    connection,
-                    DataConsistencyReconciliationSql.ComparisonRecordsRightRunId,
-                    "orphan_comparison_records_right_run",
-                    "ComparisonRecords reference a RightRunId with no dbo.Runs row.",
-                    DataConsistencyReconciliationSql.SampleComparisonRecordsRightOrphans,
-                    list,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            await AddCountAndFindingsAsync(
-                    connection,
                     DataConsistencyReconciliationSql.RunsMissingArchitectureRequest,
                     "runs_missing_architecture_request",
                     "Non-archived Runs reference an ArchitectureRequestId missing from dbo.ArchitectureRequests.",

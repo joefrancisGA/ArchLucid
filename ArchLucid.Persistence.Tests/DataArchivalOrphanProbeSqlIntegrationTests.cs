@@ -38,29 +38,6 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                                                                   ORDER BY f.CreatedUtc ASC;
                                                                   """;
 
-    // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql.
-    private const string ComparisonRecordsLeftRunId = """
-                                                      SELECT COUNT_BIG(1)
-                                                      FROM dbo.ComparisonRecords c
-                                                      WHERE c.LeftRunId IS NOT NULL
-                                                        AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-                                                        AND NOT EXISTS (
-                                                            SELECT 1
-                                                            FROM dbo.Runs r
-                                                            WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
-                                                      """;
-
-    private const string ComparisonRecordsRightRunId = """
-                                                       SELECT COUNT_BIG(1)
-                                                       FROM dbo.ComparisonRecords c
-                                                       WHERE c.RightRunId IS NOT NULL
-                                                         AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-                                                         AND NOT EXISTS (
-                                                             SELECT 1
-                                                             FROM dbo.Runs r
-                                                             WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
-                                                       """;
-
     private const string GoldenManifestsRunId = """
                                                 SELECT COUNT_BIG(1)
                                                 FROM dbo.GoldenManifests g
@@ -165,7 +142,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                     new
                     {
                         ComparisonRecordId = comparisonId,
-                        LeftRunId = runId
+                        LeftRunId = runGuid
                     },
                     cancellationToken: CancellationToken.None));
 
@@ -232,13 +209,8 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
 
         findingsArchivedUtc.Should().NotBeNull("bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");
 
-        long leftOrphans = await ScalarCountAsync(verify, ComparisonRecordsLeftRunId, CancellationToken.None);
-        long rightOrphans = await ScalarCountAsync(verify, ComparisonRecordsRightRunId, CancellationToken.None);
         long goldenOrphans = await ScalarCountAsync(verify, GoldenManifestsRunId, CancellationToken.None);
         long findingsOrphans = await ScalarCountAsync(verify, FindingsSnapshotsRunId, CancellationToken.None);
-
-        leftOrphans.Should().Be(0L, "ComparisonRecords.LeftRunId probe after archival");
-        rightOrphans.Should().Be(0L, "ComparisonRecords.RightRunId probe after archival");
         goldenOrphans.Should().Be(0L, "GoldenManifests.RunId probe after archival");
         findingsOrphans.Should().Be(0L, "FindingsSnapshots.RunId probe after archival");
 

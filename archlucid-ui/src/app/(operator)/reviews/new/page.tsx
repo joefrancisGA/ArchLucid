@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
-import { NewRunWizardClient } from "./NewRunWizardClient";
+import { ReviewsNewPathSwitcher } from "./QuickReviewWizard";
 
 export const metadata: Metadata = {
   title: "New architecture request",
@@ -22,10 +22,10 @@ export default function NewRunPage() {
         />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Create a request from scratch, use an industry starter, or import a prepared file.
+        Start fast with a pasted brief (Quick review) or use the full multi-step wizard with templates and imports.
       </p>
       <Suspense fallback={<NewRunWizardSkeleton />}>
-        <NewRunWizardClient />
+        <ReviewsNewPathSwitcher />
       </Suspense>
     </main>
   );

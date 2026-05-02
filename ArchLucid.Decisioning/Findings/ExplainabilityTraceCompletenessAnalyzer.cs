@@ -14,8 +14,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         ArgumentNullException.ThrowIfNull(finding);
 
         // Trace is typed non-null on Finding, but object initializers, tests (Trace = null!), and some payloads leave it null at runtime.
-        ExplainabilityTrace traceNullable = finding.Trace;
-        ExplainabilityTrace trace = traceNullable;
+        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);

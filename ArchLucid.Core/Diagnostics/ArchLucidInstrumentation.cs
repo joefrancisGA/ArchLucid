@@ -575,7 +575,7 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> DataConsistencyOrphansDetected =
         AppMeter.CreateCounter<long>(
             "archlucid_data_consistency_orphans_detected_total",
-            description: "Orphan coordinator rows detected (labels table, column: LeftRunId or RightRunId).");
+            description: "Orphan authority-chain rows detected (labels table, column; e.g. GoldenManifests.RunId).");
 
     /// <summary>Environment-graded alert when orphan count meets threshold (labels <c>table</c>, <c>column</c>).</summary>
     public static readonly Counter<long> DataConsistencyAlerts =

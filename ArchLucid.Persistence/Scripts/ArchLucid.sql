@@ -296,8 +296,8 @@ BEGIN
     (
         ComparisonRecordId    NVARCHAR(64)  NOT NULL PRIMARY KEY,
         ComparisonType        NVARCHAR(100) NOT NULL,
-        LeftRunId             NVARCHAR(64)  NULL,
-        RightRunId            NVARCHAR(64)  NULL,
+        LeftRunId             UNIQUEIDENTIFIER NULL,
+        RightRunId            UNIQUEIDENTIFIER NULL,
         LeftManifestVersion   NVARCHAR(100) NULL,
         RightManifestVersion  NVARCHAR(100) NULL,
         LeftExportRecordId    NVARCHAR(64)  NULL,
@@ -406,6 +406,35 @@ BEGIN
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
+END;
+GO
+
+/* TB-006 / DbUp 137: ComparisonRecords run ids reference dbo.Runs once both tables exist. */
+IF OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns c
+       INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.ComparisonRecords')
+         AND c.name = N'LeftRunId'
+         AND ty.name = N'uniqueidentifier')
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = N'FK_ComparisonRecords_Runs_LeftRunIdGuid'
+          AND parent_object_id = OBJECT_ID(N'dbo.ComparisonRecords'))
+        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_Runs_LeftRunIdGuid FOREIGN KEY (LeftRunId)
+            REFERENCES dbo.Runs (RunId);
+
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.foreign_keys
+        WHERE name = N'FK_ComparisonRecords_Runs_RightRunIdGuid'
+          AND parent_object_id = OBJECT_ID(N'dbo.ComparisonRecords'))
+        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_Runs_RightRunIdGuid FOREIGN KEY (RightRunId)
+            REFERENCES dbo.Runs (RunId);
 END;
 GO
 
