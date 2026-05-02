@@ -1,58 +1,28 @@
 namespace ArchLucid.Host.Core.DataConsistency;
 
 /// <summary>
-/// SQL for operator-initiated remediation of <see cref="DataConsistencyOrphanProbeSql"/> orphan
-/// <c>dbo.ComparisonRecords</c> rows (missing <c>dbo.Runs</c> for left or right run id).
+/// SQL for operator-initiated remediation of orphan rows detected by legacy probes (see <see cref="DataConsistencyOrphanProbeSql"/>).
 /// </summary>
+/// <remarks>
+/// <c>dbo.ComparisonRecords</c> run ids are FK-backed (DbUp 137); the historical comparison-record orphan SQL is retained as a no-op
+/// so admin callers keep stable command shapes.
+/// </remarks>
 public static class DataConsistencyOrphanRemediationSql
 {
-    /// <summary>
-    /// Lists up to <c>@MaxRows</c> orphan comparison record ids (oldest first).
-    /// </summary>
+    /// <summary>Always empty: referential integrity is enforced by FK on <c>LeftRunId</c>/<c>RightRunId</c>.</summary>
     public const string SelectOrphanComparisonRecordIds = """
-        WITH cte AS (
-            SELECT TOP (@MaxRows) c.ComparisonRecordId
-            FROM dbo.ComparisonRecords c
-            WHERE (
-                c.LeftRunId IS NOT NULL
-                AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM dbo.Runs r
-                    WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId)))
-               OR (
-                c.RightRunId IS NOT NULL
-                AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM dbo.Runs r
-                    WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId)))
-            ORDER BY c.CreatedUtc ASC
-        )
-        SELECT ComparisonRecordId FROM cte;
+        SELECT TOP (@MaxRows) c.ComparisonRecordId
+        FROM dbo.ComparisonRecords c
+        WHERE 1 = 0
+        ORDER BY c.CreatedUtc ASC;
         """;
 
-    /// <summary>
-    /// Deletes the same set as <see cref="SelectOrphanComparisonRecordIds"/> and returns deleted ids via <c>OUTPUT</c>.
-    /// </summary>
+    /// <summary>No-op delete (matches the empty select predicate).</summary>
     public const string DeleteOrphanComparisonRecordsWithOutput = """
         WITH cte AS (
             SELECT TOP (@MaxRows) c.ComparisonRecordId
             FROM dbo.ComparisonRecords c
-            WHERE (
-                c.LeftRunId IS NOT NULL
-                AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM dbo.Runs r
-                    WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId)))
-               OR (
-                c.RightRunId IS NOT NULL
-                AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM dbo.Runs r
-                    WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId)))
+            WHERE 1 = 0
             ORDER BY c.CreatedUtc ASC
         )
         DELETE c

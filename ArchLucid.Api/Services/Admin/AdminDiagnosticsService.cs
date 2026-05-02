@@ -105,10 +105,6 @@ public sealed class AdminDiagnosticsService(
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);
 
-        long left = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId,
-            cancellationToken);
-        long right = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId,
-            cancellationToken);
         long golden = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
             cancellationToken);
         long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
@@ -118,7 +114,7 @@ public sealed class AdminDiagnosticsService(
         long graphSnapshots = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GraphSnapshotsRunId,
             cancellationToken);
 
-        return new DataConsistencyOrphanCounts(left, right, golden, findings, contextSnapshots, graphSnapshots);
+        return new DataConsistencyOrphanCounts(0, 0, golden, findings, contextSnapshots, graphSnapshots);
     }
 
     /// <inheritdoc />

@@ -186,3 +186,125 @@ On each **real-LLM** validation session (§8.3), verify **at least**:
 ### 9.1. The "3 AM On-Call" Test
 - **Test:** Open the `MIGRATION_ROLLBACK.md` or `ALERT_DELIVERY_FAILURES.md` runbook. Read through it rapidly as if you have been woken up at 3 AM by PagerDuty.
 - **Justification:** A runbook must be incredibly concise, copy-paste friendly, and free of unnecessary prose. A human must evaluate if the runbook induces anxiety or if it clearly and calmly leads the operator to mitigation. Automation cannot test human panic.
+
+---
+
+## 10. Manual screenshot capture — operator UI (API-not-running and empty-data coverage)
+
+Use this chapter when you need **evidence** that the operator shell behaves acceptably when the **authority/API layer is unavailable**, returns errors, or when the **database has no seeded runs**—distinct scenarios. Pair with demo/static-env documentation (`archlucid-ui` static demo flags) as applicable.
+
+### 10.0. Before you start
+
+1. **Decide the scenario** (pick **one** per session so filenames match intent):
+   - **A — API down / unreachable** (browser or host file blocked to API origin).
+   - **B — UI up, API up, empty DB** (no seeded runs—different from A; list pages may be empty without injection).
+
+2. **Fix one viewport** (e.g. 1440×900 or 1920×1080) and reuse it for every shot.
+
+3. **Same workspace / URL params** where the app expects them (e.g. `?projectId=default` on Reviews if you always use that).
+
+4. **Wait for spinners** to stop (graph canvas, lists, timelines) before capture—**except** when you intentionally document a loading state.
+
+5. **Naming:** `01-home.png`, `02-reviews-list.png`, `03-review-detail-{runId}.png`, etc., or `{area}-{state}-{scenario}.png`.
+
+### 10.1. Home vs Reviews (consistency / “API not running” story)
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 1.1 | Open `/` (operator home) | Full page | Empty “latest” / checklist vs what Reviews will show. |
+| 1.2 | `/reviews?projectId=default` (or your default) | Full page | Whether the Claims Intake (or static) row appears when list API fails / empty. |
+| 1.3 | Optional: open Reviews drawer on a row (if present) | Drawer + table | CTAs to detail / package / findings without a live API. |
+
+### 10.2. Review package (core path when API is off)
+
+Use the **same review id** everywhere (e.g. `claims-intake-modernization-run`) so filenames line up.
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 2.1 | `/reviews/{runId}` | Full page above fold + scroll second shot if long | Detail: static fallback vs “could not be loaded”. |
+| 2.2 | `/reviews/{runId}/provenance` | Full page | Provenance: same `runId`; dependency on detail/authority APIs. |
+| 2.3 | `/reviews/{runId}/findings/phi-minimization-risk` (or your canonical finding slug) | Full page | Finding page (often fully API-backed). |
+| 2.4 | `/reviews/{runId}/findings/{findingId}/inspect` | Full page | Inspect payload (API-heavy). |
+| 2.5 | If you use executive mirror: `/executive/reviews/{runId}` | Full page | Parallel surface to operator detail. |
+
+### 10.3. Manifest and public-ish outputs (often API-backed)
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 3.1 | From review detail, follow manifest link if visible, or `/manifests/{manifestId}` (id from docs/static demo) | Full page | Summary + artifact list without API. |
+| 3.2 | Marketing/static where applicable: `/see-it`, `/demo/preview`, `/showcase/{runId}` (as you use them) | One each | Whether they still tell the story with no backend (if that is your deploy). |
+
+### 10.4. Graph
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 4.1 | `/graph` — default review selected, Review trail graph, click **Load graph** if needed | Full page with canvas visible | Provenance mode + static fallback vs API errors. |
+| 4.2 | `/graph` — switch to Architecture graph, **Load graph** | Full page | Larger payload / errors when API off. |
+
+### 10.5. Ask (conversations = API)
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 5.1 | `/ask` — initial load | Full page | Thread list failure / empty; “No messages yet”. |
+| 5.2 | `/ask` — select a thread if any appear | Main column + picker | Review dropdown vs thread context mismatch. |
+| 5.3 | `/ask` — type a one-line question, **Ask** (optional) | Result or error | Dead submit vs error banner when API off. |
+
+### 10.6. Governance (lists and findings queue)
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 6.1 | `/governance` | Full page | Static approval rows vs empty/error when API off. |
+| 6.2 | `/governance/findings` | Full page | PHI / sample finding visibility. |
+| 6.3 | `/governance/dashboard` | Full page | Thin dashboard when API off. |
+| 6.4 | `/governance/policy-packs` and `/governance/policy-packs/{id}` | Full page each | Registry counts vs sample story. |
+| 6.5 | If you deep-link approvals: `/governance/approval-requests/{id}/lineage` | Full page | Lineage completeness without API. |
+
+### 10.7. Audit
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 7.1 | `/audit` — default filters | Full page | Zero rows vs “complete review trail” narrative. |
+| 7.2 | `/audit` — set From/To to bracket sample dates, **Search** | Results area | Same, with explicit search attempt. |
+
+### 10.8. Alerts
+
+| Step | Navigate | Capture | What this checks |
+|-------|----------|---------|------------------|
+| 8.1 | `/alerts` — Inbox | Full page | No alerts vs PHI risk story. |
+| 8.2 | `/alerts?tab=rules` (and routing / composite / simulation if you show them) | One shot per tab you care about | Empty operator console tabs. |
+
+### 10.9. Optional but useful (often API or config dependent)
+
+| Step | Navigate | Capture | What this checks |
+|------|----------|---------|------------------|
+| 9.1 | `/compare`, `/replay` with sample `runId` | Full page | Partial UI vs API errors. |
+| 9.2 | `/admin/health`, `/admin/users`, `/admin/support` | Full page | Internal surfaces in demo story. |
+| 9.3 | `/settings/tenant` (and other Settings you cite in demos) | Full page | Blank profile / trial copy. |
+| 9.4 | Sign-in / auth callback path you expose publicly | Error or landing | Bad state inside shell. |
+
+### 10.10. Coverage definition (“covered the surface”)
+
+You have covered the **API-not-running** (or empty-data) story when you have at least one screenshot each for:
+
+- Home and Reviews list (contrast).
+- Review detail + finding + inspect + provenance (same `runId`).
+- Manifest (if in golden path).
+- Graph (provenance + optionally architecture).
+- Ask (list + conversation state).
+- Governance (workflow + findings + one of policy/dashboard/lineage).
+- Audit + Alerts (inbox + one config tab).
+
+That matches surfaces where listing runs, finding detail, audit events, alerts, or conversation messages often **lack** a curated static fallback.
+
+**Single ordered walk (about 15–20 minutes):** follow **10.1 → 10.2 → 10.3 → 10.4 → 10.5 → 10.6 → 10.7 → 10.8** in order, using one fixed `runId` and manifest id from your static demo docs.
+
+### 10.11. Related automated regression (operator UI)
+
+After changing operator shell or layer guidance, run Vitest locally. On Windows, if the default pool times out, prefer threads and a single worker:
+
+```bash
+cd archlucid-ui
+npx vitest run src/components/LayerHeader.test.tsx src/lib/authority-seam-regression.test.ts src/lib/use-nav-surface.test.ts src/components/ShellNav.test.tsx src/components/AfterCorePilotChecklistHint.test.tsx --pool=threads --maxWorkers=1
+```
+
+A recent run of `LayerHeader.test.tsx` and `authority-seam-regression.test.ts` with `--pool=threads --maxWorkers=1` reported **28** tests passed in about **55s**.

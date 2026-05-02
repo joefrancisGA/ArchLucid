@@ -1,31 +1,12 @@
 namespace ArchLucid.Application.DataConsistency;
 
 /// <summary>Read-only SQL probes for scheduled reconciliation (SQL Server).</summary>
-/// <remarks>Orphan fragments align with <c>ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql</c>.</remarks>
+/// <remarks>
+/// Orphan fragments align with <c>ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql</c>.
+/// <c>dbo.ComparisonRecords</c> run ids are FK-backed (DbUp 137) and are not probed here.
+/// </remarks>
 internal static class DataConsistencyReconciliationSql
 {
-    internal const string ComparisonRecordsLeftRunId = """
-                                                       SELECT COUNT_BIG(1)
-                                                       FROM dbo.ComparisonRecords c
-                                                       WHERE c.LeftRunId IS NOT NULL
-                                                         AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-                                                         AND NOT EXISTS (
-                                                             SELECT 1
-                                                             FROM dbo.Runs r
-                                                             WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
-                                                       """;
-
-    internal const string ComparisonRecordsRightRunId = """
-                                                        SELECT COUNT_BIG(1)
-                                                        FROM dbo.ComparisonRecords c
-                                                        WHERE c.RightRunId IS NOT NULL
-                                                          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-                                                          AND NOT EXISTS (
-                                                              SELECT 1
-                                                              FROM dbo.Runs r
-                                                              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
-                                                        """;
-
     internal const string RunsMissingArchitectureRequest = """
                                                            SELECT COUNT_BIG(1)
                                                            FROM dbo.Runs r
@@ -177,28 +158,4 @@ internal static class DataConsistencyReconciliationSql
                                                             WHERE r.RunId = ab.RunId)
                                                         ORDER BY ab.CreatedUtc DESC;
                                                         """;
-
-    internal const string SampleComparisonRecordsLeftOrphans = """
-                                                               SELECT TOP (50) c.ComparisonRecordId
-                                                               FROM dbo.ComparisonRecords c
-                                                               WHERE c.LeftRunId IS NOT NULL
-                                                                 AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-                                                                 AND NOT EXISTS (
-                                                                     SELECT 1
-                                                                     FROM dbo.Runs r
-                                                                     WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId))
-                                                               ORDER BY c.CreatedUtc ASC;
-                                                               """;
-
-    internal const string SampleComparisonRecordsRightOrphans = """
-                                                                SELECT TOP (50) c.ComparisonRecordId
-                                                                FROM dbo.ComparisonRecords c
-                                                                WHERE c.RightRunId IS NOT NULL
-                                                                  AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-                                                                  AND NOT EXISTS (
-                                                                      SELECT 1
-                                                                      FROM dbo.Runs r
-                                                                      WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId))
-                                                                ORDER BY c.CreatedUtc ASC;
-                                                                """;
 }

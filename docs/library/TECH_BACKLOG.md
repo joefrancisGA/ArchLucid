@@ -13,7 +13,7 @@ Items here are **greenlit in principle** â€” the decision has been made and
 | TB-003 | Performance regression sentinel â€” named-query allowlist CI gate | **Complete** â€” allowlist + histogram + CI dry-run + persistence timings on hot paths (`ListRecentInScopeAsync`, `AppendAsync`, `GetByIdAsync` manifest/snapshot) | Done |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar â€” conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1â€“2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance â€” structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
-| TB-006 | Type-migrate `dbo.ComparisonRecords` run id columns â†’ `UNIQUEIDENTIFIER` + FK to `dbo.Runs` | Referential correctness â€” orphans are detection-only until types align (ADR-0012 / migration 047) | ~4â€“8 h |
+| TB-006 | Type-migrate `dbo.ComparisonRecords` run id columns → `UNIQUEIDENTIFIER` + FK to `dbo.Runs` | Referential correctness — orphans are detection-only until types align (ADR-0012 / migration 047) | **Done** (DbUp 137 + repos + probes) |
 
 ---
 
@@ -161,24 +161,13 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 ---
 
-## TB-006 â€” Type-migrate ComparisonRecords.LeftRunId / RightRunId â†’ UNIQUEIDENTIFIER + FK to dbo.Runs
+## TB-006 — Type-migrate ComparisonRecords.LeftRunId / RightRunId → UNIQUEIDENTIFIER + FK to dbo.Runs
 
-**Context:** Migration **`047_DropForeignKeysToArchitectureRuns.sql`** dropped FKs because legacy coordinator columns (`NVARCHAR(64)`) could not reference `dbo.Runs.RunId` (`UNIQUEIDENTIFIER`). Orphan remediation for **`ComparisonRecords`** remains **probe plus admin delete** (`DataConsistencyOrphanRemediationSql`). Authority chain FK parity ships as **`134_FK_Authority_Chain_Runs_DbUpParity.sql`** aligned with **`ArchLucid.sql`**; comparison rows are still the structural gap until types align.
+**Status:** **Done** (2026-05-02).
 
-**What to do:**
+**Shipped:** DbUp `137_ComparisonRecords_RunIds_UniqueIdentifier.sql` (+ `Rollback/R137_*.sql`); master DDL `ArchLucid.Persistence/Scripts/ArchLucid.sql` (GUID columns + conditional FKs after `dbo.Runs` exists). `ComparisonRecordRepository` binds `uniqueidentifier` and projects run ids as `NVARCHAR(36)` for the contract `string?` shape. Host orphan probe, reconciliation, and admin remediation SQL for comparison-run orphans are removed or no-op; `DataConsistencyOrphanCounts` still exposes comparison slots for API compatibility (always zero under SQL). Persistence tests seed `dbo.Runs` before SQL comparison inserts; `ComparisonRecordRunForeignKeySqlIntegrationTests` covers FK violations.
 
-1. **Brownfield hygiene:** Rows whose `LeftRunId` / `RightRunId` are empty, non-guid strings, or do not resolve to **`dbo.Runs`** must be counted and remediated (admin **`/v1/admin/diagnostics`** comparison orphan path or scripted delete using the same predicates as probes).
-2. **Schema:** Alter **`LeftRunId`** / **`RightRunId`** to **`UNIQUEIDENTIFIER NULL`**, preferably in a phased migration with explicit rollback.
-3. **Constraints:** Add **`FK_ComparisonRecords_Runs_LeftRunId`** / **`FK_ComparisonRecords_Runs_RightRunId`** (`ON DELETE NO ACTION`; nullable columns imply FK applies only where non-null). Follow conditional add plus orphan guards as in **`092_FK_Outbox_Alerts_Batch1.sql`**.
-4. **Code:** Comparison persistence and probes stop using **`TRY_CONVERT`** string probes; repositories write **`uniqueidentifier`**.
-5. **Tests:** Persistence test that invalid run references fail **`INSERT`**; optional positive orphan detection analogue to **`DataConsistencyOrphanProbePositiveDetectionSqlIntegrationTests`**.
-
-**Affected areas:** `ArchLucid.Persistence/Migrations/`, `ArchLucid.Persistence/Scripts/ArchLucid.sql`, `ArchLucid.Host.Core/DataConsistency/*`, coordinator comparison repositories.
-
-**Size estimate:** ~4â€“8 h depending on brownfield orphan volume and rollout coordination.
-
----
-
+**Context (historical):** Migration **`047_DropForeignKeysToArchitectureRuns.sql`** dropped FKs because legacy `NVARCHAR(64)` run ids could not reference `dbo.Runs.RunId` (`UNIQUEIDENTIFIER`).
 
 ---
 

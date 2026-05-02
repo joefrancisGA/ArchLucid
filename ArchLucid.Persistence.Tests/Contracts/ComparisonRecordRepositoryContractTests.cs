@@ -15,14 +15,18 @@ public abstract class ComparisonRecordRepositoryContractTests
     {
     }
 
+    /// <summary>SQL-only: ensure <c>dbo.Runs</c> exists for any GUID run ids on the record (TB-006 FK).</summary>
+    protected virtual Task BeforeSqlComparisonRecordPersistAsync(ComparisonRecord row, CancellationToken ct) =>
+        Task.CompletedTask;
+
     private static ComparisonRecord CreateRecord(string id, string comparisonType = "end-to-end-replay")
     {
         return new ComparisonRecord
         {
             ComparisonRecordId = id,
             ComparisonType = comparisonType,
-            LeftRunId = "L1",
-            RightRunId = "R1",
+            LeftRunId = Guid.NewGuid().ToString("N"),
+            RightRunId = Guid.NewGuid().ToString("N"),
             Format = "json+markdown",
             SummaryMarkdown = "s",
             PayloadJson = "{}",
@@ -38,6 +42,8 @@ public abstract class ComparisonRecordRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
         ComparisonRecord row = CreateRecord("cmp_contract_" + Guid.NewGuid().ToString("N"));
+
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
 
         await repo.CreateAsync(row, CancellationToken.None);
 
@@ -67,11 +73,14 @@ public abstract class ComparisonRecordRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
-        string runId = "run_scope_" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
         ComparisonRecord a = CreateRecord("cmp_a_" + Guid.NewGuid().ToString("N"));
         a.LeftRunId = runId;
         ComparisonRecord b = CreateRecord("cmp_b_" + Guid.NewGuid().ToString("N"));
         b.RightRunId = runId;
+
+        await BeforeSqlComparisonRecordPersistAsync(a, CancellationToken.None);
+        await BeforeSqlComparisonRecordPersistAsync(b, CancellationToken.None);
 
         await repo.CreateAsync(a, CancellationToken.None);
         await repo.CreateAsync(b, CancellationToken.None);
@@ -88,6 +97,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
         ComparisonRecord row = CreateRecord("cmp_upd_" + Guid.NewGuid().ToString("N"));
+        await BeforeSqlComparisonRecordPersistAsync(row, CancellationToken.None);
         await repo.CreateAsync(row, CancellationToken.None);
 
         bool ok = await repo.UpdateLabelAndTagsAsync(row.ComparisonRecordId, "new-label", ["x"],
@@ -108,6 +118,9 @@ public abstract class ComparisonRecordRepositoryContractTests
         // ReSharper disable once InconsistentNaming
         ComparisonRecord e2e = CreateRecord("cmp_e2e_" + Guid.NewGuid().ToString("N"));
         ComparisonRecord diff = CreateRecord("cmp_diff_" + Guid.NewGuid().ToString("N"), "export-record-diff");
+
+        await BeforeSqlComparisonRecordPersistAsync(e2e, CancellationToken.None);
+        await BeforeSqlComparisonRecordPersistAsync(diff, CancellationToken.None);
 
         await repo.CreateAsync(e2e, CancellationToken.None);
         await repo.CreateAsync(diff, CancellationToken.None);
