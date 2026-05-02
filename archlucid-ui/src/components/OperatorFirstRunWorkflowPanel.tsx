@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { listRunsByProjectPaged } from "@/lib/api";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
@@ -147,8 +147,8 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
 
     void (async () => {
       try {
-        const page = await listRunsByProjectPaged("default", 1, 1);
-        const next = (page.items?.length ?? 0) > 0;
+        const merged = await loadProjectRunsMergedWithDemoFallback("default");
+        const next = merged.items.length > 0;
 
         if (cancelled) {
           return;

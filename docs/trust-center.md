@@ -12,7 +12,7 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 ## Procurement questionnaire accelerator
 
-**Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](go-to-market/PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths + **Implemented** review-age budgets).
+**Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](go-to-market/PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths + **Implemented** review-age budgets). **Ultra-short skim (same curated paths):** [PROCUREMENT_FAST_LANE.md](go-to-market/PROCUREMENT_FAST_LANE.md).
 
 For spreadsheets (SIG-, CAIQ-style rows), use **`docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md`** — **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**):
 

@@ -6,6 +6,8 @@ import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayloa
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { getShowcaseManifestHref } from "@/lib/buyer-safe-review-navigation";
+import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import {
   findingInspectPrimaryLabels,
@@ -53,7 +55,13 @@ export function FindingInspectFindingBody({
   payload,
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {
-  const demoFillGaps = isNextPublicDemoMode();
+  const demoFillGaps = isNextPublicDemoMode() || isDemoRunIdEligibleForStaticFallback(runId);
+  const reviewContextHref = isDemoRunIdEligibleForStaticFallback(runId)
+    ? getShowcaseManifestHref()
+    : `/reviews/${encodeURIComponent(runId)}`;
+  const reviewContextLabel = isDemoRunIdEligibleForStaticFallback(runId)
+    ? "Review package (manifest & context)"
+    : "Open review detail (artifacts & graph)";
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
@@ -134,10 +142,10 @@ export function FindingInspectFindingBody({
                 </p>
                 <div className="mt-2">
                   <Link
-                    href={`/reviews/${encodeURIComponent(runId)}`}
+                    href={reviewContextHref}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
-                    Open review (artifacts and graph context)
+                    {reviewContextLabel}
                   </Link>
                 </div>
               </li>
@@ -163,10 +171,10 @@ export function FindingInspectFindingBody({
                 ) : null}
                 <div className="mt-2">
                   <Link
-                    href={`/reviews/${encodeURIComponent(runId)}`}
+                    href={reviewContextHref}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
-                    Open review (artifacts and graph context)
+                    {reviewContextLabel}
                   </Link>
                 </div>
               </li>

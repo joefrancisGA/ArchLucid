@@ -6,7 +6,8 @@ import { useState } from "react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerSafeDemoMarketingChromeEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   getBuyerSafeReviewsTableLink,
@@ -40,7 +41,7 @@ export type RunInspectorPreviewProps = {
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [technicalOpen, setTechnicalOpen] = useState(false);
-  const demo = isNextPublicDemoMode();
+  const demoChrome = isNextPublicDemoMode() || isBuyerSafeDemoMarketingChromeEnv();
   const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
   const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
@@ -48,14 +49,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
   const headline = run.description?.trim() ?? "Architecture review";
   const createdLabel = showcaseStory
-    ? demo
-      ? "Sample review (illustrative)"
-      : new Date(run.createdUtc).toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-    : new Date(run.createdUtc).toLocaleString();
+    ? demoChrome
+      ? "Sample finalized (illustrative)"
+      : formatInstantForLocale(run.createdUtc)
+    : formatInstantForLocale(run.createdUtc);
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
@@ -63,7 +60,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     ? showcaseWalkthroughHref
     : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
-    showcaseStory && demo
+    showcaseStory && demoChrome
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
       : run.hasArtifactBundle
         ? "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."

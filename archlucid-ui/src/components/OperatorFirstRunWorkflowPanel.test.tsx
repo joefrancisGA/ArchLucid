@@ -10,6 +10,11 @@ import {
 
 import { OperatorFirstRunWorkflowPanel } from "./OperatorFirstRunWorkflowPanel";
 
+/** Avoid demo fallback rows flipping the panel to "explore completed output" mid-test (async merge). */
+vi.mock("@/lib/operator-run-picker-client", () => ({
+  loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
+}));
+
 describe("OperatorFirstRunWorkflowPanel", () => {
   afterEach(() => {
     localStorage.clear();

@@ -25,7 +25,9 @@ const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
 
 /** When true, operator run/manifest pages use curated showcase data if the API fails (demo deploys only). */
 export function isOperatorDemoStaticMode(): boolean {
-  return process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true";
+  return (
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
+  );
 }
 
 /**

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "runId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "manifestId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "tenantId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "workspaceId": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+  "projectId": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "previousRunId": null,
+  "findings": []
+}

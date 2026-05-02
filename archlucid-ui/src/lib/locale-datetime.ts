@@ -1,4 +1,7 @@
-/** Locale string for an ISO-8601 instant, or em dash when missing / not parseable (avoids “Invalid Date” in UI). */
+/**
+ * Locale string for an ISO-8601 instant, or em dash when missing / not parseable (avoids “Invalid Date” in UI).
+ * Uses fixed `en-US` + `UTC` so server and client render the same text (hydration-safe for client components).
+ */
 export function formatInstantForLocale(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
     return "—";
@@ -16,5 +19,15 @@ export function formatInstantForLocale(iso: string | null | undefined): string {
     return "—";
   }
 
-  return new Date(ms).toLocaleString();
+  return (
+    new Date(ms).toLocaleString("en-US", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }) + " UTC"
+  );
 }

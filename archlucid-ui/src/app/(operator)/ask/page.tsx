@@ -23,6 +23,9 @@ import {
   listConversationThreads,
 } from "@/lib/conversation-api";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -49,6 +52,7 @@ export default function AskPage() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
+  const hideCompareChrome = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
 
   const loadThreads = useCallback(async () => {
     setListFailure(null);
@@ -78,7 +82,7 @@ export default function AskPage() {
     setRunId(fromWorkspace);
   }, [workspaceRun?.activeRunId, selectedThreadId]);
 
-  async function loadMessages(threadId: string) {
+  const loadMessages = useCallback(async (threadId: string) => {
     setActionFailure(null);
     try {
       const data = await getConversationMessages(threadId);
@@ -86,7 +90,7 @@ export default function AskPage() {
     } catch (e) {
       setActionFailure(toApiLoadFailure(e));
     }
-  }
+  }, []);
 
   async function onAsk() {
     setActionFailure(null);
@@ -107,7 +111,7 @@ export default function AskPage() {
     const useCompare = base.length > 0 && target.length > 0;
     if ((base.length > 0) !== (target.length > 0)) {
       setActionFailure(
-        uiFailureFromMessage("Provide both baseline and updated runs for comparison, or leave both empty."),
+        uiFailureFromMessage("Provide both baseline and updated reviews for comparison, or leave both empty."),
       );
       return;
     }
@@ -133,29 +137,48 @@ export default function AskPage() {
     }
   }
 
-  async function onSelectThread(threadId: string) {
-    setSelectedThreadId(threadId);
+  const onSelectThread = useCallback(
+    async (threadId: string) => {
+      setSelectedThreadId(threadId);
 
-    const thread = threads.find((t) => t.threadId === threadId);
+      const thread = threads.find((t) => t.threadId === threadId);
 
-    if (thread?.runId) {
-      setRunId(thread.runId);
-    } else {
-      setRunId("");
+      if (thread?.runId) {
+        setRunId(thread.runId);
+      } else {
+        setRunId("");
+      }
+
+      if (thread?.baseRunId) {
+        setBaseRunId(thread.baseRunId);
+        setTargetRunId(thread.targetRunId ?? "");
+        setCompareOpen(true);
+      } else {
+        setBaseRunId("");
+        setTargetRunId("");
+        setCompareOpen(false);
+      }
+
+      await loadMessages(threadId);
+    },
+    [threads, loadMessages],
+  );
+
+  useEffect(() => {
+    if (listFailure !== null) {
+      return;
     }
 
-    if (thread?.baseRunId) {
-      setBaseRunId(thread.baseRunId);
-      setTargetRunId(thread.targetRunId ?? "");
-      setCompareOpen(true);
-    } else {
-      setBaseRunId("");
-      setTargetRunId("");
-      setCompareOpen(false);
+    if (threads.length === 0) {
+      return;
     }
 
-    await loadMessages(threadId);
-  }
+    if (selectedThreadId.trim().length > 0) {
+      return;
+    }
+
+    void onSelectThread(threads[0]!.threadId);
+  }, [threads, selectedThreadId, listFailure, onSelectThread]);
 
   const threadSelected = selectedThreadId.trim().length > 0;
   const needsRunForNewThread = !threadSelected;
@@ -224,7 +247,7 @@ export default function AskPage() {
                     <span>
                       {thread.title}
                       <div className="text-xs font-normal text-neutral-500 dark:text-neutral-500">
-                        {new Date(thread.lastUpdatedUtc).toLocaleString()}
+                        {formatInstantForLocale(thread.lastUpdatedUtc)}
                       </div>
                     </span>
                   </Button>
@@ -243,6 +266,7 @@ export default function AskPage() {
                 selectedThreadId={selectedThreadId}
                 fieldId="ask-run-primary"
               />
+              {hideCompareChrome ? null : (
               <Collapsible open={compareOpen} onOpenChange={setCompareOpen}>
                 <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
                   <CollapsibleTrigger asChild>
@@ -268,7 +292,7 @@ export default function AskPage() {
                       onChange={setBaseRunId}
                       selectedThreadId={selectedThreadId}
                       preferAutoPick={false}
-                      label="Base run"
+                      label="Baseline review"
                       fieldId="ask-compare-base"
                     />
                     <AskRunIdPicker
@@ -276,12 +300,13 @@ export default function AskPage() {
                       onChange={setTargetRunId}
                       selectedThreadId={selectedThreadId}
                       preferAutoPick={false}
-                      label="Compare run"
+                      label="Updated review"
                       fieldId="ask-compare-target"
                     />
                   </CollapsibleContent>
                 </div>
               </Collapsible>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="ask-question">Question</Label>
                 <Textarea

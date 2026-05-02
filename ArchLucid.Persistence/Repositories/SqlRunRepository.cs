@@ -99,29 +99,41 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        const string sql = """
-                           SELECT
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               RetryCount, LastFailureReason,
-                               RowVersionStamp AS RowVersion
-                           FROM dbo.Runs
-                           WHERE RunId = @RunId
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL;
-                           """;
+        Stopwatch sw = Stopwatch.StartNew();
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        return await connection.QuerySingleOrDefaultAsync<RunRecord>(
-            new CommandDefinition(
-                sql,
-                new { RunId = runId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
-                cancellationToken: ct));
+        try
+        {
+            const string sql = """
+                               SELECT
+                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   RetryCount, LastFailureReason,
+                                   RowVersionStamp AS RowVersion
+                               FROM dbo.Runs
+                               WHERE RunId = @RunId
+                                 AND TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ScopeProjectId = @ScopeProjectId
+                                 AND ArchivedUtc IS NULL;
+                               """;
+
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+            return await connection.QuerySingleOrDefaultAsync<RunRecord>(
+                new CommandDefinition(
+                    sql,
+                    new { RunId = runId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
+                    cancellationToken: ct));
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetRunByScopedId,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
@@ -134,21 +146,32 @@ public sealed class SqlRunRepository(
 
         // NOLOCK: dashboard-grade list on hot-write table; tolerates replica-style staleness (see ListRecentInScopeAsync).
 
-        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(
-                HotPathRelationalQueryShapes.RunsListByProjectNoLock,
-                new
-                {
-                    ProjectSlug = projectId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
-                },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        return rows.ToList();
+        try
+        {
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.RunsListByProjectNoLock,
+                    new
+                    {
+                        ProjectSlug = projectId,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
+                    },
+                    cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListRunsByProject,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task<RunListPage> ListByProjectKeysetAsync(
@@ -167,29 +190,40 @@ public sealed class SqlRunRepository(
 
         // NOLOCK: same dashboard-grade tolerance as unpaged lists.
 
-        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(
-                HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock,
-                new
-                {
-                    ProjectSlug = projectId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    Fetch = fetch,
-                    CursorCreatedUtc = cursorCreatedUtc,
-                    CursorRunId = cursorRunId
-                },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        List<RunRecord> rows = rowsEnumerable.ToList();
-        bool hasMore = rows.Count > safeTake;
+        try
+        {
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock,
+                    new
+                    {
+                        ProjectSlug = projectId,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Fetch = fetch,
+                        CursorCreatedUtc = cursorCreatedUtc,
+                        CursorRunId = cursorRunId
+                    },
+                    cancellationToken: ct));
 
-        if (hasMore)
-            rows.RemoveAt(rows.Count - 1);
+            List<RunRecord> rows = rowsEnumerable.ToList();
+            bool hasMore = rows.Count > safeTake;
 
-        return new RunListPage(rows, hasMore);
+            if (hasMore)
+                rows.RemoveAt(rows.Count - 1);
+
+            return new RunListPage(rows, hasMore);
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListRunsByProjectKeyset,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     /// <inheritdoc />
@@ -243,28 +277,39 @@ public sealed class SqlRunRepository(
 
         // NOLOCK: keyset continuation for picker/dashboard lists (same tolerance as ListRecentInScopeAsync).
 
-        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(
-                HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    Fetch = fetch,
-                    CursorCreatedUtc = cursorCreatedUtc,
-                    CursorRunId = cursorRunId
-                },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        List<RunRecord> rows = rowsEnumerable.ToList();
-        bool hasMore = rows.Count > safeTake;
+        try
+        {
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Fetch = fetch,
+                        CursorCreatedUtc = cursorCreatedUtc,
+                        CursorRunId = cursorRunId
+                    },
+                    cancellationToken: ct));
 
-        if (hasMore)
-            rows.RemoveAt(rows.Count - 1);
+            List<RunRecord> rows = rowsEnumerable.ToList();
+            bool hasMore = rows.Count > safeTake;
 
-        return new RunListPage(rows, hasMore);
+            if (hasMore)
+                rows.RemoveAt(rows.Count - 1);
+
+            return new RunListPage(rows, hasMore);
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListRunsRecentInScopeKeyset,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task UpdateAsync(

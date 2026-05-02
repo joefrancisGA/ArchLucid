@@ -148,12 +148,12 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     {
         DataConsistencyEnforcementOptions enf = _enforcementOptionsMonitor.CurrentValue;
 
-        if (enf.Mode == DataConsistencyEnforcementMode.Off)
+        if (!DataConsistencyEnforcementPolicy.ShouldEvaluateEnforcement(enf.Mode))
             return;
 
-        int threshold = Math.Max(1, enf.AlertThreshold);
+        int threshold = DataConsistencyEnforcementPolicy.NormalizeAlertThreshold(enf.AlertThreshold);
 
-        if (enf.Mode is DataConsistencyEnforcementMode.Alert or DataConsistencyEnforcementMode.Quarantine)
+        if (DataConsistencyEnforcementPolicy.UsesAlertCounters(enf.Mode))
         {
             TryRecordAlert(leftCount, threshold, "ComparisonRecords", "LeftRunId");
             TryRecordAlert(rightCount, threshold, "ComparisonRecords", "RightRunId");
@@ -196,14 +196,10 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 .ConfigureAwait(false);
         }
 
-        if (goldenCount <= 0)
-            return;
-
-
-        bool quarantineGoldenManifests =
-            enf.Mode == DataConsistencyEnforcementMode.Quarantine || enf.AutoQuarantine;
-
-        if (!quarantineGoldenManifests)
+        if (!DataConsistencyEnforcementPolicy.ShouldAttemptGoldenManifestQuarantine(
+                enf.Mode,
+                enf.AutoQuarantine,
+                goldenCount))
             return;
 
 
@@ -287,7 +283,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
     private static void TryRecordAlert(long count, int threshold, string table, string column)
     {
-        if (count < threshold)
+        if (!DataConsistencyEnforcementPolicy.IsAlertEligible(count, threshold))
             return;
 
 

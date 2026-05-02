@@ -10,5 +10,9 @@ export function isNextPublicDemoMode(): boolean {
  * demo mode or static-operator demo build is enabled.
  */
 export function isBuyerSafeDemoMarketingChromeEnv(): boolean {
-  return isNextPublicDemoMode() || process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true";
+  return (
+    isNextPublicDemoMode() ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
+  );
 }

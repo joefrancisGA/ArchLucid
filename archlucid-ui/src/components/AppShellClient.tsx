@@ -47,6 +47,12 @@ export function AppShellClient({ children }: AppShellClientProps) {
   /** Omit platform readiness on operator home — avoids “Healthy” next to an empty or fragile demo workspace story. */
   const hideWorkspaceHealthFooter =
     pathname === "/" ||
+    pathname.startsWith("/graph") ||
+    pathname.startsWith("/ask") ||
+    pathname.startsWith("/governance") ||
+    pathname.startsWith("/audit") ||
+    pathname.startsWith("/alerts") ||
+    pathname.startsWith("/policy-packs") ||
     (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
     (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
 

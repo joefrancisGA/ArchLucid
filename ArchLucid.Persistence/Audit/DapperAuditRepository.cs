@@ -66,20 +66,31 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         CancellationToken ct)
     {
         // Read-committed + row-versioning (RCSI): consistent committed reads without dirty-read hints; enable via migration 091.
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
-            new CommandDefinition(
-                HotPathRelationalQueryShapes.AuditEventsGetByScope,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                    Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
-                },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        return rows.ToList();
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.AuditEventsGetByScope,
+                    new
+                    {
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId,
+                        Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
+                    },
+                    cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListAuditEventsByScope,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task<IReadOnlyList<AuditEvent>> GetFilteredAsync(
@@ -161,11 +172,22 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
-            new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        return rows.ToList();
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+                new CommandDefinition(sql.ToString(), parameters, cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.ListAuditEventsFiltered,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task<IReadOnlyList<AuditEvent>> GetExportAsync(

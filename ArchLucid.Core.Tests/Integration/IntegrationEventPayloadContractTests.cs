@@ -237,6 +237,32 @@ public sealed class IntegrationEventPayloadContractTests
     }
 
     [Fact]
+    public void Recipe_fixture_authority_run_completed_validates_against_committed_schema()
+    {
+        string root = TestRepositoryPaths.ResolveRepositoryRoot();
+        string jsonPath = Path.Combine(
+            root,
+            "tests",
+            "integration-recipe-fixtures",
+            "authority-run-completed.recipe-sample.data.v1.json");
+
+        using JsonDocument fixture = JsonDocument.Parse(File.ReadAllBytes(jsonPath));
+
+        AssertPayloadMatchesCommittedSchema("authority-run-completed.v1.schema.json", fixture.RootElement);
+    }
+
+    [Fact]
+    public void Recipe_fixture_alert_fired_validates_against_committed_schema()
+    {
+        string root = TestRepositoryPaths.ResolveRepositoryRoot();
+        string jsonPath = Path.Combine(root, "tests", "integration-recipe-fixtures", "alert-fired.recipe-sample.data.v1.json");
+
+        using JsonDocument fixture = JsonDocument.Parse(File.ReadAllBytes(jsonPath));
+
+        AssertPayloadMatchesCommittedSchema("alert-fired.v1.schema.json", fixture.RootElement);
+    }
+
+    [Fact]
     public void Catalog_entries_match_schema_files_on_disk()
     {
         string integrationEventsDir = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events");
@@ -298,6 +324,15 @@ public sealed class IntegrationEventPayloadContractTests
 
     private static void AssertPayloadMatchesCommittedSchema(string schemaFileName, object payload)
     {
+        byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(payload, IntegrationEventJson.Options);
+
+        using JsonDocument payloadDoc = JsonDocument.Parse(utf8);
+
+        AssertPayloadMatchesCommittedSchema(schemaFileName, payloadDoc.RootElement);
+    }
+
+    private static void AssertPayloadMatchesCommittedSchema(string schemaFileName, JsonElement payloadRoot)
+    {
         string path = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", schemaFileName);
 
         File.Exists(path).Should().BeTrue($"schema file must be copied to test output: {path}");
@@ -305,11 +340,6 @@ public sealed class IntegrationEventPayloadContractTests
         string schemaJson = File.ReadAllText(path);
         using JsonDocument schemaDoc = JsonDocument.Parse(schemaJson);
         JsonElement schemaRoot = schemaDoc.RootElement;
-
-        byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(payload, IntegrationEventJson.Options);
-
-        using JsonDocument payloadDoc = JsonDocument.Parse(utf8);
-        JsonElement payloadRoot = payloadDoc.RootElement;
 
         payloadRoot.ValueKind.Should().Be(JsonValueKind.Object);
 

@@ -10,6 +10,8 @@ Expected measurements JSON (default):
 }
 
 Non-allowlisted query names in measurements are ignored but counted in the footer ratio.
+
+Operational refresh checklist: tests/performance/README.md (TB-003).
 """
 
 from __future__ import annotations

@@ -22,7 +22,7 @@ The **Pilot vs Operate** wedge is coherent ([`PRODUCT_PACKAGING.md`](PRODUCT_PAC
 
 ### Deferred Scope Uncertainty
 
-**None.** Explicit V1.1/V2 deferrals are consolidated in [`V1_DEFERRED.md`](V1_DEFERRED.md) ([e.g.](V1_DEFERRED.md) §6 MCP V1.1, ITSM V1.1, Slack V2, commerce un-hold V1.1, external pen test V2, PGP key V1.1, named reference customer V1.1). This assessment does not penalize those items against V1.
+**None.** Explicit V1.1/V2 deferrals are consolidated in [`V1_DEFERRED.md`](V1_DEFERRED.md)—for example §6 (MCP V1.1, ITSM V1.1, Slack V2, commerce un-hold V1.1, external pen test V2, PGP key V1.1, named reference customer V1.1). This assessment does not penalize those items against V1.
 
 ---
 
