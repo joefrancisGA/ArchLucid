@@ -345,9 +345,9 @@ describe("authority seam regression", () => {
    * `LayerHeader` treats `enterpriseFootnote` as the Enterprise Controls signal (rank cue + footnote typography).
    * Missing copy would regress buyer-facing packaging without a type error.
    */
-  it("requires non-empty useWhen, firstPilotNote, and enterpriseFootnote on every Operate governance guidance block", () => {
+  it("requires non-empty useWhen, firstPilotNote, and enterpriseFootnote on every governance LayerHeader guidance block", () => {
     const enterpriseBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
-      (b) => b.layerBadge === "Operate" && b.enterpriseFootnote != null,
+      (b) => b.enterpriseFootnote != null,
     );
 
     expect(enterpriseBlocks.length).toBeGreaterThan(0);
@@ -361,11 +361,11 @@ describe("authority seam regression", () => {
 
   /**
    * Advanced pages must not set `enterpriseFootnote`: `LayerHeader` uses its presence to style `useWhen` and only
-   * renders the Enterprise rank cue when the badge is Enterprise Controls — not a string match on headlines.
+   * renders the Enterprise rank cue when the guidance block carries a governance footnote — not a string match on headlines.
    */
-  it("keeps enterpriseFootnote unset on Operate analysis guidance blocks", () => {
+  it("keeps enterpriseFootnote unset on Analysis guidance blocks", () => {
     const advancedBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
-      (b) => b.layerBadge === "Operate" && b.enterpriseFootnote == null,
+      (b) => b.layerBadge === "Analysis",
     );
 
     expect(advancedBlocks.length).toBeGreaterThan(0);

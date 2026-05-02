@@ -33,7 +33,7 @@ export function GraphIdleLegend() {
         ))}
       </ul>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-neutral-500 dark:text-neutral-400">
-        <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Run</span>
+        <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Review</span>
         <span aria-hidden>→</span>
         <span className="rounded border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-600 dark:bg-neutral-900">Context</span>
         <span aria-hidden>→</span>
@@ -44,8 +44,8 @@ export function GraphIdleLegend() {
 }
 
 export const GRAPH_MODE_NATIVE_TITLES: Record<string, string> = {
-  "provenance-full": "Full review-trail graph: decisions, findings, artifacts, review events, and linkage to the run.",
+  "provenance-full": "Full review-trail graph: decisions, findings, artifacts, review events, and linkage to the review.",
   "decision-subgraph": "Neighborhood focused on one decision id and its connected evidence.",
   "node-neighborhood": "Expand a specific graph node by id up to the selected depth.",
-  architecture: "Architecture graph: components and relationships (may paginate on very large runs).",
+  architecture: "Architecture graph: components and relationships (may paginate on very large reviews).",
 };

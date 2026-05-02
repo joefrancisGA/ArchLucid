@@ -124,7 +124,7 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
     expect(composed.contextHints.governanceDashboardReaderAction).toBeNull();
   });
 
-  it("emits the LayerHeader Execute+ rank cue only on Operate governance pages when caller rank is Execute+", () => {
+  it("emits the LayerHeader Execute+ rank cue only on Governance pages with a footnote when caller rank is Execute+", () => {
     const enterpriseRouteKey: LayerGuidancePageKey = "governance-workflow";
     const advancedRouteKey: LayerGuidancePageKey = "compare";
 

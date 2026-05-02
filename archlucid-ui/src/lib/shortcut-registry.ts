@@ -29,13 +29,13 @@ export const SHORTCUTS: ShortcutEntry[] = [
     key: "alt+c",
     label: "Compare",
     route: "/compare",
-    description: "Compare two runs",
+    description: "Compare two reviews",
   },
   {
     key: "alt+p",
     label: "Replay",
     route: "/replay",
-    description: "Replay a run",
+    description: "Replay a review",
   },
   {
     key: "alt+a",

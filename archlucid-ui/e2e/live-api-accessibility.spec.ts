@@ -2,12 +2,17 @@ import { expect, test } from "@playwright/test";
 
 import { formatViolations, runAxe } from "./helpers/axe-helper";
 import {
+  FIXTURE_FINDING_ID,
+  FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
+  FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
   SCREENSHOT_FINDING_ID,
+  SCREENSHOT_PLAN_ID,
   SCREENSHOT_POLICY_PACK_ID,
   SHOWCASE_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
 } from "./fixtures/ids";
 
 /**
@@ -89,24 +94,58 @@ const PAGES = [
     name: "Executive finding detail (showcase)",
     path: `/executive/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
   },
+  { name: "New review (canonical /reviews)", path: "/reviews/new" },
+  { name: "Reviews list (canonical /reviews)", path: "/reviews?projectId=default" },
+  { name: "Run detail (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}` },
+  { name: "Run provenance (canonical /reviews)", path: `/reviews/${FIXTURE_RUN_ID}/provenance` },
+  {
+    name: "Finding detail showcase (canonical /reviews)",
+    path: `/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}`,
+  },
+  {
+    name: "Finding inspect showcase (canonical /reviews)",
+    path: `/reviews/${SHOWCASE_DEMO_RUN_ID}/findings/${SCREENSHOT_FINDING_ID}/inspect`,
+  },
+  { name: "Replay (pre-filled runId)", path: `/replay?runId=${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}` },
+  {
+    name: "Compare (fixture left/right)",
+    path: `/compare?leftRunId=${encodeURIComponent(FIXTURE_LEFT_RUN_ID)}&rightRunId=${encodeURIComponent(FIXTURE_RIGHT_RUN_ID)}`,
+  },
+  { name: "Operator sign in", path: "/auth/signin" },
+  { name: "Marketing accessibility statement", path: "/accessibility" },
+  { name: "Marketing privacy", path: "/privacy" },
+  { name: "Marketing get started", path: "/get-started" },
+  {
+    name: "Manifest detail (showcase static demo UUID)",
+    path: `/manifests/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
+  },
+  {
+    name: "Planning plan detail (demo slug)",
+    path: `/planning/plans/${encodeURIComponent(SCREENSHOT_PLAN_ID)}`,
+  },
 ] as const;
 
 /**
- * Routes intentionally excluded from the axe matrix: require state that is not guaranteed across CI tenants/clean catalogs.
- * Revisit when a stable seeded plan id and approval lineage row are documented for live E2E.
+ * Routes intentionally excluded from the axe matrix: require state or OAuth handshakes that are not stable in CI.
  */
 export const PAGES_DEFERRED = [
-  {
-    name: "Planning plan detail",
-    path: "/planning/plans/{planId}",
-    reason:
-      "GET /v1/learning/plans/{id} is tenant/data-dependent; no canonical plan id is guaranteed on an empty or non-demo SQL catalog. Add a seeded plan GUID to CI bootstrap docs, then use `/planning/plans/<that-guid>`.",
-  },
   {
     name: "Governance approval request lineage",
     path: "/governance/approval-requests/{id}/lineage",
     reason:
       "Lineage view expects a persisted approval request (e.g. Contoso demo `apr-demo-001`). Catalogs without demo governance seed return empty/error surfaces — flakes the `main` visibility gate. Scope as a targeted journey test once seed is mandatory.",
+  },
+  {
+    name: "OAuth sign-in callback",
+    path: "/auth/callback",
+    reason:
+      "Entra/OIDC callback requires `code` / `state` query parameters from the identity provider; loading the bare route yields a non-representative error shell for accessibility scoring.",
+  },
+  {
+    name: "Finding detail (fixture run + mock-only finding slug)",
+    path: `/reviews/${FIXTURE_RUN_ID}/findings/${FIXTURE_FINDING_ID}`,
+    reason:
+      "`FIXTURE_FINDING_ID` aligns with mock/breadcrumb fixtures; live SQL demos use human slugs (e.g. showcase `phi-minimization-risk`). Scanning this pair can 404 or show empty chrome on catalogs without that row — showcase finding routes already cover the inspect UI.",
   },
 ] as const;
 

@@ -675,7 +675,7 @@ function GovernanceWorkflowPageInner() {
             </Button>
             {!canMutateWorkflow ? (
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
-                Submitting for governance approval requires Execute access on your account. You can still review
+                Submitting for governance approval requires approver rights on your account. You can still review
                 approvals below; contact your ArchLucid account team if this should be enabled for your workspace.
               </p>
             ) : null}
@@ -960,7 +960,8 @@ function GovernanceWorkflowPageInner() {
             : governanceWorkflowPromotionsActivationsSectionLeadReader}
         </p>
         <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
-          Review <span className="font-mono">{activeRunId ?? "—"}</span> · promotions newest first; activations follow.
+          Selected review timeline · promotions newest first; activations follow.
+          {activeRunId ? <span className="sr-only"> Technical review id {activeRunId}</span> : null}
         </p>
 
         {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
@@ -985,7 +986,7 @@ function GovernanceWorkflowPageInner() {
             <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
-                <CardDescription className="font-mono text-xs">{p.promotionRecordId}</CardDescription>
+                <p className="sr-only">Promotion record id {p.promotionRecordId}</p>
               </CardHeader>
               <CardContent className="grid gap-1 text-sm">
                 <div>
@@ -1067,7 +1068,7 @@ function GovernanceWorkflowPageInner() {
             <Card key={a.activationId} className="border-l-4 border-l-teal-500">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
-                <CardDescription className="font-mono text-xs">{a.activationId}</CardDescription>
+                <p className="sr-only">Activation id {a.activationId}</p>
               </CardHeader>
               <CardContent className="grid gap-1 text-sm">
                 <div>

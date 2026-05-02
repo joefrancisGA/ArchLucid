@@ -76,12 +76,12 @@ function ReplayForm() {
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
-        <Link href="/reviews?projectId=default">Runs</Link>
+        <Link href="/reviews?projectId=default">Reviews</Link>
         {" · "}
-        <Link href="/compare">Compare two runs</Link>
+        <Link href="/compare">Compare two reviews</Link>
       </p>
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Re-run the stored validation pipeline for a run. Choose a mode, then read validation flags and notes
+        Re-run the stored validation pipeline for a review. Choose a mode, then read validation flags and notes
         below.
       </p>
 
