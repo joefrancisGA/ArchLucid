@@ -67,6 +67,13 @@ public sealed class PilotInProductScorecardResult
         get;
         init;
     }
+
+    /// <summary>V1 auto-fill provenance: measured (SQL), manual (operator baselines), modeled (ROI), unavailable.</summary>
+    public required IReadOnlyDictionary<string, string> MetricSources
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class PilotInProductBaselinesView

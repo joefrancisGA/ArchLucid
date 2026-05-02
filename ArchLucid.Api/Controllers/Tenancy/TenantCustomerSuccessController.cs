@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.CustomerSuccess;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
@@ -21,10 +22,18 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TenantCustomerSuccessController(
     ITenantCustomerSuccessRepository customerSuccessRepository,
+    IOperatorNextBestActionService nextBestActionService,
+    IOperatorStickinessSnapshotReader stickinessSnapshotReader,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     private readonly ITenantCustomerSuccessRepository _customerSuccessRepository =
         customerSuccessRepository ?? throw new ArgumentNullException(nameof(customerSuccessRepository));
+
+    private readonly IOperatorNextBestActionService _nextBestActionService =
+        nextBestActionService ?? throw new ArgumentNullException(nameof(nextBestActionService));
+
+    private readonly IOperatorStickinessSnapshotReader _stickinessSnapshotReader =
+        stickinessSnapshotReader ?? throw new ArgumentNullException(nameof(stickinessSnapshotReader));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -62,6 +71,64 @@ public sealed class TenantCustomerSuccessController(
                 CompositeScore = row.CompositeScore,
                 UpdatedUtc = row.UpdatedUtc
             });
+    }
+
+    /// <summary>Top next actions for the active scope (sticky operator home guidance).</summary>
+    [HttpGet("next-actions")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(IReadOnlyList<OperatorNextBestActionResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetNextBestActionsAsync(CancellationToken cancellationToken)
+    {
+        IReadOnlyList<OperatorNextBestActionItem> items =
+            await _nextBestActionService.GetActionsAsync(cancellationToken).ConfigureAwait(false);
+
+        OperatorNextBestActionResponse[] body = items
+            .Select(static i => new OperatorNextBestActionResponse
+            {
+                ActionId = i.ActionId,
+                Title = i.Title,
+                Reason = i.Reason,
+                Href = i.Href
+            })
+            .ToArray();
+
+        return Ok(body);
+    }
+
+    /// <summary>
+    ///     Queryable pilot funnel milestones derived from durable SQL (runs, manifests, audit, product-learning) —
+    ///     no PII payload.
+    /// </summary>
+    [HttpGet("funnel-snapshot")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(PilotFunnelSnapshotResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFunnelSnapshotAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        PilotFunnelSnapshot snap = await _stickinessSnapshotReader
+            .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return Ok(
+            new PilotFunnelSnapshotResponse
+            {
+                FirstRunCreatedUtc = ToOffset(snap.FirstRunCreatedUtc),
+                FirstGoldenManifestUtc = ToOffset(snap.FirstGoldenManifestUtc),
+                FirstComparisonUtc = ToOffset(snap.FirstComparisonUtc),
+                FirstArtifactOrBundleDownloadUtc = ToOffset(snap.FirstArtifactOrBundleDownloadUtc),
+                FirstReplayUtc = ToOffset(snap.FirstReplayUtc),
+                TotalRunsInScope = snap.TotalRunsInScope,
+                CommittedRunsInScope = snap.CommittedRunsInScope,
+                ProductLearningSignalsLast90Days = snap.ProductLearningSignalsLast90Days
+            });
+    }
+
+    private static DateTimeOffset? ToOffset(DateTime? utc)
+    {
+        if (utc is null)
+            return null;
+
+        return new DateTimeOffset(DateTime.SpecifyKind(utc.Value, DateTimeKind.Utc), TimeSpan.Zero);
     }
 
     /// <summary>Records thumbs feedback for product instrumentation.</summary>

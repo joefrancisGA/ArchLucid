@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
+import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
@@ -25,6 +26,8 @@ export default function HomePage() {
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
       <WelcomeBanner />
+
+      <OperatorNextActionsCard />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className="min-w-0 space-y-6">

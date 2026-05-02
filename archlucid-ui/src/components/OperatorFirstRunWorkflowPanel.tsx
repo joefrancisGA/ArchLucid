@@ -8,6 +8,10 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import {
+  fetchCorePilotTeamChecklist,
+  putCorePilotTeamChecklistStep,
+} from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
@@ -148,6 +152,64 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   }, []);
 
   useEffect(() => {
+    if (!hydrated || exploreCompletedOutput) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const rows = await fetchCorePilotTeamChecklist();
+
+        if (cancelled) {
+          return;
+        }
+
+        const serverDone = corePilotSteps.map(() => false);
+
+        for (const r of rows) {
+          if (r.stepIndex >= 0 && r.stepIndex < serverDone.length && r.isCompleted) {
+            serverDone[r.stepIndex] = true;
+          }
+        }
+
+        setDoneByIndex((prev) => {
+          const merged = prev.map((p, i) => p || serverDone[i]);
+
+          for (let i = 0; i < merged.length; i++) {
+            try {
+              if (merged[i]) {
+                window.localStorage.setItem(corePilotStepDoneStorageKey(i), "1");
+              } else {
+                window.localStorage.removeItem(corePilotStepDoneStorageKey(i));
+              }
+            } catch {
+              /* private mode */
+            }
+          }
+
+          for (let i = 0; i < merged.length; i++) {
+            if (merged[i] && !serverDone[i]) {
+              void putCorePilotTeamChecklistStep(i, true).catch(() => {});
+            }
+          }
+
+          emitCorePilotChecklistChanged();
+
+          return merged;
+        });
+      } catch {
+        /* unauthenticated / offline — keep local-only checklist */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [exploreCompletedOutput, hydrated]);
+
+  useEffect(() => {
     setHasAnyRun(readHasExistingRunsCache());
     let cancelled = false;
 
@@ -254,33 +316,39 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
     });
   }, [hydrated, doneByIndex, firstUndoneIndex]);
 
-  const toggleStep = useCallback((index: number) => {
-    autoGraduateBlockedRef.current = false;
+  const toggleStep = useCallback(
+    (index: number) => {
+      autoGraduateBlockedRef.current = false;
 
-    setDoneByIndex((prev) => {
-      const next = [...prev];
-      next[index] = !next[index];
+      setDoneByIndex((prev) => {
+        const next = [...prev];
+        next[index] = !next[index];
 
-      try {
-        if (next[index]) {
-          window.localStorage.setItem(corePilotStepDoneStorageKey(index), "1");
-        } else {
-          window.localStorage.removeItem(corePilotStepDoneStorageKey(index));
+        try {
+          if (next[index]) {
+            window.localStorage.setItem(corePilotStepDoneStorageKey(index), "1");
+          } else {
+            window.localStorage.removeItem(corePilotStepDoneStorageKey(index));
+          }
+        } catch {
+          /* ignore */
         }
-      } catch {
-        /* ignore */
-      }
 
-      if (next[index])
+        if (!exploreCompletedOutput) {
+          void putCorePilotTeamChecklistStep(index, next[index]).catch(() => {});
+        }
 
+        if (next[index]) {
+          recordCorePilotRailChecklistStep(index);
+        }
 
-        recordCorePilotRailChecklistStep(index);
+        emitCorePilotChecklistChanged();
 
-      emitCorePilotChecklistChanged();
-
-      return next;
-    });
-  }, []);
+        return next;
+      });
+    },
+    [exploreCompletedOutput],
+  );
 
   function minimize() {
     setMinimized(true);

@@ -8,10 +8,12 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.ValueReports;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -32,8 +34,12 @@ public sealed class FirstValueReportBuilder(
     IScopeContextProvider scopeProvider,
     IExecutionProvenanceFooterRenderer executionProvenanceFooter,
     IConfiguration configuration,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<FirstValueReportBuilder> logger)
 {
+    private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
+        publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
+
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
     private const string DemoTenantBanner = "_demo tenant — replace before publishing._";
 
@@ -148,6 +154,14 @@ public sealed class FirstValueReportBuilder(
             "**Sponsor narrative (canonical):** repository `docs/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
         sb.AppendLine();
         sb.AppendLine($"*Generated from run `{run.RunId}`.*");
+        sb.AppendLine();
+
+        string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
+        sb.AppendLine("## Return to ArchLucid (authoritative state)");
+        sb.AppendLine();
+        sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
+        sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
+        sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/run/{run.RunId}");
 
         return sb.ToString();
     }

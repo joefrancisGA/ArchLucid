@@ -132,6 +132,9 @@ public sealed class FirstValueReportPdfBuilderTests
                 new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
             .Build();
 
+        Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
+        siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
         return new FirstValueReportBuilder(
             query,
             deltas,
@@ -139,6 +142,7 @@ public sealed class FirstValueReportPdfBuilderTests
             scope.Object,
             new ExecutionProvenanceFooterRenderer(),
             configuration,
+            siteOpts.Object,
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

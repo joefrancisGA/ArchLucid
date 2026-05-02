@@ -286,6 +286,25 @@ export async function apiPostNoContent(path: string, body: unknown): Promise<voi
   }
 }
 
+/** PUTs a JSON body to the ArchLucid API and expects no response body. Throws on HTTP errors. */
+export async function apiPutNoContent(path: string, body: unknown): Promise<void> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: h,
+    cache: "no-store",
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text);
+  }
+}
+
 export type ProductLearningDisposition = "Trusted" | "Rejected" | "Revised" | "NeedsFollowUp";
 
 export type ProductLearningSignalRequest = {
@@ -302,6 +321,32 @@ export type ProductLearningSignalRequest = {
 
 export async function submitProductLearningSignal(request: ProductLearningSignalRequest): Promise<void> {
   await apiPostNoContent("/v1/product-learning/signals", request);
+}
+
+export type OperatorNextBestActionDto = {
+  actionId: string;
+  title: string;
+  reason: string;
+  href: string;
+};
+
+export function fetchOperatorNextBestActions(): Promise<OperatorNextBestActionDto[]> {
+  return apiGet<OperatorNextBestActionDto[]>("/v1/tenant/customer-success/next-actions");
+}
+
+export type CorePilotChecklistStepDto = {
+  stepIndex: number;
+  isCompleted: boolean;
+  updatedUtc: string;
+  updatedByUserId?: string | null;
+};
+
+export function fetchCorePilotTeamChecklist(): Promise<CorePilotChecklistStepDto[]> {
+  return apiGet<CorePilotChecklistStepDto[]>("/v1/tenant/core-pilot-checklist");
+}
+
+export async function putCorePilotTeamChecklistStep(stepIndex: number, isCompleted: boolean): Promise<void> {
+  await apiPutNoContent("/v1/tenant/core-pilot-checklist", { stepIndex, isCompleted });
 }
 
 /** DELETEs a path; returns void on 2xx. Throws on HTTP errors. */

@@ -3,6 +3,7 @@ using ArchLucid.Api.Models.ProductLearning;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -89,8 +90,12 @@ public sealed class ProductLearningSignalControllerTests
         actor.Setup(a => a.GetActor()).Returns("Pilot User");
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        return new ProductLearningController(dashboard.Object, repo, actor.Object, scope.Object)
+        return new ProductLearningController(dashboard.Object, repo, actor.Object, scope.Object, audit.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

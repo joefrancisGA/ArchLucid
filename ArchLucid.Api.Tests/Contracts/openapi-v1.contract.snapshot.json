@@ -3404,6 +3404,40 @@
         },
         "type": "object"
       },
+      "CorePilotChecklistPutRequest": {
+        "properties": {
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "CorePilotChecklistStepResponse": {
+        "properties": {
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "stepIndex": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "updatedByUserId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "CorePilotRailStepRequest": {
         "properties": {
           "stepIndex": {
@@ -8352,6 +8386,23 @@
         },
         "type": "object"
       },
+      "OperatorNextBestActionResponse": {
+        "properties": {
+          "actionId": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OperatorTaskSuccessRatesResponse": {
         "properties": {
           "firstRunCommittedPerSessionRatio": {
@@ -8665,6 +8716,58 @@
         },
         "type": "object"
       },
+      "PilotFunnelSnapshotResponse": {
+        "properties": {
+          "committedRunsInScope": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "firstArtifactOrBundleDownloadUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstComparisonUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstGoldenManifestUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstReplayUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstRunCreatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "productLearningSignalsLast90Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRunsInScope": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PilotInProductBaselinesResponse": {
         "properties": {
           "baselineArchitectHourlyCost": {
@@ -8759,6 +8862,15 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "metricSources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "object"
             ]
           },
           "roiEstimate": {
@@ -9785,6 +9897,69 @@
             "type": "array"
           }
         },
+        "type": "object"
+      },
+      "ProductLearningSignalRequest": {
+        "properties": {
+          "architectureRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "artifactHint": {
+            "maxLength": 512,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "authorityRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "commentShort": {
+            "maxLength": 2000,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "detailJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "disposition": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "manifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "patternKey": {
+            "maxLength": 200,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subjectType": {
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "disposition",
+          "subjectType"
+        ],
         "type": "object"
       },
       "ProductLearningTriageQueueResponse": {
@@ -36192,6 +36367,78 @@
         ]
       }
     },
+    "/v1/product-learning/signals": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProductLearningSignalRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProductLearningSignalRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProductLearningSignalRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ProductLearning"
+        ]
+      }
+    },
     "/v1/product-learning/summary": {
       "get": {
         "parameters": [
@@ -38690,6 +38937,114 @@
         ]
       }
     },
+    "/v1/tenant/core-pilot-checklist": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorePilotChecklistStepResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorePilotChecklistStepResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorePilotChecklistStepResponse"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "CorePilotTeamChecklist"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CorePilotChecklistPutRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CorePilotChecklistPutRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CorePilotChecklistPutRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "CorePilotTeamChecklist"
+        ]
+      }
+    },
     "/v1/tenant/cost-estimate": {
       "get": {
         "responses": {
@@ -38739,6 +39094,35 @@
         ]
       }
     },
+    "/v1/tenant/customer-success/funnel-snapshot": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotFunnelSnapshotResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotFunnelSnapshotResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotFunnelSnapshotResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantCustomerSuccess"
+        ]
+      }
+    },
     "/v1/tenant/customer-success/health-score": {
       "get": {
         "responses": {
@@ -38757,6 +39141,44 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/TenantHealthScoreResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantCustomerSuccess"
+        ]
+      }
+    },
+    "/v1/tenant/customer-success/next-actions": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperatorNextBestActionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperatorNextBestActionResponse"
+                  },
+                  "type": "array"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperatorNextBestActionResponse"
+                  },
+                  "type": "array"
                 }
               }
             },
@@ -39660,6 +40082,9 @@
     },
     {
       "name": "Conversation"
+    },
+    {
+      "name": "CorePilotTeamChecklist"
     },
     {
       "name": "CustomerNotificationChannelPreferences"
