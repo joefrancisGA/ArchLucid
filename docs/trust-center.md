@@ -12,6 +12,8 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 ## Procurement questionnaire accelerator
 
+**Canonical artefact/status table:** [PROCUREMENT_PACK_INDEX.md](go-to-market/PROCUREMENT_PACK_INDEX.md) (`scripts/ci/check_procurement_pack_index.py` validates paths + **Implemented** review-age budgets).
+
 For spreadsheets (SIG-, CAIQ-style rows), use **`docs/go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md`** — **50** prompts grouped like SIG themes, each row pointing **only** to existing repository evidence (**no fabricated SOC 2 Type II issuance**):
 
 - [PROCUREMENT_RESPONSE_ACCELERATOR.md](go-to-market/PROCUREMENT_RESPONSE_ACCELERATOR.md)
@@ -46,6 +48,19 @@ The ZIP includes the DPA template, subprocessors register, SLA summary, `securit
 | Durable audit catalog (append-only design) | Self-asserted | [AUDIT_COVERAGE_MATRIX.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/AUDIT_COVERAGE_MATRIX.md) | 2026-04-24 |
 | V1 scalability (single-region contract; documented levers; in-repo k6/load evidence) | Self-asserted | [BUYER_SCALABILITY_FAQ.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/BUYER_SCALABILITY_FAQ.md) | 2026-04-29 |
 | Penetration test remediation tracking (process) | Self-asserted | [REMEDIATION_TRACKER.md](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/pen-test-summaries/REMEDIATION_TRACKER.md) | 2026-04-24 |
+
+---
+
+## Automated freshness posture
+
+This page participates in CI merge gates:
+
+| Check | Behaviour |
+|---|---|
+| **`scripts/ci/check_trust_center_links.py`** | Fails merges on broken outbound / relative links referenced here |
+| **`scripts/ci/check_trust_center_posture_freshness.py`** | Parses **Last reviewed** dates; emits `STALE_ROW` warnings (`--fail-on-stale` is opt-in tightening) |
+
+**Workflow:** **`docs/runbooks/TRUST_CENTER_FRESHNESS.md`**. **Procurement artefact catalogue with CI-reviewed rows:** **`docs/go-to-market/PROCUREMENT_PACK_INDEX.md`**.
 
 ---
 

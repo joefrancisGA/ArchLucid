@@ -86,6 +86,23 @@ public sealed class BusinessMetricsTests
             m.Name == "archlucid_authority_pipeline_timeouts_total" && m.Value == 1 && m.Tags.Count == 0);
     }
 
+    [Fact]
+    public void CorePilotRailChecklistStepsTotal_increment_emits_measurement_with_step_tag()
+    {
+        _ = ArchLucidInstrumentation.CorePilotRailChecklistStepsTotal;
+
+        using BusinessMeasurementCapture capture = BusinessMeasurementCapture.Start();
+
+        ArchLucidInstrumentation.RecordCorePilotRailChecklistStep(2);
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_core_pilot_rail_checklist_step_total"
+            && m.Value == 1
+            && m.Tags.Any(t =>
+                t.Key == "step"
+                && string.Equals(t.Value as string, "finalize_review_package", StringComparison.Ordinal)));
+    }
+
     private sealed class BusinessMeasurementCapture : IDisposable
     {
         private static readonly string[] LongInstrumentNames =
@@ -94,7 +111,8 @@ public sealed class BusinessMetricsTests
             "archlucid_findings_produced_total",
             "archlucid_explanation_cache_hits_total",
             "archlucid_explanation_cache_misses_total",
-            "archlucid_authority_pipeline_timeouts_total"
+            "archlucid_authority_pipeline_timeouts_total",
+            "archlucid_core_pilot_rail_checklist_step_total"
         ];
 
         private readonly List<IntMeasurementRecord> _intMeasures = [];

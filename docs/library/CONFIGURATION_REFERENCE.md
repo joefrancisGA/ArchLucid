@@ -7,6 +7,7 @@ This document lists operator-facing configuration **keys** (colon paths or envir
 ## Tooling
 
 - Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all *required* keys for the current mode are set, exit `4` when not).
+- Auth / production-like traps (`ArchLucidAuth:Mode`, bypass flags): `archlucid config lint` (runs from the CLI working directory merged with `appsettings.json` / `archlucid.json` + environment). Default checks are intentionally narrow; optionally add **`--simulate-production`** to fold in an `ASPNETCORE_ENVIRONMENT=Production` overlay, and **`--hosting-advisor`** to mirror the hosted `ProductionLikeHostingMisconfigurationAdvisor` warnings locally.
 - Server snapshot: `GET /v1/admin/config-summary` (admin API key; same key paths as the catalog, no secret values in the response).
 
 ## Hosting roles

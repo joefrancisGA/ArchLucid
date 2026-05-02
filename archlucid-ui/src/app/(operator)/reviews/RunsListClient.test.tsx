@@ -24,14 +24,15 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 
-  it("opens inspector preview when a row is clicked (not the Open run link)", () => {
+  it("opens inspector preview when a row is clicked (not the Open review link)", () => {
     render(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
     );
     fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
     const preview = screen.getByTestId("run-inspector-preview");
     expect(preview).toBeInTheDocument();
-    expect(within(preview).getByText("Project")).toBeInTheDocument();
+    fireEvent.click(within(preview).getByRole("button", { name: /technical details \(ids\)/i }));
+    expect(within(preview).getByText("Workspace")).toBeInTheDocument();
   });
 
   it("closes inspector when X is clicked", () => {
@@ -63,13 +64,13 @@ describe("RunsListClient inspector", () => {
     expect(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByTestId("run-provenance-inline")).toBeInTheDocument();
   });
 
-  it("renders primary title as Untitled run when description is empty", () => {
+  it("renders primary title as Untitled review when description is empty", () => {
     const untitled: RunSummary = {
       ...sampleRun,
       description: "   ",
     };
     render(<RunsListClient runs={[untitled]} projectId="default" page={1} pageSize={20} totalCount={1} />);
-    expect(within(screen.getByTestId(`runs-row-${untitled.runId}`)).getByText("Untitled run")).toBeInTheDocument();
+    expect(within(screen.getByTestId(`runs-row-${untitled.runId}`)).getByText("Untitled review")).toBeInTheDocument();
   });
 
   it("partitions multiple runs into ordered queue sections", () => {

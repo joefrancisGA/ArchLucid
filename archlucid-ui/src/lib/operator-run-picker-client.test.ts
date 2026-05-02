@@ -74,6 +74,23 @@ describe("loadProjectRunsMergedWithDemoFallback", () => {
     expect(items.map((r) => r.runId)).toEqual(["claims-intake-run-v1", "claims-intake-run-v2"]);
   });
 
+  it("returns no rows when API returns zero without curated demo flags (no outage)", async () => {
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    mockList.mockResolvedValue({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    const { items, loadError } = await loadProjectRunsMergedWithDemoFallback("default");
+
+    expect(loadError).toBe(false);
+    expect(items).toHaveLength(0);
+  });
+
   it("injects single showcase row when list throws and demo mode is off", async () => {
     delete process.env.NEXT_PUBLIC_DEMO_MODE;
     mockList.mockRejectedValue(new Error("network down"));

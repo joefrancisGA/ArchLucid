@@ -1,6 +1,8 @@
 > **Scope:** Procurement questionnaire accelerator — fifty SIG-themed prompts mapped **only** to in-repo evidence links; statuses are labels, not attestations.
 
 > **Spine doc:** [`trust-center.md`](../trust-center.md) — buyer-facing index. **SOC 2 Type II CPA reports are _not_ stated as issued anywhere below** unless you follow a link that explicitly describes status (today: **not yet issued** per linked procurement statement).
+>
+> **Canonical procurement artefact/status table:** **[`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md)** — CI validates paths and **Implemented** review-age freshness (`scripts/ci/check_procurement_pack_index.py`).
 
 
 # Procurement response accelerator

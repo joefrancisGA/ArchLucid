@@ -122,6 +122,7 @@ public sealed class FirstValueReportBuilder(
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
+        RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         AppendFindingFeedbackMarkdownSection(sb, valueWindowSnapshot);
         AppendFindingsSection(sb, deltas);
         AppendElapsedSection(sb, deltas);

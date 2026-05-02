@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -22,6 +24,12 @@ public static class ContractJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Converters =
+        {
+            // Severity is part of canonical LLM / API corpus shape (strings). Default enum JSON is ordinal numbers,
+            // which fails RealLlmOutputStructuralValidator; still accept integer payloads on read for older stored rows.
+            new JsonStringEnumConverter<FindingSeverity>(allowIntegerValues: true),
+        },
     };
 }

@@ -100,6 +100,29 @@ public sealed class ClientErrorTelemetryController(
         return NoContent();
     }
 
+    /// <summary>
+    ///     Records one Core Pilot first-session checklist step from the operator UI (Improvement QA-2026-05-01). Aggregated
+    ///     counter only — safe for anonymous calls with rate limiting.
+    /// </summary>
+    [HttpPost("core-pilot-rail-step")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult PostCorePilotRailChecklistStep([FromBody] CorePilotRailStepRequest? body)
+    {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+
+        if (body.StepIndex < 0 || body.StepIndex > 3)
+            return this.BadRequestProblem(
+                "stepIndex must be between 0 and 3 inclusive (Core Pilot checklist).",
+                ProblemTypes.ValidationFailed);
+
+        ArchLucidInstrumentation.RecordCorePilotRailChecklistStep(body.StepIndex);
+
+        return NoContent();
+    }
+
     /// <summary>Records a client-side error report at Warning level (sanitized).</summary>
     [HttpPost("client-error")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

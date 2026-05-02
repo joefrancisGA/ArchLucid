@@ -25,6 +25,12 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import {
+  OPERATOR_SHELL_PRESET_STORAGE_KEY,
+  isOperatorShellPresetId,
+  operatorShellPresetAllowsHref,
+  type OperatorShellPresetId,
+} from "@/lib/operator-nav-preset";
+import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
   listNavGroupsVisibleInOperatorShell,
@@ -42,6 +48,18 @@ const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
 const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
+
+const OPERATOR_SHELL_PRESET_LABELS: Record<OperatorShellPresetId, string> = {
+
+  full: "Full navigator",
+
+  pilot_operator: "Pilot operator",
+
+  governance_reviewer: "Governance reviewer",
+
+  analytics_investigator: "Analytics investigator",
+
+};
 
 /** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
 const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
@@ -133,6 +151,7 @@ export function SidebarNav() {
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
+  const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
   const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
@@ -153,9 +172,18 @@ export function SidebarNav() {
 
   useLayoutEffect(() => {
     try {
-      if (typeof window === "undefined") return;
+      const rawPreset = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
+
+      if (rawPreset !== null && isOperatorShellPresetId(rawPreset)) {
+
+
+        setShellPresetId(rawPreset);
+      }
+
 
       setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
+
+
       setAdminSectionOpen(window.localStorage.getItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY) === "1");
     } catch {
       /* private mode — keep collapsed default */
@@ -202,6 +230,17 @@ export function SidebarNav() {
     }
   }
 
+  function persistShellPreset(next: OperatorShellPresetId): void {
+    setShellPresetId(next);
+
+
+    try {
+      window.localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, next);
+    } catch {
+      /* private mode */
+    }
+  }
+
   function persistAdminSectionOpen(next: boolean): void {
     setAdminSectionOpen(next);
 
@@ -212,7 +251,25 @@ export function SidebarNav() {
     }
   }
 
-  const reviewNavRows = listNavGroupsVisibleInOperatorShell(
+  function filterClustersByPreset(clusters: NavGroupWithVisibleLinks[]): NavGroupWithVisibleLinks[] {
+    if (demoUi || shellPresetId === "full") {
+
+
+      return clusters;
+    }
+
+    return clusters
+      .map((row) => ({
+        ...row,
+        visibleLinks: row.visibleLinks.filter((l) => operatorShellPresetAllowsHref(shellPresetId, l.href)),
+      }))
+      .filter((row) => row.visibleLinks.length > 0);
+  }
+
+  const omitAdminClusters =
+    demoUi || shellPresetId === "pilot_operator" || shellPresetId === "analytics_investigator";
+
+  const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
     demoUi ? true : shellShowExtended,
     demoUi ? true : shellShowAdvanced,
@@ -221,15 +278,22 @@ export function SidebarNav() {
     "review-workflow",
   );
 
-  const adminNavRows = listNavGroupsVisibleInOperatorShell(
-    NAV_GROUPS,
-    demoUi ? true : shellShowExtended,
-    demoUi ? true : shellShowAdvanced,
-    callerAuthorityRank,
-    false,
-    "platform-admin",
-  );
+  const adminNavRowsRaw = omitAdminClusters
+    ? ([] as NavGroupWithVisibleLinks[])
+    : listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        demoUi ? true : shellShowExtended,
+        demoUi ? true : shellShowAdvanced,
+        callerAuthorityRank,
+        false,
+        "platform-admin",
+      );
 
+
+  const reviewNavRows = filterClustersByPreset(reviewNavRowsRaw);
+
+
+  const adminNavRows = filterClustersByPreset(adminNavRowsRaw);
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter = demoUi
           ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
@@ -470,6 +534,13 @@ export function SidebarNav() {
           <Settings2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
           Navigation settings
         </Button>
+        {mounted && shellPresetId !== "full" ? (
+          <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
+            Preset shaping is active ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}): hidden links remain authorized — open
+            Navigation settings → Preset → <strong className="font-semibold text-neutral-800 dark:text-neutral-100">
+              Full navigator</strong> to revert.
+          </p>
+        ) : null}
       </div>
       ) : null}
 
@@ -486,6 +557,32 @@ export function SidebarNav() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <fieldset className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-600">
+              <legend className="px-1 text-xs font-semibold text-neutral-800 dark:text-neutral-100">
+                Navigation preset (UI only)
+              </legend>
+              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+                Presets prune visible routes for common personas — server policies still gate HTTP access.
+              </p>
+              <div className="flex flex-col gap-2">
+                {OPERATOR_SHELL_PRESET_ORDER.map((id) => (
+                  <label key={id} className="flex cursor-pointer gap-2 text-xs text-neutral-800 dark:text-neutral-100">
+                    <input
+                      type="radio"
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                      name="operator-shell-preset"
+                      checked={shellPresetId === id}
+                      onChange={() => {
+                        persistShellPreset(id);
+                      }}
+                    />
+                    <span>
+                      <span className="font-semibold">{OPERATOR_SHELL_PRESET_LABELS[id]}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>

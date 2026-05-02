@@ -1,6 +1,7 @@
 import { listRunsByProjectPaged } from "@/lib/api";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import {
+  isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoCompareRunSummaries,
   tryStaticDemoRunSummariesPaged,
 } from "@/lib/operator-static-demo";
@@ -31,6 +32,24 @@ export async function loadProjectRunsMergedWithDemoFallback(
     if (items.length > 0) {
       return { items: items.map(normalizeRunSummaryForDemoPicker), loadError: false };
     }
+
+    if (options?.forCompare ?? false) {
+      const compareEmptyDemo = tryStaticDemoCompareRunSummaries(projectId);
+
+      if (compareEmptyDemo !== null && compareEmptyDemo.items.length > 0) {
+        return { items: compareEmptyDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
+      }
+    }
+
+    if (isStaticDemoPayloadFallbackEnabled()) {
+      const emptyWorkspaceDemo = tryStaticDemoRunSummariesPaged(projectId);
+
+      if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
+        return { items: emptyWorkspaceDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
+      }
+    }
+
+    return { items: [], loadError: false };
   } catch {
     loadError = true;
   }

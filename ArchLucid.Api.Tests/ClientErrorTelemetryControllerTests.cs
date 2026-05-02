@@ -242,4 +242,36 @@ public sealed class ClientErrorTelemetryControllerTests
 
         result.Should().BeAssignableTo<ObjectResult>();
     }
+
+    [SkippableFact]
+    public void PostCorePilotRail_step_in_range_returns_204()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result =
+            controller.PostCorePilotRailChecklistStep(new CorePilotRailStepRequest { StepIndex = 3 });
+
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [SkippableFact]
+    public void PostCorePilotRail_step_out_of_range_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result =
+            controller.PostCorePilotRailChecklistStep(new CorePilotRailStepRequest { StepIndex = 4 });
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
+
+    [SkippableFact]
+    public void PostCorePilotRail_null_body_returns_400()
+    {
+        ClientErrorTelemetryController controller = CreateController();
+
+        IActionResult result = controller.PostCorePilotRailChecklistStep(null);
+
+        result.Should().BeAssignableTo<ObjectResult>();
+    }
 }

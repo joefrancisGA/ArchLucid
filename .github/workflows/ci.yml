@@ -171,6 +171,15 @@ jobs:
       - name: Check trust center doc links
         run: python scripts/ci/check_trust_center_links.py
 
+      - name: Trust center posture freshness (warn STALE_ROW to stderr)
+        run: python scripts/ci/check_trust_center_posture_freshness.py
+
+      - name: Procurement PACK_INDEX table validation
+        run: python scripts/ci/check_procurement_pack_index.py
+
+      - name: ITSM bridge starter kit — Node contract tests (no npm install)
+        run: node --test templates/integrations/bridge-recipe-contract-tests/mapping-contract.test.mjs
+
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
 
@@ -502,6 +511,11 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: CLI — config lint (auth traps only; avoids production-like overlays)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+        run: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --no-build -c Release -- config lint
 
       - name: Guard — audit coverage matrix vs AuditEventTypes (names + marker)
         run: python scripts/ci/assert_audit_const_count.py

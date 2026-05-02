@@ -18,6 +18,7 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 | **What output proves value?** | A **finalized** architecture review: manifest summary, ranked findings, and **exportable artifacts** (table + bundle). That bundle is the **review package** you can walk a sponsor through. |
 | **What do I send a sponsor?** | Narrative: [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md). Artifacts: export from review detail after finalization. Optional pilot metrics: [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md). |
 | **What should I ignore for now?** | **Compare**, **replay**, **graph**, advisory-heavy flows, governance dashboards, alerts tuning, and anything labeled extended/advanced in §4 — until the first package is done. |
+| **How is checklist progress counted (server-side)?** | The operator-panel checklist can emit **anonymous, rate-limited** acknowledgements (`POST /v1/diagnostics/core-pilot-rail-step` with step index 0–3). This increments aggregated counter **`archlucid_core_pilot_rail_checklist_step_total`** (label **`step`** = `create_request` … `review_outputs`) for adoption dashboards — never a substitute for first-party analytics you control. |
 | **Why do I still see “run” in the UI?** | Same four steps: the product stores each architecture review as one **run** (run ID, APIs, telemetry). **Architecture review** / **review package** is the buyer outcome; **run** is the technical spine. |
 
 ---

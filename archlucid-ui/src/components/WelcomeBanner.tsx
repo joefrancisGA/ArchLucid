@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-import { listRunsByProjectPaged } from "@/lib/api";
+import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,8 @@ type TrialStatusPayload = {
 
 /**
  * Operator-home welcome: trial badge from `GET /v1/tenant/trial-status` (defers until load); first-run vs returning
- * copy from a cached `archlucid_has_existing_runs` (instant) and `listRunsByProjectPaged` revalidation. Dismissal uses
+ * copy from a cached `archlucid_has_existing_runs` (instant) and {@link loadProjectRunsMergedWithDemoFallback}
+ * so static demo injections match `/reviews`.
  * sessionStorage so a new browser session can show the banner again.
  */
 const DEFAULT_PROJECT_ID = "default";
@@ -89,8 +90,8 @@ export function WelcomeBanner() {
       }
 
       try {
-        const page = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, 1);
-        const next = (page.items?.length ?? 0) > 0;
+        const merged = await loadProjectRunsMergedWithDemoFallback(DEFAULT_PROJECT_ID);
+        const next = merged.items.length > 0;
 
         if (cancelled) {
           return;
