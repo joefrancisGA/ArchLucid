@@ -64,6 +64,7 @@ import {
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
   ArtifactDescriptor,
@@ -333,7 +334,7 @@ export default async function RunDetailPage({
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
   const headline =
     descriptionTrimmed.length > 0 ? descriptionTrimmed : `Run ${resolvedDetail.run.runId}`;
-  const createdLabel = new Date(resolvedDetail.run.createdUtc).toLocaleString();
+  const createdLabel = formatInstantForLocale(resolvedDetail.run.createdUtc);
 
   const showPilotScorecardPackageCta =
     Boolean(manifestId) &&

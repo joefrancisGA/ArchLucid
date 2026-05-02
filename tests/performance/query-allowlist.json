@@ -1,6 +1,12 @@
 [
-  { "name": "GetRunsByTenantId", "p95ThresholdMs": 200 },
   { "name": "AppendAuditEvent", "p95ThresholdMs": 50 },
   { "name": "GetFindingsSnapshotById", "p95ThresholdMs": 150 },
-  { "name": "GetGoldenManifestById", "p95ThresholdMs": 100 }
+  { "name": "GetGoldenManifestById", "p95ThresholdMs": 100 },
+  { "name": "GetRunByScopedId", "p95ThresholdMs": 80 },
+  { "name": "GetRunsByTenantId", "p95ThresholdMs": 200 },
+  { "name": "ListAuditEventsByScope", "p95ThresholdMs": 120 },
+  { "name": "ListAuditEventsFiltered", "p95ThresholdMs": 220 },
+  { "name": "ListRunsByProject", "p95ThresholdMs": 200 },
+  { "name": "ListRunsByProjectKeyset", "p95ThresholdMs": 220 },
+  { "name": "ListRunsRecentInScopeKeyset", "p95ThresholdMs": 220 }
 ]

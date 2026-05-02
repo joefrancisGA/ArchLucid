@@ -37,7 +37,7 @@ export default function RunDetailSegmentError({
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "The Claims Intake Modernization sample review could not render in this view. Open the sample manifest or the public walkthrough below, or return to your reviews list."}
+            : "The Claims Intake sample review could not render in this view. Open the sample manifest or the public preview below, or return to your reviews list."}
         </p>
         {isDev ? (
           <pre

@@ -237,7 +237,7 @@ export default function GraphPage() {
         ...GRAPH_IDLE,
         title: "Architecture graph",
         description:
-          "Select a run above. If no graph appears after a moment, choose **Load graph** or switch graph mode — the Claims Intake sample can provide a fallback preview when you are evaluating the product.",
+          "Pick a review above. If nothing appears, choose **Load graph** or switch graph mode — the Claims Intake sample can supply a preview graph when you are evaluating the product.",
       };
     }
 
@@ -248,9 +248,9 @@ export default function GraphPage() {
     <main>
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title="Architecture graph" helpKey="architecture-graph" />
-      <p className="max-w-3xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        Select a review, choose a graph mode, then <strong>Load graph</strong>. Node types include decisions,
-        findings, artifacts, review events, and architecture components.
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+        Select a review, choose a graph mode, then <strong>Load graph</strong>. The preview includes decisions,
+        findings, artifacts, review events, and architecture entities.
       </p>
 
       <div
@@ -354,10 +354,8 @@ export default function GraphPage() {
 
       {loading && (
         <OperatorLoadingNotice>
-          <strong>Loading graph.</strong>
-          <p className="mt-2 text-sm">
-            Requesting the selected view from the API; this may take a few seconds on large runs.
-          </p>
+          <strong>Loading graph</strong>
+          <p className="mt-2 text-sm">Preparing the graph view — large reviews may take a few extra seconds.</p>
         </OperatorLoadingNotice>
       )}
 

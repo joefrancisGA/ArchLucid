@@ -83,8 +83,8 @@ export default async function RunProvenancePage({
           correlationId={loadFailure?.correlationId ?? null}
         />
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-          This view uses the coordinator endpoint <code>/v1/architecture/runs/{"{id}"}/provenance</code>. Authority-only
-          runs use <Link href="/graph">Graph</Link> with the authority provenance API instead.
+          Open the <Link href="/graph">architecture graph</Link> for this review for an interactive trail, or use the
+          public sample walkthrough when this coordinator view is unavailable.
         </p>
         <p>
           <Link href={`/reviews/${runId}`} className="text-teal-800 underline dark:text-teal-300">
@@ -109,7 +109,8 @@ export default async function RunProvenancePage({
       <DocumentLayout tocItems={tocItems}>
         <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Provenance</h2>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Run <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{graph.runId}</code> —{" "}
+          Review{" "}
+          <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{graph.runId}</code> —{" "}
           {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
         </p>
         <div className="mb-4">

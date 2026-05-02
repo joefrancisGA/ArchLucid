@@ -4,7 +4,7 @@
 
 **Audience:** Security, procurement, and GRC reviewers.
 
-**How to cite:** Prefer **Evidence Artifact** titles and **`Source File`** links below rather than improvising statuses in questionnaires. Use **`trust-center.md`** for high-level posture; use this file for granular artifact inventory.
+**How to cite:** Prefer **Evidence Artifact** titles and **`Source File`** links below rather than improvising statuses in questionnaires. Use **`trust-center.md`** for high-level posture; use this file for granular artifact inventory. **Five-minute skim (same paths as this table):** [`PROCUREMENT_FAST_LANE.md`](PROCUREMENT_FAST_LANE.md).
 
 | Evidence Artifact | Evidence Type | Last Reviewed UTC | Source File | Buyer-safe Claim |
 |---|---|---|---|---|

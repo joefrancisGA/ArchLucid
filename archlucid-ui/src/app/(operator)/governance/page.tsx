@@ -313,6 +313,7 @@ function GovernanceWorkflowPageInner() {
     }
 
     setActiveRunId(id);
+    setSubmitRunId((prev) => (prev.trim().length === 0 ? id : prev));
     void loadLists(id);
   }, [queryRunId, loadLists]);
 
@@ -348,6 +349,8 @@ function GovernanceWorkflowPageInner() {
     demoPrefillRanRef.current = true;
     setQueryRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
     setActiveRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+    setSubmitRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+    setSubmitManifestVersion("3.4.1");
     void loadLists(SHOWCASE_STATIC_DEMO_RUN_ID);
   }, [searchParams, queryRunId, loadLists, isStaticDemoFallbackActiveForShowcase]);
 

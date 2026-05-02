@@ -136,7 +136,7 @@ groups:
           description: >-
             `archlucid_data_consistency_alerts_total` increased — `DataConsistency:Enforcement:Mode` is `Alert` or
             `Quarantine` on this host and at least one table/column slice met `AlertThreshold`. See
-            `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`.
+            `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`; operator checklist `docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md`.
 
   - name: archlucid-explainability
     rules:

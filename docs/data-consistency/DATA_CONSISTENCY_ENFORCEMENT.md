@@ -51,4 +51,5 @@ Quarantine rows include **tenant id** from the golden manifest. Operators must *
 
 - **Staging:** `Mode=Alert` — page on `archlucid_data_consistency_alerts_total`.
 - **Production:** `Mode=Quarantine` only after runbook sign-off; reconcile rows with **`AdminDiagnosticsService`** remediation endpoints where applicable.
+- Operator quick-reference: [../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md](../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md).
 - See also [../OBSERVABILITY.md](../library/OBSERVABILITY.md) for metric names.

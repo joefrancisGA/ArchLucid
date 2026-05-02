@@ -80,7 +80,7 @@ export function RunDetailOutcomeCards({
       );
 
   return (
-    <section aria-label="Run outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section aria-label="Review outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">

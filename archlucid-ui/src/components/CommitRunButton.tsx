@@ -64,7 +64,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   if (disabled) {
     return (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        This run is already finalized (reviewed manifest present).
+        This review is already finalized (reviewed manifest present).
       </p>
     );
   }

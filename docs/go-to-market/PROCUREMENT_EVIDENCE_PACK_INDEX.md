@@ -1,6 +1,6 @@
 > **Scope:** Index of reviewer-facing procurement and assurance artifacts — navigation only; not legal advice.
 >
-> **Canonical buyer evidence table:** **[`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md)** — CI-validated columns (evidence type, freshness, paths, buyer-safe claims).
+> **Canonical buyer evidence table:** **[`PROCUREMENT_PACK_INDEX.md`](PROCUREMENT_PACK_INDEX.md)** — CI-validated columns (evidence type, freshness, paths, buyer-safe claims). **Fast skim:** [`PROCUREMENT_FAST_LANE.md`](PROCUREMENT_FAST_LANE.md) (subset of the same source paths).
 
 # Procurement evidence pack — index
 
