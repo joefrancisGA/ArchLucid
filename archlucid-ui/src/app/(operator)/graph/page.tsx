@@ -39,12 +39,7 @@ const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
   {
     ssr: false,
-    loading: () => (
-      <OperatorLoadingNotice>
-        <strong>Loading graph viewer.</strong>
-        <p className="mt-2 text-sm">Preparing the interactive canvas…</p>
-      </OperatorLoadingNotice>
-    ),
+    loading: () => null,
   },
 );
 

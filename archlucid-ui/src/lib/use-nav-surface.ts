@@ -139,8 +139,7 @@ function composeContextHints(
   // `isReader` mirrors what `OperateCapabilityHints` checks today — anything below Execute is a "reader"
   // for the purposes of the rank cues. We derive it from `mutationCapability` so the floor stays in one place.
   const isReader = !mutationCapability;
-  const isOperateGovernanceGuidance =
-    layerGuidance.layerBadge === "Operate" && layerGuidance.enterpriseFootnote != null;
+  const isOperateGovernanceGuidance = layerGuidance.enterpriseFootnote != null;
 
   const layerHeaderEnterpriseRankCue =
     isOperateGovernanceGuidance && mutationCapability ? layerHeaderEnterpriseOperatorRankLine : null;

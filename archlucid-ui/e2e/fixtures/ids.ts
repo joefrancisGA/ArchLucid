@@ -27,6 +27,7 @@ export const SCREENSHOT_RUN_ID = "claims-intake-modernization-run";
 
 /** Non-fixture path segments for screenshot captures (human-readable slugs). */
 export const SCREENSHOT_FINDING_ID = "phi-minimization-risk";
+/** Human slug for planning plan detail URLs; used by live axe (`live-api-accessibility.spec.ts`) when learning plans are seeded. */
 export const SCREENSHOT_PLAN_ID = "claims-intake-modernization-plan";
 export const SCREENSHOT_APPROVAL_ID = "claims-intake-approval-001";
 /** Human slug for governance policy pack detail screenshots; aligns with `breadcrumb-map` demo segment titles. */

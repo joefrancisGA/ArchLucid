@@ -23,37 +23,38 @@ describe("LayerHeader", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.AdminAuthority;
   });
 
-  it("renders Operate guidance for compare (analysis slice)", () => {
+  it("renders Analysis guidance for compare (analysis slice)", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByText("Operate")).toBeInTheDocument();
+    expect(screen.getByText("Analysis")).toBeInTheDocument();
     expect(screen.getByText(/what changed between two finalized reviews/i)).toBeInTheDocument();
   });
 
-  it("renders Operate governance responsibility footnote on audit", () => {
+  it("renders Governance responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
-    expect(screen.getByText(/Search \+ bounded CSV export\./i)).toBeInTheDocument();
+    expect(screen.getByText("Governance")).toBeInTheDocument();
+    expect(screen.getByText(/Search first; CSV export for auditors and admins\./i)).toBeInTheDocument();
   });
 
   /**
    * Discoverability: `LayerHeader` puts badge + headline in `aria-label` on the `<aside>` (implicit `complementary`).
    */
-  it("exposes Operate audit strip accessible name from badge and headline", () => {
+  it("exposes Governance audit strip accessible name from badge and headline", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByRole("complementary", { name: /Operate:.*tenant audit trail/i }),
+      screen.getByRole("complementary", { name: /Governance:.*tenant audit trail/i }),
     ).toBeInTheDocument();
   });
 
-  it("renders governance resolution Operate footnote", () => {
+  it("renders governance resolution Governance footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
     expect(screen.getByText(/Read-only stack; edits on Packs or Workflow\./i)).toBeInTheDocument();
   });
 
-  it("renders Execute+ rank cue on Operate governance audit when caller rank is Execute+", () => {
+  it("renders Execute+ rank cue on Governance audit when caller rank is Execute+", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
     render(<LayerHeader pageKey="audit" />);
 
@@ -62,7 +63,7 @@ describe("LayerHeader", () => {
     );
   });
 
-  it("does not render Execute+ rank cue on Operate governance audit when caller is Read", () => {
+  it("does not render Execute+ rank cue on Governance audit when caller is Read", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
     render(<LayerHeader pageKey="audit" />);
 
@@ -77,19 +78,19 @@ describe("LayerHeader", () => {
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
   });
 
-  it("does not render Execute+ rank cue on Operate analysis pages", () => {
+  it("does not render Execute+ rank cue on Analysis pages", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
   });
 
   /**
-   * Every Operate governance guidance key must surface the Execute+ rank-aware note when rank allows — packaging ↔ nav floor.
+   * Every Governance guidance key must surface the Execute+ rank-aware note when rank allows — packaging ↔ nav floor.
    */
-  it("renders Execute+ rank cue for every Operate governance layer-guidance page key at Execute rank", () => {
+  it("renders Execute+ rank cue for every Governance layer-guidance page key at Execute rank", () => {
     const governanceKeys = (Object.keys(LAYER_PAGE_GUIDANCE) as LayerGuidancePageKey[]).filter(
       (key) =>
-        LAYER_PAGE_GUIDANCE[key].layerBadge === "Operate" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
+        LAYER_PAGE_GUIDANCE[key].layerBadge === "Governance" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
     );
 
     expect(governanceKeys.length).toBeGreaterThan(0);

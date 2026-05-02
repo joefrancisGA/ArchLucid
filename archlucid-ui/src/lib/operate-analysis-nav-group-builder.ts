@@ -29,7 +29,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/graph",
           label: "Graph",
-          title: this.shortcutTitle("Review-trail or architecture graph for one run", "alt+y"),
+          title: this.shortcutTitle("Review-trail or architecture graph for one review", "alt+y"),
           keyShortcut: "alt+y",
           icon: GitGraph,
           tier: "extended",
@@ -37,8 +37,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/compare",
-          label: "Compare two runs",
-          title: this.shortcutTitle("Diff two runs (base vs target)", "alt+c"),
+          label: "Compare two reviews",
+          title: this.shortcutTitle("Diff two reviews (base vs target)", "alt+c"),
           keyShortcut: "alt+c",
           icon: GitCompare,
           tier: "extended",
@@ -46,8 +46,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/replay",
-          label: "Replay a run",
-          title: this.shortcutTitle("Replay a run — re-validate stored pipeline output", "alt+p"),
+          label: "Replay a review",
+          title: this.shortcutTitle("Replay a review — re-validate stored pipeline output", "alt+p"),
           keyShortcut: "alt+p",
           icon: Play,
           tier: "extended",

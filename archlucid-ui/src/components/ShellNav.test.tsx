@@ -55,8 +55,8 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
 
       expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
-      expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Replay a review" })).toBeNull();
 
       fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
@@ -67,10 +67,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
         "title",
-        "Review-trail or architecture graph for one run (Alt+Y)",
+        "Review-trail or architecture graph for one review (Alt+Y)",
       );
-      expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
-      expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
+      expect(screen.getByRole("link", { name: "Compare two reviews" })).toHaveAttribute("href", "/compare");
+      expect(screen.getByRole("link", { name: "Replay a review" })).toHaveAttribute("href", "/replay");
       expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
       expect(screen.getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
 

@@ -24,9 +24,9 @@ type Suggestion = {
 
 const suggestions: Suggestion[] = [
   {
-    title: "Compare two runs",
+    title: "Compare two reviews",
     href: "/compare",
-    description: "Structured manifest diff between a base run and a target run when you need to know what changed.",
+    description: "Structured manifest diff between a baseline review and a target review when you need to know what changed.",
     sidebarNote: `Requires “${NAV_DISCLOSURE.extended.show}” in the sidebar (extended analysis links).`,
   },
   {
