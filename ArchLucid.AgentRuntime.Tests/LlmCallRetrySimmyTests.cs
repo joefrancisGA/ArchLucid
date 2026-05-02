@@ -96,7 +96,7 @@ public sealed class LlmCallRetrySimmyTests
         // delay longer than the inner timeout keeps the behavior deterministic while still proving
         // TimeoutRejectedException propagates after retries are exhausted.
         TimeSpan innerBudget = TimeSpan.FromMilliseconds(50);
-        TimeSpan workDuration = TimeSpan.FromMilliseconds(500);
+        TimeSpan workDuration = Timeout.InfiniteTimeSpan;
 
         ResiliencePipeline innerTimeout = new ResiliencePipelineBuilder()
             .AddTimeout(innerBudget)
