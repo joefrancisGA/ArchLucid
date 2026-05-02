@@ -1,16 +1,16 @@
-> **Scope:** Operator-shell WCAG 2.1 AA axe coverage — what is enforced in CI and how to run locally.
+> **Scope:** Operator-shell WCAG 2.2 AA–aligned axe coverage — what is enforced in CI and how to run locally.
 
 # Accessibility audit (operator shell)
 
 ## Objective
 
-Document how **critical** and **serious** WCAG 2.1 AA violations are blocked on the **operator shell** (Next.js app under `archlucid-ui/`) using **@axe-core/playwright** in merge-blocking live E2E.
+Document how **critical** and **serious** WCAG 2.2 AA-aligned violations are blocked on the **operator shell** (Next.js app under `archlucid-ui/`) using **@axe-core/playwright** in merge-blocking live E2E.
 
 ## What CI enforces
 
 | Surface | Config | Spec | WCAG tags |
 |---------|--------|------|-----------|
-| Operator + marketing routes used in live E2E | `archlucid-ui/playwright.config.ts` | `archlucid-ui/e2e/live-api-accessibility.spec.ts` | `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `best-practice` (see `e2e/helpers/axe-helper.ts`) |
+| Operator + marketing routes used in live E2E | `archlucid-ui/playwright.config.ts` | `archlucid-ui/e2e/live-api-accessibility.spec.ts` | `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, `best-practice` (see `e2e/helpers/axe-helper.ts`) |
 
 The live suite builds the UI, starts the **live API + SQL** harness (`e2e/start-e2e-live-api.ts`), then visits each path in the spec’s `PAGES` array, waits for `main`, and fails if any violation has **impact** `critical` or `serious`.
 

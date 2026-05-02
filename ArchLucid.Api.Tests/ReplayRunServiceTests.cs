@@ -1,12 +1,17 @@
 ﻿using System.Data;
 
+using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
@@ -29,6 +34,38 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayRunServiceTests
 {
+    private static IAgentEvaluationService EmptyAgentEvaluationService()
+    {
+        Mock<IAgentEvaluationService> mock = new();
+        mock.Setup(
+                x => x.EvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return mock.Object;
+    }
+
+    private static IDecisionEngineV2 EmptyDecisionEngineV2()
+    {
+        Mock<IDecisionEngineV2> mock = new();
+        mock.Setup(
+                x => x.ResolveAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return mock.Object;
+    }
+
     private readonly Mock<IRunRepository> _authorityRunRepository = new();
     private readonly Mock<IDecisionEngineService> _decisionEngine = new();
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
@@ -59,6 +96,8 @@ public sealed class ReplayRunServiceTests
         _sut = new ReplayRunService(
             _executorResolver.Object,
             _decisionEngine.Object,
+            EmptyAgentEvaluationService(),
+            EmptyDecisionEngineV2(),
             _requestRepository.Object,
             _runDetailQueryService.Object,
             _authorityRunRepository.Object,

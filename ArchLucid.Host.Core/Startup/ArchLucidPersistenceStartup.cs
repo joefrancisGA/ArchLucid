@@ -11,11 +11,16 @@ namespace ArchLucid.Host.Core.Startup;
 /// <summary>SQL DbUp migrations, idempotent consolidated bootstrap, and optional demo seed (shared by API and Worker).</summary>
 public static class ArchLucidPersistenceStartup
 {
+    private const int DefaultSchemaBootstrapTimeoutSeconds = 30;
+
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
         RlsBypassPolicyBootstrap.Apply(app.Configuration, app.Environment, app.Logger);
 
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
+        ArchLucidPersistenceOptions persistenceOptions =
+            app.Configuration.GetSection(ArchLucidPersistenceOptions.SectionPath).Get<ArchLucidPersistenceOptions>()
+            ?? new ArchLucidPersistenceOptions();
         bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 
         // DbUp must run before SqlSchemaBootstrapper (ArchLucid.sql). On an empty database, the bootstrapper
@@ -53,7 +58,10 @@ public static class ArchLucidPersistenceStartup
                     "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider=Sql).");
 
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
-                using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
+                int bootstrapTimeoutSeconds = persistenceOptions.DefaultSqlCommandTimeoutSeconds > 0
+                    ? persistenceOptions.DefaultSqlCommandTimeoutSeconds
+                    : DefaultSchemaBootstrapTimeoutSeconds;
+                using CancellationTokenSource cts = new(TimeSpan.FromSeconds(bootstrapTimeoutSeconds));
                 using (SqlRowLevelSecurityBypassAmbient.Enter())
                 {
                     bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();

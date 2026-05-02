@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <Content Include="Contracts\openapi-v1.contract.snapshot.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

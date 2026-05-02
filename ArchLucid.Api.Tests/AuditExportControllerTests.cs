@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
@@ -24,7 +25,7 @@ public sealed class AuditExportControllerTests
     public async Task ExportAudit_AsJson_ReturnsArray()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditEvent evt = new()
@@ -67,7 +68,7 @@ public sealed class AuditExportControllerTests
     public async Task ExportAudit_AsCsv_NegotiatesTextCsv_AndAttachment()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
 
         AuditEvent evt = new()
@@ -119,7 +120,7 @@ public sealed class AuditExportControllerTests
     public async Task ExportAudit_InvalidRange_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
 
         HttpResponseMessage response = await client.GetAsync(
             "/v1/audit/export?fromUtc=2026-02-01T00:00:00.0000000Z&toUtc=2026-01-01T00:00:00.0000000Z");
@@ -131,7 +132,7 @@ public sealed class AuditExportControllerTests
     public async Task ExportAudit_RangeOver90Days_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
 
         HttpResponseMessage response = await client.GetAsync(
             "/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-04-02T00:00:00.0000000Z");
@@ -143,7 +144,7 @@ public sealed class AuditExportControllerTests
     public async Task ExportAudit_ClampsMaxRows_BeforeCallingRepository()
     {
         await using AuditControllerSearchApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
         Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
         repo
             .Setup(r => r.GetExportAsync(
@@ -170,5 +171,12 @@ public sealed class AuditExportControllerTests
                 10_000,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static async Task<HttpClient> CreateEnterpriseAuditClientAsync(AuditControllerSearchApiFactory factory)
+    {
+        await CommercialTierIntegrationTestTenant.SetDefaultScopedTenantTierAsync(factory, TenantTier.Enterprise);
+
+        return factory.CreateClient();
     }
 }

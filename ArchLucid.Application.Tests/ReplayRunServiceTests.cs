@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -35,6 +36,38 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ReplayRunServiceTests
 {
+    private static IAgentEvaluationService EmptyEvaluationService()
+    {
+        Mock<IAgentEvaluationService> mock = new();
+        mock.Setup(
+                x => x.EvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return mock.Object;
+    }
+
+    private static IDecisionEngineV2 EmptyDecisionEngineV2()
+    {
+        Mock<IDecisionEngineV2> mock = new();
+        mock.Setup(
+                x => x.ResolveAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return mock.Object;
+    }
+
     private static IActorContext UnitTestActor()
     {
         Mock<IActorContext> actor = new();
@@ -96,6 +129,8 @@ public sealed class ReplayRunServiceTests
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
+            EmptyEvaluationService(),
+            EmptyDecisionEngineV2(),
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
@@ -212,6 +247,8 @@ public sealed class ReplayRunServiceTests
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
+            EmptyEvaluationService(),
+            EmptyDecisionEngineV2(),
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
@@ -371,6 +408,30 @@ public sealed class ReplayRunServiceTests
                     Errors = [],
                 });
 
+        Mock<IAgentEvaluationService> evaluationService = new();
+        evaluationService
+            .Setup(
+                x => x.EvaluateAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<AgentEvidencePackage>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IDecisionEngineV2> engineV2 = new();
+        engineV2
+            .Setup(
+                x => x.ResolveAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ArchitectureRequest>(),
+                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         Mock<IRunRepository> authorityRuns = new();
         authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
@@ -385,6 +446,8 @@ public sealed class ReplayRunServiceTests
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
+            evaluationService.Object,
+            engineV2.Object,
             requestRepo.Object,
             detail.Object,
             authorityRuns.Object,
@@ -398,6 +461,26 @@ public sealed class ReplayRunServiceTests
 
         ReplayRunResult output =
             await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: true, manifestVersionOverride: "v-override", CancellationToken.None);
+
+        evaluationService.Verify(
+            x => x.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        engineV2.Verify(
+            x => x.ResolveAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
 
         output.Manifest.Should().NotBeNull();
         output.Manifest!.Metadata.ManifestVersion.Should().Be("v-override");

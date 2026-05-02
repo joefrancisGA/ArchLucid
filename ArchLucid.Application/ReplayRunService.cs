@@ -1,11 +1,13 @@
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -28,9 +30,17 @@ namespace ArchLucid.Application;
 ///     Used by <see cref="ArchLucid.Application.Determinism.DeterminismCheckService" /> for multi-iteration
 ///     determinism checks and by comparison services for regenerating stored payloads.
 /// </summary>
+/// <remarks>
+///     When <c>commitReplay</c> is true, cross-agent evaluations and weighted
+///     <see cref="DecisionNode" /> records are produced the same way as the coordinator merge path:
+///     <see cref="IAgentEvaluationService.EvaluateAsync" /> then <see cref="IDecisionEngineV2.ResolveAsync" />,
+///     then <see cref="IDecisionEngineService.MergeResults" />.
+/// </remarks>
 public sealed class ReplayRunService(
     IAgentExecutorResolver agentExecutorResolver,
     IDecisionEngineService decisionEngineService,
+    IAgentEvaluationService agentEvaluationService,
+    IDecisionEngineV2 decisionEngineV2,
     IArchitectureRequestRepository requestRepository,
     IRunDetailQueryService runDetailQueryService,
     IRunRepository authorityRunRepository,
@@ -52,6 +62,12 @@ public sealed class ReplayRunService(
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
         authorityCommittedManifestChainWriter
         ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
+    private readonly IAgentEvaluationService _agentEvaluationService =
+        agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
+
+    private readonly IDecisionEngineV2 _decisionEngineV2 =
+        decisionEngineV2 ?? throw new ArgumentNullException(nameof(decisionEngineV2));
 
     private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -163,13 +179,29 @@ public sealed class ReplayRunService(
             ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
             : manifestVersionOverride;
 
+        IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(
+            replayRunId,
+            request,
+            replayEvidence,
+            replayTasks,
+            results,
+            cancellationToken);
+
+        IReadOnlyList<DecisionNode> decisionNodes = await _decisionEngineV2.ResolveAsync(
+            replayRunId,
+            request,
+            replayTasks,
+            results,
+            evaluations,
+            cancellationToken);
+
         DecisionMergeResult merge = decisionEngineService.MergeResults(
             replayRunId,
             request,
             manifestVersion,
             results,
-            [],
-            [],
+            evaluations,
+            decisionNodes,
             originalRun.CurrentManifestVersion);
 
         if (!merge.Success)

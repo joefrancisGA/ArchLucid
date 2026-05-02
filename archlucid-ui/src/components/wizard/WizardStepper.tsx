@@ -40,7 +40,9 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
                   !isActive &&
                     isDone &&
                     "border-teal-700 bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-100",
-                  !isActive && !isDone && "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400",
+                  !isActive &&
+                    !isDone &&
+                    "border-neutral-300 bg-white text-neutral-600 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-300",
                 )}
               >
                 {index + 1}
@@ -49,7 +51,7 @@ export function WizardStepper({ steps, currentStep, completedSteps }: WizardStep
                 {step.label}
               </span>
               {step.description ? (
-                <span className="hidden max-w-[12rem] text-xs text-neutral-500 dark:text-neutral-400 md:block">
+                <span className="hidden max-w-[12rem] text-xs text-neutral-500 dark:text-neutral-300 md:block">
                   {step.description}
                 </span>
               ) : null}

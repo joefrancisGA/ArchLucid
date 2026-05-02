@@ -149,7 +149,7 @@ export const PAGES_DEFERRED = [
   },
 ] as const;
 
-test.describe("accessibility baseline — WCAG 2.1 AA", () => {
+test.describe("accessibility baseline — WCAG 2.2 AA (axe wcag22aa + inherited 2.x tags)", () => {
   for (const { name, path } of PAGES) {
     test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
       await page.goto(path, { waitUntil: "load" });

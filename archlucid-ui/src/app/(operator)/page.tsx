@@ -5,6 +5,7 @@ import { OperatorNextActionsCard } from "@/components/OperatorNextActionsCard";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
+import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPackageCard";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
@@ -26,6 +27,8 @@ export default function HomePage() {
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
       <WelcomeBanner />
+
+      <SampleFirstReviewPackageCard />
 
       <OperatorNextActionsCard />
 

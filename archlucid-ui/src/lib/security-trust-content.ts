@@ -70,7 +70,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     vendor:
       "ArchLucid (accessibility custodian, same operational team as security@)",
     scope:
-      "WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y",
+      "WCAG 2.2 Level AA target on operator UI top routes — axe-core (wcag22aa + WCAG 2.x tags) + jsx-a11y",
     completedUtc: "2026-04-22 (annual cadence; next window 2027-04-22)",
     summaryAccess: {
       kind: "public",

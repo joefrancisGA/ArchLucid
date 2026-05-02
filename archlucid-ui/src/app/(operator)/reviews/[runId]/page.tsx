@@ -35,6 +35,7 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
+import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
@@ -368,6 +369,15 @@ export default async function RunDetailPage({
         hasGoldenManifest={Boolean(manifestId)}
         executionFlavorBuyerSummary={resolvedDetail.executionFlavorBuyerSummary}
       />
+
+      {usedStaticDemoRun ? (
+        <SampleReviewPackageSummary
+          runId={resolvedDetail.run.runId}
+          manifestId={manifestId}
+          artifactCount={artifacts.length}
+          findingCount={explanationSummary?.findingCount ?? null}
+        />
+      ) : null}
 
       <RunDetailOutcomeCards
         runId={resolvedDetail.run.runId}

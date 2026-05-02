@@ -56,23 +56,24 @@ BEGIN
         PRINT N'TB-006: ComparisonRecords RightRunId not convertible to UNIQUEIDENTIFIER (count) = '
               + CAST(@badRight AS NVARCHAR(30));
 
-        UPDATE dbo.ComparisonRecords
-        SET LeftRunIdGuid = TRY_CONVERT(UNIQUEIDENTIFIER, LeftRunId)
-        WHERE LeftRunId IS NOT NULL;
+        EXEC sys.sp_executesql N'
+            UPDATE dbo.ComparisonRecords
+            SET LeftRunIdGuid = TRY_CONVERT(UNIQUEIDENTIFIER, LeftRunId)
+            WHERE LeftRunId IS NOT NULL;
 
-        UPDATE dbo.ComparisonRecords
-        SET RightRunIdGuid = TRY_CONVERT(UNIQUEIDENTIFIER, RightRunId)
-        WHERE RightRunId IS NOT NULL;
+            UPDATE dbo.ComparisonRecords
+            SET RightRunIdGuid = TRY_CONVERT(UNIQUEIDENTIFIER, RightRunId)
+            WHERE RightRunId IS NOT NULL;
 
-        DELETE c
-        FROM dbo.ComparisonRecords AS c
-        WHERE c.LeftRunIdGuid IS NOT NULL
-          AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = c.LeftRunIdGuid);
+            DELETE c
+            FROM dbo.ComparisonRecords AS c
+            WHERE c.LeftRunIdGuid IS NOT NULL
+              AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = c.LeftRunIdGuid);
 
-        DELETE c
-        FROM dbo.ComparisonRecords AS c
-        WHERE c.RightRunIdGuid IS NOT NULL
-          AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = c.RightRunIdGuid);
+            DELETE c
+            FROM dbo.ComparisonRecords AS c
+            WHERE c.RightRunIdGuid IS NOT NULL
+              AND NOT EXISTS (SELECT 1 FROM dbo.Runs r WHERE r.RunId = c.RightRunIdGuid);';
 
         IF EXISTS (
             SELECT 1

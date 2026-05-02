@@ -103,7 +103,7 @@ export function RunDetailOutcomeCards({
           ) : null}
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
             <Link
-              className="mt-2 inline-block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              className="mt-2 inline-block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
               href={`/manifests/${encodeURIComponent(manifestId.trim())}`}
             >
               Open manifest detail
@@ -113,11 +113,7 @@ export function RunDetailOutcomeCards({
       </Card>
 
       {manifestId ? (
-        <Link
-          href="#run-explanation"
-          className={samePageJumpClass}
-          aria-label="Jump to architecture review summary and findings"
-        >
+        <Link href="#run-explanation" className={samePageJumpClass}>
           {findingsCardEl}
         </Link>
       ) : (
@@ -125,7 +121,7 @@ export function RunDetailOutcomeCards({
       )}
 
       {manifestId ? (
-        <Link href="#artifacts-exports" className={samePageJumpClass} aria-label="Jump to artifacts and exports">
+        <Link href="#artifacts-exports" className={samePageJumpClass}>
           {artifactsCardEl}
         </Link>
       ) : (
@@ -141,19 +137,19 @@ export function RunDetailOutcomeCards({
         </CardHeader>
         <CardContent className="pt-0">
           <Link
-            className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            className="text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href="#authority-chain"
           >
             Jump to review trail on this page
           </Link>
           <Link
-            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href={`/reviews/${encodeURIComponent(runId)}/provenance`}
           >
             Full provenance view
           </Link>
           <Link
-            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
             href={`/showcase/${encodeURIComponent(runId)}`}
           >
             Completed output (public showcase)

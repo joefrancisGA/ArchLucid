@@ -1,0 +1,44 @@
+name: "ArchLucid Run"
+description: "Triggers an ArchLucid architecture run and commits the result."
+inputs:
+  api-url:
+    description: "The URL of the ArchLucid API"
+    required: true
+    default: "http://localhost:5128"
+  api-key:
+    description: "The API key for authentication"
+    required: true
+  brief-path:
+    description: "Path to the architecture brief markdown file"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Run ArchLucid
+      shell: bash
+      run: |
+        echo "Reading brief from ${{ inputs.brief-path }}"
+        BRIEF_CONTENT=$(cat ${{ inputs.brief-path }} | jq -Rs .)
+        
+        echo "Triggering ArchLucid run..."
+        RESPONSE=$(curl -s -X POST "${{ inputs.api-url }}/v1/architecture/request" \
+          -H "Content-Type: application/json" \
+          -H "X-Api-Key: ${{ inputs.api-key }}" \
+          -d "{\"systemName\": \"CI Run\", \"brief\": $BRIEF_CONTENT}")
+        
+        RUN_ID=$(echo $RESPONSE | jq -r '.id')
+        if [ "$RUN_ID" == "null" ] || [ -z "$RUN_ID" ]; then
+          echo "Failed to create run: $RESPONSE"
+          exit 1
+        fi
+        
+        echo "Created run: $RUN_ID"
+        
+        # In a real scenario, we would poll for status and then commit.
+        # For simplicity in this composite action, we assume synchronous or quick completion.
+        echo "Committing run..."
+        COMMIT_RESPONSE=$(curl -s -X POST "${{ inputs.api-url }}/v1/architecture/run/$RUN_ID/commit" \
+          -H "Content-Type: application/json" \
+          -H "X-Api-Key: ${{ inputs.api-key }}")
+        
+        echo "Commit response: $COMMIT_RESPONSE"

@@ -76,6 +76,10 @@ The Core Pilot boundary lets a pilot:
 
 ## 3. Step-by-step walkthrough
 
+### Zero-config sample first
+
+On the operator Home page, **Start with sample review** opens the curated Claims Intake sample review package. It is already finalized and shows the same output shape as a real Core Pilot: reviewed manifest, findings, evidence trail, artifacts, and a clear demo-data warning. Use it to understand the destination before filling out the real-input wizard; do **not** use the sample numbers as customer ROI evidence.
+
 <a id="new-run"></a>
 
 ### Step 1 — Create an architecture review

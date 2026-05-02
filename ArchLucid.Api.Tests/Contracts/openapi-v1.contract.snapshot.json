@@ -6859,6 +6859,12 @@
           "fromNodeId": {
             "type": "string"
           },
+          "inferenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "label": {
             "type": [
               "null",
@@ -7077,6 +7083,10 @@
           }
         },
         "type": "object"
+      },
+      "IFormFile": {
+        "format": "binary",
+        "type": "string"
       },
       "ImprovementOpportunity": {
         "properties": {
@@ -19645,37 +19655,11 @@
       "post": {
         "requestBody": {
           "content": {
-            "application/x-www-form-urlencoded": {
+            "multipart/form-data": {
               "schema": {
                 "properties": {
-                  "ContentDisposition": {
-                    "type": "string"
-                  },
-                  "ContentType": {
-                    "type": "string"
-                  },
-                  "FileName": {
-                    "type": "string"
-                  },
-                  "Headers": {
-                    "additionalProperties": {
-                      "items": {
-                        "type": "string"
-                      },
-                      "type": "array"
-                    },
-                    "type": "object"
-                  },
-                  "Length": {
-                    "format": "int64",
-                    "pattern": "^-?(?:0|[1-9]\\d*)$",
-                    "type": [
-                      "integer",
-                      "string"
-                    ]
-                  },
-                  "Name": {
-                    "type": "string"
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
                   }
                 },
                 "type": "object"
