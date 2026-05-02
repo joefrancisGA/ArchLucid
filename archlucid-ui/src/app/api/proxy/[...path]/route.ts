@@ -9,6 +9,7 @@ import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
+import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getScopeHeaders } from "@/lib/scope";
 
 /**
@@ -179,6 +180,7 @@ async function forward(
         headers,
         body,
         cache: "no-store",
+        signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -220,6 +222,7 @@ async function forward(
       method: "GET",
       headers,
       cache: "no-store",
+      signal: AbortSignal.timeout(PROXY_UPSTREAM_FETCH_TIMEOUT_MS),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

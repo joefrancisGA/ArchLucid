@@ -7,6 +7,7 @@ import {
   DemoPreviewNotAvailable,
 } from "../../demo/preview/DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 
 import {
@@ -260,7 +261,10 @@ async function fetchShowcasePayload(
   url: string,
 ): Promise<{ kind: "ok"; payload: DemoCommitPagePreviewResponse } | { kind: "bad_json" } | { kind: "missing" } | { kind: "not_found" } | { kind: "http_error" } | { kind: "invalid" }> {
   try {
-    const response = await fetch(url, { next: { revalidate: 300 } });
+    const response = await fetch(url, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(MARKETING_UPSTREAM_FETCH_TIMEOUT_MS),
+    });
 
     if (response.status === 404)
       return { kind: "not_found" };

@@ -8,4 +8,5 @@ public readonly record struct OutboxDepthGaugeValues(
     double RetrievalIndexingOutboxOldestPendingAgeSeconds,
     long IntegrationEventOutboxPublishPending,
     long IntegrationEventOutboxDeadLetter,
-    double IntegrationEventOutboxOldestActionablePendingAgeSeconds);
+    double IntegrationEventOutboxOldestActionablePendingAgeSeconds,
+    long AuthorityPipelineWorkDeadLetter);

@@ -61,6 +61,8 @@ public static partial class ServiceCollectionExtensions
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
+        services.Configure<AuthorityPipelineWorkProcessorOptions>(
+            configuration.GetSection(AuthorityPipelineWorkProcessorOptions.SectionName));
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);

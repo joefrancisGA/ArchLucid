@@ -75,13 +75,7 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
                 .ToList()
         };
 
-        DecisionOption reject = new()
-        {
-            Description = "Reject topology proposal",
-            BaseConfidence = 0.10,
-            SupportScore = opposition,
-            OppositionScore = support
-        };
+        DecisionOption reject = new() { Description = "Reject topology proposal", BaseConfidence = 0.10, SupportScore = opposition, OppositionScore = support };
 
         DecisionOption selected = accept.FinalScore >= reject.FinalScore ? accept : reject;
 

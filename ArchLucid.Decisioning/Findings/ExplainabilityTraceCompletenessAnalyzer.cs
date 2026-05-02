@@ -110,12 +110,7 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             })
             .ToList();
 
-        return new TraceCompletenessSummary
-        {
-            TotalFindings = findings.Count,
-            OverallCompletenessRatio = overall,
-            ByEngine = byEngine
-        };
+        return new TraceCompletenessSummary { TotalFindings = findings.Count, OverallCompletenessRatio = overall, ByEngine = byEngine };
     }
 
     private static bool ListHasMeaningfulContent(IReadOnlyList<string>? list)

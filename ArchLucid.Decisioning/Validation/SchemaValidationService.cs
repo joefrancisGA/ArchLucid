@@ -283,10 +283,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
                 if (_options.EnableDetailedErrors)
 
-                    result.DetailedErrors.Add(new SchemaValidationError
-                    {
-                        Message = message, Location = location, SchemaPath = schemaPath, Keyword = keyword
-                    });
+                    result.DetailedErrors.Add(new SchemaValidationError { Message = message, Location = location, SchemaPath = schemaPath, Keyword = keyword });
             }
 
         if (evaluation.Details is null)

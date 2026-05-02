@@ -29,13 +29,8 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
             let urgency = MapUrgency(signal.Severity)
             let scoring =
                 adaptiveScorer.Score(
-                    new AdaptiveScoringInput
-                    {
-                        Category = signal.Category,
-                        Urgency = urgency,
-                        SignalType = signal.SignalType,
-                        BasePriorityScore = baseScore
-                    }, profile)
+                    new AdaptiveScoringInput { Category = signal.Category, Urgency = urgency, SignalType = signal.SignalType, BasePriorityScore = baseScore },
+                    profile)
             select new ImprovementRecommendation
             {
                 Title = BuildTitle(signal),

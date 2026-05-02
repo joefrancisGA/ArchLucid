@@ -46,6 +46,14 @@
               "string"
             ]
           },
+          "authorityPipelineWorkDeadLetter": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
           "integrationEventOutboxDeadLetter": {
             "format": "int64",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -72,6 +80,7 @@
           }
         },
         "required": [
+          "authorityPipelineWorkDeadLetter",
           "authorityPipelineWorkPending",
           "integrationEventOutboxDeadLetter",
           "integrationEventOutboxPublishPending",

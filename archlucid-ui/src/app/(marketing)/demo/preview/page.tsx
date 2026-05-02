@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { normalizeSeeItMarketingPayload } from "../../see-it/normalize-see-it-payload";
 import { DemoPreviewMarketingBody } from "./DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 export const revalidate = 300;
@@ -55,7 +56,10 @@ export default async function DemoPreviewMarketingPage() {
   let response: Response;
 
   try {
-    response = await fetch(url, { next: { revalidate: 300 } });
+    response = await fetch(url, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(MARKETING_UPSTREAM_FETCH_TIMEOUT_MS),
+    });
   } catch {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">

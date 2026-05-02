@@ -10,8 +10,8 @@ public sealed class OutboxDepthGaugeStateTests
     public void Publish_updates_Current_atomically_visible()
     {
         OutboxDepthGaugeState state = new();
-        OutboxDepthGaugeValues first = new(1, 2, 3, 4, 5, 6, 7);
-        OutboxDepthGaugeValues second = new(10, 20, 30, 40, 50, 60, 70);
+        OutboxDepthGaugeValues first = new(1, 2, 3, 4, 5, 6, 7, 8);
+        OutboxDepthGaugeValues second = new(10, 20, 30, 40, 50, 60, 70, 80);
 
         state.Publish(in first);
         state.Current.Should().Be(first);

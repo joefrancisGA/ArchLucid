@@ -10,6 +10,7 @@ public sealed class InMemoryOutboxOperationalMetricsReaderTests
         OutboxOperationalMetricsSnapshot snapshot = await reader.ReadSnapshotAsync(CancellationToken.None);
 
         snapshot.AuthorityPipelineWorkPending.Should().Be(0);
+        snapshot.AuthorityPipelineWorkDeadLetter.Should().Be(0);
         snapshot.RetrievalIndexingOutboxPending.Should().Be(0);
         snapshot.IntegrationEventOutboxPublishPending.Should().Be(0);
         snapshot.IntegrationEventOutboxDeadLetter.Should().Be(0);

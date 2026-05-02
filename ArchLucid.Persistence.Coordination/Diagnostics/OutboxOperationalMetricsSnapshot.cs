@@ -9,6 +9,12 @@ public sealed class OutboxOperationalMetricsSnapshot
         init;
     }
 
+    public long AuthorityPipelineWorkDeadLetter
+    {
+        get;
+        init;
+    }
+
     public double AuthorityPipelineWorkOldestPendingAgeSeconds
     {
         get;

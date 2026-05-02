@@ -125,10 +125,7 @@ public sealed class EffectiveGovernanceResolver(
                 resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
             }
 
-            EffectiveGovernanceResolutionResult result = new()
-            {
-                TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId
-            };
+            EffectiveGovernanceResolutionResult result = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
             foreach (string note in skippedNotes)
                 result.Notes.Add(note);

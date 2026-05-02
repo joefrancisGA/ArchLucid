@@ -46,10 +46,7 @@ public static class ContractGoldenManifestMapper
             RuleSetHash = keying.RuleSetHash,
             Metadata = new ManifestMetadata
             {
-                Name = contract.SystemName,
-                Version = contract.Metadata.ManifestVersion,
-                Status = "Draft",
-                Summary = contract.Metadata.ChangeDescription
+                Name = contract.SystemName, Version = contract.Metadata.ManifestVersion, Status = "Draft", Summary = contract.Metadata.ChangeDescription
             },
             Topology =
             {
@@ -67,10 +64,7 @@ public static class ContractGoldenManifestMapper
                 Controls =
                 [
                     .. contract.Services.SelectMany(s => s.RequiredControls.Select(c =>
-                        new SecurityPostureItem
-                        {
-                            ControlName = c, Status = "stated", ControlId = c, Impact = string.Empty
-                        }))
+                        new SecurityPostureItem { ControlName = c, Status = "stated", ControlId = c, Impact = string.Empty }))
                 ]
             },
             Compliance =
@@ -78,10 +72,7 @@ public static class ContractGoldenManifestMapper
                 Controls =
                 [
                     .. contract.Governance.ComplianceTags
-                        .Select(t => new CompliancePostureItem
-                        {
-                            ControlName = t, ControlId = t, AppliesToCategory = "governance", Status = "Tagged"
-                        })
+                        .Select(t => new CompliancePostureItem { ControlName = t, ControlId = t, AppliesToCategory = "governance", Status = "Tagged" })
                 ]
             },
             Policy = { Notes = [.. contract.Governance.PolicyConstraints] }

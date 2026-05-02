@@ -301,10 +301,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             manifest.Security.Controls.Add(new SecurityPostureItem
             {
-                ControlId = payload.ControlId,
-                ControlName = payload.ControlName,
-                Status = payload.Status,
-                Impact = payload.Impact
+                ControlId = payload.ControlId, ControlName = payload.ControlName, Status = payload.Status, Impact = payload.Impact
             });
 
             if (!string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase))
@@ -343,10 +340,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             manifest.Compliance.Controls.Add(new CompliancePostureItem
             {
-                ControlId = payload.ControlId,
-                ControlName = payload.ControlName,
-                AppliesToCategory = payload.AppliesToCategory,
-                Status = "Gap"
+                ControlId = payload.ControlId, ControlName = payload.ControlName, AppliesToCategory = payload.AppliesToCategory, Status = "Gap"
             });
 
             if (payload.AffectedResources.Count > 0)
@@ -474,10 +468,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
                 manifest.Policy.Violations.Add(new PolicyControlItem
                 {
-                    ControlId = "policy-coverage",
-                    ControlName = $"Uncovered: {resource}",
-                    PolicyPack = "Governance",
-                    Description = finding.Title
+                    ControlId = "policy-coverage", ControlName = $"Uncovered: {resource}", PolicyPack = "Governance", Description = finding.Title
                 });
         }
     }

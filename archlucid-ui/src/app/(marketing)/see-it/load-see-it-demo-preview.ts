@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 export type SeeItPreviewSource = "live" | "snapshot";
@@ -21,8 +22,6 @@ export type LoadSeeItDemoPreviewOptions = {
 };
 
 const DEMO_PREVIEW_PATH = "/v1/demo/preview";
-
-const FETCH_TIMEOUT_MS = 12_000;
 
 /**
  * Resolves anonymous demo API base. Prefer `NEXT_PUBLIC_DEMO_API_BASE` (see-it prompt), then the same chain as
@@ -97,7 +96,7 @@ export async function loadSeeItDemoPreview(options?: LoadSeeItDemoPreviewOptions
     const response = await fetchFn(url, {
       method: "GET",
       headers,
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      signal: AbortSignal.timeout(MARKETING_UPSTREAM_FETCH_TIMEOUT_MS),
       next: { revalidate: 300 },
     });
 

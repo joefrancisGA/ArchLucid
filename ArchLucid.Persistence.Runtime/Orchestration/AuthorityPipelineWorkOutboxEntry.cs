@@ -44,4 +44,35 @@ public sealed class AuthorityPipelineWorkOutboxEntry
         get;
         init;
     }
+
+    /// <summary>Claim / retry bookkeeping stored on <c>dbo.AuthorityPipelineWorkOutbox</c>.</summary>
+    public int AttemptCount
+    {
+        get;
+        init;
+    }
+
+    public DateTime? LockedUntilUtc
+    {
+        get;
+        init;
+    }
+
+    public DateTime? NextAttemptUtc
+    {
+        get;
+        init;
+    }
+
+    public string? LastAttemptError
+    {
+        get;
+        init;
+    }
+
+    public DateTime? DeadLetteredUtc
+    {
+        get;
+        init;
+    }
 }

@@ -708,7 +708,13 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateObservableGauge(
             "archlucid_authority_pipeline_work_pending",
             () => new Measurement<long>(s.Current.AuthorityPipelineWorkPending),
-            description: "Rows in dbo.AuthorityPipelineWorkOutbox awaiting processing.");
+            description:
+            "dbo.AuthorityPipelineWorkOutbox rows eligible for dequeue (excludes dead letters, active leases, backoff window).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_authority_pipeline_work_dead_letter",
+            () => new Measurement<long>(s.Current.AuthorityPipelineWorkDeadLetter),
+            description: "dbo.AuthorityPipelineWorkOutbox rows exhausted retries (DeadLetteredUtc set).");
 
         AppMeter.CreateObservableGauge(
             "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
