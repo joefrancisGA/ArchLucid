@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
+  getBuyerSafeReviewsTableLink,
+  getCanonicalReviewWorkspaceHref,
+  getShowcaseWalkthroughHref,
+  isBuyerSafePrimaryReviewNavigationPreferred,
+} from "@/lib/buyer-safe-review-navigation";
+import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -36,6 +42,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const [technicalOpen, setTechnicalOpen] = useState(false);
   const demo = isNextPublicDemoMode();
   const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
+  const buyerSafePrimary = isBuyerSafePrimaryReviewNavigationPreferred(run.runId);
+  const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
+  const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
+  const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
   const headline = run.description?.trim() ?? "Architecture review";
   const createdLabel = showcaseStory
     ? demo
@@ -49,16 +59,29 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  const findingHref = `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
+  const findingHref =
+    buyerSafePrimary && showcaseStory
+      ? showcaseWalkthroughHref
+      : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demo
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
       : run.hasArtifactBundle
-        ? "Artifact bundle attached — use the Artifacts quick link on this review."
+        ? buyerSafePrimary
+          ? "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
+          : "Artifacts are listed on workspace detail — open Artifacts quick link there when available."
         : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
+  const findingsQuickHref =
+    buyerSafePrimary && showcaseStory ? showcaseWalkthroughHref : `/reviews/${encodeURIComponent(run.runId)}#run-explanation`;
+  const artifactsQuickHref =
+    buyerSafePrimary && showcaseStory
+      ? `/manifests/${encodeURIComponent(manifestId)}`
+      : `/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`;
+  const timelineQuickHref =
+    buyerSafePrimary && showcaseStory ? showcaseWalkthroughHref : `/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`;
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
@@ -128,11 +151,21 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         </ul>
       </div>
 
-      {/* Primary action */}
-      <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
+      {/* Primary exploration — buyer-safe demos lead with manifest + showcase so hydration failures on `/reviews/[id]` do not strand evaluators */}
+      <div className="space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button variant="primary" size="sm" className="w-full" asChild>
-          <Link href={`/reviews/${encodeURIComponent(run.runId)}`}>Open review</Link>
+          <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
         </Button>
+        {buyerSafePrimary ? (
+          <div className="flex flex-col gap-2">
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link href={showcaseWalkthroughHref}>Public walkthrough</Link>
+            </Button>
+            <Button variant="outline" size="sm" className="w-full" asChild>
+              <Link href={workspaceHref}>Technical workspace detail</Link>
+            </Button>
+          </div>
+        ) : null}
       </div>
 
       {/* 4 primary quick links: Manifest, Findings, Artifacts, Timeline */}
@@ -146,16 +179,16 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </Button>
           {hasFindingsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/reviews/${encodeURIComponent(run.runId)}#run-explanation`}>Findings</Link>
+              <Link href={findingsQuickHref}>{buyerSafePrimary && showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
             </Button>
           ) : null}
           {hasArtifactsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`}>Artifacts</Link>
+              <Link href={artifactsQuickHref}>Artifacts</Link>
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Timeline</Link>
+            <Link href={timelineQuickHref}>{buyerSafePrimary && showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
           </Button>
         </div>
       </div>

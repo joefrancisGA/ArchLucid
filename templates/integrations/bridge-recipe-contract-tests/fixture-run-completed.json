@@ -1,0 +1,17 @@
+{
+  "specversion": "1.0",
+  "type": "com.archlucid.authority.run.completed",
+  "source": "https://archlucid.example/api",
+  "id": "b3c2c1f0-a1e2-4d3e-9c8b-1a2b3c4d5e6f",
+  "time": "2026-05-01T12:00:00Z",
+  "datacontenttype": "application/json",
+  "dataschema": "https://archlucid.example/schemas/integration/run-completed@v1.json",
+  "data": {
+    "schemaVersion": 1,
+    "runId": "aabbccddee00112233445566778899aa",
+    "manifestId": "11111111-2222-3333-4444-555555555555",
+    "tenantId": "66666666-7777-8888-9999-aaaaaaaaaaaa",
+    "workspaceId": "bbbbbbbb-cccc-dddd-eeee-ffffffffffff",
+    "projectId": "99999999-8888-7777-6666-555555555555"
+  }
+}

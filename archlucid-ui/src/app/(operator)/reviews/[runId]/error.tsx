@@ -9,7 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 /**
  * Segment error boundary for `/reviews/[runId]` so review detail client failures show buyer-safe recovery

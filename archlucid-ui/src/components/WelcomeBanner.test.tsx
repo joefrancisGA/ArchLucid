@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
@@ -48,23 +48,31 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("heading", { name: "Turn architecture proposals into governed, evidence-backed review packages." })).toBeInTheDocument();
+    const banner = screen.getByRole("banner", { name: "Welcome" });
+
     expect(
-      screen.getByText(
-        (content, node) => {
-          const hasText = (node: Element) => node.textContent === "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
-          const nodeHasText = hasText(node as Element);
-          const childrenDontHaveText = Array.from(node?.children || []).every(
-            (child) => !hasText(child)
-          );
-          return nodeHasText && childrenDontHaveText;
-        }
-      ),
+      within(banner).getByRole("heading", {
+        name: "Turn architecture proposals into governed, evidence-backed review packages.",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      within(banner).getByText((_, node) => {
+        const el = node instanceof HTMLElement ? node : null;
+        const text = el?.textContent ?? "";
+
+        return (
+          el?.tagName === "P" &&
+          text.includes("architecture manifest") &&
+          text.includes("findings") &&
+          text.includes("Submit one structured request")
+        );
+      }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByText("Governed manifest")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/What you will receive from a completed run/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
     const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
     expect(exampleLinks.length).toBeGreaterThanOrEqual(1);
     expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/claims-intake-modernization");
@@ -91,21 +99,10 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     render(<WelcomeBanner />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Architecture manifest workspace" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Architecture review workspace" })).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText(
-        (content, node) => {
-          const hasText = (node: Element) => node.textContent === "Monitor active runs, finalize manifests, and review governance findings.";
-          const nodeHasText = hasText(node as Element);
-          const childrenDontHaveText = Array.from(node?.children || []).every(
-            (child) => !hasText(child)
-          );
-          return nodeHasText && childrenDontHaveText;
-        }
-      ),
-    ).toBeInTheDocument();
+    expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",

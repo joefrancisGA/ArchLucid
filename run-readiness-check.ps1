@@ -1,4 +1,4 @@
-# Pilot / RC gate: Release build, fast-core tests in Release, optional UI Vitest. See docs/RELEASE_LOCAL.md
+# Pilot / RC gate: Release build, CLI auth lint (`dotnet run … -- config lint`), fast-core tests in Release, optional UI Vitest. See docs/RELEASE_LOCAL.md
 param(
     [switch] $SkipUi
 )
@@ -11,10 +11,14 @@ Set-Location $root
 . (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
 
 $nodeAvailable = $null -ne (Get-Command node -ErrorAction SilentlyContinue)
-$totalPhases = 2
+$totalCorePhases = 3
 
 if ((-not $SkipUi) -and $nodeAvailable) {
-    $totalPhases = 3
+    $totalPhases = 4
+}
+
+else {
+    $totalPhases = $totalCorePhases
 }
 
 Write-OperatorPhaseHeader -Title 'Release build (ArchLucid.sln, -c Release)' -Step 1 -Total $totalPhases
@@ -30,11 +34,32 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-Write-OperatorPhaseHeader -Title 'Fast core tests (Release, no rebuild)' -Step 2 -Total $totalPhases
+Write-OperatorPhaseHeader -Title 'CLI config lint (auth traps only; ASPNETCORE_ENVIRONMENT=Development for empty cwd)' -Step 2 -Total $totalPhases
+Push-Location $root
+try {
+    $savedAsp = [Environment]::GetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Process')
+    [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', 'Development', 'Process')
+    dotnet run --project (Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj') -c Release --no-build -- config lint
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-OperatorFailureTriage -Stage '2 CLI config lint' -Category 'ConfigLintFailure' `
+            -Details @('Blocking auth mis-configuration found in cwd JSON overlays (appsettings/archlucid.json) combined with simulated env.') `
+            -NextSteps @(
+            'Inspect stderr above — fix AuthMode traps (see docs/library/CONFIGURATION_REFERENCE.md)',
+            'Re-run manually: dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -c Release -- config lint'
+        )
+        exit $LASTEXITCODE
+    }
+}
+finally {
+    [Environment]::SetEnvironmentVariable('ASPNETCORE_ENVIRONMENT', $savedAsp, 'Process')
+}
+
+Write-OperatorPhaseHeader -Title 'Fast core tests (Release, no rebuild)' -Step 3 -Total $totalPhases
 dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
 
 if ($LASTEXITCODE -ne 0) {
-    Write-OperatorFailureTriage -Stage '2 Fast core tests' -Category 'TestFailure' `
+    Write-OperatorFailureTriage -Stage '3 Fast core tests' -Category 'TestFailure' `
         -Details @(
         'The first failing test name appears above in xUnit output (scroll up).',
         'Exit code is non-zero from dotnet test.'
@@ -51,14 +76,14 @@ if (-not $SkipUi) {
     $node = Get-Command node -ErrorAction SilentlyContinue
 
     if ($null -ne $node) {
-        Write-OperatorPhaseHeader -Title 'Operator UI unit tests (Vitest)' -Step 3 -Total $totalPhases
+        Write-OperatorPhaseHeader -Title 'Operator UI unit tests (Vitest)' -Step 4 -Total $totalPhases
         $uiRoot = Join-Path $root 'archlucid-ui'
         Set-Location $uiRoot
         npm ci
 
         if ($LASTEXITCODE -ne 0) {
             Set-Location $root
-            Write-OperatorFailureTriage -Stage '3 UI unit tests' -Category 'NpmCiFailure' `
+            Write-OperatorFailureTriage -Stage '4 UI unit tests' -Category 'NpmCiFailure' `
                 -Details @('npm ci failed in archlucid-ui (lockfile / registry / network).') `
                 -NextSteps @(
                 'cd archlucid-ui; npm ci',
@@ -72,7 +97,7 @@ if (-not $SkipUi) {
         Set-Location $root
 
         if ($LASTEXITCODE -ne 0) {
-            Write-OperatorFailureTriage -Stage '3 UI unit tests' -Category 'VitestFailure' `
+            Write-OperatorFailureTriage -Stage '4 UI unit tests' -Category 'VitestFailure' `
                 -Details @('Vitest reported failures (see file names above).') `
                 -NextSteps @(
                 'cd archlucid-ui; npm run test',

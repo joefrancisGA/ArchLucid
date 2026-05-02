@@ -19,6 +19,12 @@ import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } fr
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import {
+  getCanonicalReviewWorkspaceHref,
+  getShowcaseManifestHref,
+  getShowcaseWalkthroughHref,
+  isBuyerSafePrimaryReviewNavigationPreferred,
+} from "@/lib/buyer-safe-review-navigation";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -154,6 +160,8 @@ export function RunsDashboardPanel() {
     [effectiveItems],
   );
 
+  const buyerSafeHighlight =
+    showcaseDemoRun !== undefined && isBuyerSafePrimaryReviewNavigationPreferred(showcaseDemoRun.runId);
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
@@ -233,30 +241,57 @@ export function RunsDashboardPanel() {
                     Claims Intake — completed example run
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    Open the proof path: run detail, finalized manifest, primary finding, or the read-only marketing
-                    showcase.
+                    {buyerSafeHighlight ? (
+                      <>
+                        Start with the finalized manifest or the public walkthrough — technical workspace detail stays
+                        available for architects who want the authenticated console.
+                      </>
+                    ) : (
+                      <>
+                        Open the proof path: review detail, finalized manifest, primary finding, or the read-only
+                        marketing showcase.
+                      </>
+                    )}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link
-                        href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
-                      >
-                        Finalized manifest
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link
-                        href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
-                      >
-                        Primary finding
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/showcase/claims-intake-modernization">Showcase (read-only)</Link>
-                    </Button>
+                    {buyerSafeHighlight ? (
+                      <>
+                        <Button asChild variant="primary" size="sm" className="h-8">
+                          <Link href={getShowcaseManifestHref()}>Review package</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={getShowcaseWalkthroughHref()}>Showcase walkthrough</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={getCanonicalReviewWorkspaceHref(showcaseDemoRun.runId)}>
+                            Technical workspace
+                          </Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button asChild variant="primary" size="sm" className="h-8">
+                          <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link
+                            href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                          >
+                            Finalized manifest
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link
+                            href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                          >
+                            Primary finding
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href={getShowcaseWalkthroughHref()}>Showcase (read-only)</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ) : null}

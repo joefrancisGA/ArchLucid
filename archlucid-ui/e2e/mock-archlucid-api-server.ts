@@ -351,7 +351,9 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       /** Fire-and-forget client telemetry; real API accepts POST — avoid 405 noise in screenshot / mock E2E. */
       if (
         req.method === "POST" &&
-        (pathname === "/v1/diagnostics/client-error" || pathname === "/v1/diagnostics/first-tenant-funnel")
+        (pathname === "/v1/diagnostics/client-error" ||
+          pathname === "/v1/diagnostics/first-tenant-funnel" ||
+          pathname === "/v1/diagnostics/core-pilot-rail-step")
       ) {
         res.writeHead(204);
         res.end();

@@ -98,7 +98,9 @@ These are the most useful V1 measures.
 
 ### 4.1.1 How to read the demo numbers
 
-The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. When the report is generated **for one of the canonical Contoso Retail demo runs** (or any run whose `RequestId` carries the `req-contoso-demo-` prefix that `ContosoRetailDemoIds.ForTenant(...)` mints for non-default tenants), every report renders the banner:
+The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. **Baseline confidence appendix:** Markdown and PDF append **`## ROI evidence completeness`** (from `RoiEvidenceCompletenessMarkdownFormatter`) so sponsors see whether dollar narratives rely on tenant-captured baselines (**Strong / Partial**) or illustrative defaults (**Low confidence**).
+
+When the report is generated **for one of the canonical Contoso Retail demo runs** (or any run whose `RequestId` carries the `req-contoso-demo-` prefix that `ContosoRetailDemoIds.ForTenant(...)` mints for non-default tenants), every report renders the banner:
 
 > _demo tenant — replace before publishing._
 

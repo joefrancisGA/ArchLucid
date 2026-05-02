@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 /** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
@@ -102,9 +103,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    const demoMode =
-      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-    const demoPreferred = items.find((r) => r.runId === DEMO_RUN_PREF_ID);
+    const demoPreferred =
+      items.find((r) => r.runId === SHOWCASE_STATIC_DEMO_RUN_ID) ??
+      items.find((r) => r.runId === DEMO_RUN_PREF_ID);
 
     const firstItem = items[0];
 
@@ -114,8 +115,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    if (demoMode && demoPreferred !== undefined) {
+    if (demoPreferred !== undefined && isStaticDemoPayloadFallbackEnabled()) {
       onChange(demoPreferred.runId);
+
+      return;
     }
   }, [loading, items, value, onChange, preferAutoPick]);
 
@@ -170,7 +173,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }, [loadError, preferAutoPick, value, onChange]);
 
   const optionalCopy =
-    selectedThreadId.trim().length > 0 ? "(optional when a context is already selected)" : "(select an architecture review)";
+    selectedThreadId.trim().length > 0
+      ? "(optional when a conversation already has review context)"
+      : "(pick an architecture review)";
 
   if (loadError) {
     const demoMode =
@@ -296,7 +301,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       <Label htmlFor={selectControlId}>{labelText}</Label>
       <Select disabled={disabled} value={selectValue} onValueChange={onChange}>
         <SelectTrigger id={selectControlId} className="font-mono text-sm">
-          <SelectValue placeholder="Choose a run" />
+          <SelectValue placeholder="Choose an architecture review" />
         </SelectTrigger>
         <SelectContent>
           {items.map((row) => (

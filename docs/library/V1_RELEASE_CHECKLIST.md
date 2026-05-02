@@ -26,9 +26,10 @@
 
 - [ ] **Release build** succeeds: `build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
 - [ ] **Merge-blocking .NET full regression (SQL)** on default branch is green before declaring release-ready — job **`.NET: full regression (SQL)`** (`dotnet-full-regression`) in `.github/workflows/ci.yml`; merged Cobertura + package-line gates per [CODE_COVERAGE.md](CODE_COVERAGE.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md). If CI is red, record the blocking failure; do not imply "clean regression" without that job.
-- [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (use `-SkipUi` only if UI is out of scope for this handoff).
+- [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
+- [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
 - [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 - [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../../README.md), [BUILD.md](BUILD.md)).
 - [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).

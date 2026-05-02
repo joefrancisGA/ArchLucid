@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
@@ -229,6 +230,11 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
       } catch {
         /* ignore */
       }
+
+      if (next[index])
+
+
+        recordCorePilotRailChecklistStep(index);
 
       emitCorePilotChecklistChanged();
 

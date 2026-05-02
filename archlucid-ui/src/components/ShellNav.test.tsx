@@ -37,11 +37,11 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows compact Pilot by default; navigation settings can reveal extended Analysis links",
+    "shows compact Architecture reviews group by default; navigation settings can reveal extended Analysis links",
     () => {
       render(<ShellNav />);
 
-      const nav = screen.getByRole("navigation", { name: "Pilot" });
+      const nav = screen.getByRole("navigation", { name: "Architecture reviews" });
       expect(nav).toBeInTheDocument();
 
       const homeLink = screen.getByRole("link", { name: "Home" });

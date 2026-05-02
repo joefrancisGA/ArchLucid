@@ -1,0 +1,20 @@
+> **Scope:** Runnable contract tests only — asserts CloudEvent JSON shape maps to downstream ITSM payloads without outbound calls.
+
+## Run locally
+
+From this directory:
+
+```bash
+node --test mapping-contract.test.mjs
+```
+
+From repository root:
+
+```bash
+node --test templates/integrations/bridge-recipe-contract-tests/mapping-contract.test.mjs
+```
+
+Parity helpers for PowerShell-only validation:
+
+- **`../validate-jira-bridge.ps1`**
+- **`../validate-servicenow-bridge.ps1`**

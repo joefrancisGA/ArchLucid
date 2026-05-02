@@ -44,6 +44,11 @@ export function AppShellClient({ children }: AppShellClientProps) {
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
+  /** Omit inline platform readiness under authenticated review workspaces — `Healthy` contradicts fatal detail errors when the flagship sample fails to hydrate. */
+  const hideWorkspaceHealthFooter =
+    (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
+    (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
+
   /** Auth flow pages (sign-in, callback) render without nav/workspace chrome to avoid confusion. */
   const isAuthRoute = pathname.startsWith("/auth/");
 
@@ -138,7 +143,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
               </KeyboardShortcutProvider>
             </div>
           </div>
-          {!isNextPublicDemoMode() ? (
+          {!isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
             <footer
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"

@@ -453,6 +453,16 @@ public static class ArchLucidInstrumentation
             description:
             "Sponsor banner first-commit badge render (operator shell). Labels: tenant_id, days_since_first_commit_bucket.");
 
+    /// <summary>
+    ///     Guided Core Pilot checklist progress from the operator shell (labels:
+    ///     <c>step</c> = canonical slug; four steps only — low cardinality).
+    /// </summary>
+    public static readonly Counter<long> CorePilotRailChecklistStepsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_core_pilot_rail_checklist_step_total",
+            description:
+            "Operator-shell Core Pilot checklist step acknowledgements POST /v1/diagnostics/core-pilot-rail-step (label step slug).");
+
     /// <summary>Deny-list redactions applied before Azure OpenAI and trace persistence (label <c>category</c>).</summary>
     public static readonly Counter<long> LlmPromptRedactionsTotal =
         AppMeter.CreateCounter<long>(
@@ -1011,6 +1021,23 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "tenant_id", tenantId.ToString("D") }, { "days_since_first_commit_bucket", bucket } };
 
         SponsorBannerFirstCommitBadgeRenderedTotal.Add(1, tags);
+    }
+
+    private static readonly string[] CorePilotRailChecklistSteps =
+        ["create_request", "track_review", "finalize_review_package", "review_outputs"];
+
+    /// <summary>Increments <see cref="CorePilotRailChecklistStepsTotal" /> for checklist step indices 0–3 inclusive.</summary>
+    public static void RecordCorePilotRailChecklistStep(int stepIndex)
+    {
+        if (stepIndex < 0 || stepIndex >= CorePilotRailChecklistSteps.Length)
+            throw new ArgumentOutOfRangeException(
+                nameof(stepIndex),
+                stepIndex,
+                $"stepIndex must be 0..{CorePilotRailChecklistSteps.Length - 1}");
+
+        TagList tags = new() { { "step", CorePilotRailChecklistSteps[stepIndex] } };
+
+        CorePilotRailChecklistStepsTotal.Add(1, tags);
     }
 
     /// <summary>Increments <see cref="FirstSessionCompletedTotal" /> once per tenant (caller must gate).</summary>

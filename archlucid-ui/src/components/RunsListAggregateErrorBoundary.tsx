@@ -7,6 +7,7 @@ import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/revie
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
 import type { RunSummary } from "@/types/authority";
 
 function runListPrimaryTitle(run: RunSummary): string {
@@ -16,7 +17,7 @@ function runListPrimaryTitle(run: RunSummary): string {
     return d;
   }
 
-  return "Untitled run";
+  return "Untitled review";
 }
 
 function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
@@ -26,7 +27,7 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
             <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              Run
+              Review
             </th>
             <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
               Actions
@@ -34,7 +35,10 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-          {runs.map((run) => (
+          {runs.map((run) => {
+            const action = getBuyerSafeReviewsTableLink(run.runId);
+
+            return (
             <tr key={run.runId}>
               <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
                 <span className="font-semibold text-sm text-neutral-900 dark:text-neutral-100">
@@ -46,14 +50,15 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
               </td>
               <td className="whitespace-nowrap px-3 py-2 align-top">
                 <Link
-                  href={`/reviews/${encodeURIComponent(run.runId)}`}
+                  href={action.href}
                   className="font-medium text-teal-800 underline dark:text-teal-300"
                 >
-                  Open review
+                  {action.label}
                 </Link>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>

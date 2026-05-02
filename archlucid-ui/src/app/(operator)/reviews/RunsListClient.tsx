@@ -17,6 +17,7 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -299,7 +300,7 @@ export function RunsListClient({
             }}
             className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             autoComplete="off"
-            aria-label="Filter reviews by review ID or description"
+            aria-label="Filter reviews by name or description"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -389,6 +390,7 @@ export function RunsListClient({
                           const isSelected = selectedRun?.runId === run.runId;
                           const title = runListPrimaryTitle(run);
                           const countsLine = runRowExplicitCountsLine(run);
+                          const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
 
                           return (
                             <RunTableRowErrorBoundary key={run.runId} runId={run.runId}>
@@ -460,13 +462,13 @@ export function RunsListClient({
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 align-top">
                                   <Link
-                                    href={`/reviews/${run.runId}`}
+                                    href={primaryExplore.href}
                                     className="font-medium text-teal-800 underline dark:text-teal-300"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                     }}
                                   >
-                                    Open review
+                                    {primaryExplore.label}
                                   </Link>
                                 </td>
                               </tr>

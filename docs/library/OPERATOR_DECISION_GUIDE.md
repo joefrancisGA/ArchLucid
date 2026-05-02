@@ -72,7 +72,7 @@ Use **Core Pilot** when the question is:
 
 If you are still trying to prove the first pilot, staying in Core Pilot is usually the right choice.
 
-The **Home** checklist, **onboarding** entry text, and **sidebar defaults** are biased the same way: Operate (analysis workloads) and Operate (governance and trust) appear for discovery but are labeled **not first-pilot requirements** so time-to-value does not drift.
+The **Home** checklist, optional **navigation preset** (`operator-nav-preset`; UI-only reordering via the sidebar preset dialog), **onboarding** entry text, and **sidebar defaults** are biased the same way: Operate (analysis workloads) and Operate (governance and trust) appear for discovery but are labeled **not first-pilot requirements** so time-to-value does not drift.
 
 ---
 
