@@ -68,17 +68,15 @@ public sealed class SqlTenantCustomerSuccessRepository(
         if (row is null)
             return null;
 
-        return new TenantHealthScoreRecord
-        {
-            TenantId = row.TenantId,
-            EngagementScore = row.EngagementScore,
-            BreadthScore = row.BreadthScore,
-            QualityScore = row.QualityScore,
-            GovernanceScore = row.GovernanceScore,
-            SupportScore = row.SupportScore,
-            CompositeScore = row.CompositeScore,
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
-        };
+        return new TenantHealthScoreRecord(
+            row.TenantId,
+            row.EngagementScore,
+            row.BreadthScore,
+            row.QualityScore,
+            row.GovernanceScore,
+            row.SupportScore,
+            row.CompositeScore,
+            new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero));
     }
 
     /// <inheritdoc />

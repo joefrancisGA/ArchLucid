@@ -5,6 +5,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Identity;
@@ -14,8 +15,20 @@ public sealed class TrialLocalIdentityService(
     ITrialIdentityUserRepository repository,
     PasswordHasher<TrialIdentityHasherUser> passwordHasher,
     TrialPasswordPolicyValidator passwordPolicy,
-    PwnedPasswordRangeClient pwnedClient) : ITrialLocalIdentityService
+    PwnedPasswordRangeClient pwnedClient,
+    ITrialLocalIdentityAccountExistsNotifier accountExistsNotifier,
+    ILogger<TrialLocalIdentityService> logger) : ITrialLocalIdentityService
 {
+    // Fixed payload so failed lookups perform password hashing work comparable to the success path's verifier cost.
+    private const string AuthenticationTimingDummyPassword =
+        "Cw7qN9mK2pR4vL8xJ3hF6tY0zB5dS1gM";
+
+    private readonly ITrialLocalIdentityAccountExistsNotifier _accountExistsNotifier =
+        accountExistsNotifier ?? throw new ArgumentNullException(nameof(accountExistsNotifier));
+
+    private readonly ILogger<TrialLocalIdentityService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly PasswordHasher<TrialIdentityHasherUser> _passwordHasher =
         passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 
@@ -40,11 +53,6 @@ public sealed class TrialLocalIdentityService(
         EnsureLocalIdentityEnabled();
 
         string normalized = TrialEmailNormalizer.Normalize(email);
-        TrialIdentityUserRecord? existing = await _repository.GetByNormalizedEmailAsync(normalized, cancellationToken);
-
-        if (existing is not null)
-            throw new InvalidOperationException("An account with this email already exists.");
-
         TrialPasswordValidationResult policy = _passwordPolicy.Validate(password);
 
         if (!policy.Ok)
@@ -53,13 +61,18 @@ public sealed class TrialLocalIdentityService(
         if (await _pwnedClient.IsPasswordPwnedAsync(password, cancellationToken))
             throw new ArgumentException("This password appears in public breach datasets; choose another.");
 
+        TrialIdentityUserRecord? existing = await _repository.GetByNormalizedEmailAsync(normalized, cancellationToken);
+
+        if (existing is not null)
+        {
+            QueueAccountAlreadyExistsNotice(email.Trim());
+            return CreateOpaqueRegistrationResult();
+        }
+
         string hash = _passwordHasher.HashPassword(new TrialIdentityHasherUser(), password);
         string securityStamp = Guid.NewGuid().ToString("N");
         string concurrencyStamp = Guid.NewGuid().ToString("N");
-        string rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
+        string rawToken = CreateRawVerificationToken();
         string tokenHash = TrialEmailVerificationTokenHasher.Hash(rawToken);
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(2);
 
@@ -100,7 +113,11 @@ public sealed class TrialLocalIdentityService(
         TrialIdentityUserRecord? row = await _repository.GetByNormalizedEmailAsync(normalized, cancellationToken);
 
         if (row is null)
+        {
+            _passwordHasher.HashPassword(new TrialIdentityHasherUser(), AuthenticationTimingDummyPassword);
+
             return null;
+        }
 
         if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow)
             return null;
@@ -114,7 +131,6 @@ public sealed class TrialLocalIdentityService(
             DateTimeOffset? lockoutEnd = null;
 
             if (fails >= _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout)
-
                 lockoutEnd = DateTimeOffset.UtcNow.AddMinutes(_trial.LocalIdentity.LockoutMinutes);
 
             await _repository.RecordAccessFailedAsync(normalized, fails, lockoutEnd, cancellationToken);
@@ -133,5 +149,45 @@ public sealed class TrialLocalIdentityService(
     {
         if (!TrialAuthModeConstants.HasMode(_trial.Modes, TrialAuthModeConstants.LocalIdentity))
             throw new InvalidOperationException("Auth:Trial:Modes does not include LocalIdentity.");
+    }
+
+    private static string CreateRawVerificationToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+    }
+
+    private static TrialLocalRegistrationResult CreateOpaqueRegistrationResult()
+    {
+        return new TrialLocalRegistrationResult
+        {
+            UserId = Guid.NewGuid(), VerificationToken = CreateRawVerificationToken()
+        };
+    }
+
+    private void QueueAccountAlreadyExistsNotice(string displayEmail)
+    {
+        Task task = SendAccountAlreadyExistsBestEffortAsync(displayEmail);
+        _ = task;
+    }
+
+    private async Task SendAccountAlreadyExistsBestEffortAsync(string displayEmail)
+    {
+        try
+        {
+            await _accountExistsNotifier
+                .NotifyAccountAlreadyExistsAsync(displayEmail, CancellationToken.None)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning(
+                    ex,
+                    "Failed to send trial local duplicate-registration notice for {Email}.",
+                    displayEmail);
+        }
     }
 }

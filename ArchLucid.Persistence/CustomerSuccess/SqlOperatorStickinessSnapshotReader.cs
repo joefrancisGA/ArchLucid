@@ -164,25 +164,20 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
                 cancellationToken: cancellationToken));
 
         return new PilotFunnelSnapshot(
-            ToDateTimeOffset(row.FirstRunUtc),
-            ToDateTimeOffset(row.FirstManifestUtc),
-            ToDateTimeOffset(row.FirstComparisonUtc),
-            ToDateTimeOffset(row.FirstDownloadUtc),
-            ToDateTimeOffset(row.FirstReplayUtc),
+            ToNullableUtcDateTime(row.FirstRunUtc),
+            ToNullableUtcDateTime(row.FirstManifestUtc),
+            ToNullableUtcDateTime(row.FirstComparisonUtc),
+            ToNullableUtcDateTime(row.FirstDownloadUtc),
+            ToNullableUtcDateTime(row.FirstReplayUtc),
             ToInt(row.TotalRuns),
             ToInt(row.CommittedRuns),
             ToInt(row.PlSignals90d));
     }
 
-    private static int ToInt(object? v) => v switch
-    {
-        null => 0,
-        int i => i,
-        long l => l > int.MaxValue ? int.MaxValue : (int)l,
-        _ => Convert.ToInt32(v, System.Globalization.CultureInfo.InvariantCulture)
-    };
+    // COUNT_BIG returns bigint; cap to int range for domain model compatibility.
+    private static int ToInt(long v) => v > int.MaxValue ? int.MaxValue : (int)v;
 
-    private static DateTime? ToDateTimeOffset(DateTime? utc)
+    private static DateTime? ToNullableUtcDateTime(DateTime? utc)
     {
         if (utc is null)
             return null;
@@ -192,85 +187,22 @@ public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory co
 
     private sealed class OperatorSignalsRow
     {
-        public object? TotalRuns
-        {
-            get;
-            init;
-        }
-
-        public object? CommittedRuns
-        {
-            get;
-            init;
-        }
-
-        public Guid? LatestRunId
-        {
-            get;
-            init;
-        }
-
-        public object? Comparisons30d
-        {
-            get;
-            init;
-        }
-
-        public object? GovPending
-        {
-            get;
-            init;
-        }
+        public long TotalRuns { get; init; }
+        public long CommittedRuns { get; init; }
+        public Guid? LatestRunId { get; init; }
+        public long Comparisons30d { get; init; }
+        public long GovPending { get; init; }
     }
 
     private sealed class FunnelRow
     {
-        public DateTime? FirstRunUtc
-        {
-            get;
-            init;
-        }
-
-        public DateTime? FirstManifestUtc
-        {
-            get;
-            init;
-        }
-
-        public DateTime? FirstComparisonUtc
-        {
-            get;
-            init;
-        }
-
-        public DateTime? FirstDownloadUtc
-        {
-            get;
-            init;
-        }
-
-        public DateTime? FirstReplayUtc
-        {
-            get;
-            init;
-        }
-
-        public object? TotalRuns
-        {
-            get;
-            init;
-        }
-
-        public object? CommittedRuns
-        {
-            get;
-            init;
-        }
-
-        public object? PlSignals90d
-        {
-            get;
-            init;
-        }
+        public DateTime? FirstRunUtc { get; init; }
+        public DateTime? FirstManifestUtc { get; init; }
+        public DateTime? FirstComparisonUtc { get; init; }
+        public DateTime? FirstDownloadUtc { get; init; }
+        public DateTime? FirstReplayUtc { get; init; }
+        public long TotalRuns { get; init; }
+        public long CommittedRuns { get; init; }
+        public long PlSignals90d { get; init; }
     }
 }

@@ -29,6 +29,21 @@ const skipStandaloneOutput =
   process.env.ARCHLUCID_SKIP_STANDALONE_OUTPUT === "1" ||
   process.env.ARCHLUCID_SKIP_STANDALONE_OUTPUT === "true";
 
+/**
+ * `next-font-manifest.json` is emitted by the client webpack compiler but consumed while collecting page data.
+ * Default separate webpack compiler workers have intermittently finished the worker subprocess before all emitted
+ * assets are visible on disk on Windows, yielding MODULE_NOT_FOUND for `.next/server/next-font-manifest.json`.
+ * Building compilers in-process avoids that race; Linux CI keeps default worker behavior for throughput.
+ *
+ * Override: `ARCHLUCID_NEXT_WEBPACK_BUILD_WORKER=1` or `true` re-enables workers on Windows when investigating perf.
+ */
+const forceWebpackBuildWorker =
+  process.env.ARCHLUCID_NEXT_WEBPACK_BUILD_WORKER === "1" ||
+  process.env.ARCHLUCID_NEXT_WEBPACK_BUILD_WORKER === "true";
+
+const disableWebpackBuildWorkerOnWindows =
+  process.platform === "win32" && !forceWebpackBuildWorker;
+
 const nextConfig: NextConfig = {
   /** Production/Docker `next build` must not typecheck Vitest-only roots (`testing/`, `vitest.*.ts`). IDE keeps `tsconfig.json`. */
   typescript: {
@@ -42,6 +57,7 @@ const nextConfig: NextConfig = {
   // `page_client-reference-manifest.js` during `Collecting build traces` (upstream Next + NFT).
   // Docker/Linux builds are unaffected; set ARCHLUCID_SKIP_STANDALONE_OUTPUT=1 locally to finish `npm run build`.
   ...(skipStandaloneOutput ? {} : { output: "standalone" as const }),
+  ...(disableWebpackBuildWorkerOnWindows ? { experimental: { webpackBuildWorker: false } } : {}),
   transpilePackages: ["reactflow"],
   async headers() {
     return [

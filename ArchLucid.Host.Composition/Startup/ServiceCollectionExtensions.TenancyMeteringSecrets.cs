@@ -1,4 +1,5 @@
 using ArchLucid.Application.Identity;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Metering;
@@ -35,6 +36,7 @@ public static partial class ServiceCollectionExtensions
                 client.BaseAddress = new Uri("https://api.pwnedpasswords.com/");
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Add-Padding", "true");
             });
+        services.AddScoped<ITrialLocalIdentityAccountExistsNotifier, TrialLocalIdentityAccountExistsEmailNotifier>();
         services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
