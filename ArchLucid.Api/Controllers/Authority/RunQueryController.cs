@@ -15,6 +15,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
@@ -110,13 +111,13 @@ public sealed class RunQueryController(
     [HttpGet("telemetry/roi")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRoiTelemetry(
-        [FromServices] ArchLucid.Persistence.Connections.IDbConnectionFactory db,
+        [FromServices] IDbConnectionFactory db,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        
-        using System.Data.IDbConnection connection = await db.CreateConnectionAsync(cancellationToken);
-        
+
+        using System.Data.IDbConnection connection = await db.CreateOpenConnectionAsync(cancellationToken);
+
         const string sql = @"
             SELECT 
                 COUNT(*) as TotalRuns,
