@@ -74,17 +74,15 @@ public sealed class TenantCustomerSuccessControllerTests
     public async Task GetHealthScoreAsync_returns_scores_when_repository_has_row()
     {
         DateTimeOffset updated = DateTimeOffset.Parse("2026-04-19T12:00:00Z");
-        TenantHealthScoreRecord row = new()
-        {
-            TenantId = Scope.TenantId,
-            EngagementScore = 4.1M,
-            BreadthScore = 3.0M,
-            QualityScore = 3.0M,
-            GovernanceScore = 3.5M,
-            SupportScore = 3.2M,
-            CompositeScore = 3.6M,
-            UpdatedUtc = updated
-        };
+        TenantHealthScoreRecord row = new(
+            Scope.TenantId,
+            EngagementScore: 4.1M,
+            BreadthScore: 3.0M,
+            QualityScore: 3.0M,
+            GovernanceScore: 3.5M,
+            SupportScore: 3.2M,
+            CompositeScore: 3.6M,
+            UpdatedUtc: updated);
         Mock<ITenantCustomerSuccessRepository> repo = new();
         repo.Setup(r =>
                 r.GetHealthScoreAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,

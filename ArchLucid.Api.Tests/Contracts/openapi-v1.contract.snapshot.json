@@ -2487,9 +2487,6 @@
             },
             "type": "array"
           },
-          "hasCommittedArchitectureReview": {
-            "type": "boolean"
-          },
           "name": {
             "type": [
               "null",

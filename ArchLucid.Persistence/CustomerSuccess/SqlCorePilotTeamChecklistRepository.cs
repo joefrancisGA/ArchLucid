@@ -105,28 +105,9 @@ public sealed class SqlCorePilotTeamChecklistRepository(
 
     private sealed class Row
     {
-        public int StepIndex
-        {
-            get;
-            init;
-        }
-
-        public bool IsCompleted
-        {
-            get;
-            init;
-        }
-
-        public DateTime UpdatedUtc
-        {
-            get;
-            init;
-        }
-
-        public string? UpdatedByUserId
-        {
-            get;
-            init;
-        }
+        public int StepIndex { get; init; }
+        public bool IsCompleted { get; init; }
+        public DateTime UpdatedUtc { get; init; }
+        public string? UpdatedByUserId { get; init; }
     }
 }
