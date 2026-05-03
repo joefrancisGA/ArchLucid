@@ -23,4 +23,21 @@ public static class AgentCompletionTokenUsage
         inputTokens = null;
         outputTokens = null;
     }
+
+    /// <summary>
+    ///     Peeks <paramref name="inputTokens" /> and <paramref name="outputTokens" /> without consuming them.
+    /// </summary>
+    public static void TryPeek(out int? inputTokens, out int? outputTokens)
+    {
+        if (AzureOpenAiCompletionClient.TryPeekLastCompletionTokenUsage(out int p, out int c) && (p > 0 || c > 0))
+        {
+            inputTokens = p;
+            outputTokens = c;
+
+            return;
+        }
+
+        inputTokens = null;
+        outputTokens = null;
+    }
 }

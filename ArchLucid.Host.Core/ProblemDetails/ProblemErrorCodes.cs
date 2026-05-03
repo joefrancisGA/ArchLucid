@@ -55,6 +55,10 @@ public static class ProblemErrorCodes
 
     public const string RequestPayloadTooLarge = "REQUEST_PAYLOAD_TOO_LARGE";
 
+    public const string CostLimitExceeded = "COST_LIMIT_EXCEEDED";
+
+    public const string GraphResolutionFailed = "GRAPH_RESOLUTION_FAILED";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -129,6 +133,12 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.RequestPayloadTooLarge)
             return RequestPayloadTooLarge;
+
+        if (problemTypeUri == ProblemTypes.CostLimitExceeded)
+            return CostLimitExceeded;
+
+        if (problemTypeUri == ProblemTypes.GraphResolutionFailed)
+            return GraphResolutionFailed;
 
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;

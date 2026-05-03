@@ -82,6 +82,28 @@ public sealed class AgentOutputEvaluationRecorder(
             ArchLucidInstrumentation.AgentOutputSemanticScore.Record(semanticScore.OverallSemanticScore, tags);
 
             AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(score, semanticScore);
+
+            bool hasCitations = false;
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(trace.ParsedResultJson);
+                if (doc.RootElement.TryGetProperty("citations", out JsonElement citationsElement) &&
+                    citationsElement.ValueKind == JsonValueKind.Array &&
+                    citationsElement.GetArrayLength() > 0)
+                {
+                    hasCitations = true;
+                }
+            }
+            catch
+            {
+                // Ignore parse errors here, handled by evaluator
+            }
+
+            if (!hasCitations)
+            {
+                gateOutcome = AgentOutputQualityGateOutcome.Rejected;
+            }
+
             TagList gateTags = new()
             {
                 { "agent_type", agentLabel }, { "outcome", gateOutcome.ToString().ToLowerInvariant() }

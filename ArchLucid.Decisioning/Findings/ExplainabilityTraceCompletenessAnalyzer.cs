@@ -21,25 +21,26 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         bool hasDecisions = ListHasMeaningfulContent(trace.DecisionsTaken);
         bool hasAlt = ListHasMeaningfulContent(trace.AlternativePathsConsidered);
         bool hasNotes = ListHasMeaningfulContent(trace.Notes);
+        bool hasCitations = ListHasMeaningfulContent(trace.Citations);
 
         int populated = 0;
 
         if (hasGraph)
-
             populated++;
 
         if (hasRules)
-
             populated++;
 
         if (hasDecisions)
-
             populated++;
 
         if (hasAlt)
             populated++;
 
         if (hasNotes)
+            populated++;
+
+        if (hasCitations)
             populated++;
 
         List<string> missing = [];
@@ -59,6 +60,9 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         if (!hasNotes)
             missing.Add("Notes");
 
+        if (!hasCitations)
+            missing.Add("Citations");
+
         return new TraceCompletenessScore
         {
             FindingId = finding.FindingId,
@@ -68,8 +72,9 @@ public static class ExplainabilityTraceCompletenessAnalyzer
             HasDecisionsTaken = hasDecisions,
             HasAlternativePaths = hasAlt,
             HasNotes = hasNotes,
+            HasCitations = hasCitations,
             PopulatedFieldCount = populated,
-            CompletenessRatio = populated / 5.0,
+            CompletenessRatio = populated / 6.0,
             MissingTraceFields = missing,
         };
     }
@@ -104,7 +109,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
                     RulesAppliedPopulatedCount = list.Count(x => x.HasRulesApplied),
                     DecisionsTakenPopulatedCount = list.Count(x => x.HasDecisionsTaken),
                     AlternativePathsPopulatedCount = list.Count(x => x.HasAlternativePaths),
-                    NotesPopulatedCount = list.Count(x => x.HasNotes)
+                    NotesPopulatedCount = list.Count(x => x.HasNotes),
+                    CitationsPopulatedCount = list.Count(x => x.HasCitations)
                 };
             })
             .ToList();

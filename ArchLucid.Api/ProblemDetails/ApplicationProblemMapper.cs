@@ -117,6 +117,30 @@ public static class ApplicationProblemMapper
             return true;
         }
 
+        if (ex is CostLimitExceededException cle)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status402PaymentRequired,
+                "Cost Limit Exceeded",
+                cle.Message,
+                ProblemTypes.CostLimitExceeded,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        if (ex is GraphResolutionException gre)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status422UnprocessableEntity,
+                "Graph Resolution Failed",
+                gre.Message,
+                ProblemTypes.GraphResolutionFailed,
+                instance,
+                httpContext);
+            return true;
+        }
+
         if (ex is InvalidOperationException ioe)
         {
             result = MapInvalidOperation(ioe, instance, ProblemTypes.BadRequest, httpContext);

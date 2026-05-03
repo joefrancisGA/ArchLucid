@@ -177,6 +177,25 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         return false;
     }
 
+    /// <summary>Peeks token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow without consuming it.</summary>
+    public static bool TryPeekLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
+    {
+        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
+
+        if (raw is { } v)
+        {
+            promptTokens = v.Prompt;
+            completionTokens = v.Completion;
+
+            return true;
+        }
+
+        promptTokens = 0;
+        completionTokens = 0;
+
+        return false;
+    }
+
     /// <summary>
     ///     Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata" /> (internals visible to
     ///     AgentRuntime.Tests).

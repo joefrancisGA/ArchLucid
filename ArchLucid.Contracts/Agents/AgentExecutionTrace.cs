@@ -267,4 +267,13 @@ public sealed class AgentExecutionTrace
         get;
         set;
     }
+
+    /// <summary>
+    ///     Source citations linking AI-generated findings to specific policies or evidence.
+    /// </summary>
+    public IEnumerable<Citation>? Citations
+    {
+        get;
+        set;
+    }
 }

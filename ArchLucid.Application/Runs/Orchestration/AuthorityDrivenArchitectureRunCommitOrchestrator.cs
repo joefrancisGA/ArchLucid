@@ -17,6 +17,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -480,7 +481,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
         try
         {
-            using System.Data.IDbConnection connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+            using System.Data.IDbConnection connection = await _dbConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
             const string sql = @"
                 INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
                 VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved)";
