@@ -827,16 +827,20 @@ jobs:
           # Demo seed / schema bootstrap use SqlRowLevelSecurityBypassAmbient when RLS session context is on.
           ARCHLUCID_ALLOW_RLS_BYPASS: "true"
           ArchLucid__Persistence__AllowRlsBypass: "true"
+          # Readiness includes data_consistency, which requires at least one reconciliation pass. Env wins over
+          # appsettings when using an older Release output snapshot; single-process CI: skip SQL leader leases.
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/greenfield-boot.log" 2>&1 &
           echo $! > "${RUNNER_TEMP}/greenfield-boot.pid"
-          for i in $(seq 1 90); do
+          for i in $(seq 1 180); do
             if curl -fsS http://127.0.0.1:5128/health/ready; then
               echo "API ready."
               exit 0
             fi
-            if [ "$i" -eq 90 ]; then
+            if [ "$i" -eq 180 ]; then
               echo "::error::API did not reach /health/ready in time"
               tail -n 200 "${RUNNER_TEMP}/greenfield-boot.log" || true
               exit 1
