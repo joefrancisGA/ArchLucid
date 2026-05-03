@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Application.QuickScan;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;

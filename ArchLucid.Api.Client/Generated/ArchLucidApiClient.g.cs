@@ -36962,9 +36962,15 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("category")]
         public string? Category { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
+        public int? ConfidenceLevel { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
+        public int? EvaluationConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
         public System.Collections.Generic.ICollection<string>? EvidenceRefs { get; set; } = default!;
@@ -41238,12 +41244,18 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("category")]
         public string? Category { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
+        public int? ConfidenceLevel { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
         public string? EngineType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
+        public int? EvaluationConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("findingId")]
         public string? FindingId { get; set; } = default!;
@@ -41446,11 +41458,17 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("alternativePathsConsidered")]
         public System.Collections.Generic.ICollection<string>? AlternativePathsConsidered { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
+        public int? ConfidenceLevel { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("decisionsTaken")]
         public System.Collections.Generic.ICollection<string>? DecisionsTaken { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("engineType")]
         public string? EngineType { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
+        public int? EvaluationConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
         public FindingExplainabilityEvidence? Evidence { get; set; } = default!;
@@ -41544,6 +41562,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("auditRowId")]
         public System.Guid? AuditRowId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
+        public int? ConfidenceLevel { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("confidenceScore")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? ConfidenceScore { get; set; } = default!;
@@ -41553,6 +41574,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("decisionRuleName")]
         public string? DecisionRuleName { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
+        public int? EvaluationConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidence")]
         public System.Collections.Generic.ICollection<FindingInspectEvidenceItem>? Evidence { get; set; } = default!;
@@ -41722,6 +41746,12 @@ namespace ArchLucid.Api.Client.Generated
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class FindingTraceConfidenceDto
     {
+
+        [System.Text.Json.Serialization.JsonPropertyName("confidenceLevel")]
+        public int? ConfidenceLevel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("evaluationConfidenceScore")]
+        public int? EvaluationConfidenceScore { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("evidenceRefCount")]
         public int? EvidenceRefCount { get; set; } = default!;

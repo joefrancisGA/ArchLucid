@@ -33,7 +33,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         string countSql = $"""
                              SELECT COUNT(1)
                              FROM dbo.ScimUsers u
-                             WHERE u.TenantId = @TenantId AND ({whereExtra});
+                             WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra});
                              """;
 
         int total = await connection.ExecuteScalarAsync<int>(
@@ -48,9 +48,9 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         string listSql = $"""
                             SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                   u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
+                                   u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                             FROM dbo.ScimUsers u
-                            WHERE u.TenantId = @TenantId AND ({whereExtra})
+                            WHERE u.TenantId = @TenantId AND u.DirectoryRemovedUtc IS NULL AND ({whereExtra})
                             ORDER BY u.CreatedUtc
                             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
                             """;
@@ -68,7 +68,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         const string sql = """
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                  u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
+                                  u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId AND u.Id = @Id;
                            """;
@@ -89,7 +89,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         const string sql = """
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                  u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
+                                  u.ResolvedRoleOrigin, u.DirectoryRemovedUtc, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId AND u.ExternalId = @ExternalId;
                            """;
@@ -116,7 +116,8 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         const string sql = """
                            INSERT INTO dbo.ScimUsers (TenantId, ExternalId, UserName, DisplayName, Active, ResolvedRole, ResolvedRoleOrigin)
                            OUTPUT INSERTED.Id, INSERTED.TenantId, INSERTED.ExternalId, INSERTED.UserName, INSERTED.DisplayName,
-                                  INSERTED.Active, INSERTED.ResolvedRole, INSERTED.ResolvedRoleOrigin, INSERTED.CreatedUtc, INSERTED.UpdatedUtc
+                                  INSERTED.Active, INSERTED.ResolvedRole, INSERTED.ResolvedRoleOrigin, INSERTED.DirectoryRemovedUtc,
+                                  INSERTED.CreatedUtc, INSERTED.UpdatedUtc
                            VALUES (@TenantId, @ExternalId, @UserName, @DisplayName, @Active, @ResolvedRole, @ResolvedRoleOrigin);
                            """;
 
@@ -235,6 +236,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         const string sql = """
                            UPDATE dbo.ScimUsers
                            SET Active = 0,
+                               DirectoryRemovedUtc = COALESCE(DirectoryRemovedUtc, SYSUTCDATETIME()),
                                UpdatedUtc = SYSUTCDATETIME()
                            WHERE Id = @Id AND TenantId = @TenantId;
                            """;
@@ -341,6 +343,12 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
             init;
         }
 
+        public DateTimeOffset? DirectoryRemovedUtc
+        {
+            get;
+            init;
+        }
+
         internal ScimUserRecord ToRecord()
         {
             return new ScimUserRecord
@@ -353,6 +361,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                 Active = Active,
                 ResolvedRole = ResolvedRole,
                 ResolvedRoleOrigin = (ScimResolvedRoleOrigin)ResolvedRoleOrigin,
+                DirectoryRemovedUtc = DirectoryRemovedUtc,
                 CreatedUtc = CreatedUtc,
                 UpdatedUtc = UpdatedUtc
             };

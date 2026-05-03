@@ -1,4 +1,3 @@
-using ArchLucid.Application.QuickScan;
 using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Coordinator;

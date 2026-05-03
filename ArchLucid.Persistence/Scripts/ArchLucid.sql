@@ -5797,6 +5797,12 @@ GO
 UPDATE dbo.ScimUsers SET ResolvedRoleOrigin = 2 WHERE ResolvedRoleOrigin = 0 AND ResolvedRole IS NOT NULL;
 GO
 
+/* 140: SCIM directory removal timestamp — DELETE vs PATCH disable (see Migrations/140_ScimUsers_DirectoryRemovedUtc.sql). */
+IF OBJECT_ID(N'dbo.ScimUsers', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ScimUsers', N'DirectoryRemovedUtc') IS NULL
+    ALTER TABLE dbo.ScimUsers ADD DirectoryRemovedUtc DATETIME2(7) NULL;
+GO
+
 IF OBJECT_ID(N'dbo.AdminNotifications', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.AdminNotifications

@@ -20,7 +20,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
     {
         _ = cancellationToken;
 
-        List<ScimUserRecord> all = _byId.Values.Where(u => u.TenantId == tenantId).ToList();
+        List<ScimUserRecord> all = _byId.Values.Where(u => u.TenantId == tenantId && u.DirectoryRemovedUtc is null).ToList();
         IEnumerable<ScimUserRecord> filtered = all.Where(u => ScimFilterInMemoryEvaluator.Matches(u, filter)).ToList();
         int total = filtered.Count();
         int offset = Math.Max(0, startIndex1Based - 1);
@@ -73,6 +73,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             Active = active,
             ResolvedRole = resolvedRole,
             ResolvedRoleOrigin = resolvedRoleOrigin,
+            DirectoryRemovedUtc = null,
             CreatedUtc = now,
             UpdatedUtc = now
         };
@@ -111,6 +112,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             Active = active,
             ResolvedRole = resolvedRole,
             ResolvedRoleOrigin = resolvedRoleOrigin,
+            DirectoryRemovedUtc = existing.DirectoryRemovedUtc,
             CreatedUtc = existing.CreatedUtc,
             UpdatedUtc = now
         };
@@ -146,6 +148,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             Active = active ?? e.Active,
             ResolvedRole = resolvedRole ?? e.ResolvedRole,
             ResolvedRoleOrigin = resolvedRoleOrigin,
+            DirectoryRemovedUtc = e.DirectoryRemovedUtc,
             CreatedUtc = e.CreatedUtc,
             UpdatedUtc = DateTimeOffset.UtcNow
         };
@@ -164,6 +167,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             return Task.CompletedTask;
 
 
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         _byId[id] = new ScimUserRecord
         {
             Id = id,
@@ -174,8 +178,9 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             Active = false,
             ResolvedRole = e.ResolvedRole,
             ResolvedRoleOrigin = e.ResolvedRoleOrigin,
+            DirectoryRemovedUtc = e.DirectoryRemovedUtc ?? now,
             CreatedUtc = e.CreatedUtc,
-            UpdatedUtc = DateTimeOffset.UtcNow
+            UpdatedUtc = now
         };
 
         return Task.CompletedTask;
