@@ -1,10 +1,9 @@
 using System.Text.Json;
-using ArchLucid.AgentRuntime;
+
+using ArchLucid.Application.QuickScan;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
-
-using ArchLucid.Application.QuickScan;
 
 namespace ArchLucid.AgentRuntime.QuickScan;
 
@@ -20,8 +19,10 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
 
     public async Task<QuickScanResult> ScanAsync(IReadOnlyDictionary<string, string> files, CancellationToken cancellationToken = default)
     {
-        if (files is null) throw new ArgumentNullException(nameof(files));
-        if (completionClient is null) throw new ArgumentNullException(nameof(completionClient));
+        if (files is null)
+            throw new ArgumentNullException(nameof(files));
+        if (completionClient is null)
+            throw new ArgumentNullException(nameof(completionClient));
 
         string userPrompt = JsonSerializer.Serialize(files);
         string jsonResponse = await completionClient.CompleteJsonAsync(SystemPrompt, userPrompt, cancellationToken);
@@ -39,26 +40,26 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
                 : string.Empty;
 
             List<ArchitectureFinding> findings = [];
-            if (root.TryGetProperty("findings", out JsonElement findingsElement) && findingsElement.ValueKind == JsonValueKind.Array)
+            if (!root.TryGetProperty("findings", out JsonElement findingsElement) || findingsElement.ValueKind != JsonValueKind.Array)
+                return new QuickScanResult { Summary = summary, Findings = findings };
+
+            foreach (JsonElement findingElement in findingsElement.EnumerateArray())
             {
-                foreach (JsonElement findingElement in findingsElement.EnumerateArray())
+                string category = findingElement.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "General" : "General";
+                string message = findingElement.TryGetProperty("message", out JsonElement m) ? m.GetString() ?? string.Empty : string.Empty;
+                string severityStr = findingElement.TryGetProperty("severity", out JsonElement s) ? s.GetString() ?? "Info" : "Info";
+
+                if (!Enum.TryParse(severityStr, true, out FindingSeverity severity))
+                    severity = FindingSeverity.Info;
+
+                findings.Add(new ArchitectureFinding
                 {
-                    string category = findingElement.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "General" : "General";
-                    string message = findingElement.TryGetProperty("message", out JsonElement m) ? m.GetString() ?? string.Empty : string.Empty;
-                    string severityStr = findingElement.TryGetProperty("severity", out JsonElement s) ? s.GetString() ?? "Info" : "Info";
-
-                    if (!Enum.TryParse(severityStr, true, out FindingSeverity severity))
-                        severity = FindingSeverity.Info;
-
-                    findings.Add(new ArchitectureFinding
-                    {
-                        Category = category,
-                        Message = message,
-                        Severity = severity,
-                        FindingId = Guid.NewGuid().ToString("N"),
-                        SourceAgent = AgentType.Topology // Using Topology as a generic source for quick scan
-                    });
-                }
+                    Category = category,
+                    Message = message,
+                    Severity = severity,
+                    FindingId = Guid.NewGuid().ToString("N"),
+                    SourceAgent = AgentType.Topology // Using Topology as a generic source for quick scan
+                });
             }
 
             return new QuickScanResult
