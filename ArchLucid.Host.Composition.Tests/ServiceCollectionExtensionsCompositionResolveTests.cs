@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Application.Runs.Orchestration;
@@ -40,7 +42,9 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IAgentCompletionClient client = scope.ServiceProvider.GetRequiredService<IAgentCompletionClient>();
 
         client.Should().NotBeNull();
-        client.Should().BeOfType<CircuitBreakingAgentCompletionClient>();
+        client.Should().BeOfType<CostGuardrailInterceptor>();
+        DecoratorChainContains<CircuitBreakingAgentCompletionClient>(client).Should().BeTrue(
+            "the Azure completion pipeline wraps telemetry/budget layers with a circuit breaker");
     }
 
     [Fact]
@@ -57,7 +61,8 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         await using AsyncServiceScope scope = provider.CreateAsyncScope();
         IAgentCompletionClient client = scope.ServiceProvider.GetRequiredService<IAgentCompletionClient>();
 
-        client.Should().BeOfType<FallbackAgentCompletionClient>();
+        client.Should().BeOfType<CostGuardrailInterceptor>();
+        DecoratorChainContains<FallbackAgentCompletionClient>(client).Should().BeTrue();
     }
 
     [Fact]
@@ -281,6 +286,29 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         data["ArchLucid:FallbackLlm:DeploymentName"] = "gpt-fallback-test";
 
         return data;
+    }
+
+    /// <summary>True if <paramref name="node" /> is <typeparamref name="T" /> or holds it in any non-public <see cref="IAgentCompletionClient" /> field (e.g. _inner, _primary).</summary>
+    private static bool DecoratorChainContains<T>(object? node) where T : class
+    {
+        if (node is T)
+            return true;
+
+        if (node is null)
+            return false;
+
+        foreach (FieldInfo field in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic))
+        {
+            if (!typeof(IAgentCompletionClient).IsAssignableFrom(field.FieldType))
+                continue;
+
+            object? next = field.GetValue(node);
+
+            if (next is not null && DecoratorChainContains<T>(next))
+                return true;
+        }
+
+        return false;
     }
 
     private static Dictionary<string, string?> CreateSimulatorCompositionDictionary()

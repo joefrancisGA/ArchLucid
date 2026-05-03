@@ -44,9 +44,14 @@ public sealed class ScimUserService(
     }
 
     /// <inheritdoc />
-    public Task<ScimUserRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
+    public async Task<ScimUserRecord?> GetAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
-        return _users.GetByIdAsync(tenantId, id, cancellationToken);
+        ScimUserRecord? u = await _users.GetByIdAsync(tenantId, id, cancellationToken);
+
+        if (u is null || u.DirectoryRemovedUtc is not null)
+            return null;
+
+        return u;
     }
 
     /// <inheritdoc />
@@ -95,6 +100,9 @@ public sealed class ScimUserService(
         ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
                                   ?? throw new ScimNotFoundException("User not found.");
 
+        if (existing.DirectoryRemovedUtc is not null)
+            throw new ScimNotFoundException("User not found.");
+
         (string userName, string? displayName, bool active, string externalId) =
             ScimUserResourceParser.ParseUser(resource);
 
@@ -130,6 +138,9 @@ public sealed class ScimUserService(
     {
         ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
                                   ?? throw new ScimNotFoundException("User not found.");
+
+        if (existing.DirectoryRemovedUtc is not null)
+            throw new ScimNotFoundException("User not found.");
 
         Dictionary<string, JsonElement> current = BuildFlatMap(existing);
 

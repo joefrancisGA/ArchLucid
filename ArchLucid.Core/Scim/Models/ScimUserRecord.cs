@@ -61,4 +61,11 @@ public sealed class ScimUserRecord
         get;
         init;
     }
+
+    /// <summary>When set, the user was removed via SCIM DELETE and must not appear in GET/LIST (PATCH active=false does not set this).</summary>
+    public DateTimeOffset? DirectoryRemovedUtc
+    {
+        get;
+        init;
+    }
 }
