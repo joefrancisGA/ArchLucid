@@ -190,6 +190,25 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             SourceHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         };
 
+        // FK_ContextSnapshots_Runs_RunId requires a dbo.Runs row before Save inserts ContextSnapshots.
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            """
+            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+            VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
+            """,
+            new
+            {
+                snapshot.RunId,
+                snapshot.ProjectId,
+                snapshot.CreatedUtc,
+                TenantId,
+                WorkspaceId,
+                ScopeProjectId
+            },
+            cancellationToken: CancellationToken.None));
+
         await repository.SaveAsync(snapshot, CancellationToken.None);
     }
 }

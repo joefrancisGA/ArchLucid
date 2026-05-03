@@ -71,8 +71,11 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
 
-                    _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", LogSanitizer.Sanitize(leaseName),
-                        followerMs); // codeql[cs/exposure-of-sensitive-information]: coordinator lease names are operational keys (not secrets); scrubbed via LogSanitizer before logging.
+                    _logger.LogDebug(
+                        "Host leader lease not held for {LeaseName}; follower wait {Ms} ms.",
+                        LogSanitizer.Sanitize(
+                            leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
+                        followerMs);
 
                 try
                 {
@@ -88,9 +91,12 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
 
-                _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", LogSanitizer.Sanitize(leaseName),
+                _logger.LogInformation(
+                    "Acquired host leader lease {LeaseName} for instance {InstanceId}.",
                     LogSanitizer.Sanitize(
-                        id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
+                        leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
+                    LogSanitizer.Sanitize(
+                        id)); // codeql[cs/exposure-of-sensitive-information]: host instance id telemetry; sanitized; non-credential (CODEQL_TRIAGE.md).
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
             CancellationToken leaderToken = leaderCts.Token;
@@ -106,9 +112,10 @@ public sealed class HostLeaderElectionCoordinator(
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
 
-                    _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.",
+                    _logger.LogInformation(
+                        "Leader work for {LeaseName} stopped after lease loss or handoff.",
                         LogSanitizer.Sanitize(
-                            leaseName)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys are operational (not secrets); scrubbed via LogSanitizer.
+                            leaseName)); // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
             }
             finally
             {
@@ -162,9 +169,10 @@ public sealed class HostLeaderElectionCoordinator(
 
                     _logger.LogWarning(
                         "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-                        LogSanitizer.Sanitize(leaseName),
                         LogSanitizer.Sanitize(
-                            id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
+                            leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
+                        LogSanitizer.Sanitize(
+                            id)); // codeql[cs/exposure-of-sensitive-information]: host instance id telemetry; sanitized; non-credential (CODEQL_TRIAGE.md).
 
                 await leaderCts.CancelAsync();
 
