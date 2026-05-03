@@ -1,0 +1,15 @@
+---
+description: Route user-derived or operational identifiers into structured logs via Core sanitized logger extensions (CodeQL CWE-117 / noisy exposure rules).
+globs: "*.cs"
+alwaysApply: false
+---
+
+# CodeQL-friendly structured logging
+
+## Policy
+
+When logging **externally influenced strings** or **stable operational identifiers** that CodeQL may treat as sensitive (for example **`cs/log-forging`**, **`cs/exposure-of-sensitive-information`**):
+
+1. Prefer **`ArchLucid.Core.Diagnostics`** extension methods (**`SanitizedLoggerInformationExtensions`**, **`SanitizedLoggerWarningExtensions`** including **`LogWarningWithSanitizedUserArg`**, **`SanitizedLoggerDebugExtensions`**, **`SanitizedLoggerErrorExtensions`**, **`SanitizedLoggerHostLeaderElectionExtensions`**) instead of **`_logger.LogInformation`** / **`LogWarning`** / **`LogDebug`** with **`LogSanitizer.Sanitize`** repeated at feature call sites.
+2. Add new message shapes by **adding a named extension method** beside existing helpers: sanitize immediately above the **`ILogger`** sink; keep any required **`// codeql[…]`** on that sink or the line immediately before it (**`docs/library/CODEQL_TRIAGE.md`**).
+3. The **`LogSanitizer`** CodeQL pack covers **`cs/log-forging`** barrier modeling; Boxing through **`params object?[]`** may still require these helpers.

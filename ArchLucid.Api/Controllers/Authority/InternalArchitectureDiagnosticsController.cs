@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -9,6 +8,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;

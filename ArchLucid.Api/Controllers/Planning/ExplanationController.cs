@@ -1,10 +1,10 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
