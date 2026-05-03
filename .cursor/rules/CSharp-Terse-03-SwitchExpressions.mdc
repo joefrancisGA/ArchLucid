@@ -1,7 +1,7 @@
 ---
 description: Prefer switch expressions over switch statements when mapping an input to a single output.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Switch expressions for mapping

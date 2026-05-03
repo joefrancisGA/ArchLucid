@@ -1,7 +1,7 @@
 ---
 description: Prefer expression-bodied members (=>) for trivial methods, properties, ctors, and operators.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Expression-bodied members

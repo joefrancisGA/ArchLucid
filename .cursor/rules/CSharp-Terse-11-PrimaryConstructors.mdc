@@ -1,7 +1,7 @@
 ---
 description: Prefer C# 12 primary constructors for DI services and value-shaped types; keep null guards explicit.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Primary constructors

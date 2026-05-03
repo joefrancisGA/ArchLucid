@@ -1,9 +1,0 @@
----
-alwaysApply: true
----
-
-All systems should be described in a way that can be directly translated into diagrams:
-
-- Identify nodes, edges, and flows
-
-- Use clear component boundaries

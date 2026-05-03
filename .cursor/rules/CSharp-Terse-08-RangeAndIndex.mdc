@@ -1,7 +1,7 @@
 ---
 description: Prefer range and index operators (^, ..) for slicing and tail/head access.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Range `..` and index `^` operators

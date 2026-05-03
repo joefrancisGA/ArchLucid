@@ -1,7 +1,7 @@
 ---
 description: Prefer LINQ pipelines (Where / Select / Any / All / FirstOrDefault) with null-safety over manual foreach + accumulator loops.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # LINQ guard pipelines over manual loops

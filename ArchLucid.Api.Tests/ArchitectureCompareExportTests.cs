@@ -27,7 +27,9 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
@@ -35,19 +37,28 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        string rightVersion = "v1-replay";
+        const string requestedReplayManifestVersion = "v1-replay";
 
         var replayRequest = new
         {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = rightVersion
+            commitReplay = true, executionMode = "Current", manifestVersionOverride = requestedReplayManifestVersion
         };
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/replay", JsonContent(replayRequest));
+        HttpResponseMessage replayResponse =
+            await Client.PostAsync($"/v1/architecture/run/{runId}/replay", JsonContent(replayRequest));
+        replayResponse.EnsureSuccessStatusCode();
+
+        ReplayRunResponseDto? replayPayload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        replayPayload.Should().NotBeNull();
+        replayPayload!.Manifest.Should().NotBeNull();
+        string rightVersion = replayPayload.Manifest!.Metadata.ManifestVersion;
+        rightVersion.Should().Be(requestedReplayManifestVersion);
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/manifest/compare/export?leftVersion={Uri.EscapeDataString(leftVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
 
         ManifestCompareExportResponse? payload =
             await response.Content.ReadFromJsonAsync<ManifestCompareExportResponse>(JsonOptions);

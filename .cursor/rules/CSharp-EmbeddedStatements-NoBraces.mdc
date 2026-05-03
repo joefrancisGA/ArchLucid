@@ -1,7 +1,7 @@
 ---
 description: Omit braces for single embedded statements (if/for/foreach/while/else/lock/using) when legal
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # C# embedded statements: omit braces when one statement

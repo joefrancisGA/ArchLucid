@@ -1,7 +1,7 @@
 ---
 description: Prefer same-line guard clauses; especially if (…) return …; when the combined line stays short (see rule body).
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Same-line guard clauses
