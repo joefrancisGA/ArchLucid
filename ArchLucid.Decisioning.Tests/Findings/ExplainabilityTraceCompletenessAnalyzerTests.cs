@@ -23,18 +23,20 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
                 DecisionsTaken = ["d1"],
                 AlternativePathsConsidered = ["alt"],
                 Notes = ["note"],
+                Citations = ["src:1"],
             },
         };
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 
-        score.PopulatedFieldCount.Should().Be(5);
+        score.PopulatedFieldCount.Should().Be(6);
         score.CompletenessRatio.Should().Be(1.0);
         score.HasGraphNodeIds.Should().BeTrue();
         score.HasRulesApplied.Should().BeTrue();
         score.HasDecisionsTaken.Should().BeTrue();
         score.HasAlternativePaths.Should().BeTrue();
         score.HasNotes.Should().BeTrue();
+        score.HasCitations.Should().BeTrue();
         score.MissingTraceFields.Should().BeEmpty();
     }
 
@@ -55,7 +57,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
     }
 
     [Fact]
-    public void AnalyzeFinding_mixed_trace_three_of_five()
+    public void AnalyzeFinding_mixed_trace_three_of_six()
     {
         Finding finding = new()
         {
@@ -72,9 +74,9 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
 
         score.PopulatedFieldCount.Should().Be(3);
-        score.CompletenessRatio.Should().BeApproximately(0.6, 0.0001);
+        score.CompletenessRatio.Should().BeApproximately(0.5, 0.0001);
         score.MissingTraceFields.Should().BeEquivalentTo(
-            ["Alternative paths considered", "Notes"],
+            ["Alternative paths considered", "Notes", "Citations"],
             opts => opts.WithoutStrictOrdering());
     }
 
@@ -92,7 +94,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
 
         score.PopulatedFieldCount.Should().Be(0);
         score.CompletenessRatio.Should().Be(0.0);
-        score.MissingTraceFields.Should().HaveCount(5);
+        score.MissingTraceFields.Should().HaveCount(6);
     }
 
     [Fact]

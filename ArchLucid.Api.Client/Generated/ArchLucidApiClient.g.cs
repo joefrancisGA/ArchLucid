@@ -37885,6 +37885,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("claims")]
         public System.Collections.Generic.ICollection<CallerClaimResponse>? Claims { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("hasCommittedArchitectureReview")]
+        public bool? HasCommittedArchitectureReview { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public string? Name { get; set; } = default!;
 

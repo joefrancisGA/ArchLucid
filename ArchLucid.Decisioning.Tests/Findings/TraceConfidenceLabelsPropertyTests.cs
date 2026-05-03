@@ -29,7 +29,7 @@ public sealed class TraceConfidenceLabelsPropertyTests
     [Fact]
     public void AnalyzeFinding_completeness_ratio_in_range_for_all_trace_field_toggle_combinations()
     {
-        for (int mask = 0; mask < 32; mask++)
+        for (int mask = 0; mask < 64; mask++)
         {
             Finding f = new()
             {
@@ -45,6 +45,7 @@ public sealed class TraceConfidenceLabelsPropertyTests
                     DecisionsTaken = (mask & 4) != 0 ? ["d1"] : [],
                     AlternativePathsConsidered = (mask & 8) != 0 ? ["x"] : [],
                     Notes = (mask & 16) != 0 ? ["n"] : [],
+                    Citations = (mask & 32) != 0 ? ["c1"] : [],
                 },
             };
 

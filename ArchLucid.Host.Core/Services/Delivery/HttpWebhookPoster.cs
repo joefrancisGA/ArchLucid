@@ -13,10 +13,7 @@ namespace ArchLucid.Host.Core.Services.Delivery;
 /// <summary>POSTs JSON to external webhook URLs (Teams, Slack, on-call receivers).</summary>
 public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
-    private const string ClientName = "ArchLucidWebhooks";
-    private const int MaxAttempts = 4;
-    private const int InitialBackoffMilliseconds = 200;
-    private const int MaxBackoffMilliseconds = 10000;
+    public const string WebhookHttpClientName = "ArchLucidWebhooks";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -24,6 +21,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    /// <inheritdoc />
     public async Task PostJsonAsync(string url, object payload, CancellationToken ct, WebhookPostOptions? options = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(url);
@@ -31,7 +29,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
 
         _ = Uri.TryCreate(url, UriKind.Absolute, out Uri? webhookUri);
 
-        HttpClient client = httpClientFactory.CreateClient(ClientName);
+        HttpClient client = httpClientFactory.CreateClient(WebhookHttpClientName);
 
         string json = JsonSerializer.Serialize(payload, payload.GetType(), JsonOptions);
         byte[] body = Encoding.UTF8.GetBytes(json);
@@ -40,129 +38,88 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
         Guid telemetryTenantId = options?.TenantId ?? Guid.Empty;
         string targetAuthority = TelemetryTargetAuthority(webhookUri);
 
-        for (int attempt = 0; attempt < MaxAttempts; attempt++)
+        ct.ThrowIfCancellationRequested();
+
+        using HttpRequestMessage request = new(HttpMethod.Post, url);
+        request.Content = new ByteArrayContent(body);
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+
+        string? secret = options?.HmacSha256SharedSecret?.Trim();
+
+        if (!string.IsNullOrEmpty(secret))
         {
-            ct.ThrowIfCancellationRequested();
+            string hex = WebhookSignature.ComputeSha256Hex(secret, body);
+            request.Headers.TryAddWithoutValidation(WebhookSignature.HeaderName, WebhookSignature.Prefix + hex);
+        }
 
-            using HttpRequestMessage request = new(HttpMethod.Post, url);
-            request.Content = new ByteArrayContent(body);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+        long startTicks = Stopwatch.GetTimestamp();
 
-            string? secret = options?.HmacSha256SharedSecret?.Trim();
+        HttpResponseMessage transportResponse;
 
-            if (!string.IsNullOrEmpty(secret))
-            {
-                string hex = WebhookSignature.ComputeSha256Hex(secret, body);
-                request.Headers.TryAddWithoutValidation(WebhookSignature.HeaderName, WebhookSignature.Prefix + hex);
-            }
-
-            long startTicks = Stopwatch.GetTimestamp();
-
-            HttpResponseMessage transportResponse;
-
-            try
-            {
-                transportResponse =
-                    await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                RecordWebhookOutboundDeliveryAttempt(
-                    statusCode: null,
-                    startTicks,
-                    targetAuthority,
-                    telemetryEventType,
-                    telemetryTenantId,
-                    succeeded: false);
-
-                throw;
-            }
-            catch (HttpRequestException ex) when (attempt < MaxAttempts - 1)
-            {
-                RecordWebhookOutboundDeliveryAttempt(
-                    statusCode: null,
-                    startTicks,
-                    targetAuthority,
-                    telemetryEventType,
-                    telemetryTenantId,
-                    succeeded: false);
-
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(
-                        ex,
-                        "Webhook outbound POST transport error (attempt {Attempt}/{MaxAttempts}); retry scheduled.",
-                        attempt + 1,
-                        MaxAttempts);
-
-                await BackoffDelayAsync(attempt, ct).ConfigureAwait(false);
-                continue;
-            }
-            catch (HttpRequestException ex)
-            {
-                RecordWebhookOutboundDeliveryAttempt(
-                    statusCode: null,
-                    startTicks,
-                    targetAuthority,
-                    telemetryEventType,
-                    telemetryTenantId,
-                    succeeded: false);
-
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(ex, "Webhook outbound POST failed terminally before a response.");
-
-                throw;
-            }
-            catch (Exception ex)
-            {
-                RecordWebhookOutboundDeliveryAttempt(
-                    statusCode: null,
-                    startTicks,
-                    targetAuthority,
-                    telemetryEventType,
-                    telemetryTenantId,
-                    succeeded: false);
-
-                if (logger.IsEnabled(LogLevel.Warning))
-                    logger.LogWarning(ex, "Webhook outbound POST threw before a response.");
-
-                throw;
-            }
-
-            using HttpResponseMessage response = transportResponse;
-
-            HttpStatusCode code = response.StatusCode;
-
-            bool succeeded = response.IsSuccessStatusCode;
-
+        try
+        {
+            transportResponse =
+                await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
             RecordWebhookOutboundDeliveryAttempt(
-                (int?)code,
+                statusCode: null,
                 startTicks,
                 targetAuthority,
                 telemetryEventType,
                 telemetryTenantId,
-                succeeded);
+                succeeded: false);
 
-            if (succeeded)
-            {
-                if (attempt > 0 && logger.IsEnabled(LogLevel.Information))
-                    logger.LogInformation(
-                        "Webhook outbound POST succeeded after {RetryCount} retries.",
-                        attempt);
-
-                return;
-            }
-
-            if (IsTransientHttpStatus(code) && attempt < MaxAttempts - 1)
-            {
-                await BackoffDelayAsync(attempt, ct).ConfigureAwait(false);
-                continue;
-            }
-
-            throw new HttpRequestException(
-                $"Outbound webhook failed with HTTP {(int)code}.",
-                inner: null,
-                statusCode: code);
+            throw;
         }
+        catch (HttpRequestException ex)
+        {
+            RecordWebhookOutboundDeliveryAttempt(
+                statusCode: null,
+                startTicks,
+                targetAuthority,
+                telemetryEventType,
+                telemetryTenantId,
+                succeeded: false);
+
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(ex, "Webhook outbound POST transport error after outbound retries.");
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            RecordWebhookOutboundDeliveryAttempt(
+                statusCode: null,
+                startTicks,
+                targetAuthority,
+                telemetryEventType,
+                telemetryTenantId,
+                succeeded: false);
+
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(ex, "Webhook outbound POST threw before a response.");
+
+            throw;
+        }
+
+        using HttpResponseMessage response = transportResponse;
+
+        HttpStatusCode code = response.StatusCode;
+
+        bool succeeded = response.IsSuccessStatusCode;
+
+        RecordWebhookOutboundDeliveryAttempt(
+            (int?)code,
+            startTicks,
+            targetAuthority,
+            telemetryEventType,
+            telemetryTenantId,
+            succeeded);
+
+        if (!succeeded)
+            throw new HttpRequestException($"Outbound webhook failed with HTTP {(int)code}.", inner: null, statusCode: code);
     }
 
     private static string TelemetryTargetAuthority(Uri? absoluteUri)
@@ -252,22 +209,4 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
             ["archlucid.webhook.tenant_id"] = telemetryTenantId,
             ["archlucid.webhook.succeeded"] = succeeded,
         };
-
-    private static Task BackoffDelayAsync(int zeroBasedAttempt, CancellationToken ct)
-    {
-        int milliseconds = InitialBackoffMilliseconds * (1 << zeroBasedAttempt);
-
-        milliseconds = Math.Min(MaxBackoffMilliseconds, milliseconds);
-
-        return Task.Delay(TimeSpan.FromMilliseconds(milliseconds), ct);
-    }
-
-    /// <remarks>Retries are conservative: timeouts, explicit rate-limiting, or server faults.</remarks>
-    private static bool IsTransientHttpStatus(HttpStatusCode code)
-    {
-        if (code is HttpStatusCode.RequestTimeout or HttpStatusCode.TooManyRequests)
-            return true;
-
-        return (int)code >= 500;
-    }
 }

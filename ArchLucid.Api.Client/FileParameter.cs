@@ -19,9 +19,7 @@ public sealed class FileParameter
 
     public FileParameter(Stream data, string? fileName, string? contentType)
     {
-        if (data is null) throw new ArgumentNullException(nameof(data));
-
-        Data = data;
+        Data = data ?? throw new ArgumentNullException(nameof(data));
         FileName = fileName;
         ContentType = contentType;
     }

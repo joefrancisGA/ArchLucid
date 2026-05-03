@@ -193,9 +193,10 @@ public sealed class AgentOutputEvaluationRecorderTests
             NullLogger<AgentOutputEvaluationRecorder>.Instance,
             gateOpts);
 
+        // Top-level citations array must be non-empty or the recorder upgrades the gate to Rejected and skips QualityWarning patching.
         const string hollowJson =
             """
-            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
             """;
 
         await repo.CreateAsync(
