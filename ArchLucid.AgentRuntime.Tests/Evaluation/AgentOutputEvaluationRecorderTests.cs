@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Metrics;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -223,7 +223,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         AgentExecutionTrace? updated = await repo.GetByTraceIdAsync("t-quality-warn", CancellationToken.None);
 
         updated.Should().NotBeNull();
-        updated!.QualityWarning.Should().BeTrue("warn-only gate persists UI/summary signal on the trace row");
+        updated.QualityWarning.Should().BeTrue("warn-only gate persists UI/summary signal on the trace row");
     }
 
     [SkippableFact]

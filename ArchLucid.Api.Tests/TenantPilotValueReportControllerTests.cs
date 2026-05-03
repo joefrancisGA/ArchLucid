@@ -1,4 +1,4 @@
-﻿using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Controllers.Tenancy;
 using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
@@ -66,8 +66,8 @@ public sealed class TenantPilotValueReportControllerTests
     public async Task GetPilotValueReport_returns_markdown_when_accept_contains_text_markdown()
     {
         Mock<IPilotValueReportService> svc = new();
-        DateTime fromUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime toUtc = new DateTime(2026, 4, 30, 0, 0, 0, DateTimeKind.Utc);
+        DateTime fromUtc = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime toUtc = new(2026, 4, 30, 0, 0, 0, DateTimeKind.Utc);
         PilotValueReport body = new()
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),

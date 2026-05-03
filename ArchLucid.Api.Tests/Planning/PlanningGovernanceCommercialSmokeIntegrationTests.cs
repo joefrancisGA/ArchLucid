@@ -1,7 +1,4 @@
-﻿using System.Net;
-
-using ArchLucid.Api.Tests;
-using ArchLucid.Core.Scoping;
+using System.Net;
 
 using FluentAssertions;
 

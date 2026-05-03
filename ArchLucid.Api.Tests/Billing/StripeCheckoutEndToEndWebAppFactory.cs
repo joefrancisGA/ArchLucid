@@ -1,6 +1,5 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Persistence.Billing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
