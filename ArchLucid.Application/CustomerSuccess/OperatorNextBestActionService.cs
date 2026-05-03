@@ -45,7 +45,7 @@ public sealed class OperatorNextBestActionService(
                     10));
         }
 
-        if (signals.TotalRunsInScope > 0 && signals.CommittedRunsInScope == 0)
+        if (signals is { TotalRunsInScope: > 0, CommittedRunsInScope: 0 })
         {
             string href = signals.LatestRunId is { } id ? $"/reviews/{id:D}" : "/runs";
             items.Add(
@@ -57,7 +57,7 @@ public sealed class OperatorNextBestActionService(
                     20));
         }
 
-        if (signals.CommittedRunsInScope > 0 && signals.LatestRunId is { } runId)
+        if (signals is { CommittedRunsInScope: > 0, LatestRunId: { } runId })
         {
             items.Add(
                 new OperatorNextBestActionItem(
@@ -76,7 +76,7 @@ public sealed class OperatorNextBestActionService(
                     35));
         }
 
-        if (signals.ComparisonAuditEvents30d == 0 && signals.CommittedRunsInScope >= 2)
+        if (signals is { ComparisonAuditEvents30d: 0, CommittedRunsInScope: >= 2 })
         {
             items.Add(
                 new OperatorNextBestActionItem(

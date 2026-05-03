@@ -73,9 +73,6 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         if (demoTenant)
             return PilotBuyerSafeEvidencePublishingTier.DemoOnly;
 
-        if (gaps.Count is 0)
-            return PilotBuyerSafeEvidencePublishingTier.Complete;
-
-        return PilotBuyerSafeEvidencePublishingTier.Partial;
+        return gaps.Count is 0 ? PilotBuyerSafeEvidencePublishingTier.Complete : PilotBuyerSafeEvidencePublishingTier.Partial;
     }
 }
