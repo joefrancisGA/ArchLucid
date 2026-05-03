@@ -23,10 +23,11 @@ namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref="IArchitectureRunCreateOrchestrator" />
 /// <remarks>
-///     When HTTP idempotency is used, concurrent requests for the same key are serialized in-process from the
-///     first missed replay through coordination and persistence so only one authority run is created per key.
-///     When SQL persistence is configured, <see cref="IDistributedCreateRunIdempotencyLock" /> uses SQL Server
-///     <c>sp_getapplock</c> so concurrent replicas serialize the same idempotency key.
+///     When HTTP idempotency is used, <see cref="IDistributedCreateRunIdempotencyLock" /> serializes concurrent
+///     creators for the same key before coordination: SQL hosts use <c>sp_getapplock</c> (cross-replica); InMemory
+///     and single-process hosts use <see cref="InProcessCreateRunIdempotencyLock" /> (per-process semaphores).
+///     The authority transaction still relies on <c>dbo.ArchitectureRunIdempotency</c> primary key uniqueness
+///     so duplicate inserts fail atomically if two workers race after a lock release.
 /// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunAuthorityCoordination authorityCoordination,
@@ -47,8 +48,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
-    private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
-
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
 
@@ -141,37 +140,22 @@ public sealed class ArchitectureRunCreateOrchestrator(
             await using IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
                 .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken)
                 .ConfigureAwait(false);
+
             CreateRunResult? replayUnderDistributed =
                 await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
             if (replayUnderDistributed is not null)
                 return replayUnderDistributed;
 
-            SemaphoreSlim gate = IdempotencyGates.GetOrAddGate(gateKey);
-
-            await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
-            try
-            {
-                CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
-
-                if (replayUnderLock is not null)
-                    return replayUnderLock;
-
-                return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
-            }
-            finally
-            {
-                gate.Release();
-                IdempotencyGates.TryEvictAfterRelease(gateKey);
-            }
+            return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
         }
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
     }
 
     /// <summary>
-    ///     <c>sp_getapplock</c> wait budget while another request holds the same idempotency key.
-    ///     The lock spans coordinator + persistence; parallel bursts must not time out waiting for the first winner.
+    ///     Lock wait budget (shared by SQL <c>sp_getapplock</c> and in-process semaphores) while another caller holds
+    ///     the same idempotency key. The lock spans coordinator + persistence.
     /// </summary>
     private static int ClampDistributedLockTimeout(IOptions<ArchitectureRunCreateOptions> options)
     {

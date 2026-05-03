@@ -118,7 +118,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new() { LeftRunId = "L", RightRunId = "R" };
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = async () => await sut.GeneratePdfAsync(report, cts.Token);
 

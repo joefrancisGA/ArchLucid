@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-using Xunit;
+using System.Text.RegularExpressions;
 
 namespace ArchLucid.Application.Tests.Audit;
 
@@ -47,35 +45,12 @@ public sealed class BaselineMutationAuditDualWritePairingTests
 
     private static IEnumerable<string> EnumerateViolationFiles(DirectoryInfo root)
     {
-        foreach (FileInfo file in root.EnumerateFiles("*.cs", SearchOption.AllDirectories))
-        {
-            if (IsIgnoredUnderObjOrBin(file))
-                continue;
-
-            if (IgnoredFilenames.Contains(file.Name))
-                continue;
-
-            string text = File.ReadAllText(file.FullName);
-
-            if (!BaselineMutationRecordAsync.IsMatch(text))
-                continue;
-
-            if (AllowedBaselineOnlyFiles.Contains(file.Name))
-                continue;
-
-            if (ContainsDurableAuditEvidence(text))
-                continue;
-
-            yield return $"{file.FullName}: IBaselineMutationAuditService.RecordAsync without LogAsync/TryLogAsync sibling (fix or list in {nameof(AllowedBaselineOnlyFiles)})";
-        }
+        return from file in root.EnumerateFiles("*.cs", SearchOption.AllDirectories) where !IsIgnoredUnderObjOrBin(file) where !IgnoredFilenames.Contains(file.Name) let text = File.ReadAllText(file.FullName) where BaselineMutationRecordAsync.IsMatch(text) where !AllowedBaselineOnlyFiles.Contains(file.Name) where !ContainsDurableAuditEvidence(text) select $"{file.FullName}: IBaselineMutationAuditService.RecordAsync without LogAsync/TryLogAsync sibling (fix or list in {nameof(AllowedBaselineOnlyFiles)})";
     }
 
     private static bool ContainsDurableAuditEvidence(string fileText)
     {
-        if (fileText.Contains("LogAsync(", StringComparison.Ordinal) || fileText.Contains("TryLogAsync(", StringComparison.Ordinal))
-            return true;
-
-        return false;
+        return fileText.Contains("LogAsync(", StringComparison.Ordinal) || fileText.Contains("TryLogAsync(", StringComparison.Ordinal);
     }
 
     private static DirectoryInfo LocateArchLucidApplicationProjectDirectory()
@@ -83,7 +58,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         // Referenced assembly often loads from the test project's output (e.g. Tests\bin\…\ArchLucid.Application.dll).
         // Parents of that path reach the solution root, where the csproj is in a sibling folder
         // (…\ArchLucid.Application\ArchLucid.Application.csproj), not in the ancestor directory itself.
-        string? assemblyLoc = typeof(ArchLucid.Application.Common.IBaselineMutationAuditService).Assembly.Location;
+        string assemblyLoc = typeof(ArchLucid.Application.Common.IBaselineMutationAuditService).Assembly.Location;
 
         string? assemblyDir = Path.GetDirectoryName(assemblyLoc);
         if (string.IsNullOrEmpty(assemblyDir))
