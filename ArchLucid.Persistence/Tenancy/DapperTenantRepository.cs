@@ -134,7 +134,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                TrialRunsLimit = @TrialRunsLimit,
                                TrialRunsUsed = 0,
                                TrialSeatsLimit = @TrialSeatsLimit,
-                               TrialSeatsUsed = 1,
+                               TrialSeatsUsed = 0,
                                TrialStatus = @TrialStatus,
                                TrialSampleRunId = @TrialSampleRunId,
                                BaselineReviewCycleHours = @BaselineReviewCycleHours,

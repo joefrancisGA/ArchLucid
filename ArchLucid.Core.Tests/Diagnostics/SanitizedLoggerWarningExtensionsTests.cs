@@ -13,6 +13,75 @@ namespace ArchLucid.Core.Tests.Diagnostics;
 public sealed class SanitizedLoggerWarningExtensionsTests
 {
     [Fact]
+    public void LogWarningWithSanitizedUserArg_substitutes_sanitized_value_in_message()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        InvalidOperationException ex = new("Promote rejected");
+
+        mock.Object.LogWarningWithSanitizedUserArg(
+            ex,
+            "Promote failed for run '{RunId}'.",
+            "run\nid");
+
+        rendered.Should().Be("Promote failed for run 'run_id'.");
+    }
+
+    [Fact]
+    public void LogWarningWithSanitizedUserArg_null_user_value_renders_empty_placeholder()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                object ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogWarningWithSanitizedUserArg(null, "Promote failed for run '{RunId}'.", null);
+
+        rendered.Should().Be("Promote failed for run ''.");
+    }
+
+    [Fact]
+    public void LogWarningWithSanitizedUserArg_throws_when_logger_null()
+    {
+        ILogger logger = null!;
+
+        Action act = () => logger.LogWarningWithSanitizedUserArg(new InvalidOperationException("x"), "m {RunId}", "r");
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+    }
+
+    [Fact]
     public void LogWarningWithTwoSanitizedUserStrings_strips_control_chars()
     {
         Mock<ILogger> mock = new();

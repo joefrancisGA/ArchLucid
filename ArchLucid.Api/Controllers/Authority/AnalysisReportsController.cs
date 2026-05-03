@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -11,6 +10,7 @@ using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Serialization;

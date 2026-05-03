@@ -71,11 +71,7 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
 
-                    _logger.LogDebug(
-                        "Host leader lease not held for {LeaseName}; follower wait {Ms} ms.",
-                        LogSanitizer.Sanitize(
-                            leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
-                        followerMs);
+                    _logger.LogDebugHostLeaderLeaseNotHeldFollowerWait(leaseName, followerMs);
 
                 try
                 {
@@ -91,12 +87,7 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
 
-                _logger.LogInformation(
-                    "Acquired host leader lease {LeaseName} for instance {InstanceId}.",
-                    LogSanitizer.Sanitize(
-                        leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
-                    LogSanitizer.Sanitize(
-                        id)); // codeql[cs/exposure-of-sensitive-information]: host instance id telemetry; sanitized; non-credential (CODEQL_TRIAGE.md).
+                _logger.LogInformationHostLeaderLeaseAcquired(leaseName, id);
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
             CancellationToken leaderToken = leaderCts.Token;
@@ -112,10 +103,7 @@ public sealed class HostLeaderElectionCoordinator(
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
 
-                    _logger.LogInformation(
-                        "Leader work for {LeaseName} stopped after lease loss or handoff.",
-                        LogSanitizer.Sanitize(
-                            leaseName)); // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
+                    _logger.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(leaseName);
             }
             finally
             {
@@ -167,12 +155,7 @@ public sealed class HostLeaderElectionCoordinator(
 
                 if (_logger.IsEnabled(LogLevel.Warning))
 
-                    _logger.LogWarning(
-                        "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-                        LogSanitizer.Sanitize(
-                            leaseName), // codeql[cs/exposure-of-sensitive-information]: operational lease identifiers; LogSanitizer; not credentials (CODEQL_TRIAGE.md).
-                        LogSanitizer.Sanitize(
-                            id)); // codeql[cs/exposure-of-sensitive-information]: host instance id telemetry; sanitized; non-credential (CODEQL_TRIAGE.md).
+                    _logger.LogWarningHostLeaderLeaseRenewalFailedStopping(leaseName, id);
 
                 await leaderCts.CancelAsync();
 

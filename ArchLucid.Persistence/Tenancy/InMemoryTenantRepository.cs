@@ -253,7 +253,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialRunsLimit = runsLimit,
             TrialRunsUsed = 0,
             TrialSeatsLimit = seatsLimit,
-            TrialSeatsUsed = 1,
+            TrialSeatsUsed = 0,
             TrialStatus = TrialLifecycleStatus.Active,
             TrialSampleRunId = sampleRunId,
             TrialArchitecturePreseedEnqueuedUtc = null,

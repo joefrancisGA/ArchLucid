@@ -14,6 +14,31 @@ namespace ArchLucid.Core.Diagnostics;
 public static class SanitizedLoggerWarningExtensions
 {
     /// <summary>
+    ///     Logs a warning with one placeholder filled from an externally influenced string after sanitization (CWE-117).
+    /// </summary>
+    /// <remarks>
+    ///     Prefer this over <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, object?[])" /> at API boundaries:
+    ///     CodeQL <c>cs/log-forging</c> may not propagate <see cref="LogSanitizer.Sanitize" /> through
+    ///     <c>params object?[]</c> boxing when the template and exception are assembled at the call site.
+    /// </remarks>
+    public static void LogWarningWithSanitizedUserArg(
+        this ILogger logger,
+        Exception? exception,
+        string messageTemplate,
+        string? userDerivedValue)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safe = LogSanitizer.Sanitize(userDerivedValue);
+
+        // codeql[cs/log-forging]: sanitized immediately below; exception + params boxing breaks custom barrier at API call sites.
+        logger.LogWarning(
+            exception,
+            messageTemplate,
+            safe);
+    }
+
+    /// <summary>
     ///     Logs a warning whose template has two placeholders filled from externally influenced strings after sanitization.
     /// </summary>
     public static void LogWarningWithTwoSanitizedUserStrings(
