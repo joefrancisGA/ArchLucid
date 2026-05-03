@@ -19,7 +19,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     IOptionsMonitor<DataConsistencyEnforcementOptions> enforcementOptionsMonitor,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
-    IAuditService auditService,
+    IServiceScopeFactory scopeFactory,
     ILogger<DataConsistencyOrphanProbeExecutor> logger) : IDataConsistencyOrphanProbeExecutor
 {
     private const int TenantBreakdownTopN = 8;
@@ -36,8 +36,11 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
 
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
+    // IServiceScopeFactory is used instead of injecting IAuditService directly because this class
+    // is a singleton and IAuditService is scoped (it captures IHttpContextAccessor). A scope is
+    // created only when an audit write is actually needed (auto-remediation path).
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     private readonly ILogger<DataConsistencyOrphanProbeExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -339,7 +342,10 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 ids.Count,
                 string.Join(", ", ids));
 
-            await _auditService.LogAsync(
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
+
+            await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = "GraphSnapshotOrphansRemediated",
