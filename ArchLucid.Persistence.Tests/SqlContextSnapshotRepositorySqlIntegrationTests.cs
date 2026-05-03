@@ -1,5 +1,4 @@
 ﻿using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
@@ -28,7 +27,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -65,9 +64,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
             await AuthorityRunChainTestSeed.InsertRunAsync(
                 seedConnection,
-                TestTenantId,
-                TestWorkspaceId,
-                TestScopeProjectId,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
                 runId,
                 "proj-relational-1",
                 CancellationToken.None);
@@ -93,7 +92,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task GetById_falls_back_to_json_when_no_relational_child_rows()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -175,7 +174,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task GetById_json_fallback_deserializes_canonical_object_properties()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -275,7 +274,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task GetById_when_all_json_columns_null_returns_empty_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -335,7 +334,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task GetById_when_all_json_columns_are_empty_strings_returns_empty_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -401,7 +400,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     public async Task SaveAsync_with_explicit_transaction_commits_header_and_children()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
@@ -420,16 +419,17 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await using SqlTransaction tx = connection.BeginTransaction();
         await AuthorityRunChainTestSeed.InsertRunAsync(
             connection,
-            TestTenantId,
-            TestWorkspaceId,
-            TestScopeProjectId,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
             runId,
             "proj-tx",
-            CancellationToken.None);
+            CancellationToken.None,
+            tx);
 
-        await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
