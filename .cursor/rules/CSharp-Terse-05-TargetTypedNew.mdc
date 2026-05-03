@@ -1,7 +1,7 @@
 ---
 description: Prefer target-typed new() when the variable, parameter, return type, or field already names the type.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Target-typed `new()`

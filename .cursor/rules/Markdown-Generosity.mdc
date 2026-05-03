@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
 
 Go a bit overboard on creating markdown files, especially for user instruction and explaining how and why the system is doing what it is

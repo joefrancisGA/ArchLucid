@@ -1,7 +1,7 @@
 ---
 description: Prefer early return / continue and avoid trailing else after a guarded return.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Early return — no trailing `else`

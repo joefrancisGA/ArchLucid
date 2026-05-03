@@ -1,7 +1,7 @@
 ---
 description: Prefer ?? and ??= over equivalent if-null assignment / fallback blocks.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # `??` and `??=` over null fallback blocks

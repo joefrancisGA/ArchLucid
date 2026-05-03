@@ -1,7 +1,7 @@
 ---
 description: Prefer one-line braceless embedded statements — same-line as if when fits; soften with layout when the header wraps.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Single embedded statements: no braces + prefer same physical line when short

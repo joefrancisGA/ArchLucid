@@ -1,7 +1,7 @@
 ---
 description: Prefer pattern matching for null, type, and shape checks instead of explicit comparisons or casts.
 globs: "**/*.cs"
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Pattern matching for null, type, and shape
