@@ -11,7 +11,7 @@ ArchLucid is structurally sound and capable of executing its core pilot flow, bu
 The commercial motion is viable for sales-led pilots. While self-serve transactability (Stripe live keys, Azure Marketplace) and reference customers are explicitly deferred to V1.1, the existing trial funnel and pricing structures are sufficient to demonstrate value. Time-to-Value is generally good, but performance bottlenecks in analysis report generation may introduce friction during critical executive reviews.
 
 **The Enterprise Picture**
-Enterprise adoption faces significant headwinds due to the reliance on API keys and connection strings rather than Azure AD Managed Identity. While Row-Level Security (RLS) and durable audit logs provide a strong compliance baseline, audit logging gaps in domain services and fragile string-parsing in baseline events undermine the trustworthiness and traceability required by strict procurement and security teams.
+Enterprise adoption faces significant headwinds due to the reliance on API keys and connection strings rather than Microsoft Entra ID Managed Identity. While Row-Level Security (RLS) and durable audit logs provide a strong compliance baseline, audit logging gaps in domain services and fragile string-parsing in baseline events undermine the trustworthiness and traceability required by strict procurement and security teams.
 
 **The Engineering Picture**
 The architecture is modular and highly testable, but it suffers from "single-instance thinking." Critical components like idempotency gates and LLM token quota trackers use in-memory dictionaries, which will fail to protect the system or enforce limits when deployed across multiple Azure App Service or Container App instances. Additionally, timing attacks and enumeration vulnerabilities in the local identity service must be addressed before public exposure.
@@ -23,7 +23,7 @@ The architecture is modular and highly testable, but it suffers from "single-ins
 *Qualities are ranked from most urgent (highest weighted deficiency) to least urgent.*
 
 ### 1. Security (Score: 50/100 | Weight: 3 | Weighted Impact: High)
-**Justification:** The `TrialLocalIdentityService` is vulnerable to email enumeration (returns explicit errors if an email exists) and timing attacks (returns immediately if a user is not found without hashing a dummy password). Furthermore, `SqlConnectionFactory` and `AzureOpenAiCompletionClient` rely entirely on connection strings and API keys rather than Azure AD Managed Identity.
+**Justification:** The `TrialLocalIdentityService` is vulnerable to email enumeration (returns explicit errors if an email exists) and timing attacks (returns immediately if a user is not found without hashing a dummy password). Furthermore, `SqlConnectionFactory` and `AzureOpenAiCompletionClient` rely entirely on connection strings and API keys rather than Microsoft Entra ID Managed Identity.
 **Tradeoffs:** Implementing Managed Identity requires infrastructure coordination (Terraform) and local development fallback mechanisms (Azure CLI/Visual Studio credentials).
 **Recommendations:** Implement constant-time password verification, sanitize registration errors, and migrate to `DefaultAzureCredential` for SQL and OpenAI.
 **Status:** Fixable in V1 (Auth vulnerabilities) / DEFERRED (Managed Identity requires user input).
@@ -179,7 +179,7 @@ The architecture is modular and highly testable, but it suffers from "single-ins
 
 ## Top 5 Enterprise Adoption Blockers
 
-1. **No Azure AD Managed Identity:** Security teams will reject the use of static API keys for Azure OpenAI and SQL Server.
+1. **No Microsoft Entra ID Managed Identity:** Security teams will reject the use of static API keys for Azure OpenAI and SQL Server.
 2. **Auth Vulnerabilities:** Penetration testers will immediately flag the email enumeration and timing attacks in the trial login flow.
 3. **Missing SOC 2 CPA Report:** While deferred, this remains the largest procurement hurdle.
 4. **Audit Traceability Gaps:** Missing audit logs for replays triggered outside the HTTP API violates compliance requirements.
@@ -307,7 +307,7 @@ Review the file for any other hardcoded strings (like `"[60R shadow] CandidateCh
 Constraints: Do not change the actual string values, only how they are referenced.
 ```
 
-### 9. DEFERRED: Azure AD Managed Identity Migration Strategy
+### 9. DEFERRED: Microsoft Entra ID Managed Identity Migration Strategy
 - **Why it matters:** Hardcoded API keys and connection strings block enterprise procurement and violate Azure well-architected security principles.
 - **Expected impact:** Directly improves Security (+25 pts), Azure Ecosystem Fit (+40 pts), Trustworthiness (+15 pts). Weighted readiness impact: +1.60%.
 - **Affected qualities:** Security, Azure Ecosystem Fit, Trustworthiness, Procurement Readiness.
@@ -325,7 +325,7 @@ Constraints: Do not change the actual string values, only how they are reference
 
 ## Pending Questions for Later
 
-**Azure AD Managed Identity Migration Strategy**
+**Microsoft Entra ID Managed Identity Migration Strategy**
 - Do you prefer System-Assigned or User-Assigned Managed Identities for the production compute resources?
 - Should local development enforce `DefaultAzureCredential` (requiring `az login`), or should we maintain a fallback path using explicit API keys in `appsettings.Development.json`?
 
