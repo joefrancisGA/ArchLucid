@@ -37,15 +37,14 @@
     <Compile Include="ArchLucidApiClientSerializerSettings.cs" />
     <Compile Include="FileParameter.cs" />
     <Compile Include="ProblemDetails.cs" />
+    <!-- Committed NSwag output; list here so design-time / IDE analyzers merge partials with hand-written extensions (e.g. UpdateJsonSerializerSettings). -->
+    <Compile Include="Generated\ArchLucidApiClient.g.cs" />
   </ItemGroup>
 
   <Target Name="GenerateArchLucidOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
     <MakeDir Directories="$(MSBuildProjectDirectory)/Generated" />
     <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot;"
           WorkingDirectory="$(MSBuildProjectDirectory)" />
-    <ItemGroup>
-      <Compile Include="$(MSBuildProjectDirectory)/Generated/ArchLucidApiClient.g.cs" />
-    </ItemGroup>
   </Target>
 
 </Project>

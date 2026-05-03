@@ -117,8 +117,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEmailSender, FakeEmailSender>();
         services
             .AddHttpClient(
-                "ArchLucidWebhooks",
-                static client => client.Timeout = TimeSpan.FromSeconds(60));
+                HttpWebhookPoster.WebhookHttpClientName,
+                static client => client.Timeout = TimeSpan.FromSeconds(60))
+            .AddPolicyHandler(static (_, _) => WebhookOutboundHttpRetryPolicy.Create());
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();
         services.AddSingleton<IWebhookPoster>(static sp =>

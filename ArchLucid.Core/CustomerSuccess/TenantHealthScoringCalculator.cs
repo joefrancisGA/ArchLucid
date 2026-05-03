@@ -93,9 +93,6 @@ public static class TenantHealthScoringCalculator
         if (value < 1.0M)
             return 1.0M;
 
-        if (value > 5.0M)
-            return 5.0M;
-
-        return Math.Round(value, 2, MidpointRounding.AwayFromZero);
+        return value > 5.0M ? 5.0M : Math.Round(value, 2, MidpointRounding.AwayFromZero);
     }
 }

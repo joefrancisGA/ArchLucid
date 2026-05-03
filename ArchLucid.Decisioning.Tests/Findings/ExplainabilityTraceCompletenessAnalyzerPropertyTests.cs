@@ -15,14 +15,14 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
     {
         return Prop.ForAll(TraceArraysArb(), t =>
         {
-            Finding finding = MakeFinding(t.Graph, t.Rules, t.Decisions, t.Alt, t.Notes);
+            Finding finding = MakeFinding(t.Graph, t.Rules, t.Decisions, t.Alt, t.Notes, t.Citations);
             TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
-            double expected = score.PopulatedFieldCount / 5.0;
+            double expected = score.PopulatedFieldCount / 6.0;
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             return score.CompletenessRatio == expected
-                   && score.PopulatedFieldCount is >= 0 and <= 5
-                   && score.MissingTraceFields.Count + score.PopulatedFieldCount == 5;
+                   && score.PopulatedFieldCount is >= 0 and <= 6
+                   && score.MissingTraceFields.Count + score.PopulatedFieldCount == 6;
         });
     }
 
@@ -53,7 +53,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
         });
     }
 
-    private static Arbitrary<(string[] Graph, string[] Rules, string[] Decisions, string[] Alt, string[] Notes)> TraceArraysArb()
+    private static Arbitrary<(string[] Graph, string[] Rules, string[] Decisions, string[] Alt, string[] Notes, string[] Citations)> TraceArraysArb()
     {
         return Arb.From(
             from graph in Arb.Default.Array<string>().Generator
@@ -61,7 +61,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             from decisions in Arb.Default.Array<string>().Generator
             from alt in Arb.Default.Array<string>().Generator
             from notes in Arb.Default.Array<string>().Generator
-            select (graph, rules, decisions, alt, notes));
+            from citations in Arb.Default.Array<string>().Generator
+            select (graph, rules, decisions, alt, notes, citations));
     }
 
     private static Gen<List<Finding>> ListOfFindings(int count)
@@ -85,7 +86,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             from decisions in Arb.Default.Array<string>().Generator
             from alt in Arb.Default.Array<string>().Generator
             from notes in Arb.Default.Array<string>().Generator
-            select MakeFinding(graph, rules, decisions, alt, notes);
+            from citations in Arb.Default.Array<string>().Generator
+            select MakeFinding(graph, rules, decisions, alt, notes, citations);
     }
 
     private static Finding MakeFinding(
@@ -93,7 +95,8 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
         string[] rules,
         string[] decisions,
         string[] alt,
-        string[] notes)
+        string[] notes,
+        string[] citations)
     {
         return new Finding
         {
@@ -109,6 +112,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
                 DecisionsTaken = decisions.ToList(),
                 AlternativePathsConsidered = alt.ToList(),
                 Notes = notes.ToList(),
+                Citations = citations.ToList(),
             },
         };
     }
