@@ -134,9 +134,6 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
 
         int n = Math.Min(32, Math.Min(persistedTraceId.Length, findingKey.Length));
 
-        if (n == 0)
-            return false;
-
-        return persistedTraceId.AsSpan(0, n).Equals(findingKey.AsSpan(0, n), StringComparison.OrdinalIgnoreCase);
+        return n != 0 && persistedTraceId.AsSpan(0, n).Equals(findingKey.AsSpan(0, n), StringComparison.OrdinalIgnoreCase);
     }
 }
