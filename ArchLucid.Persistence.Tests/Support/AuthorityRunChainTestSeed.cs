@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -23,7 +25,8 @@ public static class AuthorityRunChainTestSeed
         Guid projectId,
         Guid runId,
         string projectSlug,
-        CancellationToken ct)
+        CancellationToken ct,
+        IDbTransaction? transaction = null)
     {
         const string insertRun = """
                                  INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
@@ -42,6 +45,7 @@ public static class AuthorityRunChainTestSeed
                     WorkspaceId = workspaceId,
                     ScopeProjectId = projectId
                 },
+                transaction,
                 cancellationToken: ct));
     }
 

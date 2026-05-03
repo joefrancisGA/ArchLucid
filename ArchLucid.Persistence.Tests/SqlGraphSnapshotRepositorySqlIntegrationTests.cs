@@ -1,5 +1,4 @@
 ﻿using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
@@ -24,7 +23,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -67,6 +66,17 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             Warnings = ["w1"]
         };
 
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextId,
+                "proj-graph-roundtrip",
+                CancellationToken.None);
+
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
@@ -89,14 +99,18 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task ListIndexedEdgesAsync_preserves_order_by_EdgeId_and_core_fields()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
+
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
 
         GraphSnapshot snapshot = new()
         {
-            GraphSnapshotId = Guid.NewGuid(),
-            ContextSnapshotId = Guid.NewGuid(),
-            RunId = Guid.NewGuid(),
+            GraphSnapshotId = graphSnapshotId,
+            ContextSnapshotId = contextSnapshotId,
+            RunId = runId,
             CreatedUtc = DateTime.UtcNow,
             Edges =
             [
@@ -119,10 +133,21 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             ]
         };
 
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextSnapshotId,
+                "proj-graph-indexed",
+                CancellationToken.None);
+
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
         IReadOnlyList<GraphSnapshotIndexedEdge> indexed =
-            await repository.ListIndexedEdgesAsync(snapshot.GraphSnapshotId, CancellationToken.None);
+            await repository.ListIndexedEdgesAsync(graphSnapshotId, CancellationToken.None);
         indexed.Should().HaveCount(2);
         indexed[0].EdgeId.Should().Be("a");
         indexed[1].EdgeId.Should().Be("b");
@@ -134,7 +159,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -165,6 +190,15 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         string warningsJson = JsonEntitySerializer.Serialize(new List<string> { "jw" });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
+            runId,
+            contextId,
+            "proj-graph-merge",
+            CancellationToken.None);
 
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
@@ -230,7 +264,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task GetById_when_no_relational_children_returns_empty_collections_even_when_json_columns_populated()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
@@ -266,6 +300,15 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         string warningsJson = JsonEntitySerializer.Serialize(new List<string> { "ghost-warning" });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
+            runId,
+            contextId,
+            "proj-graph-json-no-rel",
+            CancellationToken.None);
 
         const string insertHeader = """
                                     INSERT INTO dbo.GraphSnapshots
@@ -307,7 +350,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task GetById_when_no_relational_children_and_json_columns_null_returns_empty_collections()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -372,7 +415,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
-        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
