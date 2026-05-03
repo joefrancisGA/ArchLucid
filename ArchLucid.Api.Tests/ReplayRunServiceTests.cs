@@ -1,6 +1,5 @@
-﻿using System.Data;
+using System.Data;
 
-using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
@@ -167,7 +166,9 @@ public sealed class ReplayRunServiceTests
             {
                 Run = new ArchitectureRun
                 {
-                    RunId = "run-1", RequestId = "req-1", Status = ArchitectureRunStatus.Created
+                    RunId = "run-1",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Created
                 },
                 Tasks = [],
                 Results = []

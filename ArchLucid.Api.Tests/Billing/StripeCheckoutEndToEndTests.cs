@@ -44,14 +44,14 @@ public sealed class StripeCheckoutEndToEndTests
     [SkippableFact]
     public async Task Stripe_register_checkout_webhook_activates_subscription_and_converts_tenant()
     {
-        using StripeCheckoutEndToEndWebAppFactory fixture = new();
+        await using StripeCheckoutEndToEndWebAppFactory fixture = new();
         await RunStripeFlowAsync(fixture);
     }
 
     [SkippableFact]
     public async Task Marketplace_register_checkout_subscribe_webhook_activates_subscription_and_converts_tenant()
     {
-        using MarketplaceCheckoutEndToEndWebAppFactory fixture = new();
+        await using MarketplaceCheckoutEndToEndWebAppFactory fixture = new();
         await RunMarketplaceSubscribeFlowAsync(fixture);
     }
 
@@ -138,7 +138,10 @@ public sealed class StripeCheckoutEndToEndTests
                 subscriptionId,
                 workspaceId = workspaceId.ToString("D"),
                 projectId = projectId.ToString("D"),
-                purchaser = new { tenantId = tenantId.ToString("D") }
+                purchaser = new
+                {
+                    tenantId = tenantId.ToString("D")
+                }
             },
             MarketplaceWebhookJson);
 
@@ -201,7 +204,7 @@ public sealed class StripeCheckoutEndToEndTests
             await checkout.Content.ReadFromJsonAsync<BillingCheckoutResponseDto>(ResponseJson);
 
         dto.Should().NotBeNull();
-        dto!.ProviderSessionId.Should().NotBeNullOrWhiteSpace();
+        dto.ProviderSessionId.Should().NotBeNullOrWhiteSpace();
         dto.CheckoutUrl.Should().NotBeNullOrWhiteSpace();
 
         return (tenantId, workspaceId, projectId, dto.ProviderSessionId);
@@ -221,23 +224,30 @@ public sealed class StripeCheckoutEndToEndTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    private static async Task<string> MintAdminJwtAsync(
+    private static Task<string> MintAdminJwtAsync(
         BillingCheckoutEndToEndSqlJwtFactoryBase fixture,
         string adminEmail,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId)
     {
-        using IServiceScope scope = fixture.Services.CreateScope();
-        ILocalTrialJwtIssuer issuer = scope.ServiceProvider.GetRequiredService<ILocalTrialJwtIssuer>();
+        try
+        {
+            using IServiceScope scope = fixture.Services.CreateScope();
+            ILocalTrialJwtIssuer issuer = scope.ServiceProvider.GetRequiredService<ILocalTrialJwtIssuer>();
 
-        return issuer.IssueAccessToken(
-            Guid.NewGuid(),
-            adminEmail,
-            ArchLucidRoles.Admin,
-            tenantId,
-            workspaceId,
-            projectId);
+            return Task.FromResult(issuer.IssueAccessToken(
+                Guid.NewGuid(),
+                adminEmail,
+                ArchLucidRoles.Admin,
+                tenantId,
+                workspaceId,
+                projectId));
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException<string>(exception);
+        }
     }
 
     private static async Task AssertSqlPaidStandardAsync(string connectionString, Guid tenantId)

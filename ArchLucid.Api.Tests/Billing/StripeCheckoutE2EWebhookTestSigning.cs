@@ -20,10 +20,11 @@ internal static class StripeCheckoutE2EWebhookTestSigning
     /// <summary>Must match the API version pinned by the <c>Stripe.net</c> package (see <c>Directory.Packages.props</c>).</summary>
     internal const string StripeNetWebhookApiVersion = "2025-08-27.basil";
 
-    private static readonly string SigningSecretValue = BuildSigningSecret();
-
     /// <summary>32-byte material after <c>whsec_</c> (UTF-8 signing key per Stripe.net v48+).</summary>
-    internal static string WebhookSigningSecret => SigningSecretValue;
+    internal static string WebhookSigningSecret
+    {
+        get;
+    } = BuildSigningSecret();
 
     private static string BuildSigningSecret()
     {

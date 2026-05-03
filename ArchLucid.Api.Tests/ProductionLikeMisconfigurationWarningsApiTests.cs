@@ -1,6 +1,3 @@
-﻿using System.IO;
-using System.Text;
-
 using ArchLucid.Core.Hosting;
 
 using FluentAssertions;
@@ -32,8 +29,7 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
 
                 config.AddJsonStream(
                     new MemoryStream(
-                        Encoding.UTF8.GetBytes(
-                            """
+                        """
                             {
                               "ArchLucid": {
                                 "ContentSafety": {
@@ -52,7 +48,7 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
                                 }
                               }
                             }
-                            """)));
+                            """u8.ToArray()));
             });
         });
 

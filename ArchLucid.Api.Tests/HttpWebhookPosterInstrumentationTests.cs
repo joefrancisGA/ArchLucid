@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Host.Core.Services.Delivery;
@@ -28,7 +28,10 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         await poster.PostJsonAsync(
             "https://hooks.partner.test/with/secret/token",
-            new { Hello = "world" },
+            new
+            {
+                Hello = "world"
+            },
             CancellationToken.None,
             new WebhookPostOptions { EventType = "archlucid.digest.sent", TenantId = tenantId, });
 
@@ -71,7 +74,10 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         Func<Task> act = async () => await poster.PostJsonAsync(
             "https://hooks.partner.test/fail/route",
-            new { Sensitive = true },
+            new
+            {
+                Sensitive = true
+            },
             CancellationToken.None,
             new WebhookPostOptions { EventType = "alert.webhook.notify", TenantId = Guid.Empty });
 
@@ -147,7 +153,10 @@ public sealed class HttpWebhookPosterInstrumentationTests
             if (_shared is not null)
                 return _shared;
 
-            HttpClient created = new(_handler, disposeHandler: false) { Timeout = TimeSpan.FromSeconds(30), };
+            HttpClient created = new(_handler, disposeHandler: false)
+            {
+                Timeout = TimeSpan.FromSeconds(30),
+            };
 
             _shared = created;
 
@@ -214,9 +223,6 @@ public sealed class HttpWebhookPosterInstrumentationTests
             Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
-            if (formatter is null)
-                return;
-
             string formatted = formatter(state, exception);
 
             LogWrites.Add((logLevel, formatted));

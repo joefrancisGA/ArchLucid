@@ -47,6 +47,7 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
         Assembly apiAssembly = typeof(RunsController).Assembly;
         List<string> offenders = [];
 
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (Type type in ExportedConcreteControllerTypes(apiAssembly))
         {
             string? fullName = type.FullName;
@@ -117,12 +118,9 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
 
         string? full = type.FullName;
 
-        if (full is not null
-            && (full.Contains("ICoordinatorGoldenManifestRepository", StringComparison.Ordinal)
-                || full.Contains("ICoordinatorDecisionTraceRepository", StringComparison.Ordinal)))
-            return true;
-
-        return false;
+        return full is not null
+               && (full.Contains("ICoordinatorGoldenManifestRepository", StringComparison.Ordinal)
+                   || full.Contains("ICoordinatorDecisionTraceRepository", StringComparison.Ordinal));
     }
 
     private static string DescribeType(Type type) => type.FullName ?? type.Name;

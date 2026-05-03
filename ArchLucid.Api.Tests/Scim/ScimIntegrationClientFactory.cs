@@ -19,12 +19,10 @@ internal static class ScimIntegrationClientFactory
     {
         HttpClient http = factory.CreateClient();
 
-        using (IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
-        {
-            IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
-            ScimTokenIssueResult minted = await issuer.IssueTokenAsync(tenantId, CancellationToken.None);
-            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minted.PlaintextToken);
-        }
+        using IServiceScope scope = factory.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        IScimTokenIssuer issuer = scope.ServiceProvider.GetRequiredService<IScimTokenIssuer>();
+        ScimTokenIssueResult minted = await issuer.IssueTokenAsync(tenantId, CancellationToken.None);
+        http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minted.PlaintextToken);
 
         return http;
     }
