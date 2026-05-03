@@ -59,7 +59,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
             Mock.Of<IAuditService>(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
-            new NoOpDistributedCreateRunIdempotencyLock(),
+            new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),

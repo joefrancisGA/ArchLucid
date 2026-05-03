@@ -139,7 +139,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             metering.Object,
-            new NoOpDistributedCreateRunIdempotencyLock(),
+            new InProcessCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),

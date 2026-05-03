@@ -1,9 +1,8 @@
-﻿using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
 
