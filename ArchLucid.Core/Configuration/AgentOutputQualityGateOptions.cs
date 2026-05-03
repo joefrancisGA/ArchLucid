@@ -62,4 +62,24 @@ public sealed class AgentOutputQualityGateOptions
         get;
         set;
     } = false;
+
+    /// <summary>
+    ///     Maximum allowed tokens per run. If exceeded, a CostLimitExceededException is thrown.
+    ///     Null means no limit.
+    /// </summary>
+    public int? MaxTokensPerRun
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Maximum allowed cost (USD) per run. If exceeded, a CostLimitExceededException is thrown.
+    ///     Null means no limit.
+    /// </summary>
+    public decimal? MaxCostPerRun
+    {
+        get;
+        set;
+    }
 }

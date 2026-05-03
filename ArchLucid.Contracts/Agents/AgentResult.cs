@@ -103,6 +103,15 @@ public sealed class AgentResult
         set;
     }
 
+    /// <summary>
+    ///     Source citations linking AI-generated findings to specific policies or evidence.
+    /// </summary>
+    public IEnumerable<Citation>? Citations
+    {
+        get;
+        set;
+    }
+
     /// <summary>UTC timestamp when this result was created.</summary>
     public DateTime CreatedUtc
     {

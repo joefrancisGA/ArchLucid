@@ -40,4 +40,10 @@ public class ExplainabilityTrace
         get;
         set;
     } = [];
+
+    public List<string> Citations
+    {
+        get;
+        set;
+    } = [];
 }

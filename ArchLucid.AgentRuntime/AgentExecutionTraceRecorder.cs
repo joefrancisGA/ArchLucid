@@ -164,6 +164,26 @@ public sealed class AgentExecutionTraceRecorder(
             CreatedUtc = DateTime.UtcNow
         };
 
+        if (parseSucceeded && !string.IsNullOrWhiteSpace(parsedResultJson))
+        {
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
+                if (!doc.RootElement.TryGetProperty("citations", out JsonElement citationsElement) ||
+                    citationsElement.ValueKind != JsonValueKind.Array ||
+                    citationsElement.GetArrayLength() == 0)
+                {
+                    trace.ParseSucceeded = false;
+                    trace.ErrorMessage = "AI-generated findings must include a SourceCitation array.";
+                    trace.FailureReasonCode = "MissingCitations";
+                }
+            }
+            catch
+            {
+                // Ignore parse errors here
+            }
+        }
+
         await _repository.CreateAsync(trace, cancellationToken);
 
         if (isSimulatorExecution)

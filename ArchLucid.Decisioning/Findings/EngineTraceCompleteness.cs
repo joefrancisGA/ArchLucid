@@ -50,4 +50,10 @@ public sealed class EngineTraceCompleteness
         get;
         init;
     }
+
+    public int CitationsPopulatedCount
+    {
+        get;
+        init;
+    }
 }
