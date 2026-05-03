@@ -36,7 +36,6 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
         if (!o.Enabled)
             return;
 
-
         if (o.RepositoryId == Guid.Empty || o.PullRequestId <= 0)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
@@ -62,7 +61,6 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
         if (payload is null)
             throw new FormatException("Authority run completed payload deserialized to null.");
 
-
         AzureDevOpsPullRequestTarget target = new(o.RepositoryId, o.PullRequestId);
 
         IReadOnlyList<AuthorityRunCompletedFindingLink> links = MapFindingLinks(payload.Findings);
@@ -86,22 +84,11 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
             return [];
 
         List<AuthorityRunCompletedFindingLink> links = new(capacity: rows.Count);
-
-        foreach (AuthorityRunCompletedFindingRow row in rows)
-        {
-            if (row is null) continue;
-
-
-            if (string.IsNullOrWhiteSpace(row.FindingId)) continue;
-
-
-            if (string.IsNullOrWhiteSpace(row.DeepLinkUrl)) continue;
-
-            links.Add(new AuthorityRunCompletedFindingLink(
-                row.FindingId.Trim(),
-                row.DeepLinkUrl.Trim(),
-                string.IsNullOrWhiteSpace(row.Severity) ? null : row.Severity.Trim()));
-        }
+        links.AddRange(from row in rows
+                       where !string.IsNullOrWhiteSpace(row.FindingId)
+                       where !string.IsNullOrWhiteSpace(row.DeepLinkUrl)
+                       select new AuthorityRunCompletedFindingLink(row.FindingId.Trim(), row.DeepLinkUrl.Trim(),
+                           string.IsNullOrWhiteSpace(row.Severity) ? null : row.Severity.Trim()));
 
         return links;
     }
@@ -121,8 +108,5 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
 
 internal static class AuthorityRunCompletedPayloadJson
 {
-    internal static readonly JsonSerializerOptions Options = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+    internal static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true, };
 }

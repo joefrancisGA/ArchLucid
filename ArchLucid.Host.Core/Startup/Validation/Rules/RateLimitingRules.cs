@@ -50,7 +50,9 @@ internal static class RateLimitingRules
 
         IConfigurationSection governanceDryRun = configuration.GetSection("RateLimiting:GovernancePolicyPackDryRun");
 
-        if (governanceDryRun.Exists())
+        if (!governanceDryRun.Exists())
+            return;
+
         {
             int permit = configuration.GetValue(
                 "RateLimiting:GovernancePolicyPackDryRun:PermitLimit",

@@ -1,4 +1,3 @@
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 

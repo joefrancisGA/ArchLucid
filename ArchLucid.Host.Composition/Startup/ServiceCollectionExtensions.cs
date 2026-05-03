@@ -7,8 +7,6 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Archival;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace ArchLucid.Host.Composition.Startup;
 
 /// <summary>

@@ -23,10 +23,7 @@ public static class ArchLucidConfigurationBridge
 
         string? raw = configuration.GetConnectionString(PrimarySqlConnectionName);
 
-        if (raw is null)
-            return null;
-
-        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw);
+        return raw is null ? null : SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw);
     }
 
     /// <summary>

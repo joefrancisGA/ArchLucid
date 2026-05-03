@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings.Serialization;

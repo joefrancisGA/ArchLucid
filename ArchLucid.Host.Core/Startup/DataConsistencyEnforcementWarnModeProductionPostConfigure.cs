@@ -1,6 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Startup;

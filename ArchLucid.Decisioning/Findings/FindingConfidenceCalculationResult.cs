@@ -1,5 +1,3 @@
-using ArchLucid.Contracts.Findings;
-
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>0–100 gate-derived score plus mapped <see cref="FindingConfidenceLevel" />.</summary>

@@ -6,19 +6,39 @@ public sealed class AzureDevOpsIntegrationOptions
     public const string SectionName = "AzureDevOps";
 
     /// <summary>When false, the integration handler no-ops.</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get;
+        set;
+    }
 
     /// <summary>Azure DevOps organization name (dev.azure.com/{Organization}/...).</summary>
-    public string Organization { get; set; } = string.Empty;
+    public string Organization
+    {
+        get;
+        set;
+    } = string.Empty;
 
     /// <summary>Project name (URL segment, may contain spaces — caller must URL-encode when building URIs).</summary>
-    public string Project { get; set; } = string.Empty;
+    public string Project
+    {
+        get;
+        set;
+    } = string.Empty;
 
     /// <summary>PAT with <c>Code (Read &amp; write)</c> for threads and statuses. Use Key Vault reference in production.</summary>
-    public string PersonalAccessToken { get; set; } = string.Empty;
+    public string PersonalAccessToken
+    {
+        get;
+        set;
+    } = string.Empty;
 
     /// <summary>Git repository id (UUID).</summary>
-    public Guid RepositoryId { get; set; }
+    public Guid RepositoryId
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Pull request id to decorate for the <strong>server-side</strong> fan-out handler (single fixed PR from config).
@@ -26,14 +46,30 @@ public sealed class AzureDevOpsIntegrationOptions
     /// <c>integrations/azure-devops-task-manifest-delta-pr-comment/</c>; this server-side path is for tenants that want
     /// zero pipeline changes and accept a fixed PR id.
     /// </summary>
-    public int PullRequestId { get; set; }
+    public int PullRequestId
+    {
+        get;
+        set;
+    }
 
     /// <summary>Optional link shown on PR status (e.g. operator run detail URL).</summary>
-    public string StatusTargetUrl { get; set; } = string.Empty;
+    public string StatusTargetUrl
+    {
+        get;
+        set;
+    } = string.Empty;
 
     /// <summary>ArchLucid API base URL (no trailing slash), e.g. <c>https://api.contoso.archlucid.net</c> — used for <c>GET /v1/compare</c>.</summary>
-    public string ArchLucidApiBaseUrl { get; set; } = string.Empty;
+    public string ArchLucidApiBaseUrl
+    {
+        get;
+        set;
+    } = string.Empty;
 
     /// <summary>API key for <c>X-Api-Key</c> when calling ArchLucid compare from the worker.</summary>
-    public string ArchLucidApiKey { get; set; } = string.Empty;
+    public string ArchLucidApiKey
+    {
+        get;
+        set;
+    } = string.Empty;
 }

@@ -10,9 +10,6 @@ public static class ScimKnownUserFilterPaths
 
     public static bool IsEmailsWorkValuePath(string attributePath)
     {
-        if (attributePath is null)
-            return false;
-
         return string.Equals(attributePath.Trim(), EmailsWorkValue, StringComparison.OrdinalIgnoreCase);
     }
 }
