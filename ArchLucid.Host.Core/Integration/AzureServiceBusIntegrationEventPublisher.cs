@@ -65,7 +65,6 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         return PublishAsync(eventType, utf8JsonPayload, null, cancellationToken);
     }
 
-    /// <inheritdoc />
     public Task PublishAsync(
         string eventType,
         ReadOnlyMemory<byte> utf8JsonPayload,

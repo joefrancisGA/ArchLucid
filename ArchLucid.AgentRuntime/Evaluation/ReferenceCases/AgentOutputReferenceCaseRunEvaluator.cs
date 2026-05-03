@@ -22,7 +22,8 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
 {
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
     };
 
     /// <summary>
@@ -41,29 +42,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
         if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
             return false;
 
-        foreach (AgentOutputReferenceCaseDefinition caseDef in catalog.Cases)
-        {
-            if (caseDef.AgentType != trace.AgentType)
-                continue;
-
-            AgentOutputEvaluationScore structural = structuralEvaluator.Evaluate(
-                trace.TraceId,
-                trace.ParsedResultJson,
-                trace.AgentType);
-
-            if (structural.IsJsonParseFailure)
-                continue;
-
-            AgentOutputSemanticScore semantic = semanticEvaluator.Evaluate(
-                trace.TraceId,
-                trace.ParsedResultJson,
-                trace.AgentType);
-
-            if (EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out _))
-                return true;
-        }
-
-        return false;
+        return (from caseDef in catalog.Cases where caseDef.AgentType == trace.AgentType let structural = structuralEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType) where !structural.IsJsonParseFailure let semantic = semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType) where EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out _) select caseDef).Any();
     }
 
     /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType" />.</summary>

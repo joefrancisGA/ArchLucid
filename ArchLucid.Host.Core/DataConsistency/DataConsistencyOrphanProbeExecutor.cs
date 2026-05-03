@@ -117,7 +117,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         if (snapshot.EnableAutoRemediation && graphCount > 0)
         {
-            await AutoRemediateOrphanGraphSnapshotsAsync(connection, sampleCap > 0 ? sampleCap : 500, cancellationToken).ConfigureAwait(false);
+            await AutoRemediateOrphanGraphSnapshotsAsync(connection, sampleCap, cancellationToken).ConfigureAwait(false);
         }
 
         await LogRemediationDryRunSamplesAsync(
@@ -350,7 +350,12 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 {
                     EventType = "GraphSnapshotOrphansRemediated",
                     DataJson = JsonSerializer.Serialize(
-                        new { dryRun = false, deletedCount = ids.Count, graphSnapshotIds = ids })
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = ids.Count,
+                            graphSnapshotIds = ids
+                        })
                 },
                 ct);
         }

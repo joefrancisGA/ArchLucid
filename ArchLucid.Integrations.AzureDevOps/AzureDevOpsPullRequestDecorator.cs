@@ -17,12 +17,10 @@ public sealed class AzureDevOpsPullRequestDecorator(
     IOptions<AzureDevOpsIntegrationOptions> options,
     ILogger<AzureDevOpsPullRequestDecorator> logger) : IAzureDevOpsPullRequestDecorator
 {
-    private static readonly JsonSerializerOptions CompareJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+    private static readonly JsonSerializerOptions CompareJsonOptions = new() { PropertyNameCaseInsensitive = true, };
 
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+
     private readonly IOptions<AzureDevOpsIntegrationOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
 

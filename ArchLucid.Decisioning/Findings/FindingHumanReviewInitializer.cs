@@ -19,10 +19,9 @@ public static class FindingHumanReviewInitializer
 
         HashSet<string> types = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string t in options.RequiredFindingTypes)
+        foreach (string t in options.RequiredFindingTypes.Where(t => !string.IsNullOrWhiteSpace(t)))
         {
-            if (!string.IsNullOrWhiteSpace(t))
-                types.Add(t.Trim());
+            types.Add(t.Trim());
         }
 
         foreach (Finding f in findings)

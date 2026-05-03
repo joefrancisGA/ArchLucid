@@ -27,12 +27,7 @@ public static class AzureDevOpsPullRequestWireFormat
         {
             Comments =
             [
-                new ThreadCommentDto
-                {
-                    ParentCommentId = 0,
-                    Content = markdown ?? string.Empty,
-                    CommentType = 1,
-                },
+                new ThreadCommentDto { ParentCommentId = 0, Content = markdown ?? string.Empty, CommentType = 1, },
             ],
             Status = 1,
         };
@@ -61,12 +56,16 @@ public static class AzureDevOpsPullRequestWireFormat
 
     private sealed class ThreadCreateDto
     {
-        public ThreadCommentDto[] Comments { [UsedImplicitly] get; set; } = [];
+        public ThreadCommentDto[] Comments
+        {
+            [UsedImplicitly] get;
+            set;
+        } = [];
 
         public int Status
         {
-            [UsedImplicitly]
-            get; set;
+            [UsedImplicitly] get;
+            set;
         }
     }
 
@@ -74,39 +73,63 @@ public static class AzureDevOpsPullRequestWireFormat
     {
         public int ParentCommentId
         {
-            [UsedImplicitly]
-            get; set;
+            [UsedImplicitly] get;
+            set;
         }
 
-        public string Content { [UsedImplicitly] get; set; } = string.Empty;
+        public string Content
+        {
+            [UsedImplicitly] get;
+            set;
+        } = string.Empty;
 
         public int CommentType
         {
-            [UsedImplicitly]
-            get; set;
+            [UsedImplicitly] get;
+            set;
         }
     }
 
     private sealed class StatusCreateDto
     {
-        public string State { [UsedImplicitly] get; set; } = string.Empty;
+        public string State
+        {
+            [UsedImplicitly] get;
+            set;
+        } = string.Empty;
 
-        public string Description { [UsedImplicitly] get; set; } = string.Empty;
+        public string Description
+        {
+            [UsedImplicitly] get;
+            set;
+        } = string.Empty;
 
-        public StatusContextDto Context { [UsedImplicitly] get; set; } = new();
+        public StatusContextDto Context
+        {
+            [UsedImplicitly] get;
+            set;
+        } = new();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? TargetUrl
         {
-            [UsedImplicitly]
-            get; set;
+            [UsedImplicitly] get;
+            set;
         }
     }
 
     private sealed class StatusContextDto
     {
-        public string Name { [UsedImplicitly] get; set; } = string.Empty;
+        public string Name
+        {
+            [UsedImplicitly] get;
+            set;
+        } = string.Empty;
 
-        public string Genre { [UsedImplicitly] get; set; } = string.Empty;
+        public string Genre
+        {
+            [UsedImplicitly] get;
+            set;
+        } = string.Empty;
     }
 }

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http;
 
 using Polly;
 using Polly.Retry;
@@ -55,9 +54,6 @@ public static class WebhookOutboundHttpRetryPolicy
     /// <summary>Matches <c>HandleTransientHttpError().OrResult(429)</c> from the historical Polly.Extensions.Http policy.</summary>
     private static bool ShouldRetryOutboundWebhookResponse(HttpResponseMessage response)
     {
-        if (response is null)
-            return false;
-
         HttpStatusCode code = response.StatusCode;
 
         if (code == HttpStatusCode.RequestTimeout)

@@ -1,4 +1,6 @@
+#pragma warning disable IDE0130
 namespace ArchLucid.Api.Client.Generated;
+#pragma warning restore IDE0130
 
 /// <summary>
 ///     Multipart file payload referenced by NSwag-generated <see cref="ArchLucidApiClient" /> upload operations (for example
@@ -24,9 +26,18 @@ public sealed class FileParameter
         ContentType = contentType;
     }
 
-    public Stream Data { get; }
+    public Stream Data
+    {
+        get;
+    }
 
-    public string? FileName { get; }
+    public string? FileName
+    {
+        get;
+    }
 
-    public string? ContentType { get; }
+    public string? ContentType
+    {
+        get;
+    }
 }
