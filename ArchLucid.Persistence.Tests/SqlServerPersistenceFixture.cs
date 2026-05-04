@@ -120,6 +120,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
+            await EnsureGovernanceContractTenantExistsAsync(connectionString);
+
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
 
