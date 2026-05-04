@@ -5,8 +5,20 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class DapperGovernanceEnvironmentActivationRepositoryContractTests(SqlServerPersistenceFixture fixture)
-    : GovernanceEnvironmentActivationRepositoryContractTests
+    : GovernanceEnvironmentActivationRepositoryContractTests,
+        IAsyncLifetime
 {
+    public async Task InitializeAsync()
+    {
+        if (!fixture.IsSqlServerAvailable)
+            return;
+
+        await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(fixture.ConnectionString);
+    }
+
+    public Task DisposeAsync() =>
+        Task.CompletedTask;
+
     protected override void SkipIfSqlServerUnavailable()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

@@ -85,7 +85,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
-            await EnsureGovernanceContractTenantExistsAsync(connectionString);
+            await PrimeGovernanceContractTenantAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -119,7 +119,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
-            await EnsureGovernanceContractTenantExistsAsync(connectionString);
+            await PrimeGovernanceContractTenantAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -156,17 +156,16 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     }
 
     /// <summary>
-    ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists after migration 118 governance FK.
-    ///     Supplements SQL seed + survives CI output/script drift without failing the fixture when the tenant is already present.
+    ///     Idempotently inserts <see cref="GovernanceRepositoryContractScope.TenantId" /> when missing (migration 118 FK).
+    ///     Callable from fixtures and governance contract tests — other SQL tests may delete rows or reorder relative to fixture init.
     /// </summary>
-    private static async Task EnsureGovernanceContractTenantExistsAsync(string connectionString)
+    public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
         ArchLucid.Persistence.Connections.SqlConnectionFactory factory = new(connectionString);
         DapperTenantRepository tenants = new(factory);
-        CancellationToken ct = CancellationToken.None;
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
 
-        TenantRecord? existing = await tenants.GetByIdAsync(tenantId, ct);
+        TenantRecord? existing = await tenants.GetByIdAsync(tenantId, cancellationToken);
 
         if (existing is not null)
             return;
@@ -181,11 +180,11 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
                 slug,
                 TenantTier.Standard,
                 entraTenantId: null,
-                ct);
+                cancellationToken);
         }
         catch (SqlException ex) when (ex.Number is 2601 or 2627)
         {
-            TenantRecord? afterRace = await tenants.GetByIdAsync(tenantId, ct);
+            TenantRecord? afterRace = await tenants.GetByIdAsync(tenantId, cancellationToken);
 
             if (afterRace is null)
                 throw;
