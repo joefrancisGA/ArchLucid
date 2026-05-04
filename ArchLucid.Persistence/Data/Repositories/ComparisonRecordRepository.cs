@@ -108,10 +108,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        return await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
+        ComparisonRecord? row = await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             new { ComparisonRecordId = comparisonRecordId },
             cancellationToken: cancellationToken));
+
+        return NormalizeRunIdsNullable(row);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> GetByRunIdAsync(
@@ -137,9 +139,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { RunId = runGuid },
             cancellationToken: cancellationToken));
 
-#pragma warning disable IDE0305 // Simplify collection initialization
-        return rows.ToList();
-#pragma warning restore IDE0305 // Simplify collection initialization
+        return MaterializeNormalized(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> GetByExportRecordIdAsync(
@@ -161,9 +161,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
 
-#pragma warning disable IDE0305 // Simplify collection initialization
-        return rows.ToList();
-#pragma warning restore IDE0305 // Simplify collection initialization
+        return MaterializeNormalized(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> SearchAsync(
@@ -232,7 +230,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             parameters,
             cancellationToken: cancellationToken));
 
-        return rows.ToList();
+        return MaterializeNormalized(rows);
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> SearchByCursorAsync(
@@ -315,7 +313,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             parameters,
             cancellationToken: cancellationToken));
 
-        return rows.ToList();
+        return MaterializeNormalized(rows);
     }
 
     public async Task<bool> UpdateLabelAndTagsAsync(
@@ -345,6 +343,24 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             },
             cancellationToken: cancellationToken));
         return rows > 0;
+    }
+
+    private static ComparisonRecord? NormalizeRunIdsNullable(ComparisonRecord? record)
+    {
+        if (record is not null)
+            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(record);
+
+        return record;
+    }
+
+    private static List<ComparisonRecord> MaterializeNormalized(IEnumerable<ComparisonRecord> rows)
+    {
+        List<ComparisonRecord> list = rows.ToList();
+
+        foreach (ComparisonRecord r in list)
+            ComparisonRecordRunIdSql.NormalizeRunIdsForRead(r);
+
+        return list;
     }
 
     private static string ResolveOrderColumn(string? sortBy)
