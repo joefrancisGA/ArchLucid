@@ -137,7 +137,7 @@ public sealed class ArchitectureApplicationService(
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
-                    logger.LogWarning(
+                    logger.LogWarningWithSanitizedUserArg(
                         ex,
                         "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.",
                         runId);

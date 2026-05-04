@@ -113,7 +113,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         {
             if (_logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(ex, "Failed to publish integration event type {EventType} to Service Bus.", LogSanitizer.Sanitize(eventType));
+                _logger.LogWarningIntegrationEventServiceBusPublishFailed(ex, eventType);
 
             throw;
         }
