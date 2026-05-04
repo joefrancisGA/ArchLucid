@@ -83,6 +83,7 @@ Manifest delta surfaces (`GET /v1/compare`) ship as **GitHub composite actions**
 
 ## Related
 
+- [TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md](TERRAFORM_CROSS_ROOT_DEPENDENCY_SAFETY.md) — blast-radius matrix, safe-apply checklist, variable hand-offs (separate Terraform state roots).
 - [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) — full root map and constraints.
 - [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) — recovery targets by tier.
 - [CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md) — private data plane narrative.
