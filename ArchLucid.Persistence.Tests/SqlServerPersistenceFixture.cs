@@ -3,7 +3,6 @@ using System.Data;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
-using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
 
 using Dapper;
@@ -167,11 +166,13 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
-        RlsBypassSqlConnectionFactory factory = new(connectionString);
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        RlsBypassTestDbConnectionFactory factory = new(connectionString);
+        await using SqlConnection connection =
+            (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
         string slug = "archgov-contract-" + tenantId.ToString("N");
-
-        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(cancellationToken);
         await using SqlTransaction transaction =
             (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
