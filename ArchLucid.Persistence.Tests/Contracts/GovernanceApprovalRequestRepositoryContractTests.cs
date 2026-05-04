@@ -215,8 +215,10 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         DateTime requested = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
-        DateTime reviewedOlder = new(2026, 4, 2, 10, 0, 0, DateTimeKind.Utc);
-        DateTime reviewedNewer = new(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc);
+        // TOP (@MaxRows) is global on the table under scope; far-future reviewed times keep this run inside the window
+        // when the shared contract catalog already holds many decision rows from other tests.
+        DateTime reviewedOlder = new(9999, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+        DateTime reviewedNewer = new(9999, 1, 1, 12, 0, 0, DateTimeKind.Utc);
 
         GovernanceApprovalRequest approved = NewApproval("apr-apr", runId, requested);
         approved.Status = GovernanceApprovalStatus.Approved;

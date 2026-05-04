@@ -149,6 +149,14 @@ public sealed class GovernanceApprovalRequestRepository(
 
         try
         {
+            // Pooled sessions can inherit SET NOCOUNT ON from other callers; ExecuteNonQuery then returns -1
+            // regardless of matched rows which breaks concurrency tests (winner rowcount checks).
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    "SET NOCOUNT OFF;",
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+
             DynamicParameters lockParams = new();
             lockParams.Add("ApprovalRequestId", approvalRequestId);
             lockParams.Add("Draft", GovernanceApprovalStatus.Draft);
@@ -172,6 +180,7 @@ public sealed class GovernanceApprovalRequestRepository(
                 new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));
 
             transaction.Commit();
+
             return affected == 1;
         }
         catch
