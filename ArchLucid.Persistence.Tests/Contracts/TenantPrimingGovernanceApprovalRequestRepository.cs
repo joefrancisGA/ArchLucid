@@ -1,6 +1,9 @@
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -21,9 +24,9 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
 
-        _connectionString = connectionString;
+        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString.Trim());
         _inner = new GovernanceApprovalRequestRepository(
-            new RlsBypassTestDbConnectionFactory(connectionString),
+            new RlsBypassTestDbConnectionFactory(_connectionString),
             scopeContextProvider);
     }
 
@@ -32,7 +35,16 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     {
         await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
 
-        await _inner.CreateAsync(item, cancellationToken);
+        try
+        {
+            await _inner.CreateAsync(item, cancellationToken);
+        }
+        catch (SqlException ex) when (IsGovernanceApprovalTenantsFkViolation(ex))
+        {
+            await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
+
+            await _inner.CreateAsync(item, cancellationToken);
+        }
     }
 
     /// <inheritdoc />
@@ -86,4 +98,16 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     public Task PatchSlaBreachNotifiedAsync(string approvalRequestId, DateTime slaBreachNotifiedUtc,
         CancellationToken cancellationToken = default) =>
         _inner.PatchSlaBreachNotifiedAsync(approvalRequestId, slaBreachNotifiedUtc, cancellationToken);
+
+    /// <summary>
+    ///     FK 547 after a successful prime usually means the parent row vanished on a shared catalog or priming hit a
+    ///     different pool endpoint; one re-prime + retry matches other governance contract mitigations.
+    /// </summary>
+    private static bool IsGovernanceApprovalTenantsFkViolation(SqlException ex)
+    {
+        if (ex.Number != 547)
+            return false;
+
+        return ex.Message.Contains("FK_GovernanceApprovalRequests_Tenants", StringComparison.Ordinal);
+    }
 }
