@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -11,7 +13,13 @@ public interface IGovernancePromotionRecordRepository
     /// <summary>Persists a new promotion record.</summary>
     /// <param name="item">The record to create.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
-    Task CreateAsync(GovernancePromotionRecord item, CancellationToken cancellationToken = default);
+    /// <param name="connection">Optional open connection for unit-of-work (transaction required when set).</param>
+    /// <param name="transaction">Optional transaction; required when <paramref name="connection" /> is set.</param>
+    Task CreateAsync(
+        GovernancePromotionRecord item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     ///     Returns all promotion records associated with <paramref name="runId" />,
