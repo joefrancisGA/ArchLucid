@@ -201,10 +201,11 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string idA = "apr-max-a-" + Guid.NewGuid().ToString("N");
         string idB = "apr-max-b-" + Guid.NewGuid().ToString("N");
         string idC = "apr-max-c-" + Guid.NewGuid().ToString("N");
-        // TOP (@MaxRows) is global; use end-of-range instants ahead of legacy 9999-01-* rows left in shared catalogs.
-        DateTime t3 = new(9999, 12, 31, 23, 59, 59, 997, DateTimeKind.Utc);
-        DateTime t2 = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
-        DateTime t1 = new(9999, 12, 31, 23, 59, 59, 995, DateTimeKind.Utc);
+        // TOP (@MaxRows) is global; stay at the DATETIME2 ceiling with distinct ticks so we beat legacy rows and
+        // avoid ties with GetPendingAsync_returns_draft_and_submitted (995–996ms), which made ORDER BY unstable here.
+        DateTime t3 = DateTime.MaxValue.AddTicks(-2);
+        DateTime t2 = DateTime.MaxValue.AddTicks(-3);
+        DateTime t1 = DateTime.MaxValue.AddTicks(-4);
 
         await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
         await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
