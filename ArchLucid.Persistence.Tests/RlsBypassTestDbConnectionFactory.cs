@@ -10,6 +10,7 @@ namespace ArchLucid.Persistence.Tests;
 /// <summary>
 ///     <see cref="IDbConnectionFactory" /> for SQL contract tests that touch RLS-protected tables (governance, alerts, etc.):
 ///     pooled sessions may inherit <c>SESSION_CONTEXT</c> from unrelated tests, which breaks block predicates and FK visibility.
+///     Uses the same connection-string normalization as <see cref="RlsBypassSqlConnectionFactory" /> so priming and writes hit the same endpoint.
 /// </summary>
 public sealed class RlsBypassTestDbConnectionFactory : IDbConnectionFactory
 {
@@ -18,7 +19,7 @@ public sealed class RlsBypassTestDbConnectionFactory : IDbConnectionFactory
     public RlsBypassTestDbConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
+        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString.Trim());
     }
 
     /// <inheritdoc />

@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
@@ -170,25 +172,54 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         string slug = "archgov-contract-" + tenantId.ToString("N");
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction =
+            (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-        const string sql = """
-                           MERGE dbo.Tenants WITH (HOLDLOCK) AS t
-                           USING (SELECT @Id AS Id) AS src ON t.Id = src.Id
-                           WHEN NOT MATCHED BY TARGET THEN
-                               INSERT (Id, Name, Slug, Tier, EntraTenantId)
-                               VALUES (@Id, @Name, @Slug, @Tier, NULL);
-                           """;
+        const string mergeSql = """
+                                MERGE INTO dbo.Tenants WITH (HOLDLOCK) AS t
+                                USING (SELECT @Id AS Id) AS src ON t.Id = src.Id
+                                WHEN NOT MATCHED BY TARGET THEN
+                                    INSERT (Id, Name, Slug, Tier, EntraTenantId)
+                                    VALUES (@Id, @Name, @Slug, @Tier, NULL);
+                                """;
 
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    Id = tenantId,
-                    Name = "ArchLucid persistence contract governance",
-                    Slug = slug,
-                    Tier = TenantTier.Standard.ToString()
-                },
-                cancellationToken: cancellationToken));
+        object param = new
+        {
+            Id = tenantId,
+            Name = "ArchLucid persistence contract governance",
+            Slug = slug,
+            Tier = TenantTier.Standard.ToString()
+        };
+
+        try
+        {
+            await connection.ExecuteAsync(
+                new CommandDefinition(mergeSql, param, transaction, cancellationToken: cancellationToken));
+
+            int present = await connection.QuerySingleAsync<int>(
+                new CommandDefinition(
+                    """
+                    SELECT COUNT(1)
+                    FROM dbo.Tenants
+                    WHERE Id = @Id;
+                    """,
+                    new { Id = tenantId },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            if (present != 1)
+            {
+                throw new InvalidOperationException(
+                    "Governance contract priming expected exactly one Tenants row for Id "
+                    + tenantId.ToString("N") + " but found " + present.ToString() + ".");
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 }
