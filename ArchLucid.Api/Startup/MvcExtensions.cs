@@ -30,6 +30,7 @@ internal static class MvcExtensions
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 // Contract enums as strings (e.g. run.status, agentType) so clients and integration tests match OpenAPI expectations.
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(null));
             });
