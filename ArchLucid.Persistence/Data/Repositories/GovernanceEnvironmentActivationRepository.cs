@@ -57,22 +57,26 @@ public sealed class GovernanceEnvironmentActivationRepository(
 
         try
         {
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new
-                {
-                    item.ActivationId,
-                    item.RunId,
-                    item.TenantId,
-                    item.WorkspaceId,
-                    item.ProjectId,
-                    item.ManifestVersion,
-                    item.Environment,
-                    item.IsActive,
-                    item.ActivatedUtc
-                },
-                transaction,
-                cancellationToken: cancellationToken));
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    commandText: sql,
+                    parameters: new
+                    {
+                        item.ActivationId,
+                        item.RunId,
+                        item.TenantId,
+                        item.WorkspaceId,
+                        item.ProjectId,
+                        item.ManifestVersion,
+                        item.Environment,
+                        item.IsActive,
+                        item.ActivatedUtc
+                    },
+                    transaction: transaction,
+                    commandTimeout: null,
+                    commandType: null,
+                    flags: CommandFlags.Buffered,
+                    cancellationToken: cancellationToken));
         }
         finally
         {
