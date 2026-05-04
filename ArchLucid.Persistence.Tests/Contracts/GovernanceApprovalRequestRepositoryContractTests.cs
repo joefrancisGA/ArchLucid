@@ -57,7 +57,11 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         loaded.Should().NotBeNull();
         loaded.Status.Should().Be(GovernanceApprovalStatus.Approved);
         loaded.ReviewedBy.Should().Be("reviewer");
-        loaded.ReviewedUtc.Should().Be(new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc));
+        loaded.ReviewedUtc.Should().NotBeNull();
+
+        // SqlClient maps datetime2 to DateTimeKind.Unspecified; compare the instant, not Kind.
+        DateTime expectedReviewed = new(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc);
+        loaded.ReviewedUtc!.Value.Should().BeCloseTo(expectedReviewed, TimeSpan.FromSeconds(1));
     }
 
     [SkippableFact]
