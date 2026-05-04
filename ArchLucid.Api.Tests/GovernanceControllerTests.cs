@@ -97,8 +97,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -129,8 +128,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -157,8 +155,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -209,8 +206,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "test", TargetEnvironment = "prod"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -342,8 +338,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -368,8 +363,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -397,8 +391,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
