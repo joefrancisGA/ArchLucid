@@ -102,6 +102,11 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
           return;
         }
 
+        if (!telemetrySentRef.current) {
+          telemetrySentRef.current = true;
+          recordSponsorBannerFirstCommitBadge(n);
+        }
+
         setBadgeDayN(n);
       } catch {
         /* graceful: banner without badge */
@@ -114,19 +119,6 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    if (badgeDayN === null) {
-      return;
-    }
-
-    if (telemetrySentRef.current) {
-      return;
-    }
-
-    telemetrySentRef.current = true;
-    recordSponsorBannerFirstCommitBadge(badgeDayN);
-  }, [badgeDayN]);
 
   async function onDownloadPdf(): Promise<void> {
     setBusy(true);
