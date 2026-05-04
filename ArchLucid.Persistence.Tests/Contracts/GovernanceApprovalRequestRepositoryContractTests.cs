@@ -169,14 +169,17 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        string idDraft = "apr-pend-draft-" + Guid.NewGuid().ToString("N");
+        string idSubmitted = "apr-pend-sub-" + Guid.NewGuid().ToString("N");
+        // TOP (@MaxRows) is global — use end-of-range instants so rows survive dirty shared catalogs.
+        DateTime newer = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
+        DateTime older = new(9999, 12, 31, 23, 59, 59, 995, DateTimeKind.Utc);
 
-        GovernanceApprovalRequest draftOld = NewApproval("apr-draft-old", runId, older);
+        GovernanceApprovalRequest draftOld = NewApproval(idDraft, runId, older);
         draftOld.Status = GovernanceApprovalStatus.Draft;
         await repo.CreateAsync(draftOld, CancellationToken.None);
 
-        await repo.CreateAsync(NewApproval("apr-sub-new", runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idSubmitted, runId, newer), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(50, CancellationToken.None);
 
@@ -185,8 +188,8 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             [.. pending.Where(r => r.RunId == runId).OrderByDescending(r => r.RequestedUtc)];
 
         mine.Should().HaveCount(2);
-        mine[0].ApprovalRequestId.Should().Be("apr-sub-new");
-        mine[1].ApprovalRequestId.Should().Be("apr-draft-old");
+        mine[0].ApprovalRequestId.Should().Be(idSubmitted);
+        mine[1].ApprovalRequestId.Should().Be(idDraft);
     }
 
     [SkippableFact]
