@@ -11,6 +11,21 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
     {
     }
 
+    /// <summary>
+    ///     SQL-backed implementations must insert <c>AlertRules</c>, <c>AlertRecords</c>, and
+    ///     <c>AlertRoutingSubscriptions</c> so <c>dbo.AlertDeliveryAttempts</c> FKs succeed.
+    /// </summary>
+    protected virtual Task EnsureDeliveryAttemptParentsExistAsync(
+        Guid alertId,
+        Guid routingSubscriptionId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        return Task.CompletedTask;
+    }
+
     protected abstract IAlertDeliveryAttemptRepository CreateRepository();
 
     [SkippableFact]
@@ -21,11 +36,21 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
         DateTime newer = DateTime.UtcNow;
         DateTime older = newer.AddMinutes(-5);
 
-        AlertDeliveryAttempt first = NewAttempt(alertId, subscriptionId, tenantId, older);
-        AlertDeliveryAttempt second = NewAttempt(alertId, subscriptionId, tenantId, newer);
+        await EnsureDeliveryAttemptParentsExistAsync(
+            alertId,
+            subscriptionId,
+            tenantId,
+            workspaceId,
+            projectId,
+            CancellationToken.None);
+
+        AlertDeliveryAttempt first = NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, older);
+        AlertDeliveryAttempt second = NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newer);
 
         await repo.CreateAsync(first, CancellationToken.None);
         await repo.CreateAsync(second, CancellationToken.None);
@@ -45,8 +70,19 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
 
-        AlertDeliveryAttempt attempt = NewAttempt(alertId, subscriptionId, tenantId, DateTime.UtcNow);
+        await EnsureDeliveryAttemptParentsExistAsync(
+            alertId,
+            subscriptionId,
+            tenantId,
+            workspaceId,
+            projectId,
+            CancellationToken.None);
+
+        AlertDeliveryAttempt attempt =
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, DateTime.UtcNow);
         await repo.CreateAsync(attempt, CancellationToken.None);
 
         attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
@@ -66,11 +102,24 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        await EnsureDeliveryAttemptParentsExistAsync(
+            alertId,
+            subscriptionId,
+            tenantId,
+            workspaceId,
+            projectId,
+            CancellationToken.None);
 
         DateTime newestUtc = DateTime.UtcNow;
-        AlertDeliveryAttempt c = NewAttempt(alertId, subscriptionId, tenantId, newestUtc);
-        AlertDeliveryAttempt b = NewAttempt(alertId, subscriptionId, tenantId, newestUtc.AddMinutes(-1));
-        AlertDeliveryAttempt a = NewAttempt(alertId, subscriptionId, tenantId, newestUtc.AddMinutes(-2));
+        AlertDeliveryAttempt c =
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newestUtc);
+        AlertDeliveryAttempt b =
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newestUtc.AddMinutes(-1));
+        AlertDeliveryAttempt a =
+            NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newestUtc.AddMinutes(-2));
 
         await repo.CreateAsync(a, CancellationToken.None);
         await repo.CreateAsync(b, CancellationToken.None);
@@ -88,6 +137,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         Guid alertId,
         Guid routingSubscriptionId,
         Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
         DateTime attemptedUtc)
     {
         return new AlertDeliveryAttempt
@@ -96,8 +147,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
             AlertId = alertId,
             RoutingSubscriptionId = routingSubscriptionId,
             TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
             AttemptedUtc = attemptedUtc,
             Status = AlertDeliveryAttemptStatus.Started,
             ChannelType = "test",
