@@ -28,8 +28,8 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
         DateTime createdUtc = DateTime.UtcNow;
         string deduplicationKey = $"contract-alert-{alertId:N}";
 
-        await using SqlConnection connection = new SqlConnection(fixture.ConnectionString);
-        await connection.OpenAsync(ct);
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string insertRuleSql = """
             INSERT INTO dbo.AlertRules

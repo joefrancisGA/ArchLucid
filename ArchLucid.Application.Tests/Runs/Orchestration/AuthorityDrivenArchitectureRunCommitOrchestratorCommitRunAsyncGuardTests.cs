@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Governance;
@@ -6,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Merge;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
@@ -141,7 +143,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IAgentResultRepository>(),
             Mock.Of<IGraphSnapshotRepository>(),
             Mock.Of<IFindingsSnapshotRepository>(),
+            Mock.Of<IAgentEvaluationService>(),
             Mock.Of<IDecisionEngine>(),
+            Mock.Of<IDecisionEngineV2>(),
+            Mock.Of<IDecisionNodeRepository>(),
             Mock.Of<IDecisionTraceRepository>(),
             Mock.Of<IGoldenManifestRepository>(),
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
