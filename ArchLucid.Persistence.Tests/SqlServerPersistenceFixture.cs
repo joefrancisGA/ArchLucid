@@ -196,17 +196,27 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         };
 
         await connection.ExecuteAsync(
-            new CommandDefinition(mergeSql, param, transaction, cancellationToken: cancellationToken));
+            new CommandDefinition(
+                commandText: mergeSql,
+                parameters: param,
+                transaction: transaction,
+                commandTimeout: null,
+                commandType: null,
+                flags: CommandFlags.Buffered,
+                cancellationToken: cancellationToken));
 
         int present = await connection.QuerySingleAsync<int>(
             new CommandDefinition(
-                """
-                SELECT COUNT(1)
-                FROM dbo.Tenants
-                WHERE Id = @Id;
-                """,
-                new { Id = tenantId },
-                transaction,
+                commandText: """
+                             SELECT COUNT(1)
+                             FROM dbo.Tenants
+                             WHERE Id = @Id;
+                             """,
+                parameters: new { Id = tenantId },
+                transaction: transaction,
+                commandTimeout: null,
+                commandType: null,
+                flags: CommandFlags.Buffered,
                 cancellationToken: cancellationToken));
 
 
