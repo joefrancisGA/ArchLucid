@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 ///     Runs <see cref="SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync" /> and
-///     <see cref="GovernanceApprovalRequestRepository.CreateAsync" /> in one <see cref="System.Data.IsolationLevel.Serializable" />
+///     <see cref="GovernanceApprovalRequestRepository.CreateAsync" /> in one <see cref="IsolationLevel.Serializable" />
 ///     transaction so <c>FK_GovernanceApprovalRequests_Tenants</c> sees the parent row on shared CI databases.
 /// </summary>
 internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovernanceApprovalRequestRepository
@@ -41,6 +41,9 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     {
         if (connection is not null)
         {
+            ArgumentNullException.ThrowIfNull(transaction);
+
+            await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(connection, transaction, cancellationToken);
             await _inner.CreateAsync(item, cancellationToken, connection, transaction);
 
             return;
@@ -48,19 +51,24 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
 
         RlsBypassTestDbConnectionFactory factory = new(_connectionString);
         await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
-        await using SqlTransaction tran =
-            (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+        SqlTransaction? tran = null;
 
         try
         {
+            tran = (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
             await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(conn, tran, cancellationToken);
             await _inner.CreateAsync(item, cancellationToken, conn, tran);
-            await tran.CommitAsync(cancellationToken);
+            tran.Commit();
         }
         catch
         {
-            await tran.RollbackAsync(cancellationToken);
+            tran?.Rollback();
             throw;
+        }
+        finally
+        {
+            tran?.Dispose();
         }
     }
 

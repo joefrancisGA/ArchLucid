@@ -77,32 +77,38 @@ public sealed class GovernanceApprovalRequestRepository(
 
         try
         {
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new
-                {
-                    item.ApprovalRequestId,
-                    item.RunId,
-                    item.TenantId,
-                    item.WorkspaceId,
-                    item.ProjectId,
-                    item.ManifestVersion,
-                    item.SourceEnvironment,
-                    item.TargetEnvironment,
-                    item.Status,
-                    item.RequestedBy,
-                    item.RequestedByActorKey,
-                    item.ReviewedBy,
-                    item.ReviewedByActorKey,
-                    item.RequestComment,
-                    item.ReviewComment,
-                    item.RequestedUtc,
-                    item.ReviewedUtc,
-                    item.SlaDeadlineUtc,
-                    item.SlaBreachNotifiedUtc
-                },
-                transaction,
-                cancellationToken: cancellationToken));
+            // Named CommandDefinition slots so Dapper always enlists transaction (positional + cancellationToken can
+            // mis-bind overloads on some SDKs; unenlisted INSERTs break FK checks vs same-session MERGE).
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    commandText: sql,
+                    parameters: new
+                    {
+                        item.ApprovalRequestId,
+                        item.RunId,
+                        item.TenantId,
+                        item.WorkspaceId,
+                        item.ProjectId,
+                        item.ManifestVersion,
+                        item.SourceEnvironment,
+                        item.TargetEnvironment,
+                        item.Status,
+                        item.RequestedBy,
+                        item.RequestedByActorKey,
+                        item.ReviewedBy,
+                        item.ReviewedByActorKey,
+                        item.RequestComment,
+                        item.ReviewComment,
+                        item.RequestedUtc,
+                        item.ReviewedUtc,
+                        item.SlaDeadlineUtc,
+                        item.SlaBreachNotifiedUtc
+                    },
+                    transaction: transaction,
+                    commandTimeout: null,
+                    commandType: null,
+                    flags: CommandFlags.Buffered,
+                    cancellationToken: cancellationToken));
         }
         finally
         {
