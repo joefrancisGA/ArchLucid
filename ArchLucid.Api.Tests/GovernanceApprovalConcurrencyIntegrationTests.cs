@@ -29,25 +29,18 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
     public async Task Thirty_two_parallel_approves_single_ok_terminal_outcome()
     {
         string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);
-        var submitBody = new
-        {
-            RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
-        };
-
-        HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+        HttpResponseMessage submitResponse = await PostGovernanceApprovalRequestAsync(runId);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve";
-        var approveBody = new { ReviewedBy = "reviewer-32", ReviewComment = "parallel-32" };
 
         const int parallel = 32;
         Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, parallel)
             .Select(_ =>
-                PostJsonAsTestActorAsync(url, approveBody, "reviewer-32",
+                PostJsonAsTestActorAsync(url, GovernanceReviewDecisionJsonContent("reviewer-32", "parallel-32"),
+                    "reviewer-32",
                     "33333333-3333-3333-3333-333333333333"))
             .ToArray();
 

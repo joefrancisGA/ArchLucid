@@ -99,13 +99,14 @@ public static class SanitizedLoggerWarningExtensions
         string safeComparisonRecordId = LogSanitizer.Sanitize(comparisonRecordId);
         string safeErrorMessage = LogSanitizer.Sanitize(errorMessage);
 
+        // codeql[cs/log-forging]: ComparisonRecordId and Error placeholders sanitized immediately above (params boxing breaks LogSanitizer barrier at downstream call sites). NotFound and MetadataOnly are booleans (no CRLF injection). Full exception forwarded for structured telemetry sinks; CWE-117 string sink uses only sanitized placeholders (docs/library/CODEQL_TRIAGE.md).
         logger.LogWarning(
             ex,
             "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",
             safeComparisonRecordId,
             notFound,
             metadataOnly,
-            safeErrorMessage); // codeql[cs/log-forging]: strings sanitized immediately above; bools cannot inject log lines.
+            safeErrorMessage);
     }
 
     /// <summary>
@@ -270,5 +271,32 @@ public static class SanitizedLoggerWarningExtensions
             safeUserAgent,
             safeTimestamp,
             safeStack); // codeql[cs/log-forging]: string placeholders sanitized immediately above.
+    }
+
+    /// <summary>
+    ///     Service Bus integration publish failure: <paramref name="eventType" /> is a canonical urn from
+    ///     <see cref="ArchLucid.Core.Integration.IntegrationEventTypes" /> (externally influenced at the API boundary).
+    /// </summary>
+    /// <remarks>
+    ///     Prefer this over raw <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, object?[])" /> so
+    ///     <see cref="LogSanitizer" /> stays adjacent to the sink and operational event-type logging is centralized (see
+    ///     <c>docs/library/CODEQL_TRIAGE.md</c> coordinator / integration event notes).
+    /// </remarks>
+    public static void LogWarningIntegrationEventServiceBusPublishFailed(
+        this ILogger logger,
+        Exception ex,
+        string? eventType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeEventType = LogSanitizer.Sanitize(eventType);
+
+        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
+        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        logger.LogWarning(
+            ex,
+            "Failed to publish integration event type {EventType} to Service Bus.",
+            safeEventType);
     }
 }

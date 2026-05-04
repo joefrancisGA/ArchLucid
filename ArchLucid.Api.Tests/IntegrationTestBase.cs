@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -51,6 +52,137 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     }
 
     /// <summary>
+    ///     POST <c>/v1/governance/approval-requests</c> using explicit camelCase JSON keys so binding stays stable across
+    ///     CI hosts (anonymous projection payloads have proven flaky versus MVC deserialization).
+    /// </summary>
+    protected Task<HttpResponseMessage> PostGovernanceApprovalRequestAsync(
+        string runId,
+        string manifestVersion = "v1",
+        string sourceEnvironment = "dev",
+        string targetEnvironment = "test",
+        string? requestComment = null,
+        string? testActorName = null,
+        string? testActorId = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        Dictionary<string, object?> payload =
+            new()
+            {
+                ["runId"] = runId,
+                ["manifestVersion"] = manifestVersion,
+                ["sourceEnvironment"] = sourceEnvironment,
+                ["targetEnvironment"] = targetEnvironment
+            };
+
+        if (requestComment is not null)
+            payload["requestComment"] = requestComment;
+
+        string json = JsonSerializer.Serialize(payload, JsonOptions);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
+
+        return PostGovernanceMutationAsync(
+            "/v1/governance/approval-requests",
+            content,
+            Guid.NewGuid().ToString("N"),
+            testActorName,
+            testActorId);
+    }
+
+    /// <summary>
+    ///     JSON for governance <c>.../approve</c> and <c>.../reject</c> bodies; explicit camelCase keys for stable MVC
+    ///     binding across CI hosts.
+    /// </summary>
+    protected StringContent GovernanceReviewDecisionJsonContent(string reviewedBy, string? reviewComment = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+
+        Dictionary<string, object?> payload = new() { ["reviewedBy"] = reviewedBy };
+
+        if (reviewComment is not null)
+            payload["reviewComment"] = reviewComment;
+
+        string json = JsonSerializer.Serialize(payload, JsonOptions);
+
+        return new StringContent(json, Encoding.UTF8, "application/json");
+    }
+
+    /// <summary>
+    ///     POST <c>/v1/governance/activations</c> using explicit camelCase keys so binding stays stable across CI hosts.
+    /// </summary>
+    protected Task<HttpResponseMessage> PostGovernanceActivationAsync(
+        string runId,
+        string manifestVersion = "v1",
+        string environment = "dev",
+        string? testActorName = null,
+        string? testActorId = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        Dictionary<string, object?> payload =
+            new()
+            {
+                ["runId"] = runId,
+                ["manifestVersion"] = manifestVersion,
+                ["environment"] = environment
+            };
+
+        string json = JsonSerializer.Serialize(payload, JsonOptions);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
+
+        return PostGovernanceMutationAsync(
+            "/v1/governance/activations",
+            content,
+            Guid.NewGuid().ToString("N"),
+            testActorName,
+            testActorId);
+    }
+
+    /// <summary>
+    ///     POST <c>/v1/governance/promotions</c> using explicit camelCase keys so binding stays stable across CI hosts.
+    /// </summary>
+    protected Task<HttpResponseMessage> PostGovernancePromotionAsync(
+        string runId,
+        string promotedBy,
+        string manifestVersion = "v1",
+        string sourceEnvironment = "dev",
+        string targetEnvironment = "test",
+        string? approvalRequestId = null,
+        string? notes = null,
+        string? testActorName = null,
+        string? testActorId = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
+
+        Dictionary<string, object?> payload =
+            new()
+            {
+                ["runId"] = runId,
+                ["manifestVersion"] = manifestVersion,
+                ["sourceEnvironment"] = sourceEnvironment,
+                ["targetEnvironment"] = targetEnvironment,
+                ["promotedBy"] = promotedBy
+            };
+
+        if (approvalRequestId is not null)
+            payload["approvalRequestId"] = approvalRequestId;
+
+        if (notes is not null)
+            payload["notes"] = notes;
+
+        string json = JsonSerializer.Serialize(payload, JsonOptions);
+        StringContent content = new(json, Encoding.UTF8, "application/json");
+
+        return PostGovernanceMutationAsync(
+            "/v1/governance/promotions",
+            content,
+            Guid.NewGuid().ToString("N"),
+            testActorName,
+            testActorId);
+    }
+
+    /// <summary>
     ///     POST with <c>Idempotency-Key</c> for persisted governance mutations (submit approval, promote, activate).
     ///     Optional test actor headers apply when both <paramref name="testActorName" /> and
     ///     <paramref name="testActorId" /> are non-empty (requires <c>ArchLucidAuth:AllowTestActorHeaders</c>).
@@ -100,16 +232,28 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     }
 
     /// <summary>POST JSON as a specific test actor (no idempotency): approve/reject and similar actions.</summary>
-    protected async Task<HttpResponseMessage> PostJsonAsTestActorAsync(
+    protected Task<HttpResponseMessage> PostJsonAsTestActorAsync(
         string relativeUrl,
         object body,
         string testActorName,
         string testActorId)
     {
-        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, relativeUrl)
-        {
-            Content = JsonContent(body)
-        };
+        ArgumentNullException.ThrowIfNull(body);
+
+        return PostJsonAsTestActorAsync(relativeUrl, JsonContent(body), testActorName, testActorId);
+    }
+
+    /// <inheritdoc cref="PostJsonAsTestActorAsync(string,object,string,string)" />
+    protected async Task<HttpResponseMessage> PostJsonAsTestActorAsync(
+        string relativeUrl,
+        HttpContent content,
+        string testActorName,
+        string testActorId)
+    {
+        if (content is null)
+            throw new ArgumentNullException(nameof(content));
+
+        using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl) { Content = content };
 
         ApplyTestActorHeaders(request, testActorName, testActorId);
 

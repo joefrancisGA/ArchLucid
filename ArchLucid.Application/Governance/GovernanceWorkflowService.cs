@@ -501,15 +501,15 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
         ArgumentException.ThrowIfNullOrWhiteSpace(activatedBy);
 
-        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
-            ?? throw new RunNotFoundException(runId);
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+                                          ?? throw new RunNotFoundException(runId);
 
         IReadOnlyList<GovernanceEnvironmentActivation> existing =
             await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
 
         GovernanceEnvironmentActivation activation = new()
         {
-            RunId = runId,
+            RunId = runDetail.Run.RunId,
             ManifestVersion = manifestVersion,
             Environment = environment,
             IsActive = true,
@@ -569,7 +569,7 @@ public sealed class GovernanceWorkflowService(
                     AuditEventTypes.Baseline.Governance.EnvironmentActivated,
                     activatedBy,
                     activation.ActivationId,
-                    $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
+                    $"RunId={activation.RunId}; ManifestVersion={manifestVersion}; Environment={environment}",
                     cancellationToken)
             ;
 
@@ -644,6 +644,14 @@ public sealed class GovernanceWorkflowService(
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);
     }
 
+    private static bool SameArchitectureRunKey(string left, string right)
+    {
+        if (Guid.TryParse(left, out Guid leftGuid) && Guid.TryParse(right, out Guid rightGuid))
+            return leftGuid == rightGuid;
+
+        return string.Equals(left, right, StringComparison.Ordinal);
+    }
+
     private void ThrowIfProdApprovalChainInvalid(
         GovernanceApprovalRequest? approvalRequest,
         string approvalRequestId,
@@ -674,7 +682,7 @@ public sealed class GovernanceWorkflowService(
 
         GovernanceApprovalRequest approved = approvalRequest;
 
-        if (!string.Equals(approved.RunId, runId, StringComparison.Ordinal))
+        if (!SameArchitectureRunKey(approved.RunId, runId))
         {
             if (verbosePromotionValidationErrors)
                 throw new InvalidOperationException(
