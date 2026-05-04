@@ -159,8 +159,9 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
     /// <summary>
     ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
-    ///     Uses an idempotent conditional insert with range locks so parallel contract tests and shared catalogs stay valid
-    ///     even when other tests delete the row after a prior "exists" check.
+    ///     Uses <c>MERGE</c> with <c>HOLDLOCK</c> so priming stays atomic vs parallel deletes under the default isolation level.
+    ///     Governance SQL contract tests open connections with <see cref="RlsBypassTestDbConnectionFactory" /> so pooled
+    ///     <c>SESSION_CONTEXT</c> does not block inserts or confuse FK checks.
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
@@ -171,11 +172,11 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                           IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WITH (UPDLOCK, HOLDLOCK) WHERE Id = @Id)
-                           BEGIN
-                               INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+                           MERGE dbo.Tenants WITH (HOLDLOCK) AS t
+                           USING (SELECT @Id AS Id) AS src ON t.Id = src.Id
+                           WHEN NOT MATCHED BY TARGET THEN
+                               INSERT (Id, Name, Slug, Tier, EntraTenantId)
                                VALUES (@Id, @Name, @Slug, @Tier, NULL);
-                           END
                            """;
 
         await connection.ExecuteAsync(

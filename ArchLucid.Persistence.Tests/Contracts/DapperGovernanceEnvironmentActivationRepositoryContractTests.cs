@@ -22,7 +22,7 @@ public sealed class DapperGovernanceEnvironmentActivationRepositoryContractTests
         }
 
         return new GovernanceEnvironmentActivationRepository(
-            new TestSqlDbConnectionFactory(fixture.ConnectionString),
+            new RlsBypassTestDbConnectionFactory(fixture.ConnectionString),
             new FixedTestScopeContextProvider(GovernanceRepositoryContractScope.AsScopeContext()));
     }
 }
