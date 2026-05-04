@@ -1,6 +1,5 @@
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
-using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.TestSupport;
@@ -162,7 +161,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// </summary>
     private static async Task EnsureGovernanceContractTenantExistsAsync(string connectionString)
     {
-        SqlConnectionFactory factory = new(connectionString);
+        ArchLucid.Persistence.Connections.SqlConnectionFactory factory = new(connectionString);
         DapperTenantRepository tenants = new(factory);
         CancellationToken ct = CancellationToken.None;
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
