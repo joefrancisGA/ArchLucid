@@ -223,25 +223,28 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
+        string idApproved = "apr-apr-" + Guid.NewGuid().ToString("N");
+        string idRejected = "apr-rej-" + Guid.NewGuid().ToString("N");
+        string idPending = "apr-still-open-" + Guid.NewGuid().ToString("N");
         DateTime requested = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
-        // TOP (@MaxRows) is global on the table under scope; far-future reviewed times keep this run inside the window
-        // when the shared contract catalog already holds many decision rows from other tests.
-        DateTime reviewedOlder = new(9999, 1, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime reviewedNewer = new(9999, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        // TOP (@MaxRows) is global; use end-of-range instants (same band as GetPendingAsync_*) so rows stay inside
+        // the window when the shared catalog already holds legacy 9999-01-* decision rows or many newer decisions.
+        DateTime reviewedOlder = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
+        DateTime reviewedNewer = new(9999, 12, 31, 23, 59, 59, 998, DateTimeKind.Utc);
 
-        GovernanceApprovalRequest approved = NewApproval("apr-apr", runId, requested);
+        GovernanceApprovalRequest approved = NewApproval(idApproved, runId, requested);
         approved.Status = GovernanceApprovalStatus.Approved;
         approved.ReviewedBy = "r1";
         approved.ReviewedUtc = reviewedOlder;
         await repo.CreateAsync(approved, CancellationToken.None);
 
-        GovernanceApprovalRequest rejected = NewApproval("apr-rej", runId, requested);
+        GovernanceApprovalRequest rejected = NewApproval(idRejected, runId, requested);
         rejected.Status = GovernanceApprovalStatus.Rejected;
         rejected.ReviewedBy = "r2";
         rejected.ReviewedUtc = reviewedNewer;
         await repo.CreateAsync(rejected, CancellationToken.None);
 
-        await repo.CreateAsync(NewApproval("apr-still-open", runId, requested), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idPending, runId, requested), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> decisions =
             await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
@@ -250,8 +253,8 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             [.. decisions.Where(r => r.RunId == runId).OrderByDescending(r => r.ReviewedUtc)];
 
         mine.Should().HaveCount(2);
-        mine[0].ApprovalRequestId.Should().Be("apr-rej");
-        mine[1].ApprovalRequestId.Should().Be("apr-apr");
+        mine[0].ApprovalRequestId.Should().Be(idRejected);
+        mine[1].ApprovalRequestId.Should().Be(idApproved);
     }
 
     private static GovernanceApprovalRequest NewApproval(string approvalId, string runId, DateTime requestedUtc)
