@@ -54,9 +54,13 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     [SkippableFact]
     public async Task SubmitApprovalRequest_UnknownRun_Returns404()
     {
+        // Canonical run identifiers are GUIDs (see RunDetailQueryService.TryParseRunGuid). Use a random GUID so we hit
+        // the repository miss path, not only the malformed-id path that returns null before lookup.
+        string unknownRunId = Guid.NewGuid().ToString("N");
+
         var body = new
         {
-            RunId = "run-does-not-exist",
+            RunId = unknownRunId,
             ManifestVersion = "v1",
             SourceEnvironment = "dev",
             TargetEnvironment = "test"
