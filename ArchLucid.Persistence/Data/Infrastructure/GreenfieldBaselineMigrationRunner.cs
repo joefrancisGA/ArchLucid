@@ -136,6 +136,52 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
+        StampRunTelemetryMigration138WhenDboTableExists(connection, null);
+    }
+
+    /// <summary>
+    ///     Journal drift: after stamping <c>001</c>–<c>050</c>, DbUp replays <c>051</c>+. When <c>dbo.RunTelemetry</c>
+    ///     already exists from a prior successful migrate, pre-stamp <c>138_RunTelemetry.sql</c> so DbUp skips redundant
+    ///     DDL during drift recovery.
+    /// </summary>
+    private static void StampRunTelemetryMigration138WhenDboTableExists(SqlConnection connection, SqlTransaction? tx)
+    {
+        if (!DboRunTelemetryUserTableExists(connection))
+            return;
+
+        string? resourceName = GetOrderedIncrementalMigrationResourceNames()
+            .FirstOrDefault(static n => n.Contains("138_RunTelemetry", StringComparison.OrdinalIgnoreCase));
+
+        if (string.IsNullOrEmpty(resourceName))
+            return;
+
+        using SqlCommand stamp = new(
+            """
+            IF NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions WHERE ScriptName = @ScriptName)
+                INSERT INTO dbo.SchemaVersions (ScriptName, Applied) VALUES (@ScriptName, SYSUTCDATETIME());
+            """,
+            connection,
+            tx);
+        stamp.Parameters.AddWithValue("@ScriptName", resourceName);
+        stamp.ExecuteNonQuery();
+    }
+
+    private static bool DboRunTelemetryUserTableExists(SqlConnection connection)
+    {
+        const string sql = """
+                           SELECT CASE WHEN OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NOT NULL THEN 1 ELSE 0 END;
+                           """;
+
+        using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null || scalar is DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     /// <summary>

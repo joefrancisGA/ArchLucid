@@ -1,4 +1,6 @@
-IF OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NULL
+-- Journal replay: dbo.RunTelemetry may exist while dbo.SchemaVersions was emptied; guard must treat any
+-- same-named dbo object as blocking CREATE (OBJECT_ID two-arg form filters by type 'U' only).
+IF OBJECT_ID(N'dbo.RunTelemetry') IS NULL
 BEGIN
     CREATE TABLE [dbo].[RunTelemetry] (
         [RunId] UNIQUEIDENTIFIER NOT NULL,

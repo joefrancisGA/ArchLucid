@@ -6015,7 +6015,7 @@ GO
 
 /* ---- Analytics / Telemetry ---- */
 
-IF OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NULL
+IF OBJECT_ID(N'dbo.RunTelemetry') IS NULL
 BEGIN
     CREATE TABLE dbo.RunTelemetry
     (
