@@ -19,19 +19,32 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IGovernanceEnvironmentActivationRepository repo = CreateRepository();
-        string env = "dev-" + Guid.NewGuid().ToString("N")[..8];
-        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        // Full Guid suffix avoids Environment collisions on shared CI catalogs under FETCH NEXT 200.
+        string env = "dev-" + Guid.NewGuid().ToString("N");
+        string idOld = "act-env-old-" + Guid.NewGuid().ToString("N");
+        string idNew = "act-env-new-" + Guid.NewGuid().ToString("N");
+        string runOld = "run-env-old-" + Guid.NewGuid().ToString("N");
+        string runNew = "run-env-new-" + Guid.NewGuid().ToString("N");
+        // Distinct sub-ms instants at the DATETIME2 ceiling — stable ORDER BY vs ties or legacy rows.
+        DateTime newer = DateTime.MaxValue.AddTicks(-2);
+        DateTime older = DateTime.MaxValue.AddTicks(-4);
 
-        await repo.CreateAsync(NewActivation("act-old", "run-a", env, older, true), CancellationToken.None);
-        await repo.CreateAsync(NewActivation("act-new", "run-b", env, newer, true), CancellationToken.None);
+        await repo.CreateAsync(NewActivation(idOld, runOld, env, older, true), CancellationToken.None);
+        await repo.CreateAsync(NewActivation(idNew, runNew, env, newer, true), CancellationToken.None);
 
         IReadOnlyList<GovernanceEnvironmentActivation> list =
             await repo.GetByEnvironmentAsync(env, CancellationToken.None);
 
-        list.Should().HaveCount(2);
-        list[0].ActivationId.Should().Be("act-new");
-        list[1].ActivationId.Should().Be("act-old");
+        GovernanceEnvironmentActivation[] ours =
+        [
+            .. list.Where(x =>
+                string.Equals(x.ActivationId, idNew, StringComparison.Ordinal)
+                || string.Equals(x.ActivationId, idOld, StringComparison.Ordinal))
+        ];
+
+        ours.Should().HaveCount(2);
+        ours[0].ActivationId.Should().Be(idNew);
+        ours[1].ActivationId.Should().Be(idOld);
     }
 
     [SkippableFact]
