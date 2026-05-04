@@ -1,9 +1,10 @@
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
-using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
+
+using Dapper;
 
 using Microsoft.Data.SqlClient;
 
@@ -157,53 +158,36 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     }
 
     /// <summary>
-    ///     Idempotently inserts <see cref="GovernanceRepositoryContractScope.TenantId" /> when missing (migration 118 FK).
-    ///     Callable from fixtures and governance contract tests — other SQL tests may delete rows or reorder relative to fixture init.
+    ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
+    ///     Uses an idempotent conditional insert with range locks so parallel contract tests and shared catalogs stay valid
+    ///     even when other tests delete the row after a prior "exists" check.
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
-        // Matches DbUp (encrypt mandatory) and contract repos that need SESSION_CONTEXT bypass for FK parents on shared catalogs.
         RlsBypassSqlConnectionFactory factory = new(connectionString);
-        DapperTenantRepository tenants = new(factory);
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
-
-        TenantRecord? existing = await tenants.GetByIdAsync(tenantId, cancellationToken);
-
-        if (existing is not null)
-            return;
-
         string slug = "archgov-contract-" + tenantId.ToString("N");
 
-        try
-        {
-            await tenants.InsertTenantAsync(
-                tenantId,
-                "ArchLucid persistence contract governance",
-                slug,
-                TenantTier.Standard,
-                entraTenantId: null,
-                cancellationToken);
-        }
-        catch (SqlException ex) when (ex.Number is 2601 or 2627)
-        {
-            TenantRecord? afterRace = await tenants.GetByIdAsync(tenantId, cancellationToken);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(cancellationToken);
 
-            if (afterRace is not null)
-                return;
+        const string sql = """
+                           IF NOT EXISTS (SELECT 1 FROM dbo.Tenants WITH (UPDLOCK, HOLDLOCK) WHERE Id = @Id)
+                           BEGIN
+                               INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+                               VALUES (@Id, @Name, @Slug, @Tier, NULL);
+                           END
+                           """;
 
-            TenantRecord? bySlug = await tenants.GetBySlugAsync(slug, cancellationToken);
-
-            if (bySlug is not null && bySlug.Id == tenantId)
-                return;
-
-            if (bySlug is not null)
-
-                throw new InvalidOperationException(
-                    "Governance contract tenant slug '" + slug + "' exists on Tenants.Id " + bySlug.Id.ToString("N")
-                    + " but priming expects " + tenantId.ToString("N") + ".",
-                    ex);
-
-            throw;
-        }
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = tenantId,
+                    Name = "ArchLucid persistence contract governance",
+                    Slug = slug,
+                    Tier = TenantTier.Standard.ToString()
+                },
+                cancellationToken: cancellationToken));
     }
 }
