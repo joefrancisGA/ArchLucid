@@ -179,6 +179,11 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         const string mergeSql = """
                                 MERGE INTO dbo.Tenants WITH (HOLDLOCK) AS t
                                 USING (SELECT @Id AS Id) AS src ON t.Id = src.Id
+                                WHEN MATCHED THEN
+                                    UPDATE SET
+                                        Name = @Name,
+                                        Slug = @Slug,
+                                        Tier = @Tier
                                 WHEN NOT MATCHED BY TARGET THEN
                                     INSERT (Id, Name, Slug, Tier, EntraTenantId)
                                     VALUES (@Id, @Name, @Slug, @Tier, NULL);
@@ -222,5 +227,25 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+
+        // Second connection: ensures commit is visible outside the serializable transaction (shared CI catalogs).
+        await using SqlConnection verify =
+            (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
+        int visible = await verify.QuerySingleAsync<int>(
+            new CommandDefinition(
+                """
+                SELECT COUNT(1)
+                FROM dbo.Tenants
+                WHERE Id = @Id;
+                """,
+                new { Id = tenantId },
+                cancellationToken: cancellationToken));
+
+
+        if (visible != 1)
+            throw new InvalidOperationException(
+                "Governance contract priming committed but tenant "
+                + tenantId.ToString("N") + " was not visible on follow-up connect (count "
+                + visible.ToString() + ").");
     }
 }

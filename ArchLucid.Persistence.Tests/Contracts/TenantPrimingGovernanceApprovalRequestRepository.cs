@@ -33,17 +33,22 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     /// <inheritdoc />
     public async Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
     {
-        await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
+        const int maxAttempts = 3;
 
-        try
-        {
-            await _inner.CreateAsync(item, cancellationToken);
-        }
-        catch (SqlException ex) when (IsGovernanceApprovalTenantsFkViolation(ex))
+        for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
             await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
 
-            await _inner.CreateAsync(item, cancellationToken);
+            try
+            {
+                await _inner.CreateAsync(item, cancellationToken);
+
+                return;
+            }
+            catch (SqlException ex) when (IsGovernanceApprovalTenantsFkViolation(ex) && attempt < maxAttempts - 1)
+            {
+                await Task.Delay(50 * (attempt + 1), cancellationToken);
+            }
         }
     }
 
@@ -100,14 +105,24 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
         _inner.PatchSlaBreachNotifiedAsync(approvalRequestId, slaBreachNotifiedUtc, cancellationToken);
 
     /// <summary>
-    ///     FK 547 after a successful prime usually means the parent row vanished on a shared catalog or priming hit a
-    ///     different pool endpoint; one re-prime + retry matches other governance contract mitigations.
+    ///     Resolves to SQL Server referential integrity (547). Matches English constraint names and batch/localized
+    ///     messages that still cite both tables.
     /// </summary>
     private static bool IsGovernanceApprovalTenantsFkViolation(SqlException ex)
     {
-        if (ex.Number != 547)
-            return false;
+        foreach (SqlError error in ex.Errors)
+        {
+            if (error.Number != 547)
+                continue;
 
-        return ex.Message.Contains("FK_GovernanceApprovalRequests_Tenants", StringComparison.Ordinal);
+            if (error.Message.Contains("FK_GovernanceApprovalRequests_Tenants", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (error.Message.Contains("GovernanceApprovalRequests", StringComparison.OrdinalIgnoreCase)
+                && error.Message.Contains("Tenants", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 }
