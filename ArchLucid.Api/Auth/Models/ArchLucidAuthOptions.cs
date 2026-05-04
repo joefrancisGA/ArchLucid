@@ -6,6 +6,10 @@ public class ArchLucidAuthOptions
 {
     public const string SectionName = "ArchLucidAuth";
 
+    public const string TestActorNameHeader = "X-ArchLucid-Test-Actor-Name";
+
+    public const string TestActorIdHeader = "X-ArchLucid-Test-Actor-Id";
+
     /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
     public string Mode
     {
@@ -62,6 +66,15 @@ public class ArchLucidAuthOptions
         get;
         set;
     } = "dev-user";
+
+    /// <summary>
+    ///     When true, DevelopmentBypass may honor <see cref="TestActorNameHeader" /> and <see cref="TestActorIdHeader" />.
+    /// </summary>
+    public bool AllowTestActorHeaders
+    {
+        get;
+        set;
+    }
 
     public string DevUserName
     {

@@ -35,7 +35,8 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
         };
 
         HttpResponseMessage submitResponse =
-            await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
+                GovernanceSubmitterId);
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
@@ -45,7 +46,9 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
 
         const int parallel = 32;
         Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, parallel)
-            .Select(_ => Client.PostAsync(url, JsonContent(approveBody)))
+            .Select(_ =>
+                PostJsonAsTestActorAsync(url, approveBody, "reviewer-32",
+                    "33333333-3333-3333-3333-333333333333"))
             .ToArray();
 
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);
