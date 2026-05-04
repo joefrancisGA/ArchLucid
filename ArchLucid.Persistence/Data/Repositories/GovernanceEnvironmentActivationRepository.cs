@@ -23,10 +23,15 @@ public sealed class GovernanceEnvironmentActivationRepository(
     {
         ArgumentNullException.ThrowIfNull(item);
 
+        if (connection is not null && transaction is null)
+            throw new ArgumentException(
+                "A database transaction is required when a connection is supplied.",
+                nameof(transaction));
+
         ApplyScopeToNewRow(item);
 
         const string sql = """
-                           INSERT INTO GovernanceEnvironmentActivations
+                           INSERT INTO dbo.GovernanceEnvironmentActivations
                            (
                                ActivationId,
                                RunId,

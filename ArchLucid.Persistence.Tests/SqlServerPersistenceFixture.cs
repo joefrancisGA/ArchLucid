@@ -3,6 +3,7 @@ using System.Data;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
 
 using Dapper;
@@ -176,6 +177,17 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
+
+        /* Pooled sessions can inherit stale SESSION_CONTEXT; governance tables use RLS block predicates and FK checks
+         * must see dbo.Tenants rows reliably in the same transaction as MERGE/INSERT. */
+
+        if (connection is SqlConnection sqlConnection)
+            await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAndTenantScopeAsync(
+                sqlConnection,
+                cancellationToken,
+                GovernanceRepositoryContractScope.TenantId,
+                GovernanceRepositoryContractScope.WorkspaceId,
+                GovernanceRepositoryContractScope.ProjectId);
 
         await AcquireGovernanceContractTenantMergeLockAsync(connection, transaction, cancellationToken);
 
