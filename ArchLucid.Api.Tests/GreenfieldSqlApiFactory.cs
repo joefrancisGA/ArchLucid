@@ -76,6 +76,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("ArchLucid:Persistence:AllowRlsBypass", "true");
         builder.UseSetting("ArchLucidAuth:Mode", "DevelopmentBypass");
         builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "true");
+        builder.UseSetting("ArchLucidAuth:AllowTestActorHeaders", "true");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -86,6 +87,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",
                 ["AzureOpenAI:ApiKey"] = "",
