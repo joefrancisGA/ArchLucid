@@ -15,14 +15,23 @@ public sealed class GovernancePromotionRecordRepository(
     IScopeContextProvider scopeContextProvider)
     : IGovernancePromotionRecordRepository
 {
-    public async Task CreateAsync(GovernancePromotionRecord item, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        GovernancePromotionRecord item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
+
+        if (connection is not null && transaction is null)
+            throw new ArgumentException(
+                "A database transaction is required when a connection is supplied.",
+                nameof(transaction));
 
         ApplyScopeToNewRow(item);
 
         const string sql = """
-                           INSERT INTO GovernancePromotionRecords
+                           INSERT INTO dbo.GovernancePromotionRecords
                            (
                                PromotionRecordId,
                                RunId,
@@ -54,26 +63,39 @@ public sealed class GovernancePromotionRecordRepository(
                            );
                            """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                item.PromotionRecordId,
-                item.RunId,
-                item.TenantId,
-                item.WorkspaceId,
-                item.ProjectId,
-                item.ManifestVersion,
-                item.SourceEnvironment,
-                item.TargetEnvironment,
-                item.PromotedBy,
-                item.PromotedUtc,
-                item.ApprovalRequestId,
-                item.Notes
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(
+                new CommandDefinition(
+                    commandText: sql,
+                    parameters: new
+                    {
+                        item.PromotionRecordId,
+                        item.RunId,
+                        item.TenantId,
+                        item.WorkspaceId,
+                        item.ProjectId,
+                        item.ManifestVersion,
+                        item.SourceEnvironment,
+                        item.TargetEnvironment,
+                        item.PromotedBy,
+                        item.PromotedUtc,
+                        item.ApprovalRequestId,
+                        item.Notes
+                    },
+                    transaction: transaction,
+                    commandTimeout: null,
+                    commandType: null,
+                    flags: CommandFlags.Buffered,
+                    cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<IReadOnlyList<GovernancePromotionRecord>> GetByRunIdAsync(

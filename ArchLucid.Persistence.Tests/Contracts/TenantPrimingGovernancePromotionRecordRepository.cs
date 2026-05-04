@@ -1,12 +1,18 @@
+using System.Data;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-///     Re-primes <c>dbo.Tenants</c> before each <see cref="IGovernancePromotionRecordRepository.CreateAsync" /> so shared
-///     CI databases keep the FK parent for <c>GovernancePromotionRecords</c>.
+///     Runs <see cref="SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync" /> and
+///     <see cref="GovernancePromotionRecordRepository.CreateAsync" /> in one <see cref="IsolationLevel.Serializable" />
+///     transaction so <c>FK_GovernancePromotionRecords_Tenants</c> sees the parent row on shared CI databases.
 /// </summary>
 internal sealed class TenantPrimingGovernancePromotionRecordRepository : IGovernancePromotionRecordRepository
 {
@@ -20,18 +26,50 @@ internal sealed class TenantPrimingGovernancePromotionRecordRepository : IGovern
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
 
-        _connectionString = connectionString;
+        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString.Trim());
         _inner = new GovernancePromotionRecordRepository(
-            new RlsBypassTestDbConnectionFactory(connectionString),
+            new RlsBypassTestDbConnectionFactory(_connectionString),
             scopeContextProvider);
     }
 
     /// <inheritdoc />
-    public async Task CreateAsync(GovernancePromotionRecord item, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        GovernancePromotionRecord item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
+        if (connection is not null)
+        {
+            ArgumentNullException.ThrowIfNull(transaction);
 
-        await _inner.CreateAsync(item, cancellationToken);
+            await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(connection, transaction, cancellationToken);
+            await _inner.CreateAsync(item, cancellationToken, connection, transaction);
+
+            return;
+        }
+
+        RlsBypassTestDbConnectionFactory factory = new(_connectionString);
+        await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
+        SqlTransaction? tran = null;
+
+        try
+        {
+            tran = (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
+            await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(conn, tran, cancellationToken);
+            await _inner.CreateAsync(item, cancellationToken, conn, tran);
+            tran.Commit();
+        }
+        catch
+        {
+            tran?.Rollback();
+            throw;
+        }
+        finally
+        {
+            tran?.Dispose();
+        }
     }
 
     /// <inheritdoc />
