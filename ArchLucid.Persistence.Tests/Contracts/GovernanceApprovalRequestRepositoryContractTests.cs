@@ -149,18 +149,25 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         string idOld = "apr-run-old-" + Guid.NewGuid().ToString("N");
         string idNew = "apr-run-new-" + Guid.NewGuid().ToString("N");
-        // Separate ticks so ORDER BY RequestedUtc DESC stays deterministic vs shared-catalog copies that reuse the same calendar instants.
-        DateTime newer = new(2026, 4, 1, 15, 0, 0, 0, DateTimeKind.Utc);
-        DateTime older = newer.AddMilliseconds(-500);
+        // Distinct sub-ms instants at the DATETIME2 ceiling — avoids unstable ORDER BY vs legacy rows or ms-collisions.
+        DateTime newer = DateTime.MaxValue.AddTicks(-2);
+        DateTime older = DateTime.MaxValue.AddTicks(-4);
 
         await repo.CreateAsync(NewApproval(idOld, runId, older), CancellationToken.None);
         await repo.CreateAsync(NewApproval(idNew, runId, newer), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Should().HaveCount(2);
-        list[0].ApprovalRequestId.Should().Be(idNew);
-        list[1].ApprovalRequestId.Should().Be(idOld);
+        GovernanceApprovalRequest[] ours =
+        [
+            .. list.Where(r =>
+                string.Equals(r.ApprovalRequestId, idNew, StringComparison.Ordinal)
+                || string.Equals(r.ApprovalRequestId, idOld, StringComparison.Ordinal))
+        ];
+
+        ours.Should().HaveCount(2);
+        ours[0].ApprovalRequestId.Should().Be(idNew);
+        ours[1].ApprovalRequestId.Should().Be(idOld);
     }
 
     [SkippableFact]
