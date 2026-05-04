@@ -112,3 +112,27 @@ check "secondary_internal_lb_requires_subnet" {
     error_message = "secondary_container_apps_internal_load_balancer = true requires secondary_container_apps_subnet_id."
   }
 }
+
+check "container_apps_subnet_id_format" {
+  assert {
+    condition = !var.enable_container_apps || length(trimspace(var.container_apps_subnet_id)) == 0 || can(
+      regex(
+        "(?i)^/subscriptions/[0-9a-f-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/virtualNetworks/[^/]+/subnets/[^/]+$",
+        var.container_apps_subnet_id
+      )
+    )
+    error_message = "container_apps_subnet_id must be a Microsoft.Network/virtualNetworks/*/subnets/* ARM resource ID when set (typically from terraform-private outputs)."
+  }
+}
+
+check "container_apps_storage_account_id_format" {
+  assert {
+    condition = !var.enable_container_apps || length(trimspace(var.artifact_storage_account_id)) == 0 || can(
+      regex(
+        "(?i)^/subscriptions/[0-9a-f-]+/resourceGroups/[^/]+/providers/Microsoft\\.Storage/storageAccounts/[^/]+$",
+        var.artifact_storage_account_id
+      )
+    )
+    error_message = "artifact_storage_account_id must be a Microsoft.Storage/storageAccounts/* ARM resource ID when set (from terraform-storage outputs)."
+  }
+}

@@ -129,6 +129,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Terraform root ordering sync
+        run: python scripts/ci/assert_terraform_root_ordering_sync.py
+
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
