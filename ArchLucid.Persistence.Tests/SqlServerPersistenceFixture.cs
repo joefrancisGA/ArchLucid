@@ -32,6 +32,12 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     public const string EnvironmentConnectionStringVariable = TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable;
 
     /// <summary>
+    ///     <c>sp_getapplock</c> resource for <see cref="MergeGovernanceContractTenantAsync" />: serializes merge+FK child inserts
+    ///     across parallel jobs sharing <see cref="DefaultTestDatabaseName" />.
+    /// </summary>
+    public const string GovernanceContractTenantMergeAppLockResource = "ArchLucid.Persistence.Tests.GovernanceContractTenantMerge";
+
+    /// <summary>
     ///     Message passed to <see cref="Xunit.Skip" />.<c>IfNot</c> when no SQL Server could be reached without an explicit env
     ///     connection string.
     /// </summary>
@@ -171,6 +177,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
 
+        await AcquireGovernanceContractTenantMergeLockAsync(connection, transaction, cancellationToken);
+
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
         string slug = "archgov-contract-" + tenantId.ToString("N");
 
@@ -224,6 +232,37 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             throw new InvalidOperationException(
                 "Governance contract priming expected exactly one Tenants row for Id "
                 + tenantId.ToString("N") + " but found " + present.ToString() + ".");
+    }
+
+    /// <summary>
+    ///     Exclusive transaction-scoped app lock so parallel governance contract tests cannot interleave MERGE/INSERT vs
+    ///     another session deleting or racing on <c>dbo.Tenants</c> (shared CI catalog).
+    /// </summary>
+    private static async Task AcquireGovernanceContractTenantMergeLockAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        const string lockSql = """
+                               DECLARE @rc int;
+                               EXEC @rc = sp_getapplock
+                                   @Resource = @LockResource,
+                                   @LockMode = N'Exclusive',
+                                   @LockOwner = N'Transaction',
+                                   @LockTimeout = 60000;
+                               IF @rc NOT IN (0, 1)
+                                   THROW 50002, N'sp_getapplock failed for governance contract tenant merge.', 1;
+                               """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                commandText: lockSql,
+                parameters: new { LockResource = GovernanceContractTenantMergeAppLockResource },
+                transaction: transaction,
+                commandTimeout: null,
+                commandType: null,
+                flags: CommandFlags.Buffered,
+                cancellationToken: cancellationToken));
     }
 
     /// <summary>
