@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,7 +20,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     internal static StringContent JsonContent(object value)
@@ -81,7 +81,10 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request") { Content = JsonContent(body) };
+        HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
+        {
+            Content = JsonContent(body)
+        };
 
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
