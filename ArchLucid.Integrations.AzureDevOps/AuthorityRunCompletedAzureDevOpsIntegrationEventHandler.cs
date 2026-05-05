@@ -78,13 +78,14 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
     }
 
     private static IReadOnlyList<AuthorityRunCompletedFindingLink> MapFindingLinks(
-        IReadOnlyList<AuthorityRunCompletedFindingRow>? rows)
+        IReadOnlyList<AuthorityRunCompletedFindingJsonDto>? rows)
     {
         if (rows is null || rows.Count == 0)
             return [];
 
         List<AuthorityRunCompletedFindingLink> links = new(capacity: rows.Count);
         links.AddRange(from row in rows
+                       where row is not null
                        where !string.IsNullOrWhiteSpace(row.FindingId)
                        where !string.IsNullOrWhiteSpace(row.DeepLinkUrl)
                        select new AuthorityRunCompletedFindingLink(row.FindingId.Trim(), row.DeepLinkUrl.Trim(),
@@ -101,9 +102,7 @@ public sealed class AuthorityRunCompletedAzureDevOpsIntegrationEventHandler(
         Guid WorkspaceId,
         Guid ProjectId,
         Guid? PreviousRunId,
-        IReadOnlyList<AuthorityRunCompletedFindingRow>? Findings);
-
-    private sealed record AuthorityRunCompletedFindingRow(string FindingId, string DeepLinkUrl, string? Severity);
+        IReadOnlyList<AuthorityRunCompletedFindingJsonDto>? Findings);
 }
 
 internal static class AuthorityRunCompletedPayloadJson

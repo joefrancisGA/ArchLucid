@@ -34,5 +34,7 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
         snapshot.AuditRowCount.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCountTruncated.Should().BeFalse();
         snapshot.FindingsProducedBySeverity.Should().NotBeNull();
+        snapshot.EstimatedManualWorkHoursSaved.Should().BeGreaterThanOrEqualTo(0d);
+        snapshot.EstimatedManualWorkHoursSavedMethodology.Should().NotBeNullOrWhiteSpace();
     }
 }

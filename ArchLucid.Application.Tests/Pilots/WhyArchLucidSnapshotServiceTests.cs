@@ -64,6 +64,8 @@ public sealed class WhyArchLucidSnapshotServiceTests
         result.FindingsProducedBySeverity.Should().ContainKey("High").WhoseValue.Should().Be(5);
         result.AuditRowCount.Should().Be(2);
         result.AuditRowCountTruncated.Should().BeFalse();
+        result.EstimatedManualWorkHoursSaved.Should().BeApproximately(22.39d, 0.001d);
+        result.EstimatedManualWorkHoursSavedMethodology.Should().NotBeNullOrWhiteSpace();
     }
 
     [SkippableFact]
@@ -95,6 +97,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
 
         result.AuditRowCount.Should().Be(WhyArchLucidSnapshotResponse.AuditRowCountCap);
         result.AuditRowCountTruncated.Should().BeTrue();
+        result.EstimatedManualWorkHoursSaved.Should().BeApproximately(10.0d, 0.001d);
     }
 
     [SkippableFact]
@@ -123,6 +126,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
         result.RunsCreatedTotal.Should().Be(3);
         result.AuditRowCount.Should().Be(0);
         result.AuditRowCountTruncated.Should().BeFalse();
+        result.EstimatedManualWorkHoursSaved.Should().BeApproximately(6.0d, 0.001d);
     }
 
     [SkippableFact]

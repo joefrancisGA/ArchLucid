@@ -8,10 +8,7 @@ internal static class NewCommand
 
         ArchLucidProjectScaffolder.ScaffoldOptions scaffoldOptions = new()
         {
-            ProjectName = projectName,
-            BaseDirectory = null,
-            OverwriteExistingFiles = true,
-            IncludeTerraformStubs = true
+            ProjectName = projectName, BaseDirectory = null, OverwriteExistingFiles = true, IncludeTerraformStubs = true
         };
 
         ArchLucidProjectScaffolder.CreateProject(scaffoldOptions);

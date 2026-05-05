@@ -1,9 +1,13 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class InlineRequirementsConnector : IContextConnector
+public sealed class InlineRequirementsConnector(
+    IConnectorInput<InlineRequirementsPayload> payloadInput,
+    IConnectorNormalizer<InlineRequirementsPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "inline-requirements";
 
@@ -12,29 +16,22 @@ public class InlineRequirementsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload { InlineRequirements = request.InlineRequirements.ToList() });
+        ArgumentNullException.ThrowIfNull(request);
+
+        InlineRequirementsPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(InlineRequirementsRawPayloadMapper.ToRaw(typed));
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        _ = ct;
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (string requirement in payload.InlineRequirements)
+        InlineRequirementsPayload typed = InlineRequirementsRawPayloadMapper.FromRaw(payload);
 
-            batch.CanonicalObjects.Add(new CanonicalObject
-            {
-                ObjectType = "Requirement",
-                Name = requirement.Length > 80 ? requirement[..80] : requirement,
-                SourceType = "InlineRequirement",
-                SourceId = "inline",
-                Properties = new Dictionary<string, string> { ["text"] = requirement }
-            });
-
-
-        return Task.FromResult(batch);
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -44,6 +41,7 @@ public class InlineRequirementsConnector : IContextConnector
     {
         _ = current;
         _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null

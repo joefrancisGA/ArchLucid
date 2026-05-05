@@ -35,11 +35,10 @@ internal static class AgentEvalRollupCommand
         {
             string a = args[i];
 
-            if (string.Equals(a, "--from-json", StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length)
-            {
-                jsonPath = args[i + 1];
-                break;
-            }
+            if (!string.Equals(a, "--from-json", StringComparison.OrdinalIgnoreCase) || i + 1 >= args.Length)
+                continue;
+            jsonPath = args[i + 1];
+            break;
         }
 
         if (string.IsNullOrWhiteSpace(jsonPath))
@@ -133,7 +132,7 @@ internal static class AgentEvalRollupCommand
 
         sb.AppendLine(
             "**Execution mode caveat:** simulator vs real AOAI classification is **not** present in agent-evaluation exports — "
-                + "read `architecture/run` payloads / provenance footer for host posture.");
+            + "read `architecture/run` payloads / provenance footer for host posture.");
 
         sb.AppendLine();
         sb.AppendLine(FormattableString.Invariant($"- Run: `{rollup.RunId}`"));
@@ -141,13 +140,13 @@ internal static class AgentEvalRollupCommand
         sb.AppendLine(FormattableString.Invariant(
             $"- Scored traces: `{rollup.ScoresCounted}` · skipped traces: `{rollup.TracesSkippedCount}` · parse failures inside scores: `{rollup.ParseFailuresInsideScores}`"));
 
-        string structuralLine = rollup.PayloadStructuralMean is double sm
+        string structuralLine = rollup.PayloadStructuralMean is { } sm
             ? FormattableString.Invariant($"- Mean structural completeness (payload averages): {sm:P1}")
             : "- Mean structural completeness (payload averages): —";
 
         sb.AppendLine(structuralLine);
 
-        string semanticLine = rollup.PayloadSemanticMean is double se
+        string semanticLine = rollup.PayloadSemanticMean is { } se
             ? FormattableString.Invariant($"- Mean semantic score (payload averages): {se:P1}")
             : "- Mean semantic score (payload averages): —";
 

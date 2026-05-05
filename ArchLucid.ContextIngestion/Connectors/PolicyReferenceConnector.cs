@@ -1,14 +1,14 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.ContextIngestion.Topology;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class PolicyReferenceConnector : IContextConnector
+public sealed class PolicyReferenceConnector(
+    IConnectorInput<PolicyReferencePayload> payloadInput,
+    IConnectorNormalizer<PolicyReferencePayload> payloadNormalizer) : IContextConnector
 {
-    /// <summary>Must match <c>CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds</c> in the knowledge-graph project.</summary>
-    private const string ApplicableTopologyNodeIdsKey = "applicableTopologyNodeIds";
-
     public string ConnectorType => "policy-reference";
 
     public Task<RawContextPayload> FetchAsync(
@@ -16,41 +16,22 @@ public class PolicyReferenceConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            PolicyReferences = request.PolicyReferences.ToList(), TopologyHints = request.TopologyHints.ToList()
-        });
+        ArgumentNullException.ThrowIfNull(request);
+
+        PolicyReferencePayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(PolicyReferenceRawPayloadMapper.ToRaw(typed));
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        _ = ct;
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (string policy in payload.PolicyReferences)
-        {
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["reference"] = policy, ["status"] = "referenced"
-            };
+        PolicyReferencePayload typed = PolicyReferenceRawPayloadMapper.FromRaw(payload);
 
-            string? targeted = BuildApplicableTopologyNodeIds(policy, payload.TopologyHints);
-            if (!string.IsNullOrWhiteSpace(targeted))
-                properties[ApplicableTopologyNodeIdsKey] = targeted;
-
-            batch.CanonicalObjects.Add(new CanonicalObject
-            {
-                ObjectType = "PolicyControl",
-                Name = policy,
-                SourceType = "PolicyReference",
-                SourceId = policy,
-                Properties = properties
-            });
-        }
-
-        return Task.FromResult(batch);
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -60,39 +41,10 @@ public class PolicyReferenceConnector : IContextConnector
     {
         _ = current;
         _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null ? "Initial policy ingestion" : "Updated policy ingestion"
         });
-    }
-
-    /// <summary>
-    ///     When a topology hint name overlaps the policy reference (substring, case-insensitive),
-    ///     links the policy to <c>obj-{stableId}</c> for that hint so graph inference can narrow <c>APPLIES_TO</c>.
-    /// </summary>
-    private static string? BuildApplicableTopologyNodeIds(string policyReference, List<string> topologyHints)
-    {
-        if (topologyHints.Count == 0)
-            return null;
-
-        HashSet<string> ids = [];
-
-        foreach (string? trimmed in from hint in topologyHints
-                 where !string.IsNullOrWhiteSpace(hint)
-                 select hint.Trim()
-                 into trimmed
-                 where PolicyReferenceOverlapsTopology(policyReference, trimmed)
-                 select trimmed)
-
-            ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
-
-
-        return ids.Count == 0 ? null : string.Join(',', ids);
-    }
-
-    private static bool PolicyReferenceOverlapsTopology(string policyReference, string topologyHint)
-    {
-        return topologyHint.Contains(policyReference, StringComparison.OrdinalIgnoreCase)
-               || policyReference.Contains(topologyHint, StringComparison.OrdinalIgnoreCase);
     }
 }

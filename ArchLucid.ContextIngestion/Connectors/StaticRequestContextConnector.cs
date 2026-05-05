@@ -1,9 +1,13 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class StaticRequestContextConnector : IContextConnector
+public sealed class StaticRequestContextConnector(
+    IConnectorInput<StaticRequestPayload> payloadInput,
+    IConnectorNormalizer<StaticRequestPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "static-request";
 
@@ -11,28 +15,23 @@ public class StaticRequestContextConnector : IContextConnector
         ContextIngestionRequest request,
         CancellationToken ct)
     {
-        return Task.FromResult(new RawContextPayload { Description = request.Description });
+        _ = ct;
+        ArgumentNullException.ThrowIfNull(request);
+
+        StaticRequestPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(StaticRequestRawPayloadMapper.ToRaw(typed));
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        if (!string.IsNullOrWhiteSpace(payload.Description))
+        StaticRequestPayload typed = StaticRequestRawPayloadMapper.FromRaw(payload);
 
-            batch.CanonicalObjects.Add(new CanonicalObject
-            {
-                ObjectType = "Requirement",
-                Name = "Primary Request",
-                SourceType = "StaticRequest",
-                SourceId = "description",
-                Properties = new Dictionary<string, string> { ["text"] = payload.Description! }
-            });
-
-
-        return Task.FromResult(batch);
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -40,6 +39,9 @@ public class StaticRequestContextConnector : IContextConnector
         ContextSnapshot? previous,
         CancellationToken ct)
     {
+        _ = current;
+        _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null ? "Initial ingestion" : "Updated ingestion"

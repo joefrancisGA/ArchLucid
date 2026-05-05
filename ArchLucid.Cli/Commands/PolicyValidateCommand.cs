@@ -15,10 +15,7 @@ internal static class PolicyValidateCommand
 {
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true };
 
-    private static readonly JsonSerializerOptions JsonOutCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonOutCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public static Task<int> RunAsync(string jsonPath)
     {

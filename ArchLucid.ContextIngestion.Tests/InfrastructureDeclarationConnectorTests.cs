@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 
@@ -17,7 +18,9 @@ public sealed class InfrastructureDeclarationConnectorTests
     [Fact]
     public async Task NormalizeAsync_Warns_WhenFormatUnsupported()
     {
-        InfrastructureDeclarationConnector sut = new([]);
+        InfrastructureDeclarationConnector sut = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([]));
         RawContextPayload payload = new()
         {
             InfrastructureDeclarations =
@@ -53,7 +56,9 @@ public sealed class InfrastructureDeclarationConnectorTests
                 }
             });
 
-        InfrastructureDeclarationConnector sut = new([parser.Object]);
+        InfrastructureDeclarationConnector sut = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([parser.Object]));
         RawContextPayload payload = new()
         {
             InfrastructureDeclarations =

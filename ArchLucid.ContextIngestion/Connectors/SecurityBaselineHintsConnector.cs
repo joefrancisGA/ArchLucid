@@ -1,9 +1,13 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class SecurityBaselineHintsConnector : IContextConnector
+public sealed class SecurityBaselineHintsConnector(
+    IConnectorInput<SecurityBaselineHintsPayload> payloadInput,
+    IConnectorNormalizer<SecurityBaselineHintsPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "security-baseline-hints";
 
@@ -12,32 +16,22 @@ public class SecurityBaselineHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            SecurityBaselineHints = request.SecurityBaselineHints.ToList()
-        });
+        ArgumentNullException.ThrowIfNull(request);
+
+        SecurityBaselineHintsPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(SecurityBaselineHintsRawPayloadMapper.ToRaw(typed));
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        _ = ct;
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (string hint in payload.SecurityBaselineHints)
+        SecurityBaselineHintsPayload typed = SecurityBaselineHintsRawPayloadMapper.FromRaw(payload);
 
-            batch.CanonicalObjects.Add(new CanonicalObject
-            {
-                ObjectType = "SecurityBaseline",
-                Name = hint,
-                SourceType = "SecurityBaselineHint",
-                SourceId = "security-hint",
-                Properties = new Dictionary<string, string> { ["text"] = hint, ["status"] = "declared" }
-            });
-
-
-        return Task.FromResult(batch);
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -47,6 +41,7 @@ public class SecurityBaselineHintsConnector : IContextConnector
     {
         _ = current;
         _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null

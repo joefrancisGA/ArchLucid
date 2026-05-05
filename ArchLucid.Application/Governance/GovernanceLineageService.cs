@@ -115,16 +115,16 @@ public sealed class GovernanceLineageService(
             .ThenBy(f => f.Title, StringComparer.OrdinalIgnoreCase);
 
         topFindings.AddRange(from f in ordered.Take(10)
-            let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
-            select new GovernanceLineageFindingSummary
-            {
-                FindingId = f.FindingId,
-                Title = f.Title,
-                EngineType = f.EngineType,
-                Severity = f.Severity.ToString(),
-                TraceCompletenessRatio = score.CompletenessRatio,
-                SourceAgentExecutionTraceId = f.Trace?.SourceAgentExecutionTraceId
-            });
+                             let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
+                             select new GovernanceLineageFindingSummary
+                             {
+                                 FindingId = f.FindingId,
+                                 Title = f.Title,
+                                 EngineType = f.EngineType,
+                                 Severity = f.Severity.ToString(),
+                                 TraceCompletenessRatio = score.CompletenessRatio,
+                                 SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId
+                             });
 
         return new GovernanceLineageResult
         {

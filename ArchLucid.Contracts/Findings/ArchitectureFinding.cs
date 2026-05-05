@@ -55,6 +55,13 @@ public sealed class ArchitectureFinding
         set;
     } = string.Empty;
 
+    /// <summary>Optional short rationale for reviewers (LLM or rules may populate; omit when unknown).</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        set;
+    }
+
     public List<string> EvidenceRefs
     {
         get;

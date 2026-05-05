@@ -15,6 +15,7 @@ import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPane
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
 import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
 
 export const metadata: Metadata = {

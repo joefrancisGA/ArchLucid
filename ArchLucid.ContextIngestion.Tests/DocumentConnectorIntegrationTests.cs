@@ -1,6 +1,7 @@
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Repositories;
@@ -23,7 +24,9 @@ public sealed class DocumentConnectorIntegrationTests
     private static ContextIngestionService CreateServiceWithDocumentConnector()
     {
         IReadOnlyList<IContextDocumentParser> parsers = [new PlainTextContextDocumentParser()];
-        DocumentConnector connector = new(parsers);
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer(parsers));
 
         return new ContextIngestionService(
             [connector],

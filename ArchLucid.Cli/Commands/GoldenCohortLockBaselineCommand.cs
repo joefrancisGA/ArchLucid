@@ -17,9 +17,7 @@ internal static class GoldenCohortLockBaselineCommand
 {
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static async Task<int> RunAsync(string[] args)

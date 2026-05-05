@@ -18,9 +18,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
@@ -44,13 +42,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
         steps.Add(statusStep);
 
         if (!statusStep.Passed || statusResponse is null)
-            return new TrialSmokeReport
-            {
-                Steps = steps,
-                AllPassed = false,
-                TenantId = registerResponse.TenantId,
-                RegistrationCorrelationId = correlationId
-            };
+            return new TrialSmokeReport { Steps = steps, AllPassed = false, TenantId = registerResponse.TenantId, RegistrationCorrelationId = correlationId };
 
         if (options.SkipPilotRunDeltas || string.IsNullOrWhiteSpace(statusResponse.TrialWelcomeRunId))
             return new TrialSmokeReport
@@ -124,20 +116,15 @@ public sealed class TrialSmokeRunner(HttpClient http)
                     }, null, correlationId);
 
             return (
-                new TrialSmokeStepResult
-                {
-                    Name = name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
-                }, body200, correlationId);
+                new TrialSmokeStepResult { Name = name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})." }, body200,
+                correlationId);
         }
         catch (Exception ex)
         {
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = name,
-                    Passed = false,
-                    Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
-                    FailureHint = hint
+                    Name = name, Passed = false, Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
                 }, null, null);
         }
     }
@@ -205,10 +192,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = name,
-                    Passed = false,
-                    Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}",
-                    FailureHint = hint
+                    Name = name, Passed = false, Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
                 }, null);
         }
     }
@@ -236,10 +220,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
                 return new TrialSmokeStepResult
                 {
-                    Name = name,
-                    Passed = false,
-                    Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                    FailureHint = hint
+                    Name = name, Passed = false, Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}", FailureHint = hint
                 };
             }
 
@@ -249,21 +230,13 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 ? s.ToString("0.##", CultureInfo.InvariantCulture)
                 : "<null>";
 
-            return new TrialSmokeStepResult
-            {
-                Name = name,
-                Passed = true,
-                Detail = $"GET {path} → 200 (timeToCommittedManifestTotalSeconds={seconds})."
-            };
+            return new TrialSmokeStepResult { Name = name, Passed = true, Detail = $"GET {path} → 200 (timeToCommittedManifestTotalSeconds={seconds})." };
         }
         catch (Exception ex)
         {
             return new TrialSmokeStepResult
             {
-                Name = name,
-                Passed = false,
-                Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}",
-                FailureHint = hint
+                Name = name, Passed = false, Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}", FailureHint = hint
             };
         }
     }

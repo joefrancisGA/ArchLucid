@@ -12,10 +12,7 @@ namespace ArchLucid.Cli.Commands;
     "HTTP entry point; behaviour is covered by TrialSmokeRunnerTests + TrialSmokeCommandOptionsTests.")]
 internal static class TrialSmokeCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public static async Task<int> RunAsync(string[] args)
     {

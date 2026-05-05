@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
@@ -14,7 +15,9 @@ public sealed class PolicyReferenceConnectorTopologyTests
     [Fact]
     public async Task NormalizeAsync_WhenPolicyOverlapsTopologyHint_SetsApplicableTopologyNodeIds()
     {
-        PolicyReferenceConnector sut = new();
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer());
         RawContextPayload raw = new()
         {
             PolicyReferences = ["prod-vnet-policy"], TopologyHints = ["prod-vnet-policy-subnet"]
@@ -32,7 +35,9 @@ public sealed class PolicyReferenceConnectorTopologyTests
     [Fact]
     public async Task NormalizeAsync_WhenNoOverlap_OmitsApplicableTopologyNodeIds()
     {
-        PolicyReferenceConnector sut = new();
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer());
         RawContextPayload raw = new() { PolicyReferences = ["SOC2"], TopologyHints = ["unrelated-vnet"] };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);

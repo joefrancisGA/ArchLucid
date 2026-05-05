@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Topology;
 
@@ -15,7 +16,9 @@ public sealed class TopologyHintsConnectorParentTests
     [Fact]
     public async Task NormalizeAsync_SlashSeparatedHint_SetsParentNodeIdToStableParent()
     {
-        TopologyHintsConnector sut = new();
+        TopologyHintsConnector sut = new(
+            new TopologyHintsPayloadExtractor(),
+            new TopologyHintsPayloadNormalizer());
         RawContextPayload raw = new() { TopologyHints = ["parentNet/childSubnet"] };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
@@ -30,7 +33,9 @@ public sealed class TopologyHintsConnectorParentTests
     [Fact]
     public async Task NormalizeAsync_PlainHint_HasNoParentNodeId()
     {
-        TopologyHintsConnector sut = new();
+        TopologyHintsConnector sut = new(
+            new TopologyHintsPayloadExtractor(),
+            new TopologyHintsPayloadNormalizer());
         RawContextPayload raw = new() { TopologyHints = ["standalone-vnet"] };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);

@@ -31,10 +31,7 @@ public sealed class SecondRunParseOutcome
 
     public static SecondRunParseOutcome Ok(ArchitectureRequest request)
     {
-        return new SecondRunParseOutcome
-        {
-            IsSuccess = true, Request = request, FailureCode = SecondRunParseFailureCode.None, Message = null
-        };
+        return new SecondRunParseOutcome { IsSuccess = true, Request = request, FailureCode = SecondRunParseFailureCode.None, Message = null };
     }
 
     public static SecondRunParseOutcome Fail(SecondRunParseFailureCode code, string message)

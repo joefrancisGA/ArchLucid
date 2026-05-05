@@ -15,10 +15,7 @@ namespace ArchLucid.Cli.Commands;
     "HTTP; exercised via SecurityTrustPublishCommandTests with a stub HttpClient.")]
 internal static class SecurityTrustPublishCommand
 {
-    private static readonly JsonSerializerOptions JsonWrite = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonWrite = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {

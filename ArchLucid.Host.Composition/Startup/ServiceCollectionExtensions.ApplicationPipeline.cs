@@ -23,8 +23,11 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Abstractions.Evolution;
@@ -214,6 +217,23 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, TerraformShowJsonInfrastructureDeclarationParser>();
+
+        // Typed connector stages (Phase 1 — composable extract + normalize; connectors remain IContextConnector facades).
+        services.AddSingleton<IConnectorInput<StaticRequestPayload>, StaticRequestPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<StaticRequestPayload>, StaticRequestPayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<InlineRequirementsPayload>, InlineRequirementsPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<InlineRequirementsPayload>, InlineRequirementsPayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<DocumentConnectorPayload>, DocumentConnectorPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<DocumentConnectorPayload>, DocumentConnectorPayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<PolicyReferencePayload>, PolicyReferencePayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<PolicyReferencePayload>, PolicyReferencePayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<TopologyHintsPayload>, TopologyHintsPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<TopologyHintsPayload>, TopologyHintsPayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<SecurityBaselineHintsPayload>, SecurityBaselineHintsPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<SecurityBaselineHintsPayload>, SecurityBaselineHintsPayloadNormalizer>();
+        services.AddSingleton<IConnectorInput<InfrastructureDeclarationsPayload>, InfrastructureDeclarationsPayloadExtractor>();
+        services.AddSingleton<IConnectorNormalizer<InfrastructureDeclarationsPayload>,
+            InfrastructureDeclarationsPayloadNormalizer>();
 
         // Concrete connectors (registered once each). Order here matches pipeline order for readability only;
         // execution order is defined solely in ContextConnectorPipeline.CreateOrderedContextConnectorPipeline.

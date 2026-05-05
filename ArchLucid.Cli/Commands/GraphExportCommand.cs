@@ -9,10 +9,7 @@ namespace ArchLucid.Cli.Commands;
     Justification = "HTTP + env auth against live API.")]
 internal static class GraphExportCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public static async Task<int> RunAsync(string[] args)
     {

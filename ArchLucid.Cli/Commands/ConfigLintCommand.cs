@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Core.Hosting;
 
 using Microsoft.Extensions.Configuration;
@@ -35,170 +36,97 @@ internal static class ConfigLintCommand
 
         List<string> errors = EvaluateAuthMisconfigurations(local, trimmedEnv);
 
-
         if (hostingAdvisor)
         {
-
-
             foreach (HostingMisconfigurationWarning w in ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(
                          local,
-
                          trimmedEnv))
 
-
                 errors.Add($"[HostingMisconfiguration:{w.RuleName}] {w.Message}");
-
-
-
         }
-
-
 
         bool ok = errors.Count == 0;
 
-
-
         if (!ok)
-
 
             foreach (string line in errors)
 
-
                 Console.Error.WriteLine(line);
 
-
         if (ok)
-
 
             Console.WriteLine(
                 "config lint OK: no blocking findings (auth traps always; hosted advisor optional via --hosting-advisor).");
 
-
         return Task.FromResult(ok ? CliExitCode.Success : CliExitCode.OperationFailed);
-
-
-
     }
-
 
 
     private static List<string> EvaluateAuthMisconfigurations(IConfiguration cfg, string hostingEnvironmentName)
     {
-
-
         List<string> errors = [];
-
-
 
         bool isDevelopment = hostingEnvironmentName.Equals(Environments.Development, StringComparison.OrdinalIgnoreCase);
 
-
-
         string? archLucidEnv = cfg["ARCHLUCID_ENVIRONMENT"] ?? Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
-
-
 
         bool envImpliesProductionLike =
             HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(hostingEnvironmentName)
             || HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(archLucidEnv ?? string.Empty);
-
 
         bool nonDevelopmentHosting = !isDevelopment || envImpliesProductionLike;
 
         string modeTrim =
             cfg["ArchLucidAuth:Mode"]?.Trim() ?? string.Empty;
 
-
         if (nonDevelopmentHosting
-
-
             && string.Equals(modeTrim, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
 
-
             errors.Add(
-
-
                 "ArchLucidAuth:Mode must not be DevelopmentBypass outside safe Development workstations (check ASPNETCORE_ENVIRONMENT / ARCHLUCID_ENVIRONMENT).");
 
-
         if (nonDevelopmentHosting && cfg.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-
 
             errors.Add(
                 "Authentication:ApiKey:DevelopmentBypassAll must be false outside intentional Development workstations.");
 
         if (nonDevelopmentHosting && modeTrim.Length > 0)
 
-
         {
-
-
             bool jwt = string.Equals(modeTrim, "JwtBearer", StringComparison.OrdinalIgnoreCase);
 
             bool apiKey = string.Equals(modeTrim, "ApiKey", StringComparison.OrdinalIgnoreCase);
 
             if (!jwt && !apiKey)
 
-
                 errors.Add("ArchLucidAuth:Mode must be JwtBearer or ApiKey when set for production-like hosting.");
-
-
-
         }
 
-
         return errors;
-
-
     }
-
 
 
     private static IConfiguration BuildMergedConfiguration(
         ArchLucidProjectScaffolder.ArchLucidCliConfig? cli,
-
         bool simulateProductionForLint)
     {
-
-
         List<KeyValuePair<string, string?>> overlays = [];
-
 
         if (cli is not null && !string.IsNullOrWhiteSpace(cli.ApiUrl))
 
-
             overlays.Add(
-
-
                 new KeyValuePair<string, string?>("ARCHLUCID_API_URL", cli.ApiUrl.Trim().TrimEnd('/')));
-
-
 
         if (simulateProductionForLint)
 
-
             overlays.Add(new KeyValuePair<string, string?>("ASPNETCORE_ENVIRONMENT", Environments.Production));
 
-
         return new ConfigurationBuilder()
-
-
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("archlucid.json", true, true)
             .AddJsonFile("appsettings.json", true, true)
-
-
             .AddInMemoryCollection(overlays)
-
-
             .AddEnvironmentVariables()
-
-
             .Build();
-
-
-
     }
-
-
 }
