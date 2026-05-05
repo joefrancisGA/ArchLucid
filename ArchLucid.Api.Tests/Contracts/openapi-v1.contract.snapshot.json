@@ -1550,6 +1550,12 @@
           "message": {
             "type": "string"
           },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
@@ -5542,6 +5548,48 @@
                 "$ref": "#/components/schemas/PersistedAnalysisExportRequest"
               }
             ]
+          }
+        },
+        "type": "object"
+      },
+      "FastPathContextElementDto": {
+        "properties": {
+          "elementId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "reasoningTrace": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FastPathContextPreviewRequest": {
+        "properties": {
+          "repositoryUrl": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FastPathContextPreviewResponse": {
+        "properties": {
+          "elements": {
+            "items": {
+              "$ref": "#/components/schemas/FastPathContextElementDto"
+            },
+            "type": "array"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -13861,6 +13909,17 @@
           "demoRunId": {
             "type": "string"
           },
+          "estimatedManualWorkHoursSaved": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "estimatedManualWorkHoursSavedMethodology": {
+            "type": "string"
+          },
           "findingsProducedBySeverity": {
             "additionalProperties": {
               "format": "int64",
@@ -18940,6 +18999,135 @@
         },
         "tags": [
           "Comparisons"
+        ]
+      }
+    },
+    "/v1/architecture/fast-path/context-preview": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FastPathContextPreviewRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FastPathContextPreviewRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FastPathContextPreviewRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastPathContextPreviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastPathContextPreviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastPathContextPreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "FastPathContext"
         ]
       }
     },
@@ -40779,6 +40967,9 @@
     },
     {
       "name": "Exports"
+    },
+    {
+      "name": "FastPathContext"
     },
     {
       "name": "FindingFeedback"
