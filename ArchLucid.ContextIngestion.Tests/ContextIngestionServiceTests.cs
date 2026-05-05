@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Repositories;
@@ -19,13 +20,15 @@ public sealed class ContextIngestionServiceTests
     public async Task IngestAsync_ProducesEnrichedDeltaSummary()
     {
         InMemoryContextSnapshotRepository repo = new();
-        IContextConnector[] connectors = [new CountingConnector()];
+        CountingConnector countingConnector = new();
+
         ContextIngestionService sut = new(
-            connectors,
+            new DefaultConnectorPipelineOrchestrator(
+                new List<IConnectorDescriptor> { new ConnectorDescriptor(1, countingConnector) },
+                new DefaultContextDeltaSummaryBuilder()),
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
-            repo,
-            new DefaultContextDeltaSummaryBuilder());
+            repo);
 
         ContextIngestionRequest request = new() { RunId = Guid.NewGuid(), ProjectId = "proj-ingest-test" };
 

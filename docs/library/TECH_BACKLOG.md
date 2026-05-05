@@ -14,7 +14,7 @@ Items here are **greenlit in principle** â€” the decision has been made and
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar â€” conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1â€“2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance â€” structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-006 | Type-migrate `dbo.ComparisonRecords` run id columns → `UNIQUEIDENTIFIER` + FK to `dbo.Runs` | Referential correctness — orphans are detection-only until types align (ADR-0012 / migration 047) | **Done** (DbUp 137 + repos + probes) |
-| TB-008 | Context ingestion connectors — Phases 2–4 (orchestrator, delta, enrichers, coupling cleanup) | Architecture maintainability — Phase 1 typed stages shipped | L |
+| TB-008 | Context ingestion connectors — Phases 3–4 (meaningful delta + enrichers, policy/topology coupling) | Architecture maintainability — Phases 1–2 shipped | L |
 
 ---
 
@@ -206,18 +206,18 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 ---
 
-## TB-008 — Context ingestion connectors: Phases 2–4 after typed stages (Phase 1)
+## TB-008 — Context ingestion connectors: Phases 3–4 after typed stages + orchestrator
 
-**Status:** Phase 1 **shipped** (2026-05-04). Typed payloads live under `ArchLucid.ContextIngestion.Models.ConnectorPayloads`; extractors/normalizers under `ArchLucid.ContextIngestion.ConnectorStages`; each `IContextConnector` remains a thin facade over `IConnectorInput<T>` + `IConnectorNormalizer<T>` + raw payload mappers; DI registers closed generics in `ServiceCollectionExtensions.ApplicationPipeline.RegisterContextIngestionAndKnowledgeGraph`.
+**Status:** Phase 1 **shipped** (2026-05-04). Phase 2 **shipped** (2026-05-05): `IConnectorDescriptor` + `ConnectorDescriptor`; `IConnectorPipelineOrchestrator` implemented by `DefaultConnectorPipelineOrchestrator` (parallel fetch+normalize via `Task.WhenAll`, sequential `DeltaAsync` + `DeltaSummary` segments in `PipelineOrder`); `ContextConnectorPipeline.CreateOrderedConnectorDescriptors` is canonical; `CreateOrderedContextConnectorPipeline` projects connectors only; `ContextIngestionService` delegates stages to the orchestrator. DI registers `IReadOnlyList<IConnectorDescriptor>` and `IConnectorPipelineOrchestrator` in `RegisterContextIngestionAndKnowledgeGraph`.
 
 **Deferred work (pick up in order):**
 
-1. **Phase 2 — Pipeline orchestrator** — Replace `ContextConnectorPipeline` static factory and `ContextIngestionService` sequential `foreach` with `IConnectorDescriptor` (order + binding) and `IConnectorPipelineOrchestrator`. Fan out fetch+normalize where safe; keep deterministic `DeltaSummary` segment order via explicit `Order`, not `Task` completion order. Optional: per-connector fault isolation (warnings vs abort).
+1. **Phase 3 — Meaningful delta + typed enrichers** — Introduce `IConnectorDeltaComputer` (shared default + optional per-connector overrides). Replace literal-string deltas where useful (e.g. set-diff on `SourceId`). Split `CanonicalInfrastructureEnricher` into per-`ObjectType` enrichers behind a composite.
 
-2. **Phase 3 — Meaningful delta + typed enrichers** — Introduce `IConnectorDeltaComputer` (shared default + optional per-connector overrides). Replace literal-string deltas where useful (e.g. set-diff on `SourceId`). Split `CanonicalInfrastructureEnricher` into per-`ObjectType` enrichers behind a composite.
+2. **Phase 4 — Cross-connector coupling** — Resolve `PolicyReferenceConnector` / topology stable-ID duplication via a shared resolver service consumed by policy + topology stages so overlap logic is not replicated.
 
-3. **Phase 4 — Cross-connector coupling** — Resolve `PolicyReferenceConnector` / topology stable-ID duplication via a shared resolver service consumed by policy + topology stages so overlap logic is not replicated.
+Optional later: per-connector fault isolation during parallel fetch+normalize (warnings vs abort entire ingest).
 
-**References:** `docs/library/SYSTEM_MAP.md` (ingestion host path); `ArchLucid.ContextIngestion/Infrastructure/ContextConnectorPipeline.cs`; `ArchLucid.ContextIngestion/Services/ContextIngestionService.cs`.
+**References:** `docs/library/SYSTEM_MAP.md` (ingestion host path); `ArchLucid.ContextIngestion/Infrastructure/ContextConnectorPipeline.cs`; `ArchLucid.ContextIngestion/Services/DefaultConnectorPipelineOrchestrator.cs`; `ArchLucid.ContextIngestion/Services/ContextIngestionService.cs`.
 
-**Size estimate:** Phase 2 ~4–6 h (DI + orchestration + tests). Phase 3 ~4–8 h (delta semantics + enricher split + regression). Phase 4 ~2–4 h (extract shared topology resolution + tests).
+**Size estimate:** Phase 3 ~4–8 h (delta semantics + enricher split + regression). Phase 4 ~2–4 h (extract shared topology resolution + tests).

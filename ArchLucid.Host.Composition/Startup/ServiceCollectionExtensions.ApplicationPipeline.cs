@@ -29,6 +29,7 @@ using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Governance;
@@ -236,7 +237,8 @@ public static partial class ServiceCollectionExtensions
             InfrastructureDeclarationsPayloadNormalizer>();
 
         // Concrete connectors (registered once each). Order here matches pipeline order for readability only;
-        // execution order is defined solely in ContextConnectorPipeline.CreateOrderedContextConnectorPipeline.
+        // execution order is defined solely in ContextConnectorPipeline.CreateOrderedConnectorDescriptors /
+        // CreateOrderedContextConnectorPipeline.
         services.AddSingleton<StaticRequestContextConnector>();
         services.AddSingleton<InlineRequirementsConnector>();
         services.AddSingleton<DocumentConnector>();
@@ -244,6 +246,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<TopologyHintsConnector>();
         services.AddSingleton<SecurityBaselineHintsConnector>();
         services.AddSingleton<InfrastructureDeclarationConnector>();
+
+        // Ordered pipeline slots (Phase 2); IEnumerable<IContextConnector> below is a projection for legacy resolves.
+        services.AddSingleton<IReadOnlyList<IConnectorDescriptor>>(static sp =>
+            ContextConnectorPipeline.CreateOrderedConnectorDescriptors(sp));
+        services.AddSingleton<IConnectorPipelineOrchestrator, DefaultConnectorPipelineOrchestrator>();
 
         // IEnumerable<IContextConnector> must come only from CreateOrderedContextConnectorPipeline — preserves
         // deterministic DeltaSummary segment order and operator-facing narrative (see docs/CONTEXT_INGESTION.md).

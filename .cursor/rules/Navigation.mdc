@@ -19,7 +19,7 @@ alwaysApply: false
 | Task | Start here |
 |------|------------|
 | Add a **finding engine** | `ArchLucid.Decisioning/Interfaces/IFindingEngine.cs` → register in `ServiceCollectionExtensions.Decisioning.cs` → template `templates/archlucid-finding-engine/` |
-| Add a **context connector** | `ArchLucid.ContextIngestion/Interfaces/IContextConnector.cs` → `ContextConnectorPipeline.CreateOrderedContextConnectorPipeline` → `RegisterContextIngestionAndKnowledgeGraph` (Api startup) |
+| Add a **context connector** | `ArchLucid.ContextIngestion/Interfaces/IContextConnector.cs`, typed stages (`IConnectorInput<T>` / `IConnectorNormalizer<T>`), pipeline slots (`IConnectorDescriptor` / `ContextConnectorPipeline.CreateOrderedConnectorDescriptors`), orchestrator (`IConnectorPipelineOrchestrator` / `DefaultConnectorPipelineOrchestrator`) → `RegisterContextIngestionAndKnowledgeGraph` (Api startup) |
 | Add an **agent handler** | `ArchLucid.AgentRuntime/IAgentHandler.cs` → `RegisterAgentExecution` in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` |
 | Add an **alert delivery channel** | `ArchLucid.Decisioning/Alerts/Delivery/IAlertDeliveryChannel.cs` → register with alert dispatcher |
 | Change **authority pipeline** | `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs` and `Orchestration/Pipeline/*` stages |

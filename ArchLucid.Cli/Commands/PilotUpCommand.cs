@@ -14,6 +14,7 @@ internal static class PilotUpCommand
     private const string ReadyUrl = "http://127.0.0.1:5000/health/ready";
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan ReadyDeadline = TimeSpan.FromSeconds(120);
+    private static readonly HttpClient Probe = new() { Timeout = TimeSpan.FromSeconds(8) };
 
     /// <summary>Default pilot stack: base compose + demo overlay (simulator).</summary>
     public static Task<int> RunAsync(CancellationToken cancellationToken = default)
@@ -96,14 +97,11 @@ internal static class PilotUpCommand
         DateTime deadline = DateTime.UtcNow + ReadyDeadline;
         bool ready = false;
 
-        using HttpClient probe = new();
-        probe.Timeout = TimeSpan.FromSeconds(8);
-
         while (DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
         {
             try
             {
-                using HttpResponseMessage response = await probe.GetAsync(ReadyUrl, cancellationToken);
+                using HttpResponseMessage response = await Probe.GetAsync(ReadyUrl, cancellationToken);
 
                 if (response.IsSuccessStatusCode)
                 {

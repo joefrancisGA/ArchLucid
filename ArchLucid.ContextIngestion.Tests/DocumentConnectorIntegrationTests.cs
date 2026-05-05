@@ -2,6 +2,8 @@ using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Repositories;
@@ -28,12 +30,13 @@ public sealed class DocumentConnectorIntegrationTests
             new DocumentConnectorPayloadExtractor(),
             new DocumentConnectorPayloadNormalizer(parsers));
 
+        IReadOnlyList<IConnectorDescriptor> descriptors = [new ConnectorDescriptor(1, connector)];
+
         return new ContextIngestionService(
-            [connector],
+            new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
-            new InMemoryContextSnapshotRepository(),
-            new DefaultContextDeltaSummaryBuilder());
+            new InMemoryContextSnapshotRepository());
     }
 
     [Fact]
