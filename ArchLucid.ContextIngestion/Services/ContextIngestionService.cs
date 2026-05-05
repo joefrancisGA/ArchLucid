@@ -1,26 +1,18 @@
 using ArchLucid.ContextIngestion.Canonicalization;
-using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.ContextIngestion.Summaries;
 
 namespace ArchLucid.ContextIngestion.Services;
 
 /// <summary>
-///     Orchestrates the context ingestion pipeline: collects raw objects from
-///     <see cref="IContextConnector" /> instances in the order supplied by DI (the host must register
-///     <c>IEnumerable&lt;IContextConnector&gt;</c> via
-///     <see cref="ContextConnectorPipeline.CreateOrderedContextConnectorPipeline" />), concatenates
-///     per-connector delta segments into <see cref="ContextSnapshot.DeltaSummary" />, then canonicalizes and
-///     deduplicates before persisting the <see cref="ContextSnapshot" />.
+///     Orchestrates context ingestion: delegates connector stages to <see cref="IConnectorPipelineOrchestrator" />
+///     (parallel fetch+normalize, sequential delta segments), then canonicalizes and deduplicates the snapshot.
 /// </summary>
 public class ContextIngestionService(
-    IEnumerable<IContextConnector> connectors,
+    IConnectorPipelineOrchestrator connectorPipelineOrchestrator,
     ICanonicalEnricher enricher,
     ICanonicalDeduplicator deduplicator,
-    IContextSnapshotRepository snapshotRepository,
-    IContextDeltaSummaryBuilder deltaSummaryBuilder)
-    : IContextIngestionService
+    IContextSnapshotRepository snapshotRepository) : IContextIngestionService
 {
     public async Task<ContextSnapshot> IngestAsync(
         ContextIngestionRequest request,
@@ -39,36 +31,16 @@ public class ContextIngestionService(
             CreatedUtc = DateTime.UtcNow
         };
 
-        // Latest persisted snapshot for this project (any prior run), used for connector delta messaging.
-        ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct);
+        ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct).ConfigureAwait(false);
 
-        List<CanonicalObject> allObjects = [];
-        List<string> deltaSummaries = [];
-        int connectorIndex = 0;
+        ConnectorPipelineStagesOutcome stages =
+            await connectorPipelineOrchestrator.RunStagesAsync(request, previous, ct).ConfigureAwait(false);
 
-        // Connector order = ContextConnectorPipeline.CreateOrderedContextConnectorPipeline (host DI); drives DeltaSummary segment order.
-        foreach (IContextConnector connector in connectors)
-        {
-            RawContextPayload raw = await connector.FetchAsync(request, ct);
-            NormalizedContextBatch normalized = await connector.NormalizeAsync(raw, ct);
-            ContextDelta delta = await connector.DeltaAsync(normalized, previous, ct);
+        snapshot.Warnings.AddRange(stages.Warnings);
 
-            allObjects.AddRange(normalized.CanonicalObjects);
-            snapshot.Warnings.AddRange(normalized.Warnings);
-
-            string segment = deltaSummaryBuilder.BuildSegment(
-                connector.ConnectorType,
-                delta.Summary,
-                normalized,
-                previous,
-                connectorIndex == 0);
-            deltaSummaries.Add(segment);
-            connectorIndex++;
-        }
-
-        IReadOnlyList<CanonicalObject> enriched = enricher.Enrich(allObjects);
+        IReadOnlyList<CanonicalObject> enriched = enricher.Enrich(stages.CanonicalObjects);
         snapshot.CanonicalObjects = deduplicator.Deduplicate(enriched).ToList();
-        snapshot.DeltaSummary = string.Join("; ", deltaSummaries);
+        snapshot.DeltaSummary = stages.DeltaSummary;
 
         return snapshot;
     }

@@ -13,8 +13,11 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Locks DI registration for the context-ingestion connector pipeline to the order defined in
 ///     <see
+///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedConnectorDescriptors" />
+///     (canonical slots) and
+///     <see
 ///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline" />
-///     and
+///     (connector projection), plus
 ///     <see
 ///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers" />
 ///     .
@@ -60,6 +63,25 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
         connectors.Count().Should().Be(expected,
             "IEnumerable<IContextConnector> must come only from CreateOrderedContextConnectorPipeline; " +
             "a direct AddSingleton<IContextConnector, ...> would break this invariant");
+    }
+
+    [SkippableFact]
+    public void Services_Resolve_IReadOnlyList_IConnectorDescriptor_InPipelineOrder()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IReadOnlyList<IConnectorDescriptor> descriptors = scope.ServiceProvider
+            .GetRequiredService<IReadOnlyList<IConnectorDescriptor>>();
+
+        descriptors.Select(d => d.Connector.GetType()).Should().Equal(
+            typeof(StaticRequestContextConnector),
+            typeof(InlineRequirementsConnector),
+            typeof(DocumentConnector),
+            typeof(PolicyReferenceConnector),
+            typeof(TopologyHintsConnector),
+            typeof(SecurityBaselineHintsConnector),
+            typeof(InfrastructureDeclarationConnector));
+
+        descriptors.Select(d => d.PipelineOrder).Should().Equal(1, 2, 3, 4, 5, 6, 7);
     }
 
     [SkippableFact]

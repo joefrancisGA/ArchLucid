@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Repositories;
@@ -11,7 +12,7 @@ namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 ///     Regression tests for connector iteration order in <see cref="ContextIngestionService" />:
-///     <see cref="ContextSnapshot.DeltaSummary" /> segment order and warning propagation.
+///     <see cref="ContextSnapshot.DeltaSummary" /> segment order and warning propagation (via orchestrator slots).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -24,19 +25,22 @@ public sealed class ContextIngestionServicePipelineOrderingTests
         string markerB = $"SEG_{Guid.NewGuid():N}_B";
         string markerC = $"SEG_{Guid.NewGuid():N}_C";
 
-        IContextConnector[] connectors =
+        MarkerConnector first = new("c-first", markerA);
+        MarkerConnector second = new("c-second", markerB, "WARN_FROM_SECOND_CONNECTOR");
+        MarkerConnector third = new("c-third", markerC);
+
+        IReadOnlyList<IConnectorDescriptor> descriptors =
         [
-            new MarkerConnector("c-first", markerA),
-            new MarkerConnector("c-second", markerB, "WARN_FROM_SECOND_CONNECTOR"),
-            new MarkerConnector("c-third", markerC)
+            new ConnectorDescriptor(1, first),
+            new ConnectorDescriptor(2, second),
+            new ConnectorDescriptor(3, third)
         ];
 
         ContextIngestionService sut = new(
-            connectors,
+            new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
-            new InMemoryContextSnapshotRepository(),
-            new DefaultContextDeltaSummaryBuilder());
+            new InMemoryContextSnapshotRepository());
 
         ContextIngestionRequest request = new() { RunId = Guid.NewGuid(), ProjectId = "proj-order-test" };
 
@@ -61,19 +65,18 @@ public sealed class ContextIngestionServicePipelineOrderingTests
     [Fact]
     public async Task IngestAsync_Warnings_FollowConnectorOrder()
     {
-        IContextConnector[] connectors =
+        IReadOnlyList<IConnectorDescriptor> descriptors =
         [
-            new MarkerConnector("w1", "S1", "WARN_CONNECTOR_1"),
-            new MarkerConnector("w2", "S2", "WARN_CONNECTOR_2"),
-            new MarkerConnector("w3", "S3", "WARN_CONNECTOR_3")
+            new ConnectorDescriptor(1, new MarkerConnector("w1", "S1", "WARN_CONNECTOR_1")),
+            new ConnectorDescriptor(2, new MarkerConnector("w2", "S2", "WARN_CONNECTOR_2")),
+            new ConnectorDescriptor(3, new MarkerConnector("w3", "S3", "WARN_CONNECTOR_3"))
         ];
 
         ContextIngestionService sut = new(
-            connectors,
+            new DefaultConnectorPipelineOrchestrator(descriptors, new DefaultContextDeltaSummaryBuilder()),
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
-            new InMemoryContextSnapshotRepository(),
-            new DefaultContextDeltaSummaryBuilder());
+            new InMemoryContextSnapshotRepository());
 
         ContextIngestionRequest request = new() { RunId = Guid.NewGuid(), ProjectId = "proj-warnings-order" };
 

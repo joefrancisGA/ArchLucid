@@ -28,6 +28,7 @@ ArchLucid.Api.Controllers.Authority.AnalysisReportsController.ExportAnalysisRepo
 ArchLucid.Api.Controllers.Authority.AnalysisReportsController.RecommendConsultingProfiles
 ArchLucid.Api.Controllers.Authority.AnalysisReportsController.ResolveConsultingDocxProfile
 ArchLucid.Api.Controllers.Authority.ExportsController.ReplayExportRecord
+ArchLucid.Api.Controllers.Authority.FastPathContextController.PostPreview
 ArchLucid.Api.Controllers.Authority.ExportsController.ReplayExportRecordMetadata
 # Durable audit: ImportRequestFileService logs RequestFileImported (AUDIT_COVERAGE_MATRIX architecture request import row).
 ArchLucid.Api.Controllers.Authority.ImportRequestFileController.ImportAsync
