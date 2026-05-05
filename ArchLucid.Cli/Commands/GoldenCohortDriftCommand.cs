@@ -19,16 +19,12 @@ internal static class GoldenCohortDriftCommand
 {
     private static readonly JsonSerializerOptions StdoutJson = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static async Task<int> RunAsync(string[] args)
@@ -111,7 +107,7 @@ internal static class GoldenCohortDriftCommand
         string? capRaw = Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_DRIFT_ITEM_CAP");
 
         if (int.TryParse(capRaw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedCap) && parsedCap > 0
-            && parsedCap < cap)
+                                                                                                        && parsedCap < cap)
             cap = parsedCap;
 
         bool runStructural = strictReal || structuralOnly;

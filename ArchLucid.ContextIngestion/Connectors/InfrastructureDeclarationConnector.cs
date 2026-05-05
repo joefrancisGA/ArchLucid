@@ -1,11 +1,13 @@
-using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDeclarationParser> parsers)
-    : IContextConnector
+public sealed class InfrastructureDeclarationConnector(
+    IConnectorInput<InfrastructureDeclarationsPayload> payloadInput,
+    IConnectorNormalizer<InfrastructureDeclarationsPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "infrastructure-declarations";
 
@@ -14,33 +16,22 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload
-        {
-            InfrastructureDeclarations = request.InfrastructureDeclarations.ToList()
-        });
+        ArgumentNullException.ThrowIfNull(request);
+
+        InfrastructureDeclarationsPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(InfrastructureDeclarationsRawPayloadMapper.ToRaw(typed));
     }
 
-    public async Task<NormalizedContextBatch> NormalizeAsync(
+    public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (InfrastructureDeclarationReference declaration in payload.InfrastructureDeclarations)
-        {
-            IInfrastructureDeclarationParser? parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
-            if (parser is null)
-            {
-                batch.Warnings.Add(
-                    $"No infrastructure declaration parser for '{declaration.Name}' (format='{declaration.Format}'). Declaration skipped.");
-                continue;
-            }
+        InfrastructureDeclarationsPayload typed = InfrastructureDeclarationsRawPayloadMapper.FromRaw(payload);
 
-            IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(declaration, ct);
-            batch.CanonicalObjects.AddRange(objects);
-        }
-
-        return batch;
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -48,6 +39,7 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         ContextSnapshot? previous,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(current);
         _ = ct;
 
         int currentCount = current.CanonicalObjects.Count;

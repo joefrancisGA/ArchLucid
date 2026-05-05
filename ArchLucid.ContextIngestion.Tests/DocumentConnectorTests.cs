@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
@@ -20,7 +21,9 @@ public sealed class DocumentConnectorTests
         Mock<IContextDocumentParser> mockParser = new();
         mockParser.Setup(p => p.CanParse(It.IsAny<string>())).Returns(false);
 
-        DocumentConnector sut = new([mockParser.Object]);
+        DocumentConnector sut = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([mockParser.Object]));
         RawContextPayload payload = new()
         {
             Documents =
@@ -64,7 +67,9 @@ public sealed class DocumentConnectorTests
                 new CanonicalObject { ObjectType = "Requirement", Name = "from-second", SourceType = "Document" }
             ]);
 
-        DocumentConnector sut = new([first.Object, second.Object]);
+        DocumentConnector sut = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([first.Object, second.Object]));
         RawContextPayload payload = new()
         {
             Documents =

@@ -21,7 +21,7 @@ internal static class GraphWireMermaidFormatter
 
         HashSet<string> edgeReferenced = [];
 
-        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e =>
+        foreach (GraphEdgeWire e in vm.Edges.Where(static e =>
                      !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
             edgeReferenced.Add(e.Source.Trim());
@@ -44,7 +44,7 @@ internal static class GraphWireMermaidFormatter
             sb.AppendLine("\"]");
         }
 
-        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e =>
+        foreach (GraphEdgeWire e in vm.Edges.Where(static e =>
                      !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
             if (string.IsNullOrWhiteSpace(e.Source) || string.IsNullOrWhiteSpace(e.Target))

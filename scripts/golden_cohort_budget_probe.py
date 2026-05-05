@@ -3,7 +3,7 @@
 Month-to-date Azure spend probe for the dedicated golden-cohort Azure OpenAI resource.
 
 Reads ``tests/golden-cohort/budget.config.json``, queries **Azure Cost Management** (management plane REST,
-no Azure SDK) using ``requests``, and exits:
+no Azure SDK) using ``requests`` (imported only for live queries — simulate mode needs no extra packages), and exits:
 
 * **0** — month-to-date cost is **below** the warn threshold (default **80%** of ``monthlyTokenBudgetUsd``).
 * **1** — at or above the warn threshold but **below** the kill threshold (default **95%**) — the workflow
@@ -40,12 +40,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from shutil import which
 from typing import Any
-
-try:
-    import requests
-except ImportError as exc:  # pragma: no cover - exercised when requests missing
-    print("golden_cohort_budget_probe: install requests (pip install requests).", file=sys.stderr)
-    raise SystemExit(3) from exc
 
 COST_API_VERSION = "2023-11-01"
 MANAGEMENT_SCOPE = "https://management.azure.com/"
@@ -121,6 +115,13 @@ def _get_management_token() -> str:
 
 
 def _query_mtd_actual_cost_usd(subscription_id: str, resource_id: str, token: str) -> float:
+    # Import lazily so simulate mode (and CI threshold unit tests) run without ``pip install requests``.
+    try:
+        import requests
+    except ImportError as exc:  # pragma: no cover - exercised when requests missing
+        print("golden_cohort_budget_probe: install requests (pip install requests).", file=sys.stderr)
+        raise SystemExit(3) from exc
+
     url = (
         f"https://management.azure.com/subscriptions/{subscription_id}"
         f"/providers/Microsoft.CostManagement/query?api-version={COST_API_VERSION}"

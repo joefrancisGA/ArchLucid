@@ -257,6 +257,12 @@ function CounterGrid({ snapshot }: { readonly snapshot: WhyArchLucidSnapshot }) 
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <Counter label="Runs created" value={snapshot.runsCreatedTotal} hint="archlucid_runs_created_total" />
       <Counter
+        label="Est. manual hours saved"
+        value={snapshot.estimatedManualWorkHoursSaved ?? 0}
+        hint="planning heuristic — see methodology footnote"
+        valueFormat="hours"
+      />
+      <Counter
         label="Audit rows (demo scope)"
         value={snapshot.auditRowCount}
         hint={
@@ -288,6 +294,12 @@ function CounterGrid({ snapshot }: { readonly snapshot: WhyArchLucidSnapshot }) 
       ) : null}
       <p className="sm:col-span-3 text-xs text-neutral-500">
         Snapshot generated {formatWhyPageInstant(snapshot.generatedUtc)} · demo run <code>{snapshot.demoRunId}</code>
+        {typeof snapshot.estimatedManualWorkHoursSavedMethodology === "string" &&
+        snapshot.estimatedManualWorkHoursSavedMethodology.trim().length > 0 ? (
+          <>
+            <span className="mt-1 block">{snapshot.estimatedManualWorkHoursSavedMethodology}</span>
+          </>
+        ) : null}
       </p>
     </div>
   );
@@ -465,15 +477,24 @@ function Counter({
   label,
   value,
   hint,
+  valueFormat,
 }: {
   readonly label: string;
   readonly value: number;
   readonly hint: string;
+  readonly valueFormat?: "hours";
 }) {
+  const shown =
+    valueFormat === "hours" && Number.isFinite(value) ? value.toFixed(2) : String(value);
+
   return (
-    <div className="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950">
+    <div
+      className="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      role="group"
+      aria-label={label}
+    >
       <p className="text-xs uppercase tracking-wide text-neutral-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{value}</p>
+      <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{shown}</p>
       <p className="mt-1 text-xs text-neutral-500">
         <code>{hint}</code>
       </p>

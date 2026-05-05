@@ -61,9 +61,7 @@ internal static class MarketplacePreflightCommand
         {
             object payload = new
             {
-                repositoryRoot = root,
-                allPassed,
-                steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, detail = s.Detail }).ToList()
+                repositoryRoot = root, allPassed, steps = steps.Select(static s => new { id = s.Id, passed = s.Passed, detail = s.Detail }).ToList()
             };
 
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));

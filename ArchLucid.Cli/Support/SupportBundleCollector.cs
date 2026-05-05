@@ -43,10 +43,7 @@ public static class SupportBundleCollector
 
         (string? versionJson, string? versionErr) = await TryGetVersionAsync(client, cancellationToken);
 
-        SupportBundleBuildSection build = new()
-        {
-            Cli = ReadCliBuildInfo(), ApiVersionJson = versionJson, ApiVersionError = versionErr
-        };
+        SupportBundleBuildSection build = new() { Cli = ReadCliBuildInfo(), ApiVersionJson = versionJson, ApiVersionError = versionErr };
 
         SupportBundleHealthSection health = new()
         {
@@ -61,10 +58,7 @@ public static class SupportBundleCollector
         SupportBundleEnvironmentSection env = BuildEnvironmentSection();
         SupportBundleWorkspaceSection workspace = BuildWorkspaceSection(workingDirectory, config);
         SupportBundleReferencesSection references = BuildReferencesSection();
-        SupportBundleLogsSection logs = new()
-        {
-            LocalLogExcerpt = TryReadSmallLocalLogExcerpt(workingDirectory, config)
-        };
+        SupportBundleLogsSection logs = new() { LocalLogExcerpt = TryReadSmallLocalLogExcerpt(workingDirectory, config) };
 
         return new SupportBundlePayload(
             manifest,
@@ -112,9 +106,7 @@ public static class SupportBundleCollector
 
         return new SupportBundleCliBuildInfo
         {
-            InformationalVersion = informational,
-            AssemblyVersion = assemblyVersion,
-            RuntimeFramework = RuntimeInformation.FrameworkDescription
+            InformationalVersion = informational, AssemblyVersion = assemblyVersion, RuntimeFramework = RuntimeInformation.FrameworkDescription
         };
     }
 

@@ -15,9 +15,7 @@ internal static class ConfigCheckCommand
 {
     private static readonly JsonSerializerOptions JsonWriter = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = true
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = true
     };
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
@@ -277,10 +275,7 @@ internal static class ConfigCheckCommand
             string body = await r.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             AdminConfigSummaryResponse? d = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(
                 body,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             if (d?.Keys is not { } rows || rows.Count == 0)
                 return (null, "API: (skip) empty body");
 

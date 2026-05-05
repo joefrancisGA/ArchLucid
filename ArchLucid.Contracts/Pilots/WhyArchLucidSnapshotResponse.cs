@@ -62,4 +62,21 @@ public sealed class WhyArchLucidSnapshotResponse
         get;
         set;
     }
+
+    /// <summary>
+    ///     Rough planning-only estimate of manual diligence hours implied by cumulative runs, findings, and sampled audit
+    ///     rows (see <c>ArchLucid.Application.Pilots.PilotHoursSavedEstimator</c>).
+    /// </summary>
+    public double EstimatedManualWorkHoursSaved
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Short disclaimer explaining how <see cref="EstimatedManualWorkHoursSaved" /> was computed.</summary>
+    public string EstimatedManualWorkHoursSavedMethodology
+    {
+        get;
+        set;
+    } = "";
 }

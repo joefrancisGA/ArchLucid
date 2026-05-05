@@ -1,17 +1,20 @@
-using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
 /// <summary>
 ///     Normalizes inline <see cref="ContextDocumentReference" /> items using the first
-///     <see cref="IContextDocumentParser" /> in
+///     <see cref="Contracts.IContextDocumentParser" /> in
 ///     <see
 ///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers" />
-///     order where <see cref="IContextDocumentParser.CanParse" /> returns true.
+///     order where <see cref="Contracts.IContextDocumentParser.CanParse" /> returns true.
 /// </summary>
-public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : IContextConnector
+public sealed class DocumentConnector(
+    IConnectorInput<DocumentConnectorPayload> payloadInput,
+    IConnectorNormalizer<DocumentConnectorPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "documents";
 
@@ -20,35 +23,22 @@ public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : 
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload { Documents = request.Documents.ToList() });
+        ArgumentNullException.ThrowIfNull(request);
+
+        DocumentConnectorPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(DocumentConnectorRawPayloadMapper.ToRaw(typed));
     }
 
-    public async Task<NormalizedContextBatch> NormalizeAsync(
+    public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (ContextDocumentReference document in payload.Documents)
-        {
-            IContextDocumentParser? parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
+        DocumentConnectorPayload typed = DocumentConnectorRawPayloadMapper.FromRaw(payload);
 
-            if (parser is null)
-            {
-                batch.Warnings.Add(
-                    $"No registered context document parser accepted '{document.Name}' " +
-                    $"(contentType='{document.ContentType}'). Document skipped. " +
-                    "For HTTP requests, ContentType is validated at the API; if you still see this, " +
-                    "align parser registrations (see ContextDocumentParserPipeline / SupportedContextDocumentContentTypes) " +
-                    "or check non-API callers building ContextIngestionRequest.");
-                continue;
-            }
-
-            IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(document, ct);
-            batch.CanonicalObjects.AddRange(objects);
-        }
-
-        return batch;
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -58,6 +48,7 @@ public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : 
     {
         _ = current;
         _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null ? "Initial document ingestion" : "Updated document ingestion"

@@ -55,6 +55,11 @@ public sealed class WhyArchLucidSnapshotService(
             logger.LogWarning(ex, "Why-ArchLucid snapshot: audit row count unavailable; reporting 0.");
         }
 
+        double hours = PilotHoursSavedEstimator.Estimate(
+            snapshot.RunsCreatedTotal,
+            snapshot.FindingsProducedBySeverity,
+            auditCount);
+
         return new WhyArchLucidSnapshotResponse
         {
             GeneratedUtc = timeProvider.GetUtcNow(),
@@ -62,7 +67,9 @@ public sealed class WhyArchLucidSnapshotService(
             RunsCreatedTotal = snapshot.RunsCreatedTotal,
             FindingsProducedBySeverity = snapshot.FindingsProducedBySeverity,
             AuditRowCount = auditCount,
-            AuditRowCountTruncated = truncated
+            AuditRowCountTruncated = truncated,
+            EstimatedManualWorkHoursSaved = hours,
+            EstimatedManualWorkHoursSavedMethodology = PilotHoursSavedEstimator.Methodology
         };
     }
 }

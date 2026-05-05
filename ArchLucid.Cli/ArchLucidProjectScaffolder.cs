@@ -41,10 +41,7 @@ public static class ArchLucidProjectScaffolder
     /// <summary>Shared options for <see cref="CliManifestFileName" /> read/write (CA1869: single cached instance).</summary>
     private static readonly JsonSerializerOptions SJsonManifest = new()
     {
-        WriteIndented = true,
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true
+        WriteIndented = true, PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true
     };
 
     public static string CreateProject(ScaffoldOptions options)

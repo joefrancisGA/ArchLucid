@@ -1,10 +1,13 @@
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.ContextIngestion.Topology;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 namespace ArchLucid.ContextIngestion.Connectors;
 
-public class TopologyHintsConnector : IContextConnector
+public sealed class TopologyHintsConnector(
+    IConnectorInput<TopologyHintsPayload> payloadInput,
+    IConnectorNormalizer<TopologyHintsPayload> payloadNormalizer) : IContextConnector
 {
     public string ConnectorType => "topology-hints";
 
@@ -13,47 +16,22 @@ public class TopologyHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(new RawContextPayload { TopologyHints = request.TopologyHints.ToList() });
+        ArgumentNullException.ThrowIfNull(request);
+
+        TopologyHintsPayload typed = payloadInput.Extract(request);
+
+        return Task.FromResult(TopologyHintsRawPayloadMapper.ToRaw(typed));
     }
 
     public Task<NormalizedContextBatch> NormalizeAsync(
         RawContextPayload payload,
         CancellationToken ct)
     {
-        _ = ct;
-        NormalizedContextBatch batch = new();
+        ArgumentNullException.ThrowIfNull(payload);
 
-        foreach (string hint in payload.TopologyHints)
-        {
-            string trimmed = hint.Trim();
-            Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase) { ["text"] = trimmed };
+        TopologyHintsPayload typed = TopologyHintsRawPayloadMapper.FromRaw(payload);
 
-            int slash = trimmed.IndexOf('/');
-            if (slash > 0 && slash < trimmed.Length - 1)
-            {
-                string parentName = trimmed[..slash].Trim();
-                string childRemainder = trimmed[(slash + 1)..].Trim();
-
-                if (parentName.Length > 0 && childRemainder.Length > 0)
-                {
-                    // parentNodeId must match GraphNodeFactory: obj-{CanonicalObject.ObjectId}
-                    string parentObjId = TopologyHintStableObjectIds.FromHintName(parentName);
-                    properties["parentNodeId"] = $"obj-{parentObjId}";
-                }
-            }
-
-            batch.CanonicalObjects.Add(new CanonicalObject
-            {
-                ObjectId = TopologyHintStableObjectIds.FromHintName(trimmed),
-                ObjectType = "TopologyResource",
-                Name = trimmed,
-                SourceType = "TopologyHint",
-                SourceId = "topology-hint",
-                Properties = properties
-            });
-        }
-
-        return Task.FromResult(batch);
+        return payloadNormalizer.NormalizeAsync(typed, ct);
     }
 
     public Task<ContextDelta> DeltaAsync(
@@ -63,6 +41,7 @@ public class TopologyHintsConnector : IContextConnector
     {
         _ = current;
         _ = ct;
+
         return Task.FromResult(new ContextDelta
         {
             Summary = previous is null ? "Initial topology hint ingestion" : "Updated topology hint ingestion"

@@ -39,9 +39,7 @@ public sealed class ArchLucidApiClient
     /// </summary>
     private static readonly JsonSerializerOptions ContractEnumAwareJson = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() }
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
     private readonly Gen.ArchLucidApiClient _api;
@@ -92,10 +90,7 @@ public sealed class ArchLucidApiClient
 
             inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
 
-        HttpClient http = new(inner, true)
-        {
-            BaseAddress = new Uri(normalizedBaseUrl + "/"), Timeout = TimeSpan.FromSeconds(30)
-        };
+        HttpClient http = new(inner, true) { BaseAddress = new Uri(normalizedBaseUrl + "/"), Timeout = TimeSpan.FromSeconds(30) };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");

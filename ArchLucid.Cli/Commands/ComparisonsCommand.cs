@@ -195,8 +195,8 @@ internal static class ComparisonsCommand
     {
         List<string[]> rows = records.Select(r => new[]
             {
-                r.CreatedUtc.ToString("O"), r.ComparisonRecordId, r.ComparisonType, r.LeftRunId ?? "",
-                r.RightRunId ?? "", r.Label ?? "", r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
+                r.CreatedUtc.ToString("O"), r.ComparisonRecordId, r.ComparisonType, r.LeftRunId ?? "", r.RightRunId ?? "", r.Label ?? "",
+                r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
             })
             .ToList();
 
@@ -497,9 +497,8 @@ internal static class ComparisonsCommand
     {
         List<string[]> rows = entries.Select(e => new[]
             {
-                e.TimestampUtc.ToString("O"), e.ComparisonRecordId, e.ComparisonType, e.Format, e.ReplayMode,
-                e.Success ? "true" : "false", e.DurationMs.ToString(), e.MetadataOnly ? "true" : "false",
-                e.PersistedReplayRecordId ?? "", e.ErrorMessage ?? ""
+                e.TimestampUtc.ToString("O"), e.ComparisonRecordId, e.ComparisonType, e.Format, e.ReplayMode, e.Success ? "true" : "false",
+                e.DurationMs.ToString(), e.MetadataOnly ? "true" : "false", e.PersistedReplayRecordId ?? "", e.ErrorMessage ?? ""
             })
             .ToList();
 

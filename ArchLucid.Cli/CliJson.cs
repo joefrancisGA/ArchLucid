@@ -4,10 +4,7 @@ namespace ArchLucid.Cli;
 
 internal static class CliJson
 {
-    private static readonly JsonSerializerOptions CompactCamelCase = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions CompactCamelCase = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     internal static void WriteFailureLine(TextWriter writer, int exitCode, string error, string? message = null)
     {

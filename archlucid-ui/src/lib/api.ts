@@ -656,6 +656,10 @@ export type WhyArchLucidSnapshot = {
   findingsProducedBySeverity: Record<string, number>;
   auditRowCount: number;
   auditRowCountTruncated: boolean;
+  /** Present on API builds that include planning-only ROI heuristic fields. */
+  estimatedManualWorkHoursSaved?: number;
+  /** Explains how {@link WhyArchLucidSnapshot.estimatedManualWorkHoursSaved} was computed. */
+  estimatedManualWorkHoursSavedMethodology?: string;
 };
 
 /** GETs the `/v1/pilots/why-archlucid-snapshot` JSON snapshot used by the proof page. */
