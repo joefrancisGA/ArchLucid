@@ -5,7 +5,6 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -58,10 +57,10 @@ public sealed class DevelopmentBypassAuthenticationHandler(
 
         List<Claim> claims =
         [
-            new Claim(ClaimTypes.NameIdentifier, userId),
-            new Claim(ClaimTypes.Name, userName),
-            new Claim("oid", userId),
-            new Claim(ClaimTypes.Role, role)
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Name, userName),
+            new("oid", userId),
+            new(ClaimTypes.Role, role)
         ];
 
         ClaimsIdentity identity = new(claims, SchemeName);
