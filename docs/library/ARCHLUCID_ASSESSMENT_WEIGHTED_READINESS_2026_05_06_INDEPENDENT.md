@@ -174,7 +174,7 @@ ArchLucid is past "prototype," but the next readiness jump depends less on addin
 
 **Affected qualities:** Marketability, Proof-of-ROI Readiness, Executive Value Visibility, Trustworthiness.
 
-**Status:** Fully actionable now.
+**Status:** **Complete** (2026-05-06). Proof gate (hard/soft gaps), sponsor Markdown proof-contract table, `proofPackageCompleteness` on `GET …/pilot-run-deltas`, artifact descriptor count via `PilotRunDeltaComputer`, sponsor one-pager demo watermark in `page.Header()`, unit tests — shipped.
 
 **Cursor prompt:**
 ```
@@ -231,7 +231,7 @@ Acceptance criteria:
 
 **Affected qualities:** Reliability, Deployability, Testability, Trustworthiness (release confidence).
 
-**Status:** Fully actionable now.
+**Status:** **Complete** (2026-05-06). `-LivePlaywright` on `release-smoke.ps1`, `RELEASE_SMOKE.md` parity table and notes, `LIVE_API_URL` / optional skip-build wiring, `AgentExecution__Mode=Simulator` on smoke API — shipped.
 
 **Cursor prompt:**
 ```
@@ -683,17 +683,14 @@ Acceptance criteria:
 ## 10. Pending Questions for Later
 
 **Improvement 1 ? Buyer-Safe First-Value Proof Gate:**
+- **Shipment:** Complete (2026-05-06); resolutions below kept as audit trail.
 - ~~Which proof fields are mandatory (block send) vs advisory-only (warn but allow)?~~ **RESOLVED (2026-05-06):** Hard blocks (upgrade to `NotSendable` alongside `DemoOnly`): missing committed manifest (`manifest is null || status != Committed`), and zero audit rows (`AuditRowCount == 0`). Soft warnings (remain `SendableWithCaveats`): simulator fallback (`RealModeFellBackToSimulator`), missing top-finding evidence chain, and defaulted/no-measurement ROI baseline. `ResolveTier` must use a separate `hardGaps` list so that `hardGaps.Count > 0 || demoTenant` returns `DemoOnly`.
-- **Field sales demo banner ? elaborated (open, needs owner decision):**
+- **Field sales demo banner (resolved; audit trail):**
 
-  **What the code currently does:**
-  `PilotBuyerSafeEvidenceGateEvaluator` produces `DemoOnly` ? `NotSendable`. The Markdown formatter renders
-  "Not sendable externally" plus the gap text "Seeded/demo tenant ? replace before external sponsor
-  screenshots or purchase narratives." The PDF builder (`SponsorOnePagerPdfBuilder`) renders a single
-  yellow/red banner box inline in the content area of page 1. The `NotSendable` posture is advisory ?
-  it does not prevent the PDF from being generated, opened, or attached to an email.
+  **Shipped behavior (2026-05-06):**
+  `PilotBuyerSafeEvidenceGateEvaluator` still yields `DemoOnly` / `NotSendable` for demo tenants; Markdown and API surfaces carry the proof-contract completeness table. `SponsorOnePagerPdfBuilder` adds **ILLUSTRATION ONLY — not a commitment** via `page.Header()` on every page when `IsDemoTenant`, so the stamp survives overflow and screenshot crops. `NotSendable` remains advisory for generation/open/share ? it does not hard-block file creation.
 
-  **The field sales risk:**
+  **The field sales risk (why Option A was chosen):**
   An AE or SE sharing this PDF with a prospect during a live demo is likely to use the seeded Contoso
   Retail numbers (audit rows, findings, LLM call counts, time-to-commit) as a reference point. The
   prospect receives the PDF and may quote those figures in their internal business case. When the real
@@ -711,14 +708,7 @@ Acceptance criteria:
   | **B ? Separate "illustrative" PDF template** | Replace computed numbers with labelled ranges ("3?15 findings, illustrative") and add a distinct visual treatment throughout. | ~2?3 days | Explicitly safe for a polished field demo but requires two maintained templates |
   | **C ? Keep current banner; enforce no-export** | Block PDF generation when tier is `DemoOnly`; force operator to use the live UI for demos only. | ~1 hour | No sendable artifact; demo must be screen-based |
 
-  **Recommendation (pending owner confirmation):**
-  Option A is the right default for V1 ? it is a one-line QuestPDF change, survives any export/screenshot
-  path, and does not require a second template to maintain. If field sales needs a polished "illustrative
-  deck" style artifact for prospect leave-behinds, that is Option B and belongs in V1.1.
-  Option C actively reduces demo value and is not recommended unless there is evidence of actual
-  misuse.
-
-  **RESOLVED:** Option A (per-page header stamp) for V1. Option B (illustrative template) for V1.1.
+  **Decision record:** Option A shipped for V1 (per-page header stamp). Option B (illustrative template) deferred to V1.1. Option C not recommended unless misuse evidence appears.
 
 **Improvement 4 ? Connector Readiness and Health Matrix:**
 - ~~Which connectors must expose operator-visible health in the V1 operator UI versus diagnostics/docs only?~~ **RESOLVED:** All connectors must expose operator-visible health in the UI.

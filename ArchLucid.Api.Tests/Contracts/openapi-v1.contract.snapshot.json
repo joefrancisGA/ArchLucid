@@ -9321,6 +9321,16 @@
               "string"
             ]
           },
+          "proofPackageCompleteness": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ProofPackageCompletenessResponse"
+              }
+            ]
+          },
           "runCreatedUtc": {
             "format": "date-time",
             "type": "string"
@@ -10555,6 +10565,58 @@
           },
           "title": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProofPackageCompletenessResponse": {
+        "properties": {
+          "artifactDescriptorCount": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "artifactDescriptorCountResolved": {
+            "type": "boolean"
+          },
+          "auditRowsPresentOrLowerBound": {
+            "type": "boolean"
+          },
+          "buyerSafeRedactionProfile": {
+            "type": "string"
+          },
+          "committedManifestPresent": {
+            "type": "boolean"
+          },
+          "demoTenantWarningRequired": {
+            "type": "boolean"
+          },
+          "findingsBySeverityPresent": {
+            "type": "boolean"
+          },
+          "llmCallCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "proofSendability": {
+            "type": "string"
+          },
+          "publishingTier": {
+            "type": "string"
+          },
+          "roiConfidenceLabel": {
+            "type": "string"
+          },
+          "runInCommittedStatus": {
+            "type": "boolean"
+          },
+          "timeToCommittedManifestResolved": {
+            "type": "boolean"
+          },
+          "topFindingEvidenceChainPresentOrNotApplicable": {
+            "type": "boolean"
           }
         },
         "type": "object"
