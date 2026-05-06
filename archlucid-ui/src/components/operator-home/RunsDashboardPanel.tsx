@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
-import { formatFindings, formatHours } from "@/components/BeforeAfterDelta/formatDelta";
+import { formatFindings, formatHours, safeCommittedRunWindowCount } from "@/components/BeforeAfterDelta/formatDelta";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,9 @@ export function RunsDashboardPanel() {
   const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(false);
   const [items, setItems] = useState<RunSummary[]>([]);
   const { status: deltaStatus, data: deltaData } = useDeltaQuery({ count: 5 });
+
+  const outcomesWindow =
+    deltaStatus === "ready" && deltaData !== null ? safeCommittedRunWindowCount(deltaData.returnedCount) : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -427,16 +430,16 @@ export function RunsDashboardPanel() {
           {tab === "outcomes" ? (
             <div data-testid="command-center-activity-card">
               {deltaStatus === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading run outcomes…</p>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading review outcomes…</p>
               ) : null}
 
               {deltaStatus === "error" ? (
                 <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  Run outcomes are unavailable right now. Try again later or open the runs list.
+                  Review outcomes are unavailable right now. Try again later or open the reviews list.
                 </p>
               ) : null}
 
-              {deltaStatus === "ready" && deltaData !== null && deltaData.returnedCount > 0 ? (
+              {deltaStatus === "ready" && deltaData !== null && outcomesWindow !== null && outcomesWindow > 0 ? (
                 <dl className="m-0 grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Findings</dt>
@@ -453,10 +456,16 @@ export function RunsDashboardPanel() {
                 </dl>
               ) : null}
 
-              {deltaStatus === "ready" && deltaData !== null && deltaData.returnedCount === 0 ? (
+              {deltaStatus === "ready" && outcomesWindow === 0 ? (
                 <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                  After your first finalized run, this panel will show manifests finalized, findings surfaced, and average
-                  time to finalization.
+                  After your first finalized review, this panel will show manifests finalized, findings surfaced, and
+                  average time to finalization.
+                </p>
+              ) : null}
+
+              {deltaStatus === "ready" && deltaData !== null && outcomesWindow === null ? (
+                <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                  Review outcomes summary is incomplete. Try again later.
                 </p>
               ) : null}
             </div>
@@ -466,7 +475,7 @@ export function RunsDashboardPanel() {
             href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
             className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
           >
-            Open full runs list
+            Open full reviews list
           </Link>
         </CardContent>
       </Card>

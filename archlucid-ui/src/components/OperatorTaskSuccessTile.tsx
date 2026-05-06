@@ -5,6 +5,33 @@ import { useEffect, useState } from "react";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 
+function safeNonNegativeWholeDisplay(value: unknown): string {
+  const numeric = typeof value === "number" ? value : Number(value);
+
+  if (!Number.isFinite(numeric) || numeric < 0) {
+    return "—";
+  }
+
+  return String(Math.floor(numeric));
+}
+
+function safeSessionsToFinalizedPercent(ratio: unknown, sessionsTotal: unknown): string {
+  const sessions = typeof sessionsTotal === "number" ? sessionsTotal : Number(sessionsTotal);
+  const r = typeof ratio === "number" ? ratio : Number(ratio);
+
+  if (!Number.isFinite(sessions) || sessions <= 0 || !Number.isFinite(r)) {
+    return "—";
+  }
+
+  const pct = Math.round(r * 100);
+
+  if (!Number.isFinite(pct)) {
+    return "—";
+  }
+
+  return `${Math.min(100, Math.max(0, pct))}%`;
+}
+
 /** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
 export function OperatorTaskSuccessTile() {
   const [data, setData] = useState<OperatorTaskSuccessRates | null>(null);
@@ -43,7 +70,7 @@ export function OperatorTaskSuccessTile() {
           Pilot adoption
         </h2>
         <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-          No data yet. Metrics appear after your first completed run.
+          No data yet. Metrics appear after your first completed review session.
         </p>
       </section>
     );
@@ -73,18 +100,20 @@ export function OperatorTaskSuccessTile() {
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
         <div>
-          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{data.firstSessionCompletedTotal}</dd>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            {safeNonNegativeWholeDisplay(data.firstSessionCompletedTotal)}
+          </dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Sessions</dt>
         </div>
         <div>
-          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{data.firstRunCommittedTotal}</dd>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            {safeNonNegativeWholeDisplay(data.firstRunCommittedTotal)}
+          </dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
         </div>
         <div>
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-            {data.firstSessionCompletedTotal > 0
-              ? `${Math.round(data.firstRunCommittedPerSessionRatio * 100)}%`
-              : "—"}
+            {safeSessionsToFinalizedPercent(data.firstRunCommittedPerSessionRatio, data.firstSessionCompletedTotal)}
           </dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Conversion</dt>
         </div>

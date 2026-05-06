@@ -6,6 +6,7 @@ vi.mock("@/lib/proxy-fetch-registration-scope", () => ({
 }));
 
 import { BeforeAfterDeltaTopPanel } from "../BeforeAfterDeltaTopPanel";
+import type { RecentPilotRunDeltaRow } from "../types";
 import {
   installFailingRecentDeltasFetch,
   installRecentDeltasFetch,
@@ -68,6 +69,47 @@ describe("BeforeAfterDeltaTopPanel", () => {
     expect(screen.getByTestId("delta-top-median-findings")).toHaveTextContent("4");
     expect(screen.getByTestId("delta-top-median-time")).toHaveTextContent("0.75 h");
     expect(screen.getByTestId("delta-top-rows").querySelectorAll("li")).toHaveLength(3);
+  });
+
+  it("renders nothing when returnedCount is non-finite", async () => {
+    installRecentDeltasFetch({
+      items: [makeRow({ runId: "row1" })],
+      requestedCount: 5,
+      returnedCount: Number.NaN,
+      medianTotalFindings: 1,
+      medianTimeToCommittedManifestTotalSeconds: 60,
+    });
+
+    const { container } = render(<BeforeAfterDeltaTopPanel />);
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch)).toHaveBeenCalled();
+    });
+
+    expect(container.querySelector('[data-testid="before-after-delta-panel-top"]')).toBeNull();
+  });
+
+  it("renders a safe per-row caption when totalFindings is not numeric", async () => {
+    const brokenRow: RecentPilotRunDeltaRow = {
+      ...makeRow({ runId: "badrow00000001", totalFindings: 0 }),
+      totalFindings: Number.NaN,
+    };
+
+    installRecentDeltasFetch({
+      items: [brokenRow],
+      requestedCount: 1,
+      returnedCount: 1,
+      medianTotalFindings: null,
+      medianTimeToCommittedManifestTotalSeconds: 30 * 60,
+    });
+
+    render(<BeforeAfterDeltaTopPanel />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("delta-top-rows")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Not enough data yet")).toBeInTheDocument();
   });
 
   it("renders the demo badge when a row is flagged as a demo tenant", async () => {

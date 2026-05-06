@@ -431,7 +431,7 @@ function CompareForm() {
           <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
             Confirm both runs exist and are in scope (same tenant/project as the shell). Re-pick runs from{" "}
-            <Link href="/reviews?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
+            <Link href="/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong> again.
             Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
         </>

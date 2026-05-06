@@ -38,10 +38,10 @@ export function AvailableAfterFirstRun() {
     >
       <CardContent className="px-6 py-8 text-center">
         <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          Available after your first finalized run
+          Available after your first finalized review
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-neutral-600 dark:text-neutral-400">
-          Complete an architecture request and finalize the run to unlock this view.
+          Complete an architecture request and finalize the review to unlock this view.
         </p>
         <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700" type="button">
           <Link href="/reviews/new">Start a new request</Link>

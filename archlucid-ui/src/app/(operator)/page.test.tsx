@@ -114,7 +114,7 @@ describe("HomePage (55R smoke — landing)", () => {
     render(<HomePage />);
 
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: "Open full runs list" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "Open full reviews list" })).toHaveAttribute(
         "href",
         "/reviews?projectId=default",
       );

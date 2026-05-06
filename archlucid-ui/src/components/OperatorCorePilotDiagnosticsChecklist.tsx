@@ -147,7 +147,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
             </span>
             <span className="text-[11px] text-neutral-600 dark:text-neutral-400">
               Finalization signal:{" "}
-              <strong className="font-semibold text-neutral-800 dark:text-neutral-200">{finalizedRecorded ? "≥1 finalized run" : "waiting"}</strong>
+              <strong className="font-semibold text-neutral-800 dark:text-neutral-200">{finalizedRecorded ? "≥1 finalized review" : "waiting"}</strong>
             </span>
           </div>
         </section>
