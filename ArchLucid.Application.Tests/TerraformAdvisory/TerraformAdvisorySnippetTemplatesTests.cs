@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.TerraformAdvisory;
 
@@ -61,7 +63,7 @@ public sealed class TerraformAdvisorySnippetTemplatesTests
 
             1,
 
-            DateTime.Parse("2026-05-06T03:04:05Z", null, DateTimeStyles.AdjustToUniversal));
+            DateTime.Parse("2026-05-06T03:04:05Z", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind));
 
 
         cite.Should().Contain("packageId=11111111222233334444555566667777");

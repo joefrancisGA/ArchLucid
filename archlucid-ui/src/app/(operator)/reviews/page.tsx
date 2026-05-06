@@ -177,7 +177,7 @@ export default async function RunsPage({
             correlationId={loadFailure.correlationId}
           />
           <OperatorTryNext>
-            The run list could not be loaded. Check your connection and try reloading.
+            The reviews list could not be loaded. Check your connection and try reloading.
           </OperatorTryNext>
         </>
       )}
@@ -185,11 +185,11 @@ export default async function RunsPage({
       {!loadFailure && malformedMessage && (
         <>
           <OperatorMalformedCallout>
-            <strong>Runs list response was not usable.</strong>
+            <strong>Reviews list response was not usable.</strong>
             <p className="mt-2">{malformedMessage}</p>
             <p className="mt-2 text-sm">
-              The HTTP call may have succeeded, but the JSON did not match the expected paged run summary
-              shape. This is distinct from an empty project (zero runs).
+              The HTTP call may have succeeded, but the JSON did not match the expected paged review summary
+              shape. This is distinct from an empty project (zero reviews).
             </p>
           </OperatorMalformedCallout>
           <OperatorTryNext>

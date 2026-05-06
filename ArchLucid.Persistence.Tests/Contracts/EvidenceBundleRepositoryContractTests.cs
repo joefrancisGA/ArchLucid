@@ -32,4 +32,53 @@ public abstract class EvidenceBundleRepositoryContractTests
         loaded.EvidenceBundleId.Should().Be(bundle.EvidenceBundleId);
         loaded.RequestDescription.Should().Be("rd");
     }
+
+    [SkippableFact]
+
+    public async Task Update_overwrites_json_at_same_id()
+    {
+        SkipIfSqlServerUnavailable();
+        IEvidenceBundleRepository repo = CreateRepository();
+        EvidenceBundle bundle = new()
+        {
+            EvidenceBundleId = "eb-upd-" + Guid.NewGuid().ToString("N"), RequestDescription = "before"
+        };
+
+        await repo.CreateAsync(bundle, CancellationToken.None);
+
+
+        bundle.RequestDescription = "after";
+
+        bundle.Metadata["k"] = "v";
+
+
+        await repo.UpdateAsync(bundle, CancellationToken.None);
+
+
+        EvidenceBundle? loaded = await repo.GetByIdAsync(bundle.EvidenceBundleId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+
+        loaded!.RequestDescription.Should().Be("after");
+
+        loaded.Metadata["k"].Should().Be("v");
+
+    }
+
+    [SkippableFact]
+
+    public async Task Update_absent_bundle_throws()
+    {
+        SkipIfSqlServerUnavailable();
+        IEvidenceBundleRepository repo = CreateRepository();
+        EvidenceBundle bundle = new() { EvidenceBundleId = "missing-" + Guid.NewGuid().ToString("N") };
+
+
+        Func<Task> act = () => repo.UpdateAsync(bundle, CancellationToken.None);
+
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+    }
+
 }

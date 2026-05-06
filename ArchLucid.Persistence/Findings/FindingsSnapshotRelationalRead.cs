@@ -277,7 +277,7 @@ internal static class FindingsSnapshotRelationalRead
                 result[row.FindingRecordId] = list;
             }
 
-            list.Add(FindingChildStringRow.Item);
+            list.Add(row.Item);
         }
 
         return result;
@@ -471,17 +471,17 @@ internal static class FindingsSnapshotRelationalRead
     private sealed class FindingChildStringRow
 #pragma warning restore CA1812
     {
-        public FindingChildStringRow(Guid findingRecordId)
-        {
-            FindingRecordId = findingRecordId;
-        }
-
         public Guid FindingRecordId
         {
             get;
+            init;
         }
 
-        public static string Item => null!;
+        public string Item
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class FindingPropertyRow

@@ -112,8 +112,8 @@ export function OperatorEvidenceLimitsFooter({
           className="m-0 mt-3 text-xs leading-relaxed text-neutral-700 dark:text-neutral-300"
           data-testid="operator-evidence-limits-fallback-disclaimer"
         >
-          This run is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
-          simulator output was substituted (see run record field{' '}
+          This review is flagged in API data as real-mode fallback: Azure OpenAI execution did not complete and deterministic
+          simulator output was substituted (see review record field{' '}
           <span className="font-mono text-[11px]">realModeFellBackToSimulator</span>
           ).
           {deploymentSnapshot.length > 0 ? (

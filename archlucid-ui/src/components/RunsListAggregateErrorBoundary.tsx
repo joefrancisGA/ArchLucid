@@ -82,7 +82,7 @@ export class RunsListAggregateErrorBoundary extends Component<
   public state: RunsListAggregateErrorBoundaryState = { hasError: false, message: null };
 
   public static getDerivedStateFromError(error: Error): RunsListAggregateErrorBoundaryState {
-    return { hasError: true, message: error.message || "Runs list encountered an unexpected error." };
+    return { hasError: true, message: error.message || "Reviews list encountered an unexpected error." };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {

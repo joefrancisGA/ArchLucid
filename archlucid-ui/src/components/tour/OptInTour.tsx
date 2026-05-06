@@ -41,7 +41,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "3. Review and finalize",
     body:
-      "When the pipeline finishes, open your review from the Runs list. Review findings and evidence, then click " +
+      "When the pipeline finishes, open your review from the Reviews list. Review findings and evidence, then click " +
       "Finalize manifest to produce the versioned manifest — the review package you can export and share.",
   },
   {
