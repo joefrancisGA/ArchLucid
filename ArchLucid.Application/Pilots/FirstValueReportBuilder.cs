@@ -177,16 +177,16 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(
             $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
+        sb.AppendLine($"| Support run id | {FormatProofStatus(c.SupportRunIdPresent)} |");
         sb.AppendLine(
             $"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
         sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
         sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
         sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
-        sb.AppendLine($"| Top finding evidence-chain pointer | {FormatProofStatus(c.TopFindingEvidenceChainPresentOrNotApplicable)} |");
+        sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
-        sb.AppendLine(
-            $"| LLM-call count | `{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above). |");
-        sb.AppendLine($"| ROI evidence confidence | {c.RoiConfidenceLabel} |");
+        sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
+        sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
         sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
         sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` |");
         sb.AppendLine();
@@ -198,6 +198,26 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
             return "Missing — golden manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
 
         return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this golden manifest.";
+    }
+
+    private static string FormatTopFindingEvidenceProofCell(PilotRunDeltas deltas)
+    {
+        if (deltas.TopFindingId is null)
+            return "Not applicable — no findings on this run.";
+
+        if (deltas.TopFindingEvidenceChain is not null)
+            return "Present";
+
+        return "Explicitly unavailable — persisted finding without resolvable evidence-chain pointers (see buyer-safe gate).";
+    }
+
+    private static string FormatLlmCallCountProofCell(PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
+    {
+        if (!c.LlmCallCountResolved)
+            return "Missing — execution trace query failed; count is not attested.";
+
+        return
+            $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";

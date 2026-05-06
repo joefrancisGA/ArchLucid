@@ -13,6 +13,13 @@ public sealed class ProofPackageCompletenessResponse
         init;
     }
 
+    /// <summary>Non-empty support / review run id on the persisted <c>ArchitectureRun</c> row.</summary>
+    public bool SupportRunIdPresent
+    {
+        get;
+        init;
+    }
+
     /// <summary>Golden manifest present on the run detail aggregate.</summary>
     public bool CommittedManifestPresent
     {
@@ -75,6 +82,22 @@ public sealed class ProofPackageCompletenessResponse
 
     /// <summary>Per-run LLM completion rows counted from execution traces.</summary>
     public int LlmCallCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Mirrors <see cref="PilotRunDeltasResponse.LlmCallCountResolved" /> — false means the count is not attested.
+    /// </summary>
+    public bool LlmCallCountResolved
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Tier for comparative ROI narrative (tenant baseline posture).</summary>
+    public PilotRoiEvidenceConfidence RoiEvidenceConfidence
     {
         get;
         init;

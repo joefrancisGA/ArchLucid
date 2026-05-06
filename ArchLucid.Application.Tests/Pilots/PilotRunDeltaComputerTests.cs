@@ -85,6 +85,7 @@ public sealed class PilotRunDeltaComputerTests
         result.ManifestCommittedUtc.Should().Be(detail.Manifest!.Metadata.CreatedUtc);
         result.TimeToCommittedManifest.Should().Be(TimeSpan.FromMinutes(15));
         result.LlmCallCount.Should().Be(3);
+        result.LlmCallCountResolved.Should().BeTrue();
         result.AuditRowCount.Should().Be(2);
         result.AuditRowCountTruncated.Should().BeFalse();
         result.FindingsBySeverity.Should().ContainInOrder(
@@ -191,6 +192,38 @@ public sealed class PilotRunDeltaComputerTests
 
         result.AuditRowCount.Should().Be(0);
         result.AuditRowCountTruncated.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenTraceRepositoryThrows_MarksLlmCallCountUnresolved()
+    {
+        Guid runGuid = Guid.Parse("12121212-1111-2222-3333-444444444444");
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("traces offline"));
+        Mock<IAuditRepository> audit = new();
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+        audit.Setup(a => a.GetFilteredAsync(
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotRunDeltaComputer sut = new(
+            evidence.Object,
+            traces.Object,
+            audit.Object,
+            LooseArtifacts().Object,
+            scope.Object,
+            NullLogger<PilotRunDeltaComputer>.Instance);
+
+        PilotRunDeltas result = await sut.ComputeAsync(detail);
+
+        result.LlmCallCount.Should().Be(0);
+        result.LlmCallCountResolved.Should().BeFalse();
     }
 
     [SkippableFact]

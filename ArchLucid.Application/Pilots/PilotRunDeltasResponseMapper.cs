@@ -45,6 +45,7 @@ public static class PilotRunDeltasResponseMapper
             AuditRowCount = deltas.AuditRowCount,
             AuditRowCountTruncated = deltas.AuditRowCountTruncated,
             LlmCallCount = deltas.LlmCallCount,
+            LlmCallCountResolved = deltas.LlmCallCountResolved,
             TopFindingSeverity = deltas.TopFindingSeverity,
             TopFindingId = deltas.TopFindingId,
             TopFindingEvidenceChain = deltas.TopFindingEvidenceChain,

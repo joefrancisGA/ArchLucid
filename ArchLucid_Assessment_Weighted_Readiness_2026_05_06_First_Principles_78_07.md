@@ -580,13 +580,16 @@ ArchLucid is strong enough to sell a narrow, evidence-backed Pilot, but it must 
 
 ## Top Improvement Opportunities
 
-### 1. First-Pilot Proof Completeness Gate
+### 1. COMPLETED: First-Pilot Proof Completeness Gate
 
 - **Why it matters:** This is the highest-leverage improvement because it turns ArchLucid's best claim into an executable product invariant.
 - **Expected impact:** Better sponsor confidence, cleaner ROI proof, fewer misleading demo artifacts.
 - **Affected qualities:** Marketability, Proof-of-ROI Readiness, Trustworthiness, Executive Value Visibility, Correctness.
 - **Actionability:** Fully actionable now.
 - **Impact of running the prompt:** Directly improves Proof-of-ROI Readiness (+8-10 pts), Marketability (+3-5 pts), Trustworthiness (+3-5 pts), Executive Value Visibility (+4-6 pts). Weighted readiness impact: +0.8-1.2%.
+- **Status:** Completed 2026-05-06.
+- **Completion evidence:** Reusable model extended on `ProofPackageCompletenessResponse` / `PilotProofPackageCompletenessMapper` (support run id, checklist fields, `LlmCallCountResolved`, `PilotRoiEvidenceConfidence` Strong/Partial/Low); `PilotRunDeltaComputer` + `PilotRunDeltasResponse` expose LLM trace resolution; `PilotBuyerSafeEvidenceGateEvaluator` adds soft gap when traces are unattested; `FirstValueReportBuilder` proof contract table + `RoiEvidenceCompletenessMarkdownFormatter` aligned; `EmailRunToSponsorBanner` reflects persisted gate via `GET …/pilot-run-deltas`; unit coverage in `PilotProofPackageCompletenessMapperTests`, updated pilot/ROI/first-value/gate tests, `archlucid-ui/src/lib/pilot-proof-readiness.ts` + banner tests; OpenAPI snapshot includes new schema fields.
+- **Verification:** `dotnet test ArchLucid.Application.Tests` (pilot-related filters) and `npx vitest run` on `EmailRunToSponsorBanner.test.tsx` and `pilot-proof-readiness.test.ts` pass.
 
 **Cursor prompt:**
 
@@ -757,7 +760,7 @@ Constraints:
 - Prefer fakes/mocks and existing test patterns.
 ```
 
-### 5. RLS Residual-Risk Schema Drift Guard
+### 5. COMPLETED:  RLS Residual-Risk Schema Drift Guard 
 
 - **Why it matters:** Tenant isolation is enterprise-critical, and residual uncovered-table risk should not grow silently.
 - **Expected impact:** Stronger security, compliance readiness, and data consistency.
@@ -1047,10 +1050,10 @@ Constraints:
 - What report availability is expected: public summary, NDA-only, or internal?
 - What date or revenue/procurement trigger should activate execution?
 
-### First-Pilot Proof Completeness Gate
+### DONE First-Pilot Proof Completeness Gate (2026-05-06)
 
-- What minimum evidence fields should block sponsor-send versus only warn?
-- Should low-confidence ROI evidence hide dollar narratives entirely or show them with explicit caveats?
+- Sponsor-send blocking vs caveats is encoded in `PilotBuyerSafeEvidenceGateEvaluator` (demo/hard gaps → not sendable; soft gaps → sendable with caveats) and mirrored in `ProofPackageCompletenessResponse` for `GET …/pilot-run-deltas` and the first-value report contract table.
+- ROI narrative confidence is tiered **Strong / Partial / Low** (`PilotRoiEvidenceConfidence`) with explicit Markdown copy and sponsor-banner caveats for Partial/Low; dollar claims remain conservative and baseline-attested per existing value-report behavior.
 
 ### Live UI-SQL Parity Smoke Profile
 

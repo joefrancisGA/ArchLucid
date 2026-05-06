@@ -9309,6 +9309,9 @@
         },
         "type": "object"
       },
+      "PilotRoiEvidenceConfidence": {
+        "type": "integer"
+      },
       "PilotRunDeltaSeverityCountResponse": {
         "properties": {
           "count": {
@@ -9342,6 +9345,9 @@
           "llmCallCount": {
             "format": "int32",
             "type": "integer"
+          },
+          "llmCallCountResolved": {
+            "type": "boolean"
           },
           "manifestCommittedUtc": {
             "format": "date-time",
@@ -10629,6 +10635,9 @@
             "format": "int32",
             "type": "integer"
           },
+          "llmCallCountResolved": {
+            "type": "boolean"
+          },
           "proofSendability": {
             "type": "string"
           },
@@ -10638,7 +10647,13 @@
           "roiConfidenceLabel": {
             "type": "string"
           },
+          "roiEvidenceConfidence": {
+            "$ref": "#/components/schemas/PilotRoiEvidenceConfidence"
+          },
           "runInCommittedStatus": {
+            "type": "boolean"
+          },
+          "supportRunIdPresent": {
             "type": "boolean"
           },
           "timeToCommittedManifestResolved": {

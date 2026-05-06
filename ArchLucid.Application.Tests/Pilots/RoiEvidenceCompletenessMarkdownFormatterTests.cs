@@ -27,7 +27,7 @@ public sealed class RoiEvidenceCompletenessMarkdownFormatterTests
 
         (string headline, _) = RoiEvidenceCompletenessMarkdownFormatter.Describe(snap);
 
-        headline.Should().Be("Low confidence");
+        headline.Should().Be("Low");
     }
 
     [Fact]

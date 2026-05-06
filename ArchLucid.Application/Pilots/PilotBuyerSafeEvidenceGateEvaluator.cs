@@ -57,6 +57,12 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
                 "Top-severity finding present but evidence-chain pointers did not resolve — verify full run detail JSON before sponsor send.");
         }
 
+        if (!deltas.LlmCallCountResolved)
+        {
+            softGapMessages.Add(
+                "LLM / agent execution trace count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no calls.");
+        }
+
         ReviewCycleBaselineProvenance prov = valueWindowSnapshot.ReviewCycleBaselineProvenance;
 
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)
