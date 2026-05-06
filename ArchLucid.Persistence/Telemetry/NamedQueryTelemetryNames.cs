@@ -18,6 +18,8 @@ internal static class NamedQueryTelemetryNames
 
     public const string GetRunByScopedId = "GetRunByScopedId";
 
+    public const string GetRunByIdAdmin = "GetRunByIdAdmin";
+
     public const string AppendAuditEvent = "AppendAuditEvent";
 
     public const string ListAuditEventsByScope = "ListAuditEventsByScope";

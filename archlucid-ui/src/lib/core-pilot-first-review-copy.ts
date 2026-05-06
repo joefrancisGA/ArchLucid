@@ -14,4 +14,4 @@ export const CORE_PILOT_WORKFLOW_SUMMARY_LINE =
 
 /** One-line cognitive-load hint for the operator shell (first session). */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE =
-  "If this feels like a lot: for your first session, create one architecture review, let the pipeline finish, finalize it, then open the manifest summary. You can ignore extras until that package exists.";
+  "If this feels like a lot: for your first session, create one architecture review, let the pipeline finish, finalize it, then open the manifest summary. You can ignore extras until that package exists. When you need sponsor-facing output, export the first-value report and read Proof sendability and the buyer-safe gate section before sharing outside your team.";

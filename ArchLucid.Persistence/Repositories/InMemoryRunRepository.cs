@@ -64,6 +64,17 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<RunRecord?>(r);
     }
 
+    public Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (!_store.TryGetValue(runId, out RunRecord? r) || r.ArchivedUtc.HasValue)
+
+            return Task.FromResult<RunRecord?>(null);
+
+        return Task.FromResult<RunRecord?>(r);
+    }
+
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct)
     {

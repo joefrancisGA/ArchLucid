@@ -107,4 +107,16 @@ public sealed class ProblemSupportHintsTests
         string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
         hint.ToLowerInvariant().Should().Contain("billing/checkout");
     }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenUpstreamIntegrationFailed_adds_cred_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.UpstreamIntegrationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("credential");
+    }
 }

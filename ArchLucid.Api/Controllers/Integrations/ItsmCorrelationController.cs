@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Integrations;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -42,23 +43,23 @@ public sealed class ItsmCorrelationController(
     {
         if (body is null)
 
-            return BadRequest("body is required.");
+            return this.BadRequestProblem("body is required.", ProblemTypes.RequestBodyRequired);
 
         if (string.IsNullOrWhiteSpace(body.FindingId))
-            return BadRequest("findingId is required.");
+            return this.BadRequestProblem("findingId is required.", ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(body.Provider))
-            return BadRequest("provider is required.");
+            return this.BadRequestProblem("provider is required.", ProblemTypes.ValidationFailed);
 
         if (string.IsNullOrWhiteSpace(body.ExternalKey))
-            return BadRequest("externalKey is required.");
+            return this.BadRequestProblem("externalKey is required.", ProblemTypes.ValidationFailed);
 
         string provider = body.Provider.Trim();
 
         if (!provider.Equals("Jira", StringComparison.OrdinalIgnoreCase) &&
             !provider.Equals("ServiceNow", StringComparison.OrdinalIgnoreCase))
 
-            return BadRequest("provider must be Jira or ServiceNow.");
+            return this.BadRequestProblem("provider must be Jira or ServiceNow.", ProblemTypes.ValidationFailed);
 
         provider = provider.Equals("Jira", StringComparison.OrdinalIgnoreCase) ? "Jira" : "ServiceNow";
 

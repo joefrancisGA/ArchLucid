@@ -1,8 +1,11 @@
+using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Security;
 
 using Asp.Versioning;
 
@@ -38,7 +41,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Jira([FromBody] JsonElement body, CancellationToken ct)
+    public async Task<IActionResult> Jira(CancellationToken ct)
     {
         IntegrationsItsmInboundOptions o = _options.CurrentValue;
 
@@ -46,17 +49,21 @@ public sealed class ItsmInboundWebhooksController(
 
             return Unauthorized();
 
+        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
         string? token = Request.Headers["X-Jira-Token"].FirstOrDefault();
 
-        if (!string.Equals(token, o.JiraWebhookSecret, StringComparison.Ordinal))
+        if (!TryVerifyWebhookSecurity(o, o.JiraWebhookSecret, rawBody, token, out IActionResult? reject))
 
-            return Unauthorized();
+            return reject!;
 
-        ItsmInboundWebhookProcessResult r = await _sync.TryProcessJiraIssueUpdateAsync(body, ct).ConfigureAwait(false);
+        using JsonDocument doc = JsonDocument.Parse(rawBody);
+
+        ItsmInboundWebhookProcessResult r =
+            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct).ConfigureAwait(false);
 
         if (!r.Accepted)
 
-            return BadRequest("Unrecognized Jira webhook payload.");
+            return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
 
         if (r.DurableAuditEvent is not null)
 
@@ -69,7 +76,7 @@ public sealed class ItsmInboundWebhooksController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ServiceNow([FromBody] JsonElement body, CancellationToken ct)
+    public async Task<IActionResult> ServiceNow(CancellationToken ct)
     {
         IntegrationsItsmInboundOptions o = _options.CurrentValue;
 
@@ -77,23 +84,89 @@ public sealed class ItsmInboundWebhooksController(
 
             return Unauthorized();
 
+        string rawBody = await ReadRequestBodyUtf8Async(ct).ConfigureAwait(false);
         string? token = Request.Headers["X-ServiceNow-Token"].FirstOrDefault();
 
-        if (!string.Equals(token, o.ServiceNowWebhookSecret, StringComparison.Ordinal))
+        if (!TryVerifyWebhookSecurity(o, o.ServiceNowWebhookSecret, rawBody, token, out IActionResult? reject))
 
-            return Unauthorized();
+            return reject!;
+
+        using JsonDocument doc = JsonDocument.Parse(rawBody);
 
         ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(body, ct).ConfigureAwait(false);
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct).ConfigureAwait(false);
 
         if (!r.Accepted)
 
-            return BadRequest("Unrecognized ServiceNow webhook payload.");
+            return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
 
         if (r.DurableAuditEvent is not null)
 
             await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
         return Ok();
+    }
+
+    private async Task<string> ReadRequestBodyUtf8Async(CancellationToken ct)
+    {
+        Request.EnableBuffering();
+        Request.Body.Position = 0;
+
+        using StreamReader reader = new(
+            Request.Body,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: false,
+            bufferSize: 1024,
+            leaveOpen: true);
+
+        string body = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
+
+        Request.Body.Position = 0;
+
+        return body;
+    }
+
+    private bool TryVerifyWebhookSecurity(
+        IntegrationsItsmInboundOptions o,
+        string sharedSecret,
+        string rawBody,
+        string? vendorToken,
+        out IActionResult? reject)
+    {
+        reject = null;
+
+        if (!WebhookSecrets.SecureEquals(vendorToken, sharedSecret))
+        {
+            reject = Unauthorized();
+
+            return false;
+        }
+
+        if (!o.RequireBodyHmacSignature)
+
+            return true;
+
+        string? signature = Request.Headers["X-ArchLucid-Signature"].FirstOrDefault();
+
+        if (!WebhookSecrets.IsValidHmacSha256LowerHex(sharedSecret, rawBody, signature))
+        {
+            reject = Unauthorized();
+
+            return false;
+        }
+
+        if (o.WebhookTimestampSkewSeconds > 0)
+        {
+            string? ts = Request.Headers["X-ArchLucid-Timestamp"].FirstOrDefault();
+
+            if (!WebhookSecrets.TimestampWithinSkew(DateTimeOffset.UtcNow, ts, o.WebhookTimestampSkewSeconds))
+            {
+                reject = Unauthorized();
+
+                return false;
+            }
+        }
+
+        return true;
     }
 }
