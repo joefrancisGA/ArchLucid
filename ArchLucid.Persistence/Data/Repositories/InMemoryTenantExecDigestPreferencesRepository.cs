@@ -16,10 +16,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
     {
         _ = cancellationToken;
 
-        if (_store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? row))
-            return Task.FromResult<ExecDigestPreferencesResponse?>(row);
-
-        return Task.FromResult<ExecDigestPreferencesResponse?>(null);
+        return _store.TryGetValue(tenantId, out ExecDigestPreferencesResponse? row) ? Task.FromResult<ExecDigestPreferencesResponse?>(row) : Task.FromResult<ExecDigestPreferencesResponse?>(null);
     }
 
     public Task<ExecDigestPreferencesResponse?> UpsertAsync(
@@ -40,10 +37,8 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             IsConfigured = true,
             EmailEnabled = emailEnabled,
             RecipientEmails =
-                recipientEmails is null
-                    ? []
-                    : recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
-                        .ToList(),
+                recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
+                    .ToList(),
             IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? "UTC" : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,

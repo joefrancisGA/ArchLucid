@@ -23,7 +23,7 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         string k = Key(tenantId, workspaceId, projectId, idempotencyKeyHash);
         lock (_gate)
 
-            return Task.FromResult(_rows.TryGetValue(k, out ArchitectureRunIdempotencyLookup? v) ? v : null);
+            return Task.FromResult(_rows.GetValueOrDefault(k));
     }
 
     /// <inheritdoc />
@@ -51,7 +51,8 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
 
             _rows[k] = new ArchitectureRunIdempotencyLookup
             {
-                RunId = runId, RequestFingerprint = (byte[])requestFingerprint.Clone()
+                RunId = runId,
+                RequestFingerprint = (byte[])requestFingerprint.Clone()
             };
 
             return Task.FromResult(true);

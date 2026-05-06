@@ -261,17 +261,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             q = q.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
 
         if (tags is { Count: > 0 })
-
-            foreach (string t in tags)
-            {
-                if (string.IsNullOrWhiteSpace(t))
-                    continue;
-
-                string needle = t;
-
-                q = q.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal)));
-            }
-
+            q = tags.Where(t => !string.IsNullOrWhiteSpace(t)).Aggregate(q, (current, needle) => current.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal))));
 
         return q;
     }

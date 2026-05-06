@@ -217,11 +217,6 @@ internal static class FindingsSnapshotRelationalRead
                                    FROM dbo.FindingTraceAlternativePaths
                                    WHERE FindingRecordId IN @Ids
                                    ORDER BY FindingRecordId, SortOrder;
-
-                                   SELECT FindingRecordId, SortOrder, NoteText AS Item
-                                   FROM dbo.FindingTraceNotes
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
                                    """;
 
         await using SqlMapper.GridReader reader = await connection.QueryMultipleAsync(
@@ -252,7 +247,7 @@ internal static class FindingsSnapshotRelationalRead
             FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
 
         Dictionary<Guid, List<string>> traceNotes =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
+            await LoadTraceNotesByRecordIdAsync(connection, recordIds, ct);
 
         return new ChildRelationalSlices(
             related,
@@ -263,6 +258,33 @@ internal static class FindingsSnapshotRelationalRead
             traceDecisions,
             tracePaths,
             traceNotes);
+    }
+
+    private static async Task<Dictionary<Guid, List<string>>> LoadTraceNotesByRecordIdAsync(
+        SqlConnection connection,
+        List<Guid> recordIds,
+        CancellationToken ct)
+    {
+        if (recordIds.Count == 0)
+            return new Dictionary<Guid, List<string>>();
+
+        const string sql = """
+                           SELECT FindingRecordId, SortOrder, NoteText AS Item
+                           FROM dbo.FindingTraceNotes
+                           WHERE FindingRecordId IN @Ids
+                           ORDER BY FindingRecordId, SortOrder;
+                           """;
+
+        List<FindingChildStringRow> rows = (await connection.QueryAsync<FindingChildStringRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Ids = recordIds
+                },
+                cancellationToken: ct))).ToList();
+
+        return FoldFindingChildStrings(rows);
     }
 
     private static Dictionary<Guid, List<string>> FoldFindingChildStrings(IReadOnlyList<FindingChildStringRow> rows)

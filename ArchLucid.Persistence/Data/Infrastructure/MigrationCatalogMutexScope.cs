@@ -54,6 +54,7 @@ internal sealed class MigrationCatalogMutexScope : IDisposable
 
         try
         {
+            // ReSharper disable once InvertIf
             if (!mutex.WaitOne(wait))
             {
                 mutex.Dispose();
