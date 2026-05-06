@@ -553,6 +553,23 @@ jobs:
       - name: forward migration / ArchLucid.sql co-touch guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
 
+      - name: Guard — RLS residual-risk table classifications (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
+
+      - name: Guard — RLS residual-risk table classifications (push)
+        if: github.event_name == 'push'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
+        run: python3 scripts/ci/assert_rls_residual_risk_classifications.py
+
+      - name: RLS residual-risk classification guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_rls_residual_risk_classifications.py"
+
       - name: Guard — migration numbering (warn-only)
         # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).
         # Flip to blocking after the historical 035_/096_ duplicates are renumbered (gated on
