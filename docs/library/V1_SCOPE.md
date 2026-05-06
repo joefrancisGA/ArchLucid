@@ -139,6 +139,8 @@ Use these surfaces when the next question is governance or trust: approvals, pol
 - **ServiceNow** — Incident creation from Authority-shaped findings (`incident` table) with correlation back-link; basic-auth patterns. **`cmdb_ci`** — when set — uses the **`cmdb_ci_appl`** class: match **`SystemName`** to CMDB **`name`**, set **`cmdb_ci`** to the matched **`sys_id`**, or leave empty when no match; optional tenant flag **`ServiceNow:AutoCreateCmdbCi`** (default **`false`**) may create an Application CI when no match exists. **Two-way status sync** (ServiceNow → ArchLucid finding state) is **committed for V1 GA** — status-only sync using a configurable per-tenant mapping (default: `New`/`In Progress` → `Open`/`InProgress`; `Resolved`/`Closed` → `Resolved`); OAuth 2.0 is a follow-on (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md)).
 - **Jira** — Issue creation from findings with correlation back-link; **bi-directional status sync** (Jira → ArchLucid finding state) is **committed for V1 GA** using a configurable per-tenant mapping (default: `To Do` → `Open`; `In Progress` → `InProgress`; `Done` → `Resolved`); OAuth 2.0 / API token auth (*Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)*).
 
+**First-party outbound create (minimal slice)** — operators with **ExecuteAuthority** call **`POST /v1/integrations/itsm/outbound/issues`** with `{ "provider": "Jira" | "ServiceNow", "findingId": "…" }` to open a ticket from the persisted **Authority-shaped** finding payload. Deployment defaults live under **`Integrations:ItsmOutbound`** in configuration; optional per-tenant overrides (e.g. Jira project key override, **`JiraSendInfoSeverity`**, issue-type-by-severity JSON, **`ServiceNowAutoCreateCmdbCi`**) are stored in **`dbo.TenantItsmOutboundSettings`**. Successful creates persist **`dbo.ItsmFindingCorrelations`** so inbound webhooks can sync status. Durable audit event types include **`Integration.JiraIssueCreateSucceeded`**, **`Integration.JiraIssueCreateSkipped`**, **`Integration.JiraIssueCreateFailed`**, and the ServiceNow **`Integration.ServiceNowIncidentCreate*`** counterparts.
+
 Until these connectors are enabled in a given environment, customers may still use **CloudEvents webhooks**, **REST**, and **customer-operated** recipes under [`docs/integrations/recipes/`](../integrations/recipes/README.md).
 
 #### 2.14 Slack (first-party chat-ops)
@@ -149,12 +151,38 @@ Until these connectors are enabled in a given environment, customers may still u
 
 **In scope for V1 GA** — first-party **Confluence Cloud** connector to **publish** architecture findings or run summaries as pages in a customer space. **Minimum viable shape** (per historical Improvement 3 design intent, now promoted from V1.1 to V1): **one-way** publish to a **single fixed `Confluence:DefaultSpaceKey`** per tenant configuration (**3a** — no multi-space or dynamic routing in the initial shipped shape unless an owner decision extends it). **Authentication** (**3b**): **Confluence API token** with **basic auth** for the V1 MVP; **OAuth 2.0** is a **follow-on** within the V1 delivery window if a buyer requires it. **Implementation sequencing:** Same as §2.13 — **ServiceNow** first; then **Confluence** **before** **Jira** inside the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). Atlassian Marketplace listing **may trail** a usable connector.
 
+#### 2.16 Customer-controlled Azure extractor (PowerShell + ZIP) and ingest
+
+**In scope for V1 GA** — a customer-controlled Azure config and cost extraction path that requires **no ArchLucid credentials in the customer tenant** (*Resolved 2026-05-06 owner decision*).
+
+- **`Get-ArchLucidAzurePackage.ps1`** — signed, auditable PowerShell script customers download, review, and run inside their own Azure environment. Collects ARM resource inventory (`-SubscriptionId`, optional `-ResourceGroupScope`), and optionally Azure Cost Management actual/amortized costs, Advisor cost recommendations, and orphan candidates (`-IncludeCost` switch). Appends public Azure Retail Prices API rows for collected SKUs for Retail-rate scenario citation. Never collects secrets, Key Vault contents, or certificate private keys.
+- **Schema-versioned ZIP output** — `manifest.json` (schema version, script version, collection timestamp UTC, subscription id, switches used), `resources.json`, `cost-actual.json` / `cost-amortized.json` / `advisor-cost.json` / `orphan-candidates.json` (when cost enabled), `retail-prices.json`, `README.txt`.
+- **Ingest endpoint** — `POST /v1/azure-extractor/upload`: validates schema version (rejects unknowns), stores the package, associates it with an architecture review run, emits durable audit events. Requires ExecuteAuthority.
+- **Citation contract** — cost or savings lines in the evidence bundle that derive from an uploaded ZIP must cite the `manifest.json` `collectionTimestamp` and schema version as the proof point, satisfying the exact + citation-backed cost doctrine.
+- **Access posture** (document in trust center and extractor README):
+  - **Tier 1 (default):** No vendor access to customer cloud whatsoever.
+  - **Tier 2 (opt-in, V1.x continuous):** Customer-provisioned service principal with `Reader` + `Cost Management Reader` scoped to subscription or management group; federated workload identity preferred over long-lived secrets.
+  - **What ArchLucid will never request:** `Global Reader` (Entra ID directory role), `Owner`, `Contributor`, `User Access Administrator`, or any write/destructive role. Publish this list in the trust center.
+
+#### 2.17 Terraform export and advisory emit
+
+**In scope for V1 GA** — two Terraform capabilities sharing the **advisory-only, never-apply** constraint (*Resolved 2026-05-06 owner decision*).
+
+- **Export current Azure state to Terraform:** wrap the official Microsoft `aztfexport` tool (https://github.com/Azure/aztfexport) — do not reimplement. CLI command or operator action produces a downloadable Terraform ZIP. Every generated file includes a generated `ADVISORY.md`: "This Terraform was generated by ArchLucid acting as your AI co-architect. Review before applying. ArchLucid never applies or destroys resources."
+- **Advisory Terraform recommendation emit:** for findings that produce a right-sizing, removal, or configuration-change recommendation, emit a plan-only Terraform snippet alongside the finding. Every block is annotated `# ArchLucid advisory – review before apply` and cites the finding id, recommendation id, and (for cost/savings recommendations) the ZIP `manifest.json` `collectionTimestamp` and Retail price row.
+- **Hard constraints (never regress):**
+  - No `destroy` resource blocks without an explicit UI confirm gate; if orphan removal requires destroy, emit a reference + explanation comment only.
+  - ArchLucid never calls `terraform apply` or `terraform destroy` on behalf of any customer. Test for absence of these code paths.
+  - `terraform fmt` and `terraform validate` must pass in CI for representative generated snippets; snapshot tests required.
+
 ---
 
 ## 3. Out of scope for V1 (explicit non-goals or V1.1+)
 
 | Area | Rationale |
 |------|-----------|
+| **Global Reader or write-role access to customer Azure tenants** | ArchLucid will never request `Global Reader` (Entra ID directory role), `Owner`, `Contributor`, `User Access Administrator`, or any write or destructive ARM role. Tier 1 ingestion requires no vendor access; Tier 2 opt-in uses `Reader` + `Cost Management Reader` only. Publish in trust center. |
+| **`terraform apply` or `terraform destroy` on behalf of customers** | All Terraform emit is advisory and plan-only. ArchLucid never issues apply or destroy against customer infrastructure. Orphan removal that requires destroy surfaces as an annotated recommendation comment, not an executable block. Enforced and tested. |
 | **Advanced autonomous planning** | Agents are **orchestrated** with explicit tasks and execution modes; V1 does not promise open-ended self-directed multi-step planning beyond what the implemented pipelines already do. |
 | **Broad event-bus integrations** | Optional publish/consume paths exist; V1 does **not** include a guaranteed catalog of enterprise integrations, mapping tools, or "any message bus" adapters. Custom consumers are customer-owned. |
 | **VS Code (or IDE) shell integration** | No committed product surface for a VS Code–native operator experience; CLI and HTTP remain the primary integration points outside the web UI. |

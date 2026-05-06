@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.CustomerSuccess;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -87,7 +86,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
             ToInt(row.TotalRuns),
             ToInt(row.CommittedRuns),
             row.LatestRunId,
-            ToInt(row.Comparisons30d),
+            ToInt(row.Comparisons30D),
             ToInt(row.GovPending));
     }
 
@@ -180,7 +179,7 @@ public sealed class SqlOperatorStickinessSnapshotReader(
             ToNullableUtcDateTime(row.FirstReplayUtc),
             ToInt(row.TotalRuns),
             ToInt(row.CommittedRuns),
-            ToInt(row.PlSignals90d));
+            ToInt(row.PlSignals90D));
     }
 
     // COUNT_BIG returns bigint; cap to int range for domain model compatibility.
@@ -196,22 +195,61 @@ public sealed class SqlOperatorStickinessSnapshotReader(
 
     private sealed class OperatorSignalsRow
     {
-        public long TotalRuns { get; init; }
-        public long CommittedRuns { get; init; }
-        public Guid? LatestRunId { get; init; }
-        public long Comparisons30d { get; init; }
-        public long GovPending { get; init; }
+        public long TotalRuns
+        {
+            get; init;
+        }
+        public long CommittedRuns
+        {
+            get; init;
+        }
+        public Guid? LatestRunId
+        {
+            get; init;
+        }
+        public long Comparisons30D
+        {
+            get; init;
+        }
+        public long GovPending
+        {
+            get; init;
+        }
     }
 
     private sealed class FunnelRow
     {
-        public DateTime? FirstRunUtc { get; init; }
-        public DateTime? FirstManifestUtc { get; init; }
-        public DateTime? FirstComparisonUtc { get; init; }
-        public DateTime? FirstDownloadUtc { get; init; }
-        public DateTime? FirstReplayUtc { get; init; }
-        public long TotalRuns { get; init; }
-        public long CommittedRuns { get; init; }
-        public long PlSignals90d { get; init; }
+        public DateTime? FirstRunUtc
+        {
+            get; init;
+        }
+        public DateTime? FirstManifestUtc
+        {
+            get; init;
+        }
+        public DateTime? FirstComparisonUtc
+        {
+            get; init;
+        }
+        public DateTime? FirstDownloadUtc
+        {
+            get; init;
+        }
+        public DateTime? FirstReplayUtc
+        {
+            get; init;
+        }
+        public long TotalRuns
+        {
+            get; init;
+        }
+        public long CommittedRuns
+        {
+            get; init;
+        }
+        public long PlSignals90D
+        {
+            get; init;
+        }
     }
 }

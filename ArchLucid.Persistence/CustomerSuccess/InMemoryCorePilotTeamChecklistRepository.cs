@@ -4,7 +4,7 @@ namespace ArchLucid.Persistence.CustomerSuccess;
 
 public sealed class InMemoryCorePilotTeamChecklistRepository : ICorePilotTeamChecklistRepository
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     private readonly Dictionary<(Guid T, Guid W, Guid P, int S), CorePilotChecklistStepRow> _rows = new();
 

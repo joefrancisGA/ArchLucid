@@ -450,6 +450,24 @@ public static class AuditEventTypes
     /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 
+    /// <summary>Outbound Jira issue create succeeded (payload: finding id, issue key; never secrets or full external URLs).</summary>
+    public const string IntegrationJiraIssueCreateSucceeded = "Integration.JiraIssueCreateSucceeded";
+
+    /// <summary>Outbound Jira issue create failed after vendor call or correlation persistence (payload: reason, status code when known).</summary>
+    public const string IntegrationJiraIssueCreateFailed = "Integration.JiraIssueCreateFailed";
+
+    /// <summary>Outbound Jira issue create skipped — unconfigured connector, missing project key, or informational severity dropped.</summary>
+    public const string IntegrationJiraIssueCreateSkipped = "Integration.JiraIssueCreateSkipped";
+
+    /// <summary>Outbound ServiceNow incident create succeeded.</summary>
+    public const string IntegrationServiceNowIncidentCreateSucceeded = "Integration.ServiceNowIncidentCreateSucceeded";
+
+    /// <summary>Outbound ServiceNow incident create failed after vendor call or correlation persistence.</summary>
+    public const string IntegrationServiceNowIncidentCreateFailed = "Integration.ServiceNowIncidentCreateFailed";
+
+    /// <summary>Outbound ServiceNow incident create skipped — unconfigured connector or prerequisite not met.</summary>
+    public const string IntegrationServiceNowIncidentCreateSkipped = "Integration.ServiceNowIncidentCreateSkipped";
+
     /// <summary>
     ///     Admin published the canonical first-value Markdown for a run as a new Confluence Cloud page (
     ///     <c>POST /v1/admin/integrations/confluence/first-value-report</c>). Payload: <c>runId</c>, <c>externalPageId</c>.

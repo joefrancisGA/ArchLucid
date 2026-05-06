@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
@@ -92,6 +93,11 @@ public static partial class ServiceCollectionExtensions
         services.AddFirstTenantFunnelTelemetry(configuration);
         services.Configure<IntegrationsItsmInboundOptions>(
             configuration.GetSection(IntegrationsItsmInboundOptions.SectionName));
+        services.Configure<IntegrationsItsmOutboundOptions>(
+            configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.AddHttpClient<JiraOutboundIssueClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
+        services.AddHttpClient<ServiceNowOutboundIncidentClient>(static client => client.Timeout = TimeSpan.FromSeconds(60));
+        services.AddScoped<ItsmOutboundIssueCreationService>();
         RegisterScimProvisioning(services, configuration);
 
         return services;
