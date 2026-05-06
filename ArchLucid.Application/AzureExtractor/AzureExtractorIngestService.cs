@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -23,6 +24,10 @@ public sealed class AzureExtractorIngestService(
     IAzureExtractorPackageRepository packageRepository,
 
     IRunRepository runRepository,
+
+    IAgentTaskRepository agentTaskRepository,
+
+    IEvidenceBundleRepository evidenceBundleRepository,
 
     ILogger<AzureExtractorIngestService> logger) : IAzureExtractorIngestService
 {
@@ -285,6 +290,33 @@ public sealed class AzureExtractorIngestService(
         };
 
         await packageRepository.InsertAsync(record, ct);
+
+        if (persistedRunKey is Guid mergedRunGuid)
+        {
+
+            try
+
+            {
+
+                await TryAttachEvidenceBundleAsync(mergedRunGuid, record, ct);
+
+            }
+
+            catch (Exception ex)when (ex is not OperationCanceledException)
+
+            {
+
+                logger.LogWarning(
+
+                    ex,
+
+                    "Azure extractor ingest succeeded but evidence bundle attachment failed for RunId={RunId:N}.",
+
+                    mergedRunGuid);
+
+            }
+
+        }
 
         await auditService.LogAsync(
             new AuditEvent

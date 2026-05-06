@@ -24,6 +24,10 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import {
+  formatGovernanceLineageCompletenessPercent,
+  formatGovernanceLineageWholeCount,
+} from "@/lib/governance-lineage-metric-format";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 export default function GovernanceApprovalLineagePage() {
@@ -214,9 +218,9 @@ export default function GovernanceApprovalLineagePage() {
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
-            <div>Decisions {data.manifest.decisionCount}</div>
-            <div>Unresolved issues {data.manifest.unresolvedIssueCount}</div>
-            <div>Compliance gaps {data.manifest.complianceGapCount}</div>
+            <div>Decisions {formatGovernanceLineageWholeCount(data.manifest.decisionCount)}</div>
+            <div>Unresolved issues {formatGovernanceLineageWholeCount(data.manifest.unresolvedIssueCount)}</div>
+            <div>Compliance gaps {formatGovernanceLineageWholeCount(data.manifest.complianceGapCount)}</div>
           </CardContent>
         </Card>
       ) : null}
@@ -230,7 +234,7 @@ export default function GovernanceApprovalLineagePage() {
           {data.topFindings.length === 0 ? (
             <OperatorEmptyState title="No findings in lineage">
               <p className="text-sm">
-                Findings are shown when the approval run id matches a run with a findings snapshot.
+                Findings appear when this approval links to a review that has a findings snapshot.
               </p>
             </OperatorEmptyState>
           ) : (
@@ -242,7 +246,7 @@ export default function GovernanceApprovalLineagePage() {
                     <span className="font-medium">{f.title}</span>
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    {f.engineType} · trace completeness {(f.traceCompletenessRatio * 100).toFixed(0)}%
+                    {f.engineType} · trace completeness {formatGovernanceLineageCompletenessPercent(f.traceCompletenessRatio)}
                   </div>
                 </li>
               ))}

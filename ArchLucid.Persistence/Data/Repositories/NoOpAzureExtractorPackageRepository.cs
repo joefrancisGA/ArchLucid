@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -7,4 +8,12 @@ public sealed class NoOpAzureExtractorPackageRepository : IAzureExtractorPackage
 {
     public Task InsertAsync(AzureExtractorPackageRecord record, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public Task<AzureExtractorPackageProvenance?> TryGetLatestProvenanceByRunIdAsync(
+        ScopeContext scope,
+
+        Guid runId,
+
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AzureExtractorPackageProvenance?>(null);
 }

@@ -25,4 +25,11 @@ public interface IEvidenceBundleRepository
     /// <param name="evidenceBundleId">The unique identifier of the bundle.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId, CancellationToken cancellationToken = default);
+
+    /// <summary>Overwrites the stored JSON for an existing bundle (used for late provenance merges).</summary>
+    Task UpdateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 }

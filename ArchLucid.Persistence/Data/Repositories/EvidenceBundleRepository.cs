@@ -102,4 +102,42 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
                    $"Evidence bundle JSON for '{evidenceBundleId}' deserialized to null. " +
                    "The stored JSON may be empty or corrupt.");
     }
+
+    public async Task UpdateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(evidenceBundle);
+
+        const string sql = """
+                           UPDATE EvidenceBundles
+                           SET EvidenceJson = @EvidenceJson
+                           WHERE EvidenceBundleId = @EvidenceBundleId;
+                           """;
+
+        string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
+
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            int rows = await conn.ExecuteAsync(
+                new CommandDefinition(
+                    sql,
+                    new { evidenceBundle.EvidenceBundleId, EvidenceJson = json },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            if (rows != 1)
+                throw new InvalidOperationException(
+                    $"Evidence bundle '{evidenceBundle.EvidenceBundleId}' update affected {rows} rows (expected 1).");
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
 }

@@ -273,7 +273,7 @@ export function RunsDashboardPanel() {
                   ) : (
                     <>
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Claims Intake — completed example run
+                    Claims Intake — completed example review
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     {buyerSafeHighlight ? (

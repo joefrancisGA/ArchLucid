@@ -1,3 +1,4 @@
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -30,6 +31,7 @@ public static class RunStarterTaskFactory
     private const string SourceServiceCatalog = "service-catalog";
     private const string SourcePriorManifest = "prior-manifest";
     private const string SourcePricingProfile = "pricing-profile";
+    private const string SourceAzureExtractorZip = "azure-extractor-zip";
     /// <summary>Builds the evidence bundle injected into every starter agent task.</summary>
     public static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
     {
@@ -108,14 +110,26 @@ public static class RunStarterTaskFactory
             TaskId = Guid.NewGuid().ToString("N"),
             RunId = runId,
             AgentType = AgentType.Cost,
-            Objective = BuildCostObjective(request),
+            Objective = BuildCostObjective(request, evidenceBundle),
             Status = AgentTaskStatus.Created,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = null,
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools = [ToolPricingProfileReader, ToolCostEstimator],
-            AllowedSources = [SourceArchitectureRequest, SourcePricingProfile, SourceServiceCatalog, SourcePriorManifest]
+            AllowedSources = BuildCostAllowedSources(evidenceBundle)
         };
+    }
+
+    private static List<string> BuildCostAllowedSources(EvidenceBundle evidenceBundle)
+    {
+        List<string> sources = [SourceArchitectureRequest, SourcePricingProfile, SourceServiceCatalog, SourcePriorManifest];
+
+        if (AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle))
+
+            sources.Add(SourceAzureExtractorZip);
+
+
+        return sources;
     }
 
     private static AgentTask CreateComplianceTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
@@ -157,9 +171,24 @@ public static class RunStarterTaskFactory
         return $"Design an initial Azure topology for system '{request.SystemName}' " + $"in environment '{request.Environment}'. " + $"Description: {request.Description}";
     }
 
-    private static string BuildCostObjective(ArchitectureRequest request)
+    private static string BuildCostObjective(ArchitectureRequest request, EvidenceBundle evidenceBundle)
     {
-        return $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " + $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
+        string baseText =
+            $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " +
+            $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
+
+        if (!AzureExtractorEvidenceBundleMerger.BundlesExtractorMetadata(evidenceBundle))
+
+            return baseText;
+
+
+        if (!evidenceBundle.Metadata.TryGetValue(AzureExtractorEvidenceBundleMerger.MetadataCostCitationKey, out string? cite) ||
+            string.IsNullOrWhiteSpace(cite))
+
+            return baseText;
+
+
+        return baseText + " Inventory citation: " + cite;
     }
 
     private static string BuildComplianceObjective(ArchitectureRequest request)

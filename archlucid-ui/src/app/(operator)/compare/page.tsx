@@ -61,7 +61,7 @@ function outcomeLabel(params: {
 }
 
 /**
- * Compare form: two run IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
+ * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
 function CompareForm() {
   const searchParams = useSearchParams();
@@ -426,11 +426,11 @@ function CompareForm() {
       {legacyFailure && (
         <>
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Supplementary run-level comparison failed.
+            Supplementary review-level comparison failed.
           </p>
           <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
-            Confirm both runs exist and are in scope (same tenant/project as the shell). Re-pick runs from{" "}
+            Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
             <Link href="/reviews?projectId=default">Reviews</Link> or review detail, then click <strong>Compare</strong> again.
             Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
@@ -460,8 +460,8 @@ function CompareForm() {
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both runs have finalized reviewed manifests in scope. If only the supplementary diff is needed for
-            now, expand <strong>Run-level diff</strong> after confirming the pair in the summary panel.
+            Verify both reviews have finalized reviewed manifests in scope. If only the supplementary diff is needed for
+            now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
       )}
@@ -541,7 +541,7 @@ function CompareForm() {
               className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
             >
               <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-                Technical details — supplementary run-level comparison
+                Technical details — supplementary review-level comparison
               </summary>
               <div className="mt-4">
                 <LegacyRunComparisonView result={result} />
@@ -583,7 +583,7 @@ function CompareForm() {
                   malformed: goldenMalformed,
                 })}
               </dd>
-              <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary run / manifest diff</dt>
+              <dt className="m-0 text-neutral-500 dark:text-neutral-400">Supplementary review / manifest diff</dt>
               <dd className="m-0 text-neutral-800 dark:text-neutral-200">
                 {outcomeLabel({
                   hasValue: result !== null,
