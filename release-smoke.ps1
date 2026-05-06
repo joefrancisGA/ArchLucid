@@ -1,6 +1,9 @@
 # End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
-# SQL required for the API E2E block unless -SkipE2E. See docs/RELEASE_SMOKE.md
+# Named profile LiveUiSql: same gates + enforced live playwright (browser UI vs smoke SQL API). SQL required unless -SkipE2E.
+# Full detail: docs/library/RELEASE_SMOKE.md
 param(
+    [ValidateSet('', 'LiveUiSql')]
+    [string] $Profile = '',
     [string] $SqlConnectionString = '',
     [Alias('BaseUrl')]
     [string] $ApiBaseUrl = 'http://localhost:5128',
@@ -16,6 +19,70 @@ $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path (Join-Path $root 'scripts') 'OperatorDiagnostics.ps1')
+
+$runLiveUiSqlProfile = ($Profile -eq 'LiveUiSql')
+
+if ($runLiveUiSqlProfile) {
+    if ($SkipUi) {
+        Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck)' -Category 'Misconfiguration' `
+            -Details @(
+            'Live UI ↔ SQL parity needs a production Next build (.next/standalone) for live Playwright (see LIVE_E2E_SKIP_NEXT_BUILD in playwright.config.ts).'
+        ) `
+            -NextSteps @('Omit -SkipUi for this profile, or run -LivePlaywright without -Profile when you intentionally skip UI.')
+        exit 1
+    }
+
+    if ($SkipE2E) {
+        Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck)' -Category 'Misconfiguration' `
+            -Details @('This profile expects the smoke-started ArchLucid.Api + SQL (steps 5–7) before live-api Playwright.')
+            -NextSteps @('Omit -SkipE2E, or use plain release-smoke with -SkipE2E for build-only.')
+        exit 1
+    }
+}
+
+$runLivePlaywrightEffective = ([bool]$LivePlaywright.IsPresent -or $runLiveUiSqlProfile)
+
+function Get-ResolvedReleaseSmokeSqlConnectionString {
+    param([string]$FromParam)
+
+    if (-not [string]::IsNullOrWhiteSpace($FromParam)) {
+        return $FromParam.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:ARCHLUCID_SMOKE_SQL)) {
+        return $env:ARCHLUCID_SMOKE_SQL.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:ConnectionStrings__ArchLucid)) {
+        return $env:ConnectionStrings__ArchLucid.Trim()
+    }
+
+    return ''
+}
+
+if ($runLiveUiSqlProfile -and (-not $SkipE2E)) {
+    $csPrecheck = Get-ResolvedReleaseSmokeSqlConnectionString -FromParam $SqlConnectionString
+
+    if ([string]::IsNullOrWhiteSpace($csPrecheck)) {
+        Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck — SQL)' -Category 'Misconfiguration' `
+            -Details @('-Profile LiveUiSql requires a tenant SQL connection string before the long-release path runs.') `
+            -NextSteps @(
+            '$env:ARCHLUCID_SMOKE_SQL = ''Server=...;Database=...;...''',
+            '-SqlConnectionString ''…''',
+            '$env:ConnectionStrings__ArchLucid = ''…'''
+        )
+        exit 1
+    }
+
+    $nodePrecheck = Get-Command node -ErrorAction SilentlyContinue
+
+    if ($null -eq $nodePrecheck) {
+        Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck — Node.js)' -Category 'Misconfiguration' `
+            -Details @('-Profile LiveUiSql needs Node.js for archlucid-ui and Playwright (live-api-*.spec.ts).')
+            -NextSteps @('Install Node.js 22+ on PATH', 'Then re-run .\release-smoke.ps1 -Profile LiveUiSql')
+        exit 1
+    }
+}
 
 # Prefer npm.cmd on Windows under StrictMode (npm.ps1 can throw on $MyInvocation.Statement).
 $releaseSmokeNpm = if (Get-Command npm.cmd -ErrorAction SilentlyContinue) { 'npm.cmd' } else { 'npm' }
@@ -37,6 +104,147 @@ function Restore-Env
     else { $env:ARCHLUCID_API_URL = $savedApiUrl }
 }
 
+function Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled {
+    param(
+        [Parameter(Mandatory = $true)][string] $UiRoot,
+        [Parameter(Mandatory = $true)][string] $NpmExe,
+        [Parameter(Mandatory = $true)][string] $TriageStage
+    )
+
+    Push-Location $UiRoot
+    try {
+        Write-Host ''
+        Write-Host '--- Playwright: ensure Chromium binaries (repeatable noop if already cached) ---' -ForegroundColor DarkGray
+        & $NpmExe exec playwright install chromium
+        if ($LASTEXITCODE -ne 0) {
+            Write-OperatorFailureTriage -Stage $TriageStage -Category 'PlaywrightMisconfiguration' `
+                -Details @("npm exec playwright install chromium exited $LASTEXITCODE (first-time downloads need outbound network permission).") `
+                -NextSteps @(
+                'cd archlucid-ui; npx playwright install chromium',
+                'archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md — E2E tests (mock vs live parity), section 8'
+            )
+            exit $LASTEXITCODE
+        }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
+function Write-ReleaseSmokeEvidenceSummary {
+    param(
+        [Parameter(Mandatory = $true)][ValidateSet('SkipE2EEarly', 'Complete')][string] $ExitMode,
+        [bool] $LiveUiSqlProfile,
+        [bool] $RanFastCoreGate,
+        [bool] $RanFullCore,
+        [bool] $RanUiVitestAndProductionBuild,
+        [bool] $SkippedUiExplicitly,
+        [bool] $RanApiCliArtifacts,
+        [bool] $RanMockPlaywright,
+        [bool] $RanLivePlaywrightRequestedButSkipped,
+        [bool] $RanLivePlaywright,
+        [string] $ApiBaseUrlEvidence
+    )
+
+    Write-Host ''
+    Write-Host '=== Release smoke — evidence summary (what ran vs not) ===' -ForegroundColor Cyan
+
+    Write-Host ''
+    Write-Host 'Validated this run:'
+    Write-Host '  • Release solution build gate (step 1/6)'
+
+    if ($RanFastCoreGate) {
+        Write-Host '  • Fast Core dotnet tests Release (Suite=Core excluding Slow & Integration)'
+    }
+
+    if ($RanFullCore) {
+        Write-Host '  • Full Core dotnet tests Release (-FullCore)'
+    }
+
+    if ($RanUiVitestAndProductionBuild) {
+        Write-Host '  • archlucid-ui Vitest + production next build (.next)'
+    }
+
+    if ($SkippedUiExplicitly) {
+        Write-Host '  • (skipped) Operator UI npm / Vitest / build — explicit -SkipUi'
+    }
+
+    if ((-not $SkippedUiExplicitly) -and (-not $RanUiVitestAndProductionBuild)) {
+        Write-Host '  • (skipped) Operator UI — Node.js missing from PATH'
+    }
+
+    if ($RanApiCliArtifacts) {
+        Write-Host ('  • Temporary ArchLucid.Api (Release, http profile) backed by tenant SQL resolved from ARCHLUCID_SMOKE_SQL / -SqlConnectionString / ConnectionStrings__ArchLucid (no secrets echoed here)')
+        Write-Host ('  • GET /health/ready + /health/live; CLI new + run --quick against ' + $ApiBaseUrlEvidence)
+        Write-Host '  • Manifest + synthesized artifacts via HTTP (≥ 1 descriptor)'
+    }
+
+    Write-Host ''
+
+    Write-Host 'Not asserted / not run this invocation:'
+    if (-not $RanApiCliArtifacts) {
+        Write-Host '  • SQL-backed smoke API + CLI artifact gate — omit `-SkipE2E` + supply tenant SQL'
+    }
+
+    if ($ExitMode -eq 'SkipE2EEarly') {
+        Write-Host '  • Playwright lanes (script exited before steps 5–7 under `-SkipE2E`)'
+
+        if ($RanLivePlaywrightRequestedButSkipped) {
+            Write-Host '  • Note: `-RunPlaywright`, `-LivePlaywright`, or `-Profile LiveUiSql` have no effect with `-SkipE2E`'
+        }
+    }
+
+    Write-Host ''
+
+    if ($ExitMode -eq 'SkipE2EEarly') {
+        Write-Host 'How this maps to documented lanes:'
+        Write-Host '  • CI-style mock UI E2E — archlucid-ui `npm run test:e2e` (playwright.mock.config.ts)'
+        Write-Host '  • Named live UI-SQL parity profile — `-Profile LiveUiSql` or `release-smoke-live-ui-sql.cmd`'
+        Write-Host '  • Ad-hoc live parity switch — `-LivePlaywright` (same smoke API prerequisites)'
+        Write-Host '  • CI live E2E — workflow jobs `ui-e2e-live*`, same playwright.config.ts `live-api-*` glob'
+
+        Write-Host ''
+
+        Write-Host '(With `-SkipE2E` only build + dotnet tests (+ optional UI) ran. Full ladder: docs/library/RELEASE_SMOKE.md.)'
+
+        return
+    }
+
+    if (-not $RanMockPlaywright) {
+        Write-Host '  • Mock Playwright lane (`npm run test:e2e`, playwright.mock.config.ts) unless you pass `-RunPlaywright`'
+    }
+
+    if (-not $RanLivePlaywright) {
+        Write-Host '  • Chromium `live-api-*.spec.ts` parity vs this smoke API — pass `-Profile LiveUiSql`, `release-smoke-live-ui-sql.ps1`, or `-LivePlaywright`'
+
+        Write-Host ''
+
+        Write-Host ('One citation line for auditors: default release smoke does not assert browser-vs-SQL parity; `-Profile LiveUiSql` bundles that claim.')
+
+        return
+    }
+
+    Write-Host ''
+
+    Write-Host 'Playwright live parity exercised this run:'
+    if ($LiveUiSqlProfile) {
+        Write-Host '  • Via `-Profile LiveUiSql`: same `live-api-*.spec.ts` stack as `-LivePlaywright` / CI `ui-e2e-live`'
+    }
+    else {
+        Write-Host '  • Via `-LivePlaywright`: `playwright.config.ts` targeting LIVE_API_URL (defaults from `-ApiBaseUrl`).'
+    }
+
+    Write-Host '  • LIVE_API_KEY / LIVE_JWT_TOKEN optional — auth-heavy specs skip when unset (parity with CI).'
+
+    Write-Host ''
+
+    Write-Host 'How this maps to documented lanes:'
+    Write-Host '  • Mock stack — `-RunPlaywright` routes to playwright.mock.config.ts (`npm run test:e2e`)'
+
+    Write-Host ('  • Local live UI-SQL claim — `' + ($(if ($LiveUiSqlProfile) { '-Profile LiveUiSql' } else { '-LivePlaywright' })) + '` with the SAME smoke-started API binary as steps 5–7')
+    Write-Host '  • CI `ui-e2e-live*` — prebuilt standalone + LIVE_E2E_SKIP_NEXT_BUILD; same spec selections as playwright.config.ts'
+}
+
 function Invoke-ReleaseSmokePlaywrightWhenRequested
 {
     param(
@@ -51,7 +259,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
     if (-not $RunPlaywright -and -not $LivePlaywright) { return }
 
     if ($LivePlaywright -and $SkipE2E) {
-        Write-Warning '-LivePlaywright skipped: E2E steps 5–6 did not run (API was not started). Omit -SkipE2E to exercise live UI ↔ SQL parity against the smoke API.'
+        Write-Warning 'Live parity (`-LivePlaywright`, `-Profile LiveUiSql`) skipped: E2E steps 5–6 did not run (API was not started). Omit `-SkipE2E` to exercise UI ↔ smoke SQL parity against the temporary smoke API.'
         if (-not $RunPlaywright) { return }
     }
 
@@ -60,8 +268,8 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 
     if ($null -eq $node) {
         Write-OperatorFailureTriage -Stage 'Playwright E2E' -Category 'Misconfiguration' `
-            -Details @('-RunPlaywright / -LivePlaywright require Node.js on PATH.') `
-            -NextSteps @('Install Node 22+ or omit Playwright switches')
+            -Details @('-RunPlaywright / -LivePlaywright / `-Profile LiveUiSql` require Node.js on PATH.') `
+            -NextSteps @('Install Node 22+ or omit Playwright / profile switches')
         exit 1
     }
 
@@ -107,7 +315,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
     function Invoke-LivePlaywrightBlock
     {
         Write-Host ''
-        Write-Host '=== Playwright E2E (opt-in: -LivePlaywright, live-api-*.spec.ts — mirrors CI ui-e2e-live) ===' -ForegroundColor Cyan
+        Write-Host '=== Playwright E2E (-LivePlaywright or `-Profile LiveUiSql`, live-api-*.spec.ts — mirrors CI ui-e2e-live) ===' -ForegroundColor Cyan
 
         $standaloneDir = Join-Path $uiRoot '.next/standalone'
         if (-not (Test-Path $standaloneDir)) {
@@ -122,6 +330,8 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
                 & $releaseSmokeNpm ci
                 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             }
+
+            Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled -UiRoot $uiRoot -NpmExe $releaseSmokeNpm -TriageStage 'Playwright E2E (-LivePlaywright) Chromium cache'
 
             $savedLiveUrl = $env:LIVE_API_URL
             $savedSkipBuild = $env:LIVE_E2E_SKIP_NEXT_BUILD
@@ -174,9 +384,8 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 
 try
 {
-    $cs = $SqlConnectionString
-    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ARCHLUCID_SMOKE_SQL }
-    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ConnectionStrings__ArchLucid }
+    $script:releaseSmokeUiVitestProductionBuildRan = $false
+    $cs = Get-ResolvedReleaseSmokeSqlConnectionString -FromParam $SqlConnectionString
 
     Write-OperatorPhaseHeader -Title 'Release build' -Step 1 -Total 6
     & (Join-Path $root 'build-release.ps1')
@@ -249,6 +458,8 @@ try
                     -NextSteps @('cd archlucid-ui; npm run build', 'Or: .\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
+
+            $script:releaseSmokeUiVitestProductionBuildRan = $true
         }
         else
         {
@@ -261,10 +472,35 @@ try
         Write-Host '=== [3-4/6] Skipped UI (-SkipUi) ===' -ForegroundColor DarkGray
     }
 
+    $uiExplicitSkip = ([bool]$SkipUi.IsPresent)
+    $requestedPlaywrightNotHonored = ((-not [string]::IsNullOrWhiteSpace($Profile)) -or [bool]$RunPlaywright.IsPresent -or [bool]$LivePlaywright.IsPresent)
+
+    if ((-not $SkipE2E) -and $runLivePlaywrightEffective -and (-not $SkipUi))
+    {
+        $nodeForChromium = Get-Command node -ErrorAction SilentlyContinue
+
+        if ($null -ne $nodeForChromium -and ($script:releaseSmokeUiVitestProductionBuildRan -or (Test-Path (Join-Path $root 'archlucid-ui/node_modules/@playwright')))) {
+            $uiRootEnsure = Join-Path $root 'archlucid-ui'
+            Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled -UiRoot $uiRootEnsure -NpmExe $releaseSmokeNpm `
+                -TriageStage '5/6 Precheck Chromium (blocks before smoke API start)'
+        }
+        elseif (($null -eq $nodeForChromium) -and $runLiveUiSqlProfile) {
+
+            Write-OperatorFailureTriage -Stage '-Profile LiveUiSql (precheck — Node)' -Category 'Misconfiguration' `
+                -Details @('Node vanished from PATH after UI prerequisites (unexpected for this profile).') `
+                -NextSteps @('Re-open shell; ensure Node 22+ on PATH')
+            exit 1
+        }
+    }
+
     if ($SkipE2E)
     {
-        if ($LivePlaywright) {
-            Write-Warning '-LivePlaywright skipped: E2E steps 5–6 did not run (API was not started). Omit -SkipE2E to exercise live UI ↔ SQL parity against the smoke API.'
+
+        $liveReq = ([bool]$LivePlaywright.IsPresent -or $runLiveUiSqlProfile)
+
+        if ($liveReq) {
+
+            Write-Warning 'Live parity (`-LivePlaywright` / `-Profile LiveUiSql`) was skipped — E2E steps 5–7 did not run (API never started under `-SkipE2E`).'
         }
 
         Write-Host '=== 5-6/6 Skipped E2E API+CLI (-SkipE2E) ==='
@@ -276,6 +512,18 @@ try
         {
             Write-Host 'Release smoke finished (build + fast core tests).'
         }
+
+        Write-ReleaseSmokeEvidenceSummary -ExitMode SkipE2EEarly `
+            -LiveUiSqlProfile:$runLiveUiSqlProfile `
+            -RanFastCoreGate:$true `
+            -RanFullCore:([bool]$FullCore.IsPresent) `
+            -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
+            -SkippedUiExplicitly:$uiExplicitSkip `
+            -RanApiCliArtifacts:$false `
+            -RanMockPlaywright:$false `
+            -RanLivePlaywrightRequestedButSkipped:$requestedPlaywrightNotHonored `
+            -RanLivePlaywright:$false `
+            -ApiBaseUrlEvidence $ApiBaseUrl
 
         exit 0
     }
@@ -332,7 +580,7 @@ try
                 "Confirm nothing else is bound to $($ApiBaseUrl) (or pass -ApiBaseUrl)",
                 'Reproduce in a visible window: $env:ConnectionStrings__ArchLucid = ''...''; dotnet run --project ArchLucid.Api -c Release --launch-profile http',
                 'CLI: dotnet run --project ArchLucid.Cli -- doctor   (with API up)',
-                'See docs/RELEASE_SMOKE.md — Troubleshooting'
+                'See docs/library/RELEASE_SMOKE.md — Troubleshooting'
             )
             exit 1
         }
@@ -459,13 +707,27 @@ try
             -Details @("Manifest $manifestId returned $artifactCount artifact(s); expected >= 1.") `
             -NextSteps @(
             'Synthesis or persistence regression — search API logs for this manifestId',
-            'docs/RELEASE_SMOKE.md — Zero artifacts'
+            'docs/library/RELEASE_SMOKE.md — Zero artifacts'
         )
         exit 1
     }
 
     Write-Host "Smoke OK: $artifactCount artifact(s) listed for manifest $manifestId." -ForegroundColor Green
-    Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$LivePlaywright -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
+    Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$runLivePlaywrightEffective -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
+
+    Write-ReleaseSmokeEvidenceSummary -ExitMode Complete `
+        -LiveUiSqlProfile:$runLiveUiSqlProfile `
+        -RanFastCoreGate:$true `
+        -RanFullCore:([bool]$FullCore.IsPresent) `
+        -RanUiVitestAndProductionBuild:$script:releaseSmokeUiVitestProductionBuildRan `
+        -SkippedUiExplicitly:$uiExplicitSkip `
+        -RanApiCliArtifacts:$true `
+        -RanMockPlaywright:([bool]$RunPlaywright.IsPresent) `
+        -RanLivePlaywrightRequestedButSkipped:$false `
+        -RanLivePlaywright:$runLivePlaywrightEffective `
+        -ApiBaseUrlEvidence $ApiBaseUrl
+
+    Write-Host ''
     Write-Host 'Release smoke finished successfully.'
     exit 0
 }
