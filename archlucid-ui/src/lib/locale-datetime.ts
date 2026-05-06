@@ -65,6 +65,6 @@ export function formatConversationListDate(iso: string | null | undefined): stri
  * Conversation sidebar rows in polished demo builds: show "Sample conversation" to avoid stale-looking
  * static demo dates in buyer captures.
  */
-export function formatConversationListDatePolished(_iso: string | null | undefined): string {
+export function formatConversationListDatePolished(_: string | null | undefined): string {
   return "Sample conversation";
 }

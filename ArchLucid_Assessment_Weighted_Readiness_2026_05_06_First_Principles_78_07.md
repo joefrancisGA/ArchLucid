@@ -764,6 +764,9 @@ Constraints:
 - **Affected qualities:** Security, Data Consistency, Compliance Readiness, Trustworthiness, Architectural Integrity.
 - **Actionability:** Fully actionable now.
 - **Impact of running the prompt:** Directly improves Security (+4-6 pts), Data Consistency (+4-6 pts), Compliance Readiness (+2-4 pts), Trustworthiness (+2-3 pts). Weighted readiness impact: +0.4-0.8%.
+- **Status:** Completed 2026-05-06.
+- **Completion evidence:** Added `scripts/ci/assert_rls_residual_risk_classifications.py`, executable classifications in `docs/security/MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md`, unit coverage for each classification outcome including unknown-table failure, and CI wiring in `.github/workflows/ci.yml`.
+- **Verification:** `python -m unittest discover -s scripts/ci/tests -p "test_assert_rls_residual_risk_classifications.py"` and `python scripts/ci/assert_rls_residual_risk_classifications.py` pass locally.
 
 **Cursor prompt:**
 

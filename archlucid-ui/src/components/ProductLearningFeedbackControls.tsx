@@ -49,10 +49,6 @@ export function ProductLearningFeedbackControls({
   compact = false,
   title = "Was this useful?",
 }: ProductLearningFeedbackControlsProps) {
-  if (isBuyerPolishedOperatorShellEnv()) {
-    return null;
-  }
-
   const [comment, setComment] = useState("");
   const [busyDisposition, setBusyDisposition] = useState<ProductLearningDisposition | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
@@ -64,6 +60,10 @@ export function ProductLearningFeedbackControls({
 
     return JSON.stringify(detail);
   }, [detail]);
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
 
   async function submit(disposition: ProductLearningDisposition): Promise<void> {
     setBusyDisposition(disposition);

@@ -214,14 +214,19 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     """
                     INSERT INTO dbo.FindingRecords
                     (FindingRecordId, FindingsSnapshotId, SortOrder, FindingId, FindingSchemaVersion, FindingType,
-                     Category, EngineType, Severity, Title, Rationale, PayloadType, PayloadJson)
-                    VALUES (@Id, @Fs, 0, N'fid', 1, N't', N'c', N'e', @Sev, N'title', N'rat', NULL, NULL);
+                     Category, EngineType, Severity, Title, Rationale, PayloadType, PayloadJson,
+                     TenantId, WorkspaceId, ProjectId)
+                    VALUES (@Id, @Fs, 0, N'fid', 1, N't', N'c', N'e', @Sev, N'title', N'rat', NULL, NULL,
+                            @TenantId, @WorkspaceId, @ProjectId);
                     """,
                     new
                     {
                         Id = recordId,
                         Fs = findingsId,
-                        Sev = severity
+                        Sev = severity,
+                        TenantId,
+                        WorkspaceId,
+                        ProjectId = ScopeProjectId
                     },
                     cancellationToken: CancellationToken.None));
 
@@ -230,12 +235,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
-                        VALUES (@Id, 0, N'n1');
+                        INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'n1', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -245,12 +253,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
-                        VALUES (@Id, 0, N'act');
+                        INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'act', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -260,12 +271,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
-                        VALUES (@Id, 0, N'k', N'v');
+                        INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'k', N'v', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -275,12 +289,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
-                        VALUES (@Id, 0, N'tn');
+                        INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'tn', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -290,12 +307,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
-                        VALUES (@Id, 0, N'rule');
+                        INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'rule', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -305,12 +325,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
-                        VALUES (@Id, 0, N'dec');
+                        INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'dec', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -320,12 +343,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
-                        VALUES (@Id, 0, N'path');
+                        INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'path', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
@@ -335,12 +361,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         """
-                        INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
-                        VALUES (@Id, 0, N'note');
+                        INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'note', @TenantId, @WorkspaceId, @ProjectId);
                         """,
                         new
                         {
-                            Id = recordId
+                            Id = recordId,
+                            TenantId,
+                            WorkspaceId,
+                            ProjectId = ScopeProjectId
                         },
                         cancellationToken: CancellationToken.None));
             }
