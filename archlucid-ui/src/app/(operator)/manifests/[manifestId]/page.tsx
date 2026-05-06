@@ -147,7 +147,7 @@ export default async function ManifestDetailPage({
           correlationId={summaryFailure.correlationId}
         />
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Try reloading, or return to the run list and open a run, then the manifest from run detail.
+          Try reloading, or return to the reviews list, open a review, then the manifest from review detail.
         </p>
         <p className="text-sm">
           <Link href="/">Home</Link>
@@ -207,13 +207,13 @@ export default async function ManifestDetailPage({
         <OperatorErrorCallout>
           <strong>Manifest summary missing.</strong>
           <p className="mt-2">
-            The response did not include manifest details. Try reloading once, or return from run detail instead
+            The response did not include manifest details. Try reloading once, or return from review detail instead
             of a pasted link.
           </p>
           <OperatorErrorUiReferenceLine />
         </OperatorErrorCallout>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          If this continues, try reloading, or return to the run list and open a run, then the manifest.
+          If this continues, try reloading, or return to the reviews list and open a review, then the manifest.
         </p>
         <p className="text-sm">
           <Link href="/">Home</Link>
@@ -302,12 +302,12 @@ export default async function ManifestDetailPage({
           <CardHeader>
             <CardTitle className="text-base font-semibold">Related findings</CardTitle>
             <CardDescription>
-              Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating run.
+              Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-              Open the aggregate architecture review summary on run detail — per-finding links appear when trace confidence
+              Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence
               rows are available.
             </p>
             <div className="mt-4">
@@ -347,7 +347,7 @@ export default async function ManifestDetailPage({
                 variant="warning"
               />
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                Try reloading, or return to the run detail page. You can still use Download bundle (ZIP) if
+                Try reloading, or return to the review detail page. You can still use Download bundle (ZIP) if
                 the list endpoint is unavailable.
               </p>
             </>
@@ -360,7 +360,7 @@ export default async function ManifestDetailPage({
                 <p className="mt-2">{artifactsMalformed}</p>
               </OperatorMalformedCallout>
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                Try reloading, or return to the run detail page. Bundle download may still work.
+                Try reloading, or return to the review detail page. Bundle download may still work.
               </p>
             </>
           )}

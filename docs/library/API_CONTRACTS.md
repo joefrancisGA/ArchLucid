@@ -45,6 +45,15 @@
 
 UI alignment: **`docs/operator-shell.md`**.
 
+## Azure extractor ingest (`/v1/azure-extractor`)
+
+- **Upload:** `POST /v1/azure-extractor/upload` — `multipart/form-data` field **`file`** (ZIP, max **≈52 MiB** zipped payload envelope per host `RequestSizeLimit`). Optional query **`runId`** associates with an existing run in workspace scope.
+- **Auth:** base route gated **ReadAuthority**; **`ExecuteAuthority`** required for `upload`.
+- **Schema:** **`manifest.json`** inside the ZIP must declare supported **`schemaVersion`** (currently **only `1`**). Unsupported versions return **422** (never silently parsed).
+- **Success:** **202 Accepted** `{ "packageId": "<guid>" }`. **Failures:** **422** Problem+JSON (missing/invalid ZIP, manifest parse failure, unknown schema).
+
+Runbook: **`docs/runbooks/AZURE_EXTRACTOR_INGEST.md`**.
+
 ## Explain (`/v1/explain`)
 
 All routes require **ReadAuthority** and use versioned paths under **`/v1/explain`**. Response JSON uses **camelCase** property names.

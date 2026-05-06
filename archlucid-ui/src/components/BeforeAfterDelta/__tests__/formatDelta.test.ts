@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFindings, formatHours, percentDelta } from "../formatDelta";
+import { formatFindings, formatHours, percentDelta, formatPerRunFindingsLine, safeCommittedRunWindowCount } from "../formatDelta";
 
 describe("formatHours", () => {
   it("converts seconds to hours with two decimal places", () => {
@@ -44,5 +44,24 @@ describe("percentDelta", () => {
     expect(percentDelta(-5, 5)).toBeNull();
     expect(percentDelta(null, 5)).toBeNull();
     expect(percentDelta(Number.NaN, 5)).toBeNull();
+  });
+});
+
+describe("safeCommittedRunWindowCount", () => {
+  it("returns floored non-negative integers and null for invalid", () => {
+    expect(safeCommittedRunWindowCount(3)).toBe(3);
+    expect(safeCommittedRunWindowCount(2.9)).toBe(2);
+    expect(safeCommittedRunWindowCount(0)).toBe(0);
+    expect(safeCommittedRunWindowCount(null)).toBeNull();
+    expect(safeCommittedRunWindowCount(Number.NaN)).toBeNull();
+    expect(safeCommittedRunWindowCount(-1)).toBeNull();
+  });
+});
+
+describe("formatPerRunFindingsLine", () => {
+  it("labels findings and degrades bad numbers", () => {
+    expect(formatPerRunFindingsLine(1)).toBe("1 finding");
+    expect(formatPerRunFindingsLine(4)).toBe("4 findings");
+    expect(formatPerRunFindingsLine(Number.NaN)).toBe("Not enough data yet");
   });
 });

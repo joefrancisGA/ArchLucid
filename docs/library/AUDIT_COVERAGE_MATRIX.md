@@ -92,6 +92,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
 | Architecture DOCX exports (package download; consulting analysis metadata row; async DOCX jobs) | `DocxExportController`; `RunExportAuditService` (sync consulting path; not export-replay persist); `BackgroundJobWorkUnitExecutor` | `ArchitectureDocxExportGenerated` | RunId, ManifestId when known | `runId`, `compareWithRunId` / `exportRecordId` / `exportChannel`, `byteCount` |
 | Architecture request file import (TOML/JSON draft) | `ImportRequestFileService` (`POST …/architecture/request/import`, `ImportRequestFileController`) | `RequestFileImported` | Tenant/Workspace/Project from ambient scope | `importId`, `requestId`, `format`, `sourceFileName` (JSON payload); correlation id when HTTP trace present |
+| Azure extractor ZIP ingest | `AzureExtractorIngestService` (`POST …/azure-extractor/upload`, `AzureExtractorUploadController`) | `AzureExtractorPackageUploaded`, `AzureExtractorPackageParseFailed`, `AzureExtractorPackageSchemaRejected`, `AzureExtractorPackageIngestSucceeded` | Tenant/Workspace/Project; optional `RunId` on success event | `originalFileName`, `sizeBytes` on upload; `reason` on failures; `packageId` plus citation summary on success |
 | Tenant value report DOCX (sync or async completion) | `ValueReportController` | `ValueReportGenerated` | Tenant/Workspace/Project from ambient scope | `tenantId`, `from`, `to`, `byteCount`, `asyncJob` (JSON); async jobs also include `jobId` |
 | Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
 | Comparison summary persisted (export diff) | `ExportsController` (`POST .../run/exports/compare/summary`, `persist: true`) | `ComparisonSummaryPersisted` | RunId when parseable | `comparisonId`, `sourceExportRecordId`, `leftExportRecordId`, `rightExportRecordId` |
@@ -249,6 +250,10 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ComparisonReplayPersisted` | `ComparisonReplayPersisted` | `ComparisonAuditService` |
 | `EndToEndComparisonPersisted` | `EndToEndComparisonPersisted` | `ComparisonAuditService` |
 | `RequestFileImported` | `RequestFileImported` | `ImportRequestFileService` (`ImportRequestFileController`) |
+| `AzureExtractorPackageUploaded` | `AzureExtractorPackage.Uploaded` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageParseFailed` | `AzureExtractorPackage.ParseFailed` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageSchemaRejected` | `AzureExtractorPackage.SchemaRejected` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
+| `AzureExtractorPackageIngestSucceeded` | `AzureExtractorPackage.IngestSucceeded` | `AzureExtractorIngestService` (`AzureExtractorUploadController`) |
 | `ValueReportGenerated` | `ValueReportGenerated` | `ValueReportController`, `InMemoryValueReportJobQueue` |
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |

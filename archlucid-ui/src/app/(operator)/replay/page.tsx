@@ -122,7 +122,7 @@ function ReplayForm() {
         <OperatorEmptyState title="Waiting for a run ID">
           <p className="m-0">
             Enter the run to replay, open this page with <code>?runId=…</code>, or go from{" "}
-            <Link href="/reviews?projectId=default">Runs</Link> → run detail → <strong>Replay this run</strong>.
+            <Link href="/reviews?projectId=default">Reviews</Link> → review detail → <strong>Replay this review</strong>.
           </p>
         </OperatorEmptyState>
       )}

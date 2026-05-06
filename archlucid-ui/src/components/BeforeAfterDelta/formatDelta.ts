@@ -36,3 +36,30 @@ export function percentDelta(prior: number | null, current: number | null): numb
 
   return ((prior - current) / prior) * 100;
 }
+
+/** Non-negative window size from recent-deltas payloads — null when missing or non-finite; use `< 1` to hide panels. */
+export function safeCommittedRunWindowCount(count: unknown): number | null {
+  if (count === null || count === undefined) {
+    return null;
+  }
+
+  const numeric = typeof count === "number" ? count : Number(count);
+
+  if (!Number.isFinite(numeric) || numeric < 0) {
+    return null;
+  }
+
+  return Math.floor(numeric);
+}
+
+/** Per-row findings caption for delta lists (never surfaces "NaN finding(s)"). */
+export function formatPerRunFindingsLine(totalFindings: unknown): string {
+  const numeric = typeof totalFindings === "number" ? totalFindings : Number(totalFindings);
+  const formatted = formatFindings(numeric);
+
+  if (formatted === "—") {
+    return "Not enough data yet";
+  }
+
+  return `${formatted} finding${formatted === "1" ? "" : "s"}`;
+}

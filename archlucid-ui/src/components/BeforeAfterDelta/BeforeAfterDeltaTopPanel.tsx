@@ -1,6 +1,11 @@
 "use client";
 
-import { formatFindings, formatHours } from "./formatDelta";
+import {
+  formatFindings,
+  formatHours,
+  formatPerRunFindingsLine,
+  safeCommittedRunWindowCount,
+} from "./formatDelta";
 import { useDeltaQuery } from "./useDeltaQuery";
 
 /**
@@ -25,7 +30,9 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
   const { status, data } = useDeltaQuery({ count });
 
   if (status !== "ready" || data === null) return null;
-  if (data.returnedCount === 0) return null;
+  const windowCount = safeCommittedRunWindowCount(data.returnedCount);
+
+  if (windowCount === null || windowCount < 1) return null;
   // Malformed proxy JSON (missing `items`) must not throw during `.map` — degrade to hidden panel.
   if (!Array.isArray(data.items)) return null;
 
@@ -33,14 +40,14 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
     <section
       data-testid="before-after-delta-panel-top"
       role="region"
-      aria-label="Median proof-of-ROI deltas across recent finalized runs"
+      aria-label="Median proof-of-ROI deltas across recent finalized reviews"
       className="mb-6 max-w-4xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
       <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-        Recent finalized runs — median delta
+        Recent finalized reviews — median delta
       </h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Across the last <strong data-testid="delta-top-window">{data.returnedCount}</strong> finalized run(s) in
+        Across the last <strong data-testid="delta-top-window">{windowCount}</strong> finalized review(s) in
         scope. Median (not mean) so one outlier does not skew the headline. Same numbers as the per-run value
         report.
       </p>
@@ -48,7 +55,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
-            Median findings per finalized run
+            Median findings per finalized review
           </dt>
           <dd
             data-testid="delta-top-median-findings"
@@ -81,7 +88,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
           return (
           <li key={rid} className="flex flex-wrap gap-x-3">
             <span className="font-mono">{shortId}</span>
-            <span>{row.totalFindings} finding(s)</span>
+            <span>{formatPerRunFindingsLine(row.totalFindings)}</span>
             <span>{formatHours(row.timeToCommittedManifestTotalSeconds)}</span>
             {row.isDemoTenant ? (
               <span className="rounded bg-amber-100 px-1.5 py-0.5 text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
