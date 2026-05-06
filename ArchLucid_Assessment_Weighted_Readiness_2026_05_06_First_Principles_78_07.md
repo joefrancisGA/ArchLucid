@@ -634,13 +634,14 @@ Constraints:
 - Do not use ConfigureAwait(false) in tests.
 ```
 
-### 2. Core Pilot Cognitive Load Reduction
+### 2. Core Pilot Cognitive Load Reduction ✅ COMPLETED 2026-05-06
 
 - **Why it matters:** The fastest revenue path is getting a buyer through one successful architecture review without explaining the whole platform.
 - **Expected impact:** Lower adoption friction and higher time-to-value.
 - **Affected qualities:** Adoption Friction, Usability, Cognitive Load, Time-to-Value, Customer Self-Sufficiency.
 - **Actionability:** Fully actionable now.
 - **Impact of running the prompt:** Directly improves Adoption Friction (+5-7 pts), Cognitive Load (+8-12 pts), Usability (+4-6 pts), Time-to-Value (+2-3 pts). Weighted readiness impact: +0.7-1.0%.
+- **Completed:** `CorePilotNextStepsCard` refined into a three-state first-session status panel. Adds step badge (Step N of 4), active step indicator (▶), skip-for-now note naming Compare/Replay/Governance/Ask, rescue link, and run ID for support correlation. Operate links remain secondary (post-commit only). 18 tests pass covering all acceptance criteria.
 
 **Cursor prompt:**
 
