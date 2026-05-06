@@ -6,6 +6,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -94,8 +95,10 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
 
         PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
+        ProofPackageCompletenessResponse proofCompleteness =
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         AppendRunSection(sb, run, manifest, baseUrl);
-        AppendProofPackageContractSection(sb, deltas);
+        AppendProofPackageContractSection(sb, deltas, proofCompleteness);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
@@ -164,7 +167,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine();
     }
 
-    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas)
+    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas, ProofPackageCompletenessResponse c)
     {
         sb.AppendLine("## Buyer-safe proof package contract");
         sb.AppendLine();
@@ -172,15 +175,29 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         sb.AppendLine();
         sb.AppendLine("| Required proof field | Status in this report |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine("| Architecture review identity | Present above; run id is support metadata. |");
-        sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(deltas.TimeToCommittedManifest is not null)} |");
-        sb.AppendLine($"| Findings by severity | {FormatProofStatus(deltas.FindingsBySeverity.Count > 0)} |");
-        sb.AppendLine($"| Top finding evidence-chain pointer | {FormatProofStatus(deltas.TopFindingEvidenceChain is not null)} |");
-        sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(true)} |");
-        sb.AppendLine($"| LLM-call count | {FormatProofStatus(true)} |");
-        sb.AppendLine("| ROI evidence confidence | Rendered in `ROI evidence completeness` below. |");
-        sb.AppendLine($"| Demo data warning | {(deltas.IsDemoTenant ? "Present; do not quote seeded numbers." : "Not a demo run based on available identifiers.")} |");
+        sb.AppendLine(
+            $"| Non-demo / external-share discipline | {(c.DemoTenantWarningRequired ? "**FAILED — non-negotiable demo warning.** Replace seeded identifiers before any sponsor-facing circulation." : "Pass — operator identifiers only per loaded tenant scope.")} |");
+        sb.AppendLine(
+            $"| Committed manifest + status | {FormatProofStatus(c.CommittedManifestPresent && c.RunInCommittedStatus)} |");
+        sb.AppendLine($"| Artifact descriptor count | {FormatArtifactDescriptorsProofCell(c)} |");
+        sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(c.TimeToCommittedManifestResolved)} |");
+        sb.AppendLine($"| Findings by severity | {FormatProofStatus(c.FindingsBySeverityPresent)} |");
+        sb.AppendLine($"| Top finding evidence-chain pointer | {FormatProofStatus(c.TopFindingEvidenceChainPresentOrNotApplicable)} |");
+        sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
+        sb.AppendLine(
+            $"| LLM-call count | `{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above). |");
+        sb.AppendLine($"| ROI evidence confidence | {c.RoiConfidenceLabel} |");
+        sb.AppendLine($"| Buyer-safe redaction profile | {c.BuyerSafeRedactionProfile} |");
+        sb.AppendLine($"| Proof sendability (API mirror) | `{c.ProofSendability}` · `{c.PublishingTier}` |");
         sb.AppendLine();
+    }
+
+    private static string FormatArtifactDescriptorsProofCell(ProofPackageCompletenessResponse c)
+    {
+        if (!c.ArtifactDescriptorCountResolved)
+            return "Missing — golden manifest id absent or synthesized artifact query failed (see audit/logs rather than guessing).";
+
+        return $"Present — `{c.ArtifactDescriptorCount}` descriptor(s) for this golden manifest.";
     }
 
     private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";

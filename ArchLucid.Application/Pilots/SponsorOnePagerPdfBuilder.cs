@@ -18,8 +18,8 @@ namespace ArchLucid.Application.Pilots;
 /// <remarks>
 ///     The headline numbers come from <see cref = "IPilotRunDeltaComputer"/> so the sponsor PDF, the Markdown sibling
 ///     (<see cref = "FirstValueReportBuilder"/>), and the canonical first-value-report PDF wrapper all show the same
-///     computed deltas. When the run is a Contoso Retail demo seed the page is stamped "demo tenant — replace before
-///     publishing" so the seeded numbers cannot be quoted as a real-customer outcome.
+///     computed deltas. Demo tenants stamp **ILLUSTRATION ONLY — not a commitment** in <c>page.Header()</c> on every
+///     page (plus Markdown banners elsewhere) so seeded numbers cannot be quoted as a real-customer outcome.
 /// </remarks>
 public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQuery, PilotScorecardBuilder scorecardBuilder, IPilotRunDeltaComputer deltaComputer, IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {
@@ -33,7 +33,7 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
         return (byte)0;
     }
 
-    private const string DemoTenantBanner = "demo tenant — replace before publishing";
+    private const string IllustrationOnlyPerPageHeader = "ILLUSTRATION ONLY — not a commitment";
     private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -65,13 +65,20 @@ public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQu
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
-                page.Header().Text("ArchLucid — sponsor one-pager (pilot)").Bold().FontSize(14);
+                page.Header().Column(header =>
+                {
+                    if (deltas.IsDemoTenant)
+                    {
+                        header.Item().Background(Colors.Yellow.Lighten3).Padding(6)
+                            .Text(IllustrationOnlyPerPageHeader).Bold().FontColor(Colors.Red.Darken2).FontSize(11);
+                    }
+
+                    header.Item().Text("ArchLucid — sponsor one-pager (pilot)").Bold().FontSize(14);
+                });
                 page.Content().Column(column =>
                 {
                     column.Item().Text($"Run: {run.RunId}").FontSize(11);
                     column.Item().Text($"Generated (UTC): {DateTime.UtcNow:O}");
-                    if (deltas.IsDemoTenant)
-                        column.Item().PaddingTop(4).Background(Colors.Yellow.Lighten3).Padding(4).Text(DemoTenantBanner).Bold().FontColor(Colors.Red.Darken2);
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));

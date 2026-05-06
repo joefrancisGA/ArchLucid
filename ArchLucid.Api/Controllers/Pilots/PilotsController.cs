@@ -6,8 +6,10 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
+using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pilots;
@@ -46,6 +48,7 @@ public sealed class PilotsController(
     IRecentPilotRunDeltasService recentPilotRunDeltasService,
     IPilotCloseoutRepository pilotCloseoutRepository,
     IAuditService auditService,
+    ValueReportBuilder valueReportBuilder,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
@@ -185,8 +188,13 @@ public sealed class PilotsController(
             return this.NotFoundProblem($"Run '{runId}' was not found (or is out of scope).", ProblemTypes.RunNotFound);
 
         PilotRunDeltas deltas = await pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        DateTimeOffset end = DateTimeOffset.UtcNow;
+        DateTimeOffset start = end.AddDays(-30);
+        ValueReportSnapshot snapshot =
+            await valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
 
-        return Ok(PilotRunDeltasResponseMapper.ToResponse(deltas));
+        return Ok(PilotRunDeltasResponseMapper.ToResponseWithProofPackage(detail.Run, detail.Manifest, deltas, snapshot));
     }
 
     /// <summary>

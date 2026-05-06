@@ -1,3 +1,5 @@
+> **Scope:** GTM, design, and engineering operators preparing buyer-polished screenshots or demo recordings; operational checklist only, not automated test coverage or a full release gate.
+
 # Demo Screenshot Preflight Checklist
 
 Before capturing any buyer-facing screenshots or producing a demo video, verify **every item** below.

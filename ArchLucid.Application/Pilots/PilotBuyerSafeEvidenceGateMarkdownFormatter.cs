@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>Markdown block for the sponsor-send gate (mirrors structured evaluation; no new numeric claims).</summary>
 public static class PilotBuyerSafeEvidenceGateMarkdownFormatter
 {
@@ -20,19 +21,33 @@ public static class PilotBuyerSafeEvidenceGateMarkdownFormatter
             CultureInfo.InvariantCulture,
             $"**Proof sendability:** **{DescribeSendability(gate.ProofSendability)}** — governs sponsor-safe distribution of this proof package; pair with **Publishing posture** below.");
         sb.AppendLine();
-        sb.AppendLine($"**Publishing posture:** **{DescribeTier(gate.PublishingTier)}** (Complete = no listed gaps and not demo-flagged; Partial = gaps below; Demo-only = seeded tenant).");
+        sb.AppendLine(
+            $"**Publishing posture:** **{DescribeTier(gate.PublishingTier)}** (Complete = no listed gaps and not demo-flagged; Partial = soft gaps only; Demo-only = demo tenant **or** structural hard gaps such as missing committed manifest / zero audit rows).");
         sb.AppendLine();
-        if (gate.Gaps.Count is 0)
+
+        if (gate.DemoGaps.Count is 0 && gate.HardGaps.Count is 0 && gate.SoftGaps.Count is 0)
         {
             sb.AppendLine("**Gaps:** _None detected for the checks above — still review qualitative baselines and attachments._");
             sb.AppendLine();
             return;
         }
 
-        sb.AppendLine("**Gaps (explicit):**");
+        AppendGapSubsection(sb, "**Demo tenant blocking:**", gate.DemoGaps);
+        AppendGapSubsection(sb, "**Structural blocking:**", gate.HardGaps);
+        AppendGapSubsection(sb, "**Caveats:**", gate.SoftGaps);
+        sb.AppendLine();
+    }
+
+    private static void AppendGapSubsection(StringBuilder sb, string heading, IReadOnlyList<string> gaps)
+    {
+        if (gaps.Count is 0)
+            return;
+
+        sb.AppendLine(heading);
         sb.AppendLine();
         int n = 1;
-        foreach (string gap in gate.Gaps)
+
+        foreach (string gap in gaps)
         {
             sb.AppendLine(CultureInfo.InvariantCulture, $"{n}. {gap}");
             n++;
@@ -54,5 +69,6 @@ public static class PilotBuyerSafeEvidenceGateMarkdownFormatter
         PilotBuyerSafeEvidencePublishingTier.Complete => "Complete",
         PilotBuyerSafeEvidencePublishingTier.Partial => "Partial",
         PilotBuyerSafeEvidencePublishingTier.DemoOnly => "Demo-only",
-        _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)};
+        _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
+    };
 }
