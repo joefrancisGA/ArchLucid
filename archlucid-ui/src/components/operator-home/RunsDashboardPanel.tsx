@@ -191,7 +191,7 @@ export function RunsDashboardPanel() {
         data-testid="runs-dashboard-panel"
       >
         <CardHeader className="space-y-2 px-3 pb-2 pt-3">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Run views">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Review views">
             {(["recent", "attention", "outcomes"] as const).map((id) => (
               <button
                 key={id}
@@ -219,7 +219,7 @@ export function RunsDashboardPanel() {
             {tab === "outcomes" ? "Review outcomes" : null}
           </CardTitle>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            {tab === "recent" ? "Showing the latest runs for this workspace." : null}
+            {tab === "recent" ? "Showing the latest reviews for this workspace." : null}
             {tab === "attention" ? "Reviews with findings awaiting a finalized manifest." : null}
             {tab === "outcomes"
               ? "Manifests finalized, findings surfaced, and average time to finalization."
@@ -230,7 +230,7 @@ export function RunsDashboardPanel() {
           {tab === "recent" ? (
             <div data-testid="runs-dashboard-tab-recent">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading runs…</p>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading reviews…</p>
               ) : null}
 
               {runListError ? (
@@ -381,7 +381,7 @@ export function RunsDashboardPanel() {
           {tab === "attention" ? (
             <div data-testid="runs-dashboard-tab-attention">
               {phase === "loading" ? (
-                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading runs…</p>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading reviews…</p>
               ) : null}
 
               {runListError ? (

@@ -613,7 +613,7 @@ export default function AuditPage() {
                 </>
               )}
               <div className="text-sm">
-                {buyerPolishedShell ? "Review:" : "Run:"}{" "}
+                Review:{" "}
                 {ev.runId ? (
                   <Link href={`/reviews/${ev.runId}`} title="Open review">
                     {ev.runId}
