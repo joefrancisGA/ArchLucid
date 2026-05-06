@@ -132,7 +132,7 @@ export function ProductLearningFeedbackControls({
           onChange={(event) => {
             setComment(event.target.value);
           }}
-          placeholder="Optional note for product learning; do not include secrets."
+          placeholder="Optional feedback note."
           className="auth-panel-focus w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-xs text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
         />
       </label>

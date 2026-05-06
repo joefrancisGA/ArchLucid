@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
@@ -131,7 +131,10 @@ export default function GovernanceFindingsQueueClient() {
       setLoading(true);
       setLoadFailed(false);
 
-      const useDemoSpine = isPublicDemoModeEnv() || isStaticDemoPayloadFallbackEnabled();
+      const useDemoSpine =
+        isPublicDemoModeEnv() ||
+        isStaticDemoPayloadFallbackEnabled() ||
+        isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 
       try {
         const page = await listRunsByProjectPaged("default", 1, 25);
@@ -352,11 +355,11 @@ export default function GovernanceFindingsQueueClient() {
 
         {!loading && rows.length === 0 ? (
           <EmptyState
-            title="No findings in queue yet"
+            title="No findings to display"
             description={
               loadFailed
-                ? "We could not load runs for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
-                : "When runs produce open findings, they appear in this queue. Start from an architecture request, finalize a manifest, then return or open findings from run detail."
+                ? "We could not load reviews for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
+                : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
             }
             actions={[
               { label: "View runs", href: "/reviews?projectId=default", variant: "primary" },

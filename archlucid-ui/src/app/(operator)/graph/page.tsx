@@ -253,9 +253,9 @@ export default function GraphPage() {
     if (demoUi && showIdleCard) {
       return {
         ...GRAPH_IDLE,
-        title: "Review trail graph",
+        title: "Claims Intake Evidence Graph",
         description:
-          "The Claims Intake sample supplies a review-trail graph when static data is available. Use Refresh if the canvas is empty.",
+          "The Claims Intake sample supplies a review-trail graph when static data is available. The graph loads automatically — if the canvas remains empty, use Load graph above.",
       };
     }
 
@@ -268,8 +268,9 @@ export default function GraphPage() {
 
   const pageTitle = demoUi ? "Review trail graph" : "Review evidence graph";
 
-  const loadButtonLabel =
-    loading ? "Loading…" : demoUi && mode === "provenance-full" ? "Refresh graph" : "Load graph";
+  const loadButtonLabel = loading ? "Loading…" : "Load graph";
+
+  const showLoadButton = !demoUi || mode !== "provenance-full" || graph === null;
 
   const graphControls = (
     <div
@@ -316,20 +317,22 @@ export default function GraphPage() {
         </select>
       </div>
 
-      <Button
-        type="button"
-        variant="primary"
-        className="w-full lg:w-auto"
-        onClick={() => void performGraphLoad()}
-        disabled={
-          loading ||
-          runId.trim().length === 0 ||
-          (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
-          (mode === "node-neighborhood" && nodeId.trim().length === 0)
-        }
-      >
-        {loadButtonLabel}
-      </Button>
+      {showLoadButton ? (
+        <Button
+          type="button"
+          variant="primary"
+          className="w-full lg:w-auto"
+          onClick={() => void performGraphLoad()}
+          disabled={
+            loading ||
+            runId.trim().length === 0 ||
+            (mode === "decision-subgraph" && decisionId.trim().length === 0) ||
+            (mode === "node-neighborhood" && nodeId.trim().length === 0)
+          }
+        >
+          {loadButtonLabel}
+        </Button>
+      ) : null}
     </div>
   );
 
@@ -437,7 +440,9 @@ export default function GraphPage() {
       {graph ? (
         <>
           <ClientErrorBoundary title="Graph viewer failed to render">
-            <GraphViewer graph={graph} typeFilter={typeFilter} runId={runId.trim()} />
+            <div data-testid="graph-canvas-ready">
+              <GraphViewer graph={graph} typeFilter={typeFilter} runId={runId.trim()} />
+            </div>
           </ClientErrorBoundary>
           <div className="mb-3 flex items-center gap-3">
             <label>

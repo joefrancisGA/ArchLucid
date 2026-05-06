@@ -105,6 +105,12 @@ export function getArtifactFormatLabel(format: string): string {
       txt: "Plain text",
       csv: "CSV",
       pdf: "PDF",
+      "text/markdown": "Markdown",
+      "text/plain": "Plain text",
+      "application/json": "JSON",
+      "text/csv": "CSV",
+      "application/pdf": "PDF",
+      "text/mermaid": "Diagram source",
     }[normalized] ?? format
   );
 }

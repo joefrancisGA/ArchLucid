@@ -62,28 +62,9 @@ export function formatConversationListDate(iso: string | null | undefined): stri
 }
 
 /**
- * Conversation sidebar rows in polished demo builds: local calendar date without an explicit UTC label.
+ * Conversation sidebar rows in polished demo builds: show "Sample conversation" to avoid stale-looking
+ * static demo dates in buyer captures.
  */
-export function formatConversationListDatePolished(iso: string | null | undefined): string {
-  if (iso === null || iso === undefined) {
-    return "Sample conversation";
-  }
-
-  const trimmed = iso.trim();
-
-  if (trimmed.length === 0) {
-    return "Sample conversation";
-  }
-
-  const ms = Date.parse(trimmed);
-
-  if (!Number.isFinite(ms)) {
-    return "Sample conversation";
-  }
-
-  return new Date(ms).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+export function formatConversationListDatePolished(_iso: string | null | undefined): string {
+  return "Sample conversation";
 }

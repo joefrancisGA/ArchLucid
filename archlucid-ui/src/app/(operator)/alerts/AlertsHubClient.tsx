@@ -14,6 +14,7 @@ import {
   alertHubTabFromSearchParam,
   type AlertHubTabId,
 } from "@/lib/alerts-hub-tab";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 
 const TAB_PARAM = "tab";
@@ -26,6 +27,9 @@ const TAB_LABEL: Record<AlertHubTabId, string> = {
   simulation: "Simulation & Tuning",
 };
 
+/** Tabs that contain credible sample data for buyer-facing demos. Config-heavy tabs are hidden. */
+const BUYER_DEMO_TAB_ALLOWLIST = new Set<AlertHubTabId>(["inbox"]);
+
 /**
  * Single `/alerts` surface: inbox, rules, routing, composite, and merged simulation + tuning.
  * Tab state is in the query string for deep links and browser history.
@@ -35,10 +39,19 @@ export function AlertsHubClient() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const rawTab = searchParams.get(TAB_PARAM);
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const visibleTabIds = useMemo(
+    () => (buyerPolishedShell ? ALERT_HUB_TAB_IDS.filter((id) => BUYER_DEMO_TAB_ALLOWLIST.has(id)) : ALERT_HUB_TAB_IDS),
+    [buyerPolishedShell],
+  );
 
   const activeTab: AlertHubTabId = useMemo(
-    () => alertHubTabFromSearchParam(rawTab),
-    [rawTab],
+    () => {
+      const parsed = alertHubTabFromSearchParam(rawTab);
+      return buyerPolishedShell && !BUYER_DEMO_TAB_ALLOWLIST.has(parsed) ? "inbox" : parsed;
+    },
+    [rawTab, buyerPolishedShell],
   );
 
   const onSelectTab = useCallback(
@@ -60,7 +73,7 @@ export function AlertsHubClient() {
         aria-label="Alert hub sections"
       >
         <div className="-mb-px flex flex-wrap gap-1" role="tablist">
-          {ALERT_HUB_TAB_IDS.map((id) => {
+          {visibleTabIds.map((id) => {
             const selected = activeTab === id;
 
             return (

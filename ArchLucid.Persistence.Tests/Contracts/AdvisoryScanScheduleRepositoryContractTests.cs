@@ -1,5 +1,5 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 

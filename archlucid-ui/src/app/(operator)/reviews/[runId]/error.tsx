@@ -30,14 +30,46 @@ export default function RunDetailSegmentError({
   const isDev = process.env.NODE_ENV === "development";
   const isStaticFallback = isStaticDemoPayloadFallbackEnabled();
 
+  if (isStaticFallback) {
+    return (
+      <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
+        <OperatorErrorCallout>
+          <strong className="text-base">Sample review unavailable</strong>
+          <p className="mt-2 text-sm">
+            Open the sample manifest or the public walkthrough below to explore the Claims Intake review outputs.
+          </p>
+          {isDev ? (
+            <pre
+              className="mt-3 max-h-40 overflow-auto rounded border border-neutral-200 bg-neutral-50 p-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+              style={{ whiteSpace: "pre-wrap" }}
+            >
+              {error.message}
+            </pre>
+          ) : null}
+        </OperatorErrorCallout>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" variant="primary" asChild>
+            <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Open sample manifest</Link>
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/demo/preview">View sample walkthrough</Link>
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/reviews?projectId=default">Back to reviews</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
-        <strong className="text-base">This architecture review could not be loaded</strong>
+        <strong className="text-base">Review could not be loaded</strong>
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "The Claims Intake sample review could not render in this view. Open the sample manifest or the public preview below, or return to your reviews list."}
+            : "This review could not render. Try again or return to your reviews list."}
         </p>
         {isDev ? (
           <pre
@@ -61,16 +93,8 @@ export default function RunDetailSegmentError({
         ) : null}
       </OperatorErrorCallout>
       <div className="flex flex-wrap items-center gap-2">
-        {!isStaticFallback ? (
-          <Button type="button" variant="primary" onClick={() => reset()}>
-            Retry
-          </Button>
-        ) : null}
-        <Button type="button" variant={isStaticFallback ? "primary" : "outline"} asChild>
-          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Sample manifest</Link>
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/demo/preview">Public demo preview</Link>
+        <Button type="button" variant="primary" onClick={() => reset()}>
+          Try again
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/reviews?projectId=default">Back to reviews</Link>

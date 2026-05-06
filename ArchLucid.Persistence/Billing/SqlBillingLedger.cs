@@ -32,7 +32,10 @@ public sealed class SqlBillingLedger(
                            """;
 
         bool? row = await connection.ExecuteScalarAsync<bool?>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         return row == true;
     }
@@ -87,12 +90,18 @@ public sealed class SqlBillingLedger(
                     INSERT INTO dbo.BillingWebhookEvents (EventId, Provider, EventType, PayloadJson, ReceivedUtc, ProcessedUtc, ResultStatus)
                     VALUES (@EventId, @Provider, @EventType, @PayloadJson, SYSUTCDATETIME(), NULL, N'Received');
                     """,
-                    new { EventId = dedupeKey, Provider = provider, EventType = eventType, PayloadJson = payloadJson },
+                    new
+                    {
+                        EventId = dedupeKey,
+                        Provider = provider,
+                        EventType = eventType,
+                        PayloadJson = payloadJson
+                    },
                     cancellationToken: cancellationToken));
 
             return true;
         }
-        catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+        catch (SqlException ex) when (ex.Number is 2627 or 2601)
         {
             return false;
         }
@@ -110,7 +119,11 @@ public sealed class SqlBillingLedger(
                 SET ProcessedUtc = SYSUTCDATETIME(), ResultStatus = @ResultStatus
                 WHERE EventId = @EventId;
                 """,
-                new { EventId = dedupeKey, ResultStatus = resultStatus },
+                new
+                {
+                    EventId = dedupeKey,
+                    ResultStatus = resultStatus
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -125,7 +138,10 @@ public sealed class SqlBillingLedger(
                 FROM dbo.BillingWebhookEvents
                 WHERE EventId = @EventId;
                 """,
-                new { EventId = dedupeKey },
+                new
+                {
+                    EventId = dedupeKey
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -169,7 +185,10 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Suspend",
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -181,7 +200,10 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Reinstate",
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -193,7 +215,10 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Cancel",
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -208,7 +233,12 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangePlan",
-                new { TenantId = tenantId, Tier = tierCode, RawWebhookJson = rawWebhookJson },
+                new
+                {
+                    TenantId = tenantId,
+                    Tier = tierCode,
+                    RawWebhookJson = rawWebhookJson
+                },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -223,7 +253,12 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangeQuantity",
-                new { TenantId = tenantId, SeatsPurchased = seatsPurchased, RawWebhookJson = rawWebhookJson },
+                new
+                {
+                    TenantId = tenantId,
+                    SeatsPurchased = seatsPurchased,
+                    RawWebhookJson = rawWebhookJson
+                },
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
@@ -233,7 +268,7 @@ public sealed class SqlBillingLedger(
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0 || maxRows > 500)
+        if (maxRows is <= 0 or > 500)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 
@@ -268,7 +303,11 @@ public sealed class SqlBillingLedger(
 
         IEnumerable<BillingSubscriptionStateHistoryEntry> rows =
             await connection.QueryAsync<BillingSubscriptionStateHistoryEntry>(
-                new CommandDefinition(sql, new { TenantId = tenantId, MaxRows = maxRows },
+                new CommandDefinition(sql, new
+                {
+                    TenantId = tenantId,
+                    MaxRows = maxRows
+                },
                     cancellationToken: cancellationToken));
 
         return [.. rows];

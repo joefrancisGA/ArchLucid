@@ -55,7 +55,12 @@ export function OperatorNextActionsCard() {
       return null;
     }
 
-    return <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading recommended next steps…</p>;
+    return (
+      <div aria-hidden className="space-y-2">
+        <div className="h-3 w-48 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+        <div className="h-3 w-64 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+      </div>
+    );
   }
 
   if (items === null || items.length === 0) {
