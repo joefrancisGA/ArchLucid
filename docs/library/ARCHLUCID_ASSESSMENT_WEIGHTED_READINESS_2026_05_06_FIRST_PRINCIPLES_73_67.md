@@ -634,7 +634,7 @@ Create a first-pilot evidence bundle artifact that summarizes one committed arch
 
 Scope:
 - Reuse existing first-value report, sponsor one-pager, ROI evidence completeness, audit-row count, LLM-call count, top-severity finding evidence chain, and demo-data warning logic where available.
-- Add a Markdown and PDF/DOCX-capable summary if the existing export pipeline supports the format; otherwise start with Markdown and wire it into the current artifact/export surfaces.
+- **Deliverable posture (resolved):** treat **PDF** as the **customer-default** export for the bundle; expose **ZIP** containing the PDF plus any auxiliary files (e.g. Markdown excerpts, manifests, attachments the pipeline already generates) when the sponsor needs materials for **downstream tooling / another system**. Prefer generating Markdown internally or for operators if helpful, then render PDF from that canonical content; **DOCX** only if existing infrastructure makes it trivial—never as the sole or default sponsor path ahead of PDF.
 - Include:
   - run id / architecture review identifier
   - committed manifest timestamp
@@ -654,6 +654,8 @@ Acceptance criteria:
 - Missing fields are shown as missing, not silently replaced by optimistic defaults.
 - Demo/seed data is clearly marked.
 - Existing first-value report behavior is reused rather than duplicated.
+- **Default sponsor download is PDF**; a **ZIP** variant is available with PDF plus machine-friendly companions for integration into other systems.
+- Field docs explain when to ship PDF-only vs ZIP.
 - **Cost discipline:** When a dollar is presented as **reconciled bill truth**, it is **exact** and each line includes **proof points** (sources as above). If invoice-grade citation is missing, either show an explicit **blocked** state **or** a **justified exception** presentation (labeled estimate/scenario, methodology, assumptions, and what remains uncited)—never implying audit-grade certainty.
 
 Constraints:
@@ -687,15 +689,18 @@ Scope:
   - Terraform root list and expected apply order from docs
   - redacted configuration posture summary if available
   - next-step triage text on failure
-- Output Markdown under an operator-selected path.
+- Output Markdown under an operator-selected path (operator runs) **or** under a deterministic path consumed by CI (e.g. `artifacts/deployment-evidence-{environment}-{run_id}.md`).
+- Wire **CI/CD** so the **same entrypoint** runs after deploy (or post-smoke gate) for **staging** and **production** separately, uploading the Markdown files as workflow artifacts or to your blob store. **Hard gate:** in CI/CD, any required probe failure or **non-zero** generator exit **must fail the deployment job** (promotion blocked)—no silent skip and no warn-only default; document any rare break-glass override explicitly out of band if one is ever justified.
 - Add tests for formatting and redaction logic.
-- Document the command in deployment/runbook docs.
+- Document **both** invocation paths (operator CLI and pipeline example) in deployment/runbook docs.
 
 Acceptance criteria:
 - The report can be generated without printing secrets.
 - Failed probes include actionable next steps.
 - The report explicitly says it is environment evidence, not a global product certification.
-- When documenting the V1 rollout, **staging and production** each have at least one generated report on file (or documented command invocation) with matching environment naming.
+- When documenting the V1 rollout, **staging and production** each have at least one generated report on file **or** a CI run showing the artifact for that environment, with matching environment naming.
+- The implementation is **one tool, two call sites:** local/operator ad hoc and automated pipeline.
+- **CI/CD** treats the evidence step as a release gate: **failure fails the deployment job**; local operator runs remain non-blocking unless the human chooses to halt change.
 
 Constraints:
 - Do not require Azure credentials for the first version.
@@ -975,12 +980,13 @@ Constraints:
 
 ### Add a one-page first-pilot evidence bundle
 
-- Which artifact format should be treated as the customer-default deliverable: Markdown, PDF, DOCX, or ZIP bundle?
+- **Resolved (customer-default deliverable format):** **PDF** is the **default** sponsor/customer-facing handoff—one polished file for email, procurement, and executive review. Offer a **ZIP bundle** when the recipient needs machine-ingestible assets for **another system** (attach Markdown fragments, companion files, structured exports—whatever the export pipeline already produces—without forcing PDF extraction). **DOCX** remains optional **only if** an existing converter already supports it credibly; it is **not** the default. **Markdown** stays valuable as **source or operator preview**, not positioned ahead of PDF as the default executive deliverable.
 
 ### Create a deployment evidence report for staging/prod
 
 - **Resolved (evidence targets):** The first official targets for captured deployment evidence are **both staging and production**. Operator or automation should produce **separate, explicitly labeled reports per environment** (base URL / host identity in the artifact); do not present a single undifferentiated bundle without naming which environment each probe refers to.
-- Should this become a release artifact in CI/CD or remain an operator-run command?
+- **Resolved (how it runs):** **Both.** Ship **one generator** (script or CLI) that operators can run on demand from a laptop or bastion (`--base-url …`, `--environment staging|production`, output path). **Also** invoke that same command from **CI/CD** after staging/production deploy smoke (or on a scheduled workflow) so reports are emitted as **build artifacts / uploaded blobs** with retention—repeatable, timestamped, and tied to the deployed commit. The question was never “CLI *or* pipeline”; it was whether proof lives only in someone’s Downloads folder vs. also in the release train. You want both surfaces.
+- **Resolved (CI gate strictness):** In CI/CD the evidence step is a **hard gate**—any required probe failure or non-zero generator exit **fails the deployment job** and blocks promotion; no silent skip and no warn-only default. Emergency bypass paths, if any, must be documented as explicit break-glass (not implicit policy).
 
 ### Reduce first-session cognitive load in the operator UI
 
