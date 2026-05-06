@@ -18,8 +18,8 @@ namespace ArchLucid.Application.Pilots;
 /// <remarks>
 ///     The headline numbers come from <see cref = "IPilotRunDeltaComputer"/> so the sponsor PDF, the Markdown sibling
 ///     (<see cref = "FirstValueReportBuilder"/>), and the canonical first-value-report PDF wrapper all show the same
-///     computed deltas. Demo tenants stamp **ILLUSTRATION ONLY — not a commitment** in <c>page.Header()</c> on every
-///     page (plus Markdown banners elsewhere) so seeded numbers cannot be quoted as a real-customer outcome.
+///     computed deltas. Demo tenants stamp an illustration watermark (<c>ILLUSTRATION ONLY — not a commitment</c>) in
+///     <c>page.Header()</c> on every page (Markdown banners elsewhere remain unchanged) so seeded numbers cannot be quoted as a real-customer outcome.
 /// </remarks>
 public sealed class SponsorOnePagerPdfBuilder(IRunDetailQueryService runDetailQuery, PilotScorecardBuilder scorecardBuilder, IPilotRunDeltaComputer deltaComputer, IOptionsMonitor<PublicSiteOptions> publicSiteOptions)
 {

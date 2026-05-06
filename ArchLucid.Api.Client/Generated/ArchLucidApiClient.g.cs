@@ -46508,6 +46508,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("manifestCommittedUtc")]
         public System.DateTimeOffset? ManifestCommittedUtc { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("proofPackageCompleteness")]
+        public ProofPackageCompletenessResponse? ProofPackageCompleteness { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("runCreatedUtc")]
         public System.DateTimeOffset? RunCreatedUtc { get; set; } = default!;
 
@@ -47740,6 +47743,63 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         public string? Title { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ProofPackageCompletenessResponse
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactDescriptorCount")]
+        public int? ArtifactDescriptorCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactDescriptorCountResolved")]
+        public bool? ArtifactDescriptorCountResolved { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("auditRowsPresentOrLowerBound")]
+        public bool? AuditRowsPresentOrLowerBound { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("buyerSafeRedactionProfile")]
+        public string? BuyerSafeRedactionProfile { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("committedManifestPresent")]
+        public bool? CommittedManifestPresent { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("demoTenantWarningRequired")]
+        public bool? DemoTenantWarningRequired { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsBySeverityPresent")]
+        public bool? FindingsBySeverityPresent { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("llmCallCount")]
+        public int? LlmCallCount { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("proofSendability")]
+        public string? ProofSendability { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("publishingTier")]
+        public string? PublishingTier { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("roiConfidenceLabel")]
+        public string? RoiConfidenceLabel { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("runInCommittedStatus")]
+        public bool? RunInCommittedStatus { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("timeToCommittedManifestResolved")]
+        public bool? TimeToCommittedManifestResolved { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("topFindingEvidenceChainPresentOrNotApplicable")]
+        public bool? TopFindingEvidenceChainPresentOrNotApplicable { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

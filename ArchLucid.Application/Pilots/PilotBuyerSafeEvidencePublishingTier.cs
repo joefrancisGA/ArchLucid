@@ -10,8 +10,8 @@ public enum PilotBuyerSafeEvidencePublishingTier
     Partial = 1,
 
     /// <summary>
-    ///     Demo-flagged tenant <strong>or</strong> structural hard gaps (missing committed manifest / zero audit rows) —
-    ///     publishing posture maps here alongside <see cref="ProofPackageSendability.NotSendable"/>.
+    ///     Demo-flagged tenant or structural hard gaps (missing committed manifest / zero audit rows); publishing posture
+    ///     maps here alongside <see cref="ProofPackageSendability.NotSendable"/>.
     /// </summary>
     DemoOnly = 2,
 }

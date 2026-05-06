@@ -994,6 +994,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/integrations/confluence/first-value-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["ConfluenceFirstValueReportPublishRequest"];
+                    "application/json": null | components["schemas"]["ConfluenceFirstValueReportPublishRequest"];
+                    "text/json": null | components["schemas"]["ConfluenceFirstValueReportPublishRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConfluenceFirstValueReportPublishResponse"];
+                        "text/json": components["schemas"]["ConfluenceFirstValueReportPublishResponse"];
+                        "text/plain": components["schemas"]["ConfluenceFirstValueReportPublishResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/metering/tenants/{tenantId}/summary": {
         parameters: {
             query?: never;
@@ -2626,6 +2702,59 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/analytics/roi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExecutiveRoiAggregatesResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -12994,6 +13123,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/governance/policy-packs/dry-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["PolicyPackGovernanceDryRunRequest"];
+                    "application/json": null | components["schemas"]["PolicyPackGovernanceDryRunRequest"];
+                    "text/json": null | components["schemas"]["PolicyPackGovernanceDryRunRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PolicyPackGovernanceDryRunResult"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Too Many Requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/governance/policy-packs/{id}/dry-run": {
         parameters: {
             query?: never;
@@ -13624,6 +13839,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/integrations/itsm/correlations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/*+json": components["schemas"]["RegisterItsmCorrelationRequest"];
+                    "application/json": components["schemas"]["RegisterItsmCorrelationRequest"];
+                    "text/json": components["schemas"]["RegisterItsmCorrelationRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/teams/connections": {
         parameters: {
             query?: never;
@@ -13846,6 +14111,199 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/webhooks/jira": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/webhooks/servicenow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/integrations/webhooks/{routingSubscriptionId}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    routingSubscriptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OutboundWebhookDryRunResponse"];
+                        "text/json": components["schemas"]["OutboundWebhookDryRunResponse"];
+                        "text/plain": components["schemas"]["OutboundWebhookDryRunResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -19977,6 +20435,7 @@ export interface components {
             /** Format: uuid */
             eventId?: string;
             eventType?: string;
+            explicitActor?: boolean;
             /** Format: uuid */
             manifestId?: null | string;
             /** Format: date-time */
@@ -20242,6 +20701,14 @@ export interface components {
         };
         ConfigurationHealthReport: {
             checks: components["schemas"]["ConfigurationHealthCheckResult"][];
+        };
+        ConfluenceFirstValueReportPublishRequest: {
+            apiBaseForLinks?: null | string;
+            runId?: string;
+        };
+        ConfluenceFirstValueReportPublishResponse: {
+            pageId: null | string;
+            pageUrl: null | string;
         };
         ConstraintSection: {
             mandatoryConstraints?: string[];
@@ -20869,6 +21336,14 @@ export interface components {
         ExecuteRunResponse: {
             results?: components["schemas"]["AgentResult"][];
             runId?: string;
+        };
+        ExecutiveRoiAggregatesResponse: {
+            /** Format: int32 */
+            complianceRisksMitigated?: number;
+            /** Format: int32 */
+            decisionsAutomated?: number;
+            /** Format: double */
+            timeSavedHours?: number | string;
         };
         ExecutiveSummaryResponse: {
             /** Format: int32 */
@@ -22066,6 +22541,7 @@ export interface components {
             llmCallCount?: number;
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
+            proofPackageCompleteness?: null | components["schemas"]["ProofPackageCompletenessResponse"];
             /** Format: date-time */
             runCreatedUtc?: string;
             /** Format: double */
@@ -22298,6 +22774,26 @@ export interface components {
             proposedValue?: number | string;
             wouldBreach?: boolean;
         };
+        PolicyPackGovernanceDryRunRequest: {
+            /** Format: int32 */
+            blockCommitMinimumSeverity?: null | number;
+            blockCommitOnCritical?: null | boolean;
+            policyPackContentJson?: string;
+            /** Format: uuid */
+            proposedPolicyPackId?: null | string;
+            /** Format: uuid */
+            targetManifestId?: null | string;
+            targetRunId?: null | string;
+        };
+        PolicyPackGovernanceDryRunResult: {
+            failedChecks?: string[];
+            gateResult?: components["schemas"]["PreCommitGateResult"];
+            passedChecks?: string[];
+            resolvedRunId?: string;
+            /** Format: uuid */
+            targetManifestId?: null | string;
+            warnings?: string[];
+        };
         PolicyPackVersion: {
             contentJson?: string;
             /** Format: date-time */
@@ -22452,6 +22948,24 @@ export interface components {
             suggestedNextStep?: null | string;
             title?: string;
         };
+        ProofPackageCompletenessResponse: {
+            /** Format: int32 */
+            artifactDescriptorCount?: null | number;
+            artifactDescriptorCountResolved?: boolean;
+            auditRowsPresentOrLowerBound?: boolean;
+            buyerSafeRedactionProfile?: string;
+            committedManifestPresent?: boolean;
+            demoTenantWarningRequired?: boolean;
+            findingsBySeverityPresent?: boolean;
+            /** Format: int32 */
+            llmCallCount?: number;
+            proofSendability?: string;
+            publishingTier?: string;
+            roiConfidenceLabel?: string;
+            runInCommittedStatus?: boolean;
+            timeToCommittedManifestResolved?: boolean;
+            topFindingEvidenceChainPresentOrNotApplicable?: boolean;
+        };
         ProvenanceEdge: {
             /** Format: uuid */
             fromNodeId?: string;
@@ -22584,6 +23098,12 @@ export interface components {
             urgency?: string;
             /** Format: uuid */
             workspaceId?: string;
+        };
+        RegisterItsmCorrelationRequest: {
+            externalKey?: string;
+            externalSysId?: null | string;
+            findingId?: string;
+            provider?: string;
         };
         RejectGovernanceRequest: {
             reviewComment?: null | string;

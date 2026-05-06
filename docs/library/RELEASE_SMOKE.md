@@ -121,6 +121,7 @@ Both switches may be combined (mock suite runs first, then live suite).
 With **`-SkipE2E`**, **`-LivePlaywright`** is skipped with a warning (no API to target). Omit **`-SkipE2E`** when you need Playwright after steps 5–7.
 
 ---
+
 ## Parameters
 
 | Switch / param | Effect |
