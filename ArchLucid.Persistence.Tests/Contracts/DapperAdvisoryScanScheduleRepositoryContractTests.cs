@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Persistence.Tests.Contracts;
+using ArchLucid.Persistence.Advisory;
+
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
