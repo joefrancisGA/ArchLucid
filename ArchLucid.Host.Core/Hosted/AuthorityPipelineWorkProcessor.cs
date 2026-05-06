@@ -1,11 +1,5 @@
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Runs.Coordination;
-using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Requests;
-using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -128,6 +122,22 @@ public sealed class AuthorityPipelineWorkProcessor(
 
             throw new InvalidOperationException(
                 $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
+
+        IAzureExtractorPackageRepository azureExtractorPackages =
+            scope.ServiceProvider.GetRequiredService<IAzureExtractorPackageRepository>();
+
+        AzureExtractorPackageProvenance? deferredExtractorProvenance =
+            await azureExtractorPackages.TryGetLatestProvenanceByRunIdAsync(jobScope, entry.RunId, cancellationToken);
+
+        if (deferredExtractorProvenance is not null)
+
+        {
+
+            AzureExtractorEvidenceBundleMerger.Merge(evidenceBundle, deferredExtractorProvenance);
+
+            await evidenceBundleRepository.UpdateAsync(evidenceBundle, cancellationToken);
+
+        }
 
         List<AgentTask> starterTasks =
             RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);

@@ -10,6 +10,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
@@ -278,6 +279,7 @@ public sealed class RealRuntimeMixedModeTests
             new FakeAuthorityRunOrchestratorForRuntimeTests(),
             runRepo.Object,
             scopeProvider.Object,
+            new NoOpAzureExtractorPackageRepository(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 

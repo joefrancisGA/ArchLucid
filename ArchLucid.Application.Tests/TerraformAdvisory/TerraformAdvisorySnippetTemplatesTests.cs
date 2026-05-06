@@ -49,4 +49,25 @@ public sealed class TerraformAdvisorySnippetTemplatesTests
 
     }
 
+    [Fact]
+
+    public void FormatStoredPackageCitation_includes_package_id()
+
+    {
+
+        string cite = AzureExtractorCitationFormatter.FormatStoredPackageCitation(
+
+            Guid.Parse("11111111222233334444555566667777"),
+
+            1,
+
+            DateTime.Parse("2026-05-06T03:04:05Z", null, DateTimeStyles.AdjustToUniversal));
+
+
+        cite.Should().Contain("packageId=11111111222233334444555566667777");
+
+        cite.Should().Contain("schemaVersion=1");
+
+    }
+
 }
