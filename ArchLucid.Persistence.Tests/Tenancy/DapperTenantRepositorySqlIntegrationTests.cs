@@ -1,5 +1,6 @@
 ﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Tests.Support;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
@@ -18,7 +19,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
 
         Func<Task> act = async () => await sut.GetBySlugAsync("   ", CancellationToken.None);
 
@@ -31,7 +32,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         Guid entra = Guid.NewGuid();
         string slug = "ts-" + Guid.NewGuid().ToString("N")[..8];
@@ -78,7 +79,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "sus-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -99,7 +100,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         Guid sample = Guid.NewGuid();
         string slug = "tr-" + Guid.NewGuid().ToString("N")[..8];
@@ -149,7 +150,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         Guid sample = Guid.NewGuid();
         string slug = "pre-" + Guid.NewGuid().ToString("N")[..8];
@@ -205,7 +206,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "e2e-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -241,7 +242,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "run-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -280,7 +281,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "seat-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -321,7 +322,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "tlc-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -371,7 +372,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         string slug = "ent-" + Guid.NewGuid().ToString("N")[..8];
         await sut.InsertTenantAsync(
@@ -396,7 +397,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         Guid corpEntra = Guid.NewGuid();
         string slug = "hand-" + Guid.NewGuid().ToString("N")[..8];
@@ -439,7 +440,7 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository sut = new(factory);
+        DapperTenantRepository sut = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Guid tenantId = Guid.NewGuid();
         Guid first = Guid.NewGuid();
         Guid second = Guid.NewGuid();

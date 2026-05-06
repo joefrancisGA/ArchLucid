@@ -14,6 +14,9 @@ public sealed class TestSqlConnectionFactory(string connectionString) : ISqlConn
     private readonly string _connectionString =
         connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
+    /// <summary>ADO.NET connection string this factory opens (for composing repositories in integration tests).</summary>
+    public string ConnectionString => _connectionString;
+
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
     {

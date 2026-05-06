@@ -13,6 +13,8 @@ public static class ArchLucidConfigurationBridge
 
     public const string PrimarySqlConnectionName = "ArchLucid";
 
+    public const string SystemSqlConnectionName = "ArchLucidSystem";
+
     /// <summary>
     /// SQL connection string: <c>ConnectionStrings:ArchLucid</c> only, normalized with mandatory TLS to SQL Server
     /// (<see cref="SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory" />).
@@ -22,6 +24,18 @@ public static class ArchLucidConfigurationBridge
         ArgumentNullException.ThrowIfNull(configuration);
 
         string? raw = configuration.GetConnectionString(PrimarySqlConnectionName);
+
+        return raw is null ? null : SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw);
+    }
+
+    /// <summary>
+    /// Optional system / control-plane catalog (<c>ConnectionStrings:ArchLucidSystem</c>) for database-per-tenant topology.
+    /// </summary>
+    public static string? ResolveSqlSystemConnectionString(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        string? raw = configuration.GetConnectionString(SystemSqlConnectionName);
 
         return raw is null ? null : SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw);
     }

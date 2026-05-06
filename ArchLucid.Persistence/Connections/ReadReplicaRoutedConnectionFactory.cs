@@ -4,11 +4,11 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-///     Opens either a read-scale-out connection string resolved for <paramref name="route" /> or the primary
-///     <see cref="ResilientSqlConnectionFactory" /> path, then applies <see cref="IRlsSessionContextApplicator" />.
+///     Opens either a read-scale-out connection string resolved for <paramref name="route" /> or the primary resilient
+///     scoped path, then applies <see cref="IRlsSessionContextApplicator" />.
 /// </summary>
 public sealed class ReadReplicaRoutedConnectionFactory(
-    ResilientSqlConnectionFactory resilientFactory,
+    ISqlConnectionFactory primaryResilientFactory,
     IOptionsMonitor<SqlServerOptions> optionsMonitor,
     IRlsSessionContextApplicator sessionContextApplicator,
     ReadReplicaQueryRoute route) : IAuthorityRunListConnectionFactory, IGovernanceResolutionReadConnectionFactory,
@@ -17,8 +17,8 @@ public sealed class ReadReplicaRoutedConnectionFactory(
     private readonly IOptionsMonitor<SqlServerOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
-    private readonly ResilientSqlConnectionFactory _resilientFactory =
-        resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
+    private readonly ISqlConnectionFactory _primaryResilientFactory =
+        primaryResilientFactory ?? throw new ArgumentNullException(nameof(primaryResilientFactory));
 
     private readonly IRlsSessionContextApplicator _sessionContextApplicator =
         sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
@@ -31,7 +31,7 @@ public sealed class ReadReplicaRoutedConnectionFactory(
 
         SqlConnection connection;
         if (string.IsNullOrEmpty(replica))
-            connection = await _resilientFactory.CreateOpenConnectionAsync(ct);
+            connection = await _primaryResilientFactory.CreateOpenConnectionAsync(ct);
         else
         {
             connection = new SqlConnection(replica);

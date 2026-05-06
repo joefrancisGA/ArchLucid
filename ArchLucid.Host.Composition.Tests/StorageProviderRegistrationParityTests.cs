@@ -28,8 +28,10 @@ public sealed class StorageProviderRegistrationParityTests
 {
     private static readonly HashSet<Type> SqlOnlyServiceTypes =
     [
-        typeof(SqlConnectionFactory),
-        typeof(ResilientSqlConnectionFactory),
+        typeof(ITenantDatabaseBindingRepository),
+        typeof(ITenantDatabaseResolver),
+        typeof(ITenantSqlCatalogProvisioner),
+        typeof(ScopedRoutingSqlConnectionFactory),
         typeof(IRlsSessionContextApplicator),
         typeof(ISqlConnectionFactory),
         typeof(IAuthorityRunListConnectionFactory),

@@ -45,12 +45,16 @@
     <None Include="Scripts\ArchLucid.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\ArchLucid.System.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->
   <ItemGroup>
     <EmbeddedResource Include="Migrations\*.sql" />
     <EmbeddedResource Include="Migrations\Baseline\*.sql" />
+    <EmbeddedResource Include="Migrations\System\*.sql" />
   </ItemGroup>
 
   <ItemGroup>

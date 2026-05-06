@@ -1,22 +1,43 @@
 using System.Data;
 
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
+
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Tenancy;
 
-public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFactory) : ITenantRepository
+public sealed class DapperTenantRepository(
+    ISystemSqlConnectionFactory catalogConnectionFactory,
+    ISqlConnectionFactory tenantPlaneConnectionFactory,
+    IOptionsMonitor<SqlTopologyOptions> topologyOptions,
+    ITenantDatabaseBindingRepository tenantDatabaseBindingRepository,
+    ITenantDatabaseResolver tenantDatabaseResolver) : ITenantRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
-        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+    private readonly ISystemSqlConnectionFactory _catalogConnectionFactory =
+        catalogConnectionFactory ?? throw new ArgumentNullException(nameof(catalogConnectionFactory));
+
+    private readonly ISqlConnectionFactory _tenantPlaneConnectionFactory =
+        tenantPlaneConnectionFactory ?? throw new ArgumentNullException(nameof(tenantPlaneConnectionFactory));
+
+    private readonly IOptionsMonitor<SqlTopologyOptions> _topologyOptions =
+        topologyOptions ?? throw new ArgumentNullException(nameof(topologyOptions));
+
+    private readonly ITenantDatabaseBindingRepository _tenantDatabaseBindingRepository =
+        tenantDatabaseBindingRepository ?? throw new ArgumentNullException(nameof(tenantDatabaseBindingRepository));
+
+    private readonly ITenantDatabaseResolver _tenantDatabaseResolver =
+        tenantDatabaseResolver ?? throw new ArgumentNullException(nameof(tenantDatabaseResolver));
 
     public async Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
@@ -41,7 +62,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(slug);
 
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
@@ -64,7 +85,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
     public async Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
@@ -87,7 +108,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
     public async Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
                            SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
@@ -125,7 +146,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         string? industryVerticalOther,
         CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -178,7 +199,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         DateTimeOffset? capturedUtc,
         CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -204,7 +225,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -245,7 +266,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         if (holder is not null && holder.Id != tenantId)
             return false;
 
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -269,7 +290,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         CancellationToken ct,
         int? enterpriseScimSeatsLimit = null)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await OpenDirectoryMetadataConnectionAsync(ct);
 
         string sql = enterpriseScimSeatsLimit is null
             ? """
@@ -303,7 +324,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         Guid defaultProjectId,
         CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
@@ -319,20 +340,26 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
     public async Task SuspendTenantAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-
         const string sql = """
                            UPDATE dbo.Tenants
                            SET SuspendedUtc = SYSUTCDATETIME()
                            WHERE Id = @Id;
                            """;
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection catalog = await _catalogConnectionFactory.CreateOpenConnectionAsync(ct);
+            await catalog.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
+        }
+
+        await using SqlConnection tenant = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
+
+        await tenant.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
     }
 
     public async Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            SELECT TOP (1) Id AS WorkspaceId, DefaultProjectId
@@ -380,7 +407,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             return;
         }
 
-        await using SqlConnection owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction tran = (SqlTransaction)await owned.BeginTransactionAsync(ct);
 
         try
@@ -402,7 +429,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
         string key = principalKey.Trim();
 
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         const string tenantSql = """
@@ -496,8 +523,6 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-
         const string sql = """
                            SELECT Id
                            FROM dbo.Tenants
@@ -507,19 +532,50 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                            ORDER BY CreatedUtc ASC;
                            """;
 
-        IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
-            new CommandDefinition(
-                sql,
-                new { TrialLifecycleStatus.Converted },
-                cancellationToken: ct));
+        if (_topologyOptions.CurrentValue.Mode != SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
-        return ids.ToList();
+            IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
+                new CommandDefinition(
+                    sql,
+                    new { TrialLifecycleStatus.Converted },
+                    cancellationToken: ct));
+
+            return ids.ToList();
+        }
+
+        IReadOnlyList<TenantDatabaseBindingRecord> actives =
+            await _tenantDatabaseBindingRepository.ListBindingsWithStateAsync(TenantDatabaseProvisioningState.Active, ct);
+
+        HashSet<Guid> merged = [];
+
+        foreach (TenantDatabaseBindingRecord binding in actives)
+        {
+            string cs =
+                await _tenantDatabaseResolver.ResolveTenantConnectionStringAsync(binding.TenantId, ct);
+
+            await using SqlConnection connection = new(SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(cs));
+
+            await connection.OpenAsync(ct);
+
+            IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
+                new CommandDefinition(
+                    sql,
+                    new { TrialLifecycleStatus.Converted },
+                    cancellationToken: ct));
+
+            foreach (Guid id in ids)
+                merged.Add(id);
+        }
+
+        return merged.ToList();
     }
 
     /// <inheritdoc />
     public async Task EnqueueTrialArchitecturePreseedAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -536,7 +592,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     public async Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take,
         CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            SELECT TOP (@Take) Id
@@ -559,7 +615,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task MarkTrialArchitecturePreseedCompletedAsync(Guid tenantId, Guid welcomeRunId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -583,7 +639,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         ArgumentException.ThrowIfNullOrWhiteSpace(expectedCurrentStatus);
         ArgumentException.ThrowIfNullOrWhiteSpace(nextStatus);
 
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         const string insertLog = """
@@ -635,7 +691,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         DateTimeOffset committedUtc,
         CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -674,7 +730,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -689,7 +745,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task<bool> TryIncrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -706,7 +762,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     /// <inheritdoc />
     public async Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
     {
-        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                            UPDATE dbo.Tenants
@@ -726,6 +782,14 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         int days = (int)Math.Floor(totalDays);
 
         return days < 0 ? 0 : days;
+    }
+
+    private Task<SqlConnection> OpenDirectoryMetadataConnectionAsync(CancellationToken cancellationToken)
+    {
+        if (_topologyOptions.CurrentValue.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+            return _catalogConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return _tenantPlaneConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
     }
 
     private static async Task ApplyTrialRunIncrementAsync(

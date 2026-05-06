@@ -15,8 +15,10 @@ using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.GoToMarket;
-using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Pilots;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
@@ -76,6 +78,9 @@ using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -91,19 +96,78 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                                       "Missing connection string 'ArchLucid'.");
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
+        services.Configure<SqlTopologyOptions>(configuration.GetSection(SqlTopologyOptions.SectionPath));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterSharedDistributedCacheAndLlmCompletion(services, configuration);
 
+        services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
+
+        string? systemConnectionString = ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration);
+        SqlTopologyOptions topologySnapshot =
+            configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>() ?? new SqlTopologyOptions();
+        string effectiveSystemConnectionString = topologySnapshot.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs
+            ? (systemConnectionString ?? throw new InvalidOperationException(
+                "ConnectionStrings:ArchLucidSystem is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs."))
+            : connectionString;
+
+        RegisterSystemRuntimeInfrastructure(
+            services,
+            connectionString,
+            effectiveSystemConnectionString);
+
+        string scriptPath = ResolveArchLucidSqlScriptPath();
+
+        RegisterTenantRuntimeInfrastructure(services, connectionString, scriptPath);
+        RegisterTenantRepositories(services, configuration);
+
+        RegisterSqlOperationalSingletons(services, configuration, connectionString);
+    }
+
+    /// <summary>Control-plane SQL: system catalog factory, bindings, resolver, provisioning orchestration.</summary>
+    private static void RegisterSystemRuntimeInfrastructure(
+        IServiceCollection services,
+        string connectionString,
+        string effectiveSystemConnectionString)
+    {
+        services.AddSingleton<ISystemSqlConnectionFactory>(_ =>
+            new DedicatedSystemSqlConnectionFactory(effectiveSystemConnectionString));
+
+        services.AddScoped<ITenantDatabaseBindingRepository, DapperTenantDatabaseBindingRepository>();
+        services.AddScoped<ITenantDatabaseResolver>(sp =>
+            new TenantDatabaseResolver(
+                sp.GetRequiredService<ITenantDatabaseBindingRepository>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>(),
+                connectionString));
+
+        services.AddScoped<ITenantSqlCatalogProvisioner, SqlTenantSqlCatalogProvisioner>();
+    }
+
+    /// <summary>Tenant-plane SQL stack: routing, resilience, optional RLS session context, read replicas, bootstrapper.</summary>
+    private static void RegisterTenantRuntimeInfrastructure(
+        IServiceCollection services,
+        string connectionString,
+        string scriptPath)
+    {
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
-        services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
+
+        services.AddScoped<ScopedRoutingSqlConnectionFactory>(sp =>
+            new ScopedRoutingSqlConnectionFactory(
+                connectionString,
+                sp.GetRequiredService<ISystemSqlConnectionFactory>(),
+                sp.GetRequiredService<ITenantDatabaseResolver>(),
+                sp.GetRequiredService<IScopeContextProvider>(),
+                sp.GetRequiredService<IOptionsMonitor<SqlTopologyOptions>>()));
+
+        services.AddScoped<ResilientSqlConnectionFactory>(sp =>
         {
             SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
 
             return new ResilientSqlConnectionFactory(
-                sp.GetRequiredService<SqlConnectionFactory>(),
+                sp.GetRequiredService<ScopedRoutingSqlConnectionFactory>(),
                 SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
                     sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>(),
                     sqlOpenOpts.MaxRetryAttempts,
@@ -126,6 +190,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 sp.GetRequiredService<ILogger<SessionContextSqlConnectionFactory>>());
         });
 
+        services.AddScoped<ITenantSqlConnectionFactory>(sp =>
+            new DelegatingTenantSqlConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));
+
         services.AddScoped<IAuthorityRunListConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
             sp.GetRequiredService<ResilientSqlConnectionFactory>(),
             sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
@@ -144,15 +211,23 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetRequiredService<IRlsSessionContextApplicator>(),
             ReadReplicaQueryRoute.GoldenManifestLookup));
 
-        Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
-        string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
-        string scriptPath = Path.Combine(dir, "Scripts", "ArchLucid.sql");
-
         services.AddScoped<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(
                 sp.GetRequiredService<ISqlConnectionFactory>(),
                 scriptPath));
+    }
 
+    private static string ResolveArchLucidSqlScriptPath()
+    {
+        Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
+        string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
+
+        return Path.Combine(dir, "Scripts", "ArchLucid.sql");
+    }
+
+    /// <summary>Product repositories scoped to tenant-plane connections (plus <see cref="DapperTenantRepository" /> directory routing).</summary>
+    private static void RegisterTenantRepositories(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddScoped<IContextSnapshotRepository, SqlContextSnapshotRepository>();
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
@@ -238,7 +313,13 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
         services.AddScoped<IReferenceEvidenceRunLookup, SqlReferenceEvidenceRunLookup>();
+    }
 
+    private static void RegisterSqlOperationalSingletons(
+        IServiceCollection services,
+        IConfiguration configuration,
+        string connectionString)
+    {
         services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
                 p.GetRequiredService<IServiceScopeFactory>(),
@@ -263,6 +344,5 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
 
             services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
-
     }
 }

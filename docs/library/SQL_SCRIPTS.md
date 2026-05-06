@@ -17,7 +17,7 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 
 | Pathway | When it runs | Engine | Script source | Purpose |
 |--------|----------------|--------|----------------|--------|
-| **DbUp migrations** | API startup when **`ConnectionStrings:ArchLucid`** is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` (+ optional **`Migrations/Baseline/`**) embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
+| **DbUp migrations** | API startup when **`ConnectionStrings:ArchLucid`** is set (single-catalog) **or split startup** when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` (+ optional **`Migrations/Baseline/`**) embedded in **ArchLucid.Persistence** **and** control-plane scripts under **`Migrations/System/`** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. **System plane** scripts apply only to the control catalog via `DatabaseMigrator.RunSystem` / full `Run` on shared hosts. **Tenant plane** scripts apply to product catalogs via `DatabaseMigrator.RunTenant`. |
 | **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchLucid.Persistence/Scripts/ArchLucid.sql` copied to **ArchLucid.Persistence** output as `Scripts/ArchLucid.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
 
 **Important:**

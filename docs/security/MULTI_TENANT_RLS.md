@@ -13,6 +13,7 @@ Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL 
 
 - Primary store is **SQL Server** (Azure SQL or boxed) with **private connectivity**; SMB/file shares are not used for tenant data at the API boundary.
 - **Entra ID** (or API keys in constrained scenarios) identifies the caller; **scope** (tenant, workspace, project) is derived from claims or headers and validated in the application layer.
+- When **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`**, the **primary tenant isolation boundary** is the **Azure SQL database** (per-tenant product catalog). RLS remains on scoped tables for workspace/project defense-in-depth; see [../library/TENANT_DATABASE_TOPOLOGY.md](../library/TENANT_DATABASE_TOPOLOGY.md).
 - RLS is rolled out on **every authority table that carries the scope triple on the row** (initially DbUp `036_RlsArchiforgeTenantScope.sql`; renamed to `rls.ArchLucidTenantScope` + `rls.archlucid_*_predicate` + `al_*` SESSION_CONTEXT keys in DbUp `108_RlsRenameToArchLucid.sql`, 2026-04-21).
 
 ## 3. Constraints

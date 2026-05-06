@@ -24,7 +24,8 @@ public static partial class GreenfieldBaselineMigrationRunner
             .Where(static n =>
                 n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
                 n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
-                !n.Contains(BaselineResourceSubstring, StringComparison.OrdinalIgnoreCase))
+                !n.Contains(BaselineResourceSubstring, StringComparison.OrdinalIgnoreCase) &&
+                !SqlMigrationPlanes.IsSystemPlaneScript(n))
             .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
