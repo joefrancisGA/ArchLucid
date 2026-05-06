@@ -41,6 +41,32 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
             return Task.FromResult(_byId.TryGetValue(evidenceBundleId, out EvidenceBundle? b) ? Clone(b) : null);
     }
 
+    /// <inheritdoc />
+    public Task UpdateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        ArgumentNullException.ThrowIfNull(evidenceBundle);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+
+        {
+
+            if (!_byId.ContainsKey(evidenceBundle.EvidenceBundleId))
+                throw new InvalidOperationException(
+                    $"Evidence bundle '{evidenceBundle.EvidenceBundleId}' was not found for update.");
+
+            _byId[evidenceBundle.EvidenceBundleId] = Clone(evidenceBundle);
+
+        }
+
+
+        return Task.CompletedTask;
+    }
+
     private static EvidenceBundle Clone(EvidenceBundle source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

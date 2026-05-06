@@ -47,7 +47,7 @@ export function BeforeAfterDeltaInlinePanel({ runId }: BeforeAfterDeltaInlinePan
     <section
       data-testid="before-after-delta-panel-inline"
       role="region"
-      aria-label="Delta vs prior finalized run for the same architecture request"
+      aria-label="Delta vs prior finalized review for the same architecture request"
       className="mb-4 max-w-3xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
       <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
@@ -58,11 +58,11 @@ export function BeforeAfterDeltaInlinePanel({ runId }: BeforeAfterDeltaInlinePan
           data-testid="delta-inline-no-prior"
           className="mt-2 text-xs text-neutral-600 dark:text-neutral-400"
         >
-          No prior finalized run found for request{" "}
+          No prior finalized review found for request{" "}
           <code className="rounded bg-neutral-100 px-1 py-0.5 text-[11px] dark:bg-neutral-800">
             {current.requestId === "" ? "(unknown)" : current.requestId}
           </code>{" "}
-          in the recent window. This is the first finalization for this request — future runs will compare here.
+          in the recent window. This is the first finalization for this request — future reviews will compare here.
         </p>
       ) : (
         <BeforeAfterDeltaInlineComparisonRow current={current} prior={prior} />

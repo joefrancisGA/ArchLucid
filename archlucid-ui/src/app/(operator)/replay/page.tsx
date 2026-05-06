@@ -26,7 +26,7 @@ import type { ReplayResponse } from "@/types/authority";
 /** Matches ArchLucid.Persistence.Replay.ReplayMode */
 const replayModes = ["ReconstructOnly", "RebuildManifest", "RebuildArtifacts"] as const;
 
-/** Replay form: operator enters a run ID, selects a mode, and triggers an authority chain replay. */
+/** Replay form: operator enters a review ID, selects a mode, and triggers an authority chain replay. */
 function ReplayForm() {
   const searchParams = useSearchParams();
   const [runId, setRunId] = useState("");
@@ -87,8 +87,8 @@ function ReplayForm() {
 
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
-          label="Run to replay"
-          placeholder="Run ID"
+          label="Review to replay"
+          placeholder="Review ID"
           value={runId}
           onChange={setRunId}
           inputId="replay-run-id"
@@ -119,9 +119,9 @@ function ReplayForm() {
       </div>
 
       {!runIdTrimmed && (
-        <OperatorEmptyState title="Waiting for a run ID">
+        <OperatorEmptyState title="Waiting for a review ID">
           <p className="m-0">
-            Enter the run to replay, open this page with <code>?runId=…</code>, or go from{" "}
+            Enter the review to replay, open this page with <code>?runId=…</code>, or go from{" "}
             <Link href="/reviews?projectId=default">Reviews</Link> → review detail → <strong>Replay this review</strong>.
           </p>
         </OperatorEmptyState>
@@ -141,7 +141,7 @@ function ReplayForm() {
         <>
           <OperatorApiProblem failure={failure} />
           <OperatorTryNext>
-            Confirm the run exists, you have operator permissions, and the API is healthy. Retry with a lighter mode
+            Confirm the review exists, you have operator permissions, and the API is healthy. Retry with a lighter mode
             (e.g. <code>ReconstructOnly</code>) before <code>RebuildArtifacts</code>. Copy the correlation ID for API
             logs.
           </OperatorTryNext>
@@ -170,7 +170,7 @@ function ReplayForm() {
             follow-up.
           </p>
           <dl className="grid grid-cols-[220px_1fr] gap-x-4 gap-y-2 text-sm mb-5">
-            <dt className="text-neutral-500 dark:text-neutral-400">Run ID</dt>
+            <dt className="text-neutral-500 dark:text-neutral-400">Review ID</dt>
             <dd className="m-0 font-mono text-[13px]">{result.runId}</dd>
             <dt className="text-neutral-500 dark:text-neutral-400">Mode</dt>
             <dd className="m-0">
@@ -251,7 +251,7 @@ function ReplaySuspenseFallback() {
       <OperatorLoadingNotice>
         <strong>Loading replay.</strong>
         <p className="mt-2 text-sm">
-          Reading <code>runId</code> from the URL so “Replay this run” deep links open with the field prefilled…
+          Reading <code>runId</code> from the URL so “Replay this review” deep links open with the field prefilled…
         </p>
       </OperatorLoadingNotice>
     </main>
