@@ -18,7 +18,8 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 5. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**. **Readiness** includes the primary SQL check plus **`sql_system_plane`** when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (proves **ConnectionStrings:ArchLucidSystem** independently of tenant routing). **Single-catalog** dev/test skips the system-plane probe as redundant with **`database`**.
 6. **Sample run** — CLI **`new ArchLucidSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
-8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
+8. **Optional: Playwright (mock)** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (mock/fixture loopback) **after** the steps above.
+9. **Optional: Playwright (live API parity)** — **`-LivePlaywright`** runs **`npx playwright test`** with **`playwright.config.ts`** against **`LIVE_API_URL`** (defaults to **`-ApiBaseUrl`**). Mirrors **`ci.yml`** **`ui-e2e-live`** for **`live-api-*.spec.ts`** while reusing the smoke-started API. Requires **`ASPNETCORE_ENVIRONMENT=Development`** on that API process (already set here). **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** remain optional — auth subset specs skip when unset (same as CI). Not run by default.
 
 ### Does passing `release-smoke` prove UI ↔ SQL parity?
 
@@ -30,11 +31,12 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 |----------|----------------------------------------------------------------------|----------------------------------------------------------------------------------------|
 | **`release-smoke.ps1`** (default; no `-RunPlaywright`) | **Yes** | **No** (no live Playwright lane) |
 | **`release-smoke.ps1 -RunPlaywright`** | **Yes** for API/CLI; **`-RunPlaywright`** then runs **`npm run test:e2e`** (**mock**/fixture loopback — [§ What `-RunPlaywright` exercises](#what--runplaywright-actually-exercises-57r)) | **No** — mocks do not call the smoke API instance |
+| **`release-smoke.ps1 -LivePlaywright`** | **Yes** when **`-SkipE2E`** omitted (same API process as steps 5–7) | **Yes** — **`live-api-*.spec.ts`** via **`playwright.config.ts`** and **`LIVE_API_URL`** (**`-ApiBaseUrl`** default) |
 | CI **`ui-e2e-live`** / **`ui-e2e-live-apikey`** / **`ui-e2e-live-jwt`** (`live-api-*.spec.ts`) | N/A (different entry point) | **Yes** |
 
-**One-minute answer:** passing **`release-smoke.ps1`** (with or without **`-RunPlaywright`**) does **not** replace **`ci.yml`** **`live-api-*.spec.ts`** gates. Canonical live path: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**; tier table: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**.
+**One-minute answer:** passing **`release-smoke.ps1`** with neither **`-RunPlaywright`** nor **`-LivePlaywright`** does **not** replace **`ci.yml`** **`live-api-*.spec.ts`** gates; **`-LivePlaywright`** is intended to mirror that lane locally when SQL + UI build prerequisites are satisfied. Canonical live path: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**; tier table: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**.
 
-**Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
+**Not included (unless opted in):** Playwright (**`-RunPlaywright`** mock lane or **`-LivePlaywright`** live parity lane), SQL container contract tests, multi-tenant matrix, performance — by design.
 
 ### What `-RunPlaywright` actually exercises (57R)
 
@@ -102,16 +104,23 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;
 
 **Optional release evidence bundle (documented checks + sample tests):** [RELEASE_EVIDENCE_SUMMARY.md](RELEASE_EVIDENCE_SUMMARY.md), `scripts/Invoke-ReleaseEvidenceSummary.ps1`, and `scripts/Invoke-RealLlmEvidenceGate.ps1`.
 
-**Include Playwright E2E after UI (+ API smoke when not skipped):**
+**Include Playwright mock suite after UI (+ API smoke when not skipped):**
 
 ```powershell
 .\release-smoke.ps1 -RunPlaywright
 ```
 
-With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use **`npm ci`** automatically when **`-SkipUi`** left dependencies uninstalled.
+**Include Playwright live API parity suite** (**same **`live-api-*.spec.ts`** lane as CI **`ui-e2e-live`**) against the temporary smoke API:
+
+```powershell
+.\release-smoke.ps1 -LivePlaywright
+```
+
+Both switches may be combined (mock suite runs first, then live suite).
+
+With **`-SkipE2E`**, **`-LivePlaywright`** is skipped with a warning (no API to target). Omit **`-SkipE2E`** when you need Playwright after steps 5–7.
 
 ---
-
 ## Parameters
 
 | Switch / param | Effect |
@@ -120,7 +129,8 @@ With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use 
 | **`-ApiBaseUrl`** | Default `http://localhost:5128` |
 | **`-SkipE2E`** | Build + tests (+ UI) only; no API/CLI/artifact checks |
 | **`-SkipUi`** | No `npm ci` / Vitest / `next build` |
-| **`-RunPlaywright`** | After other steps: **`archlucid-ui`** Playwright E2E (**`CI=1`**); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
+| **`-RunPlaywright`** | After other steps: **`archlucid-ui`** Playwright E2E (**`CI=1`**, mock config); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
+| **`-LivePlaywright`** | After steps 5–7 (skipped when **`-SkipE2E`**): **`npx playwright test`** with **`playwright.config.ts`** (**`live-api-*.spec.ts`**) targeting **`LIVE_API_URL`** (defaults from **`-ApiBaseUrl`**); **`AgentExecution__Mode=Simulator`** is set on the child API process. Requires **`ASPNETCORE_ENVIRONMENT=Development`** on that API (script default). **`LIVE_API_KEY`** / **`LIVE_JWT_TOKEN`** optional (subset skips match CI). |
 | **`-FullCore`** | After fast core, run **`dotnet test` —filter `Suite=Core`** |
 
 ---

@@ -1,4 +1,4 @@
-# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright for UI E2E.
+# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright (mock) and -LivePlaywright (live-api parity vs CI ui-e2e-live).
 # SQL required for the API E2E block unless -SkipE2E. See docs/RELEASE_SMOKE.md
 param(
     [string] $SqlConnectionString = '',
@@ -7,7 +7,8 @@ param(
     [switch] $SkipE2E,
     [switch] $SkipUi,
     [switch] $FullCore,
-    [switch] $RunPlaywright
+    [switch] $RunPlaywright,
+    [switch] $LivePlaywright
 )
 
 Set-StrictMode -Version Latest
@@ -40,60 +41,134 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 {
     param(
         [string] $RepoRoot,
-        [switch] $Requested,
-        [switch] $UiSkipped
+        [switch] $RunPlaywright,
+        [switch] $LivePlaywright,
+        [string] $ApiBaseUrl,
+        [switch] $UiSkipped,
+        [switch] $SkipE2E
     )
 
-    if (-not $Requested) { return }
+    if (-not $RunPlaywright -and -not $LivePlaywright) { return }
+
+    if ($LivePlaywright -and $SkipE2E) {
+        Write-Warning '-LivePlaywright skipped: E2E steps 5–6 did not run (API was not started). Omit -SkipE2E to exercise live UI ↔ SQL parity against the smoke API.'
+        if (-not $RunPlaywright) { return }
+    }
 
     $uiRoot = Join-Path $RepoRoot 'archlucid-ui'
     $node = Get-Command node -ErrorAction SilentlyContinue
 
     if ($null -eq $node) {
         Write-OperatorFailureTriage -Stage 'Playwright E2E' -Category 'Misconfiguration' `
-            -Details @('-RunPlaywright requires Node.js on PATH.') `
-            -NextSteps @('Install Node 22+ or omit -RunPlaywright')
+            -Details @('-RunPlaywright / -LivePlaywright require Node.js on PATH.') `
+            -NextSteps @('Install Node 22+ or omit Playwright switches')
         exit 1
     }
 
-    Write-Host ''
-    Write-Host '=== Playwright E2E (opt-in: -RunPlaywright) ===' -ForegroundColor Cyan
+    $savedCi = $env:CI
 
-    Push-Location $uiRoot
-    try
+    function Invoke-MockPlaywrightBlock
     {
-        if ($UiSkipped -or -not (Test-Path (Join-Path $uiRoot 'node_modules')))
-        {
-            Write-Host 'Installing UI dependencies (npm ci) for Playwright...'
-            & $releaseSmokeNpm ci
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-        }
+        Write-Host ''
+        Write-Host '=== Playwright E2E (opt-in: -RunPlaywright, mock loopback) ===' -ForegroundColor Cyan
+        Push-Location $uiRoot
+        try {
+            if ($UiSkipped -or -not (Test-Path (Join-Path $uiRoot 'node_modules')))
+            {
+                Write-Host 'Installing UI dependencies (npm ci) for Playwright...'
+                & $releaseSmokeNpm ci
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            }
 
-        $savedCi = $env:CI
-        $env:CI = '1'
-        try
-        {
-            & $releaseSmokeNpm run test:e2e
-            if ($LASTEXITCODE -ne 0) {
-                Write-OperatorFailureTriage -Stage 'Playwright E2E (-RunPlaywright)' -Category 'PlaywrightFailure' `
-                    -Details @("npm run test:e2e exited $LASTEXITCODE (see Playwright output above).") `
-                    -NextSteps @(
-                    'cd archlucid-ui; npx playwright install',
-                    'archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md — section 8',
-                    'Ensure port 3000 free for test webServer'
-                )
-                exit $LASTEXITCODE
+            $env:CI = '1'
+            try {
+                & $releaseSmokeNpm run test:e2e
+                if ($LASTEXITCODE -ne 0) {
+                    Write-OperatorFailureTriage -Stage 'Playwright E2E (-RunPlaywright)' -Category 'PlaywrightFailure' `
+                        -Details @("npm run test:e2e exited $LASTEXITCODE (see Playwright output above).") `
+                        -NextSteps @(
+                        'cd archlucid-ui; npx playwright install',
+                        'archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md — section 8',
+                        'Ensure port 3000 free for test webServer'
+                    )
+                    exit $LASTEXITCODE
+                }
+            }
+            finally {
+                if ($null -eq $savedCi) { Remove-Item Env:\CI -ErrorAction SilentlyContinue }
+                else { $env:CI = $savedCi }
             }
         }
-        finally
-        {
-            if ($null -eq $savedCi) { Remove-Item Env:\CI -ErrorAction SilentlyContinue }
-            else { $env:CI = $savedCi }
+        finally {
+            Pop-Location
         }
     }
-    finally
+
+    function Invoke-LivePlaywrightBlock
     {
-        Pop-Location
+        Write-Host ''
+        Write-Host '=== Playwright E2E (opt-in: -LivePlaywright, live-api-*.spec.ts — mirrors CI ui-e2e-live) ===' -ForegroundColor Cyan
+
+        $standaloneDir = Join-Path $uiRoot '.next/standalone'
+        if (-not (Test-Path $standaloneDir)) {
+            Write-Warning "Live Playwright: '.next/standalone' not found — Playwright will run a cold production build via playwright.config webServer (slow). Prefer a prior successful smoke UI build without -SkipUi."
+        }
+
+        Push-Location $uiRoot
+        try {
+            if ($UiSkipped -or -not (Test-Path (Join-Path $uiRoot 'node_modules')))
+            {
+                Write-Host 'Installing UI dependencies (npm ci) for Playwright...'
+                & $releaseSmokeNpm ci
+                if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            }
+
+            $savedLiveUrl = $env:LIVE_API_URL
+            $savedSkipBuild = $env:LIVE_E2E_SKIP_NEXT_BUILD
+            $env:LIVE_API_URL = $ApiBaseUrl.TrimEnd('/')
+            if (Test-Path $standaloneDir) {
+                $env:LIVE_E2E_SKIP_NEXT_BUILD = '1'
+            }
+            else {
+                Remove-Item Env:\LIVE_E2E_SKIP_NEXT_BUILD -ErrorAction SilentlyContinue
+            }
+
+            $env:CI = '1'
+            try {
+                & $releaseSmokeNpm exec playwright test
+                if ($LASTEXITCODE -ne 0) {
+                    Write-OperatorFailureTriage -Stage 'Playwright E2E (-LivePlaywright)' -Category 'PlaywrightFailure' `
+                        -Details @("live playwright exited $LASTEXITCODE — same suite as CI ui-e2e-live (live-api-*.spec.ts).") `
+                        -NextSteps @(
+                        'cd archlucid-ui; npx playwright install',
+                        'Ensure API still listening at LIVE_API_URL',
+                        'docs/library/LIVE_E2E_HAPPY_PATH.md'
+                    )
+                    exit $LASTEXITCODE
+                }
+            }
+            finally {
+                if ($null -eq $savedCi) { Remove-Item Env:\CI -ErrorAction SilentlyContinue }
+                else { $env:CI = $savedCi }
+
+                if ($null -eq $savedLiveUrl) { Remove-Item Env:\LIVE_API_URL -ErrorAction SilentlyContinue }
+                else { $env:LIVE_API_URL = $savedLiveUrl }
+
+                if ($null -eq $savedSkipBuild) { Remove-Item Env:\LIVE_E2E_SKIP_NEXT_BUILD -ErrorAction SilentlyContinue }
+                else { $env:LIVE_E2E_SKIP_NEXT_BUILD = $savedSkipBuild }
+            }
+        }
+        finally {
+            Pop-Location
+        }
+    }
+
+    if ($RunPlaywright) {
+        Invoke-MockPlaywrightBlock
+    }
+
+    if ($LivePlaywright -and -not $SkipE2E) {
+        Invoke-LivePlaywrightBlock
     }
 }
 
@@ -188,6 +263,10 @@ try
 
     if ($SkipE2E)
     {
+        if ($LivePlaywright) {
+            Write-Warning '-LivePlaywright skipped: E2E steps 5–6 did not run (API was not started). Omit -SkipE2E to exercise live UI ↔ SQL parity against the smoke API.'
+        }
+
         Write-Host '=== 5-6/6 Skipped E2E API+CLI (-SkipE2E) ==='
         if ($FullCore)
         {
@@ -220,6 +299,7 @@ try
 
     $env:ConnectionStrings__ArchLucid = $cs
     $env:ASPNETCORE_ENVIRONMENT = 'Development'
+    $env:AgentExecution__Mode = 'Simulator'
 
     $apiProc = Start-Process -FilePath 'dotnet' -ArgumentList @(
         'run',
@@ -385,7 +465,7 @@ try
     }
 
     Write-Host "Smoke OK: $artifactCount artifact(s) listed for manifest $manifestId." -ForegroundColor Green
-    Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -Requested:$RunPlaywright -UiSkipped:$SkipUi
+    Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -RunPlaywright:$RunPlaywright -LivePlaywright:$LivePlaywright -ApiBaseUrl $ApiBaseUrl -UiSkipped:$SkipUi -SkipE2E:$SkipE2E
     Write-Host 'Release smoke finished successfully.'
     exit 0
 }

@@ -11,10 +11,8 @@ namespace ArchLucid.Application.Pilots;
 public static class PilotBuyerSafeEvidenceGateEvaluator
 {
     /// <summary>
-    ///     Computes <see cref="PilotBuyerSafeEvidenceGateResult"/> from the same inputs rendered in the first-value
-    ///     report. ResolveTier partitions <paramref name="hardGapMessages"/> vs <paramref name="softGapMessages"/>:
-    ///     demo tenant or any hard gap yields <see cref="PilotBuyerSafeEvidencePublishingTier.DemoOnly"/> /
-    ///     <see cref="ProofPackageSendability.NotSendable"/> (spec-aligned — structural blocks match demo sendability).
+    ///     Computes <see cref="PilotBuyerSafeEvidenceGateResult"/> from the same inputs rendered in the first-value report.
+    ///     Hard gaps (missing committed manifest, zero audit rows) plus demo tenants yield <see cref="PilotBuyerSafeEvidencePublishingTier.DemoOnly"/> with <see cref="ProofPackageSendability.NotSendable"/>; soft gaps yield <see cref="PilotBuyerSafeEvidencePublishingTier.Partial"/>.
     /// </summary>
     public static PilotBuyerSafeEvidenceGateResult Evaluate(
         ArchitectureRun run,

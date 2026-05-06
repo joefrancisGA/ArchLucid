@@ -19,7 +19,4 @@ public sealed record PilotBuyerSafeEvidenceGateResult(
         ArgumentNullException.ThrowIfNull(SoftGaps);
         return (byte)0;
     }
-
-    /// <summary>Demo then hard then soft gaps — Markdown lists this ordering for sponsor-send review.</summary>
-    public IReadOnlyList<string> AllGapsOrdered => DemoGaps.Concat(HardGaps).Concat(SoftGaps).ToList();
 }
