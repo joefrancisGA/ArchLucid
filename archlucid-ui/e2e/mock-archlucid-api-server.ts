@@ -379,7 +379,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         } else if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
           sendJson(res, 200, fixtureRunDetailAlignedToShowcase(runId));
         } else {
-          sendJson(res, 404, { detail: "Run not found." });
+          sendJson(res, 404, { detail: "Review not found." });
         }
 
         return;

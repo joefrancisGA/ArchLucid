@@ -51,7 +51,7 @@ test.describe("visual regression — operator UI", () => {
     await page.locator("#compare-technical").locator(":scope > summary").click();
     await expect(page.locator("#compare-legacy")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Manifest comparison", level: 3 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Run-level diff", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeVisible();
 
     await expect(page).toHaveScreenshot("comparison-view.png", screenshotOptions);
   });

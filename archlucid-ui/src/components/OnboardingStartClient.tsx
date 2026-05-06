@@ -201,19 +201,19 @@ export function OnboardingStartClient() {
             {hasSample ? (
               <Button asChild variant="primary">
                 <Link href={wizardHref} data-testid="onboarding-open-wizard-sample">
-                  Continue in new-run wizard (sample highlighted)
+                  Continue in new review wizard (sample highlighted)
                 </Link>
               </Button>
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
                 <Link href={`/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
-                  Open example run
+                  Open example review
                 </Link>
               </Button>
             ) : null}
             <Button asChild variant="outline">
-              <Link href="/reviews/new">Open new-run wizard</Link>
+              <Link href="/reviews/new">Open new review wizard</Link>
             </Button>
             <Button asChild variant="ghost">
               <Link href="/">Operator home</Link>

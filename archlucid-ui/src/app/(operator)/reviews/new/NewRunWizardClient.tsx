@@ -418,7 +418,7 @@ export function NewRunWizardClient() {
           ) : null}
 
           {stepIndex === 5 && !runId ? (
-            <p className="text-sm text-red-600">Run id missing; cannot track pipeline.</p>
+            <p className="text-sm text-red-600">Review id missing; cannot track pipeline.</p>
           ) : null}
 
             </>

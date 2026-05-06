@@ -69,7 +69,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   steps: [
     "Activations record which manifest version is live for an environment.",
     "Operators run Activate after promote — nothing shows until that completes.",
-    "Use Audit log if you need the cross-run paper trail.",
+    "Use Audit log if you need the cross-review paper trail.",
   ],
 };
 

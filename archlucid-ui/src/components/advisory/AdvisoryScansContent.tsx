@@ -92,9 +92,9 @@ export function AdvisoryScansContent() {
           <ContextualHelp helpKey="advisory-hub" />
         </div>
         <p className="doc-meta m-0">
-          Generate ranked recommendations from a completed run: changes, risks, tradeoffs, and follow-up actions. Output
+          Generate ranked recommendations from a committed architecture review: changes, risks, tradeoffs, and follow-up actions. Output
           can be accepted, rejected, deferred, or marked as implemented to feed the governance workflow. Optionally
-          compare to a second run for delta signals.
+          compare to a second review for delta signals.
         </p>
 
         <section

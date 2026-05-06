@@ -115,7 +115,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button type="button" variant="default" data-testid="open-dry-run-modal">
-          Run dry-run / what-if
+          Open dry-run / what-if
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">

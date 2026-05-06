@@ -100,7 +100,7 @@ export function AlertRulesContent() {
       </p>
       <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-500">
         Thresholds are driven by <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> from the{" "}
-        <GlossaryTooltip termKey="finding_engine">finding engine</GlossaryTooltip> for completed runs in scope.
+        <GlossaryTooltip termKey="finding_engine">finding engine</GlossaryTooltip> for completed architecture reviews in scope.
       </p>
       <AlertOperatorToolingRankCue />
 

@@ -14,7 +14,7 @@ export type OperatorProblemCopyContext = {
 
 /** Short headings for stable `extensions.errorCode` values (API contract). */
 const ERROR_CODE_HEADINGS: Record<string, string> = {
-  RUN_NOT_FOUND: "Run not found",
+  RUN_NOT_FOUND: "Review not found",
   MANIFEST_NOT_FOUND: "Manifest not found",
   RESOURCE_NOT_FOUND: "Resource not found",
   DATABASE_TIMEOUT: "Database timeout",
@@ -26,7 +26,7 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   COMPARISON_VERIFICATION_FAILED: "Comparison verification failed",
   INTERNAL_ERROR: "Server error",
   COMMIT_FAILED: "Finalization failed",
-  INVALID_RUN_STATE: "Invalid run state",
+  INVALID_RUN_STATE: "Invalid review state",
   POLICY_PACK_VERSION_NOT_FOUND: "Policy pack version not found",
 };
 
@@ -40,8 +40,8 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   CIRCUIT_BREAKER_OPEN: "The AI service is currently overwhelmed or unavailable. Please wait a few minutes before retrying your request.",
   VALIDATION_FAILED: "Review the highlighted fields above and correct any invalid inputs before resubmitting.",
   CONFLICT: "Another user or process may have modified this resource. Please refresh the page to see the latest changes.",
-  COMPARISON_VERIFICATION_FAILED: "The runs you selected cannot be compared. Ensure they belong to the same project and have compatible manifests.",
-  INVALID_RUN_STATE: "This run is not in a valid state for this action. Refresh the page to check its current progress.",
+  COMPARISON_VERIFICATION_FAILED: "The architecture reviews you selected cannot be compared. Ensure they belong to the same project and have compatible manifests.",
+  INVALID_RUN_STATE: "This review is not in a valid state for this action. Refresh the page to check its current progress.",
   POLICY_PACK_VERSION_NOT_FOUND: "The requested policy pack version is missing. It may have been deleted or archived.",
   INTERNAL_ERROR: "An unexpected server error occurred. Try your action again in a few moments.",
 };

@@ -28,7 +28,7 @@ describe("operatorCopyForProblem", () => {
 
     const copy = operatorCopyForProblem(problem, "fallback");
 
-    expect(copy.heading).toBe("Run not found");
+    expect(copy.heading).toBe("Review not found");
     expect(copy.body).toBe("No such run");
   });
 

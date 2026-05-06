@@ -37,7 +37,7 @@ function displayHash(hash: string): string {
 }
 
 /**
- * Run-level and manifest diffs from the comparison endpoint.
+ * Review-level and manifest diffs from the comparison endpoint.
  */
 export function LegacyRunComparisonView(props: { result: RunComparison }) {
   const { result } = props;
@@ -49,7 +49,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
   return (
     <section id="compare-legacy" className="mt-7">
-      <h3 className="mb-2">Run-level diff</h3>
+      <h3 className="mb-2">Review-level diff</h3>
       <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
         <strong>Base:</strong> <code className={monoCls}>{result.leftRunId}</code> ·{" "}
         <strong>Updated:</strong> <code className={monoCls}>{result.rightRunId}</code>
@@ -61,7 +61,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
         )}
       </p>
 
-      <h4 className="text-[15px]">Run-level diffs</h4>
+      <h4 className="text-[15px]">Review-level diffs</h4>
       {result.runLevelDiffs.length === 0 ? (
         <OperatorEmptyState title="No review-level diffs">
           <p className="m-0 text-sm">

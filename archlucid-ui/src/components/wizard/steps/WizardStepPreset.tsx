@@ -154,7 +154,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           <CardFooter>
             <Button asChild type="button" className="w-full sm:w-auto">
               <Link href={`/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
-                Open example run
+                Open example review
               </Link>
             </Button>
           </CardFooter>

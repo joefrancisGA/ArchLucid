@@ -338,7 +338,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
   }
 
   if (runId) {
-    lines.push(`- **Run id:** \`${runId}\``);
+    lines.push(`- **Review id:** \`${runId}\``);
   }
 
   if (ruleSetId && ruleSetVersion) {
@@ -620,7 +620,7 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
   lines.push("");
 
   if (runId) {
-    lines.push(`- **Run id:** \`${runId}\``);
+    lines.push(`- **Review id:** \`${runId}\``);
   }
 
   lines.push(`- **Manifest id:** \`${summary.manifestId}\``);

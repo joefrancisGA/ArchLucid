@@ -71,7 +71,7 @@ export function RunDetailSectionNav({ sections }: RunDetailSectionNavProps) {
 
   return (
     <nav
-      aria-label="Run detail sections"
+      aria-label="Review detail sections"
       className="sticky top-16 z-20 mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-white/95 px-2 py-2 backdrop-blur dark:border-neutral-700 dark:bg-neutral-950/95"
     >
       <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

@@ -9,7 +9,7 @@ describe("pipelineEventTypeFriendlyLabel", () => {
   });
 
   it("maps legacy short keys used by mocks", () => {
-    expect(pipelineEventTypeFriendlyLabel("RunStarted")).toBe("Run started");
+    expect(pipelineEventTypeFriendlyLabel("RunStarted")).toBe("Review started");
     expect(pipelineEventTypeFriendlyLabel("context.snapshot.created")).toBe("Context captured");
   });
 

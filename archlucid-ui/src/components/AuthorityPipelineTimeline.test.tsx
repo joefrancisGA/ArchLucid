@@ -25,8 +25,8 @@ describe("AuthorityPipelineTimeline", () => {
 
     render(<AuthorityPipelineTimeline items={items} />);
 
-    expect(screen.getByText("Run started")).toBeInTheDocument();
-    expect(screen.getByText("Run completed")).toBeInTheDocument();
+    expect(screen.getByText("Review started")).toBeInTheDocument();
+    expect(screen.getByText("Review completed")).toBeInTheDocument();
     expect(screen.getAllByText(/RunStarted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/RunCompleted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/c1/)).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe("AuthorityPipelineTimeline", () => {
 
     expect(screen.queryByText(/Technical details/i)).toBeNull();
     expect(screen.queryByText(/11111111-1111-1111-1111-111111111111/)).toBeNull();
-    expect(screen.getByText("Run started")).toBeInTheDocument();
+    expect(screen.getByText("Review started")).toBeInTheDocument();
   });
 
   it("maps dotted canonical types into reviewer-facing headlines", () => {

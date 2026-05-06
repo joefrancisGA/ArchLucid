@@ -169,7 +169,7 @@ export default async function RunDetailPage({
 
   if (loadFailure || !runDetailResponse) {
     const fallback =
-      loadFailure?.message ?? "Run not found or could not be loaded.";
+      loadFailure?.message ?? "Review not found or could not be loaded.";
 
     return (
       <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
