@@ -23,7 +23,10 @@ public sealed class DapperPilotBaselineRepository(ISqlConnectionFactory connecti
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         BaselineRow? row = await connection.QuerySingleOrDefaultAsync<BaselineRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         if (row is null)
             return null;
@@ -43,31 +46,31 @@ public sealed class DapperPilotBaselineRepository(ISqlConnectionFactory connecti
         public Guid TenantId
         {
             get;
-            set;
+            init;
         }
 
         public decimal? BaselineHoursPerReview
         {
             get;
-            set;
+            init;
         }
 
         public int? BaselineReviewsPerQuarter
         {
             get;
-            set;
+            init;
         }
 
         public decimal? BaselineArchitectHourlyCost
         {
             get;
-            set;
+            init;
         }
 
         public DateTime UpdatedUtc
         {
             get;
-            set;
+            init;
         }
     }
 

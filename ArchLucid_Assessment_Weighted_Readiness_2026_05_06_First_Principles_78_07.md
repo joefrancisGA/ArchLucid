@@ -679,13 +679,16 @@ Constraints:
 - Do not introduce a new state-management library.
 ```
 
-### 3. Live UI-SQL Parity Smoke Profile
+### 3. Live UI-SQL Parity Smoke Profile — COMPLETED 2026-05-06
 
 - **Why it matters:** The repo honestly distinguishes mock Playwright from live API parity. The stricter validation path should be easier to run and cite.
 - **Expected impact:** Higher reliability confidence and less release-evidence ambiguity.
 - **Affected qualities:** Reliability, Testability, Correctness, Deployability, Trustworthiness.
-- **Actionability:** Fully actionable now.
+- **Actionability:** Fully actionable now (task completed 2026-05-06).
 - **Impact of running the prompt:** Directly improves Reliability (+4-6 pts), Correctness (+2-4 pts), Testability (+3-4 pts), Deployability (+2-3 pts). Weighted readiness impact: +0.4-0.7%.
+- **Status:** Completed 2026-05-06.
+- **Completion evidence:** `release-smoke.ps1` adds `-Profile LiveUiSql` (fail-fast SQL + Node; forbids `-SkipUi`/`-SkipE2E`; enables live-api Playwright vs the smoke-started API); `Ensure-ReleaseSmokePlaywrightChromiumBrowsersInstalled` + live-block install path; end-of-run `Write-ReleaseSmokeEvidenceSummary`; wrappers `release-smoke-live-ui-sql.ps1` / `release-smoke-live-ui-sql.cmd`; docs in `docs/library/RELEASE_SMOKE.md`; `release-smoke.cmd` comment and `archlucid-ui/playwright.live.config.ts` cross-reference.
+- **Verification:** `.\release-smoke.ps1 -Profile LiveUiSql -SkipUi` fails fast at profile precheck; normal `.\release-smoke.ps1` default unchanged (live Playwright still opt-in without the profile).
 
 **Cursor prompt:**
 
@@ -1056,10 +1059,10 @@ Constraints:
 - Sponsor-send blocking vs caveats is encoded in `PilotBuyerSafeEvidenceGateEvaluator` (demo/hard gaps → not sendable; soft gaps → sendable with caveats) and mirrored in `ProofPackageCompletenessResponse` for `GET …/pilot-run-deltas` and the first-value report contract table.
 - ROI narrative confidence is tiered **Strong / Partial / Low** (`PilotRoiEvidenceConfidence`) with explicit Markdown copy and sponsor-banner caveats for Partial/Low; dollar claims remain conservative and baseline-attested per existing value-report behavior.
 
-### Live UI-SQL Parity Smoke Profile
+### DONE Live UI-SQL Parity Smoke Profile (2026-05-06)
 
-- Should this become a release-candidate requirement or remain an opt-in strict profile?
-- Which live-api Playwright subset is mandatory for the fastest meaningful local pass?
+- Shipped **`release-smoke.ps1 -Profile LiveUiSql`**, **`release-smoke-live-ui-sql.ps1`**, **`release-smoke-live-ui-sql.cmd`**, Chromium install steps, **`Write-ReleaseSmokeEvidenceSummary`**, and **`docs/library/RELEASE_SMOKE.md`** updates. Live parity remains **opt-in** for default runs.
+- Product follow-up (not blocking delivery): Should this strict profile become a release-candidate requirement for pilots, or stay operator-opt-in?
 
 ### Vertical Starter Proof Packs
 

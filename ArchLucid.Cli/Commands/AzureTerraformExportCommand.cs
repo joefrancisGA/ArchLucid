@@ -69,7 +69,8 @@ internal static class AzureTerraformExportCommand
 
             psi.ArgumentList.Add(resourceGroup);
 
-            using Process process = new() { StartInfo = psi };
+            using Process process = new();
+            process.StartInfo = psi;
 
             if (!process.Start())
 
@@ -115,7 +116,7 @@ internal static class AzureTerraformExportCommand
 
         }
 
-        catch (Exception ex)when (ex is FileNotFoundException or Win32Exception)
+        catch (Exception ex) when (ex is FileNotFoundException or Win32Exception)
 
         {
 
@@ -135,28 +136,19 @@ internal static class AzureTerraformExportCommand
             {
 
                 if (Directory.Exists(stagingDir))
-
                     Directory.Delete(stagingDir, recursive: true);
-
             }
-
             catch
-
             {
-
+                // ignored
             }
-
         }
-
     }
 
     private static bool TryParseArgs(string[] args, out string subscriptionId, out string resourceGroup, out string outputZipPath)
     {
-
         subscriptionId = string.Empty;
-
         resourceGroup = string.Empty;
-
         outputZipPath = string.Empty;
 
         for (int index = 0; index < args.Length; index++)
@@ -165,43 +157,25 @@ internal static class AzureTerraformExportCommand
             string token = args[index];
 
             if (token is "--subscription" or "-s")
-
             {
-
                 if (!TryReadNext(args, ref index, out subscriptionId))
-
                     return false;
 
                 continue;
-
             }
 
             if (token is "--resource-group" or "-g")
-
             {
-
                 if (!TryReadNext(args, ref index, out resourceGroup))
-
                     return false;
 
                 continue;
-
             }
 
-            if (token is "--out" or "-o")
-
-            {
-
-                if (!TryReadNext(args, ref index, out outputZipPath))
-
-                    return false;
-
-                continue;
-
-            }
-
-            return false;
-
+            if (token is not ("--out" or "-o"))
+                return false;
+            if (!TryReadNext(args, ref index, out outputZipPath))
+                return false;
         }
 
         return !string.IsNullOrWhiteSpace(subscriptionId)

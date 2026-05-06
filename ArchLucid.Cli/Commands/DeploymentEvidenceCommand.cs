@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using System.Text;
 
 using ArchLucid.Cli.Support;

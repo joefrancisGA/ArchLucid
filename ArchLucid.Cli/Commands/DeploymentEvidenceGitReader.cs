@@ -9,10 +9,7 @@ internal static class DeploymentEvidenceGitReader
     {
         string? fromActions = Environment.GetEnvironmentVariable("GITHUB_SHA");
 
-        if (!string.IsNullOrWhiteSpace(fromActions))
-            return fromActions.Trim();
-
-        return TryRunGit(repositoryRoot, "rev-parse", "HEAD");
+        return !string.IsNullOrWhiteSpace(fromActions) ? fromActions.Trim() : TryRunGit(repositoryRoot, "rev-parse", "HEAD");
     }
 
     internal static bool? TryReadDirty(string repositoryRoot)

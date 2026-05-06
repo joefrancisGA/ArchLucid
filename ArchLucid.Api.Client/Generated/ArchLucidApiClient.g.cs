@@ -46801,6 +46801,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("llmCallCount")]
         public int? LlmCallCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("llmCallCountResolved")]
+        public bool? LlmCallCountResolved { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("manifestCommittedUtc")]
         public System.DateTimeOffset? ManifestCommittedUtc { get; set; } = default!;
 
@@ -48079,6 +48082,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("llmCallCount")]
         public int? LlmCallCount { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("llmCallCountResolved")]
+        public bool? LlmCallCountResolved { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("proofSendability")]
         public string? ProofSendability { get; set; } = default!;
 
@@ -48088,8 +48094,14 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("roiConfidenceLabel")]
         public string? RoiConfidenceLabel { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("roiEvidenceConfidence")]
+        public int? RoiEvidenceConfidence { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("runInCommittedStatus")]
         public bool? RunInCommittedStatus { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("supportRunIdPresent")]
+        public bool? SupportRunIdPresent { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("timeToCommittedManifestResolved")]
         public bool? TimeToCommittedManifestResolved { get; set; } = default!;
