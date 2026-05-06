@@ -56,7 +56,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
     return (
       <div className="grid max-w-xl gap-3">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Run a simulation above — per-run outcomes explain matches, suppression, and dedupe.
+          Run a simulation above — per-review outcomes explain matches, suppression, and dedupe.
         </p>
         <GettingStartedSteps {...alertSimulationOutcomesEmptyGettingStarted} />
       </div>
@@ -67,7 +67,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
       <table className="mt-2 w-full border-collapse text-[13px]">
         <thead>
           <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
-            <th className="p-1.5">Run</th>
+            <th className="p-1.5">Review ID</th>
             <th className="p-1.5">Match</th>
             <th className="p-1.5">Would create</th>
             <th className="p-1.5">Suppressed</th>
@@ -117,7 +117,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
     <div className="mt-4">
       <h4 className="mb-2">Summary</h4>
       <ul className="m-0">
-        <li>Evaluated runs: {result.evaluatedRunCount}</li>
+        <li>Evaluated reviews: {result.evaluatedRunCount}</li>
         <li>Matched: {result.matchedCount}</li>
         <li>Would create alerts: {result.wouldCreateCount}</li>
         <li>Would suppress: {result.wouldSuppressCount}</li>
@@ -380,7 +380,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Recent run count (1–50)
+              Recent review count (1–50)
               <input
                 type="number"
                 min={1}
@@ -391,7 +391,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Run project slug
+              Workspace project slug
               <input
                 value={sSlug}
                 onChange={(e) => setSSlug(e.target.value)}
@@ -399,7 +399,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Specific run ID (optional; overrides recent list)
+              Specific review ID (optional; overrides recent list)
               <input
                 value={sRunId}
                 onChange={(e) => setSRunId(e.target.value)}
@@ -408,7 +408,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Compared-to run ID (optional)
+              Compared-to review ID (optional)
               <input
                 value={sCompareRun}
                 onChange={(e) => setSCompareRun(e.target.value)}
@@ -421,7 +421,7 @@ export function AlertSimulationContent() {
                 checked={sUseHistory}
                 onChange={(e) => setSUseHistory(e.target.checked)}
               />
-              Use historical window (recent runs)
+              Use historical window (recent reviews)
             </label>
             <button
               type="button"
@@ -517,8 +517,8 @@ export function AlertSimulationContent() {
                 className="mt-1 block w-full p-2"
               >
                 <option value="RuleOnly">Rule only</option>
-                <option value="RuleAndRun">Rule + run</option>
-                <option value="RuleAndComparison">Rule + run + comparison</option>
+                <option value="RuleAndRun">Rule + review</option>
+                <option value="RuleAndComparison">Rule + review + comparison</option>
               </select>
             </label>
             <p className="m-0 font-semibold">Condition 1</p>
@@ -558,7 +558,7 @@ export function AlertSimulationContent() {
               <input type="number" value={cV2} onChange={(e) => setCV2(Number(e.target.value))} />
             </div>
             <label>
-              Recent run count
+              Recent review count
               <input
                 type="number"
                 min={1}
@@ -569,7 +569,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Run project slug
+              Workspace project slug
               <input
                 value={cSlug}
                 onChange={(e) => setCSlug(e.target.value)}
@@ -667,7 +667,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Recent run count
+              Recent review count
               <input
                 type="number"
                 min={1}
@@ -678,7 +678,7 @@ export function AlertSimulationContent() {
               />
             </label>
             <label>
-              Run project slug
+              Workspace project slug
               <input
                 value={cmpSlug}
                 onChange={(e) => setCmpSlug(e.target.value)}

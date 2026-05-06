@@ -748,7 +748,7 @@ export default async function RunDetailPage({
                   <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download run export (ZIP)</a>
+                  <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download review export (ZIP)</a>
                 </Button>
               </div>
             </CollapsibleSection>

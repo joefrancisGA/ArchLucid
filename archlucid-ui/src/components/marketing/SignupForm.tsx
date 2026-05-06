@@ -305,7 +305,7 @@ export function SignupForm() {
             Supplying <strong className="font-semibold text-neutral-800 dark:text-neutral-200">baseline review hours</strong> tightens your
             ROI &quot;before&quot; anchors. Default signup stays fast; pick <em>I will enter our median review-cycle hours</em>{" "}
             to unlock the baseline review hours field. We still compute a measured-vs-baseline curve after your first
-            finalized run using the conservative model from{" "}
+            finalized review using the conservative model from{" "}
             <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code>{" "}
             when you leave the modeled default — see also the{" "}
             <a
@@ -373,7 +373,7 @@ export function SignupForm() {
           {baselineChoice === "custom" ? (
             <div className="mt-3 space-y-3 border-t border-neutral-200 pt-3 dark:border-neutral-600">
               <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                Overriding produces a measured-vs-baseline curve on the operator dashboard once a run finalizes.
+                Overriding produces a measured-vs-baseline curve on the operator dashboard once a review finalizes.
               </p>
               <div>
                 <Label htmlFor="signup-baseline-hours">Baseline review hours (median hours per cycle)</Label>

@@ -59,7 +59,7 @@ function CandidateCard({
     >
       <strong>Threshold: {candidate.thresholdValue}</strong> ({candidate.label})
       <div className="mt-2 text-sm">
-        <div>Evaluated runs: {simulationResult.evaluatedRunCount}</div>
+        <div>Evaluated reviews: {simulationResult.evaluatedRunCount}</div>
         <div>Matched: {simulationResult.matchedCount}</div>
         <div>Would create: {simulationResult.wouldCreateCount}</div>
         <div>Would suppress: {simulationResult.wouldSuppressCount}</div>
@@ -258,7 +258,7 @@ export function AlertTuningContent() {
             </>
           ) : (
             <p className="mt-0 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
-              No tuning results yet. Run a recommendation below to compare candidate thresholds against recent runs.
+              No tuning results yet. Run a recommendation below to compare candidate thresholds against recent reviews.
             </p>
           )}
         </section>
@@ -362,8 +362,8 @@ export function AlertTuningContent() {
                 className="mt-1 block w-full p-2"
               >
                 <option value="RuleOnly">Rule only</option>
-                <option value="RuleAndRun">Rule + run</option>
-                <option value="RuleAndComparison">Rule + run + comparison</option>
+                <option value="RuleAndRun">Rule + review</option>
+                <option value="RuleAndComparison">Rule + review + comparison</option>
               </select>
             </label>
             <p className="m-0 font-semibold">Condition 1</p>
@@ -431,7 +431,7 @@ export function AlertTuningContent() {
         </label>
 
         <label>
-          Recent run count (1–50)
+          Recent review count (1–50)
           <input
             type="number"
             min={1}
@@ -443,7 +443,7 @@ export function AlertTuningContent() {
         </label>
 
         <label>
-          Run project slug
+          Workspace project slug
           <input
             value={runSlug}
             onChange={(e) => setRunSlug(e.target.value)}
