@@ -40,6 +40,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.AdminNotifications;
 
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Audit;

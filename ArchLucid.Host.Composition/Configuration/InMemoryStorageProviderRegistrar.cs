@@ -36,6 +36,7 @@ using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;

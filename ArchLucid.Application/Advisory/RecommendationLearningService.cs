@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 
 namespace ArchLucid.Application.Advisory;
 /// <summary>
@@ -14,7 +15,7 @@ namespace ArchLucid.Application.Advisory;
 public sealed class RecommendationLearningService(IRecommendationRepository recommendationRepository, IRecommendationLearningAnalyzer analyzer, IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
     private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(recommendationRepository, analyzer, profileRepository);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer analyzer, ArchLucid.Persistence.IRecommendationLearningProfileRepository profileRepository)
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer analyzer, ArchLucid.Persistence.Advisory.IRecommendationLearningProfileRepository profileRepository)
     {
         ArgumentNullException.ThrowIfNull(recommendationRepository);
         ArgumentNullException.ThrowIfNull(analyzer);

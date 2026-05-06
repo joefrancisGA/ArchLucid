@@ -15,9 +15,19 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
     loadProjectRunsMergedWithDemoFallbackMock(...args),
 }));
 
+import { OperatorCoArchitectHomeStrip } from "./OperatorCoArchitectHomeStrip";
 import { WelcomeBanner } from "./WelcomeBanner";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
+
+function renderHomeWithCoArchitectStrip() {
+  render(
+    <>
+      <OperatorCoArchitectHomeStrip />
+      <WelcomeBanner />
+    </>,
+  );
+}
 
 const emptyRunsPage = {
   items: [] as RunSummary[],
@@ -48,8 +58,8 @@ beforeEach(() => {
 });
 
 describe("WelcomeBanner — renders heading and CTAs", () => {
-  it("shows welcome heading, primary CTA, value card, and example link when not dismissed", async () => {
-    render(<WelcomeBanner />);
+  it("shows welcome heading, co-architect strip CTAs, value card, and example link when not dismissed", async () => {
+    renderHomeWithCoArchitectStrip();
 
     await waitFor(() => {
       expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
@@ -59,7 +69,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
     expect(
       within(banner).getByRole("heading", {
-        name: "Turn architecture proposals into governed, evidence-backed review packages.",
+        name: "Review an existing architecture—with evidence-backed outcomes.",
       }),
     ).toBeInTheDocument();
 
@@ -72,11 +82,12 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
           el?.tagName === "P" &&
           text.includes("architecture manifest") &&
           text.includes("findings") &&
-          text.includes("Submit one structured request")
+          text.includes("structured architecture review")
         );
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Describe what you want" })).toHaveAttribute("href", "/reviews/new?intent=describe");
     expect(screen.getByText("Governed manifest")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
@@ -104,14 +115,14 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
     loadProjectRunsMergedWithDemoFallbackMock.mockResolvedValue({ items: [run], loadError: false });
 
-    render(<WelcomeBanner />);
+    renderHomeWithCoArchitectStrip();
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: "Architecture review workspace" })).toBeInTheDocument();
     });
 
     expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Start architecture review" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
       "href",
       "/showcase/claims-intake-modernization",
@@ -121,7 +132,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
 describe("WelcomeBanner — dismiss hides banner", () => {
   it("hides after session dismiss click", async () => {
-    render(<WelcomeBanner />);
+    renderHomeWithCoArchitectStrip();
 
     await waitFor(() => {
       expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
