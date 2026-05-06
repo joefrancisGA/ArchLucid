@@ -124,7 +124,7 @@ export function AdvisorySchedulesContent() {
         </div>
         <p className="doc-meta m-0">
           Background worker polls every ~5 minutes for due schedules. Use the <strong>project slug</strong> (same as
-          Architecture runs list, often <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">default</code>) so recent runs are discovered.
+          the architecture reviews list, often <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">default</code>) so recent reviews are discovered.
         </p>
 
         {failure !== null ? (
@@ -166,7 +166,7 @@ export function AdvisorySchedulesContent() {
                 />
               </label>
               <label>
-                Run project slug
+                Workspace project slug
                 <input
                   value={runProjectSlug}
                   onChange={(e) => setRunProjectSlug(e.target.value)}
@@ -226,8 +226,8 @@ export function AdvisorySchedulesContent() {
                         Slug: <code className="font-mono">{s.runProjectSlug}</code>
                       </div>
                       <div>Enabled: {s.isEnabled ? "yes" : "no"}</div>
-                      <div>Next run: {s.nextRunUtc ? new Date(s.nextRunUtc).toLocaleString() : "—"}</div>
-                      <div>Last run: {s.lastRunUtc ? new Date(s.lastRunUtc).toLocaleString() : "—"}</div>
+                      <div>Next execution: {s.nextRunUtc ? new Date(s.nextRunUtc).toLocaleString() : "—"}</div>
+                      <div>Last execution: {s.lastRunUtc ? new Date(s.lastRunUtc).toLocaleString() : "—"}</div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button

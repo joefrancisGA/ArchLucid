@@ -117,7 +117,7 @@ export function AfterCorePilotChecklistHint() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="m-0 text-sm text-neutral-800 dark:text-neutral-200" data-testid="after-core-pilot-intro">
-            When you have a real question that run detail cannot answer—<strong>what changed between two runs</strong>,{" "}
+            When you have a real question that review detail cannot answer—<strong>what changed between two reviews</strong>,{" "}
             <strong>whether the provenance chain still validates</strong>, or a <strong>visual graph</strong>—the links
             below point to deeper analysis. <strong>Enterprise Controls</strong> (governance, audit, alerts) stay in
             the sidebar until sponsors or policy need them—not part of first-pilot success criteria.

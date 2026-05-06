@@ -19,7 +19,7 @@ function stageDone(flag: boolean | undefined): boolean {
 }
 
 /**
- * Step 7: poll run summary and visualize run pipeline stages.
+ * Step 7: poll review summary and visualize pipeline stages.
  */
 export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   const ctx = stageDone(pollSummary?.hasContextSnapshot);
@@ -33,7 +33,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   return (
     <WizardStepPanel
       title="Track pipeline"
-      description="Snapshot stages run asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
+      description="Snapshot stages execute asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
     >
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>Review ID:</strong>{" "}
@@ -101,7 +101,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
         </div>
       ) : (
         <p className="mt-4 text-xs text-neutral-500">
-          Waiting for reviewed manifest… (updates stream for up to several minutes; you can open run detail anytime.)
+          Waiting for reviewed manifest… (updates stream for up to several minutes; you can open review detail anytime.)
         </p>
       )}
     </WizardStepPanel>

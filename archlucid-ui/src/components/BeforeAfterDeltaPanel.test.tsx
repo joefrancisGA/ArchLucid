@@ -85,7 +85,7 @@ describe("BeforeAfterDeltaPanel", () => {
 
     expect(screen.getByTestId("before-after-delta-baseline-hours")).toHaveTextContent("16.00 h");
     expect(screen.getByTestId("before-after-delta-measured-hours")).toHaveTextContent("4.00 h");
-    expect(screen.getByTestId("before-after-delta-summary")).toHaveTextContent(/12\.00 h saved per run/);
+    expect(screen.getByTestId("before-after-delta-summary")).toHaveTextContent(/12\.00 h saved per finalized review/);
     expect(screen.getByTestId("before-after-delta-summary")).toHaveTextContent(/75\.0% improvement/);
   });
 

@@ -118,7 +118,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
       className="rounded-md border border-amber-300/90 bg-amber-50/95 p-4 text-sm text-amber-950 shadow-sm dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50"
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
-        Estimated Azure OpenAI cost for this run:{" "}
+        Estimated Azure OpenAI cost for this review:{" "}
         {headlineAmount !== null ? (
           <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
         ) : (
