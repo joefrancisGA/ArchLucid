@@ -220,10 +220,10 @@ export function NewRunWizardClient() {
 
   const liveMessage =
     runId === null
-      ? "No run yet."
+      ? "No review started yet."
       : pollSummary
-        ? `Run ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, reviewed manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
-        : `Run ${runId} created; loading summary.`;
+        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, reviewed manifest ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        : `Review ${runId} created; loading summary.`;
 
   const persistWizardMode = useCallback((mode: "quick" | "full") => {
     setWizardMode(mode);
@@ -261,7 +261,7 @@ export function NewRunWizardClient() {
     const ok = await trigger(undefined, { shouldFocus: true });
 
     if (!ok) {
-      showToast("err", "Fix validation errors before creating the run.");
+      showToast("err", "Fix validation errors before creating the architecture review.");
 
       return;
     }
@@ -274,7 +274,7 @@ export function NewRunWizardClient() {
       const id = res.run?.runId ?? null;
 
       if (!id) {
-        showToast("err", "API returned no run id.");
+        showToast("err", "API returned no architecture review id.");
 
         return;
       }
@@ -282,7 +282,7 @@ export function NewRunWizardClient() {
       setRunId(id);
       setStepIndex(5);
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Run ${id} created — tracking pipeline below.`);
+      showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
       const message =
         error && typeof error === "object" && "message" in error

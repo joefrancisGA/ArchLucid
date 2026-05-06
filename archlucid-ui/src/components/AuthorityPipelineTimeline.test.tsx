@@ -79,6 +79,6 @@ describe("AuthorityPipelineTimeline", () => {
 
     render(<AuthorityPipelineTimeline items={items} />);
 
-    expect(screen.getByText("Run finalized")).toBeInTheDocument();
+    expect(screen.getByText("Review finalized")).toBeInTheDocument();
   });
 });

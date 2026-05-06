@@ -273,7 +273,7 @@ test.describe("live-api-trial-end-to-end", () => {
     expect(wizardRunId.length).toBeGreaterThan(0);
     expect(createResp.status()).toBe(201);
 
-    await expect(page.getByText(/Run .* created/i)).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/Architecture review .* created/i)).toBeVisible({ timeout: 120_000 });
 
     await executeRun(request, wizardRunId, scope);
     await waitForReadyForCommit(request, wizardRunId, 120_000, scope);
@@ -287,7 +287,7 @@ test.describe("live-api-trial-end-to-end", () => {
     await page.getByRole("button", { name: "Finalize manifest" }).first().click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();
 
-    await expect(page.getByText(/This run is already finalized/i)).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/This review is already finalized/i)).toBeVisible({ timeout: 120_000 });
 
     await expect(page.getByTestId("email-run-to-sponsor-first-commit-badge")).toBeVisible({ timeout: 120_000 });
     await expect(page.getByText(/Day \d+ since first finalization/i)).toBeVisible({ timeout: 10_000 });

@@ -26,9 +26,9 @@ export const CONTOSO_RETAIL_SAMPLE_BRIEF =
 const MIN_BRIEF_CHARS = 100;
 
 const QUICK_REVIEW_STEPS = [
-  { label: "Paste your architecture brief", description: "Free text — we send it as the run description." },
+  { label: "Paste your architecture brief", description: "Free text — we send it as the architecture review description." },
   { label: "Review scope", description: "Confirm workspace scope and optional title." },
-  { label: "Confirm and run", description: "Create the request and open pipeline progress." },
+  { label: "Confirm and start review", description: "Create the request and open pipeline progress." },
 ] as const;
 
 function readStoredPathMode(): "quick-review" | "detailed" {
@@ -150,13 +150,13 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (!id) {
-        showToast("err", "API returned no run id.");
+        showToast("err", "API returned no architecture review id.");
 
         return;
       }
 
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Run ${id} created — opening pipeline.`);
+      showToast("ok", `Architecture review ${id} created — opening pipeline.`);
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -190,7 +190,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
           <CardHeader>
             <CardTitle>Paste your architecture brief</CardTitle>
             <CardDescription>
-              Include goals, constraints, and context so the run has enough to work with. Minimum {MIN_BRIEF_CHARS}{" "}
+              Include goals, constraints, and context so the pipeline has enough to work with. Minimum {MIN_BRIEF_CHARS}{" "}
               characters.
             </CardDescription>
           </CardHeader>
@@ -210,7 +210,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
               />
               <p id="quick-review-brief-hint" className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                 {briefText.trim().length}/{MIN_BRIEF_CHARS} characters minimum. Paste an executive summary or detailed
-                brief — it becomes the run description sent to the API.
+                brief — it becomes the review description sent to the API.
               </p>
             </div>
             <Button type="button" variant="secondary" onClick={useSampleBrief} data-testid="quick-review-sample-brief">
@@ -253,7 +253,7 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
                 autoComplete="off"
               />
               <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-                If empty, the run uses “{displaySystemName}” as the system name.
+                If empty, the review uses “{displaySystemName}” as the system name.
               </p>
             </div>
           </CardContent>
@@ -263,8 +263,8 @@ export function QuickReviewWizard(props: QuickReviewWizardProps) {
       {step === 2 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Confirm and run</CardTitle>
-            <CardDescription>This creates a new architecture run with your pasted brief.</CardDescription>
+            <CardTitle>Confirm and start review</CardTitle>
+            <CardDescription>This starts a new architecture review with your pasted brief.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p className="m-0">

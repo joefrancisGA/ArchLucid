@@ -13,7 +13,7 @@ export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStar
 export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What this page shows",
   steps: [
-    "Operators pick a review and load approval requests, promotions, and activations for that run.",
+    "Operators pick a review and load approval requests, promotions, and activations for that review.",
     "Submitting, approving, promoting, and activating require Execute+ where your tenant expects it.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
@@ -24,7 +24,7 @@ export const governanceNoApprovalsGettingStartedOperator: EmptyStateGettingStart
   steps: [
     "If the manifest should move environments, submit an approval request using the card above.",
     "Otherwise pick another review that already has an open request.",
-    "Ask reviewers to load this run — approvals appear here once submitted.",
+    "Ask reviewers to load this review — approvals appear here once submitted.",
   ],
 };
 
@@ -33,7 +33,7 @@ export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted
   steps: [
     "No approval rows exist for this review yet — operators submit requests after finalize.",
     "Try another review from the picker, or coordinate with an operator to submit.",
-    "You can still inspect promotions and activations below once the run has history.",
+    "You can still inspect promotions and activations below once the review has history.",
   ],
 };
 

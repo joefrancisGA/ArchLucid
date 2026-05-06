@@ -25,7 +25,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   Inventory: {
     label: "Inventory",
     description:
-      "JSON inventory of resources or components inferred from the architecture context for this run.",
+      "JSON inventory of resources or components inferred from the architecture context for this review.",
   },
   CostSummary: {
     label: "Cost summary",
@@ -60,7 +60,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   Diagram: {
     label: "Diagram",
     description:
-      "Diagram source (for example Mermaid) for a context or architecture view tied to this run.",
+      "Diagram source (for example Mermaid) for a context or architecture view tied to this review.",
   },
 };
 

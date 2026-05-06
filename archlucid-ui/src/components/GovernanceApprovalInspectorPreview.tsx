@@ -36,7 +36,9 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Run</dt>
+        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          Review ID
+        </dt>
         <dd className="m-0 min-w-0">
           <Link
             href={`/reviews/${encodeURIComponent(request.runId)}`}

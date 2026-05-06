@@ -6,7 +6,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   RunStarted: "Run started",
   RunCompleted: "Run completed",
   "finalize.run": "Manifest finalized",
-  "run.finalized": "Run finalized",
+  "run.finalized": "Review finalized",
   "context.snapshot.created": "Context captured",
   "graph.snapshot.created": "Architecture graph created",
   "findings.snapshot.created": "Findings generated",
@@ -19,7 +19,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   findings_snapshot: "Findings generated",
 
   // Canonical integration events (see ArchLucid.Core.Integration.IntegrationEventTypes)
-  "com.archlucid.authority.run.completed": "Run finalized",
+  "com.archlucid.authority.run.completed": "Review finalized",
   "com.archlucid.manifest.finalized.v1": "Manifest finalized",
   "com.archlucid.governance.approval.submitted": "Governance approval requested",
   "com.archlucid.governance.promotion.activated": "Governance promotion activated",

@@ -44,7 +44,7 @@ function stagesForRun(run: RunSummary): StageDef[] {
       label: "Context",
       present: run.hasContextSnapshot === true,
       tooltip:
-        "Context — architecture inputs and constraints captured as a snapshot for this run. " +
+        "Context — architecture inputs and constraints captured as a snapshot for this review. " +
         (run.hasContextSnapshot === true ? "Present." : "Not yet captured."),
     },
     {

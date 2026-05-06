@@ -28,7 +28,7 @@ export interface GovernanceDryRunModalProps {
 
 /**
  * Governance dry-run / what-if modal: lets an operator simulate proposed threshold changes
- * against a list of historic run ids without committing anything. The default page size is
+ * against a list of historic review ids without committing anything. The default page size is
  * fixed at 20 (owner Q38) and the API will clamp anything larger than 100 server-side.
  */
 export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalProps) {
@@ -90,7 +90,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
       .filter((s) => s.length > 0);
 
     if (runIds.length === 0) {
-      setErrorMessage("Provide at least one run id to evaluate.");
+      setErrorMessage("Provide at least one review id to evaluate.");
       setBusy(false);
 
       return;
@@ -122,7 +122,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
         <DialogHeader>
           <DialogTitle>Governance dry-run</DialogTitle>
           <DialogDescription>
-            Simulate proposed threshold changes for this policy pack against historic runs without
+            Simulate proposed threshold changes for this policy pack against historic reviews without
             persisting changes. Default page size {POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE}, server cap{" "}
             {POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE}.
           </DialogDescription>
@@ -146,7 +146,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="dry-run-run-ids">Run ids (comma or whitespace separated)</Label>
+            <Label htmlFor="dry-run-run-ids">Review ids (comma or whitespace separated)</Label>
             <Input
               id="dry-run-run-ids"
               data-testid="dry-run-run-ids"
@@ -193,7 +193,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
             >
               <div className="font-semibold">Result</div>
               <div>
-                Evaluated {result.deltaCounts.evaluated} run(s) — would block{" "}
+                Evaluated {result.deltaCounts.evaluated} review(s) — would block{" "}
                 <strong>{result.deltaCounts.wouldBlock}</strong> · would allow{" "}
                 <strong>{result.deltaCounts.wouldAllow}</strong> · missing{" "}
                 <strong>{result.deltaCounts.runMissing}</strong>

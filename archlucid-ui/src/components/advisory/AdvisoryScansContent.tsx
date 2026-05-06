@@ -125,13 +125,13 @@ export function AdvisoryScansContent() {
           <input
             value={runId}
             onChange={(e) => setRunId(e.target.value)}
-            placeholder="Architecture run ID (target / current run)"
+            placeholder="Architecture review ID (target / current review)"
             className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
           />
           <input
             value={compareToRunId}
             onChange={(e) => setCompareToRunId(e.target.value)}
-            placeholder="Optional compare-to architecture run ID (base run for delta signals)"
+            placeholder="Optional compare-to architecture review ID (base review for delta signals)"
             className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
           />
           <div className="flex flex-wrap gap-2">
@@ -253,7 +253,7 @@ export function AdvisoryScansContent() {
             </div>
           </>
         ) : planSummary && recommendations.length === 0 ? (
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No persisted recommendations returned for this architecture run.</p>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No persisted recommendations returned for this architecture review.</p>
         ) : null}
       </DocumentLayout>
     </main>

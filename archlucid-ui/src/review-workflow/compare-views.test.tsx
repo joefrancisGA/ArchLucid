@@ -59,7 +59,7 @@ describe("Compare / review views (55R smoke)", () => {
     expect(screen.getAllByText("Region changed").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("LegacyRunComparisonView shows empty run-level diff message when there are no diffs", () => {
+  it("LegacyRunComparisonView shows empty review-level diff message when there are no diffs", () => {
     const result: RunComparison = {
       leftRunId: "L",
       rightRunId: "R",
@@ -69,7 +69,7 @@ describe("Compare / review views (55R smoke)", () => {
     render(<LegacyRunComparisonView result={result} />);
 
     expect(screen.getByRole("heading", { name: "Run-level diff", level: 3 })).toBeInTheDocument();
-    expect(screen.getByText("No run-level diffs")).toBeInTheDocument();
+    expect(screen.getByText("No review-level diffs")).toBeInTheDocument();
   });
 
   it("LegacyRunComparisonView renders flat diffs when data exists", () => {

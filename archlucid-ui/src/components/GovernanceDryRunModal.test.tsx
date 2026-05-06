@@ -105,7 +105,7 @@ describe("GovernanceDryRunModal", () => {
     fireEvent.click(screen.getByTestId("dry-run-submit"));
 
     const error = await screen.findByTestId("dry-run-error");
-    expect(error.textContent).toMatch(/at least one run id/i);
+    expect(error.textContent).toMatch(/at least one review id/i);
     expect(mockDryRun).not.toHaveBeenCalled();
   });
 });
