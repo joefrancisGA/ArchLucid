@@ -13,7 +13,6 @@ public sealed class DapperAdminNotificationsRepository(ISqlConnectionFactory con
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
-    /// <inheritdoc />
     public async Task InsertAsync(string kind, string summary, string? dataJson, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(kind);
@@ -29,7 +28,12 @@ public sealed class DapperAdminNotificationsRepository(ISqlConnectionFactory con
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { Kind = kind, Summary = summary, DataJson = dataJson },
+                new
+                {
+                    Kind = kind,
+                    Summary = summary,
+                    DataJson = dataJson
+                },
                 cancellationToken: cancellationToken));
     }
 }
