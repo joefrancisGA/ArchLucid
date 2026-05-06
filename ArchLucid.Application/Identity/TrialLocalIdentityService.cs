@@ -22,7 +22,8 @@ public sealed class TrialLocalIdentityService(IOptions<TrialAuthOptions>? trialO
     }
 
     // Fixed payload so failed lookups perform password hashing work comparable to the success path's verifier cost.
-    private const string AuthenticationTimingDummyPassword = "Cw7qN9mK2pR4vL8xJ3hF6tY0zB5dS1gM";
+    // Intentionally readable (low entropy in source) so secret scanners do not treat it as a credential; it is never a user password.
+    private const string AuthenticationTimingDummyPassword = "archlucid-trial-local-identity-timing-mitigation-dummy-password";
     private readonly ITrialLocalIdentityAccountExistsNotifier _accountExistsNotifier = accountExistsNotifier ?? throw new ArgumentNullException(nameof(accountExistsNotifier));
     private readonly ILogger<TrialLocalIdentityService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly PasswordHasher<TrialIdentityHasherUser> _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));

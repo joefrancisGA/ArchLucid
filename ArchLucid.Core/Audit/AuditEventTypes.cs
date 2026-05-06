@@ -441,6 +441,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string RunLegacyReadyForCommitPromoted = "RunLegacyReadyForCommitPromoted";
 
+    /// <summary>Inbound Jira webhook mapped an issue status to finding <c>HumanReviewStatus</c>.</summary>
+    public const string IntegrationJiraIssueStatusSynced = "Integration.JiraIssueStatusSynced";
+
+    /// <summary>Inbound ServiceNow webhook mapped an incident state to finding <c>HumanReviewStatus</c>.</summary>
+    public const string IntegrationServiceNowIncidentStatusSynced = "Integration.ServiceNowIncidentStatusSynced";
+
     /// <summary>
     ///     Canonical durable <c>dbo.AuditEvents</c> event types for architecture run-stage semantics (create, execute,
     ///     commit, failure).

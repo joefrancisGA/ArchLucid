@@ -26,4 +26,6 @@ public static class HostElectionLeaseNames
     public const string TrialArchitecturePreseed = "hosted:trial-architecture-preseed";
 
     public const string DataConsistencyReconciliation = "hosted:data-consistency-reconciliation";
+
+    public const string FirstTenantFunnelArchival = "hosted:first-tenant-funnel-archival";
 }
