@@ -30,7 +30,6 @@ public sealed class StorageProviderRegistrationParityTests
     [
         typeof(ITenantDatabaseBindingRepository),
         typeof(ITenantDatabaseResolver),
-        typeof(ITenantSqlCatalogProvisioner),
         typeof(ScopedRoutingSqlConnectionFactory),
         typeof(IRlsSessionContextApplicator),
         typeof(ISqlConnectionFactory),
@@ -41,7 +40,9 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
-        typeof(ITenantOnboardingStateRepository)
+        typeof(ITenantOnboardingStateRepository),
+        typeof(SqlConnectionFactory),
+        typeof(ResilientSqlConnectionFactory)
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
