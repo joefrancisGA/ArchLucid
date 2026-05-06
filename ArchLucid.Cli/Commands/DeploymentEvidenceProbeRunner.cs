@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Text.Json;
 
 using ArchLucid.Cli.Support;
@@ -30,7 +29,7 @@ internal static class DeploymentEvidenceProbeRunner
 
         probes.Add(live);
 
-        DeploymentEvidenceProbeResult ready = await ProbeReadyAsync(http, redactedBase, cancellationToken)
+        DeploymentEvidenceProbeResult ready = await ProbeReadyAsync(http, cancellationToken)
             .ConfigureAwait(false);
 
         probes.Add(ready);
@@ -64,7 +63,7 @@ internal static class DeploymentEvidenceProbeRunner
                 new DeploymentEvidenceProbeResult(
                     "GET " + syntheticPath + " (synthetic)",
                     200,
-                    version.Passed && version.StatusCode == 200,
+                    version is { Passed: true, StatusCode: 200 },
                     version.Passed
                         ? "Skipped separate request — same path as /version (already probed)."
                         : "/version did not pass; synthetic path is /version by convention.",
@@ -122,7 +121,6 @@ internal static class DeploymentEvidenceProbeRunner
     }
 
     private static async Task<DeploymentEvidenceProbeResult> ProbeReadyAsync(HttpClient http,
-        string redactedBase,
         CancellationToken cancellationToken)
     {
         const string label = "GET /health/ready";
@@ -152,22 +150,21 @@ internal static class DeploymentEvidenceProbeRunner
                     ? st.GetString()
                     : null;
 
-                if (!string.Equals(overall, "Healthy", StringComparison.Ordinal))
-                {
-                    string summary = overall is null
-                        ? "JSON missing top-level .status."
-                        : "Overall readiness status is `" + overall + "` (expected Healthy).";
+                if (string.Equals(overall, "Healthy", StringComparison.Ordinal))
+                    return new DeploymentEvidenceProbeResult(label, code, true, "HTTP 200; status=Healthy.", [], preview);
 
-                    return new DeploymentEvidenceProbeResult(
-                        label,
-                        code,
-                        false,
-                        summary,
-                        DeploymentEvidenceTriageCatalog.ReadyFailure(),
-                        preview);
-                }
+                string summary = overall is null
+                    ? "JSON missing top-level .status."
+                    : "Overall readiness status is `" + overall + "` (expected Healthy).";
 
-                return new DeploymentEvidenceProbeResult(label, code, true, "HTTP 200; status=Healthy.", [], preview);
+                return new DeploymentEvidenceProbeResult(
+                    label,
+                    code,
+                    false,
+                    summary,
+                    DeploymentEvidenceTriageCatalog.ReadyFailure(),
+                    preview);
+
             }
             catch (JsonException)
             {

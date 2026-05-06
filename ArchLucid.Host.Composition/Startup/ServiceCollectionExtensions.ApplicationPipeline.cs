@@ -165,6 +165,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IExecutionProvenanceFooterRenderer,
             ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
+        services.AddScoped<IFirstValueReportBuilder>(static sp => sp.GetRequiredService<FirstValueReportBuilder>());
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();
         services.AddScoped<ExecutiveSponsorBriefPdfBuilder>();

@@ -16,7 +16,8 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import {
@@ -94,15 +95,16 @@ export function MobileNavDrawer() {
   const { showExtended, showAdvanced, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const demoUi = isNextPublicDemoMode();
+  const demoUi = isStaticDemoPayloadFallbackEnabled();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
     showAdvanced,
   );
 
-  const extendedForShell = demoUi ? true : shellShowExtended;
-  const advancedForShell = demoUi ? true : shellShowAdvanced;
+  const extendedForShell = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const advancedForShell = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
 
   const reviewNavRows = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
@@ -144,7 +146,7 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {renderMobileNavBlock(reviewNavRows, pathname, demoUi, () => {
+            {renderMobileNavBlock(reviewNavRows, pathname, demoUi || buyerPolishedShell, () => {
               setOpen(false);
             })}
             {adminNavRows.length > 0 ? (
@@ -152,12 +154,12 @@ export function MobileNavDrawer() {
                 <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   Administration
                 </p>
-                {renderMobileNavBlock(adminNavRows, pathname, demoUi, () => {
+                {renderMobileNavBlock(adminNavRows, pathname, demoUi || buyerPolishedShell, () => {
                   setOpen(false);
                 })}
               </div>
             ) : null}
-            {demoUi ? null : (
+            {demoUi || buyerPolishedShell ? null : (
               <Button
                 type="button"
                 variant="outline"
@@ -179,9 +181,11 @@ export function MobileNavDrawer() {
                   : NAV_DISCLOSURE.advancedOperationsSidebar.show}
               </Button>
             )}
-            <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
-              Press Shift+? for help and keyboard shortcuts
-            </p>
+            {buyerPolishedShell ? null : (
+              <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
+                Press Shift+? for help and keyboard shortcuts
+              </p>
+            )}
           </div>
         </DialogContent>
       </Dialog>

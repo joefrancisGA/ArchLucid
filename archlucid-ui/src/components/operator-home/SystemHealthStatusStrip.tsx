@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
   const [ready, setReady] = useState<HealthReadyResponse | null>(null);
 
   useEffect(() => {
-    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+    if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
       return;
     }
 
@@ -83,7 +83,7 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
     };
   }, []);
 
-  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 

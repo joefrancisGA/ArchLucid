@@ -24,7 +24,7 @@ import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -150,7 +150,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
               </KeyboardShortcutProvider>
             </div>
           </div>
-          {!isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
+          {!isBuyerPolishedOperatorShellEnv() && !isNextPublicDemoMode() && !hideWorkspaceHealthFooter ? (
             <footer
               className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
               aria-label="Workspace footer"

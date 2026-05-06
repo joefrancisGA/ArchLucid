@@ -3,8 +3,9 @@ import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
-/** In public demo builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
+/** In buyer-polished operator builds, omit routes that read as unfinished operator tooling or leak internal surfaces. */
 const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/planning",
   "/product-learning",
@@ -34,10 +35,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
 ]);
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
-  const demo =
-    process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-
-  if (!demo) {
+  if (!isBuyerPolishedOperatorShellEnv()) {
     return links;
   }
 

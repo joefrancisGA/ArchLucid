@@ -165,13 +165,16 @@ export function SidebarNav() {
     showExtended,
     showAdvanced,
   );
+  const navExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const navAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
+  const effectiveShellPresetId: OperatorShellPresetId = buyerPolishedShell || demoUi ? "full" : shellPresetId;
 
-  const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !navAllFeaturesExpanded;
+  const applyCollapsedSidebarPilotFilter = mounted && !demoUi && !buyerPolishedShell && !navAllFeaturesExpanded;
   const extraLinksBehindCollapsedPilot = applyCollapsedSidebarPilotFilter
     ? countSidebarLinksHiddenByCollapsedPilot(
         NAV_GROUPS,
-        demoUi ? true : shellShowExtended,
-        demoUi ? true : shellShowAdvanced,
+        navExtended,
+        navAdvanced,
         callerAuthorityRank,
         hasCommittedArchitectureReview,
       )
@@ -228,7 +231,7 @@ export function SidebarNav() {
   }, []);
 
   useEffect(() => {
-    if (demoUi) {
+    if (demoUi || buyerPolishedShell) {
       return;
     }
 
@@ -275,7 +278,7 @@ export function SidebarNav() {
     return () => {
       cancelled = true;
     };
-  }, [demoUi]);
+  }, [buyerPolishedShell, demoUi]);
 
   function setGroupOpen(groupId: string, value: boolean): void {
     setOpenByGroup((prev) => ({ ...prev, [groupId]: value }));
@@ -309,7 +312,7 @@ export function SidebarNav() {
   }
 
   function filterClustersByPreset(clusters: NavGroupWithVisibleLinks[]): NavGroupWithVisibleLinks[] {
-    if (demoUi || shellPresetId === "full") {
+    if (demoUi || effectiveShellPresetId === "full") {
 
 
       return clusters;
@@ -318,17 +321,22 @@ export function SidebarNav() {
     return clusters
       .map((row) => ({
         ...row,
-        visibleLinks: row.visibleLinks.filter((l) => operatorShellPresetAllowsHref(shellPresetId, l.href)),
+        visibleLinks: row.visibleLinks.filter((l) => operatorShellPresetAllowsHref(effectiveShellPresetId, l.href)),
       }))
       .filter((row) => row.visibleLinks.length > 0);
   }
 
   const omitAdminClusters =
-    demoUi || shellPresetId === "pilot_operator" || shellPresetId === "analytics_investigator";
+    demoUi ||
+    buyerPolishedShell ||
+    shellPresetId === "pilot_operator" ||
+    shellPresetId === "analytics_investigator";
 
 
   const quickActionLinks = useMemo(() => {
-    const hrefs = ["/reviews/new", "/alerts", "/audit"] as const;
+    const hrefs = buyerPolishedShell
+      ? (["/reviews/new"] as const)
+      : (["/reviews/new", "/alerts", "/audit"] as const);
     const flat = flattenNavLinks();
     const candidates: NavLinkItem[] = hrefs
       .map((h) => flat.find((l) => (l.href.split("?", 1)[0] ?? "").trim() === h))
@@ -336,36 +344,37 @@ export function SidebarNav() {
 
     let filtered = filterNavLinksForOperatorShell(
       candidates,
-      demoUi ? true : shellShowExtended,
-      demoUi ? true : shellShowAdvanced,
+      navExtended,
+      navAdvanced,
       callerAuthorityRank,
       false,
       hasCommittedArchitectureReview,
     );
 
-    if (demoUi) {
-      filtered = filtered.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi));
+    if (demoUi || buyerPolishedShell) {
+      filtered = filtered.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true));
     }
 
     if (!demoUi && mounted) {
-      filtered = filtered.filter((l) => operatorShellPresetAllowsHref(shellPresetId, l.href));
+      filtered = filtered.filter((l) => operatorShellPresetAllowsHref(effectiveShellPresetId, l.href));
     }
 
     return filtered;
   }, [
+    buyerPolishedShell,
     callerAuthorityRank,
     demoUi,
+    effectiveShellPresetId,
     hasCommittedArchitectureReview,
     mounted,
-    shellPresetId,
-    shellShowAdvanced,
-    shellShowExtended,
+    navAdvanced,
+    navExtended,
   ]);
 
   const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
-    demoUi ? true : shellShowExtended,
-    demoUi ? true : shellShowAdvanced,
+    navExtended,
+    navAdvanced,
     callerAuthorityRank,
     applyCollapsedSidebarPilotFilter,
     "review-workflow",
@@ -376,8 +385,8 @@ export function SidebarNav() {
     ? ([] as NavGroupWithVisibleLinks[])
     : listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
-        demoUi ? true : shellShowExtended,
-        demoUi ? true : shellShowAdvanced,
+        navExtended,
+        navAdvanced,
         callerAuthorityRank,
         false,
         "platform-admin",
@@ -390,15 +399,16 @@ export function SidebarNav() {
 
   const adminNavRows = filterClustersByPreset(adminNavRowsRaw);
   function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
-        const linksAfterDemoFilter = demoUi
-          ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
-          : visibleLinks;
+        const linksAfterDemoFilter =
+          demoUi || buyerPolishedShell
+            ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, true))
+            : visibleLinks;
 
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
-          demoUi ? true : shellShowExtended,
-          demoUi ? true : shellShowAdvanced,
+          navExtended,
+          navAdvanced,
           callerAuthorityRank,
           hasCommittedArchitectureReview,
         );
@@ -436,7 +446,7 @@ export function SidebarNav() {
                   .map((link) => {
                     const active = isNavLinkActive(pathname, link.href);
                     const Icon = link.icon;
-                    const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
+                    const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
 
                     return (
                       <Link
@@ -480,7 +490,7 @@ export function SidebarNav() {
                   .map((link) => {
                   const active = isNavLinkActive(pathname, link.href);
                   const Icon = link.icon;
-                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
 
                   return (
                     <Link
@@ -551,7 +561,7 @@ export function SidebarNav() {
             {quickActionLinks.map((link) => {
               const active = isNavLinkActive(pathname, link.href);
               const Icon = link.icon;
-              const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
+              const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi || buyerPolishedShell);
 
               return (
                 <Link
