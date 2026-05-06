@@ -8,5 +8,5 @@ public interface IPublisherConnector
         get;
     }
 
-    Task<PublishOutcome> PublishAsync(PublishRequest request, CancellationToken cancellationToken);
+    Task<PublishOutcome> PublishDocumentAsync(PublishRequest request, CancellationToken cancellationToken);
 }

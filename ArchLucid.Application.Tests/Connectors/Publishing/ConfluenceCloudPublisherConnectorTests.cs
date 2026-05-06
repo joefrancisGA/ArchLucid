@@ -52,7 +52,7 @@ public sealed class ConfluenceCloudPublisherConnectorTests
         ConfluenceCloudPublisherConnector sut =
             new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
-        PublishOutcome outcome = await sut.PublishAsync(SampleRequest(), CancellationToken.None);
+        PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 
         outcome.Succeeded.Should().BeFalse();
         outcome.FailureReason.Should().Be(ConfluencePublishFailureReason.BadResponse);
@@ -71,7 +71,7 @@ public sealed class ConfluenceCloudPublisherConnectorTests
         ConfluenceCloudPublisherConnector sut =
             new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
-        PublishOutcome outcome = await sut.PublishAsync(SampleRequest(), CancellationToken.None);
+        PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 
         outcome.Succeeded.Should().BeFalse();
         outcome.FailureReason.Should().Be(ConfluencePublishFailureReason.BadResponse);
@@ -91,7 +91,7 @@ public sealed class ConfluenceCloudPublisherConnectorTests
         ConfluenceCloudPublisherConnector sut =
             new(http, monitor.Object, NullLogger<ConfluenceCloudPublisherConnector>.Instance);
 
-        PublishOutcome outcome = await sut.PublishAsync(SampleRequest(), CancellationToken.None);
+        PublishOutcome outcome = await sut.PublishDocumentAsync(SampleRequest(), CancellationToken.None);
 
         outcome.Succeeded.Should().BeFalse();
         outcome.FailureReason.Should().Be(ConfluencePublishFailureReason.RateLimited);

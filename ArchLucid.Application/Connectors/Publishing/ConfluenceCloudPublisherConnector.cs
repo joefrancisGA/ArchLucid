@@ -36,7 +36,7 @@ public sealed class ConfluenceCloudPublisherConnector : IPublisherConnector
 
     public PublishingTargetKind Kind => PublishingTargetKind.ConfluenceCloud;
 
-    public async Task<PublishOutcome> PublishAsync(PublishRequest request, CancellationToken cancellationToken)
+    public async Task<PublishOutcome> PublishDocumentAsync(PublishRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         ConfluencePublishingOptions o = _options.CurrentValue;
