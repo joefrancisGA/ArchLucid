@@ -18,14 +18,15 @@ import type { NavGroupConfig } from "@/lib/nav-config.types";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-/** Operate · analysis — every link sets `requiredAuthority`. */
+/** Operate · advanced analysis — every link sets `requiredAuthority`. */
 export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-analysis",
-      label: "Analysis",
+      label: "Advanced operations",
       surface: "review-workflow",
-      caption: "Compare, replay, graph, architecture advisory, and deeper questions after Pilot proof.",
+      caption:
+        "Graphs, comparisons, replay, advisory, Ask, reporting, and digests once you leave the baseline review lane.",
       links: [
         {
           href: "/graph",

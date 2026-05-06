@@ -13,7 +13,7 @@ describe("LayerContextStrip", () => {
       },
       {
         id: "operate-analysis" as const,
-        wantLabel: "Analysis",
+        wantLabel: "Advanced operations",
         wantQuestion: "What changed, why, and what does the architecture look like?"
       },
       {

@@ -57,6 +57,7 @@ import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -142,6 +143,18 @@ export function AlertsInboxContent() {
   }, [load]);
 
   const emptyFilteredProps = useMemo(() => {
+    const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
+    if (buyerPolished) {
+      return {
+        ...ALERTS_EMPTY_FILTERED,
+        title: "No alerts in this sample",
+        description:
+          "The walkthrough focuses on the governed review package first. Live alert traffic may be empty for this tenant snapshot.",
+        actions: [{ label: "Continue to reviews", href: "/reviews?projectId=default", variant: "primary" as const }],
+      };
+    }
+
     const description = canMutateAlertInbox
       ? alertsFilteredEmptyDescriptionOperator
       : alertsFilteredEmptyDescriptionReader;
@@ -288,9 +301,11 @@ export function AlertsInboxContent() {
         {loading && failure === null && alerts.length === 0 ? (
           <OperatorLoadingNotice>
             <strong>Loading alerts.</strong>
-            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-              {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
-            </p>
+            {isBuyerPolishedOperatorShellEnv() ? null : (
+              <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+                {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
+              </p>
+            )}
           </OperatorLoadingNotice>
         ) : null}
 

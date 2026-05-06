@@ -58,6 +58,12 @@ export default async function ManifestDetailPage({
 }) {
   const { manifestId } = await params;
 
+  const buyerPolishedLayout =
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_MODE === "1" ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1";
+
   if (isInvalidManifestRouteId(manifestId)) {
     notFound();
   }
@@ -279,17 +285,17 @@ export default async function ManifestDetailPage({
         and the downloadable artifact bundle linked from review detail.
       </p>
 
+      <ManifestTopDecisionsCard summary={summary} />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold">Summary</CardTitle>
           <CardDescription>Status, rules, and counts for this manifest.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ManifestDetailSummaryPanel summary={summary} />
+          <ManifestDetailSummaryPanel summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
         </CardContent>
       </Card>
-
-      <ManifestTopDecisionsCard summary={summary} />
 
       {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
         <Card>
@@ -369,7 +375,7 @@ export default async function ManifestDetailPage({
           )}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && (
-            <ArtifactListTable manifestId={manifestId} artifacts={artifacts} />
+            <ArtifactListTable manifestId={manifestId} artifacts={artifacts} sponsorMode={buyerPolishedLayout} />
           )}
         </CardContent>
       </Card>

@@ -16,16 +16,16 @@ export type LayerHeaderProps = {
 };
 
 /**
- * Compact route-level reminder of which **buyer layer** the page belongs to (**Pilot** vs **Analysis** / **Governance**) and when to use it.
+ * Compact route-level reminder of which **buyer layer** the page belongs to (**Pilot** vs **Advanced operations** / **Governance**) and when to use it.
  * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family). **`useNavSurface()`** composes **Visibility**
  * (this strip + nav tier rules) separately from **Capability** (`useOperateCapability` on each route).
  *
  * **Governance** rows (non-null **`enterpriseFootnote`**): typography matches the governance slice; an **Execute+**
  * rank cue line is composed only when **`callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority`** (**UI only** — API **`[Authorize]`** wins).
- * **Analysis** rows omit the footnote and do not show the Execute cue strip here.
+ * **Advanced operations** rows omit the footnote and do not show the Execute cue strip here.
  *
  * @see `LayerHeader.test.tsx`
- * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Analysis vs Governance footnote contract.
+ * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Advanced operations vs Governance footnote contract.
  * @see `operate-authority-ui-shaping.test.tsx` — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
  */
 export function LayerHeader({ pageKey, className, density = "default" }: LayerHeaderProps) {

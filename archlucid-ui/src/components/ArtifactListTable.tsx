@@ -43,8 +43,10 @@ export function ArtifactListTable(props: {
    * Improves run-centric navigation from run detail.
    */
   runId?: string;
+  /** Buyer/demo manifest: omit the Format column (MIME-ish values stay out of sponsor-first tables). */
+  sponsorMode?: boolean;
 }) {
-  const { manifestId, artifacts, currentArtifactId, runId } = props;
+  const { manifestId, artifacts, currentArtifactId, runId, sponsorMode } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   return (
@@ -53,7 +55,7 @@ export function ArtifactListTable(props: {
         <thead>
           <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
             <th className="px-2 py-2.5">Artifact</th>
-            <th className="px-2 py-2.5">Format</th>
+            {sponsorMode ? null : <th className="px-2 py-2.5">Format</th>}
             <th className="px-2 py-2.5">Created</th>
             <th className="px-2 py-2.5">Actions</th>
           </tr>
@@ -73,12 +75,19 @@ export function ArtifactListTable(props: {
               >
                 <td className="max-w-[280px] px-2 py-2.5">
                   <strong className="font-semibold">{getArtifactBusinessLabel(artifact.artifactType)}</strong>
+                  {sponsorMode ? (
+                    <p className="m-0 mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                      Format: {getArtifactFormatLabel(artifact.format)}
+                    </p>
+                  ) : null}
                 </td>
-                <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
-                  <span title={getArtifactFormatLabel(artifact.format)} className="text-xs">
-                    {getArtifactFormatLabel(artifact.format)}
-                  </span>
-                </td>
+                {sponsorMode ? null : (
+                  <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
+                    <span title={getArtifactFormatLabel(artifact.format)} className="text-xs">
+                      {getArtifactFormatLabel(artifact.format)}
+                    </span>
+                  </td>
+                )}
                 <td className="whitespace-nowrap px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   {formatDate(artifact.createdUtc)}
                 </td>

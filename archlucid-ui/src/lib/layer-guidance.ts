@@ -1,6 +1,6 @@
 /**
- * In-product copy for **Pilot** (Layer A) and **Analysis / Governance** surfaces (Layer B) — **`docs/library/PRODUCT_PACKAGING.md`**
- * ("Layer A — Pilot", "Layer B — Operate" in docs; **Analysis** = deep-dive, **Governance** = approvals, audit, alerts, policy).
+ * In-product copy for **Pilot** (Layer A) and **Advanced operations / Governance** surfaces (Layer B) — **`docs/library/PRODUCT_PACKAGING.md`**
+ * ("Layer A — Pilot", "Layer B — Operate" in docs; **Advanced operations** = deep-dive, **Governance** = approvals, audit, alerts, policy).
  * **`docs/OPERATOR_DECISION_GUIDE.md`**. Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
  *
  * **UI shaping only:** explains layer / when-to-use; does not grant access. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is
@@ -8,7 +8,7 @@
  * **Execute+ mutation soft-disable** (**`operate-capability.ts`** / **`useOperateCapability()`**).
  *
  * **Governance strip:** blocks with a non-null **`enterpriseFootnote`** are the **governance / trust** slice — **`LayerHeader`**
- * uses that footnote for typography and the **Execute+** rank cue strip. **Analysis** rows omit **`enterpriseFootnote`**.
+ * uses that footnote for typography and the **Execute+** rank cue strip. **Advanced operations** rows omit **`enterpriseFootnote`**.
  * **`authority-seam-regression.test.ts`** locks that contract.
  *
  * **`enterpriseFootnote`** on Enterprise keys complements **`nav-config.ts`** group **captions** — same buyer story, different surface.
@@ -40,7 +40,7 @@ export type LayerGuidancePageKey =
   | "teams-notifications";
 
 export type LayerGuidanceBlock = {
-  /** Short badge — **Analysis** (deep-dive) vs **Governance** (approvals, audit, alerts, policy); governance rows set `enterpriseFootnote`. */
+  /** Short badge — **Advanced operations** (deep-dive) vs **Governance** (approvals, audit, alerts, policy); governance rows set `enterpriseFootnote`. */
   layerBadge: string;
   /** One line: what question this surface answers */
   headline: string;
@@ -57,20 +57,20 @@ export type LayerGuidanceBlock = {
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
-    layerBadge: "Analysis",
+    layerBadge: "Advanced operations",
     headline: "Answers: what changed between two finalized reviews?",
     useWhen: "Use after you have two reviews with reviewed manifests when you need a structured diff or narrative.",
     firstPilotNote:
       "Optional until first Pilot proof unless you deliberately compare two committed outcomes.",
   },
   replay: {
-    layerBadge: "Analysis",
+    layerBadge: "Advanced operations",
     headline: "Answers: does stored pipeline output still validate for this review on replay?",
     useWhen: "Use when you need drift or integrity checks on a single review, not a visual diff.",
     firstPilotNote: "Typically after Pilot proof when you replay or validate chains.",
   },
   graph: {
-    layerBadge: "Analysis",
+    layerBadge: "Advanced operations",
     headline: "Answers: how does provenance or architecture look for this review?",
     useWhen: "Use when tables and compare are not enough and you need a visual exploration.",
     firstPilotNote:
@@ -123,7 +123,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
   },
   "value-report-pilot": {
-    layerBadge: "Analysis",
+    layerBadge: "Advanced operations",
     headline: "Sponsor-ready proof snapshot without generating a DOCX.",
     useWhen:
       "When executives need totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
@@ -131,7 +131,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Complements the in-product scorecard; Read-tier API; optional during Pilot for executive visibility.",
   },
   "value-report-roi": {
-    layerBadge: "Analysis",
+    layerBadge: "Advanced operations",
     headline: "Sponsor-facing hours estimate from severities and pre-commit blocks.",
     useWhen:
       "When champions need a defensible hours story before negotiating loaded $/hour internally; pairs with Workspace health.",

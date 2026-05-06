@@ -162,7 +162,7 @@ describe("filterNavLinksForOperatorShell", () => {
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
    * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
-  it("hides Analysis extended Execute link (/replay) until showExtended even for Admin rank", () => {
+  it("hides Advanced operations extended Execute link (/replay) until showExtended even for Admin rank", () => {
     const analysis = NAV_GROUPS.find((g) => g.id === "operate-analysis");
 
     expect(analysis).toBeDefined();
