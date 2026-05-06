@@ -36,13 +36,12 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         TeamsIncomingWebhookRow? row = await connection.QueryFirstOrDefaultAsync<TeamsIncomingWebhookRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
-        if (row is null)
-            return null;
-
-
-        return ToResponse(row, true);
+        return row is null ? null : ToResponse(row, true);
     }
 
     /// <inheritdoc />
@@ -63,7 +62,10 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         int tenantCount = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 tenantExistsSql,
-                new { TenantId = tenantId },
+                new
+                {
+                    TenantId = tenantId
+                },
                 cancellationToken: cancellationToken));
 
         if (tenantCount == 0)
@@ -121,7 +123,10 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int affected = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         return affected > 0;
     }

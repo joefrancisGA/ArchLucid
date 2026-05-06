@@ -18,10 +18,7 @@ internal static class FindingsSnapshotLegacyJsonReader
         {
             FindingsSnapshot snap = JsonEntitySerializer.Deserialize<FindingsSnapshot>(findingsJson);
 
-            if (snap.Findings is null || snap.Findings.Count == 0)
-                return [];
-
-            return snap.Findings.ToList();
+            return snap.Findings.Count == 0 ? [] : snap.Findings.ToList();
         }
         catch (InvalidOperationException)
         {

@@ -26,7 +26,7 @@ internal static class ExecDigestPreferencesMapper
 
     internal static string SerializeEmails(IReadOnlyList<string> emails)
     {
-        if (emails is null || emails.Count == 0)
+        if (emails.Count == 0)
             return string.Empty;
 
         IEnumerable<string> trimmed = emails

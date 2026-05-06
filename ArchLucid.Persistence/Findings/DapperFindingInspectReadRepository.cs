@@ -172,7 +172,12 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         Guid? auditRowId = await connection.QuerySingleOrDefaultAsync<Guid?>(
             new CommandDefinition(
                 auditSql,
-                new { row.RunId, scope.TenantId, EventType = AuditEventTypes.AuthorityCommittedChainPersisted },
+                new
+                {
+                    row.RunId,
+                    scope.TenantId,
+                    EventType = AuditEventTypes.AuthorityCommittedChainPersisted
+                },
                 cancellationToken: ct));
 
         (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
@@ -213,30 +218,27 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
     private static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson,
         string? firstRuleText)
     {
-        if (!string.IsNullOrWhiteSpace(appliedRuleIdsJson))
+        if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
+            return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+
+        try
         {
-            try
-            {
-                List<string>? ids = JsonSerializer.Deserialize<List<string>>(appliedRuleIdsJson);
+            List<string>? ids = JsonSerializer.Deserialize<List<string>>(appliedRuleIdsJson);
 
-                if (ids is { Count: > 0 })
-                {
-                    string first = ids[0].Trim();
-
-                    if (first.Length > 0)
-                        return (first, string.IsNullOrWhiteSpace(firstRuleText) ? first : firstRuleText.Trim());
-                }
-            }
-            catch (JsonException)
+            if (ids is { Count: > 0 })
             {
-                // Fall through to trace text only.
+                string first = ids[0].Trim();
+
+                if (first.Length > 0)
+                    return (first, string.IsNullOrWhiteSpace(firstRuleText) ? first : firstRuleText.Trim());
             }
         }
+        catch (JsonException)
+        {
+            // Fall through to trace text only.
+        }
 
-        if (!string.IsNullOrWhiteSpace(firstRuleText))
-            return (firstRuleText.Trim(), firstRuleText.Trim());
-
-        return (null, null);
+        return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
     }
 
     private static JsonElement? TryParsePayloadJson(string? payloadJson)
