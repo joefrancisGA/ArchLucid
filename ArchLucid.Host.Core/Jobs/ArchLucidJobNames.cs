@@ -9,6 +9,8 @@ public static class ArchLucidJobNames
 
     public const string DataArchival = "data-archival";
 
+    public const string FirstTenantFunnelArchival = "first-tenant-funnel-archival";
+
     public const string TrialLifecycle = "trial-lifecycle";
 
     public const string TrialEmailScan = "trial-email-scan";

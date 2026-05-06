@@ -37,7 +37,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows compact Architecture reviews group by default; navigation settings can reveal extended Analysis links",
+    "shows compact Architecture reviews group by default; sidebar layout can reveal extended Analysis links",
     () => {
       render(<ShellNav />);
 
@@ -59,7 +59,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a review" })).toBeNull();
 
-      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
+      fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
@@ -92,7 +92,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     () => {
       render(<ShellNav />);
 
-      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
+      fireEvent.click(screen.getByRole("button", { name: "Sidebar layout" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
 

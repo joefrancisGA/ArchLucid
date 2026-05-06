@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HelpLink } from "@/components/HelpLink";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   useNavCallerAuthorityRank,
   useOperatorNavAuthority,
@@ -41,6 +43,7 @@ import {
   auditSearchEventsSectionHeadingReader,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
+  auditSearchSectionLeadBuyerPolishedLine,
   auditSearchSectionLeadReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -48,7 +51,7 @@ import {
   getDemoSampleAuditTrailEvents,
   shouldInjectDemoAuditSample,
 } from "@/lib/demo-audit-sample-events";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -87,6 +90,8 @@ export default function AuditPage() {
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const canMutateEnterpriseShell = useEnterpriseMutationCapability();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const [advancedAuditFiltersOpen, setAdvancedAuditFiltersOpen] = useState(!buyerPolishedShell);
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
@@ -307,6 +312,12 @@ export default function AuditPage() {
           />
         }
       />
+      {buyerPolishedShell ? (
+        <p className="mb-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+          {auditSearchSectionLeadBuyerPolishedLine}
+        </p>
+      ) : null}
+
       <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
@@ -334,9 +345,91 @@ export default function AuditPage() {
             ? auditSearchEventsSectionHeadingReader
             : auditSearchEventsSectionHeadingOperator}
         </h3>
-        {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority ? (
-          <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">{auditSearchSectionLeadReaderLine}</p>
+        {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && !buyerPolishedShell ? (
+          <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+            {auditSearchSectionLeadReaderLine}
+          </p>
         ) : null}
+        {buyerPolishedShell ? (
+          <>
+            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+              <label>
+                Event type{" "}
+                <select
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  disabled={loadingTypes}
+                  className="w-full mt-1"
+                >
+                  <option value="">Any</option>
+                  {eventTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                From (local){" "}
+                <input
+                  type="datetime-local"
+                  value={fromUtc}
+                  onChange={(e) => setFromUtc(e.target.value)}
+                  className="w-full mt-1"
+                />
+              </label>
+              <label>
+                To (local){" "}
+                <input
+                  type="datetime-local"
+                  value={toUtc}
+                  onChange={(e) => setToUtc(e.target.value)}
+                  className="w-full mt-1"
+                />
+              </label>
+              <label>
+                Review ID{" "}
+                <input
+                  value={runId}
+                  onChange={(e) => setRunId(e.target.value)}
+                  className="w-full mt-1"
+                />
+              </label>
+            </div>
+            <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
+              <CollapsibleTrigger
+                type="button"
+                className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+              >
+                Advanced filters
+                <ChevronDown
+                  className={cn("h-4 w-4 shrink-0 transition-transform", advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90")}
+                  aria-hidden
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+                  <label>
+                    Correlation ID{" "}
+                    <input
+                      value={correlationId}
+                      onChange={(e) => setCorrelationId(e.target.value)}
+                      className="w-full mt-1"
+                    />
+                  </label>
+                  <label>
+                    Actor user id{" "}
+                    <input
+                      value={actorUserId}
+                      onChange={(e) => setActorUserId(e.target.value)}
+                      className="w-full mt-1"
+                    />
+                  </label>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </>
+        ) : (
         <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
           <label>
             Event type{" "}
@@ -397,6 +490,7 @@ export default function AuditPage() {
             />
           </label>
         </div>
+        )}
         <div className="mt-3 flex gap-2 flex-wrap">
           <button
             type="button"
@@ -436,8 +530,8 @@ export default function AuditPage() {
           and run when present). Expand an event for technical detail.
         </p>
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
-          {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
-          Load more for older rows.
+          {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first
+          {buyerPolishedShell ? "." : `, ${AUDIT_PAGE_SIZE} rows per request; use Load more for older rows.`}
         </p>
 
         <div className="grid gap-3 mt-3">
@@ -517,6 +611,7 @@ export default function AuditPage() {
         ) : null}
       </section>
 
+      {(!buyerPolishedShell || events.length > 0) ? (
       <section
         aria-labelledby="audit-export-heading"
         className={cn(
@@ -553,6 +648,7 @@ export default function AuditPage() {
                   : "Export CSV"}
         </button>
       </section>
+      ) : null}
     </main>
   );
 }

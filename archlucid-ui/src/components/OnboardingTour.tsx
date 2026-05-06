@@ -46,7 +46,7 @@ const STEPS: TourStep[] = [
     id: "disclose",
     title: "Explore deeper",
     body:
-      "Use Navigation settings to reveal extended analysis links and Enterprise Controls when you are ready — Pilot stays the default path until you opt in.",
+      "Use Sidebar layout to reveal extended analysis links and Enterprise Controls when you are ready — Pilot stays the default path until you opt in.",
     targetSelector: '[data-onboarding="tour-nav-settings"]',
   },
   {

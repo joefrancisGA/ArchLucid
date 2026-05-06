@@ -83,23 +83,8 @@ export function SystemHealthStatusStrip({ className }: SystemHealthStatusStripPr
     };
   }, []);
 
-  if (isNextPublicDemoMode()) {
+  if (isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()) {
     return null;
-  }
-
-  if (isStaticDemoPayloadFallbackEnabled()) {
-    return (
-      <div
-        data-testid="command-center-health-card"
-        className={cn("mb-2 flex flex-wrap items-center gap-2 text-xs", className)}
-        aria-label="System status"
-      >
-        <span className="h-2 w-2 shrink-0 rounded-full bg-neutral-400" aria-hidden />
-        <span className="text-neutral-600 dark:text-neutral-400">
-          Sample data — live API not connected
-        </span>
-      </div>
-    );
   }
 
   const overall = ready?.status?.trim() ?? "";

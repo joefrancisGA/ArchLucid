@@ -3,46 +3,42 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
-using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
-/// <summary>Maps inbound Jira / ServiceNow payloads to <c>FindingRecords.HumanReviewStatus</c> and durable audit.</summary>
+/// <summary>Maps inbound Jira / ServiceNow payloads to <c>FindingRecords.HumanReviewStatus</c>; emits durable audit via API layer.</summary>
 public sealed class ItsmInboundWebhookSyncService(
     IItsmFindingCorrelationRepository correlations,
-    IAuditRepository audit,
     ILogger<ItsmInboundWebhookSyncService> logger)
 {
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
 
-    private readonly IAuditRepository _audit = audit ?? throw new ArgumentNullException(nameof(audit));
-
     private readonly ILogger<ItsmInboundWebhookSyncService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<bool> TryProcessJiraIssueUpdateAsync(JsonElement root, CancellationToken ct)
+    public async Task<ItsmInboundWebhookProcessResult> TryProcessJiraIssueUpdateAsync(JsonElement root, CancellationToken ct)
     {
         string? issueKey = TryReadJiraIssueKey(root);
 
         if (string.IsNullOrWhiteSpace(issueKey))
 
-            return false;
+            return new ItsmInboundWebhookProcessResult(false, null);
 
         string? statusName = TryReadJiraStatusName(root);
 
         if (string.IsNullOrWhiteSpace(statusName))
 
-            return false;
+            return new ItsmInboundWebhookProcessResult(false, null);
 
         string humanReview = MapJiraStatusToHumanReview(statusName);
 
         if (humanReview.Length == 0)
 
-            return false;
+            return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
             await _correlations.TryGetByExternalKeyAsync("Jira", issueKey, ct).ConfigureAwait(false);
@@ -51,7 +47,7 @@ public sealed class ItsmInboundWebhookSyncService(
         {
             _logger.LogWarning("ITSM Jira webhook: no correlation for issue {IssueKey}.", issueKey);
 
-            return true;
+            return new ItsmInboundWebhookProcessResult(true, null);
         }
 
         int updated = await _correlations
@@ -68,6 +64,7 @@ public sealed class ItsmInboundWebhookSyncService(
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationJiraIssueStatusSynced,
+            ExplicitActor = true,
             ActorUserId = "jira-webhook",
             ActorUserName = "jira-webhook",
             TenantId = row.TenantId,
@@ -83,24 +80,22 @@ public sealed class ItsmInboundWebhookSyncService(
                 })
         };
 
-        await _audit.AppendAsync(auditEvent, ct).ConfigureAwait(false);
-
-        return true;
+        return new ItsmInboundWebhookProcessResult(true, auditEvent);
     }
 
-    public async Task<bool> TryProcessServiceNowIncidentUpdateAsync(JsonElement root, CancellationToken ct)
+    public async Task<ItsmInboundWebhookProcessResult> TryProcessServiceNowIncidentUpdateAsync(JsonElement root, CancellationToken ct)
     {
         if (!TryReadServiceNowKeys(root, out string? externalKey, out string? stateRaw) ||
             string.IsNullOrWhiteSpace(externalKey) ||
             string.IsNullOrWhiteSpace(stateRaw))
 
-            return false;
+            return new ItsmInboundWebhookProcessResult(false, null);
 
         string humanReview = MapServiceNowStateToHumanReview(stateRaw);
 
         if (humanReview.Length == 0)
 
-            return false;
+            return new ItsmInboundWebhookProcessResult(false, null);
 
         ItsmFindingCorrelationRecord? row =
             await _correlations.TryGetByExternalKeyAsync("ServiceNow", externalKey, ct).ConfigureAwait(false);
@@ -109,7 +104,7 @@ public sealed class ItsmInboundWebhookSyncService(
         {
             _logger.LogWarning("ITSM ServiceNow webhook: no correlation for key {Key}.", externalKey);
 
-            return true;
+            return new ItsmInboundWebhookProcessResult(true, null);
         }
 
         int updated = await _correlations
@@ -126,6 +121,7 @@ public sealed class ItsmInboundWebhookSyncService(
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.IntegrationServiceNowIncidentStatusSynced,
+            ExplicitActor = true,
             ActorUserId = "servicenow-webhook",
             ActorUserName = "servicenow-webhook",
             TenantId = row.TenantId,
@@ -141,9 +137,7 @@ public sealed class ItsmInboundWebhookSyncService(
                 })
         };
 
-        await _audit.AppendAsync(auditEvent, ct).ConfigureAwait(false);
-
-        return true;
+        return new ItsmInboundWebhookProcessResult(true, auditEvent);
     }
 
     private static string MapJiraStatusToHumanReview(string statusName)

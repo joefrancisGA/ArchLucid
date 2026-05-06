@@ -35,14 +35,13 @@ public static class Program
             {
                 case "new":
                     {
-                        if (!TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
-                        {
-                            WriteNewUsage();
+                        if (TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
+                            return await NewCommand.RunAsync(projectName, quickstart);
 
-                            return CliExitCode.UsageError;
-                        }
+                        WriteNewUsage();
 
-                        return await NewCommand.RunAsync(projectName!, quickstart);
+                        return CliExitCode.UsageError;
+
                     }
 
                 case "dev":

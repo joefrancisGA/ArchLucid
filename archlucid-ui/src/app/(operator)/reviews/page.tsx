@@ -146,7 +146,7 @@ export default async function RunsPage({
             <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
           )}
         </div>
-        {totalCount > 0 ? (
+        {totalCount > 0 && !isBuyerPolishedOperatorShellEnv() ? (
           <Button variant="outline" size="sm" asChild>
             <Link href="/compare" className="no-underline">
               Compare two reviews

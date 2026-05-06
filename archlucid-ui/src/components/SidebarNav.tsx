@@ -41,6 +41,7 @@ import {
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
@@ -157,6 +158,7 @@ export function SidebarNav() {
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
   const demoUi = isStaticDemoPayloadFallbackEnabled();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
@@ -669,12 +671,12 @@ export function SidebarNav() {
           }}
         >
           <Settings2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
-          Navigation settings
+          Sidebar layout
         </Button>
-        {mounted && shellPresetId !== "full" ? (
+        {mounted && shellPresetId !== "full" && !buyerPolishedShell ? (
           <p className="m-0 mt-2 px-0.5 text-[10px] leading-snug text-neutral-600 dark:text-neutral-300">
             Preset shaping is active ({OPERATOR_SHELL_PRESET_LABELS[shellPresetId]}): hidden links remain authorized — open
-            Navigation settings → Preset → <strong className="font-semibold text-neutral-800 dark:text-neutral-100">
+            Sidebar layout → Preset → <strong className="font-semibold text-neutral-800 dark:text-neutral-100">
               Full navigator</strong> to revert.
           </p>
         ) : null}
@@ -706,7 +708,7 @@ export function SidebarNav() {
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Navigation settings</DialogTitle>
+            <DialogTitle>Sidebar layout</DialogTitle>
             <DialogDescription>
               Control which sidebar links appear by progressive disclosure tier. The same destination list also
               respects optional minimum API access-level hints (Read / Operator / Admin) when the shell can resolve your

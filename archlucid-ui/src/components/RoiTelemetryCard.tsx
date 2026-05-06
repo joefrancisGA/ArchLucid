@@ -124,10 +124,16 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
               }
             }}
           />
-          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Implied total: <span className="font-mono font-medium">{formatUsd(usdTotal)}</span> (estimate only; not an
-            invoice).
-          </p>
+          {hours > 1e-9 ? (
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              Implied total: <span className="font-mono font-medium">{formatUsd(usdTotal)}</span> (estimate only; not an
+              invoice).
+            </p>
+          ) : (
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+              Not enough surfaced hours in this window to estimate a dollar total.
+            </p>
+          )}
         </div>
       ) : null}
     </section>

@@ -45,6 +45,17 @@ public class AuditEvent
         set;
     } = null!;
 
+    /// <summary>
+    ///     When <see langword="true" />, the host <c>IAuditService</c> implementation does not replace
+    ///     <see cref="ActorUserId" /> / <see cref="ActorUserName" /> from HTTP claims (e.g. vendor inbound webhooks
+    ///     with explicit service identities).
+    /// </summary>
+    public bool ExplicitActor
+    {
+        get;
+        set;
+    }
+
     /// <summary>Tenant scope of the event.</summary>
     public Guid TenantId
     {

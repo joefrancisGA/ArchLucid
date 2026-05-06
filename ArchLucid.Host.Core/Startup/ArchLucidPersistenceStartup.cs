@@ -44,9 +44,26 @@ public static class ArchLucidPersistenceStartup
                 app.Logger.LogInformation(
                     "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
 
-                DatabaseMigrator.Run(connectionString);
+                try
+                {
+                    DatabaseMigrator.Run(connectionString);
 
-                app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+                    app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+                }
+                catch (Exception ex)
+                {
+                    if (!persistenceOptions.AllowDegradedStartupAfterMigrationFailure)
+                        throw;
+
+                    app.Logger.LogCritical(
+                        ex,
+                        "Startup: DbUp migrations failed; continuing in degraded mode (ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true).");
+
+                    StartupMigrationHealthState? health = app.Services.GetService<StartupMigrationHealthState>();
+
+                    if (health is not null)
+                        health.MarkMigrationFailed();
+                }
             }
         }
 

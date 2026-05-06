@@ -30,11 +30,14 @@ public sealed class AuditService(
             ClaimsPrincipal? user = http?.User;
             ScopeContext scope = scopeProvider.GetCurrentScope();
 
-            auditEvent.ActorUserId =
-                user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+            if (!auditEvent.ExplicitActor)
+            {
+                auditEvent.ActorUserId =
+                    user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
 
-            auditEvent.ActorUserName =
-                user?.Identity?.Name ?? "unknown";
+                auditEvent.ActorUserName =
+                    user?.Identity?.Name ?? "unknown";
+            }
 
             if (auditEvent.TenantId == Guid.Empty)
                 auditEvent.TenantId = scope.TenantId;

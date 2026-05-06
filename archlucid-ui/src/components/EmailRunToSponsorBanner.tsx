@@ -15,6 +15,7 @@ import {
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { AUTH_MODE } from "@/lib/auth-config";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
@@ -255,15 +256,17 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       </ul>
 
       <div className="mt-3">
-        <ProductLearningFeedbackControls
-          runId={runId}
-          subjectType="RunOutput"
-          artifactHint="pilot-scorecard-package"
-          patternKey="review-package:sponsor"
-          detail={{ runId, manifestId, surface: "EmailRunToSponsorBanner" }}
-          compact
-          title="Did this review package help your sponsor conversation?"
-        />
+        {isBuyerPolishedOperatorShellEnv() ? null : (
+          <ProductLearningFeedbackControls
+            runId={runId}
+            subjectType="RunOutput"
+            artifactHint="pilot-scorecard-package"
+            patternKey="review-package:sponsor"
+            detail={{ runId, manifestId, surface: "EmailRunToSponsorBanner" }}
+            compact
+            title="Did this review package help your sponsor conversation?"
+          />
+        )}
       </div>
 
       {error !== null ? (

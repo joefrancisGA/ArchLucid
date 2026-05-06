@@ -25,14 +25,11 @@ internal static class ComplianceReportValidateConfigSummaryFormatter
             "",
         ];
 
-        foreach (ValidateConfigFinding f in findings
-                     .Where(x => x.Severity is ValidateConfigFindingSeverity.Error or ValidateConfigFindingSeverity.Warning)
-                     .OrderBy(x => x.Severity)
-                     .ThenBy(x => x.Category, StringComparer.Ordinal)
-                     .ThenBy(x => x.Check, StringComparer.Ordinal))
-        {
-            lines.Add($"- **{f.Severity}** · `{f.Category}` · `{f.Check}` — {f.Detail}");
-        }
+        lines.AddRange(findings.Where(x => x.Severity is ValidateConfigFindingSeverity.Error or ValidateConfigFindingSeverity.Warning)
+            .OrderBy(x => x.Severity)
+            .ThenBy(x => x.Category, StringComparer.Ordinal)
+            .ThenBy(x => x.Check, StringComparer.Ordinal)
+            .Select(f => $"- **{f.Severity}** · `{f.Category}` · `{f.Check}` — {f.Detail}"));
 
         if (errors == 0 && warnings == 0)
             lines.Add("- *(no errors or warnings)*");

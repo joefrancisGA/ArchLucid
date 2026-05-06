@@ -13,6 +13,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<JobRunTelemetry>();
         services.AddSingleton<IArchLucidJob, AdvisoryScanArchLucidJob>();
         services.AddSingleton<IArchLucidJob, DataArchivalArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, FirstTenantFunnelArchivalArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialLifecycleArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialEmailScanArchLucidJob>();
         services.AddSingleton<IArchLucidJob, ExecDigestWeeklyArchLucidJob>();

@@ -15,7 +15,8 @@ import {
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
-import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -166,6 +167,8 @@ export function RunsDashboardPanel() {
   const showcasePrimaryCta =
     showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
 
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
@@ -241,6 +244,30 @@ export function RunsDashboardPanel() {
                   className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
                   data-testid="operator-home-showcase-demo-banner"
                 >
+                  {buyerPolishedShell ? (
+                    <>
+                      <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                        Claims Intake Modernization Review
+                      </p>
+                      <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                        Illustrative sample review — open the review package or the finalized manifest to see governed
+                        outputs.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button asChild variant="primary" size="sm" className="h-8">
+                          <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link
+                            href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                          >
+                            Open manifest
+                          </Link>
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                     Claims Intake — completed example run
                   </p>
@@ -297,6 +324,8 @@ export function RunsDashboardPanel() {
                       </>
                     )}
                   </div>
+                    </>
+                  )}
                 </div>
               ) : null}
 
