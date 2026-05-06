@@ -99,7 +99,7 @@ test.describe("live-api-journey", () => {
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
 
     // RSC: wait for loading shell to detach (JWT / slow SQL); error states keep h2 without the Run metadata section.
-    await expect(page.getByText(/Loading run detail/)).toHaveCount(0, { timeout: 60_000 });
+    await expect(page.getByText(/Loading review detail/)).toHaveCount(0, { timeout: 60_000 });
 
     // Scope to the **Run** summary section (same as mock `run-manifest-journey`). "Pipeline progress" also shows Run ID in a <code>.
     const runSummarySection = page

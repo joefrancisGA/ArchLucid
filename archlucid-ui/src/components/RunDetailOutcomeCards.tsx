@@ -93,7 +93,7 @@ export function RunDetailOutcomeCards({
             {hasGoldenManifest ? "Finalized" : "Awaiting finalize"}
           </p>
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            {hasGoldenManifest ? "Architecture manifest is pinned to this run." : "Finalize from the finalize control when ready."}
+            {hasGoldenManifest ? "Architecture manifest is pinned to this review." : "Finalize from the finalize control when ready."}
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (
             <p className="m-0 mt-2 text-xs text-neutral-700 dark:text-neutral-300">

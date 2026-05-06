@@ -57,7 +57,7 @@ function actorLabel(name: string): string {
   return n;
 }
 
-/** Read-only vertical timeline of audit events for one run (oldest first). */
+/** Read-only vertical timeline of audit events for one architecture review (oldest first). */
 export function AuthorityPipelineTimeline({
   items,
   loadErrorMessage,
@@ -82,7 +82,7 @@ export function AuthorityPipelineTimeline({
   if (items.length === 0) {
     return (
       <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
-        No events recorded yet for this run.
+        No events recorded yet for this review.
       </p>
     );
   }

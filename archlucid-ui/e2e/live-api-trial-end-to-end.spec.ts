@@ -224,7 +224,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
 
-    await expect(page.getByText(/Loading run detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
     const manifestLink = page.locator("main").locator('a[href^="/manifests/"]').first();
 
@@ -282,7 +282,7 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 120_000 });
 
-    await expect(page.getByText(/Loading run detail/i)).toHaveCount(0, { timeout: 120_000 });
+    await expect(page.getByText(/Loading review detail/i)).toHaveCount(0, { timeout: 120_000 });
 
     await page.getByRole("button", { name: "Finalize manifest" }).first().click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();

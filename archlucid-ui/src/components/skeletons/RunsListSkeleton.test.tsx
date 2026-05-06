@@ -6,7 +6,7 @@ import { RunsListSkeleton } from "./RunsListSkeleton";
 describe("RunsListSkeleton — aria", () => {
   it("marks busy state and label", () => {
     render(<RunsListSkeleton />);
-    const root = screen.getByLabelText("Loading runs list");
+    const root = screen.getByLabelText("Loading reviews list");
 
     expect(root).toHaveAttribute("aria-busy", "true");
   });

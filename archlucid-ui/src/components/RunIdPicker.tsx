@@ -76,10 +76,10 @@ export function RunIdPicker({
     try {
       const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare });
       setRuns(merged.items ?? []);
-      setLoadError(merged.loadError ? "Could not load runs list." : null);
+      setLoadError(merged.loadError ? "Could not load reviews list." : null);
     } catch {
       setRuns([]);
-      setLoadError("Could not load runs list.");
+      setLoadError("Could not load reviews list.");
     } finally {
       setLoading(false);
     }
@@ -227,7 +227,7 @@ export function RunIdPicker({
         >
           {loading ? (
             <li className="px-3 py-2 text-neutral-500 dark:text-neutral-400" role="presentation">
-              Loading runs…
+              Loading reviews…
             </li>
           ) : null}
           {loadError ? (

@@ -21,17 +21,17 @@ const CATEGORY_ORDER = [
 
 /** Default reference links so Help always has content before /doc-index.json loads. */
 const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
-  { title: "Operator home (first run)", summary: "Pilot checklist and recent runs.", category: "Getting Started", url: "/" },
+  { title: "Operator home (pilot)", summary: "Pilot checklist and recent reviews.", category: "Getting Started", url: "/" },
   {
     title: "New architecture request",
-    summary: "Create a run with the guided wizard.",
+    summary: "Start a guided architecture review request.",
     category: "Getting Started",
     url: "/reviews/new",
   },
-  { title: "Requests and runs list", summary: "Browse runs for the workspace.", category: "Operations", url: "/reviews" },
+  { title: "Architecture reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/reviews" },
   {
     title: "Governance findings",
-    summary: "Review cross-run findings and policy signals.",
+    summary: "Review findings across reviews and policy signals.",
     category: "Operations",
     url: "/governance/findings",
   },

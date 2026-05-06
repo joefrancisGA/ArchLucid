@@ -1,11 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
- * Mirrors the runs list page: heading, controls row, and table-shaped placeholders.
+ * Mirrors the reviews list page: heading, controls row, and table-shaped placeholders.
  */
 export function RunsListSkeleton() {
   return (
-    <div aria-busy="true" aria-label="Loading runs list" className="space-y-4">
+    <div aria-busy="true" aria-label="Loading reviews list" className="space-y-4">
       <Skeleton className="h-7 w-48" />
       <Skeleton className="h-4 w-full max-w-xl" />
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">

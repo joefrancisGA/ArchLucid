@@ -215,7 +215,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
       </h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
         Baseline from <code>GET /v1/tenant/trial-status</code>; measured hours from the pilot-run-deltas JSON for this
-        run (API: <code>PilotRunDeltaComputer</code> and <code>PilotRunDeltasResponseMapper</code>). Same narrative shape
+        review (<code>PilotRunDeltaComputer</code> / <code>PilotRunDeltasResponseMapper</code>). Same narrative shape
         as <code>ValueReportReviewCycleSectionFormatter</code> in the value-report PDF.
       </p>
 
@@ -237,7 +237,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           </dd>
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
-          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Measured (this run)</dt>
+          <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">Measured (this review)</dt>
           <dd
             data-testid="before-after-delta-measured-hours"
             className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
@@ -247,7 +247,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             {data.measuredAvailable
               ? `From GET /v1/pilots/runs/${data.effectiveRunId}/pilot-run-deltas.`
-              : "No finalized manifest yet — finalize your first run to populate the measurement."}
+              : "No finalized manifest yet — finalize your first review to populate the measurement."}
           </dd>
         </div>
       </dl>
@@ -258,8 +258,8 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           className="mt-3 rounded bg-teal-50 px-3 py-2 text-sm font-medium text-teal-900 dark:bg-teal-950/40 dark:text-teal-100"
         >
           {delta.hours >= 0
-            ? `Delta: ${delta.hours.toFixed(2)} h saved per run (${delta.percent.toFixed(1)}% improvement)`
-            : `Delta: measured run took ${Math.abs(delta.hours).toFixed(2)} h longer than the supplied baseline`}
+            ? `Delta: ${delta.hours.toFixed(2)} h saved per finalized review (${delta.percent.toFixed(1)}% improvement)`
+            : `Delta: measured review took ${Math.abs(delta.hours).toFixed(2)} h longer than the supplied baseline`}
         </p>
       ) : null}
     </section>

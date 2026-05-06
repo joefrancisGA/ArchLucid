@@ -205,10 +205,10 @@ export default async function RunDetailPage({
       <main className="mx-auto max-w-4xl space-y-4 px-1 py-2 sm:px-0">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Review detail</h1>
         <OperatorMalformedCallout>
-          <strong>Run detail response was not usable.</strong>
+          <strong>Review detail response was not usable.</strong>
           <p className="mt-2">{envelope.message}</p>
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-            The run data could not be displayed. Try reloading.
+            The review record could not be displayed. Try reloading.
           </p>
         </OperatorMalformedCallout>
         <p>
@@ -345,7 +345,7 @@ export default async function RunDetailPage({
   const runSummaryForBadge = progressForPipelineUi;
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
   const headline =
-    descriptionTrimmed.length > 0 ? descriptionTrimmed : `Run ${resolvedDetail.run.runId}`;
+    descriptionTrimmed.length > 0 ? descriptionTrimmed : `Review ${resolvedDetail.run.runId}`;
   const createdLabel = formatInstantForLocale(resolvedDetail.run.createdUtc);
 
   const showPilotScorecardPackageCta =
@@ -458,7 +458,7 @@ export default async function RunDetailPage({
               <ContextualHelp helpKey="run-pipeline-status" placement="right" />
             </div>
             <CardDescription>
-              Audit events for this run, oldest first.
+              Audit events for this review, oldest first.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -658,7 +658,7 @@ export default async function RunDetailPage({
                   variant="warning"
                 />
                 <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  The run and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+                  The review and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
                 </p>
                 <OperatorSectionRetryButton label="Retry loading explanation" />
               </>
@@ -723,7 +723,7 @@ export default async function RunDetailPage({
                 <OperatorEmptyState title="No artifacts for this manifest">
                   <p className="m-0">
                     The manifest exists but the artifact descriptor list is empty (valid empty result).
-                    Bundle ZIP may return 404 when there is no bundle; run export may still include other
+                    Bundle ZIP may return 404 when there is no bundle; review export may still include other
                     files.
                   </p>
                 </OperatorEmptyState>
