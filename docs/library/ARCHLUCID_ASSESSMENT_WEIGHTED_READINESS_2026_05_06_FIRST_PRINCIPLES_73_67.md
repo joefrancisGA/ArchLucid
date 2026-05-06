@@ -621,13 +621,13 @@ Constraints:
 - Do not change existing inbound webhook contracts except where required to consume the new correlation records.
 ```
 
-### 2. Add a one-page first-pilot evidence bundle
+### 2. Add a one-page first-pilot evidence bundle — **done**
 
 - **Why it matters:** Commercial proof is strongest when the product produces a buyer-safe artifact immediately after the first committed review.
 - **Expected impact:** Directly improves Proof-of-ROI Readiness (+8-10 pts), Executive Value Visibility (+5-7 pts), Time-to-Value (+3-5 pts), Marketability (+2-4 pts). Weighted readiness impact: +0.7-1.0%.
 - **Affected qualities:** Proof-of-ROI Readiness, Executive Value Visibility, Time-to-Value, Marketability, Trustworthiness.
-- **Status:** Fully actionable now.
-- **Cursor prompt:**
+- **Status:** **Complete (2026-05-06).** Shipped: `FirstValueReportBuilder` + `GET /v1/pilots/runs/{runId}/first-value-report` + `POST /v1/pilots/runs/{runId}/first-value-report.pdf` (`FirstValueReportPdfBuilder` — Markdown is canonical), `GET …/pilot-run-deltas` with `PilotRunDeltasResponse`, `POST …/sponsor-one-pager`, buyer-safe gate (`PilotBuyerSafeEvidenceGateEvaluator` / `PilotBuyerSafeEvidenceGateMarkdownFormatter`), proof-package contract (`PilotProofPackageCompletenessMapper`), ROI evidence completeness (`RoiEvidenceCompletenessMarkdownFormatter`), demo-tenant warnings, top-severity evidence chain via `IPilotRunDeltaComputer`, operator/admin reference ZIP (`ReferenceEvidenceAdminExportService`: `pilot-run-deltas.json`, `first-value-report.md` / `.pdf`, optional `sponsor-one-pager.pdf`, readmes), unit tests (`RoiEvidenceCompletenessMarkdownFormatterTests`, `FirstValueReportBuilderTests`), field posture in `docs/library/SPONSOR_ONE_PAGER.md` and `docs/library/PILOT_ROI_MODEL.md`.
+- **Cursor prompt:** *(historical — implementation complete; retained for traceability.)*
 
 ```text
 Create a first-pilot evidence bundle artifact that summarizes one committed architecture review for a sponsor and evaluator.
@@ -1128,8 +1128,9 @@ Constraints:
 - **Resolved (Jira priority mapping):** Critical → `Blocker`, High → `High`, Medium → `Medium`, Low → `Low`. **Info findings are dropped by default** (no Jira issue created); a per-tenant opt-in (`sendInfoSeverity: true`) enables them at `Low` priority. Rationale: Info findings are observational; sending them by default would flood customer backlogs and risk the integration being turned off.
 - **Open:** Which ServiceNow table/custom fields beyond `incident` and optional `cmdb_ci_appl` are required by the first target buyer?
 
-### Add a one-page first-pilot evidence bundle
+### Add a one-page first-pilot evidence bundle — **shipped (2026-05-06)**
 
+- **Status:** First-pilot sponsor evidence path delivered in-repo: first-value Markdown/PDF, structured pilot-run deltas JSON, sponsor one-pager PDF, buyer-safe checklist and ROI evidence completeness copy, demo warnings, reference-evidence ZIP packaging, and tests for strong/partial/low ROI baseline confidence. Optional hardening (e.g. run-scoped bundle HTTP name, per-run token×rate USD lines as invoice-grade truth) remains available under the global cost-discipline / improvement #8 thread when asserting reconciled bill dollars.
 - **Resolved (customer-default deliverable format):** **PDF** is the **default** sponsor/customer-facing handoff—one polished file for email, procurement, and executive review. Offer a **ZIP bundle** when the recipient needs machine-ingestible assets for **another system** (attach Markdown fragments, companion files, structured exports—whatever the export pipeline already produces—without forcing PDF extraction). **DOCX** remains optional **only if** an existing converter already supports it credibly; it is **not** the default. **Markdown** stays valuable as **source or operator preview**, not positioned ahead of PDF as the default executive deliverable.
 
 ### Create a deployment evidence report for staging/prod

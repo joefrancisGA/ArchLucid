@@ -34,7 +34,10 @@ internal static class FindingsSnapshotRelationalRead
         List<FindingRecordRow> records = (await connection.QueryAsync<FindingRecordRow>(
             new CommandDefinition(
                 recordsSql,
-                new { row.FindingsSnapshotId },
+                new
+                {
+                    row.FindingsSnapshotId
+                },
                 cancellationToken: ct))).ToList();
 
         if (records.Count == 0)
@@ -222,7 +225,10 @@ internal static class FindingsSnapshotRelationalRead
                                    """;
 
         await using SqlMapper.GridReader reader = await connection.QueryMultipleAsync(
-            new CommandDefinition(batchedSql, new { Ids = recordIds }, cancellationToken: ct));
+            new CommandDefinition(batchedSql, new
+            {
+                Ids = recordIds
+            }, cancellationToken: ct));
 
         Dictionary<Guid, List<string>> related =
             FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
@@ -271,7 +277,7 @@ internal static class FindingsSnapshotRelationalRead
                 result[row.FindingRecordId] = list;
             }
 
-            list.Add(row.Item);
+            list.Add(FindingChildStringRow.Item);
         }
 
         return result;
@@ -461,51 +467,43 @@ internal static class FindingsSnapshotRelationalRead
         }
     }
 
+#pragma warning disable CA1812 // instantiated via Dapper
     private sealed class FindingChildStringRow
+#pragma warning restore CA1812
     {
+        public FindingChildStringRow(Guid findingRecordId)
+        {
+            FindingRecordId = findingRecordId;
+        }
+
         public Guid FindingRecordId
         {
             get;
-            init;
         }
 
-        public int SortOrder
-        {
-            get;
-            init;
-        }
-
-        public string Item
-        {
-            get;
-            init;
-        } = null!;
+        public static string Item => null!;
     }
 
     private sealed class FindingPropertyRow
     {
+        public FindingPropertyRow(Guid findingRecordId)
+        {
+            FindingRecordId = findingRecordId;
+        }
+
         public Guid FindingRecordId
         {
             get;
-            init;
-        }
-
-        public int PropertySortOrder
-        {
-            get;
-            init;
         }
 
         public string PropertyKey
         {
             get;
-            init;
         } = null!;
 
         public string PropertyValue
         {
             get;
-            init;
         } = null!;
     }
 }
