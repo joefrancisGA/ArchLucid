@@ -11,7 +11,7 @@ Give operators and security reviewers a **single table-style view** of SQL surfa
 ## 2. Assumptions
 
 - Application-layer scope enforcement (`IScopeContextProvider`, governance APIs) remains authoritative for business authorization.
-- Mid-tier SQL connections may use a **shared identity**; when `ApplySessionContext` is enabled and the policy is **ON**, RLS is defense-in-depth for rows carrying the scope triple (see primary design sketch).
+- In `SystemWithPerTenantCatalogs` (production) mode, the database boundary provides sufficient tenant isolation. RLS is not required for defense-in-depth and this matrix describes optional hardening only. In `SingleCatalog` (dev/test) mode, the compensating controls below remain relevant.
 - Operational jobs sometimes require **`al_rls_bypass`**; those paths are gated and audited separately.
 
 ## 3. Constraints

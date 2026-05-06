@@ -1,6 +1,5 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -156,29 +155,6 @@ internal static class ProductionSafetyRules
             $"ArchLucid:SqlTopology:Mode=SingleCatalog is not permitted in Production or Staging. "
             + $"Set ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs. "
             + $"SingleCatalog shares one SQL database across all tenants and must only be used for local development and test.");
-    }
-
-    /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
-    public static void CollectSqlRowLevelSecurity(
-        IConfiguration configuration,
-        ArchLucidOptions archLucidOptions,
-        List<string> errors)
-    {
-        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
-            return;
-
-        if (RlsBreakGlass.IsEnabled(configuration))
-            return;
-
-        SqlServerOptions sql =
-            configuration.GetSection(SqlServerOptions.SectionName).Get<SqlServerOptions>() ?? new SqlServerOptions();
-
-        if (sql.RowLevelSecurity.ApplySessionContext)
-            return;
-
-        errors.Add(
-            "Production or Staging with ArchLucid:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS). "
-            + "Coordinated break-glass requires both ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true.");
     }
 
     /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>

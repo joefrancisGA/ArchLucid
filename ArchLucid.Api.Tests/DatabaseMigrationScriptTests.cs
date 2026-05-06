@@ -14,8 +14,12 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class DatabaseMigrationScriptTests
 {
+    /// <summary>
+    /// Tenant-plane scripts embed as <c>...Migrations.###_Name.sql</c>;
+    /// system-plane scripts use <c>...Migrations.System.###_Name.sql</c> (see <c>Migrations/System</c> in csproj).
+    /// </summary>
     private static readonly Regex MigrationFileNameRegex = new(
-        @"^\d{3}_[^.]+\.sql$",
+        @"^(?:System\.)?\d{3}_[^.]+\.sql$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
         TimeSpan.FromMilliseconds(100));
 
@@ -44,7 +48,7 @@ public sealed class DatabaseMigrationScriptTests
             }
 
             MigrationFileNameRegex.IsMatch(tail).Should().BeTrue(
-                $"migration embedded name should end with Migrations.###_Name.sql (got tail '{tail}' from '{n}')");
+                $"migration embedded name should end with Migrations.(System.)###_Name.sql (got tail '{tail}' from '{n}')");
 
             bool dbUpWouldInclude = n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
                                     n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase);
