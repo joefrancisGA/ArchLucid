@@ -111,17 +111,16 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task SuspendSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        
+        BillingSubRow next = row with
         {
-            BillingSubRow next = row with
-            {
-                Status = "Suspended"
-            };
+            Status = "Suspended"
+        };
 
-            _subscriptions[tenantId] = next;
+        _subscriptions[tenantId] = next;
 
-            RecordStateChange("Suspend", row, next);
-        }
+        RecordStateChange("Suspend", row, next);
 
 
         return Task.CompletedTask;
@@ -129,7 +128,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task ReinstateSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        
         {
             BillingSubRow next = row with
             {
@@ -147,17 +147,16 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task CancelSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        
+        BillingSubRow next = row with
         {
-            BillingSubRow next = row with
-            {
-                Status = "Canceled"
-            };
+            Status = "Canceled"
+        };
 
-            _subscriptions[tenantId] = next;
+        _subscriptions[tenantId] = next;
 
-            RecordStateChange("Cancel", row, next);
-        }
+        RecordStateChange("Cancel", row, next);
 
 
         return Task.CompletedTask;
@@ -166,17 +165,15 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson,
         CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        BillingSubRow next = row with
         {
-            BillingSubRow next = row with
-            {
-                Tier = tierCode
-            };
+            Tier = tierCode
+        };
 
-            _subscriptions[tenantId] = next;
+        _subscriptions[tenantId] = next;
 
-            RecordStateChange("ChangePlan", row, next);
-        }
+        RecordStateChange("ChangePlan", row, next);
 
         return Task.CompletedTask;
     }
@@ -184,17 +181,15 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
         CancellationToken cancellationToken)
     {
-        if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
+        if (!_subscriptions.TryGetValue(tenantId, out BillingSubRow? row)) return Task.CompletedTask;
+        BillingSubRow next = row with
         {
-            BillingSubRow next = row with
-            {
-                Seats = seatsPurchased
-            };
+            Seats = seatsPurchased
+        };
 
-            _subscriptions[tenantId] = next;
+        _subscriptions[tenantId] = next;
 
-            RecordStateChange("ChangeQuantity", row, next);
-        }
+        RecordStateChange("ChangeQuantity", row, next);
 
         return Task.CompletedTask;
     }
@@ -203,7 +198,7 @@ public sealed class InMemoryBillingLedger : IBillingLedger
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0 || maxRows > 500)
+        if (maxRows is <= 0 or > 500)
             throw new ArgumentOutOfRangeException(nameof(maxRows));
 
 

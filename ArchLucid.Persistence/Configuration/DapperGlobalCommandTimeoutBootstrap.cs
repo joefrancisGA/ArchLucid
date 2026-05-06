@@ -17,13 +17,12 @@ public static class DapperGlobalCommandTimeoutBootstrap
     /// </summary>
     public static void ApplyIfConfigured(IConfiguration configuration)
     {
-        if (configuration is null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(configuration);
 
         int? seconds = configuration.GetValue<int?>(
             $"{ArchLucidPersistenceOptions.SectionPath}:DefaultSqlCommandTimeoutSeconds");
 
-        if (seconds is null || seconds <= 0)
+        if (seconds is null or <= 0)
             return;
 
         SqlMapper.Settings.CommandTimeout = seconds.Value;

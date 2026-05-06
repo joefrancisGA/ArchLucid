@@ -53,8 +53,7 @@ export function ArtifactListTable(props: {
         <thead>
           <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
             <th className="px-2 py-2.5">Artifact</th>
-            <th className="px-2 py-2.5">Type</th>
-            <th className="px-2 py-2.5">File format</th>
+            <th className="px-2 py-2.5">Format</th>
             <th className="px-2 py-2.5">Created</th>
             <th className="px-2 py-2.5">Actions</th>
           </tr>

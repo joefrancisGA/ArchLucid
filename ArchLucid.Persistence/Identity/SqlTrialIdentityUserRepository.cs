@@ -44,7 +44,10 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                            """;
 
         return await connection.QuerySingleOrDefaultAsync<TrialIdentityUserRecord>(
-            new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail },
+            new CommandDefinition(sql, new
+            {
+                NormalizedEmail = normalizedEmail
+            },
                 cancellationToken: cancellationToken));
     }
 
@@ -143,7 +146,12 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             int rows = await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { NormalizedEmail = normalizedEmail, TokenHash = emailConfirmationTokenHash, NowUtc = nowUtc },
+                    new
+                    {
+                        NormalizedEmail = normalizedEmail,
+                        TokenHash = emailConfirmationTokenHash,
+                        NowUtc = nowUtc
+                    },
                     cancellationToken: cancellationToken));
 
             return rows == 1;
@@ -172,7 +180,12 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { NormalizedEmail = normalizedEmail, NewCount = newCount, LockoutEnd = lockoutEnd },
+                    new
+                    {
+                        NormalizedEmail = normalizedEmail,
+                        NewCount = newCount,
+                        LockoutEnd = lockoutEnd
+                    },
                     cancellationToken: cancellationToken));
         }
     }
@@ -193,7 +206,10 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                                """;
 
             await connection.ExecuteAsync(
-                new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail },
+                new CommandDefinition(sql, new
+                {
+                    NormalizedEmail = normalizedEmail
+                },
                     cancellationToken: cancellationToken));
         }
     }
@@ -217,7 +233,7 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
         if (row is null)
             return false;
 
-        if (row.LinkedEntraOid is string linked && linked != oid)
+        if (row.LinkedEntraOid is { } linked && linked != oid)
             return false;
 
         if (string.Equals(row.LinkedEntraOid, oid, StringComparison.Ordinal))
@@ -242,7 +258,12 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             int rows = await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new { NormalizedEmail = normalizedEmail, Oid = oid, LinkedUtc = linkedUtc },
+                    new
+                    {
+                        NormalizedEmail = normalizedEmail,
+                        Oid = oid,
+                        LinkedUtc = linkedUtc
+                    },
                     cancellationToken: cancellationToken));
 
             return rows == 1;

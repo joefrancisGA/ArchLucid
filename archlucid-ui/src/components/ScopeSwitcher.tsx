@@ -132,7 +132,7 @@ export function ScopeSwitcher() {
     polishedShell && isDefaultDevScope
       ? "Claims Intake Demo Workspace"
       : polishedShell
-        ? `${workspaceLabel} · ${projectLabel}`
+        ? workspaceLabel
         : null;
 
   const canShow =

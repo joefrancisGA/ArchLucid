@@ -466,22 +466,6 @@ export default function AuditPage() {
             />
           </label>
           <label>
-            Correlation ID{" "}
-            <input
-              value={correlationId}
-              onChange={(e) => setCorrelationId(e.target.value)}
-              className="w-full mt-1"
-            />
-          </label>
-          <label>
-            Actor user id{" "}
-            <input
-              value={actorUserId}
-              onChange={(e) => setActorUserId(e.target.value)}
-              className="w-full mt-1"
-            />
-          </label>
-          <label>
             Review ID{" "}
             <input
               value={runId}
@@ -490,6 +474,38 @@ export default function AuditPage() {
             />
           </label>
         </div>
+        <Collapsible open={advancedAuditFiltersOpen} onOpenChange={setAdvancedAuditFiltersOpen} className="mt-2">
+          <CollapsibleTrigger
+            type="button"
+            className="flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-left text-xs font-medium text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+          >
+            Advanced filters
+            <ChevronDown
+              className={cn("h-4 w-4 shrink-0 transition-transform", advancedAuditFiltersOpen ? "rotate-0" : "-rotate-90")}
+              aria-hidden
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-2">
+            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+              <label>
+                Correlation ID{" "}
+                <input
+                  value={correlationId}
+                  onChange={(e) => setCorrelationId(e.target.value)}
+                  className="w-full mt-1"
+                />
+              </label>
+              <label>
+                Actor user id{" "}
+                <input
+                  value={actorUserId}
+                  onChange={(e) => setActorUserId(e.target.value)}
+                  className="w-full mt-1"
+                />
+              </label>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
         )}
         <div className="mt-3 flex gap-2 flex-wrap">
           <button
@@ -611,7 +627,7 @@ export default function AuditPage() {
         ) : null}
       </section>
 
-      {(!buyerPolishedShell || events.length > 0) ? (
+      {events.length > 0 && (!buyerPolishedShell || events.length > 0) ? (
       <section
         aria-labelledby="audit-export-heading"
         className={cn(

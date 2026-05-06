@@ -21,7 +21,7 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
 
         string k = Key(provider, externalKey);
 
-        return Task.FromResult(_byKey.TryGetValue(k, out ItsmFindingCorrelationRecord? row) ? row : null);
+        return Task.FromResult(_byKey.GetValueOrDefault(k));
     }
 
     /// <inheritdoc />
@@ -71,17 +71,13 @@ public sealed class InMemoryItsmFindingCorrelationRepository : IItsmFindingCorre
         string humanReviewStatus,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty)
-            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
 
-        if (string.IsNullOrWhiteSpace(findingId))
-            throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
 
-        if (string.IsNullOrWhiteSpace(humanReviewStatus))
-            throw new ArgumentException("humanReviewStatus is required.", nameof(humanReviewStatus));
-
-        // In-memory hosts do not model FindingRecords; webhook path still emits audit when correlation exists.
-        return Task.FromResult(0);
+        return string.IsNullOrWhiteSpace(humanReviewStatus) ? throw new ArgumentException("humanReviewStatus is required.", nameof(humanReviewStatus)) :
+            // In-memory hosts do not model FindingRecords; webhook path still emits audit when correlation exists.
+            Task.FromResult(0);
     }
 
     private static string Key(string provider, string externalKey) =>

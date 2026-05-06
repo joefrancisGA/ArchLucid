@@ -111,22 +111,18 @@ internal static class ComplianceReportAuditLiveSampleFetcher
 
     private sealed class AuditItemDto
     {
-        public AuditItemDto(string? eventType, DateTime occurredUtc)
-        {
-            EventType = eventType;
-            OccurredUtc = occurredUtc;
-        }
-
         [JsonPropertyName("eventType")]
         public string? EventType
         {
             get;
+            init;
         }
 
         [JsonPropertyName("occurredUtc")]
         public DateTime OccurredUtc
         {
             get;
+            init;
         }
     }
 }

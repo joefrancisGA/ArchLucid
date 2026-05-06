@@ -64,16 +64,18 @@ export function ValueRealizationDashboard() {
     return null;
   }
 
-  const hoursSaved = Number(telemetry.totalHoursSaved);
-  const safeHours = Number.isFinite(hoursSaved) ? Math.max(0, hoursSaved) : 0;
-  const totalReviewsRaw = Number(telemetry.totalRuns);
+  const hoursSaved = Number(telemetry.totalHoursSaved ?? 0);
+  const safeHours = Number.isFinite(hoursSaved) && !Number.isNaN(hoursSaved) ? Math.max(0, hoursSaved) : 0;
+  const totalReviewsRaw = Number(telemetry.totalRuns ?? 0);
   const totalReviews =
     Number.isFinite(totalReviewsRaw) && totalReviewsRaw > 0 ? Math.floor(totalReviewsRaw) : 0;
-  const avgMsRaw = Number(telemetry.averageTimeToCommitMs);
+  const avgMsRaw = telemetry.averageTimeToCommitMs;
   const avgMsParsed =
-    typeof telemetry.averageTimeToCommitMs === "string"
-      ? Number.parseFloat(String(telemetry.averageTimeToCommitMs))
-      : avgMsRaw;
+    typeof avgMsRaw === "string"
+      ? Number.parseFloat(avgMsRaw)
+      : typeof avgMsRaw === "number"
+        ? avgMsRaw
+        : Number.NaN;
   const avgMs =
     Number.isFinite(avgMsParsed) && !Number.isNaN(avgMsParsed) ? avgMsParsed : Number.NaN;
   const avgCommitMins =

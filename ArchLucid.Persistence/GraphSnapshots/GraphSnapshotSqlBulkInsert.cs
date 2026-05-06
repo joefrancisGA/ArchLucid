@@ -1,10 +1,10 @@
+using System.Data;
+using System.Text;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Models;
 
 using Dapper;
-
-using System.Data;
-using System.Text;
 
 namespace ArchLucid.Persistence.GraphSnapshots;
 
@@ -28,9 +28,7 @@ internal static class GraphSnapshotSqlBulkInsert
         ArgumentNullException.ThrowIfNull(snapshot);
 
         List<(Guid RowId, GraphNode Node, int SortOrder)> planned = [];
-
-        for (int i = 0; i < snapshot.Nodes.Count; i++)
-            planned.Add((Guid.NewGuid(), snapshot.Nodes[i], i));
+        planned.AddRange(snapshot.Nodes.Select((t, i) => (Guid.NewGuid(), t, i)));
 
         return planned;
     }
@@ -147,11 +145,7 @@ internal static class GraphSnapshotSqlBulkInsert
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
                 .ToList();
 
-            for (int p = 0; p < orderedProps.Count; p++)
-            {
-                KeyValuePair<string, string> kv = orderedProps[p];
-                flat.Add(new PropertyRow(rowId, p, kv.Key, kv.Value));
-            }
+            flat.AddRange(orderedProps.Select((kv, p) => new PropertyRow(rowId, p, kv.Key, kv.Value)));
         }
 
         if (flat.Count == 0)

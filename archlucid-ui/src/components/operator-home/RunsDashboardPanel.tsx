@@ -15,7 +15,7 @@ import {
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -141,12 +141,13 @@ export function RunsDashboardPanel() {
     }
 
     if (
-      isStaticDemoPayloadFallbackEnabled() &&
       phase === "ready" &&
       items.length === 0 &&
       !runsListAuthorityUnusable
     ) {
-      const emptyWorkspaceFallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID);
+      const emptyWorkspaceFallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, {
+        afterEmptyLiveList: true,
+      });
 
       if (emptyWorkspaceFallback !== null && emptyWorkspaceFallback.items.length > 0) {
         return emptyWorkspaceFallback.items;
@@ -211,12 +212,12 @@ export function RunsDashboardPanel() {
           </div>
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             {tab === "recent" ? "Latest in workspace" : null}
-            {tab === "attention" ? "Runs needing attention" : null}
-            {tab === "outcomes" ? "Run outcomes" : null}
+            {tab === "attention" ? "Reviews needing attention" : null}
+            {tab === "outcomes" ? "Review outcomes" : null}
           </CardTitle>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
             {tab === "recent" ? "Showing the latest runs for this workspace." : null}
-            {tab === "attention" ? "Runs with findings awaiting a finalized manifest." : null}
+            {tab === "attention" ? "Reviews with findings awaiting a finalized manifest." : null}
             {tab === "outcomes"
               ? "Manifests finalized, findings surfaced, and average time to finalization."
               : null}
@@ -400,8 +401,8 @@ export function RunsDashboardPanel() {
                     <>
                       <p className="m-0 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                         {attentionRuns.length === 1
-                          ? "1 run needs attention."
-                          : `${attentionRuns.length} runs need attention.`}
+                          ? "1 review needs attention."
+                          : `${attentionRuns.length} reviews need attention.`}
                       </p>
                       <ul className="m-0 list-none space-y-2 p-0" data-testid="command-center-runs-card">
                         {attentionPreview.map((run) => (
