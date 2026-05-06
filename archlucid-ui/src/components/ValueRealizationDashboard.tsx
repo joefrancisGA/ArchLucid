@@ -64,11 +64,15 @@ export function ValueRealizationDashboard() {
     return null;
   }
 
-  const hoursSaved = Number(telemetry.totalHoursSaved ?? 0);
-  const safeHours = Number.isFinite(hoursSaved) && !Number.isNaN(hoursSaved) ? Math.max(0, hoursSaved) : 0;
+  const rawHours = Number(telemetry.totalHoursSaved ?? 0);
+  const safeHours = Number.isFinite(rawHours) && !Number.isNaN(rawHours) ? Math.max(0, rawHours) : 0;
   const totalReviewsRaw = Number(telemetry.totalRuns ?? 0);
   const totalReviews =
-    Number.isFinite(totalReviewsRaw) && totalReviewsRaw > 0 ? Math.floor(totalReviewsRaw) : 0;
+    Number.isFinite(totalReviewsRaw) &&
+    !Number.isNaN(totalReviewsRaw) &&
+    totalReviewsRaw > 0
+      ? Math.floor(totalReviewsRaw)
+      : 0;
   const avgMsRaw = telemetry.averageTimeToCommitMs;
   const avgMsParsed =
     typeof avgMsRaw === "string"
@@ -100,7 +104,7 @@ export function ValueRealizationDashboard() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg border p-4 text-center">
             <p className="text-sm text-neutral-500">Total reviews</p>
-            <p className="text-2xl font-bold">{totalReviews}</p>
+            <p className="text-2xl font-bold">{Number.isFinite(totalReviews) ? totalReviews : 0}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className="text-sm text-neutral-500">Time saved (tenant model)</p>

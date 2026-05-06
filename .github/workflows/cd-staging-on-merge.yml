@@ -223,20 +223,45 @@ jobs:
             echo "Post-deploy UI: revision=${U_LATEST} image=${U_IMG}"
           fi
 
-      - name: Post-deploy validation (health, readiness, OpenAPI, version)
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Post-deploy validation and deployment evidence (CLI)
         id: smoke_api
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
           CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
           CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
             echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation."
             exit 0
           fi
-          chmod +x scripts/ci/cd-post-deploy-verify.sh
-          bash scripts/ci/cd-post-deploy-verify.sh "${SMOKE_TEST_BASE_URL}" "${SMOKE_SYNTHETIC_PATH:-/version}"
+          OUT="artifacts/deployment-evidence-staging-${{ github.run_id }}.md"
+          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj -- \
+            deployment-evidence \
+            --environment staging \
+            --api-base-url "${SMOKE_TEST_BASE_URL}" \
+            --synthetic-path "${SMOKE_SYNTHETIC_PATH:-/version}" \
+            --out "${OUT}" \
+            --repo "${GITHUB_WORKSPACE}"
+
+      - name: Upload deployment evidence (Markdown)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-evidence-staging-${{ github.run_id }}
+          path: artifacts/deployment-evidence-staging-${{ github.run_id }}.md
+          if-no-files-found: ignore
 
       - name: Roll back API and worker on failed smoke
         if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}

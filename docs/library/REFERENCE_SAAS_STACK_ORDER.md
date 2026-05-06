@@ -73,7 +73,7 @@ CI validates **`terraform validate`** + **Trivy config** across these roots (see
 
 ## Post-deploy verification
 
-After image rollout, run **`scripts/ci/cd-post-deploy-verify.sh`** against the public or private base URL ([DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)): `/health/live`, `/health/ready` (**Healthy**), `/openapi/v1.json` (contract sanity), `/version`.
+After image rollout, run **`archlucid deployment-evidence`** (preferred; same gates as `scripts/ci/cd-post-deploy-verify.sh`) or the bash script against the public or private base URL ([DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)): `/health/live`, `/health/ready` (**Healthy**), `/openapi/v1.json` (contract sanity unless break-glass), `/version`.
 
 ---
 

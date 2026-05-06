@@ -15,7 +15,7 @@
 
 **Do this first**
 
-1. Open the failed workflow run → **Post-deploy validation** (or **smoke-test**) log. It runs `scripts/ci/cd-post-deploy-verify.sh`: note HTTP codes and the **`/health/ready`** JSON (overall **`status`** and **`entries`**).
+1. Open the failed workflow run → **Post-deploy validation** (or **smoke-test**) log. It runs **`archlucid deployment-evidence`** (or the legacy `scripts/ci/cd-post-deploy-verify.sh`): note HTTP codes, download the **deployment evidence** Markdown artifact when present, and inspect **`/health/ready`** in the report (overall **`status`** and body preview).
 2. From a machine that can reach the API (same URL as **`SMOKE_TEST_BASE_URL`**):
    - `GET {base}/health/live` — process up?
    - `GET {base}/health/ready` — which check is **Unhealthy** / **Degraded**? (SQL, blob, schema, etc.)

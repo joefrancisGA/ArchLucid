@@ -92,9 +92,14 @@ export function PilotOutcomeCard() {
     );
   }
 
-  const successRate = summary.runsInPeriod > 0
-    ? Math.round((summary.runsWithCommittedManifest / summary.runsInPeriod) * 100)
+  const inPeriod = Number.isFinite(summary.runsInPeriod) ? Math.max(0, summary.runsInPeriod) : 0;
+  const withManifest = Number.isFinite(summary.runsWithCommittedManifest)
+    ? Math.max(0, summary.runsWithCommittedManifest)
     : 0;
+
+  const successRate = inPeriod > 0 ? Math.round((withManifest / inPeriod) * 100) : 0;
+
+  const displaySuccessRate = Number.isFinite(successRate) ? Math.min(100, Math.max(0, successRate)) : 0;
 
   return (
     <section
@@ -106,11 +111,11 @@ export function PilotOutcomeCard() {
       </h2>
       <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
         <div>
-          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{successRate}%</dd>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{displaySuccessRate}%</dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Success rate</dt>
         </div>
         <div>
-          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{summary.runsInPeriod}</dd>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{inPeriod}</dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Total runs</dt>
         </div>
         <div>

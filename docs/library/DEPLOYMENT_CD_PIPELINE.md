@@ -55,7 +55,7 @@ flowchart LR
 | `terraform-plan` | Checkout; when `target=dev`, optionally writes `dev.tfvars` from environment secret **`DEV_TFVARS`** (see `.github/workflows/cd.yml`). OIDC, `terraform init`, `terraform plan` (saved as `tfplan`), upload artifact `tfplan-<target>`, plan summary in step summary. **Skipped** when secret `TF_WORKING_DIRECTORY` is unset (job succeeds with no plan artifact). Production adds `-var-file=production.tfvars` when the file exists; staging adds `-var-file=terraform.tfvars` when present; **dev** adds `-var-file=dev.tfvars` when present (including after materialization from `DEV_TFVARS`). |
 | `terraform-apply` | Runs only when `run_terraform_apply` is true and a plan was produced. Downloads the plan artifact and runs `terraform apply tfplan`. Uses the same environment as the target (reviewer gate). |
 | `deploy-container-apps` | OIDC, records API (and optional worker) revision **before** update, `az containerapp update --image` for API, **worker** (same image URI as API: `…/archlucid-api:<tag>`), and UI when configured, then records revisions **after**. Skips the whole update when `ACR_LOGIN_SERVER`, `AZURE_RESOURCE_GROUP`, or `CONTAINER_APP_API_NAME` is missing. Worker update runs only when secret **`CONTAINER_APP_WORKER_NAME`** is set (matches Terraform default `archlucid-worker`). |
-| `smoke-test` (job id; UI label **Post-deploy validation**) | Optional when `SMOKE_TEST_BASE_URL` unset. Otherwise runs **`scripts/ci/cd-post-deploy-verify.sh`**: see [Post-deploy validation behavior](#post-deploy-validation-behavior) below. |
+| `smoke-test` (job id; UI label **Post-deploy validation**) | Optional when `SMOKE_TEST_BASE_URL` unset. Otherwise runs **`archlucid deployment-evidence`** (same checks as `scripts/ci/cd-post-deploy-verify.sh`), writes `artifacts/deployment-evidence-<target>-<run_id>.md`, **fails the job** on probe failure, and uploads the Markdown as a workflow artifact. |
 | `rollback` | On **smoke failure** only: if repo variable `CD_ROLLBACK_ON_SMOKE_FAILURE` is `true`, deactivates the new **API** revision and, when `CONTAINER_APP_WORKER_NAME` is configured, the new **worker** revision (keeps API and worker on the same rollback story). |
 | `manual-rollback` | `workflow_dispatch` with `action = rollback`: deactivates the current latest API revision and verifies a different revision became active. |
 | `nuget-push` | Production only, after successful smoke: packs and pushes `ArchLucid.Api.Client` when `NUGET_API_KEY` is set. |
@@ -63,21 +63,36 @@ flowchart LR
 
 ## Post-deploy validation behavior
 
-Implemented by **`scripts/ci/cd-post-deploy-verify.sh`** (called from **`smoke-test`** jobs in `.github/workflows/cd.yml` and `cd-staging-on-merge.yml`).
+**Primary (CD):** the **`smoke-test`** job runs **`dotnet run --project ArchLucid.Cli -- deployment-evidence`** with `--environment` set to the CD target (`dev` / `staging` / `production`), `--api-base-url` from secret **`SMOKE_TEST_BASE_URL`**, and the same retry environment variables as the legacy script. It writes **Markdown** under `artifacts/deployment-evidence-<target>-<run_id>.md` and uploads it as a **`deployment-evidence-…`** workflow artifact. **Exit code non-zero fails the job** (release gate); there is no warn-only default.
+
+**Legacy / curl:** **`scripts/ci/cd-post-deploy-verify.sh`** remains available for shells that prefer `curl`+`jq` only (see table below).
 
 | Step | Request | Pass criteria | First-line diagnosis |
 |------|---------|---------------|----------------------|
-| 1 | `GET /health/live` | HTTP **200** | Logs HTTP code and up to **512** bytes of body on failure. |
-| 2 | `GET /health/ready` | HTTP **200** and JSON **`.status` == `"Healthy"`** | Logs compact JSON; on non-Healthy prints **per-entry** `name` + `status` from `.entries[]`. Does **not** call `GET /health` (requires **ReadAuthority**). |
-| 3 | `GET /openapi/v1.json` | HTTP **200** | Logs first **200** chars on success; body excerpt on failure. **Note:** `MapOpenApi` is registered only in **Development** in `PipelineExtensions.cs`; Staging/Production hosts may return **404** unless you change hosting—point `SMOKE_TEST_BASE_URL` at a host that exposes OpenAPI or adjust the app. |
-| 4 | `GET /version` | HTTP **200** | Logs **compact JSON** (build / commit / environment). Anonymous per `VersionController`. |
+| 1 | `GET /health/live` | HTTP **200** | Logs HTTP code and body preview (redacted) on failure. |
+| 2 | `GET /health/ready` | HTTP **200** and JSON **`.status` == `"Healthy"`** | Logs compact JSON preview; on non-Healthy see probe **Next steps** in the Markdown report. Does **not** call `GET /health` (requires **ReadAuthority**). |
+| 3 | `GET /openapi/v1.json` | HTTP **200** | OpenAPI must expose **`.info.title`** unless break-glass **`--allow-missing-openapi`** is used (document out of band if ever enabled in CD). **Note:** some Production-like hosts return **404** for OpenAPI — align `SMOKE_TEST_BASE_URL` or hosting. |
+| 4 | `GET /version` | HTTP **200** | Compact JSON in report (redacted patterns). Anonymous per `VersionController`. |
 | 5 | `GET {SMOKE_SYNTHETIC_PATH}` | HTTP **200** | Omitted when the path is **`/version`** (already checked). |
 
-Failures print **`::error::`** lines on GitHub Actions for visible annotations and exit **non-zero** so the job fails and optional **rollback** can run.
+**Operator CLI (local, non-blocking unless you treat exit code as gate):**
+
+```bash
+dotnet run --project ArchLucid.Cli -- deployment-evidence \
+  --environment staging \
+  --api-base-url "https://staging.example.com" \
+  --synthetic-path /version \
+  --out ./artifacts/deployment-evidence-staging-local.md \
+  --repo .
+```
+
+**Break-glass OpenAPI:** add **`--allow-missing-openapi`** only when policy accepts a 404/403 on `/openapi/v1.json` for that environment; do **not** make that the default in CD without explicit approval.
+
+Failures emit **`::error::`** lines on GitHub Actions for visible annotations when probes fail.
 
 **Retries:** Set repository variables **`CD_POST_DEPLOY_MAX_ATTEMPTS`** & **`CD_POST_DEPLOY_RETRY_WAIT_SECONDS`** to re-run the full check sequence after deploy (helps new revisions still starting).
 
-**Local run:** `bash scripts/ci/cd-post-deploy-verify.sh https://your-api.example.com /version`
+**Local run (legacy bash):** `bash scripts/ci/cd-post-deploy-verify.sh https://your-api.example.com /version`
 
 **Runner dependency:** **`jq`** must be on the path (preinstalled on `ubuntu-latest`).
 
