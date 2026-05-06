@@ -2,6 +2,7 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 

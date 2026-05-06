@@ -18,7 +18,7 @@ The commercial story is strongest when sold as "faster architecture review with 
 
 ### Enterprise Picture
 
-Enterprise posture is materially better than a typical early product: Entra/JWT/API-key auth modes, RBAC, per-tenant SQL topology, optional RLS, durable audit, governance workflows, trust-center documentation, DPA/subprocessor material, CAIQ/SIG-style artifacts, private endpoint guidance, and Terraform roots are present. Enterprise adoption is held back mainly by workflow integration completeness, deployment-specific validation burden, procurement assurance friction, and operator cognitive load.
+Enterprise posture is materially better than a typical early product: Entra/JWT/API-key auth modes, RBAC, per-tenant SQL topology (database-per-tenant in production — the database boundary is the primary isolation mechanism; RLS exists in schema as optional hardening but is off by default in the production topology), durable audit, governance workflows, trust-center documentation, DPA/subprocessor material, CAIQ/SIG-style artifacts, private endpoint guidance, and Terraform roots are present. Enterprise adoption is held back mainly by workflow integration completeness, deployment-specific validation burden, procurement assurance friction, and operator cognitive load.
 
 ### Engineering Picture
 
@@ -564,7 +564,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 2. **Deployment validation remains environment-specific and operator-owned.**
 3. **Security/procurement teams may require evidence outside the current V1 contract.**
 4. **Operator cognitive load is high for teams that only want one review package.**
-5. **Tenant topology and RLS/private endpoint choices require disciplined configuration.**
+5. **Tenant topology and private endpoint choices require disciplined configuration.** (RLS exists in schema but is `STATE = OFF` by default in `SystemWithPerTenantCatalogs` production mode — the database boundary is the primary isolation mechanism; RLS is optional defense-in-depth, not a required configuration burden.)
 6. **Governance depth may feel like a second implementation project if introduced too early.**
 
 ## Top 6 Engineering Risks
@@ -969,6 +969,155 @@ Constraints:
 - Do not remove simulator-first test behavior.
 ```
 
+### 11. Add customer-controlled Azure extractor, cost ingestion, and Terraform advisory emit
+
+- **Why it matters:** Customers need a low-trust, no-vendor-credentials path to feed their Azure configuration and cost reality into ArchLucid. That data is also the **citation source** for the exact, citation-backed Azure savings narrative central to the FinOps monetization wedge. Terraform advisory emit turns a finding into a one-step actionable change — raising ArchLucid above "another report" to "your co-architect hands you the code."
+- **Expected impact:** Directly improves Differentiability (+10-14 pts), Cost-Effectiveness / Proof-of-ROI Readiness (+8-11 pts), Adoption Friction (+5-8 pts), Interoperability (+6-8 pts), Trustworthiness (+3-5 pts). Weighted readiness impact: +1.0-1.5%. Highest single-improvement strategic leverage in the assessment.
+- **Affected qualities:** Differentiability, Cost-Effectiveness, Proof-of-ROI Readiness, Adoption Friction, Interoperability, Trustworthiness, Marketability.
+- **Status:** Fully actionable now (V1 scope commitment per 2026-05-06 owner decision).
+- **Cursor prompt:**
+
+```text
+Implement three tightly related V1 capabilities: (A) customer-controlled Azure extractor script (config + cost), (B) ArchLucid ingest endpoint for the ZIP, and (C) Terraform export + advisory emit. Treat them as one delivery cluster; they share schema, citation discipline, and security posture.
+
+─── A. Customer-controlled Azure extractor (PowerShell + ZIP) ────────────────
+
+A signed, auditable PowerShell script customers download, inspect, and run inside their own Azure environment. No ArchLucid credentials in the customer tenant. Output is a schema-versioned ZIP customers upload to ArchLucid.
+
+Script design:
+- Name: `Get-ArchLucidAzurePackage.ps1` (or align with existing script naming conventions).
+- Parameters: `-SubscriptionId`, `-ResourceGroupScope` (optional; default = whole subscription), `-OutputPath`, `-IncludeCost` (switch, default off for fastest config-only run), `-IncludeAdvisor` (switch).
+- **Config collection** (always): ARM resource inventory (resource type, id, location, tags, SKU, capacity, public IP exposure, private endpoint bindings). Use `Get-AzResource`, `Get-AzNetworkInterface`, `Get-AzPublicIpAddress`, `Get-AzPrivateEndpoint`, and equivalent Az module calls. No write calls, no destructive calls.
+- **Cost collection** (`-IncludeCost`): Azure Cost Management actual + amortized cost for the last 30 days at resource scope (use `Get-AzConsumptionUsageDetail` or Invoke-AzRestMethod against the Cost Management REST API, whichever produces a usable paged result). Include Azure Advisor cost recommendations (`Get-AzAdvisorRecommendation -Category Cost`). Include orphan candidates: unattached managed disks, deallocated VMs with still-allocated storage, unused public IPs, snapshots older than 90 days.
+- **Public Retail prices**: optionally append Azure Retail Prices API responses (public, no auth: `https://prices.azure.com/api/retail/prices?$filter=…`) for the SKUs found in the resource inventory. Version and date the query. This satisfies the "Retail-rate scenario" mode in the cost citation doctrine.
+- **Output ZIP structure** (schema-versioned so ArchLucid can evolve parsers without breaking existing uploads):
+  - `manifest.json`: schema version, script version, collection timestamp (UTC ISO 8601), subscription id, scope, switches used, Az module version.
+  - `resources.json`: ARM resource inventory.
+  - `cost-actual.json`, `cost-amortized.json`, `advisor-cost.json`, `orphan-candidates.json` (when `-IncludeCost`).
+  - `retail-prices.json` (when Retail append ran; include query filter and effective date).
+  - `README.txt`: one-paragraph description of what is in the ZIP, what was NOT collected, and how to upload to ArchLucid.
+- **What is never collected**: secrets, connection strings, Key Vault contents, certificate private keys, AD credentials, user PII beyond UPN when a resource has an owner tag. Document the exclusions in a comment block at the top of the script.
+- **Signing**: document how to verify the script's signature before running; add a CI step that verifies it does not contain calls to external URLs beyond Azure endpoints and Retail Prices API.
+
+─── B. ArchLucid ingest endpoint for the ZIP ────────────────────────────────
+
+- Add `POST /v1/azure-extractor/upload` (or align with existing API route conventions): accepts a multipart ZIP upload, validates the `manifest.json` schema version, stores the package securely, and creates or associates it with an architecture review run.
+- Schema version guard: reject unsupported schema versions with a clear error; never silently parse unknown schemas.
+- The uploaded ZIP becomes the **citation source** for cost lines in the evidence bundle and the Terraform advisory emit (below). Every cost or savings assertion that traces to data in this ZIP must reference the manifest.json `collectionTimestamp` and schema version as part of the proof point.
+- Add authorization: require at least ExecuteAuthority (aligned with existing patterns).
+- Emit a durable audit event on upload, parse success, parse failure, and schema mismatch.
+- Add tests: valid ZIP, missing manifest.json, wrong schema version, oversized payload, authorization failure.
+
+─── C. Terraform export and advisory emit ────────────────────────────────────
+
+Two sub-capabilities sharing the advisory-only constraint:
+
+**C1 — Export current Azure state to Terraform (wrap aztfexport)**
+- `aztfexport` (https://github.com/Azure/aztfexport) is the Microsoft-official tool; **wrap it, do not reimplement**.
+- Add a CLI command or operator action that invokes aztfexport for a scope (resource group or subscription) and produces a Terraform bundle the customer can download as ZIP.
+- The output ZIP is advisory only: include a generated `ADVISORY.md` at the root: "This Terraform was generated by ArchLucid acting as your AI co-architect. Review before applying. ArchLucid never applies or destroys resources."
+
+**C2 — Terraform recommendation emit (advisory, plan-only, never apply)**
+- For findings that produce a **right-sizing, removal, or configuration change recommendation** (e.g. right-size VM SKU, remove orphaned disk, add private endpoint, promote reservation), emit a Terraform **plan-only** snippet alongside the finding.
+- Mark every snippet: finding id + recommendation id; include `# ArchLucid advisory – review before apply` at the top of every generated `.tf` block.
+- `terraform fmt` and `terraform validate` must pass in tests for representative snippets; add snapshot tests.
+- **No `destroy` resource blocks** without an explicit confirm gate in the UI; if orphan removal would require `destroy`, emit the resource reference and an explanation comment, not a silent `terraform destroy`.
+- **Never `apply`**: the product never calls `terraform apply`. Document and test that no code path issues apply or destroy on behalf of the customer.
+- Cite the source: the Terraform emit for a cost/right-sizing recommendation must reference the ZIP `collectionTimestamp` and schema version (where data came from), and the applicable Retail price row (where the savings estimate came from).
+
+─── RBAC and access posture (document, not implement) ───────────────────────
+
+Add or update trust-center and runbook docs to state clearly:
+
+**Tier 1 (default V1):** No vendor access to customer cloud. Customer runs Get-ArchLucidAzurePackage.ps1 and uploads the ZIP. ArchLucid needs only the uploaded file.
+
+**Tier 2 (opt-in, V1.x continuous mode):** Customer creates a service principal, grants two roles scoped to their subscription or management group:
+- `Reader` (ARM resources)
+- `Cost Management Reader` (cost data)
+No other roles. Use federated workload identity credential (preferred over long-lived secret).
+
+**What ArchLucid will never request (publish this list):**
+- `Global Reader` (Entra ID directory role — far too broad)
+- `Owner`, `Contributor`, `User Access Administrator`
+- Any write role on customer resources
+- Any role that allows ArchLucid to apply, modify, or destroy customer infrastructure
+
+Add a "what we will never ask for" section to the trust center docs and the extractor README.txt.
+
+─── Acceptance criteria ──────────────────────────────────────────────────────
+- Script runs in a customer tenant with only Az module reader calls; no writes, no external network calls beyond Azure ARM and Retail Prices API.
+- ZIP schema version is validated on ingest; mismatches are rejected, not silently tolerated.
+- Cost lines in the evidence bundle that use extractor data cite the manifest collectionTimestamp and schema version.
+- Terraform snippets pass `terraform fmt` and `terraform validate` in tests; snapshot tests exist.
+- No `apply` or `destroy` is issued by any ArchLucid code path; test for absence.
+- Trust-center "what we will never request" list is present and names Global Reader and write roles explicitly.
+
+─── Constraints ──────────────────────────────────────────────────────────────
+- Do not reimplement aztfexport; wrap the official Microsoft tool.
+- Do not add write or destructive ARM calls anywhere in the extractor script.
+- Do not request Global Reader, Owner, Contributor, or User Access Administrator.
+- Do not issue terraform apply or terraform destroy on behalf of the customer.
+- Do not ingest unknown ZIP schema versions silently.
+- Do not expose raw Azure secrets (connection strings, key vault values) from the uploaded ZIP.
+```
+
+### 12. Retire SQL RLS from the schema (after dev/test exits SingleCatalog)
+
+- **Why it matters:** Production and staging already require `SystemWithPerTenantCatalogs` (database-per-tenant isolation). RLS remains in the schema primarily as a **SingleCatalog** backstop; if the org commits to **never** running SingleCatalog outside narrow emergency scenarios, RLS is **dead weight**: every migration review still asks “predicate or gap?”, `SESSION_CONTEXT` plumbing ships in every host, and security docs describe a control that production does not enable by default. Retiring RLS eliminates that dual mental model and shrinks the attack surface for misconfigured session context—**after** no integration path depends on SingleCatalog for cross-tenant isolation.
+- **Expected impact:** Directly improves Maintainability (+8-11 pts), Manageability (+4-6 pts), Security clarity (+3-5 pts; fewer layered controls that look active but are off), Testability (+2-4 pts). Weighted readiness impact: +0.3-0.5%. **Prerequisite drag:** migrating dev/local SQL integration tests off SingleCatalog may offset short-term velocity until fixtures stabilize.
+- **Affected qualities:** Maintainability, Manageability, Security, Testability, Deployability (simpler operator narrative).
+- **Status:** Actionable as a **phased** program—not a single blind drop. **Gate:** no remaining requirement for `SqlTopologyMode.SingleCatalog` as the isolation boundary for repo CI or documented local workflows unless explicitly grandfathered with owner sign-off.
+- **Cursor prompt:**
+
+```text
+Plan and execute retirement of SQL Server row-level security (RLS) from ArchLucid, contingent on exiting SingleCatalog as the cross-tenant isolation mechanism everywhere that matters.
+
+Context (verify in code before editing):
+- `SqlTopologyMode.SingleCatalog` is still the **default enum value** in `SqlTopologyOptions` and is heavily used by **SQL integration test factories** (e.g. `DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration`). Production/Staging disallow SingleCatalog via `ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike`.
+- In `SystemWithPerTenantCatalogs`, per docs (`TENANT_DATABASE_TOPOLOGY.md`), RLS is optional and **`STATE = OFF` by default**; the catalog boundary is the tenant isolation mechanism.
+
+Phase 0 — Decision and inventory (no schema drops yet):
+- Confirm with owner: **SingleCatalog is never required** for hosted, staging, prod, **or** standard developer/CI SQL paths. If local dev must keep a one-DB ergonomics mode, document it as **explicit opt-in** with a loud “not production-representative” banner rather than silent default.
+- Grep for: `SessionContextSqlConnectionFactory`, `RlsSessionContextApplicator`, `RlsBypass`, `AllowRlsBypass`, `al_tenant_id`, `al_workspace_id`, `al_project_id`, `al_rls_bypass`, `rls.ArchLucidTenantScope`, `archlucid_scope_predicate`, `archlucid_tenant_predicate`, DbUp migrations that create or alter RLS.
+- List every doc under `docs/security/*RLS*` and `docs/security/MULTI_TENANT_RLS.md` plus ADRs that reference RLS; plan supersession text (“RLS removed; isolation = per-tenant catalog only”).
+
+Phase 1 — Make per-tenant catalog the default developer/CI posture (precondition for Phase 2):
+- Change **`SqlTopologyOptions.Mode` default** from `SingleCatalog` to **`SystemWithPerTenantCatalogs`** **or** remove SingleCatalog entirely if the enum is retired (only if every call site can be updated in the same change set—prefer default flip first).
+- Replace `CreateForSingleCatalogIntegration` and similar fixtures with helpers that provision **system + at least two tenant catalogs** (or reuse an existing multi-catalog test container pattern if one exists). Every integration test that assumed “all tenants in one DB” must use explicit tenant bindings or per-tenant connection strings consistent with resolver behavior.
+- Keep `ProductionSafetyRules` behavior: Production/Staging still reject SingleCatalog if the enum remains.
+- Add a short engineering note: local quickstart uses per-tenant topology; SingleCatalog is deleted or Dev-only explicit opt-in per owner Phase 0 decision.
+
+Phase 2 — Remove RLS objects from SQL (DbUp migration + rollback script per repo conventions):
+- New forward migration: `DROP SECURITY POLICY` on `rls.ArchLucidTenantScope` (verify exact name in latest migration), then `DROP FUNCTION` for `rls.archlucid_scope_predicate` and `rls.archlucid_tenant_predicate`, then `DROP SCHEMA rls` if empty. Follow dependency order SQL Server requires.
+- Paired rollback migration recreates the dropped objects **only if** rollback is still a supported contract; if the org abandons rollback for RLS, document one-way migration in the script header.
+- Ensure **master DDL** or **single-file-per-database** discipline: if the repo keeps a consolidated DDL artifact, regenerate or edit in the same PR per `SQL_DDL_DISCIPLINE.md`.
+
+Phase 3 — Remove application/session plumbing:
+- Delete or no-op `SessionContextSqlConnectionFactory` and any `ISqlConnectionFactory` decorator stack that exists only to set `SESSION_CONTEXT` for RLS.
+- Remove `RlsBypassPolicyBootstrap`, `AllowRlsBypass` / `Persistence:AllowRlsBypass` from options and `CONFIGURATION_REFERENCE.md`.
+- Remove RLS fail-closed blocks from `appsettings.SaaS.json` (or equivalent) that exist only to enforce session context when RLS is ON.
+- Simplify `SqlScopedResolutionDbConnectionFactory` and DI registration comments that mention RLS.
+- Update `ArchLucidConfigurationRules` / posture report (improvement #7) to drop “RLS/session context expectation” rows or reword to “not applicable; per-tenant catalogs only.”
+
+Phase 4 — Docs and trust narrative:
+- Supersede or archive `MULTI_TENANT_RLS.md`, `RLS_RISK_ACCEPTANCE.md`, `RLS_DENORM_GAP_ANALYSIS_*.md`, `MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md`, and `adr/0003-sql-rls-session-context.md` (mark superseded; link to new short “Tenant isolation = catalog boundary” note).
+- Update `TENANT_DATABASE_TOPOLOGY.md`, `day-one-security.md`, `SECURITY.md`, and any CAIQ/SIG rows that claim RLS as an active control.
+- Grep remaining “RLS” references in buyer-facing trust material; ensure no over-claim that RLS still enforces rows in production.
+
+Acceptance criteria:
+- **No** `SECURITY POLICY` / RLS predicate functions remain on the product SQL schema after migration runs forward.
+- No application code path sets `SESSION_CONTEXT` keys for ArchLucid RLS (`al_*` RLS keys).
+- All SQL integration tests pass without SingleCatalog unless an explicitly documented, non-default dev shim exists.
+- Configuration posture / startup validation no longer implies RLS is part of production defense-in-depth.
+- Documentation states a single clear isolation story: **one product catalog per tenant** (plus system catalog), not RLS + optional catalog.
+
+Constraints:
+- Do **not** drop RLS in Phase 2 before Phase 1 completes—SingleCatalog tests would lose their only cross-tenant backstop.
+- Do **not** weaken production topology rules: per-tenant catalogs remain mandatory in Production/Staging.
+- Do **not** remove tenant-scoped `WHERE` clauses or API authorization; RLS removal must not be read as “skip app-layer scoping.”
+- If any table still lacks a tenant key at the app layer, fix that **before** claiming RLS retirement is safe—RLS removal does not fix application bugs.
+```
+
 ## Pending Questions for Later
 
 ### Complete first-party ITSM outbound issue creation
@@ -1001,3 +1150,19 @@ Constraints:
 ### Add route-class performance and exact citation-backed cost visibility
 
 - **Resolved:** Follow improvement #8: **default** invoice-backed dollars are **exact** and citation-backed with **proof points**; **justified exceptions** (labeled scenario/estimate/qualitative/blocked-with-rationale) are allowed when citations are incomplete—do not silently present uncited totals as bill truth.
+
+### Add customer-controlled Azure extractor, cost ingestion, and Terraform advisory emit
+
+- **Resolved (scope — 2026-05-06 owner decision):** All three sub-capabilities are **V1 scope**:
+  1. **PowerShell extractor + ZIP** (`Get-ArchLucidAzurePackage.ps1`) — signed, config + cost, schema-versioned output, no vendor credentials in customer tenant. See §2.16 of V1_SCOPE.md.
+  2. **Ingest endpoint** (`POST /v1/azure-extractor/upload`) — schema-version-validated, audit-logged, ExecuteAuthority-gated; uploaded ZIP becomes the citation source for cost lines. See §2.16.
+  3. **Terraform export** (wrap `aztfexport`) + **advisory emit** (plan-only snippets from findings; no apply, no destroy). See §2.17 of V1_SCOPE.md.
+- **Resolved (RBAC posture):** Tier 1 default = no vendor access. Tier 2 opt-in = customer-provisioned `Reader` + `Cost Management Reader` at subscription scope, federated workload identity preferred. **Never request** `Global Reader`, `Owner`, `Contributor`, `User Access Administrator`, or any write role. Publish the "what we will never request" list in trust center and extractor `README.txt`.
+- **Resolved (Terraform guardrails):** Advisory and plan-only always. No `terraform apply` or `terraform destroy` from ArchLucid code paths. Destroy-class orphan recommendations surface as annotated comments only, not executable blocks. Enforced with tests.
+- **Resolved (cost citation):** Cost lines derived from an uploaded ZIP cite the `manifest.json` `collectionTimestamp` and schema version as proof point, satisfying the exact + citation-backed cost doctrine.
+
+### Retire SQL RLS from the schema (after dev/test exits SingleCatalog)
+
+- **Resolved (strategic intent — 2026-05-06):** If the org will **never** rely on `SingleCatalog` for real multi-tenant isolation, RLS is **candidacy for removal** from the product schema after developer/CI fixtures use **per-tenant catalogs** consistently. See **improvement #12** for phased scope (default topology flip → test migration → DbUp drop of security policy/functions → application and doc cleanup).
+- **Open (Phase 0 gate):** Confirm whether **any** grandfathered scenario (emergency support, legacy lab) still requires `SqlTopologyMode.SingleCatalog`; if yes, document bounded use and whether RLS retirement waits until that path is deleted.
+- **Open (enum shape):** Prefer **default flip** to `SystemWithPerTenantCatalogs` first vs **removing** `SingleCatalog` from the enum in one breaking change—trade release risk against permanent removal of the wrong default.

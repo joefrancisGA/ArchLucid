@@ -6845,6 +6845,25 @@ BEGIN
 END;
 GO
 
+/* ---- DbUp 145 parity: tenant ITSM outbound settings (see Migrations/145_TenantItsmOutboundSettings.sql) ---- */
+
+IF OBJECT_ID(N'dbo.TenantItsmOutboundSettings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantItsmOutboundSettings
+    (
+        TenantId                      UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantItsmOutboundSettings PRIMARY KEY CLUSTERED,
+        JiraProjectKeyOverride       NVARCHAR(32)      NULL,
+        JiraSendInfoSeverity          BIT               NOT NULL
+            CONSTRAINT DF_TenantItsmOutboundSettings_JiraSendInfoSeverity DEFAULT (0),
+        JiraIssueTypeBySeverityJson   NVARCHAR(4000)    NULL,
+        ServiceNowAutoCreateCmdbCi    BIT               NOT NULL
+            CONSTRAINT DF_TenantItsmOutboundSettings_ServiceNowAutoCreateCmdbCi DEFAULT (0),
+        CONSTRAINT FK_TenantItsmOutboundSettings_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+GO
+
 /* ---- Analytics / Telemetry ---- */
 
 IF OBJECT_ID(N'dbo.RunTelemetry') IS NULL
