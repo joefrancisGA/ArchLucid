@@ -127,6 +127,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
     [InlineData(12)]
     [InlineData(13)]
     [InlineData(14)]
+    [InlineData(15)]
     public async Task LoadRelationalSnapshotAsync_branch_matrix(int branch)
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -374,6 +375,53 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         cancellationToken: CancellationToken.None));
             }
 
+            if (branch == 15)
+            {
+                object sliceParams = new
+                {
+                    Id = recordId,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId = ScopeProjectId
+                };
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'multi-n', @TenantId, @WorkspaceId, @ProjectId);
+                        """,
+                        sliceParams,
+                        cancellationToken: CancellationToken.None));
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'multi-act', @TenantId, @WorkspaceId, @ProjectId);
+                        """,
+                        sliceParams,
+                        cancellationToken: CancellationToken.None));
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'multiK', N'multiV', @TenantId, @WorkspaceId, @ProjectId);
+                        """,
+                        sliceParams,
+                        cancellationToken: CancellationToken.None));
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(
+                        """
+                        INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText, TenantId, WorkspaceId, ProjectId)
+                        VALUES (@Id, 0, N'multi-note', @TenantId, @WorkspaceId, @ProjectId);
+                        """,
+                        sliceParams,
+                        cancellationToken: CancellationToken.None));
+            }
+
             FindingsSnapshotStorageRow row2 = await RowAsync(connection, findingsId);
             FindingsSnapshot snap2 =
                 await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row2,
@@ -440,6 +488,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
             if (branch == 14)
             {
                 f.Trace.Notes.Should().Equal("note");
+                return;
+            }
+
+            if (branch == 15)
+            {
+                f.RelatedNodeIds.Should().Equal("multi-n");
+                f.RecommendedActions.Should().Equal("multi-act");
+                f.Properties.Should().ContainKey("multiK").WhoseValue.Should().Be("multiV");
+                f.Trace.Notes.Should().Equal("multi-note");
                 return;
             }
         }
