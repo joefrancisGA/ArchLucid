@@ -34,6 +34,10 @@ vi.mock("@/components/WelcomeBanner", () => ({
   WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
 }));
 
+vi.mock("@/components/ValueRealizationDashboard", () => ({
+  ValueRealizationDashboard: () => <div data-testid="value-realization-dashboard-mock" aria-hidden />,
+}));
+
 vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
@@ -49,6 +53,15 @@ vi.mock("@/components/operator-home/OperationalMetricsGate", () => ({
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
+
+vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+
+  return {
+    ...actual,
+    tryStaticDemoRunSummariesPaged: vi.fn(() => null),
+  };
+});
 
 import HomePage from "./page";
 

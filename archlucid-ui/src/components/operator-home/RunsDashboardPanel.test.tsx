@@ -95,35 +95,41 @@ describe("RunsDashboardPanel", () => {
   });
 
   it("shows empty state when there are no runs", async () => {
-    listRuns.mockResolvedValue({
-      items: [],
-      totalCount: 0,
-      page: 1,
-      pageSize: 5,
-      hasMore: false,
-    });
-    stubFetchForDashboard();
+    const fallbackSpy = vi.spyOn(operatorStaticDemo, "tryStaticDemoRunSummariesPaged").mockReturnValue(null);
 
-    render(<RunsDashboardPanel />);
+    try {
+      listRuns.mockResolvedValue({
+        items: [],
+        totalCount: 0,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
-    });
-    expect(
-      screen.getByText(
-        /You have no architecture reviews yet\. Create a request to produce a manifest/i,
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
-    expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
-      "href",
-      "/reviews/new?example=healthcare-claims-intake",
-    );
-    expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
-      "href",
-      "/reviews?projectId=default",
-    );
+      render(<RunsDashboardPanel />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("operator-home-getting-started")).toBeInTheDocument();
+      });
+      expect(
+        screen.getByText(
+          /You have no architecture reviews yet\. Create a request to produce a manifest/i,
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
+      expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
+        "href",
+        "/reviews/new?example=healthcare-claims-intake",
+      );
+      expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
+        "href",
+        "/reviews?projectId=default",
+      );
+    } finally {
+      fallbackSpy.mockRestore();
+    }
   });
 
   it("handles runs list API errors in the recent tab", async () => {

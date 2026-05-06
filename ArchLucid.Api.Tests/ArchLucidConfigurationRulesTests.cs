@@ -1529,129 +1529,6 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
-    public void CollectErrors_WhenDevelopmentAndSqlWithoutRlsSessionContext_has_no_row_level_security_error()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should()
-            .NotContain(e => e.Contains("ApplySessionContext", StringComparison.OrdinalIgnoreCase)
-                             && e.Contains("RowLevelSecurity", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [SkippableFact]
-    public void CollectErrors_WhenProductionApiAndSqlWithoutRlsSessionContext_contains_error()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-            ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should().Contain(e =>
-            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [SkippableFact]
-    public void CollectErrors_WhenProductionApiAndSqlWithRlsSessionContext_has_no_row_level_security_error()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-            ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
-            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should()
-            .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true",
-                StringComparison.OrdinalIgnoreCase));
-    }
-
-    [SkippableFact]
-    public void CollectErrors_WhenProductionWorkerAndSqlWithoutRlsSessionContext_contains_error()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["Hosting:Role"] = "Worker",
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-            ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should().Contain(e =>
-            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [SkippableFact]
-    public void CollectErrors_WhenStagingAndSqlWithoutRlsSessionContext_contains_error()
-    {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] =
-                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false"
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
-        Mock<IWebHostEnvironment> env = new();
-        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
-
-        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
-
-        errors.Should().Contain(e =>
-            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [SkippableFact]
     public void CollectErrors_WhenLlmTokenQuotaEnabledWithoutPositiveMax_contains_error()
     {
         Dictionary<string, string?> data = new()
@@ -2368,7 +2245,6 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
-            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["ArchLucid:SqlTopology:Mode"] = "SystemWithPerTenantCatalogs",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",

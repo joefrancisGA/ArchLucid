@@ -52,10 +52,7 @@ public static class ArchLucidConfigurationRules
         E2EHarnessRules.Collect(configuration, environment, errors);
 
         if (environment.IsStaging())
-        {
             ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
-            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
-        }
 
         if (!environment.IsProduction())
             return errors;
@@ -69,7 +66,6 @@ public static class ArchLucidConfigurationRules
         {
             ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
-            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
             ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
             BillingProductionSafetyRules.CollectStripeLiveKeyRequiresWebhookSigningSecret(configuration, errors);
@@ -84,7 +80,6 @@ public static class ArchLucidConfigurationRules
         ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
         ProductionSafetyRules.CollectCors(configuration, errors);
         ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
-        ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
         ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);
         ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
         ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);

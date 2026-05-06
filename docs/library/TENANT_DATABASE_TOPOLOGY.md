@@ -7,8 +7,8 @@ Establish a clear **cut line** between **system-plane** and **tenant-plane** dat
 ## Assumptions
 
 - Greenfield / pre-release only: unreleased shared-catalog assumptions may be replaced without long-lived compatibility shims.
-- `TenantId`, `WorkspaceId`, and `ProjectId` remain on tenant-scoped rows for defense in depth, exports, and RLS.
-- RLS remains **defense in depth**; **primary** tenant isolation is the database boundary in per-tenant mode.
+- `TenantId`, `WorkspaceId`, and `ProjectId` remain on tenant-scoped rows for export integrity and application-layer scope enforcement.
+- In `SystemWithPerTenantCatalogs` mode the **database boundary is the primary and sufficient tenant isolation mechanism**. RLS is not required for defense-in-depth and ships disabled (`STATE = OFF`) by default. It is available as optional configuration but is not a production requirement.
 - Each **tenant catalog** still contains a **`dbo.Tenants` row (mirror)** so existing FKs (`TenantWorkspaces`, `TenantTrialSeatOccupants`, billing, SCIM links to runs, etc.) continue without a multi-year DDL rewrite in phase 1.
 
 ## Non-goals (this pass)

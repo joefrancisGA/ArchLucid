@@ -42,9 +42,7 @@ flowchart TB
 
 - **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([../SECURITY.md](../library/SECURITY.md)).
 - **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §5).
-- **Layer 3 — Database:** **RLS** policies filter rows using **`SESSION_CONTEXT`**; missing context yields **no rows** when policies are ON (deny-by-default for scoped data). Covered tables and enablement are documented in [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
-
-**Caveat:** RLS is **defense in depth**; it does not replace correct application authorization. Mis-set scope or bypass connections can still cause wrong access — see [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §7.
+- **Layer 3 — Database:** In `SystemWithPerTenantCatalogs` (production) mode the database boundary provides primary tenant isolation. **RLS** is available as optional configuration (`STATE = OFF` by default); it is not a required production control. Documentation: [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
 
 ---
 
