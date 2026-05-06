@@ -232,7 +232,7 @@ internal static class AzureTerraformExportCommand
     private static void WriteUsage()
     {
 
-        const string msg =
+        string msg =
             "Usage: archlucid azure terraform-export --subscription <subId> --resource-group <name> --out <bundle.zip>"
             + Environment.NewLine
             + "Wraps Microsoft aztfexport (non-interactive resource-group mode). ArchLucid never runs terraform apply.";

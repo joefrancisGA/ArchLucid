@@ -545,12 +545,15 @@ export default function AuditPage() {
             : auditResultsSectionHeadingOperator}
         </h3>
         <p className="text-neutral-600 dark:text-neutral-400 text-[13px] mt-0 mb-2 max-w-2xl">
-          Each card below is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip> (time, type, actor,
-          and run when present). Expand an event for technical detail.
+          Each card is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip>
+          {" — "}
+          who acted, what changed, when it happened
+          {buyerPolishedShell ? ", and which review it belongs to when one is recorded" : ", and review context when present"}.
+          Expand for technical payloads.
         </p>
         <p role="status" aria-live="polite" aria-atomic="true" className="text-neutral-600 dark:text-neutral-400 text-sm mt-0">
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first
-          {buyerPolishedShell ? "." : `, ${AUDIT_PAGE_SIZE} rows per request; use Load more for older rows.`}
+          {buyerPolishedShell ? "." : "; use Load more for older entries."}
         </p>
 
         <div className="grid gap-3 mt-3">
@@ -571,17 +574,44 @@ export default function AuditPage() {
                 </span>
               </div>
               <div className="mt-1.5 text-sm">
-                Actor: {ev.actorUserName} ({ev.actorUserId})
+                Actor: {buyerPolishedShell ? ev.actorUserName : `${ev.actorUserName} (${ev.actorUserId})`}
               </div>
-              <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
-              {ev.otelTraceId ? (
-                <div className="text-sm">
-                  Trace:{" "}
-                  <code title={ev.otelTraceId} className="text-xs">
-                    {ev.otelTraceId.slice(0, 16)}…
-                  </code>
-                </div>
-              ) : null}
+              {buyerPolishedShell ? (
+                <details className="mt-1.5 text-sm">
+                  <summary className="cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
+                    Technical identifiers
+                  </summary>
+                  <div className="mt-2 space-y-1 text-neutral-700 dark:text-neutral-300">
+                    <div className="text-sm">
+                      User id: <span className="font-mono text-xs">{ev.actorUserId}</span>
+                    </div>
+                    <div className="text-sm">
+                      Correlation ID:{" "}
+                      <span className="font-mono text-xs">{(ev.correlationId ?? "").trim().length > 0 ? ev.correlationId : "—"}</span>
+                    </div>
+                    {ev.otelTraceId ? (
+                      <div className="text-sm">
+                        Trace:{" "}
+                        <code title={ev.otelTraceId} className="text-xs">
+                          {ev.otelTraceId.slice(0, 16)}…
+                        </code>
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
+              ) : (
+                <>
+                  <div className="text-sm">Correlation: {ev.correlationId ?? "—"}</div>
+                  {ev.otelTraceId ? (
+                    <div className="text-sm">
+                      Trace:{" "}
+                      <code title={ev.otelTraceId} className="text-xs">
+                        {ev.otelTraceId.slice(0, 16)}…
+                      </code>
+                    </div>
+                  ) : null}
+                </>
+              )}
               <div className="text-sm">
                 {buyerPolishedShell ? "Review:" : "Run:"}{" "}
                 {ev.runId ? (

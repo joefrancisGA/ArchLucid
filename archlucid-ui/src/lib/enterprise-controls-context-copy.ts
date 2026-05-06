@@ -28,7 +28,7 @@ export const enterpriseMutationControlDisabledTitle =
  * mutations; align the Export button with **`/me` role claims**, not `useEnterpriseMutationCapability`.
  */
 export const auditExportControlDisabledTitle =
-  "CSV export requires Auditor or Admin on the API for this tenant; search above still works for your role.";
+  "Bulk export needs Auditor or Admin in this workspace; search above still works for your role.";
 
 /** Sidebar / mobile: optional micro-copy when Reader-ranked shell shows fewer nav items (empty = omit line). */
 export const enterpriseNavHintReaderRank = "";
@@ -472,10 +472,12 @@ export const auditSearchSectionLeadBuyerPolishedLine =
   "See who approved what, when, and why.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
-export const auditSearchSectionLeadReaderLine = "Export requires Auditor or Admin access.";
+export const auditSearchSectionLeadReaderLine =
+  "Bulk CSV downloads need Auditor or Admin (search above stays available).";
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
-export const auditExportSectionSupportingLine = "CSV export requires Auditor or Admin access.";
+export const auditExportSectionSupportingLine =
+  "Bulk CSV downloads need Auditor or Admin; pick From/To, then Export CSV.";
 
 /** Audit log — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
@@ -581,7 +583,7 @@ export const policyPacksPackSelectReaderTitle =
 
 /** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
 export const auditExportExecuteRankAuditorRoleNote =
-  "CSV export requires Auditor or Admin access — your current role does not include export.";
+  "Bulk CSV downloads need Auditor or Admin — your role can search events but not export.";
 
 /** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
 export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";

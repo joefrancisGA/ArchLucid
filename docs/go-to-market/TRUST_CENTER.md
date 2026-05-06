@@ -27,6 +27,16 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 - **SOC 2 self-assessment:** The in-repo [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) is maintained under **internal CISO ownership** (interim posture until a CPA attestation is funded — see compliance table below).
 - **LLM outbound hygiene:** Optional deny-list **prompt redaction** before Azure OpenAI and aligned redaction for trace persistence (`LlmPromptRedaction`); see [../runbooks/LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md).
 
+## Azure connectivity (extractor posture)
+
+**Tier 1 (default V1):** ArchLucid does **not** need login access to your Azure tenant for cost and architecture ingestion. Operators run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`**, inspect the artifact, and upload the **`schemaVersion`-versioned ZIP** via **`POST /v1/azure-extractor/upload`** (see [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md)).
+
+**Tier 2 (planned continuous mode, optional V1.x+):** If a future release offers pull-based collection, the customer would provision a **dedicated** service principal with **only** Azure **`Reader`** and **`Cost Management Reader`**, scoped to a subscription or management group, with **federated workload identity** preferred over long-lived secrets. See [../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md).
+
+### What we will never ask you to assign
+
+ArchLucid will **never** ask for directory-wide **`Global Reader`**, **`Owner`**, **`Contributor`**, **`User Access Administrator`**, any **write or destructive** role on your workloads, or any role that lets ArchLucid apply or tear down your infrastructure **on your behalf**. Terraform tooling we ship is **advisory-only** (`archlucid azure terraform-export` wraps Microsoft **aztfexport**; ArchLucid does not run **`terraform apply`** / **`terraform destroy`** for customers). Operational detail: [../runbooks/AZURE_EXTRACTOR_INGEST.md](../runbooks/AZURE_EXTRACTOR_INGEST.md).
+
 For a **STRIDE-oriented** view of the whole product boundary, see [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
 
 ---

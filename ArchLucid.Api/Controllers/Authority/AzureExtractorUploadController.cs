@@ -2,6 +2,8 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Core.Authorization;
 
+using static ArchLucid.Application.AzureExtractor.AzureExtractorUploadLimits;
+
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +24,6 @@ public sealed class AzureExtractorUploadController(
     IAzureExtractorIngestService ingestService,
     ILogger<AzureExtractorUploadController> logger) : ControllerBase
 {
-    private static readonly long MaxBodyBytes = AzureExtractorIngestService.MaxUploadedZipBytes + 256 * 1024;
 
     /// <summary>
     ///     Upload Azure extractor output (<c>.zip</c>). Returns <strong>202</strong> with <c>packageId</c> when stored;
@@ -37,7 +38,7 @@ public sealed class AzureExtractorUploadController(
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    [RequestSizeLimit(MaxBodyBytes)]
+    [RequestSizeLimit(MultipartEnvelopeBudgetBytes)]
     public async Task<IActionResult> UploadAsync(
         IFormFile? file,
         [FromQuery] Guid? runId,
