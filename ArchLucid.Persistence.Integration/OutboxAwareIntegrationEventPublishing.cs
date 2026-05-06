@@ -54,8 +54,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
-                    logger.LogWarning(ex, "Integration event serialization failed for {EventType}", eventType);
-
+                    logger.LogWarningIntegrationEventSerializationFailed(ex, eventType);
 
                 return;
             }
