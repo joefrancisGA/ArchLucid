@@ -50,7 +50,7 @@ type GraphMode =
   | "node-neighborhood"
   | "architecture";
 
-/** Interactive graph viewer page. Operator picks a run, graph mode, and optional filters. */
+/** Interactive graph viewer page. Operator picks a review, graph mode, and optional filters. */
 export default function GraphPage() {
   const workspaceRun = useWorkspaceActiveRun();
   const [runId, setRunId] = useState(SHOWCASE_STATIC_DEMO_RUN_ID);

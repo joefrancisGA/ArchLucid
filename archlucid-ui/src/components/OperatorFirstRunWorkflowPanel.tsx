@@ -628,7 +628,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                         <div className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500 [&_a]:text-teal-700 [&_a]:underline [&_a]:decoration-teal-300/50 dark:[&_a]:text-teal-400">
                           Or open the{" "}
                           <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/reviews?projectId=default">
-                            Runs list
+                            Reviews list
                           </Link>
                           .
                         </div>

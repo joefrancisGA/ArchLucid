@@ -198,7 +198,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             onValueChange={onChange}
           >
             <SelectTrigger id={selectControlId} className="font-mono text-sm">
-              <SelectValue placeholder="Choose demo run" />
+              <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>
@@ -218,7 +218,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="Runs list unavailable" />
+            <SelectValue placeholder="Reviews list unavailable" />
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
@@ -256,7 +256,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             onValueChange={onChange}
           >
             <SelectTrigger id={selectControlId} className="font-mono text-sm">
-              <SelectValue placeholder="Choose demo run" />
+              <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>

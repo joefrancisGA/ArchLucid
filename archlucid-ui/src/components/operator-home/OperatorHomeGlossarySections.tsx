@@ -37,10 +37,10 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     stage: "Track",
     icon: ListOrdered,
     label: "Track Progress",
-    description: "Monitor pipeline progress and inspect run detail.",
+    description: "Monitor pipeline progress and inspect review detail.",
     href: "/reviews?projectId=default",
     shortcut: "Alt+R",
-    linkAccessibleName: "Runs",
+    linkAccessibleName: "Reviews",
   },
   {
     step: 3,
@@ -50,7 +50,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     description: "Finalize the reviewed manifest and export artifacts.",
     href: "/reviews?projectId=default",
     tooltip:
-      "Finalizing records the reviewed manifest as the authoritative output for this run. You can still compare, export, and review its artifacts afterward.",
+      "Finalizing records the reviewed manifest as the authoritative output for this review. You can still compare, export, and revisit its artifacts afterward.",
   },
   {
     step: 4,
