@@ -8,7 +8,6 @@ public sealed class AzureExtractorIngestResult
         get;
 
         init;
-
     }
 
     public Guid? PackageId
@@ -16,7 +15,6 @@ public sealed class AzureExtractorIngestResult
         get;
 
         init;
-
     }
 
     public string? FailureDetail
@@ -24,7 +22,6 @@ public sealed class AzureExtractorIngestResult
         get;
 
         init;
-
     }
 
     public bool IsSchemaRejection
@@ -32,7 +29,6 @@ public sealed class AzureExtractorIngestResult
         get;
 
         init;
-
     }
 
 }

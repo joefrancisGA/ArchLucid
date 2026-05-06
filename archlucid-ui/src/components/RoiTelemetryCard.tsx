@@ -67,6 +67,8 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
     : `${props.precommitBlocks} (sampled)`;
 
   const usdTotal = hours * hourlyUsd;
+  /** Whole-dollar formatting hides sub-dollar totals as "$0" — omit the implied line unless rounding is meaningful. */
+  const showImpliedDollarTotal = hours > 1e-9 && Number.isFinite(usdTotal) && usdTotal >= 0.5;
   const hourlyIsDefault = Math.abs(hourlyUsd - DEFAULT_LOADED_HOURLY_USD) < 1e-6;
 
   return (
@@ -124,14 +126,18 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
               }
             }}
           />
-          {hours > 1e-9 ? (
+          {hours <= 1e-9 ? (
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
+              Not enough surfaced hours in this window to estimate a dollar total.
+            </p>
+          ) : showImpliedDollarTotal ? (
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
               Implied total: <span className="font-mono font-medium">{formatUsd(usdTotal)}</span> (estimate only; not an
               invoice).
             </p>
           ) : (
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
-              Not enough surfaced hours in this window to estimate a dollar total.
+              Dollar total would round to $0 at your loaded rate — raise $/hour or wait for more surfaced hours.
             </p>
           )}
         </div>

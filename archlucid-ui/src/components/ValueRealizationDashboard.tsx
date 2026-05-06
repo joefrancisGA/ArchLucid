@@ -121,8 +121,8 @@ export function ValueRealizationDashboard() {
         <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-100">Measured ROI snapshot</p>
           <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-            Hours come from persisted run telemetry (<span className="font-mono text-xs">EstimatedHoursSaved</span> per
-            review). Implied spend uses the same loaded rate as the ROI page (
+            Hours come from persisted review telemetry (<span className="font-mono text-xs">EstimatedHoursSaved</span>{" "}
+            per review). Implied spend uses the same loaded rate as the ROI page (
             <span className="font-mono text-xs">{formatUsd(hourlyUsd)}</span>
             /h from this browser unless you changed it under Value report → ROI).
           </p>

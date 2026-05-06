@@ -364,7 +364,7 @@ export default function GovernanceFindingsQueueClient() {
                 : "When reviews produce open findings, they appear here. Start from an architecture request, finalize a manifest, then return or open findings from review detail."
             }
             actions={[
-              { label: "View runs", href: "/reviews?projectId=default", variant: "primary" },
+              { label: "View reviews", href: "/reviews?projectId=default", variant: "primary" },
               { label: "Governance workflow", href: "/governance", variant: "outline" },
             ]}
           />
@@ -381,8 +381,8 @@ export default function GovernanceFindingsQueueClient() {
             </p>
             <ol className="mb-0 mt-3 list-decimal space-y-2 pl-5 text-sm text-neutral-600 dark:text-neutral-400">
               <li>Create an architecture request and wait for the pipeline to complete.</li>
-              <li>Finalize the run to lock the manifest and surface findings.</li>
-              <li>Return here or open run detail to review findings for that run.</li>
+              <li>Finalize the review to lock the manifest and surface findings.</li>
+              <li>Return here or open review detail to inspect findings.</li>
             </ol>
           </details>
         ) : null}

@@ -129,11 +129,8 @@ public static class AzureExtractorManifestReader
 
                 return DateTimeOffset.TryParse(
                     collectionTimestamp.GetString(),
-
-                    culture: null,
-
-                    styles: DateTimeStyles.RoundtripKind,
-
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind,
                     out result);
 
             case JsonValueKind.Null:

@@ -46,4 +46,34 @@ describe("RoiTelemetryCard", () => {
 
     expect(screen.getByText(/400 \(sampled\)/)).toBeInTheDocument();
   });
+
+  it("shows Implied dollar total for admin only when rounding would not display as $0", async () => {
+    render(
+      <RoiTelemetryCard
+        window="rolling30"
+        severity={{ critical: 0, high: 0, medium: 10 }}
+        precommitBlocks={0}
+        precommitBlocksExact
+        isAdmin={true}
+      />,
+    );
+
+    expect(await screen.findByText(/Implied total:/)).toBeInTheDocument();
+  });
+
+  it("omits misleading $0 implied total when hours × rate rounds down", async () => {
+    render(
+      <RoiTelemetryCard
+        window="rolling30"
+        severity={{ critical: 0, high: 0, medium: 0.001 }}
+        precommitBlocks={0}
+        precommitBlocksExact
+        isAdmin={true}
+      />,
+    );
+
+    expect(await screen.findByLabelText(/Loaded engineering cost per hour/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Implied total:/)).toBeNull();
+    expect(screen.getByText(/Dollar total would round to \$0/i)).toBeInTheDocument();
+  });
 });
