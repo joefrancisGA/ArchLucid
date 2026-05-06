@@ -451,6 +451,13 @@ public static class AuditEventTypes
     public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
 
     /// <summary>
+    ///     Admin published the canonical first-value Markdown for a run as a new Confluence Cloud page (
+    ///     <c>POST /v1/admin/integrations/confluence/first-value-report</c>). Payload: <c>runId</c>, <c>externalPageId</c>.
+    /// </summary>
+    public const string IntegrationConfluenceFirstValueReportPublished =
+        "Integration.ConfluenceFirstValueReportPublished";
+
+    /// <summary>
     ///     Canonical durable <c>dbo.AuditEvents</c> event types for architecture run-stage semantics (create, execute,
     ///     commit, failure).
     /// </summary>
