@@ -120,7 +120,7 @@ public sealed class ConfluenceFirstValueReportPublisher(
             ExistingConfluencePageId: null);
 
         PublishOutcome outcome =
-            await _publisherConnector.PublishAsync(request, cancellationToken).ConfigureAwait(false);
+            await _publisherConnector.PublishDocumentAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (outcome.Succeeded && _logger.IsEnabled(LogLevel.Information))
 
