@@ -127,7 +127,6 @@ internal static class ComplianceReportAuditLiveSampleFetcher
         public DateTime OccurredUtc
         {
             get;
-            set;
         }
     }
 }

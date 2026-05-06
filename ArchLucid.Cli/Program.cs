@@ -398,7 +398,7 @@ public static class Program
         if (args.Length == 0)
             return false;
 
-        List<string> positionals = new();
+        List<string> positionals = [];
 
         foreach (string arg in args)
         {
