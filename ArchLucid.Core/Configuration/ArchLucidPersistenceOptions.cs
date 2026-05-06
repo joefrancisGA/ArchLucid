@@ -33,4 +33,15 @@ public sealed class ArchLucidPersistenceOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <c>true</c>, a failed DbUp migration during API/Worker startup is logged as critical and the host
+    ///     continues (schema bootstrap and demo seed still run — they may also fail). Readiness reports <b>Degraded</b>
+    ///     via <c>startup_db_migrations</c> health check. Default <c>false</c>: migration failure fails the process.
+    /// </summary>
+    public bool AllowDegradedStartupAfterMigrationFailure
+    {
+        get;
+        set;
+    }
 }

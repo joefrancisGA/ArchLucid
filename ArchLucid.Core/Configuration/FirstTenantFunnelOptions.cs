@@ -22,4 +22,38 @@ public sealed class FirstTenantFunnelOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When greater than zero, the background archival worker sleeps this many hours between cycles (default
+    ///     <c>24</c>). When zero or negative, the worker defaults to <c>24</c>.
+    /// </summary>
+    public int ArchivalIntervalHours
+    {
+        get;
+        set;
+    } = 24;
+
+    /// <summary>Max funnel rows to read (and delete) per archival cycle (default <c>1000</c>).</summary>
+    public int ArchivalBatchSize
+    {
+        get;
+        set;
+    } = 1000;
+
+    /// <summary>Azure Blob container for archived JSONL batches (default <c>funnel-archive</c>).</summary>
+    public string ArchivalBlobContainerName
+    {
+        get;
+        set;
+    } = "funnel-archive";
+
+    /// <summary>
+    ///     Live retention window in SQL before archival to blob (default <c>90</c> days). Rows with
+    ///     <c>OccurredUtc</c> strictly before <c>UtcNow - RetentionDays</c> are candidates.
+    /// </summary>
+    public int ArchivalRetentionDays
+    {
+        get;
+        set;
+    } = 90;
 }

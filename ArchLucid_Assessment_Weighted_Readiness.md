@@ -486,23 +486,83 @@ Acceptance Criteria: The system can route an alert/digest to Slack using the sta
 Constraints: Do not build an interactive Slack app (no OAuth or interactive buttons); just outbound webhook delivery.
 ```
 
-### 6. ServiceNow Incident Creation Client
-**Why it matters:** First-party ServiceNow integration is a core V1 GA commitment.
-**Expected impact:** Directly improves Workflow Embeddedness (+8-12 pts), Interoperability (+5-10 pts). Weighted readiness impact: +0.4-0.7%.
+### 6. ServiceNow Incident Creation Client + Bidirectional Status Sync
+**Why it matters:** First-party ServiceNow integration with bidirectional status sync is a committed V1 GA obligation (*Resolved 2026-05-06*). Outbound-only connectors are table stakes; the sync-back loop is what removes dual-entry burden for enterprise operations teams.
+**Expected impact:** Directly improves Workflow Embeddedness (+10-15 pts), Interoperability (+5-10 pts), Stickiness (+3-5 pts). Weighted readiness impact: +0.5-0.9%.
 **Actionable now:** Yes.
 **Cursor Prompt:**
 ```text
-Create a `ServiceNowIncidentClient` in `ArchLucid.Application`.
+Create a ServiceNow connector in `ArchLucid.Application` covering both outbound incident creation and inbound status sync.
+
+PART A — Outbound: `ServiceNowIncidentClient`
 1. Build an HTTP client that POSTs an incident payload to the ServiceNow Table API (`/api/now/table/incident`).
-2. The payload must map the ArchLucid finding's `SystemName` to `cmdb_ci`.
-3. Support Basic Auth configured via `appsettings.json` (`ServiceNow:Username`, `ServiceNow:Password`, `ServiceNow:InstanceUrl`).
-Acceptance Criteria: The client successfully formats a finding into a ServiceNow incident JSON payload and sends it.
-Constraints: Do not implement bi-directional status syncing; only outbound incident creation.
+2. Map the ArchLucid finding's `SystemName` to `cmdb_ci` using the `cmdb_ci_appl` class lookup (match `name`; leave empty when no match; respect `ServiceNow:AutoCreateCmdbCi` flag, default `false`).
+3. Authenticate via Basic Auth loaded from configuration: `ServiceNow:Username`, `ServiceNow:Password`, `ServiceNow:InstanceUrl`.
+4. Store the returned incident `sys_id` as the correlation back-link on the finding for later sync operations.
+
+PART B — Inbound: `ServiceNowWebhookHandler`
+1. Register POST `/v1/integrations/servicenow/webhook`, protected by a shared-secret header `X-ServiceNow-Token` validated against `ServiceNow:WebhookSecret` in Key Vault.
+2. Accept a ServiceNow business rule webhook payload; extract the incident's `sys_id` and `state` field.
+3. Map state to an ArchLucid finding state using a configurable per-tenant mapping (`ServiceNow:StatusMapping`). Default:
+   - `1` (New) → `Open`
+   - `2` (In Progress) → `InProgress`
+   - `6` (Resolved) / `7` (Closed) → `Resolved`
+4. Look up the ArchLucid finding by `sys_id` correlation back-link and call `IFindingRepository.UpdateStateAsync(findingId, mappedState)`.
+5. Emit a typed audit event `ServiceNowStatusSynced` (actor = "servicenow-webhook", include `sys_id` and mapped state).
+
+Acceptance Criteria:
+- Outbound: a finding successfully creates a ServiceNow incident; `sys_id` is stored.
+- Inbound: a ServiceNow state-change webhook updates the corresponding ArchLucid finding state.
+- Unknown state values are logged as a Warning and ignored; endpoint returns 200 OK.
+- Invalid token returns 400.
+
+Constraints:
+- Auth for V1 is Basic Auth; do not implement OAuth 2.0 yet.
+- Do not sync comments, attachments, or custom fields — status only.
 ```
 
-### 7. DEFERRED: FirstTenantFunnel Purge Worker
-**Reason deferred:** The retention window (e.g., 30, 60, or 90 days) and exact purge semantics (hard delete vs archive) have not been finalized by the owner.
-**Needed from you:** Please confirm the exact retention window (in days) and whether the rows should be permanently deleted from the database or moved to cold storage.
+### 7. FirstTenantFunnel Archival Worker (90-day retention → Azure Blob)
+**Why it matters:** Without a retention policy, `dbo.FirstTenantFunnelEvents` grows unboundedly whenever `Telemetry:FirstTenantFunnel:PerTenantEmission` is enabled, inflating Azure SQL storage costs and creating a growing GDPR surface. The owner decision (2026-05-06) is 90-day live retention, then archive to Azure Blob Storage (cool/archive tier); raw rows are preserved in blob so DSARs can be satisfied on-demand without a separate erasure pipeline.
+**Expected impact:** Directly improves Cost-Effectiveness (+3-5 pts), Compliance Readiness (+2-4 pts), Manageability (+2-3 pts). Weighted readiness impact: +0.1-0.2%.
+**Actionable now:** Yes.
+**Cursor Prompt:**
+```text
+Implement a `FirstTenantFunnelArchivalWorker` hosted service in `ArchLucid.Application`.
+
+1. Create `FirstTenantFunnelArchivalWorker : BackgroundService` that runs once per day
+   (use `PeriodicTimer` with a 24-hour interval; configurable via `Telemetry:FirstTenantFunnel:ArchivalIntervalHours`, default 24).
+
+2. On each cycle, only execute when the feature flag
+   `Telemetry:FirstTenantFunnel:PerTenantEmission` is true — if false, skip silently and log Debug.
+
+3. Query `dbo.FirstTenantFunnelEvents` for all rows where `OccurredUtc < SYSUTCDATETIME() - 90 days`.
+   Batch in pages of 1,000 rows (configurable via `Telemetry:FirstTenantFunnel:ArchivalBatchSize`).
+
+4. For each batch:
+   a. Serialize to JSON Lines format (one JSON object per row: `EventId`, `TenantId`, `EventName`, `OccurredUtc`).
+   b. Upload to Azure Blob Storage using `BlobContainerClient` injected from DI.
+      Blob name pattern: `funnel-archive/{yyyy}/{MM}/{dd}/batch-{EventId_min}-{EventId_max}.jsonl`
+      Container name: configurable via `Telemetry:FirstTenantFunnel:ArchivalContainerName`, default `funnel-archive`.
+   c. Only after the blob upload succeeds (no exception), DELETE the batch rows from SQL by `EventId IN (...)`.
+   d. If the blob upload fails, log Error, skip the DELETE, and continue to the next batch on the next cycle — do not throw.
+
+5. Emit a summary log (Information level) after each cycle: rows archived, batches processed, any skipped batches.
+
+6. Register the worker in `Program.cs`:
+   `builder.Services.AddHostedService<FirstTenantFunnelArchivalWorker>();`
+
+Acceptance Criteria:
+- Rows older than 90 days are uploaded to blob before being removed from SQL.
+- SQL rows are never deleted without a confirmed successful blob upload.
+- Worker skips silently when `PerTenantEmission` is false.
+- No unhandled exceptions propagate out of `ExecuteAsync`.
+
+Constraints:
+- Do not implement GDPR erasure logic — DSARs will be handled manually from blob.
+- Do not change the SQL schema or existing indexes.
+- Use the existing `BlobContainerClient` or `BlobServiceClient` registration pattern already in the codebase; do not introduce a new Azure SDK dependency if one already exists.
+- The retention window (90 days) must be a named constant `FirstTenantFunnelArchivalWorker.RetentionDays = 90` — do not hardcode the literal in the query.
+```
 
 ### 8. Add Reject Metrics to Rate Limiting
 **Why it matters:** Operators have no visibility when API clients are hitting the 429 rate limit.
@@ -550,10 +610,6 @@ Constraints: The default behavior must remain `AllowDegradedStartup = false` to 
 
 ## Pending Questions for Later
 
-**Bi-Directional Jira Status Sync**
-- What is the exact mapping between ArchLucid finding statuses (e.g., Open, Resolved, Ignored) and Jira statuses?
-- Should the V1 implementation target Basic Auth (API Token) or OAuth 2.0?
-
-**FirstTenantFunnel Purge Worker**
-- What is the exact retention window in days for funnel events?
-- Should the events be hard-deleted from SQL, or moved to a cheaper storage tier?
+*All improvement-blocking questions from this assessment have been resolved. See `PENDING_QUESTIONS.md` for the full decision trail:*
+- *ITSM bidirectional sync (Jira + ServiceNow) — Resolved 2026-05-06*
+- *FirstTenantFunnel retention — Resolved 2026-05-06 (item 40 superseded: 90-day live retention, archive to Azure Blob)*
