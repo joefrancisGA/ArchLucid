@@ -17,7 +17,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Provenance graph and citations-bound explanation for the example analysis run.
+      Provenance graph and citations-bound explanation for the example architecture review.
     </p>
     <div
       class="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
@@ -28,7 +28,7 @@ exports[`DemoExplainPage (proof page snapshot) > renders the side-by-side proven
       >
         demo tenant — replace before publishing
       </span>
-       · run
+       · review
        
       <code>
         6e8c4a102b1f4c9a9d3e10b2a4f0c501
