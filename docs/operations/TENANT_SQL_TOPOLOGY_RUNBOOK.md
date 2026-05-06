@@ -1,6 +1,6 @@
-# Tenant SQL topology — operations
+> **Scope:** Runbook for **system vs tenant** SQL catalogs when `ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`; not application-layer debugging or generic SQL performance tuning.
 
-> **Scope:** Runbook for **system vs tenant** SQL catalogs when `ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`.
+# Tenant SQL topology — operations
 
 ## Objective
 

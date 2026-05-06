@@ -1,3 +1,5 @@
+> **Scope:** For release operators gathering post-build verification signals (tests, snapshots, smoke); not a substitute for full CI or formal release sign-off.
+
 # Release evidence summary (operator)
 
 Use this drill after a candidate release build to gather **signals** (not a substitute for full CI). Prefer running from repo root on Windows (PowerShell).
