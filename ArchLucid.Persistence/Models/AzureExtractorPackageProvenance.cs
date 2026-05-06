@@ -62,10 +62,7 @@ public sealed class AzureExtractorPackageProvenance
 
             SubscriptionId = record.SubscriptionId,
 
-            OriginalFileName = record.OriginalFileName ?? string.Empty,
-
+            OriginalFileName = record.OriginalFileName,
         };
-
     }
-
 }

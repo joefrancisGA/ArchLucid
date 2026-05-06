@@ -121,14 +121,12 @@ internal static class ComplianceReportAuditLiveSampleFetcher
         public string? EventType
         {
             get;
-            init;
         }
 
         [JsonPropertyName("occurredUtc")]
         public DateTime OccurredUtc
         {
             get;
-            init;
         }
     }
 }

@@ -266,7 +266,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
         href="/demo/preview"
       >
-        /demo/preview
+        the demo preview page
       </a>
       .
     </p>
@@ -277,7 +277,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         class="text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
         href="/demo/preview"
       >
-        Open /demo/preview
+        Open demo preview
       </a>
       .
     </p>

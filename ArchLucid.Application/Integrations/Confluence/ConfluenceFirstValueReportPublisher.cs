@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Integrations.Confluence;
 /// <inheritdoc cref="IConfluenceFirstValueReportPublisher" />
 public sealed class ConfluenceFirstValueReportPublisher(
     IRunRepository runRepository,
-    FirstValueReportBuilder firstValueReportBuilder,
+    IFirstValueReportBuilder firstValueReportBuilder,
     ConfluenceCloudPublisherConnector publisherConnector,
     IOptionsMonitor<ConfluencePublishingOptions> options,
     ILogger<ConfluenceFirstValueReportPublisher> logger) : IConfluenceFirstValueReportPublisher
@@ -22,7 +22,7 @@ public sealed class ConfluenceFirstValueReportPublisher(
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
-    private readonly FirstValueReportBuilder _firstValueReportBuilder =
+    private readonly IFirstValueReportBuilder _firstValueReportBuilder =
         firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
 
     private readonly ConfluenceCloudPublisherConnector _publisherConnector =
