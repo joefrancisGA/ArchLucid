@@ -14,6 +14,8 @@
 
 The commercial story is strongest when sold as "faster architecture review with evidence-linked outputs." Pricing, ROI logic, sponsor artifacts, public demo surfaces, quote request flow, trial material, and buyer-safe trust packaging exist. The weak point is buyer proof density: the product can describe ROI and generate first-value reports, but it still depends heavily on a controlled pilot to produce customer-specific proof.
 
+**Azure spend positioning:** Expect many buyers to rationalize adoption around **measurable Azure savings** (right-sizing, waste removal, preventable drift). Anything sold that way **must** show **exact** monetary figures—not ranges or vague "approximate savings"—and **every** such figure **must** be **citation-backed** (billing export line, Retail price sheet with SKU + region + effective date, in-product meter or token ledger with frozen rate-table version and formula, finding or manifest excerpt tying the recommendation to billed scope, etc.). Omit or visibly block those claims when citations cannot be produced.
+
 ### Enterprise Picture
 
 Enterprise posture is materially better than a typical early product: Entra/JWT/API-key auth modes, RBAC, per-tenant SQL topology, optional RLS, durable audit, governance workflows, trust-center documentation, DPA/subprocessor material, CAIQ/SIG-style artifacts, private endpoint guidance, and Terraform roots are present. Enterprise adoption is held back mainly by workflow integration completeness, deployment-specific validation burden, procurement assurance friction, and operator cognitive load.
@@ -373,9 +375,9 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 - **Weight:** 1
 - **Weighted deficiency signal:** 30
 - **Weighted impact on readiness:** 0.69%
-- **Justification:** Cost model, LLM budget controls, k6/perf material, Azure budgets, and FinOps tags exist. Cost effectiveness is not fully proven until real workloads establish token, compute, and support curves.
-- **Tradeoffs:** Azure-native enterprise posture costs more than a minimal app.
-- **Improvement recommendations:** Add per-run unit economics to operator and sponsor reports.
+- **Justification:** Cost model, LLM budget controls, k6/perf material, Azure budgets, and FinOps tags exist. GTM ambition to sell **Azure spend reduction** raises the bar: buyer-facing totals should be **exact** (not bands) and **citation-backed** to survive FinOps and procurement scrutiny; cost effectiveness is not fully proven until real workloads—and reports—establish token, compute, and Azure delta lines with immutable proof pointers.
+- **Tradeoffs:** Azure-native enterprise posture costs more than a minimal app; paradoxically, credible FinOps ROI requires disciplined proof, not bolder rounding.
+- **Improvement recommendations:** Add per-run and per-finding economics to operator and sponsor outputs; pair every dollar with **proof points** (meter id or usage row, Retail page URL + effective date + SKU, rate table checksum, correlating citation from findings/graph/manifest).
 - **Disposition:** Fixable in V1/V1.1.
 
 ### 33. Scalability
@@ -576,7 +578,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 
 ## Most Important Truth
 
-ArchLucid is not a toy; it is a serious V1 architecture-review product, but its revenue readiness depends less on adding features and more on proving one buyer workflow end-to-end with low friction, defensible evidence, and real enterprise tool fit.
+ArchLucid is not a toy; it is a serious V1 architecture-review product. Revenue readiness depends on proving one buyer workflow end-to-end with low friction, defensible evidence, and real enterprise tool fit—and **any Azure spend-reduction narrative must be expressed in exact figures with citation-backed proof points**, or it will undermine the FinOps buyers you are pitching.
 
 ## Top Improvement Opportunities
 
@@ -637,7 +639,7 @@ Scope:
   - findings by severity
   - top-severity finding evidence-chain pointer
   - audit row count or lower-bound marker
-  - LLM call count / estimated cost when available
+  - LLM call count and **exact** LLM / ArchLucid-incurred USD (or billed currency), each **citation-backed** (token tally + rate-table version identifier + arithmetic line, or exporter reference)
   - ROI evidence confidence
   - explicit missing-proof checklist
   - demo-data warning when applicable
@@ -649,9 +651,11 @@ Acceptance criteria:
 - Missing fields are shown as missing, not silently replaced by optimistic defaults.
 - Demo/seed data is clearly marked.
 - Existing first-value report behavior is reused rather than duplicated.
+- **Cost discipline:** Any customer-visible dollar amounts for workload or Azure savings are **exact** (not ranges) and each line includes **proof points** (sources as above); if proof cannot be attached, omit the dollar line or show an explicit blocked state.
 
 Constraints:
 - Do not invent new ROI calculations if existing model values already exist.
+- Do not present approximate, banded, or "ballpark" customer-facing totals for Azure spend deltas or savings; **exact + citations or omit**.
 - Do not remove or weaken demo-data warnings.
 - Do not add customer names or reference claims.
 ```

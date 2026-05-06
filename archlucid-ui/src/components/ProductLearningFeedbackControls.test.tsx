@@ -24,7 +24,7 @@ describe("ProductLearningFeedbackControls", () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText(/optional note/i), {
+    fireEvent.change(screen.getByPlaceholderText(/optional feedback note/i), {
       target: { value: "Evidence was clear." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Trusted" }));
