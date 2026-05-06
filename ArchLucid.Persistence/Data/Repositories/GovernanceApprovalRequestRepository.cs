@@ -248,7 +248,7 @@ public sealed class GovernanceApprovalRequestRepository(
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        DynamicParameters p = new DynamicParameters();
+        DynamicParameters p = new();
         p.Add("ApprovalRequestId", approvalRequestId);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 

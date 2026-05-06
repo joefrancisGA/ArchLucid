@@ -440,6 +440,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
             if (branch == 14)
             {
                 f.Trace.Notes.Should().Equal("note");
+                return;
             }
         }
     }

@@ -79,7 +79,9 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
 
-            if (i >= 0)
+            if (i < 0)
+                return Task.CompletedTask;
+
             {
                 AgentExecutionTrace t = Clone(_items[i]);
                 t.BlobUploadFailed = failed;
@@ -145,7 +147,9 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
 
-            if (i >= 0)
+            if (i < 0)
+                return Task.CompletedTask;
+
             {
                 AgentExecutionTrace t = Clone(_items[i]);
                 t.InlineFallbackFailed = failed ? true : null;

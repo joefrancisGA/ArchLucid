@@ -23,42 +23,60 @@ internal static class GoldenManifestPhase1RelationalRead
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new { ManifestId = manifestId },
+            new
+            {
+                ManifestId = manifestId
+            },
             ct);
 
         List<string> assumptions = assumptionsCount > 0
@@ -133,7 +151,9 @@ internal static class GoldenManifestPhase1RelationalRead
 
             provenance = new ManifestProvenance
             {
-                SourceFindingIds = sourceFindings, SourceGraphNodeIds = sourceNodes, AppliedRuleIds = appliedRules
+                SourceFindingIds = sourceFindings,
+                SourceGraphNodeIds = sourceNodes,
+                AppliedRuleIds = appliedRules
             };
         }
         else
@@ -200,7 +220,10 @@ internal static class GoldenManifestPhase1RelationalRead
         List<ManifestDecisionRow> decisionRows = (await connection.QueryAsync<ManifestDecisionRow>(
             new CommandDefinition(
                 decisionsSql,
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: ct))).ToList();
 
         if (decisionRows.Count == 0)
@@ -216,7 +239,10 @@ internal static class GoldenManifestPhase1RelationalRead
         List<DecisionEvidenceRow> evidenceRows = (await connection.QueryAsync<DecisionEvidenceRow>(
             new CommandDefinition(
                 evidenceSql,
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: ct))).ToList();
 
         const string nodeSql = """
@@ -229,7 +255,10 @@ internal static class GoldenManifestPhase1RelationalRead
         List<DecisionNodeRow> nodeRows = (await connection.QueryAsync<DecisionNodeRow>(
             new CommandDefinition(
                 nodeSql,
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: ct))).ToList();
 
         Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
@@ -291,7 +320,10 @@ internal static class GoldenManifestPhase1RelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: ct));
 
         return rows.ToList();
@@ -300,28 +332,19 @@ internal static class GoldenManifestPhase1RelationalRead
     /// <summary>Falls back to the legacy JSON column when no relational rows exist for a string list slice.</summary>
     private static List<string> FallbackDeserializeList(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        return JsonEntitySerializer.Deserialize<List<string>>(json);
+        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<string>>(json);
     }
 
     /// <summary>Falls back to the legacy JSON column when no relational provenance rows exist.</summary>
     private static ManifestProvenance FallbackDeserializeProvenance(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return new ManifestProvenance();
-
-        return JsonEntitySerializer.Deserialize<ManifestProvenance>(json);
+        return string.IsNullOrWhiteSpace(json) ? new ManifestProvenance() : JsonEntitySerializer.Deserialize<ManifestProvenance>(json);
     }
 
     /// <summary>Falls back to the legacy JSON column when no relational decision rows exist.</summary>
     private static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        return JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json);
+        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json);
     }
 
     private static ComplianceSection DeserializeCompliance(string? json)
@@ -334,10 +357,7 @@ internal static class GoldenManifestPhase1RelationalRead
     private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
         where T : class, new()
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return new T();
-
-        return deserialize(json);
+        return string.IsNullOrWhiteSpace(json) ? new T() : deserialize(json);
     }
 
     private sealed class ManifestDecisionRow
