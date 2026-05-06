@@ -45,8 +45,13 @@ public static class HotPathRelationalQueryShapes
                                                           AND ArchivedUtc IS NULL
                                                           AND (
                                                               (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                                              OR CreatedUtc < @CursorCreatedUtc
-                                                              OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                                                              OR (
+                                                                  RunId <> @CursorRunId
+                                                                  AND (
+                                                                      CreatedUtc < @CursorCreatedUtc
+                                                                      OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                                                                  )
+                                                              )
                                                           )
                                                         ORDER BY CreatedUtc DESC, RunId DESC;
                                                         """;
@@ -103,8 +108,13 @@ public static class HotPathRelationalQueryShapes
                                                               AND ArchivedUtc IS NULL
                                                               AND (
                                                                   (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                                                  OR CreatedUtc < @CursorCreatedUtc
-                                                                  OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                                                                  OR (
+                                                                      RunId <> @CursorRunId
+                                                                      AND (
+                                                                          CreatedUtc < @CursorCreatedUtc
+                                                                          OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                                                                      )
+                                                                  )
                                                               )
                                                             ORDER BY CreatedUtc DESC, RunId DESC;
                                                             """;

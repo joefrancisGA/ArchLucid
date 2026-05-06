@@ -112,8 +112,9 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                 string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
             .Where(r =>
                 !cursorRunId.HasValue ||
-                (r.CreatedUtc < cursorCreatedUtc!.Value
-                 || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId!.Value)))
+                (r.RunId != cursorRunId!.Value
+                 && (r.CreatedUtc < cursorCreatedUtc!.Value
+                     || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId.Value))))
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(fetch)
@@ -168,8 +169,9 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                 !r.ArchivedUtc.HasValue)
             .Where(r =>
                 !cursorRunId.HasValue ||
-                (r.CreatedUtc < cursorCreatedUtc!.Value
-                 || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId!.Value)))
+                (r.RunId != cursorRunId!.Value
+                 && (r.CreatedUtc < cursorCreatedUtc!.Value
+                     || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId.Value))))
             .OrderByDescending(r => r.CreatedUtc)
             .ThenByDescending(r => r.RunId)
             .Take(fetch)
