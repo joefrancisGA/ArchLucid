@@ -80,7 +80,7 @@ export function OperatorEvidenceLimitsFooter({
             className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
             href={provenanceHref}
           >
-            Review trail (provenance graph)
+            Review trail
           </Link>
         </li>
 
@@ -90,7 +90,7 @@ export function OperatorEvidenceLimitsFooter({
               className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
               href={explainHref}
             >
-              Architecture review summary (explain aggregate)
+              Architecture review summary
             </Link>
           </li>
         ) : null}

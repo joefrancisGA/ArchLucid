@@ -6,7 +6,7 @@ import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip
 import { ShowcasePipelineReviewTrailCards } from "@/components/showcase/ShowcasePipelineReviewTrailCards";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
-import { getArtifactBusinessLabel, getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactBusinessLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
@@ -104,7 +104,17 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreview
       className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
     >
       <span className="font-semibold">{payload.demoStatusMessage ?? "Demonstration preview"}</span> · run{" "}
-      <code>{runIdLabel}</code> · generated <code>{generatedUtc}</code>
+      <code>{runIdLabel}</code> · generated{" "}
+      <code>
+        {generatedUtc === "—"
+          ? "—"
+          : new Date(generatedUtc).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              timeZone: "UTC",
+            })}
+      </code>
     </div>
   );
 }
@@ -311,9 +321,7 @@ export function DemoPreviewMarketingBody({
           <table className="min-w-full text-left text-sm text-neutral-800 dark:text-neutral-200">
             <thead className="bg-neutral-100 text-xs uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
               <tr>
-                <th className="px-3 py-2">Name</th>
                 <th className="px-3 py-2">Artifact</th>
-                <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Created</th>
               </tr>
             </thead>
@@ -338,18 +346,17 @@ export function DemoPreviewMarketingBody({
                       })
                     : "—";
 
-                const nameLabel = typeof a.name === "string" && a.name.trim().length > 0 ? a.name.trim() : "—";
-
                 return (
                   <tr
                     key={artifactKey}
                     className="border-t border-neutral-200 dark:border-neutral-800"
                     title={typeof a.contentHash === "string" ? `Content hash: ${a.contentHash}` : undefined}
                   >
-                    <td className="px-3 py-2">{nameLabel}</td>
-                    <td className="px-3 py-2">{typeLabel}</td>
-                    <td className="px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400" title={a.format ?? undefined}>
-                      {getArtifactTypeLabel(a.artifactType)}
+                    <td className="px-3 py-2">
+                      <span className="font-medium">{typeLabel}</span>
+                      {typeof a.name === "string" && a.name.trim().length > 0 ? (
+                        <p className="m-0 mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">{a.name.trim()}</p>
+                      ) : null}
                     </td>
                     <td className="px-3 py-2">{createdLabel}</td>
                   </tr>

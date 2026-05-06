@@ -32,6 +32,7 @@ import {
   mergePolicyPacksStateWithStaticDemo,
   staticDemoPolicyPacksFallbackBundle,
 } from "@/lib/operator-static-demo";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   enterpriseMutationControlDisabledTitle,
   policyPacksAssignButtonLabelReaderRank,
@@ -219,7 +220,7 @@ export default function PolicyPacksPage() {
       try {
         parsed = JSON.parse(bodyText);
       } catch {
-        setFailure(uiFailureFromMessage(`${label}: template JSON is invalid.`));
+        setFailure(uiFailureFromMessage(`${label}: template policy content is invalid.`));
         return;
       }
 
@@ -233,7 +234,7 @@ export default function PolicyPacksPage() {
       setCreateJson(JSON.stringify(parsed, null, 2));
       const verticalKey: string = doc.metadata?.vertical ?? slug;
       setName(`${label} (${verticalKey})`);
-      setDescription(`Imported vertical starter policy pack (${slug}). Review JSON before publishing.`);
+        setDescription(`Imported vertical starter policy pack (${slug}). Review policy content before publishing.`);
       showSuccess(`${label} template loaded into the create form.`);
     } catch (e: unknown) {
       setFailure(toApiLoadFailure(e));
@@ -251,7 +252,7 @@ export default function PolicyPacksPage() {
     try {
       JSON.parse(createJson);
     } catch {
-      setFailure(uiFailureFromMessage("Create: JSON content is invalid."));
+      setFailure(uiFailureFromMessage("Create: policy content is invalid."));
       return;
     }
     setLoading(true);
@@ -285,7 +286,7 @@ export default function PolicyPacksPage() {
     try {
       JSON.parse(publishJson);
     } catch {
-      setFailure(uiFailureFromMessage("Publish: JSON content is invalid."));
+      setFailure(uiFailureFromMessage("Publish: policy content is invalid."));
       return;
     }
     setLoading(true);
@@ -572,7 +573,7 @@ export default function PolicyPacksPage() {
         ) : null}
       </section>
 
-      {isStaticDemoPayloadFallbackEnabled() ? null : (
+      {isStaticDemoPayloadFallbackEnabled() || isBuyerPolishedOperatorShellEnv() ? null : (
       <section className="mb-0" aria-labelledby="policy-packs-lifecycle-heading">
         <h3 id="policy-packs-lifecycle-heading">
           {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
@@ -592,7 +593,7 @@ export default function PolicyPacksPage() {
               shipped under{" "}
               <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">archlucid-ui/public/vertical-templates/</code>{" "}
               (mirrors <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">templates/policy-packs/</code> in
-              the repo). Fills the create form below — adjust name and JSON, then create and publish.
+              the repo). Fills the create form below — adjust name and policy content, then create and publish.
             </p>
             <div className="mb-2 flex flex-wrap gap-2">
               {VERTICAL_POLICY_PACK_IMPORTS.map((row) => (
@@ -670,7 +671,7 @@ export default function PolicyPacksPage() {
                   htmlFor="policy-pack-create-json"
                   className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
                 >
-                  Initial content (JSON)
+                  Initial content (policy)
                 </label>
                 <Textarea
                   id="policy-pack-create-json"
@@ -728,7 +729,7 @@ export default function PolicyPacksPage() {
                   htmlFor="policy-pack-publish-json"
                   className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
                 >
-                  Content (JSON)
+                  Content (policy)
                 </label>
                 <Textarea
                   id="policy-pack-publish-json"

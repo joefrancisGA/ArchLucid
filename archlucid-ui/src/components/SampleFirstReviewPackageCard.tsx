@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
   SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
@@ -13,6 +14,8 @@ const sampleReviewHref = `/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN
 
 /** First-session shortcut: opens the curated sample review package before the real-input wizard. */
 export function SampleFirstReviewPackageCard() {
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
   function recordSampleOpened(): void {
     recordCorePilotRailChecklistStep(3);
   }
@@ -25,18 +28,23 @@ export function SampleFirstReviewPackageCard() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <p className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
-            Zero-config sample
+            {buyerPolished ? "Sample output" : "Zero-config sample"}
           </p>
           <h2 id="sample-first-review-heading" className="m-0 mt-1 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
-            Start with a completed architecture review package
+            {buyerPolished
+              ? "Claims Intake Modernization Review"
+              : "Start with a completed architecture review package"}
           </h2>
           <p className="m-0 mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before
-            filling out the real-input wizard.
+            {buyerPolished
+              ? "A finalized architecture review package — PHI risk findings, evidence trail, manifest, and artifacts."
+              : "Open the Claims Intake sample to see the reviewed manifest, evidence trail, findings, and artifacts before filling out the real-input wizard."}
           </p>
-          <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">
-            Illustrative sample review — use it to understand output shape, not as customer ROI evidence.
-          </p>
+          {buyerPolished ? null : (
+            <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">
+              Illustrative sample review — use it to understand output shape, not as customer ROI evidence.
+            </p>
+          )}
         </div>
 
         <div className="shrink-0 space-y-3 lg:min-w-64">
@@ -62,14 +70,29 @@ export function SampleFirstReviewPackageCard() {
           </dl>
 
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="primary" className="h-9">
-              <Link href={sampleReviewHref} onClick={recordSampleOpened}>
-                Start with sample review
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="h-9">
-              <Link href="/reviews/new">Use my own input</Link>
-            </Button>
+            {buyerPolished ? (
+              <>
+                <Button asChild variant="primary" className="h-9">
+                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
+                    Open architecture review
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-9">
+                  <Link href="/reviews/new">Create a new review</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="primary" className="h-9">
+                  <Link href={sampleReviewHref} onClick={recordSampleOpened}>
+                    Start with sample review
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-9">
+                  <Link href="/reviews/new">Use my own input</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -99,12 +99,12 @@ export function SignInClient() {
 
   if (error) {
     return (
-      <div style={{ maxWidth: 560 }}>
-        <h2 style={{ marginTop: 0 }}>Sign-in</h2>
-        <p style={{ color: "#b91c1c" }}>{error}</p>
+      <div className="max-w-[560px]">
+        <h2 className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Access request</h2>
+        <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">{error}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button asChild variant="default" size="sm">
-            <Link href="/auth/signin">Try signing in again</Link>
+            <Link href="/auth/signin">Try again</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
             <Link href="/help">Help</Link>
@@ -118,9 +118,9 @@ export function SignInClient() {
   }
 
   return (
-    <div style={{ maxWidth: 560 }}>
-      <h2 style={{ marginTop: 0 }}>Sign-in</h2>
-      <p>Redirecting to your identity provider…</p>
+    <div className="max-w-[560px]">
+      <h2 className="mt-0 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Signing in</h2>
+      <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">Redirecting to your identity provider…</p>
       {showSlowHint ? (
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           Taking longer than expected?{" "}

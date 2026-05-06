@@ -3,4 +3,4 @@
  * Never include environment variable names or internal mode strings.
  */
 export const BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE =
-  "Authentication is not configured for this environment. Contact your ArchLucid account team.";
+  "Sign-in is available to approved private-beta participants. Contact your ArchLucid account team to request access.";

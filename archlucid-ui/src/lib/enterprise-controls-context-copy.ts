@@ -481,7 +481,7 @@ export const auditExportSectionSupportingLine =
 
 /** Audit log — polished shell: no bulk-export mechanics in primary copy. */
 export const auditExportSectionSupportingLineBuyerPolished =
-  "Exports are available when your role includes bulk download — set a From/To range, then use Export CSV.";
+  "Download a CSV of the events shown above for the selected date range.";
 
 /** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
 export const auditExportCsvButtonLabelWindowIncomplete = "Export CSV (set From/To)";

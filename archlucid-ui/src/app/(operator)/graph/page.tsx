@@ -16,7 +16,7 @@ import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from
 import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import {
   getArchitectureGraph,
@@ -224,6 +224,7 @@ export default function GraphPage() {
   useEffect(() => {
     const rid = runId.trim();
     const demo =
+      isBuyerPolishedOperatorShellEnv() ||
       isNextPublicDemoMode() ||
       isStaticDemoPayloadFallbackEnabled() ||
       isStaticDemoPayloadFallbackActiveForRun(rid);
@@ -245,6 +246,7 @@ export default function GraphPage() {
     !graph && !loading && loadFailure === null && malformedMessage === null;
 
   const demoUi =
+    isBuyerPolishedOperatorShellEnv() ||
     isNextPublicDemoMode() ||
     isStaticDemoPayloadFallbackEnabled() ||
     isStaticDemoPayloadFallbackActiveForRun(runId.trim());

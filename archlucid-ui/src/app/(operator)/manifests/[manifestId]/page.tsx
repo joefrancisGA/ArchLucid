@@ -317,7 +317,7 @@ export default async function ManifestDetailPage({
                     primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
-                  {primaryFindingHref ? "Review PHI minimization finding" : "Open review findings"}
+                  {primaryFindingHref ? "PHI risk finding" : "Open review findings"}
                 </Link>
               </Button>
             </div>

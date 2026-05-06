@@ -87,6 +87,30 @@ export default function AskPage() {
         }
       }
     } catch (e) {
+      if (isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled()) {
+        const seeded = tryStaticDemoConversationMessages("thread-claims-intake-001");
+
+        if (seeded !== null) {
+          setThreads([
+            {
+              threadId: "thread-claims-intake-001",
+              tenantId: "demo",
+              workspaceId: "demo",
+              projectId: "default",
+              runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+              title: "Claims Intake — PHI risk briefing",
+              createdUtc: "2026-01-12T10:06:00.000Z",
+              lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
+            },
+          ]);
+          setSelectedThreadId("thread-claims-intake-001");
+          setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+          setMessages(seeded);
+
+          return;
+        }
+      }
+
       setListFailure(toApiLoadFailure(e));
     }
   }, []);

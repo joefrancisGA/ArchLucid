@@ -159,7 +159,7 @@ export function SidebarNav() {
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
   const demoUi = isStaticDemoPayloadFallbackEnabled();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const showProgressiveDisclosureChrome = !demoUi;
+  const showProgressiveDisclosureChrome = !demoUi && !buyerPolishedShell;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,

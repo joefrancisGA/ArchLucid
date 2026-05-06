@@ -9,6 +9,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 
 /**
@@ -29,8 +30,9 @@ export default function RunDetailSegmentError({
   const digest = error.digest?.trim() ?? "";
   const isDev = process.env.NODE_ENV === "development";
   const isStaticFallback = isStaticDemoPayloadFallbackEnabled();
+  const isBuyerPolished = isBuyerPolishedOperatorShellEnv();
 
-  if (isStaticFallback) {
+  if (isStaticFallback || isBuyerPolished) {
     return (
       <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
         <OperatorErrorCallout>
@@ -69,7 +71,7 @@ export default function RunDetailSegmentError({
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "This review could not render. Try again or return to your reviews list."}
+            : "This review could not render. Return to your reviews list or open Help."}
         </p>
         {isDev ? (
           <pre
@@ -93,11 +95,11 @@ export default function RunDetailSegmentError({
         ) : null}
       </OperatorErrorCallout>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" variant="primary" onClick={() => reset()}>
-          Try again
-        </Button>
-        <Button type="button" variant="outline" asChild>
+        <Button type="button" variant="primary" asChild>
           <Link href="/reviews?projectId=default">Back to reviews</Link>
+        </Button>
+        <Button type="button" variant="outline" onClick={() => reset()}>
+          Retry
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/">Home</Link>

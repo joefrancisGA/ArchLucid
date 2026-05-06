@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getExecDigestPreferences, saveExecDigestPreferences } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
@@ -79,13 +79,8 @@ export default function TenantSettingsPage() {
     void load();
   }, [isDemo, load]);
 
-  if (isDemo) {
-    return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-        <p className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Tenant settings not available in demo mode.</p>
-        <p className="m-0 mt-1">Workspace configuration is available to administrators with a live API connection.</p>
-      </div>
-    );
+  if (isDemo || isBuyerPolishedOperatorShellEnv()) {
+    return null;
   }
 
   async function onSaveDigest(e: React.FormEvent): Promise<void> {

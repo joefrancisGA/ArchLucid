@@ -100,7 +100,9 @@ export default function AuditPage() {
   const [correlationId, setCorrelationId] = useState<string>("");
   const [actorUserId, setActorUserId] = useState<string>("");
   const [runId, setRunId] = useState<string>(() =>
-    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
+    isBuyerPolishedOperatorShellEnv() || isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled()
+      ? SHOWCASE_STATIC_DEMO_RUN_ID
+      : "",
   );
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
@@ -669,7 +671,7 @@ export default function AuditPage() {
         )}
       >
         <h3 id="audit-export-heading" className="mt-0 mb-2 text-base">
-          {csvExportUiAllowed ? "Export" : "Export (restricted)"}
+          {csvExportUiAllowed || buyerPolishedShell ? "Export" : "Export (restricted)"}
         </h3>
         <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-xl mt-0 mb-3">
           {buyerPolishedShell ? auditExportSectionSupportingLineBuyerPolished : auditExportSectionSupportingLine}

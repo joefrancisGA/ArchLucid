@@ -138,6 +138,15 @@ export default function GovernanceFindingsQueueClient() {
         isStaticDemoPayloadFallbackEnabled() ||
         isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
 
+      if (useDemoSpine) {
+        if (!cancelled) {
+          setRows(staticDemoGovernanceRows());
+          setLoading(false);
+        }
+
+        return;
+      }
+
       try {
         const page = await listRunsByProjectPaged("default", 1, 25);
         const runItems = page.items ?? [];
@@ -255,10 +264,10 @@ export default function GovernanceFindingsQueueClient() {
                       <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
                         {row.manifestId !== "—" ? (
                           <Link
-                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            className="font-sans text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
                             href={manifestHref(row.manifestId)}
                           >
-                            {row.manifestId}
+                            Open manifest
                           </Link>
                         ) : (
                           "—"
