@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Advisory;
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Trait("Category", "Unit")]

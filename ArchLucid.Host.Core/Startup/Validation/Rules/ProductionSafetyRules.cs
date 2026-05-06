@@ -132,6 +132,32 @@ internal static class ProductionSafetyRules
             "Auth:Trial:Modes includes \"MsaExternalId\"; configure Auth:Trial:ExternalIdTenantId with the Entra External ID tenant (directory) id.");
     }
 
+    /// <summary>
+    ///     <see cref="SqlTopologyMode.SingleCatalog"/> shares one database across all tenants and is only safe for
+    ///     local development and test environments. Production and Staging must use
+    ///     <see cref="SqlTopologyMode.SystemWithPerTenantCatalogs"/> so each tenant's data is isolated at the
+    ///     database boundary.
+    /// </summary>
+    public static void CollectSingleCatalogDisallowedInProductionLike(
+        IConfiguration configuration,
+        List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        SqlTopologyOptions topology =
+            configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>()
+            ?? new SqlTopologyOptions();
+
+        if (topology.Mode != SqlTopologyMode.SingleCatalog)
+            return;
+
+        errors.Add(
+            $"ArchLucid:SqlTopology:Mode=SingleCatalog is not permitted in Production or Staging. "
+            + $"Set ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs. "
+            + $"SingleCatalog shares one SQL database across all tenants and must only be used for local development and test.");
+    }
+
     /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
     public static void CollectSqlRowLevelSecurity(
         IConfiguration configuration,

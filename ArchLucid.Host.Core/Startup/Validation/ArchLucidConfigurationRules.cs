@@ -52,8 +52,10 @@ public static class ArchLucidConfigurationRules
         E2EHarnessRules.Collect(configuration, environment, errors);
 
         if (environment.IsStaging())
-
+        {
+            ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
             ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
+        }
 
         if (!environment.IsProduction())
             return errors;
@@ -65,6 +67,7 @@ public static class ArchLucidConfigurationRules
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
+            ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
             ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
@@ -78,6 +81,7 @@ public static class ArchLucidConfigurationRules
             return errors;
         }
 
+        ProductionSafetyRules.CollectSingleCatalogDisallowedInProductionLike(configuration, errors);
         ProductionSafetyRules.CollectCors(configuration, errors);
         ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
         ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);

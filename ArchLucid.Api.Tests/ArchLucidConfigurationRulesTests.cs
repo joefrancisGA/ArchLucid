@@ -2281,6 +2281,87 @@ public sealed class ArchLucidConfigurationRulesTests
                 e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
     }
 
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndSingleCatalogTopology_contains_error()
+    {
+        Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
+        {
+            ["ArchLucid:SqlTopology:Mode"] = "SingleCatalog",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("SingleCatalog", StringComparison.Ordinal)
+            && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenStagingAndSingleCatalogTopology_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["ArchLucid:SqlTopology:Mode"] = "SingleCatalog",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Staging);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("SingleCatalog", StringComparison.Ordinal)
+            && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenDevelopmentAndSingleCatalogTopology_skips_topology_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["ArchLucid:SqlTopology:Mode"] = "SingleCatalog",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("SingleCatalog", StringComparison.Ordinal)
+            && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public void CollectErrors_WhenProductionAndPerTenantCatalogsTopology_does_not_contain_topology_error()
+    {
+        IConfiguration configuration =
+            new ConfigurationBuilder().AddInMemoryCollection(ProductionApiBaselineWithBillingNoop()).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("SingleCatalog", StringComparison.Ordinal)
+            && e.Contains("SystemWithPerTenantCatalogs", StringComparison.Ordinal));
+    }
+
     private static Dictionary<string, string?> ProductionApiBaselineWithBillingNoop() =>
         new()
         {
@@ -2288,6 +2369,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ConnectionStrings:ArchLucid"] =
                 "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucid:SqlTopology:Mode"] = "SystemWithPerTenantCatalogs",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",

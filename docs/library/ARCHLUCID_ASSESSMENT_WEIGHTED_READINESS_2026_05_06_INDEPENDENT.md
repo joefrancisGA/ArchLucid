@@ -22,7 +22,7 @@ None. `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` are present a
 
 **Enterprise picture:** The solution is much stronger than a typical early product on audit, scope docs, Trust Center materials, RLS, CI, and procurement artifacts. Enterprise adoption is still exposed to self-attested assurance, residual RLS gaps, early connector hardening, and limited measured hosted-operating history.
 
-**Engineering picture:** Architecture is modular, Dapper/SQL-first, Azure-aligned, and heavily tested. The highest engineering risks are correctness of AI outputs, live UI/API/SQL parity, uncovered SQL child tables, data consistency remediation, and operational complexity from a very wide surface area.
+**Engineering picture:** Architecture is modular, Dapper/SQL-first, Azure-aligned, and heavily tested. The highest engineering risks are correctness of AI outputs, live UI/API/SQL parity, data consistency remediation, and operational complexity from a very wide surface area. Cross-tenant isolation is provided by the per-tenant database boundary (confirmed); residual RLS work covers workspace/project isolation within a tenant and preventing accidental SingleCatalog deployment.
 
 ---
 
