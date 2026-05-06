@@ -68,7 +68,7 @@ describe("Compare / review views (55R smoke)", () => {
 
     render(<LegacyRunComparisonView result={result} />);
 
-    expect(screen.getByRole("heading", { name: "Run-level diff", level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Review-level diff", level: 3 })).toBeInTheDocument();
     expect(screen.getByText("No review-level diffs")).toBeInTheDocument();
   });
 

@@ -104,7 +104,7 @@ export default function DemoExplainPage() {
           Example analysis — provenance and explanation
         </h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Provenance graph and citations-bound explanation for the example analysis run.
+          Provenance graph and citations-bound explanation for the example architecture review.
         </p>
         {state.payload ? <DemoStatusBanner payload={state.payload} /> : null}
       </header>
@@ -146,7 +146,7 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoExplainResponse }
       data-testid="demo-explain-status-banner"
       className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
     >
-      <span className="font-semibold">{payload.demoStatusMessage}</span> · run{" "}
+      <span className="font-semibold">{payload.demoStatusMessage}</span> · review{" "}
       <code>{payload.runId}</code>
       {payload.manifestVersion ? (
         <>
@@ -199,7 +199,7 @@ function ProvenanceGraphPanel({ graph }: { readonly graph: DemoProvenanceGraph }
 
       {graph.isEmpty ? (
         <p className="text-sm text-neutral-500">
-          The demo run produced no provenance nodes — re-seed the demo to refresh.
+          The demo review produced no provenance nodes — re-seed the demo to refresh.
         </p>
       ) : (
         <ol className="space-y-2 text-sm" data-testid="demo-explain-provenance-graph-nodes">

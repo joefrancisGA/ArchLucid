@@ -3,8 +3,8 @@
  * Covers legacy short keys, dotted semantic keys, and canonical `com.archlucid.*` integration types.
  */
 const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
-  RunStarted: "Run started",
-  RunCompleted: "Run completed",
+  RunStarted: "Review started",
+  RunCompleted: "Review completed",
   "finalize.run": "Manifest finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Context captured",

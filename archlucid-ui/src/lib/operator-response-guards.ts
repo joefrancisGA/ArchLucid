@@ -351,24 +351,24 @@ export function coerceRunDetail(
 
   if (!parsed.success) {
     if (!isRecord(data)) {
-      return { ok: false, message: "Run detail response was not a JSON object." };
+      return { ok: false, message: "Review detail response was not a JSON object." };
     }
 
     if (!isRecord(data.run)) {
-      return { ok: false, message: 'Run detail response is missing a "run" object.' };
+      return { ok: false, message: 'Review detail response is missing a "run" object.' };
     }
 
     const run = data.run;
 
     if (typeof run.runId !== "string" || typeof run.projectId !== "string") {
-      return { ok: false, message: "Run detail is missing string runId or projectId." };
+      return { ok: false, message: "Review detail is missing string runId or projectId." };
     }
 
     if (typeof run.createdUtc !== "string") {
-      return { ok: false, message: "Run detail is missing string createdUtc." };
+      return { ok: false, message: "Review detail is missing string createdUtc." };
     }
 
-    return { ok: false, message: "Run detail response was not a JSON object." };
+    return { ok: false, message: "Review detail response was not a JSON object." };
   }
 
   return { ok: true, value: parsed.data as RunDetail };
