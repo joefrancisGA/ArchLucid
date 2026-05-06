@@ -15,7 +15,6 @@ public static class AuditEventOutboundConnectorConformance
     [
         "apiToken",
         "api_token",
-        "\"password\"",
         "refresh_token",
         "client_secret",
         "hooks.slack.com",

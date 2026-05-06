@@ -1,4 +1,3 @@
-using ArchLucid.Application.Connectors.Publishing;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Connectors.Publishing;
@@ -15,7 +14,7 @@ namespace ArchLucid.Application.Integrations.Confluence;
 public sealed class ConfluenceFirstValueReportPublisher(
     IRunRepository runRepository,
     IFirstValueReportBuilder firstValueReportBuilder,
-    ConfluenceCloudPublisherConnector publisherConnector,
+    IPublisherConnector publisherConnector,
     IOptionsMonitor<ConfluencePublishingOptions> options,
     ILogger<ConfluenceFirstValueReportPublisher> logger) : IConfluenceFirstValueReportPublisher
 {
@@ -25,7 +24,7 @@ public sealed class ConfluenceFirstValueReportPublisher(
     private readonly IFirstValueReportBuilder _firstValueReportBuilder =
         firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
 
-    private readonly ConfluenceCloudPublisherConnector _publisherConnector =
+    private readonly IPublisherConnector _publisherConnector =
         publisherConnector ?? throw new ArgumentNullException(nameof(publisherConnector));
 
     private readonly IOptionsMonitor<ConfluencePublishingOptions> _options =

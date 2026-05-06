@@ -42,6 +42,7 @@ import {
   auditSearchEventsButtonTitleReader,
   auditSearchEventsSectionHeadingOperator,
   auditSearchEventsSectionHeadingReader,
+  auditSearchNoResultsBuyerPolishedLine,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadBuyerPolishedLine,
@@ -297,8 +298,9 @@ export default function AuditPage() {
   const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
   const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
   const csvExportUiAllowed = exportDateRangeReady && exportRoleOk;
-  const auditSearchEmptyLine =
-    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+  const auditSearchEmptyLine = buyerPolishedShell
+    ? auditSearchNoResultsBuyerPolishedLine
+    : callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
       ? auditSearchNoResultsReaderLine
       : auditSearchNoResultsOperatorLine;
 
@@ -323,7 +325,7 @@ export default function AuditPage() {
 
       <AuditLogRankCue className="mb-2" />
 
-      {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
+      {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk && !buyerPolishedShell ? (
         <p className="mb-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400" role="note">
           {auditExportExecuteRankAuditorRoleNote}
         </p>
@@ -625,14 +627,16 @@ export default function AuditPage() {
                 )}
               </div>
               {ev.runId ? (
+                buyerPolishedShell ? null : (
                 <div className="text-[13px] mt-0.5">
                   <Link href={`/reviews/${ev.runId}#agent-traces`} className="text-xs">
                     View agent traces →
                   </Link>
                 </div>
+                )
               ) : null}
               <details className="mt-2.5">
-                <summary className="cursor-pointer">Data JSON</summary>
+                <summary className="cursor-pointer">{buyerPolishedShell ? "Technical payload" : "Data JSON"}</summary>
                 <pre
                   className="mt-2 p-2 bg-neutral-50/90 dark:bg-neutral-900/50 rounded-md overflow-auto text-xs"
                 >

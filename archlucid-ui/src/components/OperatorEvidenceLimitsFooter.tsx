@@ -79,6 +79,7 @@ export function OperatorEvidenceLimitsFooter({
           <Link
             className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
             href={provenanceHref}
+            aria-label="Review trail (provenance graph)"
           >
             Review trail
           </Link>
@@ -89,6 +90,7 @@ export function OperatorEvidenceLimitsFooter({
             <Link
               className="font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
               href={explainHref}
+              aria-label="Architecture review summary (explain aggregate)"
             >
               Architecture review summary
             </Link>

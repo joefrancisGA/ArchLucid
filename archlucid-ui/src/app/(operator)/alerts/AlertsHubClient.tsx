@@ -68,6 +68,7 @@ export function AlertsHubClient() {
 
   return (
     <div className="px-0">
+      {visibleTabIds.length > 1 ? (
       <nav
         className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
         aria-label="Alert hub sections"
@@ -98,17 +99,25 @@ export function AlertsHubClient() {
           })}
         </div>
       </nav>
+      ) : null}
 
       <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Inbox and rules evaluate signals against{" "}
-        <GlossaryTooltip termKey="effective_governance">effective governance</GlossaryTooltip> and persisted findings —
-        escalation paths are tenant-specific.
+        {buyerPolishedShell
+          ? "Open items tie risk signals to findings in this workspace so reviewers can triage and close the loop."
+          : (
+          <>
+            Inbox and rules evaluate signals against{" "}
+            <GlossaryTooltip termKey="effective_governance">effective governance</GlossaryTooltip> and persisted findings —
+            escalation paths are tenant-specific.
+          </>
+            )}
       </p>
 
       <div
         className="min-w-0"
         role="tabpanel"
-        aria-labelledby={`alert-hub-tab-${activeTab}`}
+        aria-labelledby={visibleTabIds.length > 1 ? `alert-hub-tab-${activeTab}` : undefined}
+        aria-label={visibleTabIds.length > 1 ? undefined : "Alert inbox"}
         data-testid="alert-hub-panel"
       >
         {activeTab === "inbox" ? <AlertsInboxContent /> : null}

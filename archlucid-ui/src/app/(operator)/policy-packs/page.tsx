@@ -93,6 +93,7 @@ const VERTICAL_POLICY_PACK_IMPORTS: ReadonlyArray<{ slug: string; label: string 
 
 export default function PolicyPacksPage() {
   const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [packs, setPacks] = useState<PolicyPack[]>([]);
   const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(null);
   const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(null);
@@ -336,6 +337,13 @@ export default function PolicyPacksPage() {
     <main className="max-w-5xl">
       <LayerHeader pageKey="policy-packs" />
       <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
+      {buyerPolishedShell ? (
+        <p className="mb-3 max-w-prose rounded-md border border-teal-100 bg-teal-50/70 px-3 py-2 text-sm text-neutral-900 dark:border-teal-900/45 dark:bg-teal-950/35 dark:text-neutral-100">
+          <strong className="font-semibold">Healthcare Claims sample pack</strong> enforces PHI minimization expectations
+          in review outputs, aligns advisory defaults with claims-intake patterns, and keeps alert posture consistent with
+          the governed review story in this workspace.
+        </p>
+      ) : null}
       <p className="mb-3 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         Policy packs are <strong>versioned governance bundles</strong>: they pin compliance rule references, advisory
         defaults, and alert posture for a tenant, workspace, or project so every architecture review evaluates against the
@@ -451,7 +459,7 @@ export default function PolicyPacksPage() {
         <h3 id="policy-packs-content-heading">
           {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
         </h3>
-        <h4 className="mt-2 mb-2">Effective resolved packs</h4>
+        <h4 className="mt-2 mb-2">{buyerPolishedShell ? "Policy layers merged for this scope" : "Effective resolved packs"}</h4>
         {effective ? (
           <div className="mb-5">
             {isStaticDemoPayloadFallbackEnabled() ? (
@@ -466,7 +474,7 @@ export default function PolicyPacksPage() {
           <p className="text-sm text-neutral-500 dark:text-neutral-400">—</p>
         )}
 
-        <h4 className="mt-0 mb-2">Resolved effective content</h4>
+        <h4 className="mt-0 mb-2">{buyerPolishedShell ? "Applied policy (technical detail)" : "Resolved effective content"}</h4>
         {effectiveContent ? (
           <div className="mb-6">
             {isStaticDemoPayloadFallbackEnabled() ? (

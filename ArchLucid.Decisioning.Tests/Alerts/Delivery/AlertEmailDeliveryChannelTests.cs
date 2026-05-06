@@ -40,6 +40,32 @@ public sealed class AlertEmailDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_conformance_body_does_not_embed_recipient_address_as_secret_bearing_url()
+    {
+        const string connectorName = "Alert email";
+
+        Mock<IEmailSender> sender = new();
+        string? capturedBody = null;
+
+        sender
+            .Setup(x => x.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, CancellationToken>((_, _, body, _) => capturedBody = body)
+            .Returns(Task.CompletedTask);
+
+        string destination = "ops-not-a-url@example.com";
+
+        AlertEmailDeliveryChannel sut = new(sender.Object);
+        AlertDeliveryPayload payload = CreatePayload(destination);
+        payload.Alert.Description = "Follow runbook.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        capturedBody.Should().NotBeNullOrWhiteSpace(because: $"{connectorName}: plaintext body is required.");
+        capturedBody.Should().NotContain("hooks.slack.com", because: $"{connectorName}: alert email body must not echo webhook hosts.");
+        capturedBody.Should().NotContain("Bearer ", because: $"{connectorName}: alert email body must not echo auth material.");
+    }
+
+    [Fact]
     public async Task SendAsync_Subject_ContainsSeverityAndTitle()
     {
         Mock<IEmailSender> sender = new();
