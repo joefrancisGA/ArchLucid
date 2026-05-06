@@ -460,10 +460,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
-        if (scalar is null or DBNull)
-            return false;
-
-        return Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
+        return scalar is not (null or DBNull) && Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
     }
 
     private static void EnsureSchemaVersionsTable(SqlConnection connection, SqlTransaction? tx)

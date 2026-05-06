@@ -87,8 +87,6 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
 
         return doc is null ? null : FromDocument(doc);
     }
-
-    /// <inheritdoc />
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
         CancellationToken ct)
     {
