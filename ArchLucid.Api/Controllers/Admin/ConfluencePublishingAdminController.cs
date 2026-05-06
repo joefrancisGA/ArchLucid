@@ -1,5 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations.Confluence;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Connectors.Publishing;
 
@@ -15,8 +18,13 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/integrations/confluence")]
-public sealed class ConfluencePublishingAdminController(IConfluenceFirstValueReportPublisher publisher) : ControllerBase
+public sealed class ConfluencePublishingAdminController(
+    IConfluenceFirstValueReportPublisher publisher,
+    IAuditService auditService) : ControllerBase
 {
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IConfluenceFirstValueReportPublisher _publisher =
         publisher ?? throw new ArgumentNullException(nameof(publisher));
 
@@ -45,8 +53,24 @@ public sealed class ConfluencePublishingAdminController(IConfluenceFirstValueRep
             .ConfigureAwait(false);
 
         if (outcome is { Succeeded: true, ExternalPageId: not null })
+        {
+            string trimmedRunId = body.RunId.Trim();
+            Guid? runGuid = Guid.TryParse(trimmedRunId, out Guid parsedRunId) ? parsedRunId : null;
+
+            await _auditService
+                .LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.IntegrationConfluenceFirstValueReportPublished,
+                        RunId = runGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new { runId = trimmedRunId, externalPageId = outcome.ExternalPageId })
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             return Ok(new ConfluenceFirstValueReportPublishResponse(outcome.ExternalPageId, null));
+        }
 
         if (outcome.FailureReason is ConfluencePublishFailureReason.NotFound)
 
