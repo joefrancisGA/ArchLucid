@@ -26,7 +26,7 @@ public sealed class AzureExtractorIngestService(
 
     ILogger<AzureExtractorIngestService> logger) : IAzureExtractorIngestService
 {
-    internal const long MaxUploadedZipBytes = 52L * 1024 * 1024;
+    internal const long MaxUploadedZipBytes = AzureExtractorUploadLimits.MaxZipBytes;
 
     public async Task<AzureExtractorIngestResult> IngestZipAsync(
         IFormFile? file,
