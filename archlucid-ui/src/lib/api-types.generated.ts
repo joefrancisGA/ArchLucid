@@ -13889,6 +13889,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/integrations/itsm/outbound/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/*+json": null | components["schemas"]["CreateItsmOutboundIssueRequest"];
+                    "application/json": null | components["schemas"]["CreateItsmOutboundIssueRequest"];
+                    "text/json": null | components["schemas"]["CreateItsmOutboundIssueRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreateItsmOutboundIssueResponse"];
+                        "text/json": components["schemas"]["CreateItsmOutboundIssueResponse"];
+                        "text/plain": components["schemas"]["CreateItsmOutboundIssueResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Service Unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/integrations/teams/connections": {
         parameters: {
             query?: never;
@@ -20885,6 +20961,14 @@ export interface components {
             runId?: string;
             sourceEnvironment?: string;
             targetEnvironment?: string;
+        };
+        CreateItsmOutboundIssueRequest: {
+            findingId?: string;
+            provider?: string;
+        };
+        CreateItsmOutboundIssueResponse: {
+            externalKey: null | string;
+            provider: string;
         };
         CreatePolicyPackRequest: {
             description?: string;

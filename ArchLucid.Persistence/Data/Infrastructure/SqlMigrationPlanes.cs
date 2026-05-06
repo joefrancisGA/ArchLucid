@@ -7,26 +7,15 @@ public static class SqlMigrationPlanes
 
     public static bool IsSystemPlaneScript(string embeddedResourceName)
     {
-        if (string.IsNullOrWhiteSpace(embeddedResourceName))
-            return false;
-
-        return embeddedResourceName.Contains(".Migrations.System.", StringComparison.OrdinalIgnoreCase);
+        return !string.IsNullOrWhiteSpace(embeddedResourceName) && embeddedResourceName.Contains(".Migrations.System.", StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsTenantPlaneScript(string embeddedResourceName)
     {
-        if (string.IsNullOrWhiteSpace(embeddedResourceName))
-            return false;
+        if (string.IsNullOrWhiteSpace(embeddedResourceName)) return false;
+        if (!embeddedResourceName.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase)) return false;
+        if (embeddedResourceName.Contains(BaselineToken, StringComparison.OrdinalIgnoreCase)) return false;
 
-        if (!embeddedResourceName.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (embeddedResourceName.Contains(BaselineToken, StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (IsSystemPlaneScript(embeddedResourceName))
-            return false;
-
-        return true;
+        return !IsSystemPlaneScript(embeddedResourceName);
     }
 }

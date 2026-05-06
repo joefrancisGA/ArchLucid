@@ -78,10 +78,10 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 - **Weight:** 3
 - **Weighted deficiency signal:** 114
 - **Weighted impact on readiness:** 1.82%
-- **Justification:** REST, CLI, webhooks, Service Bus events, Slack/Teams patterns, Confluence publishing, SCIM, and ITSM inbound status sync are present or documented. Evidence for complete first-party Jira and ServiceNow outbound issue creation is weaker than the V1 scope commitment.
+- **Justification:** REST, CLI, webhooks, Service Bus events, Slack/Teams patterns, Confluence publishing, SCIM, and ITSM inbound status sync are present or documented. **First-party Jira and ServiceNow outbound issue/incident creation** is implemented (`POST /v1/integrations/itsm/outbound/issues`, correlation for inbound sync, deterministic tests). Remaining workflow fit gaps are **operator-visible connector health**, buyer-specific field/table expectations (e.g. ServiceNow beyond baseline `incident`), and breadth outside the committed V1 connector slice.
 - **Tradeoffs:** Keeping connectors thin avoids schema sprawl, but customers buy workflow fit, not just API availability.
-- **Improvement recommendations:** Complete and test first-party ITSM outbound issue creation, status correlation, and operator-visible connector health.
-- **Disposition:** Fixable in V1 for the committed connector slice; broader integration catalog belongs to later releases.
+- **Improvement recommendations:** Add operator-visible connector health and staging validation for ITSM credentials; clarify any buyer-required ServiceNow extensions beyond the minimal `incident` slice.
+- **Disposition:** **Outbound create slice complete** for committed Jira/ServiceNow; broader integration catalog and buyer-specific table/field tailoring belong to later releases or design-partner feedback.
 
 ### 6. Differentiability
 
@@ -542,7 +542,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 4. **Live-environment readiness burden:** the repo has strong gates, but every deployment still needs its own smoke, auth, SQL, and observability proof.
 5. **AI correctness burden:** findings are traceable, but correctness still depends on input quality, model behavior, validation gates, and human review.
 6. **Commercial self-serve incompleteness:** quote-to-cash works as a sales-led motion; live self-serve commerce and Marketplace publication are deferred.
-7. **Connector maturity unevenness:** inbound sync, events, and publishing surfaces exist, but complete first-party ITSM workflows need hardening.
+7. **Connector maturity unevenness:** inbound sync, events, publishing, and **first-party ITSM outbound create (Jira/ServiceNow)** exist; remaining gaps include **operator connector health**, buyer-specific extensions (e.g. ServiceNow fields beyond the minimal slice), and production proof that correlation never drifts.
 8. **Procurement assurance friction:** self-assessment is honest, but strict buyers may still ask for CPA SOC 2, ISO, external pen-test, or public references.
 9. **Maintenance complexity:** historical seams and many modules increase the cost of change.
 10. **Route/tier/policy/nav drift risk:** the product already has guards, but any new operator surface has multiple alignment points.
@@ -582,13 +582,13 @@ ArchLucid is not a toy; it is a serious V1 architecture-review product. Revenue 
 
 ## Top Improvement Opportunities
 
-### 1. Complete first-party ITSM outbound issue creation
+### 1. Complete first-party ITSM outbound issue creation — **done**
 
 - **Why it matters:** V1 scope names Jira and ServiceNow as first-party obligations. Enterprise buyers will expect findings to flow into their existing work queues, not just remain inside ArchLucid.
 - **Expected impact:** Directly improves Workflow Embeddedness (+10-14 pts), Interoperability (+8-12 pts), Adoption Friction (+3-5 pts), Enterprise Adoption. Weighted readiness impact: +0.7-1.1%.
 - **Affected qualities:** Workflow Embeddedness, Interoperability, Adoption Friction, Trustworthiness, Correctness.
-- **Status:** Fully actionable now.
-- **Cursor prompt:**
+- **Status:** **Complete (2026-05-06).** Shipped: `POST /v1/integrations/itsm/outbound/issues` (ExecuteAuthority), `ItsmOutboundIssueCreationService`, Jira + ServiceNow HTTP clients, `Integrations:ItsmOutbound` + `dbo.TenantItsmOutboundSettings`, correlation persistence for inbound sync, durable audit (`Integration.JiraIssueCreate*` / `Integration.ServiceNowIncidentCreate*`), application unit tests with fake `HttpMessageHandler`, OpenAPI snapshot + UI types, `V1_SCOPE.md` / `INTEGRATION_CATALOG.md` / audit matrix updates.
+- **Cursor prompt:** *(historical — implementation complete; retained for traceability.)*
 
 ```text
 Implement the minimum V1 first-party outbound ITSM issue creation slice for Jira and ServiceNow.
@@ -1120,8 +1120,9 @@ Constraints:
 
 ## Pending Questions for Later
 
-### Complete first-party ITSM outbound issue creation
+### Complete first-party ITSM outbound issue creation — **shipped (2026-05-06)**
 
+- **Status:** Minimal V1 slice delivered in-repo (Jira issue + ServiceNow incident create, correlation persistence, audit, unit tests, docs). Further buyer-specific extensions are out of scope for this checklist item.
 - **Resolved (Jira project key):** Two-level config. No system-level default — a hosted-deployment admin sets a **deployment-wide fallback key** during onboarding; each tenant can override with their own key. If neither is set, the connector refuses silently and writes a durable audit event: `"Jira connector not configured: project key required."` No silent partial creation.
 - **Resolved (Jira issue type):** Default `Task` for all severities. Tenants may override per-severity via config. `Task` is the safest universal type across all Jira project schemas.
 - **Resolved (Jira priority mapping):** Critical → `Blocker`, High → `High`, Medium → `Medium`, Low → `Low`. **Info findings are dropped by default** (no Jira issue created); a per-tenant opt-in (`sendInfoSeverity: true`) enables them at `Low` priority. Rationale: Info findings are observational; sending them by default would flood customer backlogs and risk the integration being turned off.

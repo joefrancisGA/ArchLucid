@@ -12,10 +12,7 @@ internal static class RepositoryScopePredicate
 {
     internal static string AndTripleWhere(ScopeContext scope)
     {
-        if (scope.TenantId == Guid.Empty)
-            return string.Empty;
-
-        return " AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId";
+        return scope.TenantId == Guid.Empty ? string.Empty : " AND TenantId = @ScopeTenantId AND WorkspaceId = @ScopeWorkspaceId AND ProjectId = @ScopeProjectId";
     }
 
     internal static void AddScopeTripleIfNeeded(DynamicParameters parameters, ScopeContext scope)
