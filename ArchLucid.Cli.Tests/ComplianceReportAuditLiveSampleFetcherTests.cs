@@ -14,7 +14,8 @@ public sealed class ComplianceReportAuditLiveSampleFetcherTests
     [Fact]
     public async Task TryFetchAsync_counts_event_types_on_200()
     {
-        using HttpClient http = new(new OkAuditHandler(), disposeHandler: true) { BaseAddress = new Uri("http://localhost/") };
+        using HttpClient http = new(new OkAuditHandler(), disposeHandler: true);
+        http.BaseAddress = new Uri("http://localhost/");
 
         ComplianceReportAuditLiveSample sample =
             await ComplianceReportAuditLiveSampleFetcher.TryFetchAsync(http, CancellationToken.None);
@@ -28,10 +29,8 @@ public sealed class ComplianceReportAuditLiveSampleFetcherTests
     [Fact]
     public async Task TryFetchAsync_reports_auth_failure()
     {
-        using HttpClient http = new(new StatusHandler(HttpStatusCode.Unauthorized), disposeHandler: true)
-        {
-            BaseAddress = new Uri("http://localhost/")
-        };
+        using HttpClient http = new(new StatusHandler(HttpStatusCode.Unauthorized), disposeHandler: true);
+        http.BaseAddress = new Uri("http://localhost/");
 
         ComplianceReportAuditLiveSample sample =
             await ComplianceReportAuditLiveSampleFetcher.TryFetchAsync(http, CancellationToken.None);

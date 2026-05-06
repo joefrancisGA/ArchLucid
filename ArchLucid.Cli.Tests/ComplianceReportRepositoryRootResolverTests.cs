@@ -18,7 +18,7 @@ public sealed class ComplianceReportRepositoryRootResolverTests
 
         ok.Should().BeTrue();
         root.Should().NotBeNullOrWhiteSpace();
-        File.Exists(Path.Combine(root!, ComplianceReportRepositoryRootResolver.Soc2TemplateRelativePath)).Should().BeTrue();
+        File.Exists(Path.Combine(root, ComplianceReportRepositoryRootResolver.Soc2TemplateRelativePath)).Should().BeTrue();
     }
 
     [Fact]

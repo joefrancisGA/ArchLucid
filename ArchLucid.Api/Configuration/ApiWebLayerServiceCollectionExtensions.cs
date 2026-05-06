@@ -59,5 +59,7 @@ public static class ApiWebLayerServiceCollectionExtensions
                 "startup_database_migration",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
+
+        return services;
     }
 }
