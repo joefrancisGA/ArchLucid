@@ -107,4 +107,24 @@ public sealed record PilotRunDeltas
         get;
         init;
     }
+
+    /// <summary>
+    ///     Rows returned from <see cref="ArchLucid.Persistence.Queries.IArtifactQueryService.ListArtifactsByManifestIdAsync" />
+    ///     when <see cref="ArchLucid.Contracts.Metadata.ArchitectureRun.GoldenManifestId" /> was present; otherwise
+    ///     <see langword="null" /> when not queried or the lookup failed (warnings logged — sponsor surfaces stay honest).
+    /// </summary>
+    public int? SynthesizedArtifactDescriptorCount
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     <see langword="true" /> when <see cref="SynthesizedArtifactDescriptorCount" /> reflects a successful artifact list query.
+    /// </summary>
+    public bool SynthesizedArtifactDescriptorCountResolved
+    {
+        get;
+        init;
+    }
 }

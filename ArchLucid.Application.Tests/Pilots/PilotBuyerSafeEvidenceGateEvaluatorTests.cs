@@ -25,11 +25,13 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
         gate.ProofSendability.Should().Be(ProofPackageSendability.Sendable);
-        gate.Gaps.Should().BeEmpty();
+        gate.DemoGaps.Should().BeEmpty();
+        gate.HardGaps.Should().BeEmpty();
+        gate.SoftGaps.Should().BeEmpty();
     }
 
     [Fact]
-    public void Evaluate_DemoTenant_IsDemoOnlyWithGap()
+    public void Evaluate_DemoTenant_IsDemoOnlyWithDemoGap()
     {
         ArchitectureRun run = CommittedRun();
         PilotRunDeltas deltas = MinimalDeltas(run) with { IsDemoTenant = true };
@@ -42,15 +44,20 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
         gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
-        gate.Gaps.Should().Contain(g => g.Contains("Seeded/demo", StringComparison.Ordinal));
+        gate.DemoGaps.Should().Contain(g => g.Contains("Seeded/demo", StringComparison.Ordinal));
+        gate.HardGaps.Should().BeEmpty();
+        gate.SoftGaps.Should().BeEmpty();
     }
 
     [Fact]
-    public void Evaluate_NoManifest_IsPartial()
+    public void Evaluate_NoManifest_HardGap_IsNotSendable()
     {
         ArchitectureRun run = new()
         {
-            RunId = "r1", RequestId = "q", Status = ArchitectureRunStatus.ReadyForCommit, CreatedUtc = DateTime.UtcNow,
+            RunId = "r1",
+            RequestId = "q",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
         };
 
         PilotRunDeltas deltas = MinimalDeltas(run);
@@ -58,13 +65,29 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         PilotBuyerSafeEvidenceGateResult gate =
             PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, null, deltas, TenantCapturedSnapshot());
 
-        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
-        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.Gaps.Should().Contain(g => g.Contains("Committed golden manifest", StringComparison.Ordinal));
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+        gate.HardGaps.Should().Contain(g => g.Contains("Committed golden manifest", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void Evaluate_DefaultRoiBaseline_AddsRoiGapAndPartial()
+    public void Evaluate_ZeroAuditRows_HardGap_IsNotSendable()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with { AuditRowCount = 0 },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
+        gate.HardGaps.Should().Contain(g => g.Contains("zero rows", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Evaluate_DefaultRoiBaseline_AddsSoftGapAndPartial()
     {
         ArchitectureRun run = CommittedRun();
         ValueReportSnapshot snap = MinimalSnapshotWith(ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions);
@@ -77,11 +100,11 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.Gaps.Should().Contain(g => g.Contains("ROI comparative", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(g => g.Contains("ROI comparative", StringComparison.Ordinal));
     }
 
     [Fact]
-    public void Evaluate_UnresolvedEvidenceChain_IsPartial()
+    public void Evaluate_UnresolvedEvidenceChain_IsPartialWithSoftGap()
     {
         ArchitectureRun run = CommittedRun();
 
@@ -93,7 +116,24 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
         gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
-        gate.Gaps.Should().Contain(g => g.Contains("evidence-chain pointers", StringComparison.Ordinal));
+        gate.SoftGaps.Should().Contain(g => g.Contains("evidence-chain pointers", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Evaluate_SimulatorFallback_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+        run.RealModeFellBackToSimulator = true;
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run),
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("simulator substitution", StringComparison.OrdinalIgnoreCase));
     }
 
     private static ArchitectureRun CommittedRun() =>

@@ -72,6 +72,15 @@ public sealed class PilotRunDeltasResponse
         get;
         init;
     }
+
+    /// <summary>
+    ///     Proof-package completeness checklist + buyer-safe gate labels (same evaluation as the first-value Markdown gate section).
+    /// </summary>
+    public ProofPackageCompletenessResponse? ProofPackageCompleteness
+    {
+        get;
+        init;
+    }
 }
 
 /// <summary>One severity bucket from <see cref="PilotRunDeltasResponse.FindingsBySeverity" />.</summary>

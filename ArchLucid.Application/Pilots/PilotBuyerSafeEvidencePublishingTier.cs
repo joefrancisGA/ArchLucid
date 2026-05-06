@@ -9,6 +9,9 @@ public enum PilotBuyerSafeEvidencePublishingTier
     /// <summary>Run is honest for internal review but has explicit gaps before external sponsor distribution.</summary>
     Partial = 1,
 
-    /// <summary>Seeded / demo identifiers — do not quote as a customer outcome (see report banner).</summary>
+    /// <summary>
+    ///     Demo-flagged tenant <strong>or</strong> structural hard gaps (missing committed manifest / zero audit rows) —
+    ///     publishing posture maps here alongside <see cref="ProofPackageSendability.NotSendable"/>.
+    /// </summary>
     DemoOnly = 2,
 }

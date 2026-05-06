@@ -131,7 +131,7 @@ public sealed class FirstValueReportBuilderTests
         int secondBanner = md.IndexOf("demo tenant", firstBanner + 1, StringComparison.Ordinal);
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);
-        md.Should().Contain("| Demo data warning | Present; do not quote seeded numbers. |");
+        md.Should().Contain("| Non-demo / external-share discipline | **FAILED — non-negotiable demo warning.**");
         md.Should().Contain("**Proof sendability:** **Not sendable externally**");
         md.Should().Contain("**Publishing posture:** **Demo-only**");
     }

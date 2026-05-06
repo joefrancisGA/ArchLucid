@@ -4,77 +4,86 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>
 ///     Derives a sponsor-send posture from persisted run + tenant value-window facts — no fabricated completeness.
 /// </summary>
 public static class PilotBuyerSafeEvidenceGateEvaluator
 {
     /// <summary>
-    ///     Computes <see cref = "PilotBuyerSafeEvidenceGateResult"/> from the same inputs rendered in the first-value
-    ///     report. <see cref = "PilotBuyerSafeEvidencePublishingTier.DemoOnly"/> wins for publishing when the tenant is
-    ///     flagged demo; structural gaps are still listed for internal operators.
+    ///     Computes <see cref="PilotBuyerSafeEvidenceGateResult"/> from the same inputs rendered in the first-value
+    ///     report. ResolveTier partitions <paramref name="hardGapMessages"/> vs <paramref name="softGapMessages"/>:
+    ///     demo tenant or any hard gap yields <see cref="PilotBuyerSafeEvidencePublishingTier.DemoOnly"/> /
+    ///     <see cref="ProofPackageSendability.NotSendable"/> (spec-aligned — structural blocks match demo sendability).
     /// </summary>
-    public static PilotBuyerSafeEvidenceGateResult Evaluate(ArchitectureRun run, GoldenManifest? manifest, PilotRunDeltas deltas, ValueReportSnapshot valueWindowSnapshot)
+    public static PilotBuyerSafeEvidenceGateResult Evaluate(
+        ArchitectureRun run,
+        GoldenManifest? manifest,
+        PilotRunDeltas deltas,
+        ValueReportSnapshot valueWindowSnapshot)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(deltas);
         ArgumentNullException.ThrowIfNull(valueWindowSnapshot);
-        if (run is null)
-            throw new ArgumentNullException(nameof(run));
-        if (deltas is null)
-            throw new ArgumentNullException(nameof(deltas));
-        if (valueWindowSnapshot is null)
-            throw new ArgumentNullException(nameof(valueWindowSnapshot));
-        List<string> gaps = [];
+
+        List<string> demoGaps = [];
+
         if (deltas.IsDemoTenant)
-        {
-            gaps.Add("Seeded/demo tenant — replace before external sponsor screenshots or purchase narratives.");
-        }
+            demoGaps.Add("Seeded/demo tenant — replace before external sponsor screenshots or purchase narratives.");
+
+        List<string> hardGapMessages = [];
 
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
-            gaps.Add("Committed golden manifest absent or run not in Committed status — finalize before external sponsor distribution.");
-        }
-
-        if (run.RealModeFellBackToSimulator)
-        {
-            gaps.Add("Run recorded **simulator substitution** — disclose when claiming real LLM / production agent evidence.");
-        }
-
-        if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
-        {
-            gaps.Add("Top-severity finding present but evidence-chain pointers did not resolve — verify full run detail JSON before sponsor send.");
+            hardGapMessages.Add(
+                "Committed golden manifest absent or run not in Committed status — finalize before external sponsor distribution.");
         }
 
         if (deltas.AuditRowCount == 0)
         {
-            gaps.Add("Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
+            hardGapMessages.Add(
+                "Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
+        }
+
+        List<string> softGapMessages = [];
+
+        if (run.RealModeFellBackToSimulator)
+        {
+            softGapMessages.Add(
+                "Run recorded **simulator substitution** — disclose when claiming real LLM / production agent evidence.");
+        }
+
+        if (deltas.TopFindingId is not null && deltas.TopFindingEvidenceChain is null)
+        {
+            softGapMessages.Add(
+                "Top-severity finding present but evidence-chain pointers did not resolve — verify full run detail JSON before sponsor send.");
         }
 
         ReviewCycleBaselineProvenance prov = valueWindowSnapshot.ReviewCycleBaselineProvenance;
+
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)
         {
-            gaps.Add("ROI comparative narrative uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
+            softGapMessages.Add(
+                "ROI comparative narrative uses **partial / default** baseline posture (see **ROI evidence completeness** section) — avoid customer-specific dollar claims.");
         }
 
-        PilotBuyerSafeEvidencePublishingTier tier = ResolveTier(deltas.IsDemoTenant, gaps);
-        ProofPackageSendability sendability = ResolveSendability(tier);
+        (PilotBuyerSafeEvidencePublishingTier tier, ProofPackageSendability sendability) =
+            ResolveTier(deltas.IsDemoTenant, hardGapMessages, softGapMessages);
 
-        return new PilotBuyerSafeEvidenceGateResult(tier, sendability, gaps);
+        return new PilotBuyerSafeEvidenceGateResult(tier, sendability, demoGaps, hardGapMessages, softGapMessages);
     }
 
-    private static ProofPackageSendability ResolveSendability(PilotBuyerSafeEvidencePublishingTier tier) => tier switch
+    private static (PilotBuyerSafeEvidencePublishingTier Tier, ProofPackageSendability Sendability) ResolveTier(
+        bool demoTenant,
+        IReadOnlyList<string> hardGaps,
+        IReadOnlyList<string> softGaps)
     {
-        PilotBuyerSafeEvidencePublishingTier.DemoOnly => ProofPackageSendability.NotSendable,
-        PilotBuyerSafeEvidencePublishingTier.Partial => ProofPackageSendability.SendableWithCaveats,
-        PilotBuyerSafeEvidencePublishingTier.Complete => ProofPackageSendability.Sendable,
-        _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
-    };
+        if (demoTenant || hardGaps.Count > 0)
+            return (PilotBuyerSafeEvidencePublishingTier.DemoOnly, ProofPackageSendability.NotSendable);
 
-    private static PilotBuyerSafeEvidencePublishingTier ResolveTier(bool demoTenant, IReadOnlyList<string> gaps)
-    {
-        if (demoTenant)
-            return PilotBuyerSafeEvidencePublishingTier.DemoOnly;
-        return gaps.Count is 0 ? PilotBuyerSafeEvidencePublishingTier.Complete : PilotBuyerSafeEvidencePublishingTier.Partial;
+        if (softGaps.Count > 0)
+            return (PilotBuyerSafeEvidencePublishingTier.Partial, ProofPackageSendability.SendableWithCaveats);
+
+        return (PilotBuyerSafeEvidencePublishingTier.Complete, ProofPackageSendability.Sendable);
     }
 }
