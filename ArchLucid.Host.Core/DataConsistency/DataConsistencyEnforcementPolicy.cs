@@ -18,16 +18,33 @@ internal static class DataConsistencyEnforcementPolicy
         return orphanCount >= threshold;
     }
 
-    internal static bool ShouldAttemptGoldenManifestQuarantine(
+    /// <summary>
+    ///     Shared gate for inserting orphan rows into <c>dbo.DataConsistencyQuarantine</c> (golden manifests, findings
+    ///     snapshots, etc.). Mirrors host branch logic: only when mode is <see cref="DataConsistencyEnforcementMode.Quarantine"/>
+    ///     or <paramref name="autoQuarantine"/> is enabled, and the orphan count is positive.
+    /// </summary>
+    internal static bool ShouldAttemptOrphanRowQuarantine(
         DataConsistencyEnforcementMode mode,
         bool autoQuarantine,
-        long goldenOrphanCount)
+        long orphanCount)
     {
-        if (goldenOrphanCount <= 0)
+        if (orphanCount <= 0)
             return false;
 
         return mode == DataConsistencyEnforcementMode.Quarantine || autoQuarantine;
     }
+
+    internal static bool ShouldAttemptGoldenManifestQuarantine(
+        DataConsistencyEnforcementMode mode,
+        bool autoQuarantine,
+        long goldenOrphanCount) =>
+        ShouldAttemptOrphanRowQuarantine(mode, autoQuarantine, goldenOrphanCount);
+
+    internal static bool ShouldAttemptFindingsSnapshotQuarantine(
+        DataConsistencyEnforcementMode mode,
+        bool autoQuarantine,
+        long findingsOrphanCount) =>
+        ShouldAttemptOrphanRowQuarantine(mode, autoQuarantine, findingsOrphanCount);
 
     internal static int NormalizeAlertThreshold(int alertThreshold) => Math.Max(1, alertThreshold);
 

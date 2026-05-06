@@ -66,8 +66,20 @@ export function CorePilotNextStepsCard() {
           Core Pilot complete
         </h2>
         <p className="mb-3 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          First committed manifest is in place. Optional next: explore Operate tools when your team is ready.
+          First committed manifest is in place. Sponsor-ready Markdown/PDF stays anchored on the committed review package —
+          export from Reviews detail when needed; CLI shortcuts below speed support tickets.
         </p>
+        <div className="mb-3 rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
+          <p className="m-0 font-semibold text-neutral-800 dark:text-neutral-100">Copy/paste CLI (replace RUN)</p>
+          <code className="mt-1 block whitespace-pre-wrap break-all font-mono">
+            archlucid first-value-report RUN --save{"\n"}
+            archlucid run-support-packet RUN
+          </code>
+          <p className="mb-0 mt-2 text-[11px] text-neutral-600 dark:text-neutral-400">
+            <code className="font-mono">run-support-packet</code> prints manifest/version/trace/context for escalation — pair with{" "}
+            <HelpLink docPath="/docs/library/CLI_USAGE.md" label="CLI_USAGE.md on GitHub (new tab)" />.
+          </p>
+        </div>
         <div className="flex flex-col gap-2 text-sm">
           <Link
             href="/governance/dashboard"

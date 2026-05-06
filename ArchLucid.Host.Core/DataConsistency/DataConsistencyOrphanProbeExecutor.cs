@@ -182,19 +182,49 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 .ConfigureAwait(false);
         }
 
-        if (!DataConsistencyEnforcementPolicy.ShouldAttemptGoldenManifestQuarantine(
-                enf.Mode,
-                enf.AutoQuarantine,
-                goldenCount))
-            return;
-
         int cap = Math.Clamp(enf.MaxRowsPerBatch, 1, 5000);
 
+        await TryInsertQuarantineBatchAsync(
+                connection,
+                DataConsistencyEnforcementPolicy.ShouldAttemptGoldenManifestQuarantine(enf.Mode, enf.AutoQuarantine, goldenCount),
+                DataConsistencyEnforcementSql.InsertOrphanGoldenManifestsMissingRun,
+                cap,
+                "GoldenManifests",
+                "RunId",
+                ct)
+            .ConfigureAwait(false);
+
+        await TryInsertQuarantineBatchAsync(
+                connection,
+                DataConsistencyEnforcementPolicy.ShouldAttemptFindingsSnapshotQuarantine(
+                    enf.Mode,
+                    enf.AutoQuarantine,
+                    findingsCount),
+                DataConsistencyEnforcementSql.InsertOrphanFindingsSnapshotsMissingRun,
+                cap,
+                "FindingsSnapshots",
+                "RunId",
+                ct)
+            .ConfigureAwait(false);
+    }
+
+    private async Task TryInsertQuarantineBatchAsync(
+        DbConnection connection,
+        bool shouldAttempt,
+        string insertSql,
+        int maxRows,
+        string tableTag,
+        string columnTag,
+        CancellationToken ct)
+    {
+        if (!shouldAttempt)
+            return;
+
         await using DbCommand command = connection.CreateCommand();
-        command.CommandText = DataConsistencyEnforcementSql.InsertOrphanGoldenManifestsMissingRun;
+        command.CommandText = insertSql;
         DbParameter maxRowsParameter = command.CreateParameter();
         maxRowsParameter.ParameterName = "@MaxRows";
-        maxRowsParameter.Value = cap;
+        maxRowsParameter.Value = maxRows;
         command.Parameters.Add(maxRowsParameter);
 
         int inserted = await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
@@ -204,10 +234,13 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         ArchLucidInstrumentation.DataConsistencyOrphansQuarantined.Add(
             inserted,
-            new KeyValuePair<string, object?>("table", "GoldenManifests"),
-            new KeyValuePair<string, object?>("column", "RunId"));
+            new KeyValuePair<string, object?>("table", tableTag),
+            new KeyValuePair<string, object?>("column", columnTag));
 
-        _logger.LogWarning("Data consistency quarantine inserted {Inserted} orphan GoldenManifests row(s).", inserted);
+        _logger.LogWarning(
+            "Data consistency quarantine inserted {Inserted} orphan {Table} row(s).",
+            inserted,
+            tableTag);
     }
 
     private async Task LogTenantOrphanRollupWhenAlertingAsync(

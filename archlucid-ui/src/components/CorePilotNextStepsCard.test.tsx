@@ -56,5 +56,6 @@ describe("CorePilotNextStepsCard", () => {
       "/governance/dashboard",
     );
     expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/ask");
+    expect(screen.getAllByText(/run-support-packet/i).length).toBeGreaterThanOrEqual(1);
   });
 });

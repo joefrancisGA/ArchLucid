@@ -43,7 +43,7 @@ The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 
-The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence` (alias **`proof-pack`**), `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
+The API must be running for `run`, `status`, `trace`, `run-support-packet`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `reference-evidence` (alias **`proof-pack`**), `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
 **Quarterly board-pack PDF (`ExecuteAuthority`, Standard tier):** `POST /v1/pilots/board-pack.pdf` with JSON body `{ "year": 2026, "quarter": 1 }` returns `application/pdf`. Example (bash) with scope headers + API key:
 
@@ -73,6 +73,7 @@ curl -sS -X POST "$ARCHLUCID_API_URL/v1/pilots/board-pack.pdf" \
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
 | `trace <runId>` | Look up the persisted OpenTelemetry trace ID for the run and print the trace viewer URL (or open it in the default browser when **`ARCHLUCID_TRACE_OPEN_BROWSER`** is `1` / `true`). Set **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** with a **`{traceId}`** placeholder (e.g. Grafana explore) to enable links; otherwise the CLI prints the raw trace ID and setup instructions. |
+| `run-support-packet <runId>` | Emit a paste-ready **support packet**: API base, status, request id, timestamps, manifest version (if committed), submitted-results count, OpenTelemetry trace id, simulator-substitution flag, one-line **`GET /version`** JSON, next-step hint, and canonical CLI/HTTP follow-ups. Honors leading **`--json`** (machine-readable line on stdout). |
 | `submit <runId> <result.json>` | Submit an agent result for a run (JSON must match `AgentResult` schema). |
 | `seed <runId>` | Seed fake agent results for a run (development only). |
 | `commit <runId>` | Merge results and produce a versioned manifest. |

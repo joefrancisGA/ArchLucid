@@ -126,6 +126,8 @@ When **`096`** has run, these tables use **tenant id only** (no workspace/projec
 
 **Risk acceptance (governance):** when RLS is **ON** with residual uncovered tables or bypass procedures, capture sign-off using [RLS_RISK_ACCEPTANCE.md](RLS_RISK_ACCEPTANCE.md).
 
+**Residual coverage matrix (tables vs defense depth):** operator-facing mapping of uncovered surfaces, blast-radius framing, and compensating controls lives in [MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md](MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md).
+
 ## 10. Evolution
 
 Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030. **DbUp 108 (2026-04-21)** then drops both objects and replaces them with **`rls.archlucid_scope_predicate`** + **`rls.archlucid_tenant_predicate`** under policy **`rls.ArchLucidTenantScope`**, switching SESSION_CONTEXT keys from `af_*` to `al_*`. The cutover is atomic — there is **no dual-read shim**, so the application (`RlsSessionContextApplicator`, `SqlTenantHardPurgeService`, `DevelopmentDefaultScopeTenantBootstrap`) and the policy state must be deployed together.
