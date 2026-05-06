@@ -1,4 +1,6 @@
-﻿using ArchLucid.KnowledgeGraph.Models;
+﻿using System.Globalization;
+
+using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
@@ -448,5 +450,310 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.Warnings.Should().Equal("tw");
+    }
+
+    [SkippableFact]
+    public async Task Save_then_GetById_round_trips_when_node_count_exceeds_legacy_sql_chunk_size()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
+
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime created = new(2026, 5, 6, 18, 0, 0, DateTimeKind.Utc);
+
+        List<GraphNode> nodes = [];
+        for (int i = 0; i < 220; i++)
+        {
+            nodes.Add(
+                new GraphNode
+                {
+                    NodeId = "n" + i.ToString(CultureInfo.InvariantCulture),
+                    NodeType = "T",
+                    Label = "lbl",
+                    Properties = []
+                });
+        }
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = contextId,
+            RunId = runId,
+            CreatedUtc = created,
+            Nodes = nodes,
+            Edges = [],
+            Warnings = []
+        };
+
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextId,
+                "proj-graph-220nodes",
+                CancellationToken.None);
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.Nodes.Should().HaveCount(220);
+        loaded.Nodes[219].NodeId.Should().Be("n219");
+    }
+
+    [SkippableFact]
+    public async Task Save_then_GetById_round_trips_dense_node_properties()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
+
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        Dictionary<string, string> props = Enumerable.Range(0, 24)
+            .ToDictionary(
+                j => "p" + j.ToString(CultureInfo.InvariantCulture),
+                j => "v" + j.ToString(CultureInfo.InvariantCulture),
+                StringComparer.Ordinal);
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = contextId,
+            RunId = runId,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "dense",
+                    NodeType = "S",
+                    Label = "L",
+                    Properties = props
+                }
+            ],
+            Edges = [],
+            Warnings = []
+        };
+
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextId,
+                "proj-graph-dense-props",
+                CancellationToken.None);
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.Nodes.Should().ContainSingle();
+        loaded.Nodes[0].Properties.Should().HaveCount(24);
+        loaded.Nodes[0].Properties["p7"].Should().Be("v7");
+    }
+
+    [SkippableFact]
+    public async Task Save_then_GetById_round_trips_many_edge_property_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
+
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        List<GraphEdge> edges = [];
+
+        for (int e = 0; e < 8; e++)
+        {
+            Dictionary<string, string> edgeProps = new(StringComparer.Ordinal);
+
+            for (int p = 0; p < 6; p++)
+                edgeProps["ek" + e.ToString(CultureInfo.InvariantCulture) + "_p" + p.ToString(CultureInfo.InvariantCulture)] =
+                    "ev" + e.ToString(CultureInfo.InvariantCulture) + "_" + p.ToString(CultureInfo.InvariantCulture);
+
+            edges.Add(
+                new GraphEdge
+                {
+                    EdgeId = "e" + e.ToString(CultureInfo.InvariantCulture),
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    EdgeType = "R",
+                    Label = "Lb" + e.ToString(CultureInfo.InvariantCulture),
+                    Weight = 1d,
+                    Properties = edgeProps
+                });
+        }
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = contextId,
+            RunId = runId,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "a", NodeType = "S", Label = "A", Properties = [] },
+                new GraphNode { NodeId = "b", NodeType = "S", Label = "B", Properties = [] }
+            ],
+            Edges = edges,
+            Warnings = []
+        };
+
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+                seedConnection,
+                Guid.Empty,
+                Guid.Empty,
+                Guid.Empty,
+                runId,
+                contextId,
+                "proj-graph-many-edge-props",
+                CancellationToken.None);
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.Edges.Should().HaveCount(8);
+        GraphEdge edge3 = loaded.Edges.Single(static x => x.EdgeId == "e3");
+        edge3.Properties.Should().HaveCount(6);
+        edge3.Label.Should().Be("Lb3");
+        edge3.Properties["ek3_p2"].Should().Be("ev3_2");
+    }
+
+    [SkippableFact]
+    public async Task BackfillRelationalSlicesAsync_inserts_nodes_via_SqlBulkCopy_when_json_populated()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
+
+        Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid workspaceId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid projectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 5, 6, 19, 30, 0, DateTimeKind.Utc);
+
+        List<GraphNode> nodes =
+        [
+            new GraphNode
+            {
+                NodeId = "bf1",
+                NodeType = "Service",
+                Label = "Backfill",
+                Properties = []
+            }
+        ];
+
+        string nodesJson = JsonEntitySerializer.Serialize(nodes);
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            contextId,
+            "proj-graph-backfill-bulk",
+            CancellationToken.None);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                """
+                UPDATE dbo.ContextSnapshots
+                SET TenantId = @T, WorkspaceId = @W, ScopeProjectId = @P
+                WHERE SnapshotId = @C;
+                """,
+                new
+                {
+                    T = tenantId,
+                    W = workspaceId,
+                    P = projectId,
+                    C = contextId
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertHeader = """
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    GraphSnapshotId = graphId,
+                    ContextSnapshotId = contextId,
+                    RunId = runId,
+                    CreatedUtc = createdUtc,
+                    NodesJson = nodesJson,
+                    EdgesJson = "[]",
+                    WarningsJson = "[]"
+                },
+                cancellationToken: CancellationToken.None));
+
+        int nodeRowsBefore = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @G;",
+                new { G = graphId },
+                cancellationToken: CancellationToken.None));
+
+        nodeRowsBefore.Should().Be(0);
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = contextId,
+            RunId = runId,
+            CreatedUtc = createdUtc,
+            Nodes = nodes,
+            Edges = [],
+            Warnings = []
+        };
+
+        await SqlGraphSnapshotRepository.BackfillRelationalSlicesAsync(
+            snapshot,
+            connection,
+            null,
+            CancellationToken.None);
+
+        int nodeRowsAfter = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @G;",
+                new { G = graphId },
+                cancellationToken: CancellationToken.None));
+
+        nodeRowsAfter.Should().Be(1);
+
+        SqlGraphSnapshotRepository repository = new(factory, Empty);
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.Nodes.Should().ContainSingle(n => n.NodeId == "bf1");
     }
 }
