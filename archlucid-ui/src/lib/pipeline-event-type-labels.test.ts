@@ -4,7 +4,7 @@ import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels
 
 describe("pipelineEventTypeFriendlyLabel", () => {
   it("maps canonical com.archlucid integration codes", () => {
-    expect(pipelineEventTypeFriendlyLabel("com.archlucid.authority.run.completed")).toBe("Run finalized");
+    expect(pipelineEventTypeFriendlyLabel("com.archlucid.authority.run.completed")).toBe("Review finalized");
     expect(pipelineEventTypeFriendlyLabel("com.archlucid.manifest.finalized.v1")).toBe("Manifest finalized");
   });
 

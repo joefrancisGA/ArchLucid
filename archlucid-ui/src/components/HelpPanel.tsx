@@ -30,8 +30,8 @@ type HelpTabId = "guides" | "shortcuts" | "troubleshooting";
 
 const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Request", text: "The architecture intent you submit." },
-  { label: "Run", text: "The pipeline execution created from a request." },
-  { label: "Manifest", text: "The governed architecture output produced by a run." },
+  { label: "Architecture review", text: "The packaged review created from a request (context, graph, findings, manifest)." },
+  { label: "Manifest", text: "The governed architecture output produced when a review is finalized." },
   { label: "Artifacts", text: "Supporting files, findings, and review materials." },
 ];
 

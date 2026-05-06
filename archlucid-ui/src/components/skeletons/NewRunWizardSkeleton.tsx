@@ -4,7 +4,7 @@ import { WizardStepper } from "@/components/wizard/WizardStepper";
 const MACRO_WIZARD_STEPS = [
   { label: "Request brief", description: "Identity, goals, starting point" },
   { label: "Constraints", description: "Requirements, policies, context" },
-  { label: "Review and run", description: "Confirm, create, track" },
+  { label: "Final review", description: "Confirm, create, track" },
 ] as const;
 
 /**

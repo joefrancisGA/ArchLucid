@@ -105,7 +105,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
     const ok = await trigger(undefined, { shouldFocus: true });
 
     if (!ok) {
-      showToast("err", "Fix validation errors before creating the run.");
+      showToast("err", "Fix validation errors before creating the architecture review.");
 
       return;
     }
@@ -118,13 +118,13 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       const id = res.run?.runId ?? null;
 
       if (!id) {
-        showToast("err", "API returned no run id.");
+        showToast("err", "API returned no architecture review id.");
 
         return;
       }
 
       recordFirstTenantFunnelEvent("first_run_started");
-      showToast("ok", `Run ${id} created — tracking pipeline below.`);
+      showToast("ok", `Architecture review ${id} created — tracking pipeline below.`);
       onRunCreated(id);
     } catch (error: unknown) {
       const message =

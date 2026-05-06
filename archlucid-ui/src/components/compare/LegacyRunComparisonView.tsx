@@ -63,7 +63,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
       <h4 className="text-[15px]">Run-level diffs</h4>
       {result.runLevelDiffs.length === 0 ? (
-        <OperatorEmptyState title="No run-level diffs">
+        <OperatorEmptyState title="No review-level diffs">
           <p className="m-0 text-sm">
             The endpoint returned zero row-level differences (valid empty result).
           </p>

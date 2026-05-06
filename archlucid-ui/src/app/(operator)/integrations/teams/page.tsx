@@ -29,8 +29,8 @@ import type {
 // `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog.All` (server-side source of truth).
 const TRIGGER_DESCRIPTIONS: Record<string, { label: string; helpText: string }> = {
   "com.archlucid.authority.run.completed": {
-    label: "Run finalized",
-    helpText: "An architecture run produced a finalized manifest (operator UI: run page).",
+    label: "Review finalized",
+    helpText: "An architecture review produced a finalized manifest (operator UI: review detail).",
   },
   "com.archlucid.governance.approval.submitted": {
     label: "Governance approval requested",

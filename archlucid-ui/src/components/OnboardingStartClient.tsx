@@ -59,7 +59,7 @@ function recoveryCopyForTrialStatusFailure(httpStatus: number): RecoveryCopy {
   return {
     headline: `Could not load trial workspace (${httpStatus})`,
     detail:
-      "Retry, or continue without the seeded sample run. Trial limits may still apply once the service responds.",
+      "Retry, or continue without the seeded sample architecture review. Trial limits may still apply once the service responds.",
   };
 }
 

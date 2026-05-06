@@ -290,7 +290,7 @@ function ExplanationPanel({ summary }: { readonly summary: RunExplanationSummary
         </h3>
         {citations.length === 0 ? (
           <p className="mt-1 text-sm text-neutral-500">
-            No citations were emitted for this run — explanations on this page are unsupported.
+            No citations were emitted for this review — explanations on this page are unsupported.
           </p>
         ) : (
           <ul className="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">

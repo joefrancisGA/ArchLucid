@@ -290,12 +290,12 @@ export default function PilotValueReportPage() {
                 </p>
               ) : null}
               {!data.runDetailsTruncated && !data.auditExportTruncated ? (
-                <p className="m-0">All committed runs in the window are reflected in detail metrics (within product caps).</p>
+                <p className="m-0">All committed reviews in the window are reflected in detail metrics (within product caps).</p>
               ) : null}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <MetricCard title="Committed runs" value={data.totalRunsCommitted.toString()} />
+              <MetricCard title="Committed reviews" value={data.totalRunsCommitted.toString()} />
               <MetricCard title="Total findings" value={data.totalFindings.toString()} />
               <MetricCard title="Avg completion" value={formatAvgCompletion(data.averagePipelineCompletionSeconds)} />
               <MetricCard
@@ -330,12 +330,12 @@ export default function PilotValueReportPage() {
             </section>
 
             <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-              <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Run timeline (detail sample)</h2>
+              <h2 className="mt-0 text-lg font-medium text-neutral-900 dark:text-neutral-100">Review timeline (detail sample)</h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
                     <tr>
-                      <th className="py-2 pr-3">Run</th>
+                      <th className="py-2 pr-3">Review ID</th>
                       <th className="py-2 pr-3">Created</th>
                       <th className="py-2 pr-3">Committed</th>
                       <th className="py-2">System</th>

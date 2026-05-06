@@ -150,7 +150,7 @@ export default function WhyArchLucidPage() {
         if (explanationResult.status === "fulfilled") {
           explanation = explanationResult.value;
         } else {
-          explanationError = toSectionError(explanationResult.reason, "Could not load the run explanation.");
+          explanationError = toSectionError(explanationResult.reason, "Could not load the architecture review explanation.");
         }
       }
 
@@ -603,7 +603,7 @@ function RunExplanationSection({ state }: { readonly state: WhyArchLucidPageStat
         Run explanation and citations
       </h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Aggregate executive explanation persisted on the run, with citations back to the manifest, findings, decision
+        Aggregate executive explanation persisted with the architecture review, with citations back to the manifest, findings, decision
         traces, and evidence bundles that the explainability trace was built from.
       </p>
 
@@ -618,7 +618,7 @@ function RunExplanationSection({ state }: { readonly state: WhyArchLucidPageStat
       {state.explanation ? (
         <ExplanationPanel summary={state.explanation} />
       ) : !state.explanationError && state.loading ? (
-        <div className="space-y-3" aria-busy aria-label="Loading run explanation">
+        <div className="space-y-3" aria-busy aria-label="Loading architecture review explanation">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
             <div className="h-16 animate-pulse rounded border border-neutral-200 bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/60" />
@@ -672,7 +672,7 @@ function ExplanationPanel({ summary }: { readonly summary: RunExplanationSummary
           Citations ({citations.length})
         </h3>
         {citations.length === 0 ? (
-          <p className="mt-1 text-sm text-neutral-500">No citations were emitted for this run.</p>
+          <p className="mt-1 text-sm text-neutral-500">No citations were emitted for this review.</p>
         ) : (
           <ul className="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
             {citations.map((c) => (

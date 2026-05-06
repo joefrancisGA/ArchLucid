@@ -73,7 +73,8 @@ export default async function RunProvenancePage({
     }
 
     const fallback =
-      loadFailure?.message ?? "Provenance could not be loaded (run missing, broken manifest reference, or transport error).";
+      loadFailure?.message ??
+      "Provenance could not be loaded (review missing, broken manifest reference, or transport error).";
 
     return (
       <main className="mx-auto max-w-3xl p-4">

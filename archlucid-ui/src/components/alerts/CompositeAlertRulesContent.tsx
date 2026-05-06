@@ -59,8 +59,8 @@ const JOIN_OPS = [
 
 const DEDUPE = [
   { value: "RuleOnly", label: "Rule only" },
-  { value: "RuleAndRun", label: "Rule + run" },
-  { value: "RuleAndComparison", label: "Rule + run + comparison" },
+  { value: "RuleAndRun", label: "Rule + review" },
+  { value: "RuleAndComparison", label: "Rule + review + comparison" },
 ];
 
 export function CompositeAlertRulesContent() {
