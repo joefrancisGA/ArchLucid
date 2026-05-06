@@ -136,6 +136,39 @@ public sealed class SqlRunRepository(
         }
     }
 
+    public async Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
+    {
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            const string sql = """
+                               SELECT TOP (1)
+                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
+                                   RetryCount, LastFailureReason,
+                                   RowVersionStamp AS RowVersion
+                               FROM dbo.Runs
+                               WHERE RunId = @RunId
+                                 AND ArchivedUtc IS NULL;
+                               """;
+
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+            return await connection.QuerySingleOrDefaultAsync<RunRecord>(
+                new CommandDefinition(sql, new { RunId = runId }, cancellationToken: ct));
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetRunByIdAdmin,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

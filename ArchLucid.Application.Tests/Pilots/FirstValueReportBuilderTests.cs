@@ -79,6 +79,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Architecture review identity");
         md.Should().Contain("Support run id");
         md.Should().Contain("Sponsor send readiness (buyer-safe gate)");
+        md.Should().Contain("**Proof sendability:** **Sendable**");
         md.Should().Contain("**Publishing posture:** **Complete**");
         md.Should().Contain("Buyer-safe proof package contract");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
@@ -131,6 +132,7 @@ public sealed class FirstValueReportBuilderTests
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);
         md.Should().Contain("| Demo data warning | Present; do not quote seeded numbers. |");
+        md.Should().Contain("**Proof sendability:** **Not sendable externally**");
         md.Should().Contain("**Publishing posture:** **Demo-only**");
     }
 

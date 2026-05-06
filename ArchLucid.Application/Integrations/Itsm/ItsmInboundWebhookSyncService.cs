@@ -3,19 +3,25 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Integrations;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
 /// <summary>Maps inbound Jira / ServiceNow payloads to <c>FindingRecords.HumanReviewStatus</c>; emits durable audit via API layer.</summary>
 public sealed class ItsmInboundWebhookSyncService(
     IItsmFindingCorrelationRepository correlations,
+    IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
     ILogger<ItsmInboundWebhookSyncService> logger)
 {
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
+
+    private readonly IOptionsMonitor<IntegrationsItsmInboundOptions> _inboundOptions =
+        inboundOptions ?? throw new ArgumentNullException(nameof(inboundOptions));
 
     private readonly ILogger<ItsmInboundWebhookSyncService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -34,7 +40,8 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return new ItsmInboundWebhookProcessResult(false, null);
 
-        string humanReview = MapJiraStatusToHumanReview(statusName);
+        IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string humanReview = MapJiraStatusToHumanReview(statusName, options);
 
         if (humanReview.Length == 0)
 
@@ -91,7 +98,8 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return new ItsmInboundWebhookProcessResult(false, null);
 
-        string humanReview = MapServiceNowStateToHumanReview(stateRaw);
+        IntegrationsItsmInboundOptions options = _inboundOptions.CurrentValue;
+        string humanReview = MapServiceNowStateToHumanReview(stateRaw, options);
 
         if (humanReview.Length == 0)
 
@@ -140,13 +148,16 @@ public sealed class ItsmInboundWebhookSyncService(
         return new ItsmInboundWebhookProcessResult(true, auditEvent);
     }
 
-    private static string MapJiraStatusToHumanReview(string statusName)
+    private static string MapJiraStatusToHumanReview(string statusName, IntegrationsItsmInboundOptions options)
     {
         string s = statusName.Trim();
 
-        if (s.Length == 0)
+        if (s.Length is 0)
 
             return string.Empty;
+
+        if (TryConfiguredHumanReview(options.JiraStatusHumanReviewMap, s, out string? configured))
+            return configured;
 
         if (s.Equals("Done", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("Closed", StringComparison.OrdinalIgnoreCase) ||
@@ -164,16 +175,19 @@ public sealed class ItsmInboundWebhookSyncService(
         return string.Empty;
     }
 
-    private static string MapServiceNowStateToHumanReview(string stateRaw)
+    private static string MapServiceNowStateToHumanReview(string stateRaw, IntegrationsItsmInboundOptions options)
     {
         string trimmed = stateRaw.Trim();
 
-        if (trimmed.Length == 0)
+        if (trimmed.Length is 0)
 
             return string.Empty;
 
+        if (TryConfiguredHumanReview(options.ServiceNowStateHumanReviewMap, trimmed, out string? configured))
+            return configured;
+
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int state) &&
-            (state == 6 || state == 7))
+            (state is 6 or 7))
 
             return FindingHumanReviewStatus.Approved.ToString();
 
@@ -193,6 +207,38 @@ public sealed class ItsmInboundWebhookSyncService(
             return FindingHumanReviewStatus.Pending.ToString();
 
         return string.Empty;
+    }
+
+    /// <summary>
+    ///     Operator-provided keys win over defaults. Invalid enum spellings in config are ignored (treated as unmapped).
+    /// </summary>
+    private static bool TryConfiguredHumanReview(
+        Dictionary<string, string> rawMap,
+        string incomingKey,
+        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? humanReview)
+    {
+        humanReview = null;
+
+        if (rawMap.Count is 0)
+            return false;
+
+        foreach (KeyValuePair<string, string> kv in rawMap)
+        {
+            if (string.IsNullOrWhiteSpace(kv.Key) || string.IsNullOrWhiteSpace(kv.Value))
+                continue;
+
+            if (!string.Equals(kv.Key.Trim(), incomingKey, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingHumanReviewStatus parsed))
+                return false;
+
+            humanReview = parsed.ToString();
+
+            return true;
+        }
+
+        return false;
     }
 
     private static string? TryReadJiraIssueKey(JsonElement root)

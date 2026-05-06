@@ -58,8 +58,18 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         }
 
         PilotBuyerSafeEvidencePublishingTier tier = ResolveTier(deltas.IsDemoTenant, gaps);
-        return new PilotBuyerSafeEvidenceGateResult(tier, gaps);
+        ProofPackageSendability sendability = ResolveSendability(tier);
+
+        return new PilotBuyerSafeEvidenceGateResult(tier, sendability, gaps);
     }
+
+    private static ProofPackageSendability ResolveSendability(PilotBuyerSafeEvidencePublishingTier tier) => tier switch
+    {
+        PilotBuyerSafeEvidencePublishingTier.DemoOnly => ProofPackageSendability.NotSendable,
+        PilotBuyerSafeEvidencePublishingTier.Partial => ProofPackageSendability.SendableWithCaveats,
+        PilotBuyerSafeEvidencePublishingTier.Complete => ProofPackageSendability.Sendable,
+        _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
+    };
 
     private static PilotBuyerSafeEvidencePublishingTier ResolveTier(bool demoTenant, IReadOnlyList<string> gaps)
     {

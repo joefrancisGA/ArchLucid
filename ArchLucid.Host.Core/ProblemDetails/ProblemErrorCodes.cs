@@ -59,6 +59,8 @@ public static class ProblemErrorCodes
 
     public const string GraphResolutionFailed = "GRAPH_RESOLUTION_FAILED";
 
+    public const string UpstreamIntegrationFailed = "UPSTREAM_INTEGRATION_FAILED";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -139,6 +141,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.GraphResolutionFailed)
             return GraphResolutionFailed;
+
+        if (problemTypeUri == ProblemTypes.UpstreamIntegrationFailed)
+            return UpstreamIntegrationFailed;
 
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }

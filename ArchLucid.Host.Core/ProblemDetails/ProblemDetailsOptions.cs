@@ -84,4 +84,7 @@ public static class ProblemTypes
 
     /// <summary>Optional or roadmap capability invoked before implementation (RFC 9457; HTTP 501).</summary>
     public const string FeatureNotYetAvailable = Base + "#feature-not-yet-available";
+
+    /// <summary>Outbound integration (e.g. Confluence REST) returned an error or could not complete.</summary>
+    public const string UpstreamIntegrationFailed = Base + "#upstream-integration-failed";
 }

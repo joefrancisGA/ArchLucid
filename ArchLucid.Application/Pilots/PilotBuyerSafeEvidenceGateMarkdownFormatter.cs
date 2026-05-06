@@ -16,6 +16,10 @@ public static class PilotBuyerSafeEvidenceGateMarkdownFormatter
         sb.AppendLine();
         sb.AppendLine("**Indicator:** Structured checklist from persisted run + tenant ROI baseline window — not a legal or financial attestation.");
         sb.AppendLine();
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"**Proof sendability:** **{DescribeSendability(gate.ProofSendability)}** — governs sponsor-safe distribution of this proof package; pair with **Publishing posture** below.");
+        sb.AppendLine();
         sb.AppendLine($"**Publishing posture:** **{DescribeTier(gate.PublishingTier)}** (Complete = no listed gaps and not demo-flagged; Partial = gaps below; Demo-only = seeded tenant).");
         sb.AppendLine();
         if (gate.Gaps.Count is 0)
@@ -36,6 +40,14 @@ public static class PilotBuyerSafeEvidenceGateMarkdownFormatter
 
         sb.AppendLine();
     }
+
+    private static string DescribeSendability(ProofPackageSendability s) => s switch
+    {
+        ProofPackageSendability.Sendable => "Sendable",
+        ProofPackageSendability.SendableWithCaveats => "Sendable with caveats",
+        ProofPackageSendability.NotSendable => "Not sendable externally",
+        _ => throw new ArgumentOutOfRangeException(nameof(s), s, null)
+    };
 
     private static string DescribeTier(PilotBuyerSafeEvidencePublishingTier tier) => tier switch
     {

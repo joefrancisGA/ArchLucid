@@ -24,6 +24,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.Sendable);
         gate.Gaps.Should().BeEmpty();
     }
 
@@ -40,6 +41,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.DemoOnly);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.NotSendable);
         gate.Gaps.Should().Contain(g => g.Contains("Seeded/demo", StringComparison.Ordinal));
     }
 
@@ -57,6 +59,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, null, deltas, TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
         gate.Gaps.Should().Contain(g => g.Contains("Committed golden manifest", StringComparison.Ordinal));
     }
 
@@ -73,6 +76,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             snap);
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
         gate.Gaps.Should().Contain(g => g.Contains("ROI comparative", StringComparison.Ordinal));
     }
 
@@ -88,6 +92,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
         gate.Gaps.Should().Contain(g => g.Contains("evidence-chain pointers", StringComparison.Ordinal));
     }
 

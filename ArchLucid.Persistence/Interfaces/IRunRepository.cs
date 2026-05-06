@@ -44,6 +44,12 @@ public interface IRunRepository
     Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
     /// <summary>
+    ///     Admin / diagnostic use: loads a run by primary key without tenant/workspace scope filtering (non-archived rows
+    ///     only). Callers must enforce <c>AdminAuthority</c> (or equivalent) at the HTTP boundary.
+    /// </summary>
+    Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

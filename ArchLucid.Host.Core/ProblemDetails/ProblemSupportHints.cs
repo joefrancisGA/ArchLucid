@@ -92,6 +92,9 @@ public static class ProblemSupportHints
             return
                 "This route requires a higher commercial tenant tier. Use extension fields pricingUrl/upgradeUrl, POST /v1/tenant/billing/checkout, or your sales order path.";
 
+        if (typeUri == ProblemTypes.UpstreamIntegrationFailed)
+            return "Verify third-party credentials, network path, and rate limits; retry after a short wait. Check integration configuration (space key, base URL, token scopes).";
+
         return typeUri == ProblemTypes.InternalError
             ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets."
             : null;

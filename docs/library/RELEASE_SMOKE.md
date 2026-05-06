@@ -99,6 +99,8 @@ $env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;
 .\release-smoke.ps1 -SkipE2E -SkipUi
 ```
 
+**Optional release evidence bundle (documented checks + sample tests):** [RELEASE_EVIDENCE_SUMMARY.md](RELEASE_EVIDENCE_SUMMARY.md), `scripts/Invoke-ReleaseEvidenceSummary.ps1`, and `scripts/Invoke-RealLlmEvidenceGate.ps1`.
+
 **Include Playwright E2E after UI (+ API smoke when not skipped):**
 
 ```powershell
