@@ -15,7 +15,7 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 2. **Core-tier tests** — **fast core** (`Suite=Core`, excluding Slow + Integration), in **Release**, matching the usual first gate.
 3. **Optional: full Core** — `-FullCore` adds `Suite=Core` (may require SQL for integration tests).
 4. **Operator UI** — when Node is on `PATH`: `npm ci`, **Vitest**, **`npm run build`** (production bundle). Skip with **`-SkipUi`**.
-5. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
+5. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**. **Readiness** includes the primary SQL check plus **`sql_system_plane`** when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (proves **ConnectionStrings:ArchLucidSystem** independently of tenant routing). **Single-catalog** dev/test skips the system-plane probe as redundant with **`database`**.
 6. **Sample run** — CLI **`new ArchLucidSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
 8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
@@ -59,6 +59,7 @@ It is **not** a full browser regression suite. Authoritative detail: **[archluci
 |----------|---------|
 | **`ARCHLUCID_SMOKE_SQL`** | Preferred: ADO.NET connection string for the temporary API process |
 | **`ConnectionStrings__ArchLucid`** | Alternative if already set in the shell |
+| **`ConnectionStrings__ArchLucidSystem`** | Required for smoke API only when **`ArchLucid:SqlTopology:Mode=SystemWithPerTenantCatalogs`** (control-plane catalog). Optional for default single-catalog smoke. |
 
 You can also pass **`-SqlConnectionString '...'`** (quote for special characters).
 

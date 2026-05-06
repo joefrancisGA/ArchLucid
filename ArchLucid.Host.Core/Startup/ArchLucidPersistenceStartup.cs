@@ -29,40 +29,111 @@ public static class ArchLucidPersistenceStartup
         // After migrations, ArchLucid.sql is idempotent (IF OBJECT_ID …) and aligns greenfield with the reference DDL.
         if (storageIsSql)
         {
-            string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
+            SqlTopologyOptions sqlTopology =
+                app.Configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>() ??
+                new SqlTopologyOptions();
 
-            if (string.IsNullOrWhiteSpace(connectionString))
+            if (sqlTopology.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
             {
-                app.Logger.LogWarning(
-                    "Startup: ConnectionStrings:ArchLucid is not set; skipping DbUp migrations.");
+                string? systemConnectionString =
+                    ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(app.Configuration);
 
-                ArchLucidInstrumentation.RecordStartupConfigWarning(
-                    StartupValidationWarningRuleNames.SqlConnectionStringMissingSkipMigrations);
+                if (string.IsNullOrWhiteSpace(systemConnectionString))
+                {
+                    app.Logger.LogWarning(
+                        "Startup: ConnectionStrings:ArchLucidSystem is not set; skipping system-plane DbUp migrations.");
+                }
+                else
+                {
+                    app.Logger.LogInformation(
+                        "Startup: running system-plane DbUp migrations (ArchLucid.Persistence/Migrations/System).");
+
+                    try
+                    {
+                        DatabaseMigrator.RunSystem(systemConnectionString);
+
+                        app.Logger.LogInformation("Startup: system-plane DbUp migrations completed successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!persistenceOptions.AllowDegradedStartupAfterMigrationFailure)
+                            throw;
+
+                        app.Logger.LogCritical(
+                            ex,
+                            "Startup: system-plane DbUp migrations failed; continuing in degraded mode (ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true).");
+
+                        StartupMigrationHealthState? health = app.Services.GetService<StartupMigrationHealthState>();
+
+                        if (health is not null)
+                            health.MarkMigrationFailed();
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(sqlTopology.DevelopmentTenantConnectionString))
+                {
+                    app.Logger.LogInformation(
+                        "Startup: running tenant-plane DbUp migrations (ArchLucid:SqlTopology:DevelopmentTenantConnectionString).");
+
+                    try
+                    {
+                        DatabaseMigrator.RunTenant(sqlTopology.DevelopmentTenantConnectionString);
+
+                        app.Logger.LogInformation("Startup: tenant-plane DbUp migrations completed successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!persistenceOptions.AllowDegradedStartupAfterMigrationFailure)
+                            throw;
+
+                        app.Logger.LogCritical(
+                            ex,
+                            "Startup: tenant-plane DbUp migrations failed; continuing in degraded mode (ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true).");
+
+                        StartupMigrationHealthState? health = app.Services.GetService<StartupMigrationHealthState>();
+
+                        if (health is not null)
+                            health.MarkMigrationFailed();
+                    }
+                }
             }
             else
             {
-                app.Logger.LogInformation(
-                    "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
+                string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
-                try
+                if (string.IsNullOrWhiteSpace(connectionString))
                 {
-                    DatabaseMigrator.Run(connectionString);
+                    app.Logger.LogWarning(
+                        "Startup: ConnectionStrings:ArchLucid is not set; skipping DbUp migrations.");
 
-                    app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+                    ArchLucidInstrumentation.RecordStartupConfigWarning(
+                        StartupValidationWarningRuleNames.SqlConnectionStringMissingSkipMigrations);
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (!persistenceOptions.AllowDegradedStartupAfterMigrationFailure)
-                        throw;
+                    app.Logger.LogInformation(
+                        "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
 
-                    app.Logger.LogCritical(
-                        ex,
-                        "Startup: DbUp migrations failed; continuing in degraded mode (ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true).");
+                    try
+                    {
+                        DatabaseMigrator.Run(connectionString);
 
-                    StartupMigrationHealthState? health = app.Services.GetService<StartupMigrationHealthState>();
+                        app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!persistenceOptions.AllowDegradedStartupAfterMigrationFailure)
+                            throw;
 
-                    if (health is not null)
-                        health.MarkMigrationFailed();
+                        app.Logger.LogCritical(
+                            ex,
+                            "Startup: DbUp migrations failed; continuing in degraded mode (ArchLucid:Persistence:AllowDegradedStartupAfterMigrationFailure=true).");
+
+                        StartupMigrationHealthState? health = app.Services.GetService<StartupMigrationHealthState>();
+
+                        if (health is not null)
+                            health.MarkMigrationFailed();
+                    }
                 }
             }
         }
@@ -85,8 +156,13 @@ public static class ArchLucidPersistenceStartup
 
                     app.Logger.LogInformation("Startup: schema bootstrap completed.");
 
+                    SqlTopologyOptions topology = app.Configuration.GetSection(SqlTopologyOptions.SectionPath)
+                        .Get<SqlTopologyOptions>() ?? new SqlTopologyOptions();
+
                     string? catalogConnectionString =
-                        ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
+                        topology.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs
+                            ? topology.DevelopmentTenantConnectionString
+                            : ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
                     if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
                         DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);

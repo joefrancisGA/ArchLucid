@@ -29,7 +29,7 @@ public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersist
 
         await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(catalogConnectionString, CancellationToken.None);
 
-        IReadOnlyList<string> ordered = DatabaseMigrator.GetOrderedMigrationResourceNames();
+        IReadOnlyList<string> ordered = DatabaseMigrator.GetOrderedTenantMigrationResourceNames();
 
         int idx124 = ordered
             .Select(static (n, i) => (n, i))
@@ -89,7 +89,7 @@ public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersist
 
         await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(catalogConnectionString, CancellationToken.None);
 
-        IReadOnlyList<string> ordered = DatabaseMigrator.GetOrderedMigrationResourceNames();
+        IReadOnlyList<string> ordered = DatabaseMigrator.GetOrderedTenantMigrationResourceNames();
 
         int idx128 = ordered
             .Select(static (n, i) => (n, i))

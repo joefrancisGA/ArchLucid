@@ -6,19 +6,19 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-///     Decorates <see cref="ResilientSqlConnectionFactory" /> by applying RLS <c>SESSION_CONTEXT</c> after the connection
-///     opens.
+///     Decorates an inner <see cref="ISqlConnectionFactory" /> (historically
+///     <see cref="ResilientSqlConnectionFactory" />) by applying RLS <c>SESSION_CONTEXT</c> after the connection opens.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Decorator over live SQL connection factory; tested via integration tests.")]
 public sealed class SessionContextSqlConnectionFactory(
-    ResilientSqlConnectionFactory inner,
+    ISqlConnectionFactory inner,
     IRlsSessionContextApplicator applicator,
     ILogger<SessionContextSqlConnectionFactory> logger) : ISqlConnectionFactory
 {
     private readonly IRlsSessionContextApplicator _applicator =
         applicator ?? throw new ArgumentNullException(nameof(applicator));
 
-    private readonly ResilientSqlConnectionFactory _inner =
+    private readonly ISqlConnectionFactory _inner =
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly ILogger<SessionContextSqlConnectionFactory> _logger =

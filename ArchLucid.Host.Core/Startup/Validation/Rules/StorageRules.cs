@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
 
@@ -31,5 +32,23 @@ internal static class StorageRules
 
             errors.Add(
                 "ConnectionStrings:ArchLucid is required when ArchLucid:StorageProvider is Sql (or unset, defaulting to Sql).");
+
+        SqlTopologyOptions? sqlTopology =
+            configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>();
+
+        if (storageIsSql && sqlTopology?.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
+        {
+            if (string.IsNullOrWhiteSpace(
+                    ArchLucidConfigurationBridge.ResolveSqlSystemConnectionString(configuration)))
+
+                errors.Add(
+                    "ConnectionStrings:ArchLucidSystem is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
+
+
+            if (string.IsNullOrWhiteSpace(sqlTopology.TenantCatalogConnectionStringTemplate))
+
+                errors.Add(
+                    "ArchLucid:SqlTopology:TenantCatalogConnectionStringTemplate is required when ArchLucid:SqlTopology:Mode is SystemWithPerTenantCatalogs.");
+        }
     }
 }

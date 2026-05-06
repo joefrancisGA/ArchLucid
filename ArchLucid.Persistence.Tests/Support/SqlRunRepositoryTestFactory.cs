@@ -12,6 +12,9 @@ internal static class SqlRunRepositoryTestFactory
     public static SqlRunRepository Create(TestSqlConnectionFactory sqlFactory,
         TestAuthorityRunListConnectionFactory listFactory)
     {
-        return new SqlRunRepository(sqlFactory, listFactory, new DapperTenantRepository(sqlFactory));
+        return new SqlRunRepository(
+            sqlFactory,
+            listFactory,
+            DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(sqlFactory));
     }
 }

@@ -35,6 +35,7 @@ using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Marketing;
@@ -78,6 +79,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 {
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<ISystemSqlConnectionFactory, UnusedSystemSqlConnectionFactory>();
+        services.AddSingleton<ITenantSqlConnectionFactory, UnusedTenantSqlConnectionFactory>();
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();

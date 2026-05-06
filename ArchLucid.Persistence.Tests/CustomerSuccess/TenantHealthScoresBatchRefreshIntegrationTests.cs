@@ -27,7 +27,7 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
-        DapperTenantRepository tenants = new(factory);
+        DapperTenantRepository tenants = DapperTenantRepositoryTestFactory.CreateForSingleCatalogIntegration(factory);
         Mock<IRlsSessionContextApplicator> rls = new();
         rls.Setup(a => a.ApplyAsync(It.IsAny<SqlConnection>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);

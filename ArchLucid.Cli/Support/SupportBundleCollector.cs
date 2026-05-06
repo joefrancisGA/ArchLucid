@@ -244,7 +244,7 @@ public static class SupportBundleCollector
             [
                 "GET /version — build identity (no auth)",
                 "GET /health/live — liveness",
-                "GET /health/ready — readiness (summary JSON; no exception text)",
+                "GET /health/ready — readiness (summary JSON; includes `database`, `sql_system_plane` when per-tenant topology is enabled, other checks)",
                 "GET /health — combined checks (detailed JSON; requires ReadAuthority / API key when configured)",
                 "GET /openapi/v1.json — Microsoft OpenAPI document (bounded capture in api-contract.json)"
             ],

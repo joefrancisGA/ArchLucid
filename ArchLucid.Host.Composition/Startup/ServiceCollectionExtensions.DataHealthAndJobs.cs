@@ -36,6 +36,10 @@ public static partial class ServiceCollectionExtensions
                 "database",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready])
+            .AddCheck<SqlSystemPlaneHealthCheck>(
+                "sql_system_plane",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
             .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
             .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
             .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])

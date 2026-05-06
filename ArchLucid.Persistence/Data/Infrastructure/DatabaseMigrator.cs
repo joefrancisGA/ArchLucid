@@ -37,7 +37,32 @@ public static class DatabaseMigrator
         using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
         {
             GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
-            RunWithScriptFilter(secured, static _ => true);
+            RunWithScriptFilter(
+                secured,
+                static n => SqlMigrationPlanes.IsTenantPlaneScript(n) || SqlMigrationPlanes.IsSystemPlaneScript(n));
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    /// <summary>Applies only <c>Migrations/System/*.sql</c> scripts (control-plane catalog).</summary>
+    public static void RunSystem(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            RunWithScriptFilter(secured, SqlMigrationPlanes.IsSystemPlaneScript);
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
+        }
+    }
+
+    /// <summary>Applies tenant-plane scripts (all embedded migrations except Baseline/system control-plane).</summary>
+    public static void RunTenant(string connectionString)
+    {
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
+            RunWithScriptFilter(secured, SqlMigrationPlanes.IsTenantPlaneScript);
             TryEnableReadCommittedSnapshotIfNeeded(secured);
         }
     }
@@ -50,7 +75,7 @@ public static class DatabaseMigrator
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
     public static void RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
     {
-        IReadOnlyList<string> ordered = GetOrderedMigrationResourceNames();
+        IReadOnlyList<string> ordered = GetOrderedTenantMigrationResourceNames();
 
         if (trailingScriptCountToSkip <= 0 || trailingScriptCountToSkip >= ordered.Count)
 
@@ -66,7 +91,9 @@ public static class DatabaseMigrator
 
             HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip)
                 .ToHashSet(StringComparer.Ordinal);
-            RunWithScriptFilter(secured, allowed.Contains);
+            RunWithScriptFilter(
+                secured,
+                n => SqlMigrationPlanes.IsTenantPlaneScript(n) && allowed.Contains(n));
             TryEnableReadCommittedSnapshotIfNeeded(secured);
         }
     }
@@ -74,11 +101,32 @@ public static class DatabaseMigrator
     /// <summary>Ordered embedded migration resource names (same order DbUp uses).</summary>
     /// <remarks>
     ///     Excludes <c>Migrations/Baseline/</c>; baseline is applied via <see cref="GreenfieldBaselineMigrationRunner" />
-    ///     on empty catalogs.
+    ///     on empty catalogs. Includes <c>Migrations/System/</c> scripts (after numeric tenant scripts lexicographically).
     /// </remarks>
     public static IReadOnlyList<string> GetOrderedMigrationResourceNames()
     {
-        return GreenfieldBaselineMigrationRunner.GetOrderedIncrementalMigrationResourceNames();
+        return GetAllOrderedNonBaselineMigrationResourceNames();
+    }
+
+    /// <summary>Tenant-plane scripts only (excludes <c>Migrations/System/</c> control-plane DDL).</summary>
+    public static IReadOnlyList<string> GetOrderedTenantMigrationResourceNames()
+    {
+        return GetAllOrderedNonBaselineMigrationResourceNames()
+            .Where(SqlMigrationPlanes.IsTenantPlaneScript)
+            .ToList();
+    }
+
+    private static IReadOnlyList<string> GetAllOrderedNonBaselineMigrationResourceNames()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
+        return assembly.GetManifestResourceNames()
+            .Where(static n =>
+                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static void RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)

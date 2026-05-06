@@ -23,8 +23,17 @@ public sealed class TenantProvisioningServiceTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        TenantProvisioningService sut = new(repo, actor.Object, audit.Object, NullLogger<TenantProvisioningService>.Instance);
+        TenantProvisioningService sut = new(
+            repo,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            sqlCatalog.Object);
 
         TenantProvisioningRequest req = new() { Name = "Contoso Labs", AdminEmail = "ops@contoso.example", Tier = TenantTier.Enterprise, };
 
@@ -67,12 +76,17 @@ public sealed class TenantProvisioningServiceTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         TenantProvisioningService sut = new(
             repo.Object,
             actor.Object,
             audit.Object,
-            NullLogger<TenantProvisioningService>.Instance);
+            NullLogger<TenantProvisioningService>.Instance,
+            sqlCatalog.Object);
 
         TenantProvisioningRequest req = new()
         {
@@ -116,12 +130,17 @@ public sealed class TenantProvisioningServiceTests
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("admin@test");
         Mock<IAuditService> audit = new();
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         TenantProvisioningService sut = new(
             repo.Object,
             actor.Object,
             audit.Object,
-            NullLogger<TenantProvisioningService>.Instance);
+            NullLogger<TenantProvisioningService>.Instance,
+            sqlCatalog.Object);
 
         TenantProvisioningRequest req = new()
         {
