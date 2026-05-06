@@ -8,6 +8,7 @@ import {
   type ProductLearningDisposition,
   type ProductLearningSignalRequest,
 } from "@/lib/api";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { cn } from "@/lib/utils";
 
 type ProductLearningFeedbackControlsProps = {
@@ -48,6 +49,10 @@ export function ProductLearningFeedbackControls({
   compact = false,
   title = "Was this useful?",
 }: ProductLearningFeedbackControlsProps) {
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
   const [comment, setComment] = useState("");
   const [busyDisposition, setBusyDisposition] = useState<ProductLearningDisposition | null>(null);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");

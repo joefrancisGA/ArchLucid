@@ -82,6 +82,13 @@ async function main(): Promise<void> {
       PORT: process.env.PORT ?? "3000",
       // Bind all interfaces so Playwright can reach 127.0.0.1:3000 (do not inherit shell HOSTNAME).
       HOSTNAME: "0.0.0.0",
+      /**
+       * Buyer-polished shell + static demo payloads for mock E2E and screenshots. Playwright `webServer.env` also
+       * sets these; defaults here keep `npx tsx e2e/start-e2e-with-mock.ts` aligned when run outside Playwright.
+       */
+      NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE ?? "true",
+      NEXT_PUBLIC_DEMO_STATIC_OPERATOR: process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "true",
+      NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR: process.env.NEXT_PUBLIC_SUPPRESS_ONBOARDING_TOUR ?? "1",
     },
     cwd: standaloneRoot,
   });

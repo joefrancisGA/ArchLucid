@@ -44,6 +44,7 @@ public static class CompletionsCommand
         "marketplace",
         "golden-cohort",
         "procurement-pack",
+        "deployment-evidence",
         "doctor",
         "check",
         "support-bundle",
