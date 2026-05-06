@@ -51,15 +51,31 @@ public sealed class DataConsistencyEnforcementPolicyTests
     [InlineData(DataConsistencyEnforcementMode.Quarantine, true, 5L, true)]
     [InlineData(DataConsistencyEnforcementMode.Alert, false, 5L, false)]
     [InlineData(DataConsistencyEnforcementMode.Alert, true, 5L, true)]
-    public void ShouldAttemptGoldenManifestQuarantine_matches_host_behavior(
+    public void ShouldAttemptOrphanRowQuarantine_matches_host_behavior(
         DataConsistencyEnforcementMode mode,
         bool autoQuarantine,
-        long goldenOrphans,
+        long orphanCount,
         bool expected)
     {
-        DataConsistencyEnforcementPolicy.ShouldAttemptGoldenManifestQuarantine(mode, autoQuarantine, goldenOrphans)
+        DataConsistencyEnforcementPolicy.ShouldAttemptOrphanRowQuarantine(mode, autoQuarantine, orphanCount)
             .Should()
             .Be(expected);
+    }
+
+    [Fact]
+    public void ShouldAttemptGoldenManifestQuarantine_delegates_to_orphan_row_quarantine()
+    {
+        DataConsistencyEnforcementPolicy.ShouldAttemptGoldenManifestQuarantine(DataConsistencyEnforcementMode.Warn, true, 4L)
+            .Should()
+            .Be(DataConsistencyEnforcementPolicy.ShouldAttemptOrphanRowQuarantine(DataConsistencyEnforcementMode.Warn, true, 4L));
+    }
+
+    [Fact]
+    public void ShouldAttemptFindingsSnapshotQuarantine_delegates_to_orphan_row_quarantine()
+    {
+        DataConsistencyEnforcementPolicy.ShouldAttemptFindingsSnapshotQuarantine(DataConsistencyEnforcementMode.Quarantine, false, 2L)
+            .Should()
+            .Be(DataConsistencyEnforcementPolicy.ShouldAttemptOrphanRowQuarantine(DataConsistencyEnforcementMode.Quarantine, false, 2L));
     }
 
     [Theory]

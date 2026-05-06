@@ -560,7 +560,7 @@ Qualities are ordered by weighted deficiency signal: `(100 - score) * weight`. W
 ## Top 5 Enterprise Adoption Blockers
 
 1. **Procurement assurance friction.** SOC 2 CPA, ISO, and third-party pen-test publication are out of headline scope but remain buyer friction.
-2. **Production environment proof.** Enterprises will need evidence that their Azure topology, auth, private endpoints, RLS, telemetry, backups, and CD gates are configured correctly.
+2. **Hosted SaaS operations proof.** Enterprises will need evidence that ArchLucid's vendor-operated Azure SaaS environment has the expected topology, auth, private endpoints, RLS, telemetry, backups, and CD gates configured correctly.
 3. **Workflow fit.** Jira/ServiceNow/Confluence/Slack must be boringly reliable in the customer's actual workflow.
 4. **Operator self-sufficiency.** The docs are rich, but enterprise implementation teams need symptom-first runbooks and a clear support packet.
 5. **Policy and data-boundary confidence.** RLS residual risk and uncovered child tables must be consciously accepted or closed before high-sensitivity workloads.

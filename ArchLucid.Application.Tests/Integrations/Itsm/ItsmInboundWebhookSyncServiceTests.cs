@@ -115,4 +115,23 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task Jira_when_issue_key_missing_returns_not_accepted()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        IntegrationsItsmInboundOptions options = new();
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(options);
+        ItsmInboundWebhookSyncService sut =
+            new(correlations.Object, monitor.Object, NullLogger<ItsmInboundWebhookSyncService>.Instance);
+
+        using JsonDocument doc = JsonDocument.Parse("{}");
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        r.Accepted.Should().BeFalse();
+        correlations.Verify(
+            c => c.TryGetByExternalKeyAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

@@ -24,6 +24,7 @@ public static class CompletionsCommand
         "run",
         "status",
         "trace",
+        "run-support-packet",
         "submit",
         "commit",
         "seed",
