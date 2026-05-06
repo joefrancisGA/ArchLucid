@@ -176,7 +176,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         if (scalar is bool asBool)
@@ -315,7 +315,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         if (scalar is bool asBool)
@@ -351,7 +351,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         if (scalar is bool asBool)
@@ -379,7 +379,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         if (scalar is bool asBool)
@@ -434,7 +434,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         if (scalar is bool asBool)
@@ -460,7 +460,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
-        if (scalar is null || scalar is DBNull)
+        if (scalar is null or DBNull)
             return false;
 
         return Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
@@ -495,7 +495,7 @@ public static partial class GreenfieldBaselineMigrationRunner
                 continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (n < 1 || n > 50)
+            if (n is < 1 or > 50)
                 continue;
 
             using SqlCommand stamp = new(

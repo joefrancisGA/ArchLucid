@@ -38,10 +38,7 @@ internal static class ComparisonRecordRunIdSql
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        if (!Guid.TryParse(value.Trim(), out Guid g))
-            return value.Trim();
-
-        return g.ToString("N");
+        return !Guid.TryParse(value.Trim(), out Guid g) ? value.Trim() : g.ToString("N");
     }
 
     internal static void ThrowIfNonEmptyButNotGuid(string? value, string paramName)
