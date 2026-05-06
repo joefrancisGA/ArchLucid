@@ -202,3 +202,60 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "AND/OR and cooldown configuration.",
   },
 };
+
+/**
+ * When buyer demo shell env (`NEXT_PUBLIC_DEMO_MODE` or `NEXT_PUBLIC_DEMO_STATIC_OPERATOR`) is true, merge these into
+ * {@link LAYER_PAGE_GUIDANCE} for sponsor-facing copy (drops roadmap footnotes where listed).
+ */
+const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
+  Record<LayerGuidancePageKey, Partial<LayerGuidanceBlock>>
+> = {
+  audit: {
+    headline: "Approval and action history for your workspace.",
+    useWhen:
+      "See who approved what, when, and why. Filter by time and review; export when your role allows.",
+    firstPilotNote: null,
+    enterpriseFootnote: "Exports follow your organization’s roles.",
+  },
+  alerts: {
+    headline: "Operational and compliance signals.",
+    useWhen: "Review open items and triage when your role allows.",
+    firstPilotNote: null,
+    enterpriseFootnote: "Configuration tabs appear when your role allows.",
+  },
+  graph: {
+    headline: "Visual evidence trail for this architecture review.",
+    useWhen: "Explore how findings and evidence connect for the review you selected.",
+    firstPilotNote: null,
+  },
+  compare: {
+    firstPilotNote: null,
+  },
+  "policy-packs": {
+    useWhen: "See which governance packs apply in this workspace and how they combine.",
+    firstPilotNote: null,
+  },
+  "governance-workflow": {
+    useWhen: "Choose a review and follow submission, approval, and promotion in order.",
+    firstPilotNote: null,
+  },
+};
+
+/** @see LAYER_GUIDANCE_BUYER_POLISH_PARTIAL */
+export function mergeLayerGuidanceForBuyerDemoShell(
+  pageKey: LayerGuidancePageKey,
+  base: LayerGuidanceBlock,
+  buyerDemoShell: boolean,
+): LayerGuidanceBlock {
+  if (!buyerDemoShell) {
+    return base;
+  }
+
+  const extra = LAYER_GUIDANCE_BUYER_POLISH_PARTIAL[pageKey];
+
+  if (extra === undefined || Object.keys(extra).length === 0) {
+    return base;
+  }
+
+  return { ...base, ...extra };
+}

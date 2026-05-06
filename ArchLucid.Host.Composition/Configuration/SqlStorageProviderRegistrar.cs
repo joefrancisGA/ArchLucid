@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -58,6 +59,7 @@ using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
+using ArchLucid.Persistence.Integrations;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
@@ -188,6 +190,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
         services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
+        services.AddScoped<IFirstTenantFunnelArchivalBatchStore, SqlFirstTenantFunnelArchivalBatchStore>();
+        services.AddScoped<IItsmFindingCorrelationRepository, SqlItsmFindingCorrelationRepository>();
+        services.AddScoped<ItsmInboundWebhookSyncService>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();

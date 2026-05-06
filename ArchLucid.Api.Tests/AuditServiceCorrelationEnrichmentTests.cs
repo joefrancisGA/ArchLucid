@@ -313,4 +313,57 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         captured.WorkspaceId.Should().Be(explicitWs);
         captured.ProjectId.Should().Be(explicitProj);
     }
+
+    [SkippableFact]
+    public async Task LogAsync_preserves_explicit_actor_when_ExplicitActor_is_true()
+    {
+        Mock<IAuditRepository> repo = new();
+        AuditEvent? captured = null;
+        repo
+            .Setup(r => r.AppendAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        Guid tenant = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext
+            {
+                TenantId = tenant,
+                WorkspaceId = tenant,
+                ProjectId = tenant
+            });
+
+        Mock<IHttpContextAccessor> httpAccessor = new();
+        httpAccessor.Setup(a => a.HttpContext).Returns(
+            new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                    [
+                        new Claim(ClaimTypes.NameIdentifier, "http-user-id"),
+                        new Claim(ClaimTypes.Name, "Http User Display")
+                    ]))
+            });
+
+        AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
+        AuditEvent auditEvent = new()
+        {
+            EventType = "VendorWebhookTest",
+            ExplicitActor = true,
+            ActorUserId = "vendor-hook",
+            ActorUserName = "vendor-hook",
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
+            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000001")
+        };
+
+        await sut.LogAsync(auditEvent, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ActorUserId.Should().Be("vendor-hook");
+        captured.ActorUserName.Should().Be("vendor-hook");
+    }
 }

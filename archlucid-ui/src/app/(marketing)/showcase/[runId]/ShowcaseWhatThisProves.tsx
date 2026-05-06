@@ -233,11 +233,11 @@ export function ShowcaseWhatThisProves({
         <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
           <span className="font-semibold text-neutral-700 dark:text-neutral-300">See also:</span>{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
-            /demo/preview
+            Demo preview
           </Link>
           ,{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
-            /see-it
+            See it in 30 seconds
           </Link>
           . Operator-only exports and compare replay stay behind sign-in — see the{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">

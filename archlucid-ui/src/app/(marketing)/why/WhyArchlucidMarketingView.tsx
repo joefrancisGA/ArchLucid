@@ -152,8 +152,12 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
         <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Download a single PDF that bundles the same deterministic demo preview as <code>/demo/preview</code> (manifest
-          excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table (five
+          Download a single PDF that bundles the same deterministic demo preview as the{" "}
+          <a className="font-medium text-sky-800 underline underline-offset-2 dark:text-sky-300" href="/demo/preview">
+            public demo preview
+          </a>{" "}
+          (manifest excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table
+          (five
           detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host
           (otherwise the link returns 404 by design).
         </p>

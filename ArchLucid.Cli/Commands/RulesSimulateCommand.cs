@@ -82,9 +82,7 @@ internal static class RulesSimulateCommand
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
         SimulateRequestBody body =
-            new()
-            {
-            };
+            new();
 
         Uri relativeUri = new("v1/governance/pre-commit/simulate", UriKind.Relative);
 

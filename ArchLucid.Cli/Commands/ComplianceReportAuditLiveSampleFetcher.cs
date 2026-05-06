@@ -26,8 +26,7 @@ internal static class ComplianceReportAuditLiveSampleFetcher
             using HttpResponseMessage response =
                 await http.GetAsync($"v1/audit?take={take}", cancellationToken);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized || response.StatusCode == HttpStatusCode.Forbidden)
-
+            if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
                 return new ComplianceReportAuditLiveSample(
                     false,
                     $"HTTP {(int)response.StatusCode} — supply `ARCHLUCID_API_KEY` or bearer token with ReadAuthority for the target scope.",
@@ -65,6 +64,7 @@ internal static class ComplianceReportAuditLiveSampleFetcher
 
             Dictionary<string, int> counts = new(StringComparer.Ordinal);
 
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (AuditItemDto item in page.Items)
             {
                 if (string.IsNullOrWhiteSpace(item.EventType))
@@ -105,17 +105,22 @@ internal static class ComplianceReportAuditLiveSampleFetcher
         public List<AuditItemDto>? Items
         {
             get;
-            set;
+            init;
         }
     }
 
     private sealed class AuditItemDto
     {
+        public AuditItemDto(string? eventType, DateTime occurredUtc)
+        {
+            EventType = eventType;
+            OccurredUtc = occurredUtc;
+        }
+
         [JsonPropertyName("eventType")]
         public string? EventType
         {
             get;
-            set;
         }
 
         [JsonPropertyName("occurredUtc")]

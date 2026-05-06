@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 
 using Asp.Versioning;
@@ -21,13 +22,17 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [EnableRateLimiting("fixed")]
 public sealed class ItsmInboundWebhooksController(
     IOptionsMonitor<IntegrationsItsmInboundOptions> options,
-    ItsmInboundWebhookSyncService sync) : ControllerBase
+    ItsmInboundWebhookSyncService sync,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IOptionsMonitor<IntegrationsItsmInboundOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
 
     private readonly ItsmInboundWebhookSyncService _sync =
         sync ?? throw new ArgumentNullException(nameof(sync));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost("jira")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -47,11 +52,15 @@ public sealed class ItsmInboundWebhooksController(
 
             return Unauthorized();
 
-        bool ok = await _sync.TryProcessJiraIssueUpdateAsync(body, ct).ConfigureAwait(false);
+        ItsmInboundWebhookProcessResult r = await _sync.TryProcessJiraIssueUpdateAsync(body, ct).ConfigureAwait(false);
 
-        if (!ok)
+        if (!r.Accepted)
 
             return BadRequest("Unrecognized Jira webhook payload.");
+
+        if (r.DurableAuditEvent is not null)
+
+            await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
         return Ok();
     }
@@ -74,11 +83,16 @@ public sealed class ItsmInboundWebhooksController(
 
             return Unauthorized();
 
-        bool ok = await _sync.TryProcessServiceNowIncidentUpdateAsync(body, ct).ConfigureAwait(false);
+        ItsmInboundWebhookProcessResult r =
+            await _sync.TryProcessServiceNowIncidentUpdateAsync(body, ct).ConfigureAwait(false);
 
-        if (!ok)
+        if (!r.Accepted)
 
             return BadRequest("Unrecognized ServiceNow webhook payload.");
+
+        if (r.DurableAuditEvent is not null)
+
+            await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
         return Ok();
     }

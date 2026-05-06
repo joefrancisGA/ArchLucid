@@ -1,7 +1,10 @@
 "use client";
 
-import { type LayerGuidancePageKey } from "@/lib/layer-guidance";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  mergeLayerGuidanceForBuyerDemoShell,
+  type LayerGuidancePageKey,
+} from "@/lib/layer-guidance";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +30,8 @@ export type LayerHeaderProps = {
  */
 export function LayerHeader({ pageKey, className, density = "default" }: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
-  const block = surface.layerGuidance;
+  const buyerDemoShell = isBuyerPolishedOperatorShellEnv();
+  const block = mergeLayerGuidanceForBuyerDemoShell(pageKey, surface.layerGuidance, buyerDemoShell);
   const operateExecuteRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
   const demoUi = isNextPublicDemoMode();
   const usesOperateGovernanceFootnote =

@@ -128,10 +128,7 @@ internal static class ComplianceReportMarkdownComposer
 
     private static string EscapeBackticks(string? value)
     {
-        if (string.IsNullOrEmpty(value))
-            return "";
-
-        return value.Replace("`", "'", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(value) ? "" : value.Replace("`", "'", StringComparison.Ordinal);
     }
 
     private static string EscapePipe(string value)

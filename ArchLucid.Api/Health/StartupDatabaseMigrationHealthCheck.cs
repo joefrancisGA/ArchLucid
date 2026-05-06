@@ -2,6 +2,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Health;
 

@@ -1,6 +1,7 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Health;
 using ArchLucid.Api.Middleware;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
@@ -53,8 +54,10 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
             "azure_service_bus",
             failureStatus: HealthStatus.Unhealthy,
-            tags: [ReadinessTags.Ready]);
-
-        return services;
+            tags: [ReadinessTags.Ready])
+            .AddCheck<StartupDatabaseMigrationHealthCheck>(
+                "startup_database_migration",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready]);
     }
 }

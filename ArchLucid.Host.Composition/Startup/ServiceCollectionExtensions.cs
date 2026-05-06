@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Archival;
@@ -24,6 +25,7 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        services.AddSingleton<StartupMigrationHealthState>();
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
@@ -82,11 +84,14 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
+        RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);
         RegisterDataConsistencyReconciliation(services, configuration, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);
         services.AddFirstTenantFunnelTelemetry(configuration);
+        services.Configure<IntegrationsItsmInboundOptions>(
+            configuration.GetSection(IntegrationsItsmInboundOptions.SectionName));
         RegisterScimProvisioning(services, configuration);
 
         return services;

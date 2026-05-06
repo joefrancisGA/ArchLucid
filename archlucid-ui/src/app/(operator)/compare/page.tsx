@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -273,7 +274,11 @@ function CompareForm() {
       <OperatorPageHeader
         title="Compare reviews"
         helpKey="compare-runs"
-        metadata={<ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />}
+        metadata={
+          isBuyerPolishedOperatorShellEnv() ? undefined : (
+            <ShortcutHint shortcut="Alt+C" className="text-[0.75rem] text-neutral-500" />
+          )
+        }
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Compare finalized manifests to understand what changed between two reviews—useful for sponsors, security review,

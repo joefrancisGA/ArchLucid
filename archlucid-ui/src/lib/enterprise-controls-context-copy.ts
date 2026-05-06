@@ -290,9 +290,10 @@ export const alertsTriageResolveButtonLabelReaderInbox = "Resolve (preview)";
 export const alertsTriageSuppressButtonLabelReaderInbox = "Suppress (preview)";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
-export const auditLogRankReaderLine = "CSV export: Auditor or Admin on the API (same From/To).";
+export const auditLogRankReaderLine =
+  "Exports are available to Auditor or Admin roles when your time window is set.";
 
-export const auditLogRankOperatorLine = "Export is role-gated on the API.";
+export const auditLogRankOperatorLine = "CSV export follows your organization’s role policy.";
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
@@ -465,6 +466,10 @@ export const alertsFilteredEmptyDescriptionOperator =
 export const auditSearchNoResultsReaderLine = "No audit events match your search.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
+
+/** Audit log — buyer-polished shell: business promise under search (`audit/page.tsx`). */
+export const auditSearchSectionLeadBuyerPolishedLine =
+  "See who approved what, when, and why.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
 export const auditSearchSectionLeadReaderLine = "Export requires Auditor or Admin access.";

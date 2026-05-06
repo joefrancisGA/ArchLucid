@@ -128,7 +128,10 @@ internal static class GoldenManifestOfflineSchemaValidator
 
                 outcome.Errors.Add(new ManifestValidateError
                 {
-                    Message = detail.Message, LineNumber = line, Column = column, InstancePointer = pointer.Length > 0 ? pointer : null
+                    Message = detail.Message,
+                    LineNumber = line,
+                    Column = column,
+                    InstancePointer = pointer.Length > 0 ? pointer : null
                 });
             }
 
@@ -162,10 +165,7 @@ internal static class GoldenManifestOfflineSchemaValidator
 
         string trimmed = location.Trim();
 
-        if (string.Equals(trimmed, "(root)", StringComparison.Ordinal))
-            return string.Empty;
-
-        return trimmed;
+        return string.Equals(trimmed, "(root)", StringComparison.Ordinal) ? string.Empty : trimmed;
     }
 
     private static int? TryPositiveLine(int value)
@@ -178,7 +178,11 @@ internal static class GoldenManifestOfflineSchemaValidator
 
     private static SchemaValidationService CreateSchemaValidationService()
     {
-        SchemaValidationOptions options = new() { EnableDetailedErrors = true, EnableResultCaching = false };
+        SchemaValidationOptions options = new()
+        {
+            EnableDetailedErrors = true,
+            EnableResultCaching = false
+        };
 
         return new SchemaValidationService(NullLogger<SchemaValidationService>.Instance, Options.Create(options));
     }

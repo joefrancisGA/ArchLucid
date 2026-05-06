@@ -144,7 +144,7 @@ export default function TenantSettingsPage() {
             . Change scope there to update what this session targets.
           </p>
 
-          <CollapsibleSection title="Advanced — routing identifiers (operators)" defaultOpen={false}>
+          <CollapsibleSection title="Technical details — routing scope" defaultOpen={false}>
             <p className="m-0 text-sm">
               Internal browser-to-API routing carries scope identifiers on proxied requests. Values below reflect your
               current selection.
@@ -196,7 +196,7 @@ export default function TenantSettingsPage() {
             </p>
           ) : null}
           {digest == null || form == null ? (
-            <p className="m-0 text-sm text-neutral-500">No digest preferences loaded.</p>
+            <p className="m-0 text-sm text-neutral-500">Preferences will load when the notification API is available.</p>
           ) : (
             <form onSubmit={onSaveDigest} className="space-y-4">
               <div className="flex items-center justify-between gap-2">

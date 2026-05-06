@@ -50,6 +50,20 @@ public static partial class ServiceCollectionExtensions
 
     }
 
+    private static void RegisterFirstTenantFunnelArchivalHostedService(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
+            return;
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.FirstTenantFunnelArchival))
+
+            services.AddHostedService<FirstTenantFunnelArchivalHostedService>();
+
+    }
+
     private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();

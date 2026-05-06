@@ -17,6 +17,7 @@ import {
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +88,10 @@ export function GovernanceResolutionRankCue({ className }: { className?: string 
 export function AlertsInboxRankCue({ className }: { className?: string }): ReactNode {
   const rank = useNavCallerAuthorityRank();
 
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
   const text = rank < AUTHORITY_RANK.ExecuteAuthority ? alertsInboxRankReaderLine : alertsInboxRankOperatorLine;
 
   return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
@@ -98,6 +103,10 @@ export function AlertsInboxRankCue({ className }: { className?: string }): React
 export function AuditLogRankCue({ className }: { className?: string }): ReactNode {
   const rank = useNavCallerAuthorityRank();
 
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
+
   const text = rank < AUTHORITY_RANK.ExecuteAuthority ? auditLogRankReaderLine : auditLogRankOperatorLine;
 
   return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
@@ -108,6 +117,10 @@ export function AuditLogRankCue({ className }: { className?: string }): ReactNod
  */
 export function AlertOperatorToolingRankCue({ className }: { className?: string }): ReactNode {
   const rank = useNavCallerAuthorityRank();
+
+  if (isBuyerPolishedOperatorShellEnv()) {
+    return null;
+  }
 
   const text =
     rank < AUTHORITY_RANK.ExecuteAuthority ? alertOperatorToolingReaderRankLine : alertOperatorToolingOperatorRankLine;

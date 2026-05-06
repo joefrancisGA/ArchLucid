@@ -1,7 +1,8 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models.Integrations;
-using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Integrations;
 
@@ -21,12 +22,16 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [EnableRateLimiting("fixed")]
 public sealed class ItsmCorrelationController(
     IScopeContextProvider scope,
-    IItsmFindingCorrelationRepository correlations) : ControllerBase
+    IItsmFindingCorrelationRepository correlations,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scope = scope ?? throw new ArgumentNullException(nameof(scope));
 
     private readonly IItsmFindingCorrelationRepository _correlations =
         correlations ?? throw new ArgumentNullException(nameof(correlations));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -69,6 +74,23 @@ public sealed class ItsmCorrelationController(
                 body.ExternalSysId,
                 ct)
             .ConfigureAwait(false);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.IntegrationItsmFindingCorrelationRegistered,
+                TenantId = ctx.TenantId,
+                WorkspaceId = ctx.WorkspaceId,
+                ProjectId = ctx.ProjectId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    findingId = body.FindingId,
+                    provider,
+                    externalKey = body.ExternalKey,
+                    externalSysId = body.ExternalSysId
+                })
+            },
+            ct);
 
         return NoContent();
     }

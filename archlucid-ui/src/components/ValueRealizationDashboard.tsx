@@ -72,9 +72,10 @@ export function ValueRealizationDashboard() {
   const avgMsRaw = Number(telemetry.averageTimeToCommitMs);
   const avgMsParsed =
     typeof telemetry.averageTimeToCommitMs === "string"
-      ? Number.parseFloat(telemetry.averageTimeToCommitMs)
+      ? Number.parseFloat(String(telemetry.averageTimeToCommitMs))
       : avgMsRaw;
-  const avgMs = Number.isFinite(avgMsParsed) ? avgMsParsed : Number.NaN;
+  const avgMs =
+    Number.isFinite(avgMsParsed) && !Number.isNaN(avgMsParsed) ? avgMsParsed : Number.NaN;
   const avgCommitMins =
     Number.isFinite(avgMs) && avgMs > 0 ? Math.max(1, Math.round(avgMs / 60000)) : null;
   const hasAvgCommit = avgCommitMins !== null;
@@ -120,7 +121,8 @@ export function ValueRealizationDashboard() {
             /h from this browser unless you changed it under Value report → ROI).
           </p>
           <p className="m-0 mt-2 font-mono text-base font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">
-            ~{formatUsd(impliedUsd)} <span className="text-sm font-normal text-neutral-500">implied @ loaded rate</span>
+            ~{formatUsd(impliedUsd)}{" "}
+            <span className="text-sm font-normal text-neutral-500">estimated from hours × your loaded rate</span>
           </p>
           <p className="m-0 mt-2">
             <Link

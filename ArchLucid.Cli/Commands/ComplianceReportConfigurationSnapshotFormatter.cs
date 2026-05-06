@@ -46,9 +46,6 @@ internal static class ComplianceReportConfigurationSnapshotFormatter
 
     private static string OrPlaceholder(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return "(not set)";
-
-        return value.Trim();
+        return string.IsNullOrWhiteSpace(value) ? "(not set)" : value.Trim();
     }
 }

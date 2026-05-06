@@ -10,7 +10,6 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   clearOperatorScopeStorage,
   defaultLabelsForScopeIds,
@@ -127,18 +126,14 @@ export function ScopeSwitcher() {
   }, [stored, workspaceId, projectId]);
 
   const polishedShell = isBuyerPolishedOperatorShellEnv();
-  const scopeButtonWorkspace =
-    polishedShell &&
-    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
-    projectId.trim() === DEV_SCOPE_PROJECT_ID
-      ? "Illustrative workspace"
-      : workspaceLabel;
-  const scopeButtonProject =
-    polishedShell &&
-    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
-    projectId.trim() === DEV_SCOPE_PROJECT_ID
-      ? formatOperatorProjectIdDisplay(DEV_SCOPE_PROJECT_ID)
-      : projectLabel;
+  const isDefaultDevScope =
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID && projectId.trim() === DEV_SCOPE_PROJECT_ID;
+  const polishedScopeOneLine =
+    polishedShell && isDefaultDevScope
+      ? "Claims Intake Demo Workspace"
+      : polishedShell
+        ? `${workspaceLabel} · ${projectLabel}`
+        : null;
 
   const canShow =
     !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority;
@@ -204,12 +199,8 @@ export function ScopeSwitcher() {
         }}
       >
         <span className="min-w-0 shrink truncate text-left text-xs font-medium">
-          {polishedShell ? (
-            <span className="text-neutral-800 dark:text-neutral-200">
-              {scopeButtonWorkspace}
-              <span className="text-neutral-400 dark:text-neutral-500"> · </span>
-              {scopeButtonProject}
-            </span>
+          {polishedScopeOneLine !== null ? (
+            <span className="text-neutral-800 dark:text-neutral-200">{polishedScopeOneLine}</span>
           ) : (
             <>
               <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}

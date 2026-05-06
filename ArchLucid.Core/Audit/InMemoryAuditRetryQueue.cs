@@ -96,6 +96,7 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
             EventType = source.EventType,
             ActorUserId = source.ActorUserId,
             ActorUserName = source.ActorUserName,
+            ExplicitActor = source.ExplicitActor,
             TenantId = source.TenantId,
             WorkspaceId = source.WorkspaceId,
             ProjectId = source.ProjectId,

@@ -447,6 +447,9 @@ public static class AuditEventTypes
     /// <summary>Inbound ServiceNow webhook mapped an incident state to finding <c>HumanReviewStatus</c>.</summary>
     public const string IntegrationServiceNowIncidentStatusSynced = "Integration.ServiceNowIncidentStatusSynced";
 
+    /// <summary>Operator registered a finding ↔ ITSM external key correlation for inbound webhooks.</summary>
+    public const string IntegrationItsmFindingCorrelationRegistered = "Integration.ItsmFindingCorrelationRegistered";
+
     /// <summary>
     ///     Canonical durable <c>dbo.AuditEvents</c> event types for architecture run-stage semantics (create, execute,
     ///     commit, failure).

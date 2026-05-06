@@ -61,6 +61,14 @@ public sealed class AuditEventDocument
         set;
     } = string.Empty;
 
+    /// <summary>When true, durable-audit enrichment should not replace actor fields from HTTP claims (vendor webhooks).</summary>
+    [JsonPropertyName("explicitActor")]
+    public bool ExplicitActor
+    {
+        get;
+        set;
+    }
+
     [JsonPropertyName("runId")]
     public string? RunId
     {
