@@ -1,9 +1,9 @@
-> **Scope:** Independent weighted readiness assessment 2026-05-06 — scoring, improvements, and recommendations only; not a scope contract or roadmap.
+﻿> **Scope:** Independent weighted readiness assessment 2026-05-06 ? scoring, improvements, and recommendations only; not a scope contract or roadmap.
 
-# ArchLucid Assessment – Weighted Readiness 78.74%
+# ArchLucid Assessment ? Weighted Readiness 78.86%
 
 **Assessment date:** 2026-05-06  
-**Assessment type:** Independent, first-principles — no prior assessments referenced  
+**Assessment type:** Independent, first-principles ? no prior assessments referenced  
 **Deferred scope:** Items explicitly deferred to V1.1 or V2 in `V1_SCOPE.md` and `V1_DEFERRED.md` are not scored against V1 readiness.
 
 ---
@@ -18,7 +18,7 @@ None. `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` are present a
 
 **Overall readiness:** ArchLucid is a real, unusually well-instrumented V1 product with a strong pilot wedge, serious audit/security posture, and broad enterprise design intent. The score is held down by buyer-proof gaps, integration breadth risk, residual tenant-isolation complexity, and the gap between documented readiness and repeatedly exercised production evidence.
 
-**Commercial picture:** The core story is credible — faster path from architecture request to reviewable package. The main commercial risk is not "can it do something useful"; it is whether a buyer can quickly see value, trust the proof, and move from pilot interest to purchase without bespoke founder mediation.
+**Commercial picture:** The core story is credible ? faster path from architecture request to reviewable package. The main commercial risk is not "can it do something useful"; it is whether a buyer can quickly see value, trust the proof, and move from pilot interest to purchase without bespoke founder mediation.
 
 **Enterprise picture:** The solution is much stronger than a typical early product on audit, scope docs, Trust Center materials, RLS, CI, and procurement artifacts. Enterprise adoption is still exposed to self-attested assurance, residual RLS gaps, early connector hardening, and limited measured hosted-operating history.
 
@@ -28,7 +28,7 @@ None. `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` are present a
 
 ## 3. Weighted Quality Assessment
 
-Ordered from most urgent (highest weighted deficiency) to least urgent. Deficiency signal = weight × (100 − score) / 100.
+Ordered from most urgent (highest weighted deficiency) to least urgent. Deficiency signal = weight ? (100 ? score) / 100.
 
 ---
 
@@ -73,8 +73,8 @@ Ordered from most urgent (highest weighted deficiency) to least urgent. Deficien
 | Quality | Score | Weight | Weighted deficiency | Justification | Tradeoffs | Improvement | When |
 |---------|-------|--------|---------------------|---------------|-----------|-------------|------|
 | **Correctness** | 78 | 4 | **0.88** | Strong schemas, snapshots, tests, and quality metrics. AI output thresholds are mostly warn-oriented; simulator paths dominate first-run confidence. | Avoid blocking useful runs vs reject bad outputs. | Real-run evaluation path and stronger quality gates. | V1/V1.1 |
-| **Architectural Integrity** | 85 | 3 | **0.45** | Clear bounded projects. Coordinator/authority strangler is fully retired (PRs A0–A4 + PR B all merged by 2026-05-05; ADR 0030). CI guards (`DualPipelineRegistrationDisciplineTests`, `MvcControllerCoordinatorRepositoryFamilyGuardTests`) prevent regression. Remaining complexity is V1 surface breadth. | Active seam retirement reduces risk; main risk is breadth as connectors ship. | Evidence chain UI hardening; connector seam reuse guidance. | V1 |
-| **Security** | 79 | 3 | **0.63** | Strong posture: Entra/JWT, API keys, RLS, private endpoints, secret redaction, ZAP/Schemathesis. Risk remains uncovered child tables, optional RLS enablement, credential-heavy connectors. | Defense-in-depth model is sound; child table gaps are accepted residuals. | RLS child table denormalization; connector credential safety review. | V1/V1.1 |
+| **Architectural Integrity** | 85 | 3 | **0.45** | Clear bounded projects. Coordinator/authority strangler is fully retired (PRs A0?A4 + PR B all merged by 2026-05-05; ADR 0030). CI guards (`DualPipelineRegistrationDisciplineTests`, `MvcControllerCoordinatorRepositoryFamilyGuardTests`) prevent regression. Remaining complexity is V1 surface breadth. | Active seam retirement reduces risk; main risk is breadth as connectors ship. | Evidence chain UI hardening; connector seam reuse guidance. | V1 |
+| **Security** | 83 | 3 | **0.51** | Strong posture: Entra/JWT, API keys, private endpoints, secret redaction, ZAP/Schemathesis. Production deployment confirmed `SystemWithPerTenantCatalogs` (2026-05-06) ? each tenant has their own database, eliminating cross-tenant lateral movement as the primary isolation concern. RLS is defense-in-depth within a tenant for workspace/project isolation. Remaining risks: `SingleCatalog` default not locked to dev-only in Terraform/deployment config, workspace/project isolation within a tenant still application-layer only, credential-heavy connectors. | Per-tenant DB eliminates the CRITICAL cross-tenant RLS gap; workspace/project isolation within a tenant remains app-enforced. | Lock `SingleCatalog` to dev-only in deployment config; `FindingReviewEvents` and `ImportedArchitectureRequests` still need one ALTER SECURITY POLICY statement each; connector credential safety review. | V1 |
 | **Reliability** | 76 | 2 | **0.48** | Health checks, smoke, rollback, retries, chaos tests exist. Weakness is lack of long measured hosted reliability history. | CI reliability vs production history. | Production evidence rollup. | V1 |
 | **Data Consistency** | 74 | 2 | **0.52** | Orphan probes and quarantine exist. Consistency is partly after-the-fact; preventive constraints are partial. | Detection vs prevention cost. | Preventive constraint addition for highest-risk orphan relationships. | V1 |
 | **Maintainability** | 80 | 2 | **0.40** | Modular but large. Route/policy/nav matrix automation is partial. | Growth vs seam discipline. | Route/policy/tier/nav drift automation. | V1 |
@@ -101,8 +101,8 @@ Ordered from most urgent (highest weighted deficiency) to least urgent. Deficien
 
 ## Weighted Readiness Calculation
 
-Total weighted deficiency: ~21.26 pp  
-**Weighted readiness: 100 − 21.26 = 78.74%**
+Total weighted deficiency: ~21.14 pp  
+**Weighted readiness: 100 - 21.14 = 78.86%**
 
 ---
 
@@ -111,7 +111,7 @@ Total weighted deficiency: ~21.26 pp
 1. Buyer proof is not yet as automated and undeniable as the product capability.
 2. V1 connector scope is commercially useful but operationally risky; bidirectional sync is new and lightly exercised.
 3. Live UI/API/SQL confidence exists in CI, but release smoke documentation still warns about parity gaps.
-4. RLS does not cover every child/legacy table — several high-traffic child table families remain repository-enforced only.
+4. Production topology is confirmed per-tenant database (`SystemWithPerTenantCatalogs`), eliminating cross-tenant RLS gaps. Residual: `SingleCatalog` is still the code default and not locked to dev-only in Terraform/deployment config; workspace/project isolation within a tenant remains application-layer only.
 5. AI correctness gates are not yet strict enough for high-stakes enterprise reliance; warn-only defaults dominate.
 6. Product breadth creates cognitive load during first evaluation; the four-step Pilot path competes with a large option surface.
 7. Data consistency controls still lean partly on detection/quarantine rather than prevention.
@@ -125,7 +125,7 @@ Total weighted deficiency: ~21.26 pp
 
 ## 5. Top 6 Monetization Blockers
 
-1. Buyer-safe proof package must become the default sales artifact — currently partially automated; still operator-mediated.
+1. Buyer-safe proof package must become the default sales artifact ? currently partially automated; still operator-mediated.
 2. Quote-to-close depends on manual owner action; no CRM routing or lead-routing automation until V2.
 3. Live commerce un-hold is explicitly V1.1/owner-held; self-serve transactability is not live.
 4. Lack of public reference customer is V1.1-deferred, but conversion psychology is affected now.
@@ -138,8 +138,8 @@ Total weighted deficiency: ~21.26 pp
 
 1. SOC 2 CPA report absence is not scored as a V1 defect, but enterprise procurement will still require a response posture.
 2. Third-party pen test publication is V2; security reviewers at large enterprises routinely require one.
-3. Residual RLS uncovered tables require documented risk acceptance; security reviewers will find them.
-4. Connector credential/security posture must be easy to review — Key Vault patterns help but are not uniformly enforced.
+3. Production is per-tenant database, so cross-tenant RLS gaps are eliminated. Remaining ask for security reviewers: `SingleCatalog` must be explicitly locked to dev-only in Terraform; workspace/project isolation within a tenant is application-enforced, not policy-enforced.
+4. Connector credential/security posture must be easy to review ? Key Vault patterns help but are not uniformly enforced.
 5. No long achieved-availability rollup; buyers cannot verify the 99.9% target against measured data.
 6. Customer self-sufficiency depends on dense docs; self-serve support discipline must be tight before customer success scales.
 
@@ -147,9 +147,9 @@ Total weighted deficiency: ~21.26 pp
 
 ## 7. Top 6 Engineering Risks
 
-1. AI output correctness and evidence faithfulness under real model variance — quality gate thresholds are warn-only by default.
+1. AI output correctness and evidence faithfulness under real model variance ? quality gate thresholds are warn-only by default.
 2. Tenant isolation mistakes in uncovered SQL child tables that depend on join discipline rather than policy enforcement.
-3. Connector bidirectional sync edge cases causing incorrect finding state — `ItsmInboundWebhookSyncService` maps status strings without exhaustive validation.
+3. Connector bidirectional sync edge cases causing incorrect finding state ? `ItsmInboundWebhookSyncService` maps status strings without exhaustive validation.
 4. Data consistency drift detected after persistence rather than prevented upfront; quarantine requires operator action.
 5. Release confidence split across multiple gate types with different truths (mock Playwright vs live Playwright vs API smoke).
 6. Operational complexity from many configuration modes, optional features, and partial flag coverage creates production misconfiguration risk.
@@ -166,11 +166,11 @@ ArchLucid is past "prototype," but the next readiness jump depends less on addin
 
 ---
 
-### Improvement 1 — Buyer-Safe First-Value Proof Gate
+### Improvement 1 ? Buyer-Safe First-Value Proof Gate
 
 **Why it matters:** Revenue depends on a sponsor trusting the first output. The proof package completeness model exists but is not uniformly enforced as a send/no-send gate.
 
-**Expected impact:** Improves Proof-of-ROI Readiness (+8–10 pts), Marketability (+3–5 pts), Trustworthiness (+2–4 pts).
+**Expected impact:** Improves Proof-of-ROI Readiness (+8?10 pts), Marketability (+3?5 pts), Trustworthiness (+2?4 pts).
 
 **Affected qualities:** Marketability, Proof-of-ROI Readiness, Executive Value Visibility, Trustworthiness.
 
@@ -193,95 +193,149 @@ Scope:
 
 Acceptance criteria:
 - Demo runs render a non-negotiable warning that prevents external sharing of raw numbers.
-- The sponsor one-pager PDF (SponsorOnePagerPdfBuilder) renders a full-width "ILLUSTRATION ONLY —
+- The sponsor one-pager PDF (SponsorOnePagerPdfBuilder) renders a full-width "ILLUSTRATION ONLY ?
   not a commitment" header on every page when IsDemoTenant is true, not only a banner in the body
   of page 1. Use QuestPDF page.Header() so the stamp persists across any page overflow and
   survives screenshot cropping.
+- ResolveTier uses two separate lists: hardGaps and softGaps. hardGaps.Count > 0 || demoTenant
+  returns DemoOnly / NotSendable. softGaps.Count > 0 (with no hard gaps) returns Partial /
+  SendableWithCaveats. Zero gaps in both lists returns Complete / Sendable.
+- Hard blocks (NotSendable, same tier as DemoOnly):
+    - manifest is null OR run.Status != Committed
+    - AuditRowCount == 0
+- Soft warnings (SendableWithCaveats):
+    - RealModeFellBackToSimulator
+    - TopFindingId is not null AND TopFindingEvidenceChain is null
+    - ROI baseline is NoMeasurementYet or DefaultedFromRoiModelOptions
 - Missing proof fields render as incomplete, not invented.
 - Existing first-value report tests still pass or are updated intentionally.
+- Unit tests cover: DemoOnly (demo tenant), NotSendable from hard-block manifest gap,
+  NotSendable from hard-block zero-audit gap, SendableWithCaveats from simulator fallback,
+  SendableWithCaveats from missing evidence chain, SendableWithCaveats from defaulted ROI,
+  Complete / Sendable (all clear).
 - No new external dependencies.
 - Do not add a second PDF template (that is V1.1 scope).
 - Do not change pricing, customer reference docs, or deferred V1.1 reference-customer status.
 - Do not rename REST paths, DTO field names, or database entities.
 ```
 
-**Impact of running this prompt:** Directly improves Proof-of-ROI Readiness (+8–10 pts), Marketability (+3–5 pts), Trustworthiness (+2–4 pts). Weighted readiness impact: **+0.8–1.1%**.
+**Impact of running this prompt:** Directly improves Proof-of-ROI Readiness (+8?10 pts), Marketability (+3?5 pts), Trustworthiness (+2?4 pts). Weighted readiness impact: **+0.8?1.1%**.
 
 ---
 
-### Improvement 2 — Live UI/API/SQL Release Evidence Lane
+### Improvement 2 ? Local Live UI/API/SQL Smoke Equivalence Flag
 
-**Why it matters:** The repo already distinguishes mock smoke from live truth. Making the live truth easy to run and cite closes the most common release-confidence ambiguity.
+**Why it matters:** CI already proves full live UI ? API ? SQL parity on every PR via three merge-blocking `ui-e2e-live` jobs (26 `live-api-*.spec.ts` specs, real SQL 2022 container, three auth modes). The gap is **local only**: `release-smoke.ps1 -RunPlaywright` runs mock Playwright (fixture loopback), not the live suite. A developer or release operator validating locally gets a materially weaker signal than CI without realising it. The documentation (`RELEASE_SMOKE.md`) accurately describes this limitation ? which means the weakness is real but it is in the **local tooling**, not in CI coverage or code correctness.
 
-**Expected impact:** Higher reliability, usability, and enterprise confidence.
+**Expected impact:** Operators running local release validation get the same signal as CI. Reduces the risk of a false-confidence local pass before a release.
 
-**Affected qualities:** Reliability, Testability, Adoption Friction, Trustworthiness, Deployability.
+**Affected qualities:** Reliability, Deployability, Testability, Trustworthiness (release confidence).
 
 **Status:** Fully actionable now.
 
 **Cursor prompt:**
 ```
-Create a concise, operator-facing live UI/API/SQL release evidence lane document.
+Add a -LivePlaywright flag to release-smoke.ps1 that mirrors the CI ui-e2e-live job locally.
+
+Context:
+- CI job ui-e2e-live (ci.yml) is already a merge-blocking gate: real SQL Server, real
+  ArchLucid.Api (Release), real Next.js standalone build, all live-api-*.spec.ts specs.
+- release-smoke.ps1 -RunPlaywright currently runs npm run test:e2e (mock/fixture loopback,
+  playwright.mock.config.ts) ? it does NOT call the live API started in steps 5-6.
+- docs/library/LIVE_E2E_HAPPY_PATH.md documents the manual steps for live parity locally.
+- The gap: no single local flag mirrors what CI does.
 
 Scope:
-- Review docs/library/RELEASE_SMOKE.md, docs/library/LIVE_E2E_HAPPY_PATH.md,
-  docs/library/TEST_EXECUTION_MODEL.md, and existing Playwright live configs.
-- Add or update a single clear reference (doc or thin script wrapper) for the exact
-  sequence that proves: SQL-backed API startup, /health/ready, OpenAPI availability,
-  operator browser flow against the live API, and artifact visibility after a committed run.
-- Include failure triage guidance matching the existing stage/category/next format.
-- Explicitly state what the lane proves and what it does not prove (mock vs live parity).
+- Add a -LivePlaywright switch to release-smoke.ps1 (and document in RELEASE_SMOKE.md).
+- When -LivePlaywright is set and the E2E API is already running (steps 5-6 of the smoke),
+  run npx playwright test using playwright.config.ts (the live config, matching
+  testMatch: ["live-api-*.spec.ts"]) instead of playwright.mock.config.ts.
+- Set LIVE_API_URL to match the smoke API base URL (-ApiBaseUrl, default http://localhost:5128)
+  so the live specs target the same API instance.
+- Set AgentExecution__Mode=Simulator on the API process (already the smoke default) so
+  live specs do not require Azure OpenAI.
+- Update the parity table in RELEASE_SMOKE.md to add a -LivePlaywright row that says "Yes".
+- Add a note that -LivePlaywright requires ASPNETCORE_ENVIRONMENT=Development (already set
+  by release-smoke for the child API process) and that LIVE_API_KEY / LIVE_JWT_TOKEN are
+  optional (auth subset specs skip when not set, matching CI behavior).
 
 Acceptance criteria:
-- The document does not imply mock Playwright validates SQL parity.
-- It reuses existing scripts and configs without adding a new parallel execution stack.
-- CI gates are not weakened or bypassed.
-- Do not remove or rename existing release-smoke behavior.
-- Scope header required if added under docs/.
+- release-smoke.ps1 -LivePlaywright produces the same live-api-*.spec.ts run as CI's
+  ui-e2e-live job against the smoke API instance.
+- The existing -RunPlaywright behavior (mock Playwright) is unchanged.
+- The parity table in RELEASE_SMOKE.md correctly marks -LivePlaywright as proving
+  live UI ? SQL parity.
+- -LivePlaywright is skipped gracefully (with a warning) if -SkipE2E was also passed
+  (no API to test against).
+- No CI workflow files are modified.
+- No test specs are added, removed, or modified.
 ```
 
-**Impact of running this prompt:** Improves Reliability (+4–6 pts), Deployability (+3–5 pts), Procurement Readiness (+2–3 pts). Weighted readiness impact: **+0.3–0.5%**.
+**Impact of running this prompt:** Improves Deployability (+4?6 pts), Reliability (local validation signal), operator release-confidence UX. Weighted readiness impact: **+0.2?0.3%** (narrow scope ? CI is already strong).
 
 ---
 
-### Improvement 3 — RLS Residual Hardening Slice
+### Improvement 3 — Per-Tenant Topology Lock and Residual RLS Tidy
 
-**Why it matters:** Tenant isolation is enterprise-critical. Uncovered child tables rely on join discipline rather than policy enforcement — this is the clearest security residual risk.
+**Why it matters:** Production is confirmed `SystemWithPerTenantCatalogs`, which eliminates cross-tenant lateral movement as the primary isolation risk. The remaining risk is narrower but concrete: (a) the code default is `SingleCatalog` and nothing in Terraform or deployment config prevents a production deployment from accidentally using it, (b) `FindingReviewEvents` and `ImportedArchitectureRequests` have all three scope columns but were omitted from migration 129's `ALTER SECURITY POLICY` sweep — one statement each, and (c) workspace/project isolation within a tenant relies on application-layer `WHERE` clauses with no database-layer backstop.
 
-**Expected impact:** Closes one class of lateral-movement risk.
+**Expected impact:** Closes the misconfiguration-to-SingleCatalog risk, completes the RLS policy for two in-scope tables, and documents the workspace/project isolation posture clearly for security reviewers.
 
-**Affected qualities:** Security, Data Consistency, Trustworthiness, Compliance Readiness.
+**Affected qualities:** Security, Deployability, Trustworthiness, Compliance Readiness.
 
 **Status:** Fully actionable now.
 
 **Cursor prompt:**
 ```
-Implement the next RLS residual hardening slice targeting one high-risk uncovered child table family.
+Lock per-tenant topology as the production default and complete residual RLS policy coverage.
+
+Context:
+- Production topology is SystemWithPerTenantCatalogs (confirmed). Cross-tenant isolation is
+  achieved by the database boundary. RLS is defense-in-depth within a tenant's database.
+- SqlTopologyOptions.Mode defaults to SingleCatalog in code. No Terraform or deployment
+  config currently prevents a production environment from using SingleCatalog.
+- FindingReviewEvents (migration 121) has TenantId/WorkspaceId/ProjectId NOT NULL but was
+  not added to rls.ArchLucidTenantScope in migration 129.
+- ImportedArchitectureRequests (migration 122) has the same situation.
 
 Scope:
-- Start from docs/security/MULTI_TENANT_RLS.md and
-  docs/security/MULTI_TENANT_RLS_RESIDUAL_RISK_MATRIX.md.
-- Choose one uncovered child table family (preference: graph or finding child records)
-  that already has a scoped parent and can be safely denormalized.
-- Add a forward-only DbUp migration following the established DbUp 046 pattern.
-- Update ArchLucid.Persistence/Scripts/ArchLucid.sql for greenfield parity.
-- Update repositories to write and read the denormalized scope columns.
-- Add SQL integration tests proving cross-tenant negative access when RLS policy is ON.
-- Update the residual risk matrix.
+1. Lock SingleCatalog to dev-only:
+   - Add a startup validation rule in ArchLucid.Host.Core/Startup/Validation/ that
+     emits a startup error (not warning) when Mode=SingleCatalog and
+     ASPNETCORE_ENVIRONMENT is not Development or Test.
+   - Document in TENANT_DATABASE_TOPOLOGY.md that SingleCatalog is dev/test only.
+   - Add a Terraform variable guard comment (or tfvar default) in the infra module that
+     makes SystemWithPerTenantCatalogs explicit for non-dev environments.
+
+2. Complete FindingReviewEvents and ImportedArchitectureRequests RLS coverage:
+   - Add a forward-only DbUp migration that applies FILTER + BLOCK predicates
+     (archlucid_scope_predicate on TenantId, WorkspaceId, ProjectId) to both tables,
+     guarded by IF NOT EXISTS to be idempotent.
+   - Update ArchLucid.Persistence/Scripts/ArchLucid.sql for greenfield parity.
+   - Update MULTI_TENANT_RLS.md section 9 to remove both from the uncovered list.
+
+3. Document workspace/project isolation posture:
+   - Add a brief section to MULTI_TENANT_RLS.md section 9 explicitly stating that
+     workspace/project isolation within a tenant relies on application-layer WHERE
+     clauses; RLS covers tenant-level isolation in per-tenant topology;
+     workspace/project RLS is deferred.
 
 Acceptance criteria:
-- No historical migrations (001–028) are edited.
-- Existing single-catalog and per-tenant topology tests remain valid.
-- RLS policy STATE remains an explicit operational step, not auto-enabled in all environments.
+- Starting the API with Mode=SingleCatalog in a non-dev/test environment fails at startup
+  with a clear error message.
+- FindingReviewEvents and ImportedArchitectureRequests appear in the RLS policy after
+  the migration runs.
+- Existing per-tenant integration tests continue to pass.
+- No historical migrations are edited.
 - No public SMB/445 exposure or non-Terraform infrastructure changes.
-- Repository changes follow existing parameterized Dapper patterns.
+- The documentation clearly distinguishes cross-tenant isolation (DB boundary) from
+  workspace/project isolation (application layer).
 ```
 
-**Impact of running this prompt:** Improves Security (+5–7 pts), Data Consistency (+5–7 pts), Trustworthiness (+3–5 pts). Weighted readiness impact: **+0.4–0.7%**.
+**Impact of running this prompt:** Improves Security (+2–3 pts on residual), Deployability (+2 pts misconfiguration prevention), Trustworthiness (+2 pts for security reviewers). Weighted readiness impact: **+0.1–0.2%** (major cross-tenant risk already eliminated by per-tenant topology).
 
 ---
-
-### Improvement 4 — Connector Readiness and Health Matrix
+### Improvement 4 ? Connector Readiness and Health Matrix
 
 **Why it matters:** V1 commits to ServiceNow, Jira, Confluence, and Slack. Operators need deterministic readiness feedback rather than bespoke debugging when a connector is misconfigured or silent.
 
@@ -294,7 +348,7 @@ Acceptance criteria:
 **Cursor prompt:**
 ```
 Add a connector readiness and health model for V1 first-party integrations.
-All V1 connectors must expose operator-visible health in the operator UI — not only in
+All V1 connectors must expose operator-visible health in the operator UI ? not only in
 diagnostics docs or API responses.
 
 Scope:
@@ -304,7 +358,7 @@ Scope:
 - Add a shared readiness model with: enabled/disabled state, required config present,
   secret reference present (never the value), last test result timestamp when available,
   and supported directionality (outbound, inbound, bidirectional).
-- Wire every V1 connector through this shared model — no connector is exempt.
+- Wire every V1 connector through this shared model ? no connector is exempt.
 - Expose the model in the operator UI (a dedicated Integrations health surface or
   equivalent operator settings page) so operators do not need to read docs or API logs
   to confirm a connector is live and correctly configured.
@@ -316,7 +370,7 @@ Acceptance criteria:
 - Every V1 connector (ServiceNow, Jira, Confluence, Slack, Teams, webhook,
   integration-event) renders a health/readiness state in the operator UI.
 - Missing, disabled, or misconfigured connectors are visually distinguished from
-  healthy connectors in the UI — not hidden or absent.
+  healthy connectors in the UI ? not hidden or absent.
 - No real Jira/ServiceNow/Confluence/Slack HTTP calls in unit tests.
 - Secrets are never logged, returned, or exposed in the readiness model output.
 - V1 directionality is explicit: create, publish, outbound notify, inbound status sync.
@@ -326,11 +380,11 @@ Acceptance criteria:
 - Readiness model does not replace API-level 401/403 posture for callers.
 ```
 
-**Impact of running this prompt:** Improves Workflow Embeddedness (+8–10 pts), Interoperability (+5–7 pts), Adoption Friction (+3–5 pts). Weighted readiness impact: **+0.5–0.8%**.
+**Impact of running this prompt:** Improves Workflow Embeddedness (+8?10 pts), Interoperability (+5?7 pts), Adoption Friction (+3?5 pts). Weighted readiness impact: **+0.5?0.8%**.
 
 ---
 
-### Improvement 5 — Agent Output Quality Evidence Tightening
+### Improvement 5 ? Agent Output Quality Evidence Tightening
 
 **Why it matters:** Correctness is the core product risk. Metrics and schemas exist; buyers need a reproducible quality evidence path for real model outputs, not just simulator confidence.
 
@@ -381,6 +435,14 @@ Acceptance criteria:
   missing evidence refs).
 - Real-model quality evidence can be collected and attached to release evidence without
   requiring a production environment.
+- Real-model quality scores (structural completeness and semantic score) against the 8 reference
+  cases must be surfaced as a named gate in release sign-off output ? not silently appended to
+  the evidence bundle. Any case where the actual score falls below the floor must render as a
+  named FAIL that requires an explicit acknowledgement or formal waiver comment before a release
+  can be marked complete. The gate output must list: CaseId, AgentType, expected floor, actual
+  score, and PASS/FAIL status per case.
+- Simulator-only runs are exempt from the named gate (simulator results are not real-model
+  evidence); clearly label simulator-sourced scores as SIMULATOR ? NOT RELEASE EVIDENCE.
 - Warn-only defaults remain unchanged and clearly labeled as such.
 - No fake pass/fail claims from simulator-only runs.
 - No new model or cloud provider dependency introduced.
@@ -388,11 +450,11 @@ Acceptance criteria:
 - Do not modify or delete existing golden fixtures or the harness topology/compliance pair.
 ```
 
-**Impact of running this prompt:** Improves Correctness (+5–7 pts), AI/Agent Readiness (+5–7 pts), Explainability (+3–4 pts). Weighted readiness impact: **+0.4–0.6%**.
+**Impact of running this prompt:** Improves Correctness (+5?7 pts), AI/Agent Readiness (+5?7 pts), Explainability (+3?4 pts). Weighted readiness impact: **+0.4?0.6%**.
 
 ---
 
-### Improvement 6 — First-Run Cognitive Load Reduction
+### Improvement 6 ? First-Run Cognitive Load Reduction
 
 **Why it matters:** The product is rich enough to confuse evaluators. The first session must feel smaller to convert interest into a committed pilot.
 
@@ -423,11 +485,11 @@ Acceptance criteria:
 - Add or update focused Vitest tests where first-session guidance behavior changes.
 ```
 
-**Impact of running this prompt:** Improves Adoption Friction (+4–6 pts), Usability (+5–7 pts), Cognitive Load (+8–10 pts). Weighted readiness impact: **+0.4–0.6%**.
+**Impact of running this prompt:** Improves Adoption Friction (+4?6 pts), Usability (+5?7 pts), Cognitive Load (+8?10 pts). Weighted readiness impact: **+0.4?0.6%**.
 
 ---
 
-### Improvement 7 — Preventive Data Consistency Constraint Pass
+### Improvement 7 ? Preventive Data Consistency Constraint Pass
 
 **Why it matters:** Detection is good; prevention is better. One preventive constraint reduces the ongoing operational burden of orphan reconciliation.
 
@@ -459,11 +521,11 @@ Acceptance criteria:
 - No new external service dependency.
 ```
 
-**Impact of running this prompt:** Improves Data Consistency (+6–8 pts), Reliability (+3–5 pts), Correctness (+2–4 pts). Weighted readiness impact: **+0.3–0.5%**.
+**Impact of running this prompt:** Improves Data Consistency (+6?8 pts), Reliability (+3?5 pts), Correctness (+2?4 pts). Weighted readiness impact: **+0.3?0.5%**.
 
 ---
 
-### Improvement 8 — Production Evidence Rollup
+### Improvement 8 ? Production Evidence Rollup
 
 **Why it matters:** Enterprise buyers distinguish targets from measured service history. The 99.9% target is documented; no achieved rollup exists yet.
 
@@ -481,27 +543,36 @@ Scope:
 - Review docs/library/SLA_TARGETS.md, hosted probe workflows in
   .github/workflows/hosted-saas-probe.yml and api-synthetic-probe.yml,
   and docs/runbooks/HOSTED_AVAILABILITY_ROLLUP.md.
-- Implement or document a lightweight monthly rollup process that summarizes:
+- Implement or document a lightweight weekly rollup process that produces two
+  separate summaries per run: one for staging, one for production. Each summary
+  covers the prior 7-day probe window for its environment and must include:
   total probe minutes, downtime windows (non-200 for 5+ consecutive minutes),
   exclusions applied, and any windows with no data.
-- Mark the output explicitly as internal and pre-contractual until a per-customer
-  SLA is negotiated.
+- Staging and production summaries must never be aggregated into a single number.
+  Staging instability must not appear in or affect the production summary.
+- Mark every output explicitly as internal and pre-contractual. The rollup must
+  not be shared externally until a first paid customer is signed; until then,
+  procurement conversations receive the 99.9% target and trust center posture only.
+- Add a header stamp to the output: "INTERNAL ? pre-GA probe data, not a
+  contractual SLA. Do not share externally before first paid customer."
 - Add validation that the rollup does not claim an achieved SLA when evidence
   is incomplete or missing.
 
 Acceptance criteria:
-- Rollup clearly separates target from measured availability.
+- Two separate output files or sections are produced per run: staging and production.
+- Each rollup clearly separates target (99.9%) from measured availability.
 - Missing probe windows are surfaced as gaps, not interpolated as up.
+- The internal-only stamp is present and cannot be removed without editing the script.
 - No contractual SLA language is introduced.
 - No production secrets, customer data, or PII are included.
 - Output is consistent with existing Trust Center prose.
 ```
 
-**Impact of running this prompt:** Improves Availability (+8–10 pts), Procurement Readiness (+3–5 pts), Trustworthiness (+2–4 pts). Weighted readiness impact: **+0.2–0.4%**.
+**Impact of running this prompt:** Improves Availability (+8?10 pts), Procurement Readiness (+3?5 pts), Trustworthiness (+2?4 pts). Weighted readiness impact: **+0.2?0.4%**.
 
 ---
 
-### Improvement 9 — Evidence Chain Reviewer UI Hardening
+### Improvement 9 ? Evidence Chain Reviewer UI Hardening
 
 **Why it matters:** The evidence chain (manifest version, findings snapshot, context snapshot, graph snapshot, decision trace, agent execution traces) exists in the API and is exposed via `GET .../run/{runId}/findings/{id}/evidence-chain`. Buyers and enterprise reviewers need to consume this chain without opening the API directly. The current UI surfaces the chain partially; a reviewer landing on a finding should be able to trace every artefact link without leaving the product.
 
@@ -519,7 +590,7 @@ Scope:
 - Review archlucid-ui/src/components/FindingExplainPanel.tsx (already fetches
   getFindingEvidenceChain and renders a partial evidence chain),
   archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/inspect/page.tsx
-  (the dedicated traceability page — currently has NO evidence chain),
+  (the dedicated traceability page ? currently has NO evidence chain),
   archlucid-ui/src/app/(operator)/reviews/[runId]/findings/[findingId]/page.tsx
   (has FindingExplainPanel in a collapsed section),
   archlucid-ui/src/types/explanation.ts (FindingEvidenceChain type),
@@ -536,7 +607,7 @@ Three gaps to close:
 
 2. Extend the evidence chain rendering to include the two missing fields.
    FindingExplainPanel currently renders manifestVersion, findingsSnapshotId, decisionTraceId,
-   goldenManifestId, relatedGraphNodeIds, and agentExecutionTraceIds — but NOT contextSnapshotId
+   goldenManifestId, relatedGraphNodeIds, and agentExecutionTraceIds ? but NOT contextSnapshotId
    or graphSnapshotId which are present in FindingEvidenceChain.
    Add both to the rendered dl on both the panel and the new inspect section.
 
@@ -545,7 +616,7 @@ Three gaps to close:
    findingsSnapshotId, contextSnapshotId, graphSnapshotId, decisionTraceId, goldenManifestId.
    Render:
    - "Evidence chain complete" (green/teal indicator) when all are non-null/non-empty.
-   - "Partial chain — missing: X, Y" (amber indicator) when one or more are absent, using
+   - "Partial chain ? missing: X, Y" (amber indicator) when one or more are absent, using
      human-readable field names (e.g. "context snapshot", "graph snapshot").
    Do not invent explanatory reasons for absence; label the missing field by name only.
 
@@ -554,7 +625,7 @@ Acceptance criteria:
   and the completeness indicator.
 - The finding detail page (/findings/{id}) shows contextSnapshotId and graphSnapshotId in
   FindingExplainPanel alongside the existing fields.
-- Missing IDs render as a named gap in the completeness indicator, not a bare "—" only.
+- Missing IDs render as a named gap in the completeness indicator, not a bare "?" only.
 - Complete chains render a "Evidence chain complete" badge/label.
 - getFindingEvidenceChain is not called a second time on the inspect page if it is already
   fetched server-side (avoid duplicate client-side fetches).
@@ -566,13 +637,13 @@ Acceptance criteria:
   intentionally updated with a clear comment.
 ```
 
-**Impact of running this prompt:** Improves Explainability (+6–8 pts), Traceability (+4–6 pts), Trustworthiness (+3–4 pts), Procurement Readiness (+2–3 pts). Weighted readiness impact: **+0.4–0.6%**.
+**Impact of running this prompt:** Improves Explainability (+6?8 pts), Traceability (+4?6 pts), Trustworthiness (+3?4 pts), Procurement Readiness (+2?3 pts). Weighted readiness impact: **+0.4?0.6%**.
 
 ---
 
-### Improvement 10 — Route/Policy/Nav Drift Automation
+### Improvement 10 ? Route/Policy/Nav Drift Automation
 
-**Why it matters:** A broad surface area makes entitlement, authority, and UI drift a durable risk. New routes frequently need aligned tier filter, API policy, and nav entry — manual coordination fails at scale.
+**Why it matters:** A broad surface area makes entitlement, authority, and UI drift a durable risk. New routes frequently need aligned tier filter, API policy, and nav entry ? manual coordination fails at scale.
 
 **Expected impact:** Reduces entitlement and authority drift as connectors and governance surfaces ship.
 
@@ -598,28 +669,28 @@ Scope:
 Acceptance criteria:
 - A new protected operator route that is missing from the policy/tier/nav matrix
   causes the test to fail, not just warn.
-- API returns 401/403/404 correctly regardless of nav state — the test does not
+- API returns 401/403/404 correctly regardless of nav state ? the test does not
   substitute nav shaping for authorization.
 - No commercial pricing or deferred commerce cutover scope is changed.
 - Existing authority seam regression tests remain passing.
 - Does not require runtime HTTP calls in the policy/tier matrix check.
 ```
 
-**Impact of running this prompt:** Improves Maintainability (+4–6 pts), Security (+2–4 pts), Commercial Packaging Readiness (+3–5 pts). Weighted readiness impact: **+0.3–0.5%**.
+**Impact of running this prompt:** Improves Maintainability (+4?6 pts), Security (+2?4 pts), Commercial Packaging Readiness (+3?5 pts). Weighted readiness impact: **+0.3?0.5%**.
 
 ---
 
 ## 10. Pending Questions for Later
 
-**Improvement 1 — Buyer-Safe First-Value Proof Gate:**
-- Which proof fields are mandatory (block send) vs advisory-only (warn but allow)?
-- **Field sales demo banner — elaborated (open, needs owner decision):**
+**Improvement 1 ? Buyer-Safe First-Value Proof Gate:**
+- ~~Which proof fields are mandatory (block send) vs advisory-only (warn but allow)?~~ **RESOLVED (2026-05-06):** Hard blocks (upgrade to `NotSendable` alongside `DemoOnly`): missing committed manifest (`manifest is null || status != Committed`), and zero audit rows (`AuditRowCount == 0`). Soft warnings (remain `SendableWithCaveats`): simulator fallback (`RealModeFellBackToSimulator`), missing top-finding evidence chain, and defaulted/no-measurement ROI baseline. `ResolveTier` must use a separate `hardGaps` list so that `hardGaps.Count > 0 || demoTenant` returns `DemoOnly`.
+- **Field sales demo banner ? elaborated (open, needs owner decision):**
 
   **What the code currently does:**
-  `PilotBuyerSafeEvidenceGateEvaluator` produces `DemoOnly` → `NotSendable`. The Markdown formatter renders
-  "Not sendable externally" plus the gap text "Seeded/demo tenant — replace before external sponsor
+  `PilotBuyerSafeEvidenceGateEvaluator` produces `DemoOnly` ? `NotSendable`. The Markdown formatter renders
+  "Not sendable externally" plus the gap text "Seeded/demo tenant ? replace before external sponsor
   screenshots or purchase narratives." The PDF builder (`SponsorOnePagerPdfBuilder`) renders a single
-  yellow/red banner box inline in the content area of page 1. The `NotSendable` posture is advisory —
+  yellow/red banner box inline in the content area of page 1. The `NotSendable` posture is advisory ?
   it does not prevent the PDF from being generated, opened, or attached to an email.
 
   **The field sales risk:**
@@ -636,12 +707,12 @@ Acceptance criteria:
 
   | Option | What it does | Engineering cost | Field sales UX |
   |--------|-------------|-----------------|---------------|
-  | **A — Page-level header stamp** | Add "ILLUSTRATION ONLY — not a commitment" as a bold full-width header on every page in the QuestPDF template when `IsDemoTenant`. One call to `page.Header()` per page. | ~30 min | Survives screenshotting; prospect cannot miss it |
-  | **B — Separate "illustrative" PDF template** | Replace computed numbers with labelled ranges ("3–15 findings, illustrative") and add a distinct visual treatment throughout. | ~2–3 days | Explicitly safe for a polished field demo but requires two maintained templates |
-  | **C — Keep current banner; enforce no-export** | Block PDF generation when tier is `DemoOnly`; force operator to use the live UI for demos only. | ~1 hour | No sendable artifact; demo must be screen-based |
+  | **A ? Page-level header stamp** | Add "ILLUSTRATION ONLY ? not a commitment" as a bold full-width header on every page in the QuestPDF template when `IsDemoTenant`. One call to `page.Header()` per page. | ~30 min | Survives screenshotting; prospect cannot miss it |
+  | **B ? Separate "illustrative" PDF template** | Replace computed numbers with labelled ranges ("3?15 findings, illustrative") and add a distinct visual treatment throughout. | ~2?3 days | Explicitly safe for a polished field demo but requires two maintained templates |
+  | **C ? Keep current banner; enforce no-export** | Block PDF generation when tier is `DemoOnly`; force operator to use the live UI for demos only. | ~1 hour | No sendable artifact; demo must be screen-based |
 
   **Recommendation (pending owner confirmation):**
-  Option A is the right default for V1 — it is a one-line QuestPDF change, survives any export/screenshot
+  Option A is the right default for V1 ? it is a one-line QuestPDF change, survives any export/screenshot
   path, and does not require a second template to maintain. If field sales needs a polished "illustrative
   deck" style artifact for prospect leave-behinds, that is Option B and belongs in V1.1.
   Option C actively reduces demo value and is not recommended unless there is evidence of actual
@@ -649,30 +720,30 @@ Acceptance criteria:
 
   **RESOLVED:** Option A (per-page header stamp) for V1. Option B (illustrative template) for V1.1.
 
-**Improvement 4 — Connector Readiness and Health Matrix:**
+**Improvement 4 ? Connector Readiness and Health Matrix:**
 - ~~Which connectors must expose operator-visible health in the V1 operator UI versus diagnostics/docs only?~~ **RESOLVED:** All connectors must expose operator-visible health in the UI.
-- ~~Should inbound webhook secret absence render as "disabled" or "misconfigured"?~~ **RESOLVED:** "misconfigured" — a missing secret means the feature may be partially configured and silently failing.
+- ~~Should inbound webhook secret absence render as "disabled" or "misconfigured"?~~ **RESOLVED:** "misconfigured" ? a missing secret means the feature may be partially configured and silently failing.
 
-**Improvement 5 — Agent Output Quality Evidence Tightening:**
-- **Canonical reference case set — recommendation (open, needs owner sign-off on scenario text):**
+**Improvement 5 ? Agent Output Quality Evidence Tightening:**
+- **Canonical reference case set ? recommendation (open, needs owner sign-off on scenario text):**
 
   **What the infrastructure already supports:**
   `AgentOutputReferenceCaseCatalog` loads cases from a JSON file at `AgentExecution:ReferenceEvaluation:ReferenceCasesPath`.
   Each case is an `AgentOutputReferenceCaseDefinition` with: `CaseId`, `AgentType`, `MinimumStructuralCompleteness`,
   `MinimumSemanticScore`, `MinimumFindingCount`, `ExpectedFindingCategories`, and `RequiredJsonKeys`.
-  The evaluator scores structural completeness (key presence ratio) and semantic quality (claims-with-evidence ×0.4 +
-  findings-completeness ×0.6). The existing golden fixtures (`harness-agent-result-topology.json`,
+  The evaluator scores structural completeness (key presence ratio) and semantic quality (claims-with-evidence ?0.4 +
+  findings-completeness ?0.6). The existing golden fixtures (`harness-agent-result-topology.json`,
   `harness-agent-result-compliance.json`, etc.) are minimal shape guards, not quality evidence.
 
   **What makes a reference case canonical (vs just a fixture):**
-  1. The scenario is representative of a real buyer query — what ArchLucid would actually run for the Contoso Retail
+  1. The scenario is representative of a real buyer query ? what ArchLucid would actually run for the Contoso Retail
      analogue or an Azure-native enterprise.
   2. The expected output dimensions are tight enough that a weak agent response fails (not every non-empty JSON passes).
   3. The input context is derivable from existing demo data so the case runs against the simulator without Azure OpenAI
      credentials.
   4. Both the structural and semantic evaluator dimensions are exercised simultaneously.
 
-  **Recommended set — 2 cases per AgentType (8 total):**
+  **Recommended set ? 2 cases per AgentType (8 total):**
 
   | CaseId | AgentType | Scenario | MinStructural | MinSemantic | MinFindings | ExpectedCategories |
   |--------|-----------|----------|---------------|-------------|-------------|-------------------|
@@ -693,13 +764,13 @@ Acceptance criteria:
   and CI script (`scripts/ci/eval_agent_corpus.py`) are already in place; the only work is authoring the
   8 input JSON fixtures and the reference cases JSON file.
 
-- Should structural/semantic score floors for real-model runs be surfaced in release sign-off or remain advisory?
+- ~~Should structural/semantic score floors for real-model runs be surfaced in release sign-off or remain advisory?~~ **RESOLVED (2026-05-06):** Named gate. Structural and semantic score floors against the 8 canonical reference cases must appear as a named, documented gate in release sign-off. A failure must be explicitly acknowledged or formally waived before a release proceeds ? not silently recorded in the evidence bundle.
 
-**Improvement 8 — Production Evidence Rollup:**
-- Should achieved availability remain internal only until first paid customer, or become NDA-shareable on request from procurement?
-- Is a monthly rollup cadence sufficient or should weekly summaries be produced for staging and production separately?
+**Improvement 8 ? Production Evidence Rollup:**
+- ~~Should achieved availability remain internal only until first paid customer, or become NDA-shareable on request from procurement?~~ **RESOLVED (2026-05-06):** Internal only until first paid customer. Procurement conversations before that point receive the 99.9% target and trust center posture only ? not measured probe numbers. The rollup output must be stamped accordingly.
+- ~~Is a monthly rollup cadence sufficient or should weekly summaries be produced for staging and production separately?~~ **RESOLVED (2026-05-06):** Weekly summaries, staging and production separately. Each summary covers the prior 7-day probe window for its environment. Staging instability must not be aggregated with production numbers.
 
-**Improvement 9 — Evidence Chain Reviewer UI Hardening:**
+**Improvement 9 ? Evidence Chain Reviewer UI Hardening:**
 - ~~Which finding-inspect UI surfaces already partially render the evidence chain, so they can be extended in-place rather than built from scratch?~~ **RESOLVED (code read 2026-05-06):** See full analysis below.
 
   **What already exists:**
@@ -709,17 +780,17 @@ Acceptance criteria:
   agent execution trace IDs.
 
   **Where it appears:**
-  - **Finding Detail page** (`/reviews/{runId}/findings/{findingId}`) — present, but buried in a collapsible
+  - **Finding Detail page** (`/reviews/{runId}/findings/{findingId}`) ? present, but buried in a collapsible
     "Technical audit trail" section that is collapsed by default. A reviewer has to know to expand it.
-  - **Technical Inspection page** (`/reviews/{runId}/findings/{findingId}/inspect`) — **completely absent**.
+  - **Technical Inspection page** (`/reviews/{runId}/findings/{findingId}/inspect`) ? **completely absent**.
     The inspect page is the dedicated traceability surface but has no evidence chain at all.
 
   **Three concrete gaps remaining:**
   1. `contextSnapshotId` and `graphSnapshotId` are in `FindingEvidenceChain` but are NOT rendered
-     anywhere — only manifestVersion, findingsSnapshotId, decisionTraceId, goldenManifestId are shown.
-  2. Missing IDs render as a bare "—" with no named gap reason. A reviewer cannot tell whether the
+     anywhere ? only manifestVersion, findingsSnapshotId, decisionTraceId, goldenManifestId are shown.
+  2. Missing IDs render as a bare "?" with no named gap reason. A reviewer cannot tell whether the
      absence is expected (e.g. "finding raised before graph commit") or a data problem.
-  3. No "complete / partial chain" status indicator exists — a reviewer must scan all fields manually
+  3. No "complete / partial chain" status indicator exists ? a reviewer must scan all fields manually
      to determine completeness.
 
   **What the improvement needs to do:**

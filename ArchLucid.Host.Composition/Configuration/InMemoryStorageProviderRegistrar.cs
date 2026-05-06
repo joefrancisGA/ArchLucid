@@ -14,6 +14,7 @@ using ArchLucid.Core.Billing;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Identity;
@@ -79,8 +80,11 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
 {
     public void Register(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<SqlTopologyOptions>(configuration.GetSection(SqlTopologyOptions.SectionPath));
+
         services.AddSingleton<ISystemSqlConnectionFactory, UnusedSystemSqlConnectionFactory>();
         services.AddSingleton<ITenantSqlConnectionFactory, UnusedTenantSqlConnectionFactory>();
+        services.AddScoped<ITenantSqlCatalogProvisioner, NoOpTenantSqlCatalogProvisioner>();
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();
