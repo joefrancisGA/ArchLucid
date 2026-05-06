@@ -182,72 +182,121 @@ internal static class FindingsSnapshotRelationalRead
                 new Dictionary<Guid, List<string>>(),
                 new Dictionary<Guid, List<string>>());
 
-        const string batchedSql = """
-                                   SELECT FindingRecordId, SortOrder, NodeId AS Item
-                                   FROM dbo.FindingRelatedNodes
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
+        const string sql = """
+                           SELECT SliceKind, FindingRecordId, SortOrder, Item, PropertyKey, PropertyValue
+                           FROM (
+                               SELECT CAST(N'RelatedNodes' AS NVARCHAR(32)) AS SliceKind,
+                                      FindingRecordId, SortOrder,
+                                      CAST(NodeId AS NVARCHAR(MAX)) AS Item,
+                                      CAST(NULL AS NVARCHAR(200)) AS PropertyKey,
+                                      CAST(NULL AS NVARCHAR(MAX)) AS PropertyValue
+                               FROM dbo.FindingRelatedNodes
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'RecommendedActions' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(ActionText AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingRecommendedActions
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'Properties' AS NVARCHAR(32)),
+                                      FindingRecordId, PropertySortOrder,
+                                      CAST(NULL AS NVARCHAR(MAX)),
+                                      PropertyKey,
+                                      PropertyValue
+                               FROM dbo.FindingProperties
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'TraceGraphNodes' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(NodeId AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingTraceGraphNodesExamined
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'TraceRules' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(RuleText AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingTraceRulesApplied
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'TraceDecisions' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(DecisionText AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingTraceDecisionsTaken
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'TracePaths' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(PathText AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingTraceAlternativePaths
+                               WHERE FindingRecordId IN @Ids
+                               UNION ALL
+                               SELECT CAST(N'TraceNotes' AS NVARCHAR(32)),
+                                      FindingRecordId, SortOrder,
+                                      CAST(NoteText AS NVARCHAR(MAX)),
+                                      CAST(NULL AS NVARCHAR(200)),
+                                      CAST(NULL AS NVARCHAR(MAX))
+                               FROM dbo.FindingTraceNotes
+                               WHERE FindingRecordId IN @Ids
+                           ) AS slices
+                           ORDER BY SliceKind, FindingRecordId, SortOrder;
+                           """;
 
-                                   SELECT FindingRecordId, SortOrder, ActionText AS Item
-                                   FROM dbo.FindingRecommendedActions
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
+        List<FindingChildSliceRow> rows = (await connection.QueryAsync<FindingChildSliceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Ids = recordIds
+                },
+                cancellationToken: ct))).ToList();
 
-                                   SELECT FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue
-                                   FROM dbo.FindingProperties
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, PropertySortOrder;
+        return FoldChildRelationalSlices(rows);
+    }
 
-                                   SELECT FindingRecordId, SortOrder, NodeId AS Item
-                                   FROM dbo.FindingTraceGraphNodesExamined
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
+    private static ChildRelationalSlices FoldChildRelationalSlices(IReadOnlyList<FindingChildSliceRow> rows)
+    {
+        Dictionary<Guid, List<string>> related = new();
+        Dictionary<Guid, List<string>> actions = new();
+        Dictionary<Guid, Dictionary<string, string>> props = new();
+        Dictionary<Guid, List<string>> traceNodes = new();
+        Dictionary<Guid, List<string>> traceRules = new();
+        Dictionary<Guid, List<string>> traceDecisions = new();
+        Dictionary<Guid, List<string>> tracePaths = new();
+        Dictionary<Guid, List<string>> traceNotes = new();
 
-                                   SELECT FindingRecordId, SortOrder, RuleText AS Item
-                                   FROM dbo.FindingTraceRulesApplied
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
-
-                                   SELECT FindingRecordId, SortOrder, DecisionText AS Item
-                                   FROM dbo.FindingTraceDecisionsTaken
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
-
-                                   SELECT FindingRecordId, SortOrder, PathText AS Item
-                                   FROM dbo.FindingTraceAlternativePaths
-                                   WHERE FindingRecordId IN @Ids
-                                   ORDER BY FindingRecordId, SortOrder;
-                                   """;
-
-        await using SqlMapper.GridReader reader = await connection.QueryMultipleAsync(
-            new CommandDefinition(batchedSql, new
-            {
-                Ids = recordIds
-            }, cancellationToken: ct));
-
-        Dictionary<Guid, List<string>> related =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, List<string>> actions =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, Dictionary<string, string>> props =
-            FoldFindingProperties(reader.Read<FindingPropertyRow>().ToList());
-
-        Dictionary<Guid, List<string>> traceNodes =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, List<string>> traceRules =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, List<string>> traceDecisions =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, List<string>> tracePaths =
-            FoldFindingChildStrings(reader.Read<FindingChildStringRow>().ToList());
-
-        Dictionary<Guid, List<string>> traceNotes =
-            await LoadTraceNotesByRecordIdAsync(connection, recordIds, ct);
+        foreach (FindingChildSliceRow row in rows)
+        {
+            if (string.Equals(row.SliceKind, FindingChildSliceKind.RelatedNodes, StringComparison.Ordinal))
+                AppendChildString(related, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.RecommendedActions, StringComparison.Ordinal))
+                AppendChildString(actions, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.Properties, StringComparison.Ordinal))
+                AppendChildProperty(props, row.FindingRecordId, row.PropertyKey, row.PropertyValue);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.TraceGraphNodes, StringComparison.Ordinal))
+                AppendChildString(traceNodes, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.TraceRules, StringComparison.Ordinal))
+                AppendChildString(traceRules, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.TraceDecisions, StringComparison.Ordinal))
+                AppendChildString(traceDecisions, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.TracePaths, StringComparison.Ordinal))
+                AppendChildString(tracePaths, row.FindingRecordId, row.Item);
+            else if (string.Equals(row.SliceKind, FindingChildSliceKind.TraceNotes, StringComparison.Ordinal))
+                AppendChildString(traceNotes, row.FindingRecordId, row.Item);
+            else
+                throw new InvalidOperationException(
+                    "Unknown Finding child slice kind '" + row.SliceKind + "' from relational read.");
+        }
 
         return new ChildRelationalSlices(
             related,
@@ -260,68 +309,55 @@ internal static class FindingsSnapshotRelationalRead
             traceNotes);
     }
 
-    private static async Task<Dictionary<Guid, List<string>>> LoadTraceNotesByRecordIdAsync(
-        SqlConnection connection,
-        List<Guid> recordIds,
-        CancellationToken ct)
+    private static void AppendChildString(Dictionary<Guid, List<string>> target, Guid recordId, string? item)
     {
-        if (recordIds.Count == 0)
-            return new Dictionary<Guid, List<string>>();
+        if (item is null)
+            return;
 
-        const string sql = """
-                           SELECT FindingRecordId, SortOrder, NoteText AS Item
-                           FROM dbo.FindingTraceNotes
-                           WHERE FindingRecordId IN @Ids
-                           ORDER BY FindingRecordId, SortOrder;
-                           """;
-
-        List<FindingChildStringRow> rows = (await connection.QueryAsync<FindingChildStringRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    Ids = recordIds
-                },
-                cancellationToken: ct))).ToList();
-
-        return FoldFindingChildStrings(rows);
-    }
-
-    private static Dictionary<Guid, List<string>> FoldFindingChildStrings(IReadOnlyList<FindingChildStringRow> rows)
-    {
-        Dictionary<Guid, List<string>> result = new();
-
-        foreach (FindingChildStringRow row in rows)
+        if (!target.TryGetValue(recordId, out List<string>? list))
         {
-            if (!result.TryGetValue(row.FindingRecordId, out List<string>? list))
-            {
-                list = [];
-                result[row.FindingRecordId] = list;
-            }
-
-            list.Add(row.Item);
+            list = [];
+            target[recordId] = list;
         }
 
-        return result;
+        list.Add(item);
     }
 
-    private static Dictionary<Guid, Dictionary<string, string>> FoldFindingProperties(
-        IReadOnlyList<FindingPropertyRow> rows)
+    private static void AppendChildProperty(
+        Dictionary<Guid, Dictionary<string, string>> target,
+        Guid recordId,
+        string? propertyKey,
+        string? propertyValue)
     {
-        Dictionary<Guid, Dictionary<string, string>> result = new();
+        if (string.IsNullOrEmpty(propertyKey) || propertyValue is null)
+            return;
 
-        foreach (FindingPropertyRow row in rows)
+        if (!target.TryGetValue(recordId, out Dictionary<string, string>? dict))
         {
-            if (!result.TryGetValue(row.FindingRecordId, out Dictionary<string, string>? dict))
-            {
-                dict = new Dictionary<string, string>(StringComparer.Ordinal);
-                result[row.FindingRecordId] = dict;
-            }
-
-            dict[row.PropertyKey] = row.PropertyValue;
+            dict = new Dictionary<string, string>(StringComparer.Ordinal);
+            target[recordId] = dict;
         }
 
-        return result;
+        dict[propertyKey] = propertyValue;
+    }
+
+    private static class FindingChildSliceKind
+    {
+        internal const string RelatedNodes = "RelatedNodes";
+
+        internal const string RecommendedActions = "RecommendedActions";
+
+        internal const string Properties = "Properties";
+
+        internal const string TraceGraphNodes = "TraceGraphNodes";
+
+        internal const string TraceRules = "TraceRules";
+
+        internal const string TraceDecisions = "TraceDecisions";
+
+        internal const string TracePaths = "TracePaths";
+
+        internal const string TraceNotes = "TraceNotes";
     }
 
     private sealed class FindingRecordRow
@@ -490,42 +526,43 @@ internal static class FindingsSnapshotRelationalRead
     }
 
 #pragma warning disable CA1812 // instantiated via Dapper
-    private sealed class FindingChildStringRow
+    private sealed class FindingChildSliceRow
 #pragma warning restore CA1812
     {
+        public string SliceKind
+        {
+            get;
+            init;
+        } = null!;
+
         public Guid FindingRecordId
         {
             get;
             init;
         }
 
-        public string Item
+        public int SortOrder
         {
             get;
             init;
-        } = null!;
-    }
-
-    private sealed class FindingPropertyRow
-    {
-        public FindingPropertyRow(Guid findingRecordId)
-        {
-            FindingRecordId = findingRecordId;
         }
 
-        public Guid FindingRecordId
+        public string? Item
         {
             get;
+            init;
         }
 
-        public string PropertyKey
+        public string? PropertyKey
         {
             get;
-        } = null!;
+            init;
+        }
 
-        public string PropertyValue
+        public string? PropertyValue
         {
             get;
-        } = null!;
+            init;
+        }
     }
 }

@@ -26,10 +26,12 @@ public static class PilotProofPackageCompletenessMapper
         ArgumentNullException.ThrowIfNull(snapshot);
 
         bool manifestPresent = manifest is not null;
+        PilotRoiEvidenceConfidence roiTier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
 
         return new ProofPackageCompletenessResponse
         {
             DemoTenantWarningRequired = deltas.IsDemoTenant,
+            SupportRunIdPresent = !string.IsNullOrWhiteSpace(run.RunId),
             CommittedManifestPresent = manifestPresent,
             RunInCommittedStatus = run.Status == ArchitectureRunStatus.Committed,
             ArtifactDescriptorCount =
@@ -41,7 +43,10 @@ public static class PilotProofPackageCompletenessMapper
                 deltas.TopFindingId is null || deltas.TopFindingEvidenceChain is not null,
             AuditRowsPresentOrLowerBound = deltas.AuditRowCount > 0 || deltas.AuditRowCountTruncated,
             LlmCallCount = deltas.LlmCallCount,
-            RoiConfidenceLabel = FormatRoiConfidence(snapshot.ReviewCycleBaselineProvenance),
+            LlmCallCountResolved = deltas.LlmCallCountResolved,
+            RoiEvidenceConfidence = roiTier,
+            RoiConfidenceLabel = PilotRoiEvidenceConfidenceResolver.FormatBaselineProvenanceLabel(
+                snapshot.ReviewCycleBaselineProvenance),
             BuyerSafeRedactionProfile = ResolveBuyerSafeRedactionProfile(deltas.IsDemoTenant),
             PublishingTier = gate.PublishingTier.ToString(),
             ProofSendability = gate.ProofSendability.ToString(),
@@ -59,15 +64,4 @@ public static class PilotProofPackageCompletenessMapper
             : "Tenant-scoped operator export — redact customer-identifying prose before sponsor circulation.";
     }
 
-    private static string FormatRoiConfidence(ReviewCycleBaselineProvenance provenance)
-    {
-        return provenance switch
-        {
-            ReviewCycleBaselineProvenance.TenantSuppliedAtSignup => "Tenant-supplied baseline captured at signup",
-            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings => "Tenant-supplied baseline from pilot settings",
-            ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions => "Defaulted from ROI model options",
-            ReviewCycleBaselineProvenance.NoMeasurementYet => "No measurement yet",
-            _ => "Baseline posture unknown",
-        };
-    }
 }

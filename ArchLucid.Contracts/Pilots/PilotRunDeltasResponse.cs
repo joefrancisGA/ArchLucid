@@ -49,6 +49,16 @@ public sealed class PilotRunDeltasResponse
         init;
     }
 
+    /// <summary>
+    ///     <see langword="false" /> when the per-run execution-trace query failed — <see cref="LlmCallCount" /> is then
+    ///     zero as a placeholder, not an attested call tally.
+    /// </summary>
+    public bool LlmCallCountResolved
+    {
+        get;
+        init;
+    } = true;
+
     public string? TopFindingSeverity
     {
         get;

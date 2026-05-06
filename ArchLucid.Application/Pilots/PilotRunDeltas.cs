@@ -72,6 +72,15 @@ public sealed record PilotRunDeltas
     }
 
     /// <summary>
+    ///     <see langword="false" /> when the trace repository query failed — <see cref="LlmCallCount" /> is not attested.
+    /// </summary>
+    public bool LlmCallCountResolved
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary>
     ///     Severity of the top-severity finding identified for the evidence-chain excerpt, or <see langword="null" />
     ///     when no findings exist.
     /// </summary>

@@ -82,7 +82,9 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("**Proof sendability:** **Sendable**");
         md.Should().Contain("**Publishing posture:** **Complete**");
         md.Should().Contain("Buyer-safe proof package contract");
+        md.Should().Contain("| Support run id | Present |");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
+        md.Should().Contain("| ROI evidence confidence | **Strong**");
         md.Should().Contain("Computed deltas (from this run)");
         md.Should().Contain("Review-cycle delta (before vs measured)");
         md.Should().Contain("v2");

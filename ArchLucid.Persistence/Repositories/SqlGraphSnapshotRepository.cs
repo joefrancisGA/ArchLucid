@@ -157,6 +157,36 @@ public sealed class SqlGraphSnapshotRepository(
         await InsertEdgePropertiesAsync(snapshot, connection, transaction, scope, ct);
     }
 
+    /// <summary>
+    ///     Child-table writes use <see cref="Microsoft.Data.SqlClient.SqlBulkCopy" />; callers must supply a
+    ///     <see cref="SqlConnection" />.
+    /// </summary>
+    private static SqlConnection RequireSqlConnection(IDbConnection connection)
+    {
+        if (connection is SqlConnection sqlConnection)
+            return sqlConnection;
+
+        throw new InvalidOperationException(
+            "Graph snapshot persistence requires Microsoft.Data.SqlClient.SqlConnection for SqlBulkCopy on child tables. "
+            + $"Received connection type '{connection?.GetType().FullName ?? "(null)"}'.");
+    }
+
+    /// <summary>
+    ///     When a transaction is supplied alongside bulk copy, it must be a SQL Client transaction on the same connection.
+    /// </summary>
+    private static SqlTransaction? RequireSqlTransactionOrNull(IDbTransaction? transaction)
+    {
+        if (transaction is null)
+            return null;
+
+        if (transaction is SqlTransaction sqlTransaction)
+            return sqlTransaction;
+
+        throw new InvalidOperationException(
+            "Graph snapshot persistence requires Microsoft.Data.SqlClient.SqlTransaction when a transaction is supplied "
+            + $"for SqlBulkCopy. Received transaction type '{transaction.GetType().FullName}'.");
+    }
+
     private static async Task InsertNodesAndPropertiesAsync(
         GraphSnapshot snapshot,
         IDbConnection connection,
@@ -164,19 +194,21 @@ public sealed class SqlGraphSnapshotRepository(
         ScopeContext scope,
         CancellationToken ct)
     {
-        List<(Guid RowId, GraphNode Node, int SortOrder)> planned =
-            GraphSnapshotSqlBulkInsert.PlanNodeRows(snapshot);
+        SqlConnection sqlConnection = RequireSqlConnection(connection);
+        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
 
-        await GraphSnapshotSqlBulkInsert.InsertNodeRowsAsync(
+        List<(Guid RowId, GraphNode Node, int SortOrder)> planned = GraphSnapshotSqlBulkCopy.PlanNodeRows(snapshot);
+
+        await GraphSnapshotSqlBulkCopy.CopyNodeRowsAsync(
+            sqlConnection,
+            sqlTransaction,
             snapshot,
-            connection,
-            transaction,
             scope,
             planned,
             ct);
-        await GraphSnapshotSqlBulkInsert.InsertNodePropertyRowsAsync(
-            connection,
-            transaction,
+        await GraphSnapshotSqlBulkCopy.CopyNodePropertyRowsAsync(
+            sqlConnection,
+            sqlTransaction,
             scope,
             planned,
             ct);
@@ -189,28 +221,16 @@ public sealed class SqlGraphSnapshotRepository(
         ScopeContext scope,
         CancellationToken ct)
     {
-        const string insertWarningSql = """
-                                        INSERT INTO dbo.GraphSnapshotWarnings (
-                                            GraphSnapshotId, SortOrder, WarningText, TenantId, WorkspaceId, ScopeProjectId)
-                                        VALUES (@GraphSnapshotId, @SortOrder, @WarningText, @TenantId, @WorkspaceId, @ScopeProjectId);
-                                        """;
+        SqlConnection sqlConnection = RequireSqlConnection(connection);
+        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
 
-        for (int w = 0; w < snapshot.Warnings.Count; w++)
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertWarningSql,
-                    new
-                    {
-                        snapshot.GraphSnapshotId,
-                        SortOrder = w,
-                        WarningText = snapshot.Warnings[w],
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId
-                    },
-                    transaction,
-                    cancellationToken: ct));
+        await GraphSnapshotSqlBulkCopy.CopyWarningRowsAsync(
+            sqlConnection,
+            sqlTransaction,
+            snapshot.GraphSnapshotId,
+            snapshot.Warnings,
+            scope,
+            ct);
     }
 
     private static async Task InsertIndexedEdgesAsync(
@@ -220,37 +240,17 @@ public sealed class SqlGraphSnapshotRepository(
         ScopeContext scope,
         CancellationToken ct)
     {
+        SqlConnection sqlConnection = RequireSqlConnection(connection);
+        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
+
         IReadOnlyList<GraphSnapshotEdgeRow> rows = GraphSnapshotEdgeIndexer.BuildRows(snapshot);
 
-        if (rows.Count == 0)
-            return;
-
-        const string edgeSql = """
-                               INSERT INTO dbo.GraphSnapshotEdges (
-                                   GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight,
-                                   TenantId, WorkspaceId, ScopeProjectId)
-                               VALUES (
-                                   @GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight,
-                                   @TenantId, @WorkspaceId, @ScopeProjectId);
-                               """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                edgeSql,
-                rows.Select(r => new
-                {
-                    r.GraphSnapshotId,
-                    r.EdgeId,
-                    r.FromNodeId,
-                    r.ToNodeId,
-                    r.EdgeType,
-                    r.Weight,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId
-                }),
-                transaction,
-                cancellationToken: ct));
+        await GraphSnapshotSqlBulkCopy.CopyIndexedEdgeRowsAsync(
+            sqlConnection,
+            sqlTransaction,
+            rows,
+            scope,
+            ct);
     }
 
     private static Task InsertEdgePropertiesAsync(
@@ -258,8 +258,18 @@ public sealed class SqlGraphSnapshotRepository(
         IDbConnection connection,
         IDbTransaction? transaction,
         ScopeContext scope,
-        CancellationToken ct) =>
-        GraphSnapshotSqlBulkInsert.InsertEdgePropertyRowsAsync(snapshot, connection, transaction, scope, ct);
+        CancellationToken ct)
+    {
+        SqlConnection sqlConnection = RequireSqlConnection(connection);
+        SqlTransaction? sqlTransaction = RequireSqlTransactionOrNull(transaction);
+
+        return GraphSnapshotSqlBulkCopy.CopyEdgePropertyRowsAsync(
+            sqlConnection,
+            sqlTransaction,
+            snapshot,
+            scope,
+            ct);
+    }
 
     /// <inheritdoc cref="GetByIdAsync(System.Guid,System.Threading.CancellationToken)" />
     public async Task<GraphSnapshot?> GetByIdAsync(

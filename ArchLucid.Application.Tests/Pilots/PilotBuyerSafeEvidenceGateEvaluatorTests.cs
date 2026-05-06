@@ -136,6 +136,22 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         gate.SoftGaps.Should().Contain(g => g.Contains("simulator substitution", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public void Evaluate_UnresolvedLlmTraceCount_IsPartialWithSoftGap()
+    {
+        ArchitectureRun run = CommittedRun();
+
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            MinimalManifest(),
+            MinimalDeltas(run) with { LlmCallCountResolved = false },
+            TenantCapturedSnapshot());
+
+        gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
+        gate.ProofSendability.Should().Be(ProofPackageSendability.SendableWithCaveats);
+        gate.SoftGaps.Should().Contain(g => g.Contains("not attested", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static ArchitectureRun CommittedRun() =>
         new()
         {

@@ -24,21 +24,89 @@ const mockTelemetry = vi.mocked(recordSponsorBannerFirstCommitBadge);
 
 const bannerProps = { runId: "run-42", manifestId: "manifest-fixture" } as const;
 
+function stubFetchForBannerMocks(init?: {
+  readonly trialFirstCommitUtc?: string | null;
+  readonly deltasBody?: unknown;
+  readonly deltasOk?: boolean;
+}): void {
+  const trialUtc = init?.trialFirstCommitUtc ?? null;
+  const deltasOk = init?.deltasOk ?? true;
+  const deltasBody =
+    init?.deltasBody ??
+    ({
+      isDemoTenant: false,
+      proofPackageCompleteness: {
+        demoTenantWarningRequired: false,
+        proofSendability: "Sendable",
+        publishingTier: "Complete",
+        roiEvidenceConfidence: "Strong",
+      },
+    } as const);
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/v1/tenant/trial-status")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ firstCommitUtc: trialUtc }),
+        } as Response);
+      }
+
+      if (url.includes("/pilot-run-deltas")) {
+        return Promise.resolve({
+          ok: deltasOk,
+          json: async () => deltasBody,
+        } as Response);
+      }
+
+      return Promise.reject(new Error(`unexpected fetch: ${url}`));
+    }),
+  );
+}
+
 describe("EmailRunToSponsorBanner", () => {
   beforeEach(() => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ firstCommitUtc: null }),
-      } as Response),
-    );
+    stubFetchForBannerMocks();
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.clearAllMocks();
+  });
+
+  it("renders persisted proof readiness for sendable non-demo deltas", async () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-readiness")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute("data-readiness-variant", "ready");
+  });
+
+  it("renders blocked readiness for demo-flagged completeness", async () => {
+    stubFetchForBannerMocks({
+      deltasBody: {
+        isDemoTenant: false,
+        proofPackageCompleteness: {
+          demoTenantWarningRequired: true,
+          proofSendability: "Sendable",
+          roiEvidenceConfidence: "Strong",
+        },
+      },
+    });
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-readiness")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-readiness")).toHaveAttribute("data-readiness-variant", "blocked");
   });
 
   it("renders the time-to-value heading and primary pilot scorecard CTA", async () => {
@@ -123,10 +191,32 @@ describe("EmailRunToSponsorBanner", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-03-10T14:00:00.000Z"));
     const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ firstCommitUtc: anchorIso }),
-    } as Response);
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/v1/tenant/trial-status")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ firstCommitUtc: anchorIso }),
+        } as Response);
+      }
+
+      if (url.includes("/pilot-run-deltas")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            isDemoTenant: false,
+            proofPackageCompleteness: {
+              demoTenantWarningRequired: false,
+              proofSendability: "Sendable",
+              roiEvidenceConfidence: "Strong",
+            },
+          }),
+        } as Response);
+      }
+
+      return Promise.reject(new Error(`unexpected fetch ${url}`));
+    });
 
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
@@ -144,10 +234,32 @@ describe("EmailRunToSponsorBanner", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-03-11T12:00:01.000Z"));
     const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ firstCommitUtc: anchorIso }),
-    } as Response);
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/v1/tenant/trial-status")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ firstCommitUtc: anchorIso }),
+        } as Response);
+      }
+
+      if (url.includes("/pilot-run-deltas")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            isDemoTenant: false,
+            proofPackageCompleteness: {
+              demoTenantWarningRequired: false,
+              proofSendability: "Sendable",
+              roiEvidenceConfidence: "Strong",
+            },
+          }),
+        } as Response);
+      }
+
+      return Promise.reject(new Error(`unexpected fetch ${url}`));
+    });
 
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
@@ -163,10 +275,32 @@ describe("EmailRunToSponsorBanner", () => {
   it("renders Day 4 badge when firstCommitUtc is four and a half UTC-day periods earlier", async () => {
     const nowMs = Date.now();
     const anchorIso = new Date(nowMs - 4.5 * 24 * 60 * 60 * 1000).toISOString();
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ firstCommitUtc: anchorIso }),
-    } as Response);
+    vi.mocked(fetch).mockImplementation((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/v1/tenant/trial-status")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ firstCommitUtc: anchorIso }),
+        } as Response);
+      }
+
+      if (url.includes("/pilot-run-deltas")) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            isDemoTenant: false,
+            proofPackageCompleteness: {
+              demoTenantWarningRequired: false,
+              proofSendability: "Sendable",
+              roiEvidenceConfidence: "Strong",
+            },
+          }),
+        } as Response);
+      }
+
+      return Promise.reject(new Error(`unexpected fetch ${url}`));
+    });
 
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
@@ -180,10 +314,7 @@ describe("EmailRunToSponsorBanner", () => {
   });
 
   it("hides the badge when firstCommitUtc is null", async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ firstCommitUtc: null }),
-    } as Response);
+    stubFetchForBannerMocks({ trialFirstCommitUtc: null });
 
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 
@@ -196,11 +327,36 @@ describe("EmailRunToSponsorBanner", () => {
   });
 
   it("hides the badge when trial-status returns 5xx", async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      ok: false,
-      status: 503,
-      json: async () => ({}),
-    } as Response);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input.toString();
+
+        if (url.includes("/v1/tenant/trial-status")) {
+          return Promise.resolve({
+            ok: false,
+            status: 503,
+            json: async () => ({}),
+          } as Response);
+        }
+
+        if (url.includes("/pilot-run-deltas")) {
+          return Promise.resolve({
+            ok: true,
+            json: async () => ({
+              isDemoTenant: false,
+              proofPackageCompleteness: {
+                demoTenantWarningRequired: false,
+                proofSendability: "Sendable",
+                roiEvidenceConfidence: "Strong",
+              },
+            }),
+          } as Response);
+        }
+
+        return Promise.reject(new Error(`unexpected fetch: ${url}`));
+      }),
+    );
 
     render(<EmailRunToSponsorBanner {...bannerProps} />);
 

@@ -55,7 +55,7 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
-        int llmCallCount = await TryCountLlmCallsAsync(runId, cancellationToken);
+        (int llmCallCount, bool llmCallCountResolved) = await TryCountLlmCallsAsync(runId, cancellationToken);
         (int auditCount, bool auditTruncated) = await TryCountAuditRowsAsync(runId, cancellationToken);
         FindingEvidenceChainResponse? chain = topFinding is null ? null : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
@@ -69,6 +69,7 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
             AuditRowCount = auditCount,
             AuditRowCountTruncated = auditTruncated,
             LlmCallCount = llmCallCount,
+            LlmCallCountResolved = llmCallCountResolved,
             TopFindingId = topFinding?.FindingId,
             TopFindingSeverity = topFinding?.Severity.ToString(),
             TopFindingEvidenceChain = chain,
@@ -113,17 +114,17 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity).FirstOrDefault();
     }
 
-    private async Task<int> TryCountLlmCallsAsync(string runId, CancellationToken cancellationToken)
+    private async Task<(int Count, bool Resolved)> TryCountLlmCallsAsync(string runId, CancellationToken cancellationToken)
     {
         try
         {
             IReadOnlyList<AgentExecutionTrace> traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
-            return traces.Count;
+            return (traces.Count, true);
         }
         catch (Exception ex)when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Pilot delta: LLM call count unavailable for run {RunId}; reporting 0.", runId);
-            return 0;
+            return (0, false);
         }
     }
 

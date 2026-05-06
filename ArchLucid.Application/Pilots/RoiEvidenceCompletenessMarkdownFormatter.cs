@@ -1,8 +1,10 @@
 using System.Globalization;
 using System.Text;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.ValueReports;
 
 namespace ArchLucid.Application.Pilots;
+
 /// <summary>ROI evidence-confidence block appended to sponsor first-value-report Markdown alongside baseline tables.</summary>
 public static class RoiEvidenceCompletenessMarkdownFormatter
 {
@@ -22,22 +24,47 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         sb.AppendLine();
     }
 
-    internal static (string Headline, string Body) Describe(ValueReportSnapshot snapshot) => snapshot.ReviewCycleBaselineProvenance switch
+    internal static (string Headline, string Body) Describe(ValueReportSnapshot snapshot)
     {
-        ReviewCycleBaselineProvenance.TenantSuppliedAtSignup => DescribeTenantCaptured(snapshot, "Strong", "Tenant supplied baseline review-cycle hours at signup"),
-        ReviewCycleBaselineProvenance.TenantSuppliedViaSettings => DescribeTenantCaptured(snapshot, "Strong", "Tenant maintained baseline inputs via baseline settings"),
-        ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions => ("Partial", "Baseline hours **default from repository ROI model assumptions** (`docs/library/PILOT_ROI_MODEL.md`). " + "**Do not quote customer-specific savings** without tenant-captured baselines."),
-        ReviewCycleBaselineProvenance.NoMeasurementYet or _ => ("Low confidence", "No tenant baseline measurements were captured for this cohort window; treat ROI tables as " + "**illustrative / internal planning only** unless operators attach external baseline artefacts.")};
-    private static (string Headline, string Body) DescribeTenantCaptured(ValueReportSnapshot snapshot, string headline, string headlinePrefix)
+        ArgumentNullException.ThrowIfNull(snapshot);
+        PilotRoiEvidenceConfidence tier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
+        string headline = tier.ToString();
+
+        string body = tier switch
+        {
+            PilotRoiEvidenceConfidence.Strong => BuildStrongTierBody(snapshot),
+            PilotRoiEvidenceConfidence.Partial =>
+                "Baseline hours **default from repository ROI model assumptions** (`docs/library/PILOT_ROI_MODEL.md`). "
+                + "**Do not quote customer-specific savings** without tenant-captured baselines.",
+            PilotRoiEvidenceConfidence.Low or _ =>
+                "No tenant baseline measurements were captured for this cohort window; treat ROI tables as "
+                + "**illustrative / internal planning only** unless operators attach external baseline artefacts.",
+        };
+
+        return (headline, body);
+    }
+
+    private static string BuildStrongTierBody(ValueReportSnapshot snapshot)
     {
-        List<string> parts = [$"{headlinePrefix}."];
+        ReviewCycleBaselineProvenance p = snapshot.ReviewCycleBaselineProvenance;
+        string prefix = p switch
+        {
+            ReviewCycleBaselineProvenance.TenantSuppliedAtSignup => "Tenant supplied baseline review-cycle hours at signup",
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings => "Tenant maintained baseline inputs via baseline settings",
+            _ => "Tenant-captured baseline",
+        };
+
+        List<string> parts = [$"{prefix}."];
+
         if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } cap)
             parts.Add($"**Captured UTC:** `{cap.ToString("O", CultureInfo.InvariantCulture)}`.");
+
         if (snapshot.TenantBaselineManualPrepHoursPerReview is { } manual)
             parts.Add($"**Manual prep hrs/review:** `{manual.ToString(CultureInfo.InvariantCulture)}`.");
+
         if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource))
             parts.Add($"**Source note:** {snapshot.TenantBaselineReviewCycleSource.Trim()}");
-        string body = string.Join(" ", parts);
-        return (headline, body);
+
+        return string.Join(" ", parts);
     }
 }

@@ -19,6 +19,10 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import {
+  describeSponsorProofReadiness,
+  type PilotRunDeltasProofSummaryJson,
+} from "@/lib/pilot-proof-readiness";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
@@ -30,6 +34,12 @@ export type EmailRunToSponsorBannerProps = {
 type TrialStatusPayload = {
   firstCommitUtc?: string | null;
 };
+
+type ProofGateState =
+  | { status: "skipped" }
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "ok"; payload: PilotRunDeltasProofSummaryJson };
 
 function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
   const commitMs = new Date(firstCommitIso).getTime();
@@ -57,6 +67,7 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
     correlationId: string | null;
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
+  const [proofGate, setProofGate] = useState<ProofGateState>({ status: "loading" });
   const telemetrySentRef = useRef(false);
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
@@ -66,60 +77,74 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
   useEffect(() => {
     let cancelled = false;
 
-    async function loadTrialStatus(): Promise<void> {
+    async function loadSidecars(): Promise<void> {
       if (AUTH_MODE !== "development-bypass" && isJwtAuthMode() && !isLikelySignedIn()) {
+        if (!cancelled) setProofGate({ status: "skipped" });
+
         return;
       }
 
+      if (!cancelled) setProofGate({ status: "loading" });
+
+      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
+      const deltasUrl = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`;
+
       try {
-        const res = await fetch(
-          "/api/proxy/v1/tenant/trial-status",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
+        const [trialRes, deltasRes] = await Promise.all([
+          fetch("/api/proxy/v1/tenant/trial-status", headers),
+          fetch(deltasUrl, headers),
+        ]);
 
-        if (!res.ok) {
-          return;
+        if (cancelled) return;
+
+        if (trialRes.ok) {
+          try {
+            const json = (await trialRes.json()) as TrialStatusPayload;
+            const iso = json.firstCommitUtc;
+
+            if (typeof iso !== "string" || iso.length === 0) {
+              setBadgeDayN(null);
+            } else {
+              const n = computeUtcDayN(iso, Date.now());
+
+              if (n === null) {
+                setBadgeDayN(null);
+              } else {
+                if (!telemetrySentRef.current) {
+                  telemetrySentRef.current = true;
+                  recordSponsorBannerFirstCommitBadge(n);
+                }
+
+                setBadgeDayN(n);
+              }
+            }
+          } catch {
+            /* badge optional */
+          }
         }
 
-        const json = (await res.json()) as TrialStatusPayload;
+        if (deltasRes.ok) {
+          try {
+            const deltasJson = (await deltasRes.json()) as PilotRunDeltasProofSummaryJson;
 
-        if (cancelled) {
-          return;
+            if (!cancelled) setProofGate({ status: "ok", payload: deltasJson });
+          } catch {
+            if (!cancelled) setProofGate({ status: "error" });
+          }
+        } else if (!cancelled) {
+          setProofGate({ status: "error" });
         }
-
-        const iso = json.firstCommitUtc;
-
-        if (typeof iso !== "string" || iso.length === 0) {
-          setBadgeDayN(null);
-
-          return;
-        }
-
-        const n = computeUtcDayN(iso, Date.now());
-
-        if (n === null) {
-          setBadgeDayN(null);
-
-          return;
-        }
-
-        if (!telemetrySentRef.current) {
-          telemetrySentRef.current = true;
-          recordSponsorBannerFirstCommitBadge(n);
-        }
-
-        setBadgeDayN(n);
       } catch {
-        /* graceful: banner without badge */
+        if (!cancelled) setProofGate({ status: "error" });
       }
     }
 
-    void loadTrialStatus();
+    void loadSidecars();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [runId]);
 
   async function onDownloadPdf(): Promise<void> {
     setBusy(true);
@@ -145,6 +170,8 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
       setBusy(false);
     }
   }
+
+  const readinessCopy = proofGate.status === "ok" ? describeSponsorProofReadiness(proofGate.payload) : null;
 
   return (
     <aside
@@ -193,6 +220,47 @@ export function EmailRunToSponsorBanner({ runId, manifestId }: EmailRunToSponsor
         </a>
         . Exports below reuse existing API routes — the hosted API remains authoritative for entitlements.
       </p>
+
+      {proofGate.status === "skipped" ? null : proofGate.status === "loading" ? (
+        <p
+          className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="email-run-to-sponsor-readiness-loading"
+          aria-busy
+        >
+          Loading persisted proof gate…
+        </p>
+      ) : proofGate.status === "error" ? (
+        <p
+          className="m-0 mt-3 text-xs font-medium text-amber-800 dark:text-amber-200"
+          data-testid="email-run-to-sponsor-readiness-error"
+        >
+          Could not load proof completeness — open the first-value report before sponsor send.
+        </p>
+      ) : !readinessCopy ? (
+        <p
+          className="m-0 mt-3 text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="email-run-to-sponsor-readiness-incomplete"
+        >
+          Proof completeness block missing from API — use the first-value report as the source of truth.
+        </p>
+      ) : (
+        <div
+          data-testid="email-run-to-sponsor-readiness"
+          data-readiness-variant={readinessCopy.variant}
+          className={
+            readinessCopy.variant === "blocked"
+              ? "mt-3 rounded-md border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-600 dark:bg-amber-950/50 dark:text-amber-50"
+              : readinessCopy.variant === "caveats"
+                ? "mt-3 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 text-sm text-yellow-950 dark:border-yellow-600 dark:bg-yellow-950/40 dark:text-yellow-50"
+                : readinessCopy.variant === "ready"
+                  ? "mt-3 rounded-md border border-teal-500 bg-white/90 px-3 py-2 text-sm text-teal-950 dark:border-teal-600 dark:bg-teal-950/30 dark:text-teal-50"
+                  : "mt-3 rounded-md border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-100"
+          }
+        >
+          <p className="m-0 font-semibold leading-snug">{readinessCopy.title}</p>
+          <p className="m-0 mt-1 text-xs leading-relaxed opacity-90">{readinessCopy.detail}</p>
+        </div>
+      )}
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <Button
