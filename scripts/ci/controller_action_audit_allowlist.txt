@@ -32,6 +32,8 @@ ArchLucid.Api.Controllers.Authority.FastPathContextController.PostPreview
 ArchLucid.Api.Controllers.Authority.ExportsController.ReplayExportRecordMetadata
 # Durable audit: ImportRequestFileService logs RequestFileImported (AUDIT_COVERAGE_MATRIX architecture request import row).
 ArchLucid.Api.Controllers.Authority.ImportRequestFileController.ImportAsync
+# Durable audit: AzureExtractorIngestService logs AzureExtractorPackageUploaded / ParseFailed / SchemaRejected / IngestSucceeded via IAuditService.LogAsync.
+ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController.UploadAsync
 ArchLucid.Api.Controllers.Authority.RunComparisonController.CompareRunsEndToEndSummary
 ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun

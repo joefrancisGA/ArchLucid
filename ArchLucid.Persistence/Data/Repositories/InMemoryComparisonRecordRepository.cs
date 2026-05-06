@@ -350,7 +350,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             Notes = r.Notes,
             CreatedUtc = r.CreatedUtc,
             Label = r.Label,
-            Tags = r.Tags is null ? [] : [.. r.Tags]
+            Tags = [.. r.Tags]
         };
     }
 }
