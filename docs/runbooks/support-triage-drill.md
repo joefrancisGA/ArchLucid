@@ -1,3 +1,5 @@
+> **Scope:** For operators practicing support triage, routing, and evidence capture; not a full incident response plan or subsystem-specific deep runbook.
+
 # Support triage drill (operator)
 
 **Objective:** Practice routing customer-impacting issues to the right owner with evidence, without guessing at root cause.
