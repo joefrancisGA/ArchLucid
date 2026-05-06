@@ -15,6 +15,25 @@ import { startMockArchlucidApiServer } from "./mock-archlucid-api-server";
 const MOCK_PORT = Number(process.env.E2E_MOCK_API_PORT ?? "18765");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
 
+/** Mock E2E and screenshot runs expect the static operator fallback when demo mode is on — avoid accidental half-config. */
+function assertDemoStaticOperatorNotDisabledWithDemoMode(): void {
+  const demoRaw = (process.env.NEXT_PUBLIC_DEMO_MODE ?? "").trim().toLowerCase();
+  const demoOn = demoRaw === "true" || demoRaw === "1";
+
+  if (!demoOn) {
+    return;
+  }
+
+  const staticRaw = (process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR ?? "").trim().toLowerCase();
+
+  if (staticRaw === "false" || staticRaw === "0") {
+    throw new Error(
+      "Refusing to start mock E2E: NEXT_PUBLIC_DEMO_STATIC_OPERATOR is disabled while NEXT_PUBLIC_DEMO_MODE is on. " +
+        "Operator demo routes will not match static showcase parity. Set NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true or disable demo mode.",
+    );
+  }
+}
+
 function syncStandaloneRuntimeAssets(projectRoot: string): string {
   const standaloneRoot = path.join(projectRoot, ".next", "standalone");
   const serverJs = path.join(standaloneRoot, "server.js");
@@ -65,6 +84,8 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
 }
 
 async function main(): Promise<void> {
+  assertDemoStaticOperatorNotDisabledWithDemoMode();
+
   const mock = await startMockArchlucidApiServer(MOCK_PORT);
 
   const projectRoot = process.cwd();

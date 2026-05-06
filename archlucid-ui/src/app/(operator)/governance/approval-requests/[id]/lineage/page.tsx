@@ -85,7 +85,7 @@ export default function GovernanceApprovalLineagePage() {
       <div className="space-y-4">
         <DemoUnavailableNotice
           title="Approval lineage"
-          description="Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example run instead."
+          description="Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example review instead."
           learnMoreHref="/governance/findings"
           learnMoreLabel="Governance findings"
         />
@@ -162,7 +162,7 @@ export default function GovernanceApprovalLineagePage() {
             ) : null}
           </div>
           <div>
-            <span className="text-muted-foreground">Run</span>{" "}
+            <span className="text-muted-foreground">Review</span>{" "}
             <Link
               className="font-mono text-xs underline-offset-4 hover:underline"
               href={`/reviews/${encodeURIComponent(a.runId)}`}
@@ -190,8 +190,8 @@ export default function GovernanceApprovalLineagePage() {
       {data.run ? (
         <Card>
           <CardHeader>
-            <CardTitle>Coordinator run</CardTitle>
-            <CardDescription>Architecture run summary</CardDescription>
+            <CardTitle>Coordinator review</CardTitle>
+            <CardDescription>Architecture review summary</CardDescription>
           </CardHeader>
           <CardContent className="text-sm">
             <div>Status {data.run.status}</div>
@@ -210,7 +210,7 @@ export default function GovernanceApprovalLineagePage() {
         <Card>
           <CardHeader>
             <CardTitle>Reviewed manifest</CardTitle>
-            <CardDescription>When the run id maps to a finalized manifest in scope</CardDescription>
+            <CardDescription>When the review id maps to a finalized manifest in scope</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>

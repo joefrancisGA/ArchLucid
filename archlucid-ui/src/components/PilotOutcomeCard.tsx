@@ -88,7 +88,8 @@ export function PilotOutcomeCard() {
           Pilot health (last 30 days)
         </h2>
         <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-          After your first finalized run, this panel will show success rates, finalized manifests, and time-to-finalization trends.
+          After your first finalized review, this panel will show success rates, finalized manifests, and
+          time-to-finalization trends.
         </p>
       </section>
     );
@@ -118,7 +119,7 @@ export function PilotOutcomeCard() {
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{inPeriod}</dd>
-        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Reviews (period)</dt>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Reviews (period)</dt>
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{withManifest}</dd>
