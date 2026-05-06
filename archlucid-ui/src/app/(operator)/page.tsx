@@ -8,6 +8,7 @@ import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCore
 import { SampleFirstReviewPackageCard } from "@/components/SampleFirstReviewPackageCard";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
+import { OperatorCoArchitectHomeStrip } from "@/components/OperatorCoArchitectHomeStrip";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
@@ -28,6 +29,7 @@ export default function HomePage() {
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
+      <OperatorCoArchitectHomeStrip />
       <WelcomeBanner />
       
       <ValueRealizationDashboard />

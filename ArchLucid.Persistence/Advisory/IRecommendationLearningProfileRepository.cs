@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Learning;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Persistence.Advisory;
 
 public interface IRecommendationLearningProfileRepository
 {

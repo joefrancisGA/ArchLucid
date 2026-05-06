@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;

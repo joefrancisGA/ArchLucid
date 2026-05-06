@@ -14,7 +14,7 @@
 
 The commercial story is strongest when sold as "faster architecture review with evidence-linked outputs." Pricing, ROI logic, sponsor artifacts, public demo surfaces, quote request flow, trial material, and buyer-safe trust packaging exist. The weak point is buyer proof density: the product can describe ROI and generate first-value reports, but it still depends heavily on a controlled pilot to produce customer-specific proof.
 
-**Azure spend positioning:** Expect many buyers to rationalize adoption around **measurable Azure savings** (right-sizing, waste removal, preventable drift). Anything sold that way **must** show **exact** monetary figures—not ranges or vague "approximate savings"—and **every** such figure **must** be **citation-backed** (billing export line, Retail price sheet with SKU + region + effective date, in-product meter or token ledger with frozen rate-table version and formula, finding or manifest excerpt tying the recommendation to billed scope, etc.). Omit or visibly block those claims when citations cannot be produced.
+**Azure spend positioning:** Expect many buyers to rationalize adoption around **measurable Azure savings** (right-sizing, waste removal, preventable drift). The **default commercial bar** remains **exact** monetary figures—not hand-wavy totals—and **citation-backed** proof where a dollar is asserted as **customer bill truth** (billing export line, Retail price sheet with SKU + region + effective date, in-product meter or token ledger with frozen rate-table version and formula, finding or manifest excerpt tying the recommendation to billed scope, etc.). **Exceptions** are acceptable when **justified**: for example labeled **estimate** or **scenario** modes with stated inputs, formulae, and what evidence is missing; qualitative FinOps outcomes without asserting a reconciliation-grade total; sensitivity or bound tables that do not impersonate invoice precision; or an explicit **blocked / evidence gap** panel that explains why invoice-grade citation is unavailable. Omitting content is optional; misrepresenting an uncited estimate as exact savings is not.
 
 ### Enterprise Picture
 
@@ -22,7 +22,7 @@ Enterprise posture is materially better than a typical early product: Entra/JWT/
 
 ### Engineering Picture
 
-Engineering depth is real: modular .NET projects, Dapper/DbUp persistence, extensive test tiers, OpenAPI snapshot checks, live UI/API E2E lanes, k6 smoke, chaos tests, security scans, audit matrix guards, and Azure IaC material. The main risks are not "missing basic engineering"; they are system complexity, duplicated persistence seams, live deployment variability, first-party connector maturity, and the correctness challenge of AI-assisted recommendations.
+Engineering depth is real: modular .NET projects, Dapper/DbUp persistence, extensive test tiers, OpenAPI snapshot checks, live UI/API E2E lanes, k6 smoke, chaos tests, security scans, audit matrix guards, and Azure IaC material. The main risks are not "missing basic engineering"; they are system complexity, duplicated persistence seams, live deployment variability, first-party connector maturity, the correctness challenge of AI-assisted recommendations, and—when positioning on **Azure spend**—building **exact citation-backed proof** pipelines FinOps reviewers expect.
 
 ## Weighted Quality Assessment
 
@@ -322,7 +322,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 - **Weighted impact on readiness:** 0.62%
 - **Justification:** The product asks users to understand many layers and artifacts. The docs try to mitigate this with Pilot/Operate and progressive disclosure, but the mental model is still dense.
 - **Tradeoffs:** Enterprise capability breadth creates unavoidable vocabulary.
-- **Improvement recommendations:** Rewrite first-session UI and docs around "architecture review" first, with run/manifest vocabulary secondary.
+- **Improvement recommendations:** Position the product as **"your AI co-architect"** above two intent-shaped front doors — **"describe what you want"** (generative authoring → architecture documents and diagrams) for non-technical users and **"review an existing architecture"** for business analysts, developers, and IT managers — both converging on the same evidence/deliverable bundle. Keep run/manifest vocabulary as metadata, not primary copy.
 - **Disposition:** Fixable in V1.
 
 ### 28. Stickiness
@@ -375,9 +375,9 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 - **Weight:** 1
 - **Weighted deficiency signal:** 30
 - **Weighted impact on readiness:** 0.69%
-- **Justification:** Cost model, LLM budget controls, k6/perf material, Azure budgets, and FinOps tags exist. GTM ambition to sell **Azure spend reduction** raises the bar: buyer-facing totals should be **exact** (not bands) and **citation-backed** to survive FinOps and procurement scrutiny; cost effectiveness is not fully proven until real workloads—and reports—establish token, compute, and Azure delta lines with immutable proof pointers.
-- **Tradeoffs:** Azure-native enterprise posture costs more than a minimal app; paradoxically, credible FinOps ROI requires disciplined proof, not bolder rounding.
-- **Improvement recommendations:** Add per-run and per-finding economics to operator and sponsor outputs; pair every dollar with **proof points** (meter id or usage row, Retail page URL + effective date + SKU, rate table checksum, correlating citation from findings/graph/manifest).
+- **Justification:** Cost model, LLM budget controls, k6/perf material, Azure budgets, and FinOps tags exist. GTM ambition to sell **Azure spend reduction** raises the bar: when asserting **bill truth**, buyer-facing totals should be **exact** and **citation-backed**; controlled **exceptions** (labeled scenarios, partial Retail math, qualitative waste, explicit evidence gaps) remain acceptable when justified and not misrepresented as reconciliation-grade savings.
+- **Tradeoffs:** Azure-native enterprise posture costs more than a minimal app; paradoxically, credible FinOps ROI requires disciplined proof and honest presentation modes, not bolder rounding.
+- **Improvement recommendations:** Add per-run and per-finding economics to operator and sponsor outputs; pair **invoice-backed** dollars with **proof points** (meter id or usage row, Retail page URL + effective date + SKU, rate table checksum, correlating citation from findings/graph/manifest); for other modes, require visible **mode labels** and methodology text per improvement #8.
 - **Disposition:** Fixable in V1/V1.1.
 
 ### 33. Scalability
@@ -547,7 +547,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 9. **Maintenance complexity:** historical seams and many modules increase the cost of change.
 10. **Route/tier/policy/nav drift risk:** the product already has guards, but any new operator surface has multiple alignment points.
 11. **Performance proof breadth:** k6 smoke and SLOs exist, but route-class production performance proof is still thin.
-12. **Customer self-sufficiency gap:** docs are rich, but a buyer may still require guided onboarding to avoid misconfiguration and misinterpretation.
+12. **Exact citation-backed Azure cost proof:** Selling **Azure spend reduction** loses credibility if sponsor or FinOps outputs imply **invoice-grade** totals from **ranges**, **silent estimates**, or **dollars that cannot trace to metering, Retail rates, billing exports, or finding-level evidence**—unless the output is explicitly in a **justified non-invoice mode** (scenario, labeled estimate, qualitative) per improvement #8.
 
 ## Top 6 Monetization Blockers
 
@@ -556,7 +556,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 3. **Complex first-session story that can slow champion creation.**
 4. **Workflow fit questions when Jira/ServiceNow/Confluence/Slack expectations arise.**
 5. **Procurement friction from self-attested assurance posture.**
-6. **Potential mismatch between value pricing and buyer confidence without external references.**
+6. **Potential mismatch between value pricing and buyer confidence without external references,** compounded when **Azure spend / savings narratives** claim **exact bill reconciliation** without **citations**—or lack an explicit **justified exception** framing when citations are incomplete.
 
 ## Top 6 Enterprise Adoption Blockers
 
@@ -578,7 +578,7 @@ Weighted deficiency signal is `Weight x (100 - Score)`. Weighted impact on readi
 
 ## Most Important Truth
 
-ArchLucid is not a toy; it is a serious V1 architecture-review product. Revenue readiness depends on proving one buyer workflow end-to-end with low friction, defensible evidence, and real enterprise tool fit—and **any Azure spend-reduction narrative must be expressed in exact figures with citation-backed proof points**, or it will undermine the FinOps buyers you are pitching.
+ArchLucid is not a toy; it is a serious V1 architecture-review product. Revenue readiness depends on proving one buyer workflow end-to-end with low friction, defensible evidence, and real enterprise tool fit—and **Azure spend-reduction** stories succeed when **invoice-backed dollars are exact with citation-backed proof points**, while **exceptions** remain sales-safe only if **labeled and justified** (methodology, assumptions, partial evidence)—not when uncited totals masquerade as FinOps reconciliation.
 
 ## Top Improvement Opportunities
 
@@ -596,11 +596,14 @@ Implement the minimum V1 first-party outbound ITSM issue creation slice for Jira
 Scope:
 - Search the existing integration code before editing. Reuse the existing ITSM correlation model, inbound sync service, audit event types, HTTP client patterns, configuration options, and Authority-shaped finding payloads.
 - Add outbound issue/incident creation services for:
-  - Jira: create an issue from an ArchLucid finding with summary, description, severity, run/finding correlation back-link, and tenant-configured project/issue type.
-  - ServiceNow: create an incident from an ArchLucid finding with short_description, description, severity/impact mapping, correlation back-link, and optional cmdb_ci behavior consistent with V1 scope.
+  - **Jira:** create an issue from an ArchLucid finding with summary, description, severity, run/finding correlation back-link, and tenant-configured project/issue type. Apply the following resolved defaults:
+    - **Project key:** two-level config — deployment-wide admin fallback + per-tenant override. If neither is set, refuse and write audit event `"Jira connector not configured: project key required."` Do not create a partial issue.
+    - **Issue type:** default `Task`; per-tenant override allowed per-severity.
+    - **Priority mapping:** Critical → `Blocker`, High → `High`, Medium → `Medium`, Low → `Low`. **Info severity: drop by default** (do not create a Jira issue); a per-tenant boolean `sendInfoSeverity` (default `false`) enables creation at `Low`.
+  - **ServiceNow:** create an incident from an ArchLucid finding with short_description, description, severity/impact mapping, correlation back-link, and optional cmdb_ci behavior consistent with V1 scope.
 - Persist a correlation record after successful creation so the existing inbound status sync can update the correct finding.
 - Emit durable audit events for successful create, failed create, and skipped/unconfigured connector attempts. Do not log secrets or full external URLs with query strings.
-- Add unit tests with fake HttpMessageHandler responses for success, 401/403, 404, 429, 5xx, malformed success response, and correlation persistence failure.
+- Add unit tests with fake HttpMessageHandler responses for success, 401/403, 404, 429, 5xx, malformed success response, and correlation persistence failure. Include cases for: unconfigured project key (audit event written, no HTTP call made), Info-severity drop when `sendInfoSeverity` is false (no issue created), Info-severity creation when `sendInfoSeverity` is true (creates at `Low` priority), and full priority-mapping coverage (Critical→Blocker, High→High, Medium→Medium, Low→Low).
 - Add API/controller or application entry points only if an existing surface does not already exist. Keep the API authoritative for role checks.
 - Update docs that describe the V1 connector behavior, especially V1 scope/integration docs if behavior changes.
 
@@ -651,11 +654,11 @@ Acceptance criteria:
 - Missing fields are shown as missing, not silently replaced by optimistic defaults.
 - Demo/seed data is clearly marked.
 - Existing first-value report behavior is reused rather than duplicated.
-- **Cost discipline:** Any customer-visible dollar amounts for workload or Azure savings are **exact** (not ranges) and each line includes **proof points** (sources as above); if proof cannot be attached, omit the dollar line or show an explicit blocked state.
+- **Cost discipline:** When a dollar is presented as **reconciled bill truth**, it is **exact** and each line includes **proof points** (sources as above). If invoice-grade citation is missing, either show an explicit **blocked** state **or** a **justified exception** presentation (labeled estimate/scenario, methodology, assumptions, and what remains uncited)—never implying audit-grade certainty.
 
 Constraints:
 - Do not invent new ROI calculations if existing model values already exist.
-- Do not present approximate, banded, or "ballpark" customer-facing totals for Azure spend deltas or savings; **exact + citations or omit**.
+- Do not pass off banded, inferred, or uncited totals as exact customer invoice savings; prefer **exact + citations**, or **explicitly justified** non-citation modes per improvement #8.
 - Do not remove or weaken demo-data warnings.
 - Do not add customer names or reference claims.
 ```
@@ -672,7 +675,7 @@ Constraints:
 Add a deployment evidence report generator for an ArchLucid hosted environment.
 
 Scope:
-- Implement a script or CLI command that collects non-secret evidence from a target base URL and local repo state.
+- Implement a script or CLI command that collects non-secret evidence from a target base URL and local repo state. **Official V1 posture:** capture evidence for **both staging and production** by running against each configured base URL and emitting **one Markdown report per environment** (filename or header must name the environment, e.g. staging / production, and echo the probe target URL).
 - Include:
   - target base URL
   - UTC timestamp
@@ -692,6 +695,7 @@ Acceptance criteria:
 - The report can be generated without printing secrets.
 - Failed probes include actionable next steps.
 - The report explicitly says it is environment evidence, not a global product certification.
+- When documenting the V1 rollout, **staging and production** each have at least one generated report on file (or documented command invocation) with matching environment naming.
 
 Constraints:
 - Do not require Azure credentials for the first version.
@@ -699,31 +703,41 @@ Constraints:
 - Do not include raw connection strings, API keys, bearer tokens, or Key Vault secret values.
 ```
 
-### 4. Reduce first-session cognitive load in the operator UI
+### 4. Reduce first-session cognitive load in the operator UI (co-architect, dual front-door)
 
-- **Why it matters:** Adoption friction and cognitive load are among the largest current readiness drag factors.
-- **Expected impact:** Directly improves Adoption Friction (+5-8 pts), Usability (+6-8 pts), Cognitive Load (+10-15 pts), Time-to-Value (+2-4 pts). Weighted readiness impact: +0.5-0.8%.
-- **Affected qualities:** Adoption Friction, Usability, Cognitive Load, Time-to-Value, Customer Self-Sufficiency.
+- **Why it matters:** Adoption friction and cognitive load are among the largest current readiness drag factors. The product is positioned as **"your AI co-architect"** above **two distinct entry intents** — non-technical users want to **describe what they want** and have ArchLucid co-author architecture documents and diagrams through a guided question/answer loop, while technical users (business analysts, developers, IT managers) want to **review an existing architecture** for issues, gaps, and improvements. A single dominant label (e.g. only "architecture review") will mis-frame the product for half its audience.
+- **Expected impact:** Directly improves Adoption Friction (+5-8 pts), Usability (+6-8 pts), Cognitive Load (+10-15 pts), Time-to-Value (+2-4 pts), Marketability (+2-3 pts). Weighted readiness impact: +0.5-0.8%.
+- **Affected qualities:** Adoption Friction, Usability, Cognitive Load, Time-to-Value, Customer Self-Sufficiency, Marketability.
 - **Status:** Fully actionable now.
 - **Cursor prompt:**
 
 ```text
-Tighten the first-session operator UI around one Core Pilot path.
+Tighten the first-session operator UI around the "AI co-architect" umbrella with two coherent entry intents that converge on the same evidence-bundle review.
+
+Umbrella positioning (use consistently in copy, hero, and onboarding):
+- Brand line: **"ArchLucid — your AI co-architect."**
+- Role noun: **"co-architect"** (do not call the product a co-pilot, co-author, assistant, or generic AI in primary buyer copy).
+- Surface noun (optional internal naming): **"Workspace"** for the room; "co-architect" is the role inside it.
 
 Scope:
-- Inspect the operator home, onboarding, new run, runs list, run detail, and post-commit surfaces.
-- Keep buyer-facing language centered on "architecture review"; keep "run id" as metadata/support language.
-- Add or refine concise guidance that tells the user:
-  1. create an architecture review,
-  2. execute it,
-  3. commit it,
-  4. review the evidence bundle/artifacts.
-- De-emphasize Operate/governance/replay/graph concepts until after the first committed manifest.
-- Reuse existing LayerHeader, useNavSurface, layer-guidance, nav-config, and authority-shaped UI patterns.
-- Add/adjust Vitest tests for the first-session guidance and nav behavior.
+- Inspect the operator home, onboarding, new-object creation, list views, detail view, and post-commit surfaces.
+- Recognize **two front doors** above the **same refinement → coherent deliverables → review** loop:
+  1. **"Describe what you want"** — generative authoring intent for non-technical users (loose notes / goals → conversational Q&A with the co-architect → coherent architecture documents and diagrams → review).
+  2. **"Review an existing architecture"** — analytical intent for business analysts, developers, and IT managers (existing system → conversational refinement of inputs with the co-architect → findings, evidence, and improvement recommendations → review).
+- Keep "run", "manifest", "artifact", and similar engineering terms as **metadata/support language**, not primary buyer copy on either front door.
+- For the generative front door, prefer language like "describe", "draft", "co-architect with you", "diagrams and documents", "questions and answers", "coherent set of deliverables".
+- For the analytical front door, prefer language like "architecture review", "findings", "evidence", "recommendations", "your co-architect's assessment".
+- **V1 sequencing (product decision):** Operator home and welcome **lead with the architecture review door** (primary CTA and copy). The describe door is a **secondary CTA**; both may target the same `/reviews/new` entry (optional `?intent=describe` for future wizard branching). Persist last-clicked intent in `localStorage` when helpful.
+- On home, ship an **always-visible co-architect strip** plus welcome-banner copy aligned with the umbrella (avoid duplicating the full brand line twice in competing heroes—one primary surface owns the umbrella line).
+- Add a single first-session **intent strip or equivalent** so both paths are visible without a blocking modal; both intents reach the same review surface for the final deliverable bundle.
+- De-emphasize Operate/governance/replay/graph concepts until after the first committed deliverable bundle.
+- Reuse existing LayerHeader, useNavSurface, layer-guidance, nav-config, and authority-shaped UI patterns; do not fork the navigation tree.
+- Add/adjust Vitest tests for the first-session guidance, intent affordances, copy variants, umbrella role-noun consistency, and nav behavior.
 
 Acceptance criteria:
-- A new user can identify the next Core Pilot action from Home and run detail without reading docs.
+- A non-technical user can start from "describe what you want" and reach a coherent deliverable bundle without learning the words "run" or "manifest".
+- A technical user starts from **architecture review** as the **primary** home CTA (V1 lead) and reaches the deliverable/evidence bundle without being forced through generative-only prompts.
+- The phrase "co-architect" appears on home and in at least one in-product checklist moment; the words "co-pilot", "assistant", and "AI helper" do not appear in primary buyer copy.
 - Existing authority/tier/nav invariants remain intact.
 - No API authorization behavior changes.
 
@@ -731,6 +745,8 @@ Constraints:
 - Do not rename REST routes, DTOs, database entities, or support identifiers.
 - Do not remove advanced capabilities; only change first-session hierarchy and copy.
 - Do not bypass existing nav/authority helper modules.
+- Do not collapse the two intents into a single label that erases the generative authoring story for non-technical users.
+- Do not introduce competing role-nouns (co-pilot, co-author, assistant) in primary buyer copy.
 ```
 
 ### 5. Add connector contract tests for Slack, Confluence, Jira, and ServiceNow
@@ -839,37 +855,41 @@ Constraints:
 - Do not make the report a replacement for startup validation.
 ```
 
-### 8. Add route-class performance and cost visibility
+### 8. Add route-class performance and exact citation-backed cost visibility
 
-- **Why it matters:** Buyers and operators need to understand latency and unit economics for normal reads/writes versus AI-augmented work.
-- **Expected impact:** Directly improves Performance (+6-8 pts), Cost-Effectiveness (+5-7 pts), Observability (+2-4 pts), Executive Value Visibility (+1-2 pts). Weighted readiness impact: +0.3-0.5%.
-- **Affected qualities:** Performance, Cost-Effectiveness, Observability, Reliability.
+- **Why it matters:** Operators need latency routing; FinOps-heavy buyers rationalize adoption with **measurable Azure workload savings.** That selling motion should lead with **citation-backed exact dollars** when claiming **invoice-level** certainty; otherwise use **labeled, justified** modes (scenario, Retail-calculated estimate, qualitative waste classes, bounded sensitivity) so sponsors see honesty under missing billing extracts. Procurement risk comes from implied precision—not from every bullet requiring omission.
+- **Expected impact:** Directly improves Cost-Effectiveness (+8-11 pts), Trustworthiness (+3-5 pts), Performance (+6-8 pts), Proof-of-ROI Readiness (+4-6 pts), Observability (+2-4 pts). Weighted readiness impact: +0.5-0.8%.
+- **Affected qualities:** Cost-Effectiveness, Trustworthiness, Performance, Proof-of-ROI Readiness, Observability, Executive Value Visibility.
 - **Status:** Fully actionable now.
 - **Cursor prompt:**
 
 ```text
-Add route-class performance and per-run cost visibility using existing telemetry patterns.
+Add route-class performance visibility and exact citation-backed cost reporting for customer- and sponsor-facing surfaces.
+
+Product rule (customer-visible spend / savings):
+- **Default:** **Exact** monetary amounts with **mandatory citations** on each asserted bill-truth line: link or pointer to the proof pack (meter id and export row, Azure Retail price page URL + SKU + region + currency + effective date, in-repo rate table id + version + SHA, token histogram row ids + formula, finding id + evidence chain that ties to the billed resource scope, etc.).
+- **No impersonation:** Do not use "about", "~", or silent bands while claiming reconciliation-grade certainty.
+- **Justified exceptions** when citations are incomplete: emit a labeled **presentation mode** (e.g. `Invoice-backed`, `Retail-rate scenario`, `ArchLucid-metered only`, `Qualitative`) plus methodology text, inputs, uncertainty, and the evidence gap—**or** a **blocked—missing citation** state. You may retain the narrative bullet; it must carry that justification rather than implying exact audited savings without proof.
 
 Scope:
-- Inspect existing OTel metrics, k6 scripts, LLM cost estimation, and first-value/value report outputs.
-- Classify key routes into existing latency tiers where possible: infrastructure, synchronous API, AI-augmented, async/polling.
-- Add or extend metrics/reporting so a run summary can show:
-  - estimated LLM cost
-  - LLM call count
-  - run duration / time to commit
-  - route-class latency notes if available
+- Inspect existing OTel metrics, k6 scripts, LLM cost estimation (token counts x rates), first-value/value report outputs, and any Azure cost playbooks.
+- Classify key routes into existing latency tiers: infrastructure, synchronous API, AI-augmented, async/polling.
+- Extend run/sponsor/FinOps-oriented outputs with:
+  - exact ArchLucid LLM run cost (derived from measured tokens x declared rate table version; show the arithmetic and cite the table row)
+  - optional customer Azure delta lines **only** when upstream usage or billing extracts are attached as citations (do not infer customer Azure bills from ArchLucid alone without stated assumptions)
+  - route-class latency notes from existing telemetry
 - Extend k6 or reporting docs to map thresholds to route classes.
-- Add tests for cost formatting and missing-cost cases.
+- Add tests that fail when a customer-facing total is emitted in **invoice-backed** (or equivalent) mode without a citation block; add tests that justified **scenario/estimate** lines include mode + methodology markers; tests for redaction and missing-input blocked states.
 
 Acceptance criteria:
 - Operators can distinguish product slowness from expected AI/async duration.
-- Sponsor-facing reports do not overstate cost precision.
-- Metrics and docs use consistent route-class names.
+- Sponsor/FinOps exports: invoice-backed lines are **exact** with a **proof points** subsection; non-citation lines are **labeled** per exception rules and cannot default to implying bill truth.
+- No silent banded cost or uncited savings pretending to be exact invoice reconciliation.
 
 Constraints:
-- Do not add a billing line item.
-- Do not call external pricing APIs.
-- Do not fail existing tests due to missing optional telemetry.
+- Do not add a billing line item to Stripe or Marketplace.
+- Optional: allow pulling public Azure Retail reference prices when documented and versioned; do not silently call unbounded external pricing APIs without caching version metadata.
+- Do not fail existing tests when optional customer billing inputs are absent (blocked state is OK).
 ```
 
 ### 9. Create a buyer decision packet generator
@@ -905,6 +925,7 @@ Constraints:
 - Do not add buyer-specific names to committed files.
 - Do not weaken existing pricing single-source guards.
 - Do not import external score baselines.
+- If the packet mentions **Azure spend reduction** or customer workload dollars, figures follow improvement #8: **default** exact + citation proof points where bill truth is asserted; **exceptions** allowed if the bullet carries an explicit justification (mode label, assumptions, cited partial evidence, gaps)—never implying invoice-grade precision without the proof trail.
 ```
 
 ### 10. Add a first-value live-model evidence capture lane
@@ -927,7 +948,7 @@ Scope:
   - verifies real-mode prerequisites without printing secrets
   - assumes **gpt-4o** as the deployment for real-model evidence runs (fail closed or warn loudly if configuration points elsewhere)
   - runs one bounded architecture review
-  - captures run id, deployment/model identity (must show **gpt-4o** when real path succeeded), prompt version catalog, LLM call count, estimated cost, trace persistence status, findings count, and evidence completeness
+  - captures run id, deployment/model identity (must show **gpt-4o** when real path succeeded), prompt version catalog, LLM call count, **exact citation-backed** LLM cost (same proof discipline as improvement 8), trace persistence status, findings count, and evidence completeness
   - emits a Markdown evidence report
   - marks fallback-to-simulator clearly when fallback occurs
 - Add tests for report formatting, fallback markers, and redaction.
@@ -947,8 +968,10 @@ Constraints:
 
 ### Complete first-party ITSM outbound issue creation
 
-- Which Jira project key, issue type, and default priority mapping should be used for the first customer-facing environment?
-- Which ServiceNow table/custom fields beyond `incident` and optional `cmdb_ci_appl` are required by the first target buyer?
+- **Resolved (Jira project key):** Two-level config. No system-level default — a hosted-deployment admin sets a **deployment-wide fallback key** during onboarding; each tenant can override with their own key. If neither is set, the connector refuses silently and writes a durable audit event: `"Jira connector not configured: project key required."` No silent partial creation.
+- **Resolved (Jira issue type):** Default `Task` for all severities. Tenants may override per-severity via config. `Task` is the safest universal type across all Jira project schemas.
+- **Resolved (Jira priority mapping):** Critical → `Blocker`, High → `High`, Medium → `Medium`, Low → `Low`. **Info findings are dropped by default** (no Jira issue created); a per-tenant opt-in (`sendInfoSeverity: true`) enables them at `Low` priority. Rationale: Info findings are observational; sending them by default would flood customer backlogs and risk the integration being turned off.
+- **Open:** Which ServiceNow table/custom fields beyond `incident` and optional `cmdb_ci_appl` are required by the first target buyer?
 
 ### Add a one-page first-pilot evidence bundle
 
@@ -956,13 +979,19 @@ Constraints:
 
 ### Create a deployment evidence report for staging/prod
 
-- Which hosted environment should be the first official target for captured evidence: staging, production, or both?
+- **Resolved (evidence targets):** The first official targets for captured deployment evidence are **both staging and production**. Operator or automation should produce **separate, explicitly labeled reports per environment** (base URL / host identity in the artifact); do not present a single undifferentiated bundle without naming which environment each probe refers to.
 - Should this become a release artifact in CI/CD or remain an operator-run command?
 
 ### Reduce first-session cognitive load in the operator UI
 
-- Should the UI use "architecture review" as the dominant label everywhere a non-technical buyer sees the object, with "run" only as metadata?
+- **Resolved (umbrella positioning):** Brand line is **"ArchLucid — your AI co-architect."** The role-noun **"co-architect"** is the umbrella above both front doors; it captures the conversational refinement loop, elevates the customer (who remains *the* architect), avoids the Microsoft Copilot collision, and earns enterprise credibility because IT staff—analysts, developers, IT managers—already self-identify with the architect title.
+- **Resolved (front doors):** Two intent-shaped entry points share one back-end loop and converge on the same deliverable review:
+  1. **"Describe what you want"** for non-technical users — they enter loose notes/goals; the co-architect asks clarifying questions and gives feedback until there is a coherent set of architecture documents and diagrams to review.
+  2. **"Architecture review"** for business analysts, developers, and IT managers — they bring an existing architecture to be analyzed; the same conversational refinement loop converges on findings, evidence, and recommendations to review.
+- **Resolved (surface naming):** Internal product surface may keep names like **"Workspace"** for the *room*; **"co-architect"** is the *role* the product plays inside it. Surface and role layer rather than compete.
+- **Resolved (V1 marketing lead / sequencing):** Operator home and welcome surfaces **lead with the architecture review door** (primary CTA and copy). The **describe what you want** door remains a **secondary CTA** into the same new-review flow; FinOps/Azure-savings campaigns still land on the review path. **Implemented in product:** `OperatorCoArchitectHomeStrip` + welcome banner primary CTA copy in `archlucid-ui`.
+- **Open (testing risk):** Validate that non-technical buyers (founders, product managers, business owners) do not bounce off the literal word "architect." If they do, keep "co-architect" for the technical persona and lead the non-technical hero with an outcome verb ("Turn your idea into a real architecture, conversationally."), surfacing "co-architect" once they are inside.
 
-### Add route-class performance and cost visibility
+### Add route-class performance and exact citation-backed cost visibility
 
-- What cost precision is acceptable in sponsor-facing artifacts: estimate bands, exact estimated USD, or internal-only USD?
+- **Resolved:** Follow improvement #8: **default** invoice-backed dollars are **exact** and citation-backed with **proof points**; **justified exceptions** (labeled scenario/estimate/qualitative/blocked-with-rationale) are allowed when citations are incomplete—do not silently present uncited totals as bill truth.

@@ -1,4 +1,4 @@
-using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 

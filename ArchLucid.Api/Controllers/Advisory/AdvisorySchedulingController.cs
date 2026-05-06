@@ -9,6 +9,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence;
+using ArchLucid.Persistence.Advisory;
 
 using Asp.Versioning;
 

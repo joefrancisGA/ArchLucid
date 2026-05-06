@@ -24,6 +24,7 @@ import {
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
+import { OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER } from "@/lib/operator-co-architect-copy";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -534,6 +535,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
                 {CORE_PILOT_WORKFLOW_SUMMARY_LINE}
               </p>
+              <p className="m-0 mt-1.5 text-xs leading-snug text-neutral-600 dark:text-neutral-400">{OPERATOR_CO_ARCHITECT_CHECKLIST_KICKER}</p>
               <p className="m-0 mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-400">
                 {CORE_PILOT_FIRST_SESSION_GUIDANCE}
               </p>

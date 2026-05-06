@@ -12,6 +12,9 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
+import {
+  OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY,
+} from "@/lib/operator-co-architect-copy";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
@@ -135,22 +138,21 @@ export function WelcomeBanner() {
   const days = trial?.daysRemaining;
   const returningUser = hasExistingRuns;
   const headingText = returningUser
-      ? "Architecture review workspace"
-      : "Turn architecture proposals into governed, evidence-backed review packages.";
-  const subheadingText = returningUser
-    ? (
-      <>
-        Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
-        <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
-      </>
-    )
-    : (
-      <>
-        Submit one structured request—after the pipeline and finalization you get a governed{" "}
-        <GlossaryTooltip termKey="golden_manifest">architecture manifest</GlossaryTooltip>, supporting artifacts, and actionable{" "}
-        <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
-      </>
-    );
+    ? "Architecture review workspace"
+    : "Review an existing architecture—with evidence-backed outcomes.";
+  const subheadingText = returningUser ? (
+    <>
+      Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+    </>
+  ) : (
+    <>
+      Start with a structured architecture review (recommended for V1 pilots). Prefer loose goals and notes? Use the same
+      flow—your AI co-architect asks questions until you have a coherent package to review. After finalization you get a
+      governed <GlossaryTooltip termKey="golden_manifest">architecture manifest</GlossaryTooltip>, supporting artifacts, and
+      actionable <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+    </>
+  );
 
   const setWelcomeDismissed = (nextCompact: boolean) => {
     if (nextCompact) {
@@ -181,7 +183,7 @@ export function WelcomeBanner() {
           </span>
         ) : null}
         <Button asChild size="sm" className="h-8" variant="primary">
-          <Link href="/reviews/new">New review</Link>
+          <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
         </Button>
         <Button
           type="button"
@@ -264,9 +266,6 @@ export function WelcomeBanner() {
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
-              <Link href="/reviews/new">New review</Link>
-            </Button>
             <OptInTourLauncher className="h-10 px-4 text-sm" />
             <Button
               asChild
