@@ -7,6 +7,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
@@ -62,6 +63,7 @@ public sealed class DeterministicAgentSimulatorTests
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
             scopeProvider.Object,
+            new NoOpAzureExtractorPackageRepository(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
@@ -122,6 +124,7 @@ public sealed class DeterministicAgentSimulatorTests
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
             scopeProvider.Object,
+            new NoOpAzureExtractorPackageRepository(),
             NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 

@@ -362,6 +362,43 @@ public sealed class AzureExtractorIngestService(
 
     }
 
+    private async Task TryAttachEvidenceBundleAsync(Guid runGuid, AzureExtractorPackageRecord record, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        IReadOnlyList<AgentTask> tasks = await agentTaskRepository.GetByRunIdAsync(runGuid.ToString("N"), ct);
+
+        string? bundleRef = null;
+
+        foreach (AgentTask task in tasks)
+
+            if (!string.IsNullOrWhiteSpace(task.EvidenceBundleRef))
+
+            {
+
+                bundleRef = task.EvidenceBundleRef!.Trim();
+
+                break;
+
+            }
+
+        if (string.IsNullOrWhiteSpace(bundleRef))
+
+            return;
+
+        EvidenceBundle? bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, ct);
+
+        if (bundle is null)
+
+            return;
+
+        AzureExtractorPackageProvenance provenance = AzureExtractorPackageProvenance.FromRecord(record);
+
+        AzureExtractorEvidenceBundleMerger.Merge(bundle, provenance);
+
+        await evidenceBundleRepository.UpdateAsync(bundle, ct);
+    }
+
     private async Task<AzureExtractorIngestResult> FailAsync(
         string eventType,
 
