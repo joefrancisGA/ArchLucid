@@ -7,7 +7,7 @@
 export function GraphIdleLegend() {
   return (
     <div
-      className="mb-6 max-w-4xl rounded-lg border border-dashed border-teal-300/70 bg-teal-50/40 p-4 dark:border-teal-800/60 dark:bg-teal-950/25"
+      className="mb-6 max-w-4xl rounded-lg border-2 border-dashed border-teal-400/85 bg-teal-50/55 p-4 shadow-sm ring-1 ring-teal-300/40 dark:border-teal-600/70 dark:bg-teal-950/35 dark:ring-teal-800/45"
       data-testid="graph-idle-legend"
     >
       <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Graph preview (sample)</p>

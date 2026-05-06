@@ -11,7 +11,7 @@ export function OperatorDemoStaticBanner(): ReactElement {
     <div
       className={
         demoMode
-          ? "rounded-md border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100"
+          ? "rounded-md border-2 border-teal-300/70 bg-teal-50/90 p-3 text-sm font-medium text-teal-950 shadow-sm dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-50"
           : "rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
       }
       role="status"

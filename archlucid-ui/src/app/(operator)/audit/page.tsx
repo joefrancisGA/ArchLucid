@@ -31,6 +31,7 @@ import {
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLine,
+  auditExportSectionSupportingLineBuyerPolished,
   auditClearFiltersButtonLabelReaderRank,
   auditLoadMoreButtonTitleOperator,
   auditLoadMoreButtonTitleReader,
@@ -582,7 +583,7 @@ export default function AuditPage() {
                 </div>
               ) : null}
               <div className="text-sm">
-                Run:{" "}
+                {buyerPolishedShell ? "Review:" : "Run:"}{" "}
                 {ev.runId ? (
                   <Link href={`/reviews/${ev.runId}`} title="Open review">
                     {ev.runId}
@@ -641,7 +642,7 @@ export default function AuditPage() {
           {csvExportUiAllowed ? "Export" : "Export (restricted)"}
         </h3>
         <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-xl mt-0 mb-3">
-          {auditExportSectionSupportingLine}
+          {buyerPolishedShell ? auditExportSectionSupportingLineBuyerPolished : auditExportSectionSupportingLine}
         </p>
         <button
           type="button"

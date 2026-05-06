@@ -17,9 +17,10 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "pilot",
-      label: "Architecture reviews",
+      label: "Review work",
       surface: "review-workflow",
-      caption: "Run architecture reviews — request, pipeline, finalized package, and findings.",
+      caption:
+        "Start here: home, onboarding, create a governed review package, browse reviews, findings, help, and pilot scorecard.",
       links: [
         {
           href: "/",

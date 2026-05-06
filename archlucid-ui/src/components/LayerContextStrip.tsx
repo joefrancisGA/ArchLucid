@@ -11,7 +11,7 @@ const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: stri
     labelClass: "text-blue-900 dark:text-blue-200"
   },
   "operate-analysis": {
-    label: "Analysis",
+    label: "Advanced operations",
     question: "What changed, why, and what does the architecture look like?",
     strip: "bg-teal-50/80 border-b border-teal-200/60 dark:border-teal-900/40 dark:bg-teal-950/30",
     labelClass: "text-teal-900 dark:text-teal-200"

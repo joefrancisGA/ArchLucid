@@ -111,7 +111,8 @@ export function getArtifactFormatLabel(format: string): string {
       "text/csv": "CSV",
       "application/pdf": "PDF",
       "text/mermaid": "Diagram source",
-    }[normalized] ?? format
+    }[normalized] ??
+    (normalized.includes("/") ? "Document" : format)
   );
 }
 

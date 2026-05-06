@@ -394,9 +394,9 @@ describe("authority seam regression", () => {
    * Advanced pages must not set `enterpriseFootnote`: `LayerHeader` uses its presence to style `useWhen` and only
    * renders the Enterprise rank cue when the guidance block carries a governance footnote — not a string match on headlines.
    */
-  it("keeps enterpriseFootnote unset on Analysis guidance blocks", () => {
+  it("keeps enterpriseFootnote unset on Advanced operations guidance blocks", () => {
     const advancedBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
-      (b) => b.layerBadge === "Analysis",
+      (b) => b.layerBadge === "Advanced operations",
     );
 
     expect(advancedBlocks.length).toBeGreaterThan(0);

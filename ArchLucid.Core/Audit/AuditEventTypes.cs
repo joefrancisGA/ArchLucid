@@ -113,6 +113,30 @@ public static class AuditEventTypes
     public const string ArchitectureDocxExportGenerated = "ArchitectureDocxExportGenerated";
 
     /// <summary>
+    ///     Multipart ZIP accepted for Azure extractor ingest (
+    ///     <c>POST /v1/azure-extractor/upload</c>) — payload lists file name and size only.
+    /// </summary>
+    public const string AzureExtractorPackageUploaded = "AzureExtractorPackage.Uploaded";
+
+    /// <summary>
+    ///     Azure extractor ZIP failed manifest or archive parsing after upload (
+    ///     <c>POST /v1/azure-extractor/upload</c>).
+    /// </summary>
+    public const string AzureExtractorPackageParseFailed = "AzureExtractorPackage.ParseFailed";
+
+    /// <summary>
+    ///     Azure extractor <c>manifest.json</c> schema version is not supported (
+    ///     <c>POST /v1/azure-extractor/upload</c>).
+    /// </summary>
+    public const string AzureExtractorPackageSchemaRejected = "AzureExtractorPackage.SchemaRejected";
+
+    /// <summary>
+    ///     Azure extractor ZIP persisted after successful schema validation (
+    ///     <c>POST /v1/azure-extractor/upload</c>).
+    /// </summary>
+    public const string AzureExtractorPackageIngestSucceeded = "AzureExtractorPackage.IngestSucceeded";
+
+    /// <summary>
     ///     Architecture request draft imported from an uploaded TOML/JSON file (
     ///     <c>POST .../architecture/request/import</c>).
     /// </summary>

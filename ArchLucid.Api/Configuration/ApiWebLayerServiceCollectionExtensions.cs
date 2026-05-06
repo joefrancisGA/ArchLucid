@@ -6,6 +6,7 @@ using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Import;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
@@ -45,6 +46,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
+        services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
 
         services.AddHttpClient<IOutboundWebhookDryRunService, OutboundWebhookDryRunService>(static client =>
         {

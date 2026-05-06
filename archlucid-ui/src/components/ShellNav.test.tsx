@@ -37,11 +37,11 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows compact Architecture reviews group by default; sidebar layout can reveal extended Analysis links",
+    "shows compact Review work group by default; sidebar layout can reveal extended Advanced operations links",
     () => {
       render(<ShellNav />);
 
-      const nav = screen.getByRole("navigation", { name: "Architecture reviews" });
+      const nav = screen.getByRole("navigation", { name: "Review work" });
       expect(nav).toBeInTheDocument();
 
       // New review also appears under Quick actions (`/reviews/new`); scope essentials to this group.
@@ -88,7 +88,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   );
 
   it(
-    "exposes Analysis and Governance group navigations when sections are expanded",
+    "exposes Advanced operations and Governance group navigations when sections are expanded",
     () => {
       render(<ShellNav />);
 
@@ -98,12 +98,12 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
-      expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Advanced operations" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
-      fireEvent.click(screen.getByRole("button", { name: "Governance" }));
+      fireEvent.click(screen.getByRole("button", { name: "Compliance & oversight" }));
 
-      const governanceNavCollapsedAdvanced = screen.getByRole("navigation", { name: "Governance" });
+      const governanceNavCollapsedAdvanced = screen.getByRole("navigation", { name: "Compliance & oversight" });
 
       expect(governanceNavCollapsedAdvanced).toBeInTheDocument();
       expect(within(governanceNavCollapsedAdvanced).queryByRole("link", { name: "Alerts" })).toBeNull();
@@ -112,10 +112,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByTestId("sidebar-show-advanced-operations-toggle"));
 
-      const governanceNav = screen.getByRole("navigation", { name: "Governance" });
+      const governanceNav = screen.getByRole("navigation", { name: "Compliance & oversight" });
       expect(governanceNav).toBeInTheDocument();
       expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
-      expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
+      expect(screen.getByRole("button", { name: "Compliance & oversight" })).toHaveAttribute(
         "title",
         "Policy, audit, alerts, and trust controls.",
       );

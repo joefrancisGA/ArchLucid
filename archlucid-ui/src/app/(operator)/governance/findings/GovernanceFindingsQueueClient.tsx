@@ -12,6 +12,7 @@ import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import { severityFromTrace } from "@/lib/executive-finding-severity";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -132,6 +133,7 @@ export default function GovernanceFindingsQueueClient() {
       setLoadFailed(false);
 
       const useDemoSpine =
+        isBuyerPolishedOperatorShellEnv() ||
         isPublicDemoModeEnv() ||
         isStaticDemoPayloadFallbackEnabled() ||
         isStaticDemoPayloadFallbackActiveForRun(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -219,7 +221,7 @@ export default function GovernanceFindingsQueueClient() {
                   <tr>
                     <th className="px-3 py-2">Severity</th>
                     <th className="px-3 py-2">Finding</th>
-                    <th className="px-3 py-2">Run</th>
+                    <th className="px-3 py-2">Review</th>
                     <th className="px-3 py-2">Manifest</th>
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2">Recommended action</th>
@@ -312,7 +314,7 @@ export default function GovernanceFindingsQueueClient() {
                       </div>
                     </div>
                     <div>
-                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Run</div>
+                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Review</div>
                       <div className="mt-0.5">
                         <Link
                           className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"

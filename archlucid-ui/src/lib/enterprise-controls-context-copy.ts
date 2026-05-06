@@ -477,6 +477,10 @@ export const auditSearchSectionLeadReaderLine = "Export requires Auditor or Admi
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine = "CSV export requires Auditor or Admin access.";
 
+/** Audit log — polished shell: no bulk-export mechanics in primary copy. */
+export const auditExportSectionSupportingLineBuyerPolished =
+  "Exports are available when your role includes bulk download — set a From/To range, then use Export CSV.";
+
 /** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
 export const auditExportCsvButtonLabelWindowIncomplete = "Export CSV (set From/To)";
 

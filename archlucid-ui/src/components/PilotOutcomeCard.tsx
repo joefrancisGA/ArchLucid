@@ -76,7 +76,9 @@ export function PilotOutcomeCard() {
     );
   }
 
-  if (summary.runsInPeriod < 1) {
+  const runsParsed = Number.isFinite(Number(summary.runsInPeriod)) ? Number(summary.runsInPeriod) : 0;
+
+  if (!Number.isFinite(runsParsed) || runsParsed < 1) {
     return (
       <section
         aria-labelledby="pilot-outcome-heading"
@@ -116,10 +118,10 @@ export function PilotOutcomeCard() {
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{inPeriod}</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Total runs</dt>
+        <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Reviews (period)</dt>
         </div>
         <div>
-          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{summary.runsWithCommittedManifest}</dd>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{withManifest}</dd>
           <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
         </div>
       </dl>

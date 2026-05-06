@@ -340,7 +340,9 @@ export default function GraphPage() {
     <main>
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title={pageTitle} helpKey="architecture-graph" />
-      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
+      {graph === null ? (
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
+      ) : null}
 
       {graph === null ? graphControls : null}
 
@@ -465,6 +467,14 @@ export default function GraphPage() {
             </span>
           </div>
           {graphControls}
+          {demoUi ? (
+            <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+              Use the controls above to switch reviews or exploration mode — the Claims Intake sample loads this graph
+              automatically.
+            </p>
+          ) : (
+            <p className="m-0 mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
+          )}
         </>
       ) : null}
     </main>

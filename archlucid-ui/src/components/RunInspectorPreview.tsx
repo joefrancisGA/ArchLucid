@@ -171,7 +171,8 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         ) : null}
       </div>
 
-      {/* 4 primary quick links: Manifest, Findings, Artifacts, Timeline */}
+      {/* Quick links — hidden for buyer-safe showcase spine (Manifest summary is the primary control). */}
+      {!(buyerSafePrimary && showcaseStory) ? (
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           Quick links
@@ -197,6 +198,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </Button>
         </div>
       </div>
+      ) : null}
 
       {/* Secondary actions collapsed behind "More actions" */}
       <div>
@@ -211,9 +213,14 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         {moreOpen ? (
           <div className="mt-2 flex flex-wrap gap-2">
           {showcaseStory ? (
-            <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={findingHref}>Primary finding</Link>
-            </Button>
+            <>
+              <Button variant="outline" size="sm" className="h-8" asChild>
+                <Link href={findingHref}>Primary finding</Link>
+              </Button>
+              <Button variant="outline" size="sm" className="h-8" asChild>
+                <Link href={timelineQuickHref}>Timeline (walkthrough)</Link>
+              </Button>
+            </>
           ) : null}
           {run.hasGraphSnapshot === true || showcaseStory ? (
             <Button variant="outline" size="sm" className="h-8" asChild>

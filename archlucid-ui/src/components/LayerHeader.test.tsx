@@ -25,10 +25,10 @@ describe("LayerHeader", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.AdminAuthority;
   });
 
-  it("renders Analysis guidance for compare (analysis slice)", () => {
+  it("renders Advanced operations guidance for compare (analysis slice)", () => {
     render(<LayerHeader pageKey="compare" />);
 
-    expect(screen.getByText("Analysis")).toBeInTheDocument();
+    expect(screen.getByText("Advanced operations")).toBeInTheDocument();
     expect(screen.getByText(/what changed between two finalized reviews/i)).toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe("LayerHeader", () => {
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
   });
 
-  it("does not render Execute+ rank cue on Analysis pages", () => {
+  it("does not render Execute+ rank cue on Advanced operations pages", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
