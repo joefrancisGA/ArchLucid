@@ -14,7 +14,7 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
@@ -186,7 +186,6 @@ export function RunsListClient({
       if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
         return false;
       }
-
       if (typeof run.createdUtc !== "string" || run.createdUtc.trim().length === 0) {
         return false;
       }
@@ -194,6 +193,8 @@ export function RunsListClient({
       return true;
     });
   }, [runs]);
+
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
@@ -447,9 +448,11 @@ export function RunsListClient({
           </TooltipContent>
         </Tooltip>
                                   </div>
-                                  <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
-                                    {run.runId}
-                                  </code>
+                                  {buyerPolished ? null : (
+                                    <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                      {run.runId}
+                                    </code>
+                                  )}
                                   {run.projectId !== projectId ? (
                                     <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                                       Project{" "}

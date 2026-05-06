@@ -134,15 +134,17 @@ export default function GovernanceApprovalLineagePage() {
   }
 
   const a = data.approvalRequest;
+  const approvalTitle = a.requestComment?.trim() ?? "";
+  const displayApprovalTitle = approvalTitle.length > 0
+    ? (approvalTitle.length > 80 ? `${approvalTitle.slice(0, 77)}…` : approvalTitle)
+    : "Governance approval request";
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Approval lineage</h1>
-          <p className="text-sm text-muted-foreground">
-            Request <span className="font-mono text-xs">{a.approvalRequestId}</span>
-          </p>
+          <p className="text-sm text-muted-foreground">{displayApprovalTitle}</p>
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href="/governance/findings">Back to findings</Link>
@@ -168,11 +170,12 @@ export default function GovernanceApprovalLineagePage() {
           <div>
             <span className="text-muted-foreground">Review</span>{" "}
             <Link
-              className="font-mono text-xs underline-offset-4 hover:underline"
+              className="font-medium underline-offset-4 hover:underline"
               href={`/reviews/${encodeURIComponent(a.runId)}`}
             >
-              {a.runId}
+              Open review
             </Link>
+            <span className="sr-only"> ({a.runId})</span>
           </div>
           <div>
             Manifest <span className="font-mono">{a.manifestVersion}</span> · {a.sourceEnvironment} →{" "}

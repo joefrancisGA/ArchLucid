@@ -132,7 +132,20 @@ export function AlertsInboxContent() {
         setPage(pages);
       }
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      if (shouldMergeOperatorDemoAlertSample()) {
+        const statusFilter = status === ALL_STATUSES_VALUE ? null : status;
+        const demoRow = tryStaticDemoAlertInboxRow();
+
+        if (statusFilter === null || statusFilter === "Open") {
+          setAlerts([demoRow]);
+          setTotalCount(1);
+        } else {
+          setAlerts([]);
+          setTotalCount(0);
+        }
+      } else {
+        setFailure(toApiLoadFailure(e));
+      }
     } finally {
       setLoading(false);
     }
@@ -291,11 +304,13 @@ export function AlertsInboxContent() {
         </Button>
       </div>
 
-      <span className="sr-only">
-        {canMutateAlertInbox
-          ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 suppress."
-          : "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; triage shortcuts apply only at Execute rank."}
-      </span>
+      {isBuyerPolishedOperatorShellEnv() ? null : (
+        <span className="sr-only">
+          {canMutateAlertInbox
+            ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 suppress."
+            : "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; triage shortcuts apply only at Execute rank."}
+        </span>
+      )}
 
       <div className="grid gap-3">
         {loading && failure === null && alerts.length === 0 ? (

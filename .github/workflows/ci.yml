@@ -1408,6 +1408,32 @@ jobs:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
 
+  ui-demo-preflight:
+    name: "Operator UI: demo-readiness preflight"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: archlucid-ui
+        run: npm ci
+
+      - name: Run demo-readiness preflight (structure checks only)
+        working-directory: archlucid-ui
+        env:
+          # Set the buyer-polished flag so env-var gate passes in CI
+          NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true"
+          NEXT_PUBLIC_DEMO_MODE: "true"
+        run: npm run demo:preflight
+
   ui-axe-components:
     name: "Operator UI: Vitest axe (components)"
     needs: gitleaks

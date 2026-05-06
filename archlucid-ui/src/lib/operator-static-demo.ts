@@ -1,4 +1,5 @@
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
@@ -728,7 +729,7 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord {
 
 /** Merge PHI sample alert into an empty inbox without inventing rows for live tenants (gates caller-side). */
 export function shouldMergeOperatorDemoAlertSample(): boolean {
-  return isStaticDemoPayloadFallbackEnabled() || process.env.NODE_ENV === "development";
+  return isBuyerPolishedOperatorShellEnv() || isStaticDemoPayloadFallbackEnabled() || process.env.NODE_ENV === "development";
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {

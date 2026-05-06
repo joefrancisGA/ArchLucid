@@ -60,8 +60,8 @@ const PILLARS: readonly WelcomePillar[] = [
     title: "AI-native architecture analysis",
     body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — specialized agents analyze architecture requests through a structured flow from intake to evidence graph, findings, decisioning, and artifact synthesis. The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
     verify: [
-      { label: "/see-it", href: "/see-it" },
-      { label: "/demo/preview", href: "/demo/preview" },
+      { label: "See it in 30 seconds", href: "/see-it" },
+      { label: "Demo preview", href: "/demo/preview" },
       { label: "Product scope overview", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` },
     ],
   },
@@ -119,7 +119,7 @@ export function WelcomeMarketingPage() {
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Same finalized demo as{" "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
-              /demo/preview
+              the demo preview page
             </Link>{" "}
             — full page, no signup.{" "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">

@@ -224,6 +224,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     enterpriseFootnote: "Configuration tabs appear when your role allows.",
   },
   graph: {
+    layerBadge: "Evidence graph",
     headline: "Visual evidence trail for this architecture review.",
     useWhen: "Explore how findings and evidence connect for the review you selected.",
     firstPilotNote: null,

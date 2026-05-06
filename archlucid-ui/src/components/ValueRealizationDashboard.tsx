@@ -93,7 +93,7 @@ export function ValueRealizationDashboard() {
 
   const impliedUsd = safeHours > 0 && Number.isFinite(hourlyUsd) ? safeHours * hourlyUsd : 0;
   const showMeasuredRoiBlock =
-    safeHours > 0 && Number.isFinite(impliedUsd) && impliedUsd > 0.009;
+    safeHours > 0 && Number.isFinite(impliedUsd) && impliedUsd >= 1;
 
   return (
     <Card className="mb-6">

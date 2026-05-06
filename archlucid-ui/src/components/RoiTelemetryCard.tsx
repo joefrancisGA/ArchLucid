@@ -62,9 +62,10 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
     }
   }
 
+  const safePrecommitBlocks = Number.isFinite(props.precommitBlocks) ? Math.max(0, props.precommitBlocks) : 0;
   const blockLabel = props.precommitBlocksExact
-    ? String(props.precommitBlocks)
-    : `${props.precommitBlocks} (sampled)`;
+    ? String(safePrecommitBlocks)
+    : `${safePrecommitBlocks} (sampled)`;
 
   const usdTotal = hours * hourlyUsd;
   /** Whole-dollar formatting hides sub-dollar totals as "$0" — omit the implied line unless rounding is meaningful. */
@@ -128,7 +129,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
           />
           {hours <= 1e-9 ? (
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-500">
-              Not enough surfaced hours in this window to estimate a dollar total.
+              Not enough data yet to estimate a dollar total.
             </p>
           ) : showImpliedDollarTotal ? (
             <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

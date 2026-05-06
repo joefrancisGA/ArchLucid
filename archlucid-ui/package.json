@@ -24,7 +24,8 @@
     "test:e2e:live": "playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
     "generate:api-types": "openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/lib/api-types.generated.ts",
-    "rebrand-check": "python3 ../scripts/ci/assert_brand_category_seam.py"
+    "rebrand-check": "python3 ../scripts/ci/assert_brand_category_seam.py",
+    "demo:preflight": "node ./scripts/demo-preflight.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

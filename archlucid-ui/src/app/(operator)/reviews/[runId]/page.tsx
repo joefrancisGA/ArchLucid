@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/operator-response-guards";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/lib/demo-run-canonical";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
@@ -143,6 +144,10 @@ export default async function RunDetailPage({
 
   if (isInvalidGuidOrSlugRouteToken(runId)) {
     notFound();
+  }
+
+  if (demoRunUrlRequiresCanonicalRedirect(runId)) {
+    redirect(`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
   }
 
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;

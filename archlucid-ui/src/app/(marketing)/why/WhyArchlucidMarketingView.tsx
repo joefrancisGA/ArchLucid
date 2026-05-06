@@ -197,7 +197,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
           >
             Demo embed omitted (test build). In production this area shows an iframe of{" "}
             <Link className="text-sky-700 underline underline-offset-2 dark:text-sky-400" href="/demo/preview">
-              /demo/preview
+              the demo preview page
             </Link>
             .
           </p>
@@ -205,7 +205,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           {showDemoEmbed ? "Opens in-page above; " : null}
           <Link className="text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400" href="/demo/preview">
-            Open /demo/preview
+            Open demo preview
           </Link>
           {showDemoEmbed ? " in a full tab." : "."}
         </p>

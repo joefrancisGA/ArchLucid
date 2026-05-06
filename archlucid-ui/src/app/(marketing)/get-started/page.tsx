@@ -84,16 +84,16 @@ export default function GetStartedPage(): ReactNode {
         </Link>{" "}
         (same seeded demo surface as{" "}
         <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/demo/preview">
-          /demo/preview
+          the demo preview page
         </Link>
         , interactive explainability view).{" "}
         <span className="font-medium text-neutral-700 dark:text-neutral-300">Verify:</span>{" "}
         <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/see-it">
-          /see-it
+          See it in 30 seconds
         </Link>
         ,{" "}
         <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/why">
-          /why
+          Why ArchLucid
         </Link>
         .
       </p>

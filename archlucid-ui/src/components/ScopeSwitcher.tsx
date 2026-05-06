@@ -184,6 +184,18 @@ export function ScopeSwitcher() {
     return null;
   }
 
+  if (polishedShell && isDefaultDevScope) {
+    return (
+      <span
+        data-testid="operator-scope-switcher-trigger"
+        className="inline-flex max-w-[min(20rem,42vw)] shrink items-center truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+        aria-label="Active workspace"
+      >
+        Claims Intake Demo Workspace
+      </span>
+    );
+  }
+
   return (
     <div className="relative z-50 flex min-w-0 max-w-full items-center gap-1">
       <Button
