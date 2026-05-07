@@ -782,7 +782,7 @@ ArchLucid is closest to being commercially ready when it behaves less like an im
 
 ## Top Improvement Opportunities
 
-This list includes **2 deferred items**, **1 completed item**, and **9 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
+This list includes **2 deferred items**, **2 completed items**, and **8 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
 
 ### 1. Harden Real-Mode Agent Output Evaluation Corpus
 
@@ -835,7 +835,9 @@ _(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 2. Add Sponsor-Safe Proof Completeness Gate to First-Value Report
 
-Status: **Fully actionable now**
+Status: **Completed** (2026-05-07)
+
+**Completion summary:** Shipped `SponsorSafeProofDisposition` and `SponsorSafeProofStatusMarkdownFormatter` in `ArchLucid.Application/Pilots/`, invoked from `FirstValueReportBuilder` immediately after the prose preface. Verdict (**Sendable** / **Needs operator review** / **Not sponsor-safe yet**) maps only from the existing buyer-safe gate and proof-package mapper; concrete gap bullets list demo scope, committed manifest/status/timing, evidence-chain pointer, audit rows, LLM-call attestation, PilotStrict posture, tenant ROI baseline posture, and simulator substitution. First-value PDF still renders the same Markdown from `BuildReportAsync`. Tests: `SponsorSafeProofStatusMarkdownFormatterTests` and extended `FirstValueReportBuilderTests` (complete proof, partial/LLM-unattested, defaulted baseline, demo tenant).
 
 Why it matters: Monetization depends on the sponsor artifact being safe to send. If evidence is incomplete, the report should say so loudly and specifically.
 
@@ -873,6 +875,7 @@ Constraints:
 - Do not add external dependencies.
 - Do not require operators to hand-edit reports.
 ```
+_(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 3. Hydrate Prior Manifest Evidence for Follow-On Runs
 

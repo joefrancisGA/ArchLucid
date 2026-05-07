@@ -76,6 +76,12 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor-safe proof status");
+        int introEnd = md.IndexOf("metric catalog.", StringComparison.Ordinal);
+        int proofStatusHeading = md.IndexOf("## Sponsor-safe proof status", StringComparison.Ordinal);
+        introEnd.Should().BeGreaterThan(0);
+        proofStatusHeading.Should().BeGreaterThan(introEnd);
+        md.Should().Contain("**Verdict:** **Sendable**");
         md.Should().Contain("First-value evidence completeness");
         md.Should().Contain("**Classification:** **Strong**");
         md.Should().Contain("Architecture review identity");
@@ -132,6 +138,10 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor-safe proof status");
+        md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
+        md.Should().Contain("Demo or sample tenant scope");
+        md.Should().Contain("must **not** be presented");
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
         // so a sponsor cannot crop the page and quote a single number out of context.
         int firstBanner = md.IndexOf("demo tenant", StringComparison.Ordinal);
@@ -143,6 +153,104 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("Watermark notice");
         md.Should().Contain("**Proof sendability:** **Not sendable externally**");
         md.Should().Contain("**Publishing posture:** **Demo-only**");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenLlmExecutionCountUnresolved_NeedsOperatorReview()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 12,
+            LlmCallCount = 0,
+            LlmCallCountResolved = false,
+            TopFindingId = null,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            SynthesizedArtifactDescriptorCount = 1,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("**Verdict:** **Needs operator review**");
+        md.Should().Contain("**Proof sendability:** **Sendable with caveats**");
+        md.Should().Contain("LLM-call count is unattested");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenTenantReviewCycleBaselineNotCaptured_NeedsOperatorReviewForBaselineGap()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 13,
+            LlmCallCount = 5,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1", FindingId = "top-finding-id", ManifestVersion = "v2", FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        ValueReportRawMetrics raw = new ValueReportRawMetrics(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            null,
+            6m,
+            3,
+            null,
+            null,
+            null);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, raw);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("**Verdict:** **Needs operator review**");
+        md.Should().Contain("Tenant comparative baseline is incomplete");
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()
@@ -184,9 +292,31 @@ public sealed class FirstValueReportBuilderTests
         };
     }
 
-    private static FirstValueReportBuilder CreateSut(IRunDetailQueryService query, IPilotRunDeltaComputer deltas)
+    private static FirstValueReportBuilder CreateSut(
+        IRunDetailQueryService query,
+        IPilotRunDeltaComputer deltas,
+        ValueReportRawMetrics? rawMetrics = null)
     {
         Mock<IValueReportMetricsReader> metrics = new();
+
+        ValueReportRawMetrics baselineRow = rawMetrics ??
+            new ValueReportRawMetrics(
+                [],
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8m,
+                "signup",
+                TimeProvider.System.GetUtcNow(),
+                6m,
+                3,
+                null,
+                null,
+                null);
+
         metrics
             .Setup(m => m.ReadAsync(
                 It.IsAny<Guid>(),
@@ -195,23 +325,7 @@ public sealed class FirstValueReportBuilderTests
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<DateTimeOffset>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ValueReportRawMetrics(
-                    [],
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    8m,
-                    "signup",
-                    TimeProvider.System.GetUtcNow(),
-                    6m,
-                    3,
-                    null,
-                    null,
-                    null));
+            .ReturnsAsync(baselineRow);
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());

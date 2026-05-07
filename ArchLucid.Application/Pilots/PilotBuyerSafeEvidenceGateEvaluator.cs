@@ -49,7 +49,7 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
                 "Scoped audit-event query returned zero rows — confirm tenancy scope and audit continuity for this run.");
         }
 
-        if (deltas.AgentOutputPilotStrictSignalsResolved && deltas.AgentOutputPilotStrictViolatesSponsorEvidence)
+        if (deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true })
         {
             hardGapMessages.Add(
                 "PilotStrict agent output quality posture failed for one or more LLM traces (or aggregate explanation faithfulness) — do not circulate this run as sponsor-grade real-mode evidence until traces are green.");

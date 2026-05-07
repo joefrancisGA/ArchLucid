@@ -22,6 +22,8 @@ namespace ArchLucid.Application.Pilots;
 ///     Computed deltas (wall-clock, findings-by-severity, audit rows, LLM calls, top-severity evidence chain) are
 ///     resolved by <see cref = "IPilotRunDeltaComputer"/> so this builder and <see cref = "SponsorOnePagerPdfBuilder"/>
 ///     stay in lockstep — the same numbers appear in the Markdown sibling and in the sponsor PDF wrapper.
+///     A sponsor-safe proof-status block (<see cref = "SponsorSafeProofStatusMarkdownFormatter"/>) is emitted immediately after
+///     the prose preface — it reuses <see cref = "PilotBuyerSafeEvidenceGateEvaluator"/> and <see cref = "PilotProofPackageCompletenessMapper"/> only.
 ///     The review-cycle delta section uses the same <see cref = "ValueReportSnapshot"/> as the tenant value-report DOCX
 ///     (default 30-day UTC window ending now; see <c>ValueReportController</c>).
 /// </remarks>
@@ -86,11 +88,24 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         ValueReportSnapshot valueWindowSnapshot = await _valueReportBuilder.BuildAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
+        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
+        FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
+        SponsorSafeProofDisposition sponsorSafeDisposition =
+            SponsorSafeProofStatusMarkdownFormatter.ResolveDisposition(buyerSafeGate);
+        ProofPackageCompletenessResponse proofCompleteness =
+            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
         sb.AppendLine("This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
+        SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            sponsorSafeDisposition,
+            buyerSafeGate,
+            proofCompleteness,
+            deltas,
+            run);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -103,12 +118,8 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
             sb.AppendLine();
         }
 
-        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, valueWindowSnapshot);
-        FirstValueEvidenceCompletenessLevel evidenceCompleteness = FirstValueEvidenceCompletenessClassifier.Classify(buyerSafeGate);
         FirstValueEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, evidenceCompleteness);
         PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
-        ProofPackageCompletenessResponse proofCompleteness =
-            PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, buyerSafeGate, valueWindowSnapshot);
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendProofPackageContractSection(sb, deltas, proofCompleteness, manifest);
         AppendComputedDeltasSection(sb, deltas);
