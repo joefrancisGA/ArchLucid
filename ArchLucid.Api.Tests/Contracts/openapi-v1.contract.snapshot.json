@@ -927,6 +927,44 @@
       "AgentType": {
         "type": "integer"
       },
+      "AlertActionLoopResponse": {
+        "properties": {
+          "alertId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "deliveryAttempts": {
+            "items": {
+              "$ref": "#/components/schemas/AlertDeliveryAttemptResponse"
+            },
+            "type": "array"
+          },
+          "lastUpdatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "resolutionComment": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AlertActionRequest": {
         "properties": {
           "action": {
@@ -988,6 +1026,30 @@
           },
           "workspaceId": {
             "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AlertDeliveryAttemptResponse": {
+        "properties": {
+          "attemptedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "channelType": {
+            "type": "string"
+          },
+          "destinationRedacted": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
             "type": "string"
           }
         },
@@ -3197,6 +3259,32 @@
           "pageId",
           "pageUrl"
         ],
+        "type": "object"
+      },
+      "ConnectorSurfaceStatusResponse": {
+        "properties": {
+          "configurationHref": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "connectorKey": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "smokeReadiness": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "ConstraintSection": {
@@ -7575,6 +7663,38 @@
         },
         "type": "object"
       },
+      "IntegrationEventBusStatusResponse": {
+        "properties": {
+          "consumerConfigured": {
+            "type": "boolean"
+          },
+          "fullyQualifiedNamespace": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publisherConfigured": {
+            "type": "boolean"
+          },
+          "queueOrTopicName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "smokeReadiness": {
+            "type": "string"
+          },
+          "transactionalOutboxEnabled": {
+            "type": "boolean"
+          },
+          "usesLegacyConnectionString": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "IntegrationEventOutboxDeadLetterRow": {
         "properties": {
           "deadLetteredUtc": {
@@ -8760,6 +8880,29 @@
           },
           "title": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperatorStickinessSnapshotResponse": {
+        "properties": {
+          "comparisonEventsLast30Days": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "latestRunId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pendingGovernanceApprovals": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pilotFunnel": {
+            "$ref": "#/components/schemas/PilotFunnelSnapshotResponse"
           }
         },
         "type": "object"
@@ -13432,6 +13575,20 @@
         },
         "type": "object"
       },
+      "TenantIntegrationsOperationsResponse": {
+        "properties": {
+          "connectors": {
+            "items": {
+              "$ref": "#/components/schemas/ConnectorSurfaceStatusResponse"
+            },
+            "type": "array"
+          },
+          "integrationEventBus": {
+            "$ref": "#/components/schemas/IntegrationEventBusStatusResponse"
+          }
+        },
+        "type": "object"
+      },
       "TenantLinkEntraRequest": {
         "properties": {
           "entraOid": {
@@ -14325,6 +14482,90 @@
       },
       "UsageMeterKind": {
         "type": "integer"
+      },
+      "WeeklyDigestHealthResponse": {
+        "properties": {
+          "digestSubscriptionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "digestSubscriptionsByEmailChannel": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "digestSubscriptionsBySlackChannel": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "digestSubscriptionsByTeamsChannel": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "earliestNextAdvisoryRunUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "enabledAdvisoryScheduleCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "enabledDigestSubscriptionCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "executiveDigestDayOfWeek": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "executiveDigestHourOfDay": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "executiveDigestIanaTimeZoneId": {
+            "type": "string"
+          },
+          "executiveDigestRecipientCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "executiveEmailDigestEnabled": {
+            "type": "boolean"
+          },
+          "executiveEmailDigestIsConfigured": {
+            "type": "boolean"
+          },
+          "latestArchitectureDigestGeneratedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestArchitectureDigestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestDigestSubscriptionDeliveryUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "setupGaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
       },
       "WhyArchLucidSnapshotResponse": {
         "properties": {
@@ -17744,6 +17985,66 @@
               }
             },
             "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/v1/alerts/{alertId}/action-loop": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alertId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertActionLoopResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertActionLoopResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertActionLoopResponse"
+                }
+              }
+            },
+            "description": "OK"
           },
           "404": {
             "content": {
@@ -41717,6 +42018,35 @@
         ]
       }
     },
+    "/v1/tenant/customer-success/stickiness-snapshot": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorStickinessSnapshotResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorStickinessSnapshotResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorStickinessSnapshotResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantCustomerSuccess"
+        ]
+      }
+    },
     "/v1/tenant/exec-digest-preferences": {
       "get": {
         "responses": {
@@ -41853,6 +42183,35 @@
         ]
       }
     },
+    "/v1/tenant/integrations/operations": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantIntegrationsOperationsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantIntegrationsOperationsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantIntegrationsOperationsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantIntegrationsOperations"
+        ]
+      }
+    },
     "/v1/tenant/link-entra": {
       "post": {
         "requestBody": {
@@ -41931,6 +42290,35 @@
         },
         "tags": [
           "TenantMeasuredRoi"
+        ]
+      }
+    },
+    "/v1/tenant/operate/weekly-digest-health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyDigestHealthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyDigestHealthResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyDigestHealthResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantWeeklyDigestHealth"
         ]
       }
     },
@@ -42772,6 +43160,9 @@
       "name": "TenantExecDigestPreferences"
     },
     {
+      "name": "TenantIntegrationsOperations"
+    },
+    {
       "name": "TenantMeasuredRoi"
     },
     {
@@ -42779,6 +43170,9 @@
     },
     {
       "name": "TenantTrial"
+    },
+    {
+      "name": "TenantWeeklyDigestHealth"
     },
     {
       "name": "TenantsAdmin"

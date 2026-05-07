@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
-import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
+import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 
 const TAB_PARAM = "tab";
 
@@ -53,6 +53,7 @@ export function DigestsHubClient() {
 
   return (
     <div className="px-0" data-testid="digests-hub">
+      <WeeklyDigestHealthBanner />
       <nav
         className="mb-6 border-b border-neutral-200 dark:border-neutral-800"
         aria-label="Digest hub sections"

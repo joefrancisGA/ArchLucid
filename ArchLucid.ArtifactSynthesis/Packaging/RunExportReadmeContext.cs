@@ -23,4 +23,11 @@ public sealed record RunExportReadmeContext
         get;
         init;
     }
+
+    /// <summary>Relative operator path for returning to this run (no host; safe for offline shares).</summary>
+    public string? OperatorShellReviewRelativePath
+    {
+        get;
+        init;
+    }
 }

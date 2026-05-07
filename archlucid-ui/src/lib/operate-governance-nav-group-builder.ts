@@ -64,6 +64,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/governance/first-30-days",
+          label: "First 30 days (governance)",
+          title: "First 30 days — minimal governance operating preset after pilot",
+          icon: ShieldCheck,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
           href: "/workspace/security-trust",
           label: "Security & trust",
           title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",

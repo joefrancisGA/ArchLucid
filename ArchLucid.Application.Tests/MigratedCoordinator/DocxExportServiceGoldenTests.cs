@@ -93,6 +93,8 @@ public sealed class DocxExportServiceGoldenTests
         xml.Should().Contain("GOLDEN_DOCX_SUMMARY_ANCHOR");
         xml.Should().Contain(runId.ToString());
         xml.Should().Contain(manifestId.ToString());
+        xml.Should().Contain("Review continuity");
+        xml.Should().Contain("/reviews/");
     }
 
     [SkippableFact]

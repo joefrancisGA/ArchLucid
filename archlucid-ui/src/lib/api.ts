@@ -55,6 +55,12 @@ import type {
   AdvisoryScanSchedule,
   ArchitectureDigest,
 } from "@/types/advisory-scheduling";
+import type {
+  AlertActionLoopDto,
+  OperatorStickinessSnapshotDto,
+  TenantIntegrationsOperationsDto,
+  WeeklyDigestHealthDto,
+} from "@/types/operate-rhythm";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 import type {
   ExecDigestPreferencesResponse,
@@ -339,6 +345,22 @@ export type OperatorNextBestActionDto = {
 
 export function fetchOperatorNextBestActions(): Promise<OperatorNextBestActionDto[]> {
   return apiGet<OperatorNextBestActionDto[]>("/v1/tenant/customer-success/next-actions");
+}
+
+export function fetchOperatorStickinessSnapshot(): Promise<OperatorStickinessSnapshotDto> {
+  return apiGet<OperatorStickinessSnapshotDto>("/v1/tenant/customer-success/stickiness-snapshot");
+}
+
+export function fetchTenantIntegrationsOperations(): Promise<TenantIntegrationsOperationsDto> {
+  return apiGet<TenantIntegrationsOperationsDto>("/v1/tenant/integrations/operations");
+}
+
+export function fetchWeeklyDigestHealth(): Promise<WeeklyDigestHealthDto> {
+  return apiGet<WeeklyDigestHealthDto>("/v1/tenant/operate/weekly-digest-health");
+}
+
+export function fetchAlertActionLoop(alertId: string): Promise<AlertActionLoopDto> {
+  return apiGet<AlertActionLoopDto>(`/v1/alerts/${encodeURIComponent(alertId)}/action-loop`);
 }
 
 export type CorePilotChecklistStepDto = {

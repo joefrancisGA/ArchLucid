@@ -156,4 +156,33 @@ public sealed class TenantCustomerSuccessControllerTests
             r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task GetStickinessSnapshotAsync_merges_funnel_and_signals()
+    {
+        Mock<ITenantCustomerSuccessRepository> repo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
+
+        Mock<IOperatorStickinessSnapshotReader> stickiness = new();
+        DateTime firstRun = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        stickiness
+            .Setup(s => s.GetFunnelSnapshotAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotFunnelSnapshot(firstRun, null, null, null, null, 3, 2, 4));
+        stickiness
+            .Setup(s => s.GetOperatorSignalsAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OperatorStickinessSignals(3, 2, Guid.NewGuid(), 5, 1));
+
+        TenantCustomerSuccessController sut = BuildSut(repo.Object, scopeProvider.Object, stickiness: stickiness.Object);
+        IActionResult result = await sut.GetStickinessSnapshotAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        OperatorStickinessSnapshotResponse body = ok.Value.Should().BeAssignableTo<OperatorStickinessSnapshotResponse>().Subject;
+        body.PilotFunnel.TotalRunsInScope.Should().Be(3);
+        body.PilotFunnel.CommittedRunsInScope.Should().Be(2);
+        body.ComparisonEventsLast30Days.Should().Be(5);
+        body.PendingGovernanceApprovals.Should().Be(1);
+    }
 }

@@ -1,7 +1,9 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Models.Alerts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Alerts;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -34,9 +36,13 @@ namespace ArchLucid.Api.Controllers.Alerts;
 public sealed class AlertsController(
     IScopeContextProvider scopeProvider,
     IAlertRecordRepository alertRepository,
-    IAlertService alertService)
+    IAlertService alertService,
+    IAlertActionLoopReader actionLoopReader)
     : ControllerBase
 {
+    private readonly IAlertActionLoopReader _actionLoopReader =
+        actionLoopReader ?? throw new ArgumentNullException(nameof(actionLoopReader));
+
     /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>
     /// <param name="status">When set, restricts to alerts with this status string (repository-defined).</param>
     /// <param name="take">Max rows (capped by repository). Used when <paramref name="page" /> is not set.</param>
@@ -84,6 +90,42 @@ public sealed class AlertsController(
             ct);
 
         return Ok(alerts);
+    }
+
+    /// <summary>Alert lifecycle plus redacted delivery attempts for closure visibility.</summary>
+    [HttpGet("{alertId:guid}/action-loop")]
+    [ProducesResponseType(typeof(AlertActionLoopResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetActionLoop(Guid alertId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        AlertActionLoopSnapshot? snapshot =
+            await _actionLoopReader.GetAsync(alertId, scope, ct).ConfigureAwait(false);
+
+        if (snapshot is null)
+            return this.NotFoundProblem($"Alert '{alertId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        AlertActionLoopResponse body = new()
+        {
+            AlertId = snapshot.AlertId,
+            Status = snapshot.Status,
+            RunId = snapshot.RunId,
+            LastUpdatedUtc = snapshot.LastUpdatedUtc,
+            ResolutionComment = snapshot.ResolutionComment,
+            DeliveryAttempts = snapshot.DeliveryAttempts
+                .Select(static a => new AlertDeliveryAttemptResponse
+                {
+                    ChannelType = a.ChannelType,
+                    Status = a.Status,
+                    AttemptedUtc = a.AttemptedUtc,
+                    DestinationRedacted = a.DestinationRedacted,
+                    ErrorMessage = a.ErrorMessage,
+                })
+                .ToList(),
+        };
+
+        return Ok(body);
     }
 
     /// <summary>Applies an operator action to an alert if it belongs to the current scope.</summary>

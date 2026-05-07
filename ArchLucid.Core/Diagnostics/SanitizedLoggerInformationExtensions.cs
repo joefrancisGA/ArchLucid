@@ -210,4 +210,32 @@ public static partial class SanitizedLoggerInformationExtensions
             safeSystemName,
             safeEnvironment);
     }
+
+    /// <summary>
+    ///     Logs successful internal architecture run replay with five user-derived string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationInternalArchitectureRunReplayed(
+        this ILogger logger,
+        string originalRunId,
+        string replayRunId,
+        string executionMode,
+        string user,
+        string correlationId)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeOriginalRunId = LogSanitizer.Sanitize(originalRunId);
+        string safeReplayRunId = LogSanitizer.Sanitize(replayRunId);
+        string safeExecutionMode = LogSanitizer.Sanitize(executionMode);
+        string safeUser = LogSanitizer.Sanitize(user);
+        string safeCorrelationId = LogSanitizer.Sanitize(correlationId);
+
+        EmitInternalArchitectureRunReplayed(
+            logger,
+            safeOriginalRunId,
+            safeReplayRunId,
+            safeExecutionMode,
+            safeUser,
+            safeCorrelationId);
+    }
 }

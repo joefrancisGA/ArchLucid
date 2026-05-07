@@ -48,7 +48,9 @@ public static class AuditEventFilterEnumerable
 
             query = query.Where(x => x.RunId == filter.RunId.Value);
 
-        if (filter.BeforeUtc.HasValue)
+        if (!filter.BeforeUtc.HasValue)
+            return query;
+
         {
             DateTime beforeUtc = filter.BeforeUtc.Value;
 

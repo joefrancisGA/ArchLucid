@@ -44,7 +44,7 @@ import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorVa
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
-import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
+import { PostCommitRetentionRail } from "@/components/PostCommitRetentionRail";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import {
   OperatorEvidenceLimitsFooter,
@@ -677,6 +677,7 @@ export default async function RunDetailPage({
         </OperatorMalformedCallout>
       )}
 
+      {manifestId ? <PostCommitRetentionRail runId={runId} /> : null}
       {manifestId ? <PostCommitAdvancedAnalysisHint runId={runId} /> : null}
 
       {manifestId && (

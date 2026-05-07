@@ -123,6 +123,43 @@ public sealed class TenantCustomerSuccessController(
             });
     }
 
+    /// <summary>Pilot funnel milestones plus comparison and governance habit signals for customer-success views.</summary>
+    [HttpGet("stickiness-snapshot")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(OperatorStickinessSnapshotResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStickinessSnapshotAsync(CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        PilotFunnelSnapshot funnel = await _stickinessSnapshotReader
+            .GetFunnelSnapshotAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        OperatorStickinessSignals signals = await _stickinessSnapshotReader
+            .GetOperatorSignalsAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        OperatorStickinessSnapshotResponse body = new()
+        {
+            PilotFunnel = new PilotFunnelSnapshotResponse
+            {
+                FirstRunCreatedUtc = ToOffset(funnel.FirstRunCreatedUtc),
+                FirstGoldenManifestUtc = ToOffset(funnel.FirstGoldenManifestUtc),
+                FirstComparisonUtc = ToOffset(funnel.FirstComparisonUtc),
+                FirstArtifactOrBundleDownloadUtc = ToOffset(funnel.FirstArtifactOrBundleDownloadUtc),
+                FirstReplayUtc = ToOffset(funnel.FirstReplayUtc),
+                TotalRunsInScope = funnel.TotalRunsInScope,
+                CommittedRunsInScope = funnel.CommittedRunsInScope,
+                ProductLearningSignalsLast90Days = funnel.ProductLearningSignalsLast90Days,
+            },
+            LatestRunId = signals.LatestRunId,
+            ComparisonEventsLast30Days = signals.ComparisonAuditEvents30D,
+            PendingGovernanceApprovals = signals.PendingGovernanceApprovals,
+        };
+
+        return Ok(body);
+    }
+
     private static DateTimeOffset? ToOffset(DateTime? utc)
     {
         if (utc is null)
