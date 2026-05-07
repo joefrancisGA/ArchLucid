@@ -34,6 +34,7 @@ import {
 } from "@/lib/showcase-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
 function manifestScenarioSubtitle(m: ManifestSummary): string | null {
@@ -58,11 +59,7 @@ export default async function ManifestDetailPage({
 }) {
   const { manifestId } = await params;
 
-  const buyerPolishedLayout =
-    process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
-    process.env.NEXT_PUBLIC_DEMO_MODE === "1" ||
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
-    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1";
+  const buyerPolishedLayout = isBuyerPolishedOperatorShellEnv();
 
   if (isInvalidManifestRouteId(manifestId)) {
     notFound();
@@ -138,7 +135,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized Architecture Manifest
+          {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
         </h1>
         <p className="m-0 text-sm font-semibold">Manifest summary could not be loaded.</p>
         <OperatorApiProblem
@@ -171,7 +168,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized Architecture Manifest
+          {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
         </h1>
         <OperatorMalformedCallout>
           <strong>Manifest summary response was not usable.</strong>
@@ -202,7 +199,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized Architecture Manifest
+          {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
         </h1>
         <OperatorErrorCallout>
           <strong>Manifest summary missing.</strong>
@@ -265,7 +262,7 @@ export default async function ManifestDetailPage({
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-            Finalized Architecture Manifest
+            {buyerPolishedLayout ? "Architecture review package" : "Finalized Architecture Manifest"}
           </h1>
           {manifestSubtitle ? (
             <p className="m-0 mt-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -275,22 +272,37 @@ export default async function ManifestDetailPage({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="default" size="sm" asChild>
-            <a href={getBundleDownloadUrl(manifestId)}>Export manifest bundle</a>
+            <a href={getBundleDownloadUrl(manifestId)}>
+              {buyerPolishedLayout ? "Download full package (ZIP)" : "Export manifest bundle"}
+            </a>
           </Button>
         </div>
       </div>
 
       <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        A finalized manifest is the reviewed, versioned architecture record for this review. It captures decisions, findings,
-        and the downloadable artifact bundle linked from review detail.
+        {buyerPolishedLayout ? (
+          <>
+            This is the reviewed, versioned record for the architecture review: decisions, findings, and the files you can
+            open or download.
+          </>
+        ) : (
+          <>
+            A finalized manifest is the reviewed, versioned architecture record for this review. It captures decisions,
+            findings, and the downloadable artifact bundle linked from review detail.
+          </>
+        )}
       </p>
 
-      <ManifestTopDecisionsCard summary={summary} />
+      <ManifestTopDecisionsCard summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Summary</CardTitle>
-          <CardDescription>Status, rules, and counts for this manifest.</CardDescription>
+          <CardTitle className="text-base font-semibold">{buyerPolishedLayout ? "Overview" : "Summary"}</CardTitle>
+          <CardDescription>
+            {buyerPolishedLayout
+              ? "Status, policy posture, and what is included in this package."
+              : "Status, rules, and counts for this manifest."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <ManifestDetailSummaryPanel summary={summary} buyerPolishedLayout={buyerPolishedLayout} />
@@ -302,13 +314,16 @@ export default async function ManifestDetailPage({
           <CardHeader>
             <CardTitle className="text-base font-semibold">Related findings</CardTitle>
             <CardDescription>
-              Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review.
+              {buyerPolishedLayout
+                ? "Open items tied to this package also appear on the originating review."
+                : "Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating review."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-              Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence
-              rows are available.
+              {buyerPolishedLayout
+                ? "Use the review summary to open each finding with full context and trace detail when available."
+                : "Open the aggregate architecture review summary on review detail — per-finding links appear when trace confidence rows are available."}
             </p>
             <div className="mt-4">
               <Button variant="secondary" size="sm" asChild>
@@ -317,7 +332,7 @@ export default async function ManifestDetailPage({
                     primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
-                  {primaryFindingHref ? "PHI risk finding" : "Open review findings"}
+                  {primaryFindingHref ? "Open PHI risk finding" : buyerPolishedLayout ? "View findings on review" : "Open review findings"}
                 </Link>
               </Button>
             </div>
@@ -327,19 +342,29 @@ export default async function ManifestDetailPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Generated artifacts</CardTitle>
-          <CardDescription>Outputs produced during this review — available for preview and download.</CardDescription>
+          <CardTitle className="text-base font-semibold">
+            {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
+          </CardTitle>
+          <CardDescription>
+            {buyerPolishedLayout
+              ? "Files produced for this review — open in the browser or download."
+              : "Outputs produced during this review — available for preview and download."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Button variant="outline" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
+              <a href={getBundleDownloadUrl(manifestId)}>
+                {buyerPolishedLayout ? "Download all files (ZIP)" : "Download bundle (ZIP)"}
+              </a>
             </Button>
           </div>
 
           {artifactsFailure && (
             <>
-              <p className="m-0 text-sm font-semibold">Artifact list could not be loaded.</p>
+              <p className="m-0 text-sm font-semibold">
+                {buyerPolishedLayout ? "Deliverables list could not be loaded." : "Artifact list could not be loaded."}
+              </p>
               <OperatorApiProblem
                 problem={artifactsFailure.problem}
                 fallbackMessage={artifactsFailure.message}
@@ -347,8 +372,17 @@ export default async function ManifestDetailPage({
                 variant="warning"
               />
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                Try reloading, or return to the review detail page. You can still use Download bundle (ZIP) if
-                the list endpoint is unavailable.
+                {buyerPolishedLayout ? (
+                  <>
+                    Try reloading, or return to the review. You can still use Download all files (ZIP) when the bundle is
+                    available.
+                  </>
+                ) : (
+                  <>
+                    Try reloading, or return to the review detail page. You can still use Download bundle (ZIP) if the list
+                    endpoint is unavailable.
+                  </>
+                )}
               </p>
             </>
           )}
@@ -356,20 +390,35 @@ export default async function ManifestDetailPage({
           {!artifactsFailure && artifactsMalformed && (
             <>
               <OperatorMalformedCallout>
-                <strong>Artifact list response was not usable.</strong>
+                <strong>
+                  {buyerPolishedLayout
+                    ? "Deliverables response was not usable."
+                    : "Artifact list response was not usable."}
+                </strong>
                 <p className="mt-2">{artifactsMalformed}</p>
               </OperatorMalformedCallout>
               <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-                Try reloading, or return to the review detail page. Bundle download may still work.
+                {buyerPolishedLayout
+                  ? "Try reloading, or return to the review. ZIP download may still work."
+                  : "Try reloading, or return to the review detail page. Bundle download may still work."}
               </p>
             </>
           )}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
-            <OperatorEmptyState title="No artifacts listed for this manifest">
+            <OperatorEmptyState title={buyerPolishedLayout ? "No deliverables listed yet" : "No artifacts listed for this manifest"}>
               <p className="m-0">
-                The summary loaded, but the artifact descriptor list is empty. Bundle download may be
-                available when there is a bundle.
+                {buyerPolishedLayout ? (
+                  <>
+                    The overview loaded, but no individual files are listed yet. Try the ZIP if your workspace publishes a
+                    bundle for this review.
+                  </>
+                ) : (
+                  <>
+                    The summary loaded, but the artifact descriptor list is empty. Bundle download may be available when
+                    there is a bundle.
+                  </>
+                )}
               </p>
             </OperatorEmptyState>
           )}

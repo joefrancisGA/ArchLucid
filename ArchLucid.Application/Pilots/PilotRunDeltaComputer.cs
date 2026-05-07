@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;

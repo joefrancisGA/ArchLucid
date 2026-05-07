@@ -62,4 +62,24 @@ describe("ArtifactListTable", () => {
     const preview = screen.getByRole("link", { name: "Preview" });
     expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/artifact-guid-1");
   });
+
+  it("sponsor mode: Output / View labels, technical details include raw format MIME", () => {
+    const mimeSample = {
+      ...sample,
+      format: "text/markdown",
+      name: "brief.md",
+    };
+    render(
+      <ArtifactListTable manifestId="manifest-1" artifacts={[mimeSample]} sponsorMode />,
+    );
+
+    expect(screen.getByRole("columnheader", { name: "Output" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Generated" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "Format" })).toBeNull();
+
+    expect(screen.getByText("Technical details")).toBeInTheDocument();
+    expect(screen.getByText("text/markdown")).toBeInTheDocument();
+    expect(screen.getByText(/Presentation:/)).toBeInTheDocument();
+  });
 });
