@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -28,7 +29,7 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
@@ -39,6 +40,12 @@ const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the finalized manifest for a sponsor.",
   "What evidence supports the PHI minimization risk?",
   "Summarize this for an executive sponsor.",
+];
+
+const ASK_FOLLOW_UP_CHIPS_BUYER: readonly string[] = [
+  "What are the top three risks I should brief leadership on?",
+  "What should we validate before go-live?",
+  "Summarize the mitigation pattern in one paragraph.",
 ];
 
 export default function AskPage() {
@@ -54,7 +61,9 @@ export default function AskPage() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
   const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
-  const hideCompareChrome = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const hideCompareChrome =
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() || buyerPolishedShell;
 
   const loadThreads = useCallback(async () => {
     setListFailure(null);
@@ -130,7 +139,7 @@ export default function AskPage() {
       return;
     }
 
-    setRunId(fromWorkspace);
+    setRunId(canonicalizeDemoRunId(fromWorkspace));
   }, [workspaceRun?.activeRunId, selectedThreadId]);
 
   const loadMessages = useCallback(async (threadId: string) => {
@@ -245,17 +254,35 @@ export default function AskPage() {
   const runMissing = needsRunForNewThread && runId.trim().length === 0;
   const listDateFormatter = isBuyerPolishedOperatorShellEnv() ? formatConversationListDatePolished : formatConversationListDate;
   const askDisabled = loading || question.trim().length === 0 || runMissing;
+  const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+  const showPostAssistantFollowUps =
+    buyerPolishedShell &&
+    lastMessage !== null &&
+    lastMessage.role.toLowerCase() === "assistant";
 
   return (
     <main className="max-w-5xl">
       <OperatorPageHeader
         title="Ask about a review"
         helpKey="ask-archlucid"
-        subtitle="Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
+        subtitle={
+          buyerPolishedShell
+            ? "Saved threads keep their review context. For a new thread, pick a review below—your workspace selection is used when available."
+            : "Conversations stay in your workspace. Select an architecture review for a new conversation; follow-ups stay on the same conversation without picking the review again."
+        }
       />
       <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-        Answers use the review context you select (finalized manifest and findings when available; reviews in progress may
-        omit late-stage outputs until the pipeline completes).
+        {buyerPolishedShell ? (
+          <>
+            Answers use the review you attach. Finalized packages include manifest and findings; in-flight reviews may omit
+            late outputs until processing completes.
+          </>
+        ) : (
+          <>
+            Answers use the review context you select (finalized manifest and findings when available; reviews in progress may
+            omit late-stage outputs until the pipeline completes).
+          </>
+        )}
       </p>
 
       {listFailure !== null ? (
@@ -287,6 +314,14 @@ export default function AskPage() {
               onClick={() => {
                 setSelectedThreadId("");
                 setMessages([]);
+
+                if (buyerPolishedShell) {
+                  const fromWs = workspaceRun?.activeRunId?.trim() ?? "";
+
+                  setRunId(
+                    fromWs.length > 0 ? canonicalizeDemoRunId(fromWs) : SHOWCASE_STATIC_DEMO_RUN_ID,
+                  );
+                }
               }}
             >
               New conversation
@@ -327,6 +362,24 @@ export default function AskPage() {
                 selectedThreadId={selectedThreadId}
                 fieldId="ask-run-primary"
               />
+              {buyerPolishedShell && runId.trim().length > 0 ? (
+                <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-600 dark:text-neutral-400">
+                  <Link
+                    className="font-medium text-teal-800 underline dark:text-teal-300"
+                    href={`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId.trim()))}`}
+                  >
+                    Open linked review
+                  </Link>
+                  {canonicalizeDemoRunId(runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID ? (
+                    <Link
+                      className="font-medium text-teal-800 underline dark:text-teal-300"
+                      href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                    >
+                      Open review package
+                    </Link>
+                  ) : null}
+                </p>
+              ) : null}
               {hideCompareChrome ? null : (
               <Collapsible open={compareOpen} onOpenChange={setCompareOpen}>
                 <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
@@ -378,8 +431,12 @@ export default function AskPage() {
                   placeholder="Ask about your architecture..."
                   rows={4}
                 />
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Example prompts">
-                  {ASK_EXAMPLE_PROMPTS.map((line) => (
+                <div
+                  className="flex flex-wrap gap-2"
+                  role="group"
+                  aria-label={buyerPolishedShell ? "Suggested prompts" : "Example prompts"}
+                >
+                  {(buyerPolishedShell ? ASK_FOLLOW_UP_CHIPS_BUYER : ASK_EXAMPLE_PROMPTS).map((line) => (
                     <Button
                       key={line}
                       type="button"
@@ -435,7 +492,7 @@ export default function AskPage() {
                     <CardContent className="space-y-1 p-3">
                       <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{message.role}</div>
                       {message.role.toLowerCase() === "assistant" ? (
-                        <AskAssistantMessageBody content={message.content} />
+                        <AskAssistantMessageBody buyerPolishedLinks={buyerPolishedShell} content={message.content} />
                       ) : (
                         <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
                           {message.content}
@@ -445,6 +502,26 @@ export default function AskPage() {
                   </Card>
                 ))}
               </div>
+              {showPostAssistantFollowUps ? (
+                <div className="space-y-2 pt-1">
+                  <p className="m-0 text-xs font-medium text-neutral-600 dark:text-neutral-400">Suggested follow-ups</p>
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Suggested follow-ups">
+                    {ASK_FOLLOW_UP_CHIPS_BUYER.map((line) => (
+                      <Button
+                        key={`follow-${line}`}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                        disabled={runMissing}
+                        onClick={() => setQuestion(line)}
+                      >
+                        {line}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </CardContent>
         </Card>
