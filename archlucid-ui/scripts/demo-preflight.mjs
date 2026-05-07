@@ -4,7 +4,8 @@
  *
  * Usage:
  *   node scripts/demo-preflight.mjs               # check env vars in current shell
- *   NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true node scripts/demo-preflight.mjs
+ *   DEMO_PREFLIGHT_RELAXED=1 node scripts/demo-preflight.mjs
+ *   node scripts/demo-preflight.mjs --relaxed
  *
  * Exit 0 = all checks passed. Exit 1 = one or more checks failed.
  *
@@ -51,6 +52,11 @@ function section(title) {
   console.log(`\n\x1b[1m${title}\x1b[0m`);
 }
 
+const relaxedPreflight =
+  process.argv.includes("--relaxed") ||
+  process.env.DEMO_PREFLIGHT_RELAXED === "1" ||
+  process.env.DEMO_PREFLIGHT_RELAXED === "true";
+
 // ──────────────────────────────────────────────
 // 1. Environment variables
 // ──────────────────────────────────────────────
@@ -66,6 +72,11 @@ const demoMode =
 
 if (demoStaticOperator) {
   pass("NEXT_PUBLIC_DEMO_STATIC_OPERATOR is set — buyer-polished shell enabled");
+} else if (relaxedPreflight) {
+  warn(
+    "NEXT_PUBLIC_DEMO_STATIC_OPERATOR is not set",
+    'Expected "true" or "1" for buyer screenshots. Relaxed mode: continuing.',
+  );
 } else {
   fail(
     "NEXT_PUBLIC_DEMO_STATIC_OPERATOR is not set",

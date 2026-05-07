@@ -1,6 +1,6 @@
 import type { EmptyStateGettingStarted } from "@/components/EmptyState";
 
-/** `/governance` — no run loaded yet. */
+/** `/governance` — no review selected yet in the workflow picker. */
 export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "Governance workflow in three moves",
   steps: [

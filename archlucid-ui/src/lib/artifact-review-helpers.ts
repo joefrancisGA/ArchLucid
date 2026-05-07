@@ -48,9 +48,9 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
       "JSON report listing unresolved issues or warnings that operators should triage before sign-off.",
   },
   JsonBundle: {
-    label: "JSON Bundle",
+    label: "Architecture decision record",
     description:
-      "Structured JSON bundle of architecture decisions or exports linked to the manifest — open in a JSON viewer or download.",
+      "Structured decisions bundle linked to the manifest — open in a JSON viewer or download.",
   },
   MarkdownReport: {
     label: "Markdown report",
@@ -132,11 +132,11 @@ export function getArtifactTypeLabel(artifactType: string): string {
  * Maps technical artifact types to sponsor-readable names.
  */
 const ARTIFACT_BUSINESS_LABELS: Record<string, string> = {
-  MarkdownReport: "Sponsor brief",
-  JsonBundle: "Decision record",
-  Diagram: "System diagram",
-  MermaidDiagram: "System diagram",
-  DiagramAst: "System diagram",
+  MarkdownReport: "Sponsor briefing",
+  JsonBundle: "Architecture decision record",
+  Diagram: "Intake context diagram",
+  MermaidDiagram: "Intake context diagram",
+  DiagramAst: "Intake context diagram",
   EvidenceBundle: "Evidence bundle",
   CostSummary: "Cost analysis",
   UnresolvedIssuesReport: "Open issues summary",

@@ -270,7 +270,7 @@ export default function GraphPage() {
     ? "Interactive review-trail graph for the selected architecture review. Controls below switch reviews or graph mode."
     : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
 
-  const pageTitle = demoUi ? "Review trail graph" : "Review evidence graph";
+  const pageTitle = demoUi || buyerPolishedShell ? "Review trail graph" : "Review evidence graph";
 
   const loadButtonLabel = loading ? "Loading…" : "Load graph";
 

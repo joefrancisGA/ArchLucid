@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { GovernanceApprovalStoryCard } from "@/components/GovernanceApprovalStoryCard";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -567,7 +568,16 @@ function GovernanceWorkflowPageInner() {
         </div>
       ) : null}
 
-      <div className={cn(canMutateWorkflow ? "flex flex-col" : "flex flex-col-reverse")}>
+      {buyerPolishedShell && approvals.length > 0 && activeRunId !== null ? (
+        <GovernanceApprovalStoryCard row={approvals[0]!} />
+      ) : null}
+
+      <div
+        className={cn(
+          "flex flex-col",
+          buyerPolishedShell || !canMutateWorkflow ? "flex-col-reverse" : "flex-col",
+        )}
+      >
       <section className="mb-10">
         <Card className={cn(!canMutateWorkflow && "opacity-95")}>
           <CardHeader>
@@ -730,7 +740,7 @@ function GovernanceWorkflowPageInner() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
-                  {listsLoading ? "Loading…" : "Load"}
+                  {listsLoading ? "Loading…" : buyerPolishedShell ? "Load review" : "Load"}
                 </Button>
                 {activeRunId !== null ? (
                   <Button
@@ -740,7 +750,11 @@ function GovernanceWorkflowPageInner() {
                     disabled={listsLoading}
                     title={governanceWorkflowRefreshRunDataTitle}
                   >
-                    {listsLoading ? "Refreshing…" : governanceWorkflowRefreshRunDataButtonLabel}
+                    {listsLoading
+                      ? "Refreshing…"
+                      : buyerPolishedShell
+                        ? "Refresh review data"
+                        : governanceWorkflowRefreshRunDataButtonLabel}
                   </Button>
                 ) : null}
               </div>
@@ -1134,7 +1148,7 @@ function GovernanceWorkflowPageInner() {
         title="Activate environment?"
         description={
           pendingActivate !== null
-            ? `Activating governance pack in ${pendingActivate.env}. This will apply the pack's rules to all future runs.`
+            ? `Activating governance pack in ${pendingActivate.env}. This will apply the pack's rules to all future governed changes.`
             : ""
         }
         variant="default"

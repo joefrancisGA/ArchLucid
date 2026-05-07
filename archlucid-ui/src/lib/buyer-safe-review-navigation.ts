@@ -43,7 +43,7 @@ export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExplor
   if (isDemoRunIdEligibleForStaticFallback(id)) {
     return {
       href: getShowcaseManifestHref(),
-      label: isBuyerPolishedOperatorShellEnv() ? "Review package" : "Manifest summary",
+      label: isBuyerPolishedOperatorShellEnv() ? "Open manifest" : "Manifest summary",
     };
   }
 

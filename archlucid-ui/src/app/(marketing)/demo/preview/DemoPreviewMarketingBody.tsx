@@ -201,9 +201,11 @@ export function DemoPreviewMarketingBody({
             <strong>Project:</strong> {payload.run?.projectId ?? "—"}
           </p>
         ) : null}
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Description:</strong> {payload.run?.description ?? ""}
-        </p>
+        {!demoMode ? (
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+            <strong>Description:</strong> {payload.run?.description ?? ""}
+          </p>
+        ) : null}
         {!demoMode ? (
           <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
             <strong>Created (UTC):</strong> {typeof payload.run?.createdUtc === "string" ? payload.run.createdUtc : "—"}

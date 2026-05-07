@@ -21,6 +21,7 @@ import { canonicalizeDemoRunId, demoRunUrlRequiresCanonicalRedirect } from "@/li
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -231,6 +232,7 @@ export default async function RunDetailPage({
   }
 
   const resolvedDetail = envelope.value;
+  const buyerPolishedArtifactTable = isBuyerPolishedOperatorShellEnv();
   const manifestId = resolvedDetail.run.goldenManifestId;
   let goldenManifestJsonForExport: unknown | null = null;
 
@@ -744,6 +746,7 @@ export default async function RunDetailPage({
                   manifestId={manifestId}
                   artifacts={artifacts}
                   runId={resolvedDetail.run.runId}
+                  sponsorMode={buyerPolishedArtifactTable}
                 />
               )}
 

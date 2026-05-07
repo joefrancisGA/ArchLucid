@@ -17,6 +17,24 @@ export type HelpTopic = {
 /** Topics for the Help drawer “Troubleshooting” tab (ops / auth / support). */
 export const TROUBLESHOOTING_HELP_TOPIC_IDS = new Set<string>(["troubleshooting", "auth", "cli", "support-bundle"]);
 
+/**
+ * Guides tab default ordering — buyer golden path first (new review → reviews/manifest → graph → Ask → governance).
+ */
+export const GOLDEN_PATH_GUIDE_TOPIC_IDS: readonly string[] = [
+  "first-run",
+  "artifacts",
+  "graph",
+  "ask-archlucid",
+  "governance-workflow",
+  "compare",
+  "replay",
+  "alerts",
+  "policy-packs",
+  "system-health",
+  "pilot-feedback",
+  "scope",
+];
+
 export const HELP_TOPICS: HelpTopic[] = [
   {
     id: "first-run",
@@ -33,7 +51,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["download", "manifest", "bundle", "zip"],
     summary: "Open a review, then review artifact list, previews, and bundle downloads from review detail.",
     docPath: "docs/library/operator-shell.md",
-    routes: ["/reviews"],
+    routes: ["/reviews", "/manifests"],
   },
   {
     id: "compare",
@@ -53,11 +71,30 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "graph",
-    title: "Review evidence graph",
+    title: "Review trail graph",
     keywords: ["provenance", "knowledge graph"],
-    summary: "Graph shows one review’s provenance or architecture view for a review id.",
+    summary:
+      "Visual review trail for one architecture review — evidence map and provenance tied to the selected review context.",
     docPath: "docs/library/KNOWLEDGE_GRAPH.md",
     routes: ["/graph"],
+  },
+  {
+    id: "ask-archlucid",
+    title: "Ask about a review",
+    keywords: ["chat", "question", "sponsor", "assistant"],
+    summary:
+      "Attach the sample architecture review (or your workspace review), ask sponsor-ready questions, and follow threaded answers.",
+    docPath: "docs/library/operator-shell.md",
+    routes: ["/ask"],
+  },
+  {
+    id: "governance-workflow",
+    title: "Governance approvals",
+    keywords: ["approval", "promote", "staging", "production"],
+    summary:
+      "Submit → review → approve → promote: walk approvals for a finalized manifest when your workspace enables governance.",
+    docPath: "docs/library/API_CONTRACTS.md",
+    routes: ["/governance"],
   },
   {
     id: "alerts",
@@ -154,7 +191,19 @@ export function getDocHref(docPath: string): string | null {
 }
 
 export function helpTopicsForGuidesTab(): HelpTopic[] {
-  return HELP_TOPICS.filter((t) => !TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
+  const filtered = HELP_TOPICS.filter((t) => !TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id));
+
+  function rank(id: string): number {
+    const i = GOLDEN_PATH_GUIDE_TOPIC_IDS.indexOf(id);
+
+    if (i >= 0) {
+      return i;
+    }
+
+    return 900 + filtered.findIndex((t) => t.id === id);
+  }
+
+  return [...filtered].sort((a, b) => rank(a.id) - rank(b.id));
 }
 
 export function helpTopicsForTroubleshootingTab(): HelpTopic[] {
@@ -169,7 +218,9 @@ export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {
       topic.routes.some((route) => pathname === route || pathname.startsWith(`${route}/`)),
     );
 
-    return byRoute.length > 0 ? byRoute : HELP_TOPICS;
+    return byRoute.length > 0
+      ? byRoute
+      : [...helpTopicsForGuidesTab(), ...HELP_TOPICS.filter((t) => TROUBLESHOOTING_HELP_TOPIC_IDS.has(t.id))];
   }
 
   const scored = HELP_TOPICS.map((topic) => {

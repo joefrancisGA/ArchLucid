@@ -201,7 +201,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>
+              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
@@ -259,7 +259,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
               <SelectValue placeholder="Choose demo review" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>
+              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Review</SelectItem>
             </SelectContent>
           </Select>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
