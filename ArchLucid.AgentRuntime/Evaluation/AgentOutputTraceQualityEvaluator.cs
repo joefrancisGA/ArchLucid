@@ -68,7 +68,7 @@ public static class AgentOutputTraceQualityEvaluator
 
         bool hasCitations = TryHasNonEmptyCitations(trace.ParsedResultJson);
 
-        ApplyCitationOutcome(options, pilotStrict, hasCitations, ref gateOutcome);
+        ApplyCitationOutcome(pilotStrict, hasCitations, ref gateOutcome);
 
         if (pilotStrict && options.PilotStrictMinEvidenceRefCount > 0 &&
             !MeetsEvidenceRefFloor(trace.ParsedResultJson, options.PilotStrictMinEvidenceRefCount))
@@ -148,9 +148,7 @@ public static class AgentOutputTraceQualityEvaluator
             gateOutcome = AgentOutputQualityGateOutcome.Rejected;
     }
 
-    private static void ApplyCitationOutcome(
-        AgentOutputQualityGateOptions options,
-        bool pilotStrict,
+    private static void ApplyCitationOutcome(bool pilotStrict,
         bool hasCitations,
         ref AgentOutputQualityGateOutcome gateOutcome)
     {

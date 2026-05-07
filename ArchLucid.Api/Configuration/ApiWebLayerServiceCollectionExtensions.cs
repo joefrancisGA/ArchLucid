@@ -1,7 +1,6 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Health;
 using ArchLucid.Api.Middleware;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;

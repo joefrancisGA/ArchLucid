@@ -175,26 +175,25 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             {
                 ChatMessageContentPart p = parts[i];
 
-                if (p.Kind == ChatMessageContentPartKind.Text && !string.IsNullOrWhiteSpace(p.Text))
-                {
-                    if (chunks.Length > 0)
-                        chunks.Append("\n\n---\n\n");
+                if (p.Kind != ChatMessageContentPartKind.Text || string.IsNullOrWhiteSpace(p.Text))
+                    continue;
+                if (chunks.Length > 0)
+                    chunks.Append("\n\n---\n\n");
 
-                    chunks.Append(p.Text.Trim());
-                }
+                chunks.Append(p.Text.Trim());
             }
         }
 
         ChatTokenUsage? usage = completion.Usage;
 
-        if (usage?.OutputTokenDetails?.ReasoningTokenCount is int rc && rc > 0)
-        {
-            if (chunks.Length > 0)
-                chunks.Append("\n\n---\n\n");
+        if (usage?.OutputTokenDetails?.ReasoningTokenCount is not ({ } rc and > 0))
+            return chunks.Length == 0 ? null : chunks.ToString();
 
-            chunks.Append("Provider reasoning tokens: ");
-            chunks.Append(rc);
-        }
+        if (chunks.Length > 0)
+            chunks.Append("\n\n---\n\n");
+
+        chunks.Append("Provider reasoning tokens: ");
+        chunks.Append(rc);
 
         return chunks.Length == 0 ? null : chunks.ToString();
     }

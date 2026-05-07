@@ -50,11 +50,11 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                 return true;
         }
 
-        if (_options.PilotStrictMinFaithfulnessSupportRatio is not double minFaith)
+        if (_options.PilotStrictMinFaithfulnessSupportRatio is not { } minFaith)
             return false;
 
         double? ratio = explanationSummary?.FaithfulnessSupportRatio;
 
-        return ratio is double fr && fr < minFaith;
+        return ratio is { } fr && fr < minFaith;
     }
 }

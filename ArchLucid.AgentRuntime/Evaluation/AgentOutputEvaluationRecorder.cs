@@ -22,7 +22,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
-    ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -39,7 +39,7 @@ public sealed class AgentOutputEvaluationRecorder(
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
 
-    private readonly ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
+    private readonly Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
         architectureFindingConfidenceEnricher ??
         throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
 
