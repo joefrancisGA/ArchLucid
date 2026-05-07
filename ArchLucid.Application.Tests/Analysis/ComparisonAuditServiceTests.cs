@@ -18,11 +18,7 @@ public sealed class ComparisonAuditServiceTests
         Mock<IComparisonRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
         ComparisonAuditService sut = new(repo.Object, audit.Object);
-        EndToEndReplayComparisonReport report = new()
-        {
-            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-        };
+        EndToEndReplayComparisonReport report = new() { LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" };
         const string summary = "# Summary";
 
         string id = await sut.RecordEndToEndAsync(report, summary, CancellationToken.None);
@@ -81,13 +77,7 @@ public sealed class ComparisonAuditServiceTests
         Mock<IComparisonRecordRepository> repo = new();
         Mock<IAuditService> audit = new();
         ComparisonAuditService sut = new(repo.Object, audit.Object);
-        ExportRecordDiffResult diff = new()
-        {
-            LeftExportRecordId = "l1",
-            RightExportRecordId = "r1",
-            LeftRunId = "lr",
-            RightRunId = "rr"
-        };
+        ExportRecordDiffResult diff = new() { LeftExportRecordId = "l1", RightExportRecordId = "r1", LeftRunId = "lr", RightRunId = "rr" };
 
         await sut.RecordExportDiffAsync(diff, "# md", CancellationToken.None);
 

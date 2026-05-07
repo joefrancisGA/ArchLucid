@@ -83,6 +83,11 @@ export function OperatorStickinessSnapshotCard(): ReactElement {
 
   const funnel = data.pilotFunnel;
 
+  // Nothing meaningful to display until the tenant has at least one run.
+  if (funnel.committedRunsInScope === 0 && funnel.totalRunsInScope === 0) {
+    return null;
+  }
+
   return (
     <section aria-labelledby="stickiness-snapshot-heading">
       <h2

@@ -35,7 +35,7 @@ public sealed class PilotCloseoutEndpointTests(ArchLucidApiFactory factory) : In
             await response.Content.ReadFromJsonAsync<Dictionary<string, JsonElement>>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!["closeoutId"].GetGuid().Should().NotBeEmpty();
+        body["closeoutId"].GetGuid().Should().NotBeEmpty();
     }
 
     [SkippableFact]

@@ -25,11 +25,7 @@ public sealed class RunTrustEvidenceCardBuilderTests
     [Fact]
     public async Task BuildAsync_WhenNotCommitted_ReturnsNull()
     {
-        ArchitectureRunDetail detail = new()
-        {
-            Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N") },
-            Manifest = null,
-        };
+        ArchitectureRunDetail detail = new() { Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N") }, Manifest = null, };
 
         RunTrustEvidenceCardBuilder sut = CreateSut(out _, out _, out _, out _, out _);
 

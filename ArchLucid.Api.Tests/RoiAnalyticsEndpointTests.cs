@@ -23,7 +23,7 @@ public sealed class RoiAnalyticsEndpointTests(ArchLucidApiFactory factory) : Int
             await response.Content.ReadFromJsonAsync<ExecutiveRoiAggregatesResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.TimeSavedHours.Should().BeGreaterThan(0);
+        body.TimeSavedHours.Should().BeGreaterThan(0);
         body.DecisionsAutomated.Should().BeGreaterThanOrEqualTo(0);
         body.ComplianceRisksMitigated.Should().BeGreaterThanOrEqualTo(0);
     }

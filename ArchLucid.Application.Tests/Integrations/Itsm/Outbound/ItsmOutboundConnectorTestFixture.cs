@@ -54,12 +54,7 @@ internal static class ItsmOutboundConnectorTestFixture
         new()
         {
             Jira = new JiraItsmOutboundOptions(),
-            ServiceNow = new ServiceNowItsmOutboundOptions
-            {
-                InstanceBaseUrl = instanceBaseUrl,
-                Username = "u",
-                Password = "p"
-            }
+            ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = instanceBaseUrl, Username = "u", Password = "p" }
         };
 
     public static Mock<IOptionsMonitor<IntegrationsItsmOutboundOptions>> Monitor(IntegrationsItsmOutboundOptions options)

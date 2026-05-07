@@ -140,8 +140,8 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     [Fact]
     public async Task Jira_Info_severity_creates_at_Low_when_sendInfo_true()
     {
-        RecordingHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.Created)
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
             {
                 Content = new StringContent("{\"id\":\"9\",\"key\":\"DP-42\"}", Encoding.UTF8, "application/json")
             });
@@ -154,14 +154,14 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         correlations
             .Setup(c => c.RegisterAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    "x",
-                    "Jira",
-                    "DP-42",
-                    "9",
-                    It.IsAny<CancellationToken>()))
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                "x",
+                "Jira",
+                "DP-42",
+                "9",
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<ITenantItsmOutboundSettingsRepository> tenant = new();
@@ -195,8 +195,8 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     [Fact]
     public async Task Jira_registers_correlation_on_success()
     {
-        RecordingHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.Created)
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
             {
                 Content = new StringContent("{\"id\":\"9\",\"key\":\"DP-99\"}", Encoding.UTF8, "application/json")
             });
@@ -248,11 +248,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     [InlineData(HttpStatusCode.InternalServerError)]
     public async Task Jira_vendor_errors_surface_as_vendor_terminal(HttpStatusCode code)
     {
-        RecordingHandler handler = new(
-            _ => new HttpResponseMessage(code)
-            {
-                Content = new StringContent("{}", Encoding.UTF8, "application/json")
-            });
+        RecordingHandler handler = new(_ => new HttpResponseMessage(code) { Content = new StringContent("{}", Encoding.UTF8, "application/json") });
 
         Mock<IFindingInspectReadRepository> findings = new();
         findings
@@ -283,11 +279,8 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     [Fact]
     public async Task Jira_malformed_success_response_is_vendor_error()
     {
-        RecordingHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.Created)
-            {
-                Content = new StringContent("{\"id\":\"9\"}", Encoding.UTF8, "application/json")
-            });
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent("{\"id\":\"9\"}", Encoding.UTF8, "application/json") });
 
         Mock<IFindingInspectReadRepository> findings = new();
         findings
@@ -317,8 +310,8 @@ public sealed class ItsmOutboundIssueCreationServiceTests
     [Fact]
     public async Task Jira_correlation_persistence_failure_is_reported()
     {
-        RecordingHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.Created)
+        RecordingHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.Created)
             {
                 Content = new StringContent("{\"id\":\"9\",\"key\":\"DP-1\"}", Encoding.UTF8, "application/json")
             });
@@ -331,14 +324,14 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         correlations
             .Setup(c => c.RegisterAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("sql down"));
 
         ItsmOutboundIssueCreationService sut = new(
@@ -369,10 +362,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         RecordingHandler handler = new(request =>
         {
             if (request.RequestUri!.AbsolutePath.Contains("cmdb_ci_appl", StringComparison.Ordinal))
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json")
-                };
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json") };
 
             return new HttpResponseMessage(HttpStatusCode.Created)
             {
@@ -407,12 +397,7 @@ public sealed class ItsmOutboundIssueCreationServiceTests
         Mock<IItsmFindingCorrelationRepository> correlations = new();
 
         IntegrationsItsmOutboundOptions outbound = OutboundJiraConfigured();
-        outbound.ServiceNow = new ServiceNowItsmOutboundOptions
-        {
-            InstanceBaseUrl = "https://sn.example",
-            Username = "u",
-            Password = "p"
-        };
+        outbound.ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = "https://sn.example", Username = "u", Password = "p" };
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

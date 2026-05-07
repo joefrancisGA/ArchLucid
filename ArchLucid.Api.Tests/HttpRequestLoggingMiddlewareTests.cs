@@ -30,7 +30,10 @@ public sealed class HttpRequestLoggingMiddlewareTests
     [Fact]
     public void ResolveCorrelationIdentifier_falls_back_when_header_blank()
     {
-        DefaultHttpContext context = new() { TraceIdentifier = "trace-fallback" };
+        DefaultHttpContext context = new()
+        {
+            TraceIdentifier = "trace-fallback"
+        };
 
         context.Response.Headers["X-Correlation-ID"] = "    ";
 
@@ -57,52 +60,49 @@ public sealed class HttpRequestLoggingMiddlewareTests
     {
         RecordingLoggerProvider sink = new();
 
-        using (ILoggerFactory factory = LoggerFactory.Create(b =>
-               {
-                   b.AddProvider(sink);
-                   b.SetMinimumLevel(LogLevel.Information);
-               }))
+        using ILoggerFactory factory = LoggerFactory.Create(b =>
         {
-            ILogger<HttpRequestLoggingMiddleware> logger =
-                factory.CreateLogger<HttpRequestLoggingMiddleware>();
+            b.AddProvider(sink);
+            b.SetMinimumLevel(LogLevel.Information);
+        });
+        ILogger<HttpRequestLoggingMiddleware> logger =
+            factory.CreateLogger<HttpRequestLoggingMiddleware>();
 
-            RequestDelegate terminator = ctx =>
-            {
-                ctx.Response.StatusCode = StatusCodes.Status418ImATeapot;
+        HttpRequestLoggingMiddleware sut = new(Terminator, logger);
 
-                return Task.CompletedTask;
-            };
+        DefaultHttpContext context = new()
+        {
+            Request = { Method = HttpMethods.Get, Path = "/v1/sample" },
+            TraceIdentifier = "trace-under-test"
+        };
 
-            HttpRequestLoggingMiddleware sut = new(terminator, logger);
+        context.Response.Headers["X-Correlation-ID"] = "trace-under-test";
 
-            DefaultHttpContext context = new();
+        await sut.InvokeAsync(context);
 
-            context.Request.Method = HttpMethods.Get;
+        IList<(LogLevel Level, EventId EventId, string Message)> entries = sink.Entries;
 
-            context.Request.Path = "/v1/sample";
+        entries.Should().HaveCount(2);
 
-            context.TraceIdentifier = "trace-under-test";
+        entries.Should()
+            .Contain(e =>
+                e.Message.StartsWith("HTTP request started", StringComparison.Ordinal)
+                && e.Message.Contains(HttpMethods.Get, StringComparison.Ordinal)
+                && e.Message.Contains("trace-under-test", StringComparison.Ordinal));
 
-            context.Response.Headers["X-Correlation-ID"] = "trace-under-test";
+        (_, _, string finished) =
+            entries.Single(e => e.Message.StartsWith("HTTP request finished", StringComparison.Ordinal));
 
-            await sut.InvokeAsync(context);
+        finished.Should().ContainEquivalentOf("418");
 
-            IList<(LogLevel Level, EventId EventId, string Message)> entries = sink.Entries;
+        finished.Should().ContainEquivalentOf("trace-under-test");
+        return;
 
-            entries.Should().HaveCount(2);
+        Task Terminator(HttpContext ctx)
+        {
+            ctx.Response.StatusCode = StatusCodes.Status418ImATeapot;
 
-            entries.Should()
-                .Contain(e =>
-                    e.Message.StartsWith("HTTP request started", StringComparison.Ordinal)
-                    && e.Message.Contains(HttpMethods.Get, StringComparison.Ordinal)
-                    && e.Message.Contains("trace-under-test", StringComparison.Ordinal));
-
-            (_, _, string finished) =
-                entries.Single(e => e.Message.StartsWith("HTTP request finished", StringComparison.Ordinal));
-
-            finished.Should().ContainEquivalentOf("418");
-
-            finished.Should().ContainEquivalentOf("trace-under-test");
+            return Task.CompletedTask;
         }
     }
 
@@ -111,50 +111,44 @@ public sealed class HttpRequestLoggingMiddlewareTests
     {
         RecordingLoggerProvider sink = new();
 
-        using (ILoggerFactory factory = LoggerFactory.Create(b =>
-               {
-                   b.AddProvider(sink);
-                   b.SetMinimumLevel(LogLevel.Information);
-               }))
+        using ILoggerFactory factory = LoggerFactory.Create(b =>
         {
-            ILogger<HttpRequestLoggingMiddleware> logger =
-                factory.CreateLogger<HttpRequestLoggingMiddleware>();
+            b.AddProvider(sink);
+            b.SetMinimumLevel(LogLevel.Information);
+        });
+        ILogger<HttpRequestLoggingMiddleware> logger =
+            factory.CreateLogger<HttpRequestLoggingMiddleware>();
 
-            HttpRequestLoggingMiddleware logging = new(
-                ctx =>
-                {
-                    ctx.Response.StatusCode = StatusCodes.Status204NoContent;
-
-                    return Task.CompletedTask;
-                },
-                logger);
-
-            CorrelationIdMiddleware corr = new(logging.InvokeAsync);
-
-            DefaultHttpContext context = new()
+        HttpRequestLoggingMiddleware logging = new(
+            ctx =>
             {
-                TraceIdentifier = "server-fallback-if-invalid"
-            };
+                ctx.Response.StatusCode = StatusCodes.Status204NoContent;
 
-            context.Request.Method = HttpMethods.Put;
+                return Task.CompletedTask;
+            },
+            logger);
 
-            context.Request.Path = "/v1/widget";
+        CorrelationIdMiddleware corr = new(logging.InvokeAsync);
 
-            context.Request.Headers["X-Correlation-ID"] = "client-supplied-99";
+        DefaultHttpContext context = new()
+        {
+            TraceIdentifier = "server-fallback-if-invalid",
+            Request = { Method = HttpMethods.Put, Path = "/v1/widget", Headers = { ["X-Correlation-ID"] = "client-supplied-99" }
+            }
+        };
 
-            await corr.InvokeAsync(context);
+        await corr.InvokeAsync(context);
 
-            IList<(LogLevel Level, EventId EventId, string Message)> joined = sink.Entries;
+        IList<(LogLevel Level, EventId EventId, string Message)> joined = sink.Entries;
 
-            joined.Should()
-                .Contain(e =>
-                    e.Message.Contains("HTTP request started", StringComparison.Ordinal)
-                    && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
+        joined.Should()
+            .Contain(e =>
+                e.Message.Contains("HTTP request started", StringComparison.Ordinal)
+                && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
 
-            joined.Should()
-                .Contain(e =>
-                    e.Message.Contains("HTTP request finished", StringComparison.Ordinal)
-                    && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
-        }
+        joined.Should()
+            .Contain(e =>
+                e.Message.Contains("HTTP request finished", StringComparison.Ordinal)
+                && e.Message.Contains("client-supplied-99", StringComparison.Ordinal));
     }
 }

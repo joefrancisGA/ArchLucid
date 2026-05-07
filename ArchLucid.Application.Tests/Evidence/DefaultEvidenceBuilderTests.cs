@@ -17,12 +17,7 @@ public sealed class DefaultEvidenceBuilderTests
 {
     private static ArchitectureRequest MinimalRequest(params Action<ArchitectureRequest>?[] adjust)
     {
-        ArchitectureRequest req = new()
-        {
-            Description = new string('b', 20),
-            SystemName = "AcctSvc",
-            Environment = "prod",
-        };
+        ArchitectureRequest req = new() { Description = new string('b', 20), SystemName = "AcctSvc", Environment = "prod", };
 
         foreach (Action<ArchitectureRequest>? a in adjust)
         {
@@ -103,36 +98,21 @@ public sealed class DefaultEvidenceBuilderTests
             SystemName = "AcctDb",
             Metadata = new ManifestMetadata
             {
-                ManifestVersion = version,
-                ChangeDescription = "Rollout",
-                CreatedUtc = new DateTime(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc),
+                ManifestVersion = version, ChangeDescription = "Rollout", CreatedUtc = new DateTime(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc),
             },
             Governance = new ManifestGovernance { RequiredControls = ["Encryption"], },
             Services =
             [
                 new ManifestService
                 {
-                    ServiceName = "C Service",
-                    ServiceType = ServiceType.Api,
-                    RuntimePlatform = RuntimePlatform.AppService,
-                    RequiredControls = ["IAM"],
+                    ServiceName = "C Service", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService, RequiredControls = ["IAM"],
                 },
 
-                new ManifestService
-                {
-                    ServiceName = "B",
-                    ServiceType = ServiceType.Worker,
-                    RuntimePlatform = RuntimePlatform.Functions,
-                },
+                new ManifestService { ServiceName = "B", ServiceType = ServiceType.Worker, RuntimePlatform = RuntimePlatform.Functions, },
             ],
             Datastores =
             [
-                new ManifestDatastore
-                {
-                    DatastoreName = "AcctDb",
-                    DatastoreType = DatastoreType.Sql,
-                    RuntimePlatform = RuntimePlatform.SqlServer,
-                },
+                new ManifestDatastore { DatastoreName = "AcctDb", DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer, },
             ],
             Relationships = [],
         };

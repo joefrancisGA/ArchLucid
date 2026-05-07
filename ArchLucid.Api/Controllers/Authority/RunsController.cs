@@ -358,11 +358,11 @@ public sealed partial class RunsController(
 
             logger.LogInformation(
                 "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
-                result.OriginalRunId,
-                result.ReplayRunId,
-                result.ExecutionMode,
-                user,
-                correlationId);
+                LogSanitizer.Sanitize(result.OriginalRunId),
+                LogSanitizer.Sanitize(result.ReplayRunId),
+                LogSanitizer.Sanitize(result.ExecutionMode),
+                LogSanitizer.Sanitize(user),
+                LogSanitizer.Sanitize(correlationId));
 
             return Ok(response);
         }

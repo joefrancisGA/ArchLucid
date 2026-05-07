@@ -19,9 +19,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
 
         PilotRunDeltas deltas = MinimalDeltas(run) with
         {
-            AuditRowCount = 5,
-            AgentOutputPilotStrictSignalsResolved = true,
-            AgentOutputPilotStrictViolatesSponsorEvidence = true,
+            AuditRowCount = 5, AgentOutputPilotStrictSignalsResolved = true, AgentOutputPilotStrictViolatesSponsorEvidence = true,
         };
 
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
@@ -77,10 +75,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
     {
         ArchitectureRun run = new()
         {
-            RunId = "r1",
-            RequestId = "q",
-            Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            RunId = "r1", RequestId = "q", Status = ArchitectureRunStatus.ReadyForCommit, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
 
         PilotRunDeltas deltas = MinimalDeltas(run);
@@ -199,11 +194,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         GoldenManifest manifest = MinimalManifest();
         manifest.Metadata.CreatedUtc = default;
 
-        PilotRunDeltas deltas = MinimalDeltas(run) with
-        {
-            ManifestCommittedUtc = default,
-            TimeToCommittedManifest = default,
-        };
+        PilotRunDeltas deltas = MinimalDeltas(run) with { ManifestCommittedUtc = default, TimeToCommittedManifest = default, };
 
         PilotBuyerSafeEvidenceGateResult gate =
             PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, TenantCapturedSnapshot());

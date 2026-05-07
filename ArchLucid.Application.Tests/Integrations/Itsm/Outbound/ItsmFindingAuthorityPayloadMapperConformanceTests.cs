@@ -15,12 +15,7 @@ public sealed class ItsmFindingAuthorityPayloadMapperConformanceTests
     [Fact]
     public void BuildSummaryAndDescription_uses_architecture_finding_message_and_preserves_correlation_paths_without_secrets()
     {
-        ArchitectureFinding finding = new()
-        {
-            FindingId = "f-1",
-            Severity = FindingSeverity.Warning,
-            Message = "Cache miss rate exceeded policy threshold."
-        };
+        ArchitectureFinding finding = new() { FindingId = "f-1", Severity = FindingSeverity.Warning, Message = "Cache miss rate exceeded policy threshold." };
 
         JsonElement payload = JsonSerializer.SerializeToElement(
             finding,

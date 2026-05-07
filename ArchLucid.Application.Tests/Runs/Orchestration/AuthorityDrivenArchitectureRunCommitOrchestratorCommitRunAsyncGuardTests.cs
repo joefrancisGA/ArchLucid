@@ -157,5 +157,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
             Mock.Of<IDbConnectionFactory>(),
-            Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());    }
+            Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
+    }
 }

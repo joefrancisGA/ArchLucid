@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Admin;
-using ArchLucid.Api.Tests;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
@@ -57,7 +56,10 @@ public sealed class TenantIsolationSmokeTests
         {
             string connectionString =
                 SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
+            SqlConnectionStringBuilder builder = new(connectionString)
+            {
+                ConnectTimeout = 4
+            };
             using SqlConnection connection = new(builder.ConnectionString);
             connection.Open();
             return true;

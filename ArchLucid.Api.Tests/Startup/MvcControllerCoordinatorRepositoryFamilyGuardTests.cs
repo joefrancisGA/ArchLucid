@@ -66,13 +66,7 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
             IEnumerable<Type> ctorParameterTypes =
                 EnumerateNormalizedConstructorParameterTypes(type);
 
-            foreach (Type parameterType in ctorParameterTypes)
-            {
-                if (!IsForbiddenCoordinatorFamily(parameterType))
-                    continue;
-
-                offenders.Add($"{fullName} -> {DescribeType(parameterType)}");
-            }
+            offenders.AddRange(from parameterType in ctorParameterTypes where IsForbiddenCoordinatorFamily(parameterType) select $"{fullName} -> {DescribeType(parameterType)}");
         }
 
         offenders.Should().BeEmpty(

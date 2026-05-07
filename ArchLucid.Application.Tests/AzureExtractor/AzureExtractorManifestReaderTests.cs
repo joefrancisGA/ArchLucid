@@ -17,20 +17,14 @@ public sealed class AzureExtractorManifestReaderTests
             AzureExtractorManifestReader.TryReadNormalizedFromZip(zip);
 
         err.Should().BeNull();
-
         m.Should().NotBeNull();
-
-        m!.SchemaVersion.Should().Be(1);
-
+        m.SchemaVersion.Should().Be(1);
         m.SubscriptionId.Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
-
     public void TryRead_unknown_schema_returns_error()
-
     {
-
         using MemoryStream zip = ZipWithManifest(MinimalManifestJson(schemaVersion: 404));
 
         (AzureExtractorNormalizedManifest? m, string? err) =
@@ -39,15 +33,11 @@ public sealed class AzureExtractorManifestReaderTests
         m.Should().BeNull();
 
         err.Should().Contain("Unsupported manifest schemaVersion");
-
     }
 
     [Fact]
-
     public void TryRead_zip_without_manifest_returns_error()
-
     {
-
         using MemoryStream zip = ZipPlain("readme.txt", "hello");
 
         (AzureExtractorNormalizedManifest? m, string? err) =
@@ -56,69 +46,56 @@ public sealed class AzureExtractorManifestReaderTests
         m.Should().BeNull();
 
         err.Should().Contain("manifest");
-
     }
 
     private static string MinimalManifestJson(int schemaVersion)
-
     {
-
         return $$"""
 
-            {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
+                 {"schemaVersion":{{schemaVersion}},"scriptVersion":"1.0","collectionTimestamp":"2026-05-06T13:01:02Z",
 
-            "subscriptionId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","scope":"/sub/x","switchesUsed":[],"azModuleVersion":"test"}
+                 "subscriptionId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","scope":"/sub/x","switchesUsed":[],"azModuleVersion":"test"}
 
-            """;
-
+                 """;
     }
 
     private static MemoryStream ZipPlain(string entryName, string content)
 
     {
-
         MemoryStream ms = new();
 
         using (ZipArchive z = new(ms, ZipArchiveMode.Create, leaveOpen: true))
 
         {
-
             ZipArchiveEntry e = z.CreateEntry(entryName);
 
             using StreamWriter w = new(e.Open());
 
             w.Write(content);
-
         }
 
         ms.Position = 0;
 
         return ms;
-
     }
 
     private static MemoryStream ZipWithManifest(string manifestJson)
 
     {
-
         MemoryStream ms = new();
 
         using (ZipArchive z = new(ms, ZipArchiveMode.Create, leaveOpen: true))
 
         {
-
             ZipArchiveEntry e = z.CreateEntry("manifest.json");
 
             using StreamWriter w = new(e.Open());
 
             w.Write(manifestJson);
-
         }
 
         ms.Position = 0;
 
         return ms;
-
     }
-
 }

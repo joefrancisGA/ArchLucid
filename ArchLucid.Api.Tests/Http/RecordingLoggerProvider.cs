@@ -4,7 +4,10 @@ namespace ArchLucid.Api.Tests.Http;
 
 internal sealed class RecordingLoggerProvider : ILoggerProvider
 {
-    public IList<(LogLevel Level, EventId EventId, string Message)> Entries { get; } =
+    public IList<(LogLevel Level, EventId EventId, string Message)> Entries
+    {
+        get;
+    } =
         new List<(LogLevel Level, EventId EventId, string Message)>();
 
     public ILogger CreateLogger(string categoryName) =>
@@ -34,9 +37,6 @@ internal sealed class RecordingLoggerProvider : ILoggerProvider
             Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
-            if (formatter is null)
-                return;
-
             _entries.Add((logLevel, eventId, formatter(state!, exception)));
         }
     }

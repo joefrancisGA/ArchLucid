@@ -17,7 +17,10 @@ public sealed class GovernanceDashboardServiceTests
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
         GovernanceApprovalRequest pending = new() { ApprovalRequestId = "p1", Status = GovernanceApprovalStatus.Submitted };
-        GovernanceApprovalRequest decision = new() { ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime, };
+        GovernanceApprovalRequest decision = new()
+        {
+            ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+        };
 
         PolicyPackChangeLogEntry change = new()
         {

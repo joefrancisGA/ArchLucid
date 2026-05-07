@@ -300,22 +300,22 @@ public sealed class FirstValueReportBuilderTests
         Mock<IValueReportMetricsReader> metrics = new();
 
         ValueReportRawMetrics baselineRow = rawMetrics ??
-            new ValueReportRawMetrics(
-                [],
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                8m,
-                "signup",
-                TimeProvider.System.GetUtcNow(),
-                6m,
-                3,
-                null,
-                null,
-                null);
+                                            new ValueReportRawMetrics(
+                                                [],
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                8m,
+                                                "signup",
+                                                TimeProvider.System.GetUtcNow(),
+                                                6m,
+                                                3,
+                                                null,
+                                                null,
+                                                null);
 
         metrics
             .Setup(m => m.ReadAsync(
