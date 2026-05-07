@@ -12,6 +12,7 @@ GO
   Journal replay: after the first run, ArchLucidTenantScope already binds FindingRecords (and later tables).
   Backfill UPDATEs appear before new policy binds on initial apply — on replay they would run under active RLS and
   can fail for non-bypass principals. Turn the policy off only for this replay shape, then restore prior STATE.
+  If migration 148 has removed RLS (no rls.ArchLucidTenantScope), skip ALTER SECURITY POLICY—replay must stay a no-op.
 */
 CREATE TABLE #ArchLucid129RlsReplayRestore (
     RestoreStateToOn bit NOT NULL
@@ -685,7 +686,11 @@ BEGIN
     WHERE x.TenantId IS NULL;
 END;
 GO
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (
+        SELECT 1
+        FROM sys.security_policies
+        WHERE name = N'ArchLucidTenantScope'
+          AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -704,7 +709,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingRelatedNodes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -723,7 +728,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingRecommendedActions', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -742,7 +747,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingProperties', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -761,7 +766,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingTraceGraphNodesExamined', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -780,7 +785,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingTraceRulesApplied', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -799,7 +804,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingTraceDecisionsTaken', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -818,7 +823,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingTraceAlternativePaths', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -837,7 +842,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.FindingTraceNotes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -856,7 +861,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -875,7 +880,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleArtifactMetadata', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -894,7 +899,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleArtifactDecisionLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -913,7 +918,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleTraceGenerators', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -932,7 +937,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleTraceDecisionLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -951,7 +956,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ArtifactBundleTraceNotes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -970,7 +975,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ConversationMessages', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -992,7 +997,7 @@ ALTER SECURITY POLICY rls.ArchLucidTenantScope
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.PolicyPackVersions', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1011,7 +1016,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.CompositeAlertRuleConditions', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1030,7 +1035,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1049,7 +1054,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestWarnings', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1068,7 +1073,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestDecisions', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1087,7 +1092,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestDecisionEvidenceLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1106,7 +1111,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestDecisionNodeLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1125,7 +1130,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceFindings', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1144,7 +1149,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceGraphNodes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1163,7 +1168,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GoldenManifestProvenanceAppliedRules', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1182,7 +1187,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1201,7 +1206,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ProductLearningImprovementPlanSignalLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1220,7 +1225,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ProductLearningImprovementPlanArtifactLinks', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1239,7 +1244,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshots', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1258,7 +1263,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshotEdges', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1277,7 +1282,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshotNodes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1296,7 +1301,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshotNodeProperties', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1315,7 +1320,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshotEdgeProperties', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1334,7 +1339,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.GraphSnapshotWarnings', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1353,7 +1358,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjects', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1372,7 +1377,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjectProperties', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1391,7 +1396,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ContextSnapshotWarnings', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1410,7 +1415,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ContextSnapshotErrors', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1429,7 +1434,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope' AND schema_id = SCHEMA_ID(N'rls'))
    AND OBJECT_ID(N'dbo.ContextSnapshotSourceHashes', N'U') IS NOT NULL
    AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
@@ -1452,6 +1457,11 @@ IF EXISTS (
     SELECT 1
     FROM #ArchLucid129RlsReplayRestore
     WHERE RestoreStateToOn = 1)
+   AND EXISTS (
+        SELECT 1
+        FROM sys.security_policies
+        WHERE name = N'ArchLucidTenantScope'
+          AND schema_id = SCHEMA_ID(N'rls'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = ON);
 END;
