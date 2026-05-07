@@ -48598,6 +48598,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("committedManifestPresent")]
         public bool? CommittedManifestPresent { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("committedManifestTimestampResolved")]
+        public bool? CommittedManifestTimestampResolved { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("demoTenantWarningRequired")]
         public bool? DemoTenantWarningRequired { get; set; } = default!;
 
