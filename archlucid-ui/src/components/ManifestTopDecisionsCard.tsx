@@ -11,6 +11,8 @@ import type { ManifestSummary } from "@/types/authority";
 
 export type ManifestTopDecisionsCardProps = {
   readonly summary: ManifestSummary;
+  /** Buyer-polished shell: shorter headings and reviewer-oriented link labels. */
+  readonly buyerPolishedLayout?: boolean;
 };
 
 function isShowcaseManifest(summary: ManifestSummary): boolean {
@@ -24,7 +26,8 @@ function isShowcaseManifest(summary: ManifestSummary): boolean {
  * when decisionCount is non-zero (API does not yet return individual decision bullets on ManifestSummary — see backlog).
  */
 export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
-  const { summary } = props;
+  const { summary, buyerPolishedLayout } = props;
+  const buyer = buyerPolishedLayout ?? false;
 
   if (!isShowcaseManifest(summary)) {
     if (summary.decisionCount <= 0) {
@@ -34,15 +37,28 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Architectural decisions</CardTitle>
+          <CardTitle className="text-base font-semibold">
+            {buyer ? "Decisions in this package" : "Architectural decisions"}
+          </CardTitle>
           <CardDescription>
-            This manifest records <strong>{summary.decisionCount}</strong> decision
-            {summary.decisionCount === 1 ? "" : "s"} — review the originating run for full evidence and narration.
+            {buyer ? (
+              <>
+                This review package records <strong>{summary.decisionCount}</strong> decision
+                {summary.decisionCount === 1 ? "" : "s"}. Open the review for full context and evidence.
+              </>
+            ) : (
+              <>
+                This manifest records <strong>{summary.decisionCount}</strong> decision
+                {summary.decisionCount === 1 ? "" : "s"} — review the originating run for full evidence and narration.
+              </>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>Open decisions on run</Link>
+            <Link href={`/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>
+              {buyer ? "View on review" : "Open decisions on run"}
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -55,8 +71,12 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base font-semibold">Top decisions</CardTitle>
-        <CardDescription>Preview of key architecture choices captured in this manifest.</CardDescription>
+        <CardTitle className="text-base font-semibold">{buyer ? "Key decisions" : "Top decisions"}</CardTitle>
+        <CardDescription>
+          {buyer
+            ? "Main architecture choices captured in this review package."
+            : "Preview of key architecture choices captured in this manifest."}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <ul className="m-0 list-none space-y-2 p-0">

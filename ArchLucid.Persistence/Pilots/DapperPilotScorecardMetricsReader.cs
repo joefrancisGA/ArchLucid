@@ -55,7 +55,10 @@ public sealed class DapperPilotScorecardMetricsReader(ISqlConnectionFactory conn
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         MetricsRow row = await connection.QuerySingleAsync<MetricsRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         return new PilotScorecardTenantMetrics
         {
@@ -98,43 +101,43 @@ public sealed class DapperPilotScorecardMetricsReader(ISqlConnectionFactory conn
         public object? TotalRunsCommitted
         {
             get;
-            set;
+            init;
         }
 
         public object? TotalManifestsCreated
         {
             get;
-            set;
+            init;
         }
 
         public object? TotalFindingsResolved
         {
             get;
-            set;
+            init;
         }
 
         public double? AverageTimeToManifestMinutes
         {
             get;
-            set;
+            init;
         }
 
         public object? TotalAuditEventsGenerated
         {
             get;
-            set;
+            init;
         }
 
         public object? TotalGovernanceApprovalsCompleted
         {
             get;
-            set;
+            init;
         }
 
         public DateTime? FirstCommitUtc
         {
             get;
-            set;
+            init;
         }
     }
 }

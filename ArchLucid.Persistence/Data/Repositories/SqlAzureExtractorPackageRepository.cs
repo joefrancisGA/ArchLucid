@@ -49,7 +49,7 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
                     record.SubscriptionId,
                     record.OriginalFileName,
                     record.ManifestJson,
-                    PackageBytes = record.PackageBytes,
+                    record.PackageBytes,
                 },
                 cancellationToken: cancellationToken));
     }
@@ -139,22 +139,40 @@ public sealed class SqlAzureExtractorPackageRepository(ISqlConnectionFactory con
 
     {
 
-        public Guid PackageId { get; init; }
+        public Guid PackageId
+        {
+            get; init;
+        }
 
 
-        public int SchemaVersion { get; init; }
+        public int SchemaVersion
+        {
+            get; init;
+        }
 
 
-        public DateTime? CollectionTimestampUtc { get; init; }
+        public DateTime? CollectionTimestampUtc
+        {
+            get; init;
+        }
 
 
-        public DateTime CreatedUtc { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
 
 
-        public string? SubscriptionId { get; init; }
+        public string? SubscriptionId
+        {
+            get; init;
+        }
 
 
-        public string? OriginalFileName { get; init; }
+        public string? OriginalFileName
+        {
+            get; init;
+        }
 
 
     }

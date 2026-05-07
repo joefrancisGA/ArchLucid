@@ -1,5 +1,4 @@
 using ArchLucid.Core.Pilots;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -44,7 +43,7 @@ public sealed class DapperPilotCloseoutRepository(
                     record.TenantId,
                     record.WorkspaceId,
                     record.ProjectId,
-                    RunId = record.RunId,
+                    record.RunId,
                     record.BaselineHours,
                     SpeedScore = (int)record.SpeedScore,
                     ManifestPackageScore = (int)record.ManifestPackageScore,
