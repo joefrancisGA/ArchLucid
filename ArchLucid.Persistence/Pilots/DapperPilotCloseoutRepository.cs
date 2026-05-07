@@ -7,15 +7,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Pilots;
 
-public sealed class DapperPilotCloseoutRepository(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : IPilotCloseoutRepository
+public sealed class DapperPilotCloseoutRepository(ISqlConnectionFactory connectionFactory) : IPilotCloseoutRepository
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     public async Task InsertAsync(PilotCloseoutRecord record, CancellationToken cancellationToken)
     {
@@ -31,8 +26,6 @@ public sealed class DapperPilotCloseoutRepository(
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         await connection.ExecuteAsync(
             new CommandDefinition(

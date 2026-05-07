@@ -33,8 +33,6 @@ public static class SupportBundleArchiveWriter
 
         SupportBundleNextStepsDocument nextSteps = BuildNextSteps(payload);
 
-        WriteFile(Path.Combine(outputDirectory, ManifestFileName),
-            SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
             payload.Manifest.CreatedUtc,
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
@@ -42,6 +40,7 @@ public static class SupportBundleArchiveWriter
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
             payload.Manifest.CliWorkingDirectory,
             nextSteps);
+
         WriteFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
         WriteFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
             SupportBundleCollector.SerializeIndented(nextSteps));
@@ -61,6 +60,13 @@ public static class SupportBundleArchiveWriter
             SupportBundleCollector.SerializeIndented(payload.References));
         WriteFile(Path.Combine(outputDirectory, LogsFileName), SupportBundleCollector.SerializeIndented(payload.Logs));
 
+        SupportBundleManifest finalized =
+            SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: false);
+
+        WriteFile(
+            Path.Combine(outputDirectory, ManifestFileName),
+            SupportBundleCollector.SerializeIndented(finalized));
+
         return outputDirectory;
     }
 
@@ -77,8 +83,6 @@ public static class SupportBundleArchiveWriter
 
         SupportBundleNextStepsDocument nextSteps = BuildNextSteps(payload);
 
-        WriteRedactedFile(Path.Combine(outputDirectory, ManifestFileName),
-            SupportBundleCollector.SerializeIndented(payload.Manifest));
         string readme = SupportBundleReadme.Build(
             payload.Manifest.CreatedUtc,
             string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
@@ -86,6 +90,7 @@ public static class SupportBundleArchiveWriter
                 : payload.ConfigSummary.ApiBaseUrlRedacted,
             payload.Manifest.CliWorkingDirectory,
             nextSteps);
+
         WriteRedactedFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
         WriteRedactedFile(Path.Combine(outputDirectory, SupportBundleLayout.NextStepsFileName),
             SupportBundleCollector.SerializeIndented(nextSteps));
@@ -105,6 +110,13 @@ public static class SupportBundleArchiveWriter
             SupportBundleCollector.SerializeIndented(payload.References));
         WriteRedactedFile(Path.Combine(outputDirectory, LogsFileName),
             SupportBundleCollector.SerializeIndented(payload.Logs));
+
+        SupportBundleManifest finalized =
+            SupportBundleFinalManifestBuilder.WithInventory(payload.Manifest, redactionPassAppliedToSerializedSections: true);
+
+        WriteRedactedFile(
+            Path.Combine(outputDirectory, ManifestFileName),
+            SupportBundleCollector.SerializeIndented(finalized));
 
         return outputDirectory;
     }

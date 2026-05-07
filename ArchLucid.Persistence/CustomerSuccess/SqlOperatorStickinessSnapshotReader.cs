@@ -11,15 +11,11 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent reader.")]
-public sealed class SqlOperatorStickinessSnapshotReader(
-    ISqlConnectionFactory connectionFactory,
-    IRlsSessionContextApplicator rlsSessionContextApplicator) : IOperatorStickinessSnapshotReader
+public sealed class SqlOperatorStickinessSnapshotReader(ISqlConnectionFactory connectionFactory)
+    : IOperatorStickinessSnapshotReader
 {
     private readonly ISqlConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    private readonly IRlsSessionContextApplicator _rlsSessionContextApplicator =
-        rlsSessionContextApplicator ?? throw new ArgumentNullException(nameof(rlsSessionContextApplicator));
 
     public async Task<OperatorStickinessSignals> GetOperatorSignalsAsync(
         Guid tenantId,
@@ -67,8 +63,6 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         OperatorSignalsRow row = await connection.QuerySingleAsync<OperatorSignalsRow>(
             new CommandDefinition(
@@ -153,8 +147,6 @@ public sealed class SqlOperatorStickinessSnapshotReader(
                            """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
 
         FunnelRow row = await connection.QuerySingleAsync<FunnelRow>(
             new CommandDefinition(

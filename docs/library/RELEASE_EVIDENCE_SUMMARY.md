@@ -35,8 +35,10 @@ Use this drill after a candidate release build to gather **signals** (not a subs
 5. **Aggregated script** (non-fatal collection)
 
    ```powershell
-   .\scripts\Invoke-ReleaseEvidenceSummary.ps1
+   .\scripts\Invoke-ReleaseEvidenceSummary.ps1 [-MarkdownOut artifacts\release\release-evidence-summary.md] [-FailOnError]
    ```
+
+6. **Fixture expectation (offline):** `scripts/fixtures/release-evidence/expected-status-labels.txt` lists the Result labels this script must emit (`Passed`, `Failed`, `Skipped`, `Not captured`).
 
 ## Interpretation
 

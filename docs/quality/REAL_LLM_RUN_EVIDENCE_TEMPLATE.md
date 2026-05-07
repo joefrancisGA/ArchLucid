@@ -32,3 +32,4 @@
 - Golden cohort gate: [GOLDEN_COHORT_REAL_LLM_GATE.md](../runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md)
 - Release check-in stub: [REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md](REAL_MODE_EVIDENCE_RELEASE_CHECKIN.md)
 - Pilot ROI / sponsor narrative: [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)
+- Fixture summarizer (no cloud): `archlucid real-llm-evidence summarize --from-json <path>` — see `scripts/fixtures/real-llm-evidence/example-complete.json`

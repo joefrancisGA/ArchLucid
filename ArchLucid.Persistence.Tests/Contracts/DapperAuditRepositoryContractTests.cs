@@ -1,4 +1,5 @@
 ﻿using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Tests;
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
@@ -30,11 +31,7 @@ public sealed class DapperAuditRepositoryContractTests(SqlServerPersistenceFixtu
         Guid scopeProjectId,
         CancellationToken ct)
     {
-        RlsTenantScopedTestSqlConnectionFactory connectionFactory = new(
-            fixture.ConnectionString,
-            tenantId,
-            workspaceId,
-            scopeProjectId);
+        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 

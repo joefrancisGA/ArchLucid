@@ -55,8 +55,6 @@ public static class ArchLucidInstrumentation
 
     private static Func<long>? _auditRetryQueuePendingReader;
 
-    private static long _rlsBypassProductionLikeEnabled;
-
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
     public static readonly ActivitySource AdvisoryScan = new("ArchLucid.AdvisoryScan", "1.0.0");
 
@@ -691,15 +689,6 @@ public static class ArchLucidInstrumentation
         Volatile.Write(ref _auditRetryQueuePendingReader, reader);
     }
 
-    /// <summary>
-    ///     Sets the observable gauge backing <c>archlucid_rls_bypass_enabled_info</c> (1 when break-glass is on in a
-    ///     production-like host).
-    /// </summary>
-    public static void SetRlsBypassProductionLikeEnabled(long zeroOrOne)
-    {
-        Volatile.Write(ref _rlsBypassProductionLikeEnabled, zeroOrOne != 0 ? 1 : 0);
-    }
-
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
     {
@@ -756,14 +745,6 @@ public static class ArchLucidInstrumentation
             "archlucid_audit_retry_queue_pending",
             () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
             description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_rls_bypass_enabled_info",
-            () => new Measurement<long>(
-                Volatile.Read(ref _rlsBypassProductionLikeEnabled),
-                new KeyValuePair<string, object?>("scope", "production_like")),
-            description:
-            "1 when SQL RLS break-glass bypass is enabled (env + ArchLucid:Persistence:AllowRlsBypass) on a Production/Staging-classified host.");
     }
 
     /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>

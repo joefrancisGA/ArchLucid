@@ -18,9 +18,6 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     public const string AuthenticationApiKeyDevelopmentBypassAllDisallowed =
         "authentication_api_key_development_bypass_all_disallowed";
 
-    /// <summary><c>ArchLucid:Persistence:AllowRlsBypass=true</c> under production-profile validation.</summary>
-    public const string PersistenceAllowRlsBypassDisallowed = "persistence_allow_rls_bypass_disallowed";
-
     /// <summary>Real LLM mode without prompt deny-list redaction under production-profile validation.</summary>
     public const string LlmPromptRedactionRequiredForRealMode = "llm_prompt_redaction_required_for_real_mode";
 

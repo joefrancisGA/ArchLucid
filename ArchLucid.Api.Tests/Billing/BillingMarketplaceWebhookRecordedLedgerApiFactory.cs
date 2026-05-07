@@ -35,8 +35,7 @@ internal sealed class BillingMarketplaceWebhookRecordedLedgerApiFactory : Billin
             services.AddScoped<IBillingLedger>(sp =>
             {
                 ISqlConnectionFactory connectionFactory = sp.GetRequiredService<ISqlConnectionFactory>();
-                IRlsSessionContextApplicator rls = sp.GetRequiredService<IRlsSessionContextApplicator>();
-                SqlBillingLedger inner = new(connectionFactory, rls);
+                SqlBillingLedger inner = new(connectionFactory);
 
                 return new BillingLedgerDapperDispatchRecorder(inner, RecordedStoredProcedureLogicalNames);
             });

@@ -1,5 +1,4 @@
 using ArchLucid.Core.Identity;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -64,56 +63,53 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedEmail);
 
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
-        {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            const string sql = """
-                               INSERT INTO dbo.IdentityUsers
-                               (
-                                   NormalizedEmail,
-                                   Email,
-                                   PasswordHash,
-                                   SecurityStamp,
-                                   ConcurrencyStamp,
-                                   EmailConfirmed,
-                                   EmailVerifiedUtc,
-                                   EmailConfirmationTokenHash,
-                                   EmailConfirmationExpiresUtc
-                               )
-                               OUTPUT INSERTED.Id
-                               VALUES
-                               (
-                                   @NormalizedEmail,
-                                   @Email,
-                                   @PasswordHash,
-                                   @SecurityStamp,
-                                   @ConcurrencyStamp,
-                                   0,
-                                   NULL,
-                                   @EmailConfirmationTokenHash,
-                                   @EmailConfirmationExpiresUtc
-                               );
-                               """;
+        const string sql = """
+                           INSERT INTO dbo.IdentityUsers
+                           (
+                               NormalizedEmail,
+                               Email,
+                               PasswordHash,
+                               SecurityStamp,
+                               ConcurrencyStamp,
+                               EmailConfirmed,
+                               EmailVerifiedUtc,
+                               EmailConfirmationTokenHash,
+                               EmailConfirmationExpiresUtc
+                           )
+                           OUTPUT INSERTED.Id
+                           VALUES
+                           (
+                               @NormalizedEmail,
+                               @Email,
+                               @PasswordHash,
+                               @SecurityStamp,
+                               @ConcurrencyStamp,
+                               0,
+                               NULL,
+                               @EmailConfirmationTokenHash,
+                               @EmailConfirmationExpiresUtc
+                           );
+                           """;
 
-            Guid id = await connection.ExecuteScalarAsync<Guid>(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        NormalizedEmail = normalizedEmail,
-                        Email = email,
-                        PasswordHash = passwordHash,
-                        SecurityStamp = securityStamp,
-                        ConcurrencyStamp = concurrencyStamp,
-                        EmailConfirmationTokenHash = emailConfirmationTokenHash,
-                        EmailConfirmationExpiresUtc = emailConfirmationExpiresUtc
-                    },
-                    cancellationToken: cancellationToken));
+        Guid id = await connection.ExecuteScalarAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    Email = email,
+                    PasswordHash = passwordHash,
+                    SecurityStamp = securityStamp,
+                    ConcurrencyStamp = concurrencyStamp,
+                    EmailConfirmationTokenHash = emailConfirmationTokenHash,
+                    EmailConfirmationExpiresUtc = emailConfirmationExpiresUtc
+                },
+                cancellationToken: cancellationToken));
 
-            return id;
-        }
+        return id;
     }
 
     /// <inheritdoc />
@@ -126,36 +122,33 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
         ArgumentException.ThrowIfNullOrWhiteSpace(normalizedEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(emailConfirmationTokenHash);
 
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
-        {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            const string sql = """
-                               UPDATE dbo.IdentityUsers
-                               SET EmailConfirmed = 1,
-                                   EmailVerifiedUtc = @NowUtc,
-                                   EmailConfirmationTokenHash = NULL,
-                                   EmailConfirmationExpiresUtc = NULL,
-                                   ConcurrencyStamp = NEWID()
-                               WHERE NormalizedEmail = @NormalizedEmail
-                                 AND EmailConfirmationTokenHash = @TokenHash
-                                 AND EmailConfirmationExpiresUtc > @NowUtc;
-                               """;
+        const string sql = """
+                           UPDATE dbo.IdentityUsers
+                           SET EmailConfirmed = 1,
+                               EmailVerifiedUtc = @NowUtc,
+                               EmailConfirmationTokenHash = NULL,
+                               EmailConfirmationExpiresUtc = NULL,
+                               ConcurrencyStamp = NEWID()
+                           WHERE NormalizedEmail = @NormalizedEmail
+                             AND EmailConfirmationTokenHash = @TokenHash
+                             AND EmailConfirmationExpiresUtc > @NowUtc;
+                           """;
 
-            int rows = await connection.ExecuteAsync(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        NormalizedEmail = normalizedEmail,
-                        TokenHash = emailConfirmationTokenHash,
-                        NowUtc = nowUtc
-                    },
-                    cancellationToken: cancellationToken));
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    TokenHash = emailConfirmationTokenHash,
+                    NowUtc = nowUtc
+                },
+                cancellationToken: cancellationToken));
 
-            return rows == 1;
-        }
+        return rows == 1;
     }
 
     /// <inheritdoc />
@@ -165,53 +158,47 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
         DateTimeOffset? lockoutEnd,
         CancellationToken cancellationToken)
     {
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
-        {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            const string sql = """
-                               UPDATE dbo.IdentityUsers
-                               SET AccessFailedCount = @NewCount,
-                                   LockoutEnd = @LockoutEnd
-                               WHERE NormalizedEmail = @NormalizedEmail;
-                               """;
+        const string sql = """
+                           UPDATE dbo.IdentityUsers
+                           SET AccessFailedCount = @NewCount,
+                               LockoutEnd = @LockoutEnd
+                           WHERE NormalizedEmail = @NormalizedEmail;
+                           """;
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        NormalizedEmail = normalizedEmail,
-                        NewCount = newCount,
-                        LockoutEnd = lockoutEnd
-                    },
-                    cancellationToken: cancellationToken));
-        }
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    NewCount = newCount,
+                    LockoutEnd = lockoutEnd
+                },
+                cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
     public async Task ResetAccessFailedAsync(string normalizedEmail, CancellationToken cancellationToken)
     {
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
-        {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            const string sql = """
-                               UPDATE dbo.IdentityUsers
-                               SET AccessFailedCount = 0,
-                                   LockoutEnd = NULL
-                               WHERE NormalizedEmail = @NormalizedEmail;
-                               """;
+        const string sql = """
+                           UPDATE dbo.IdentityUsers
+                           SET AccessFailedCount = 0,
+                               LockoutEnd = NULL
+                           WHERE NormalizedEmail = @NormalizedEmail;
+                           """;
 
-            await connection.ExecuteAsync(
-                new CommandDefinition(sql, new
-                {
-                    NormalizedEmail = normalizedEmail
-                },
-                    cancellationToken: cancellationToken));
-        }
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new
+            {
+                NormalizedEmail = normalizedEmail
+            },
+                cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
@@ -239,34 +226,31 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
         if (string.Equals(row.LinkedEntraOid, oid, StringComparison.Ordinal))
             return true;
 
-        using (SqlRowLevelSecurityBypassAmbient.Enter())
-        {
-            await using SqlConnection connection =
-                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-            DateTimeOffset linkedUtc = TimeProvider.System.GetUtcNow();
+        DateTimeOffset linkedUtc = TimeProvider.System.GetUtcNow();
 
-            const string sql = """
-                               UPDATE dbo.IdentityUsers
-                               SET LinkedEntraOid = @Oid,
-                                   LinkedUtc = @LinkedUtc,
-                                   ConcurrencyStamp = NEWID()
-                               WHERE NormalizedEmail = @NormalizedEmail
-                                 AND (LinkedEntraOid IS NULL OR LinkedEntraOid = @Oid);
-                               """;
+        const string sql = """
+                           UPDATE dbo.IdentityUsers
+                           SET LinkedEntraOid = @Oid,
+                               LinkedUtc = @LinkedUtc,
+                               ConcurrencyStamp = NEWID()
+                           WHERE NormalizedEmail = @NormalizedEmail
+                             AND (LinkedEntraOid IS NULL OR LinkedEntraOid = @Oid);
+                           """;
 
-            int rows = await connection.ExecuteAsync(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        NormalizedEmail = normalizedEmail,
-                        Oid = oid,
-                        LinkedUtc = linkedUtc
-                    },
-                    cancellationToken: cancellationToken));
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    NormalizedEmail = normalizedEmail,
+                    Oid = oid,
+                    LinkedUtc = linkedUtc
+                },
+                cancellationToken: cancellationToken));
 
-            return rows == 1;
-        }
+        return rows == 1;
     }
 }

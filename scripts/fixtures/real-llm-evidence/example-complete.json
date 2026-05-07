@@ -1,0 +1,14 @@
+{
+  "simulatorOnlyRelease": false,
+  "promptRedactionEnabled": true,
+  "rawPromptIncludedInExport": false,
+  "deploymentId": "fixture-dep",
+  "modelLabel": "gpt-4o-mini",
+  "inputTokens": 900,
+  "outputTokens": 120,
+  "totalCostUsd": 0.02,
+  "qualityGateOutcome": "pass",
+  "committedFindingsCount": 4,
+  "topFindingEvidenceChainResolved": true,
+  "reportRelativePath": "artifacts/real-llm/example-session.md"
+}

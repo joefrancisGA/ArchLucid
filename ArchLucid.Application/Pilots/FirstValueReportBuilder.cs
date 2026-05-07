@@ -107,6 +107,7 @@ public sealed class FirstValueReportBuilder(IRunDetailQueryService runDetailQuer
         AppendElapsedSection(sb, deltas);
         AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         AppendEvidenceChainSection(sb, deltas);
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proofCompleteness);
         AppendBaselinePlaceholderTable(sb);
         sb.AppendLine();
         sb.AppendLine("---");

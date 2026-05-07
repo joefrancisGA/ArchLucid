@@ -41,9 +41,7 @@ public partial class Program
             true,
             true);
 
-        // Advanced.json is chained after default env vars, so it can override ARCHLUCID_* / ArchLucid__* (e.g.
-        // ArchLucid:Persistence:AllowRlsBypass=false for fail-closed defaults). Re-apply environment variables so
-        // deployment and CI break-glass (RLS bypass for DbUp + schema bootstrap) still wins.
+        // Advanced/SaaS JSON load before environment variables so deployment and CI env overrides still win.
         builder.Configuration.AddEnvironmentVariables();
 
         ArchitectureRunCreationConfigurationBridge.Apply(builder.Configuration);

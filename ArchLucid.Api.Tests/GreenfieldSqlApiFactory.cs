@@ -17,18 +17,6 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 {
-    private const string ArchLucidPersistenceAllowRlsBypassEnvKey = "ArchLucid__Persistence__AllowRlsBypass";
-
-    private static readonly Lock RlsBreakGlassEnvLock = new();
-
-    private static int _rlsBreakGlassEnvRefCount;
-
-    private static string? _savedArchLucidAllowRlsBypassEnv;
-
-    private static string? _savedArchLucidPersistenceAllowRlsBypassEnv;
-
-    private bool _rlsBreakGlassEnvLease;
-
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
@@ -44,7 +32,6 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
             SqlConnectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
-            AcquireRlsBreakGlassEnvLease();
         }
         catch (Exception ex)
         {
@@ -73,7 +60,6 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
         builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
         builder.UseSetting("ArchLucid:StorageProvider", "Sql");
-        builder.UseSetting("ArchLucid:Persistence:AllowRlsBypass", "true");
         builder.UseSetting("ArchLucidAuth:Mode", "DevelopmentBypass");
         builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "true");
         builder.UseSetting("ArchLucidAuth:AllowTestActorHeaders", "true");
@@ -84,7 +70,6 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
-                ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
                 ["ArchLucidAuth:AllowTestActorHeaders"] = "true",
@@ -126,8 +111,6 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         if (!disposing)
             return;
 
-        ReleaseRlsBreakGlassEnvLease();
-
         try
         {
             SqlServerTestCatalogCommands.DropCatalogIfExists(SqlConnectionString);
@@ -135,48 +118,6 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         catch
         {
             // Best-effort cleanup (SQL Server may be unavailable on teardown).
-        }
-    }
-
-    private void AcquireRlsBreakGlassEnvLease()
-    {
-        if (_rlsBreakGlassEnvLease)
-            return;
-
-        lock (RlsBreakGlassEnvLock)
-        {
-            if (_rlsBreakGlassEnvRefCount++ == 0)
-            {
-                _savedArchLucidAllowRlsBypassEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");
-                _savedArchLucidPersistenceAllowRlsBypassEnv =
-                    Environment.GetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey);
-                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", "true");
-                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, "true");
-            }
-
-            _rlsBreakGlassEnvLease = true;
-        }
-    }
-
-    private void ReleaseRlsBreakGlassEnvLease()
-    {
-        if (!_rlsBreakGlassEnvLease)
-            return;
-
-        lock (RlsBreakGlassEnvLock)
-        {
-            _rlsBreakGlassEnvLease = false;
-
-            if (--_rlsBreakGlassEnvRefCount != 0)
-                return;
-
-            Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", _savedArchLucidAllowRlsBypassEnv ?? null);
-
-            Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey,
-                _savedArchLucidPersistenceAllowRlsBypassEnv ?? null);
-
-            _savedArchLucidAllowRlsBypassEnv = null;
-            _savedArchLucidPersistenceAllowRlsBypassEnv = null;
         }
     }
 }

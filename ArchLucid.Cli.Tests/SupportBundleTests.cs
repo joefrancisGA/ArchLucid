@@ -130,8 +130,53 @@ public sealed class SupportBundleTests
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
                 .Contain("bundleFormatVersion");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
+                .Contain("includedFilesLexOrder");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
+                .Contain("redactionPassAppliedToSerializedSections");
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should()
                 .Contain("next-steps.json");
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+
+                Directory.Delete(dir, true);
+        }
+    }
+
+    [Fact]
+    public void WriteDirectoryWithRedaction_manifest_records_pattern_rules_and_redacts_bearer_in_log_excerpt()
+    {
+        SupportBundleLogsSection logs = new() { LocalLogExcerpt = "Authorization: Bearer supersecret\r\nok" };
+
+        SupportBundlePayload payload = new(
+            new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },
+            new SupportBundleBuildSection(),
+            new SupportBundleHealthSection(),
+            new SupportBundleApiContractSection(),
+            new SupportBundleConfigSummary(),
+            new SupportBundleEnvironmentSection(),
+            new SupportBundleWorkspaceSection(),
+            new SupportBundleReferencesSection(),
+            logs);
+
+        string dir = Path.Combine(Path.GetTempPath(), "bundleRedact." + Guid.NewGuid().ToString("N")[..8]);
+
+        try
+        {
+            SupportBundleArchiveWriter.WriteDirectoryWithRedaction(payload, dir);
+
+            string manifest = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName));
+
+            manifest.Should().Contain("\"redactionPassAppliedToSerializedSections\": true");
+            manifest.Should().Contain("strip-authorization-bearer-secret");
+            manifest.Should().Contain("includedFilesLexOrder");
+
+            string logJson = File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.LogsFileName));
+
+            logJson.Should().NotContain("supersecret");
+            logJson.Should().Contain("[REDACTED]");
         }
         finally
         {

@@ -5,12 +5,11 @@ namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 ///     Opens either a read-scale-out connection string resolved for <paramref name="route" /> or the primary resilient
-///     scoped path, then applies <see cref="IRlsSessionContextApplicator" />.
+///     scoped path.
 /// </summary>
 public sealed class ReadReplicaRoutedConnectionFactory(
     ISqlConnectionFactory primaryResilientFactory,
     IOptionsMonitor<SqlServerOptions> optionsMonitor,
-    IRlsSessionContextApplicator sessionContextApplicator,
     ReadReplicaQueryRoute route) : IAuthorityRunListConnectionFactory, IGovernanceResolutionReadConnectionFactory,
     IGoldenManifestLookupReadConnectionFactory
 {
@@ -19,9 +18,6 @@ public sealed class ReadReplicaRoutedConnectionFactory(
 
     private readonly ISqlConnectionFactory _primaryResilientFactory =
         primaryResilientFactory ?? throw new ArgumentNullException(nameof(primaryResilientFactory));
-
-    private readonly IRlsSessionContextApplicator _sessionContextApplicator =
-        sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
 
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
@@ -38,7 +34,6 @@ public sealed class ReadReplicaRoutedConnectionFactory(
             await connection.OpenAsync(ct);
         }
 
-        await _sessionContextApplicator.ApplyAsync(connection, ct);
         return connection;
     }
 }

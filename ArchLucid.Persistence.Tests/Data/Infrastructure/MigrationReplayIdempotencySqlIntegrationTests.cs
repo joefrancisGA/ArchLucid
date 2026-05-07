@@ -83,7 +83,7 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
 
             int deleted = await delete.ExecuteNonQueryAsync(CancellationToken.None);
 
-            deleted.Should().BeGreaterThanOrEqualTo(1);
+            deleted.Should().Be(1);
         }
 
         Action replay = () => DatabaseMigrator.Run(catalogConnectionString);

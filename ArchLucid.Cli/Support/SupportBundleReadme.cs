@@ -48,7 +48,7 @@ public static class SupportBundleReadme
                 8. {SupportBundleArchiveWriter.LogsFileName}         — optional local last-run excerpt
                 9. {SupportBundleArchiveWriter.ReferencesFileName}   — doc links and correlation triage hints
 
-                manifest.json includes triageReadOrder (same as above) and bundleFormatVersion.
+                manifest.json includes triageReadOrder, bundleFormatVersion, includedFilesLexOrder, and whether a text redaction pass ran on serialized sections.
 
                 {SupportBundleNextStepsDocument.AdvisoryDisclaimer}
 

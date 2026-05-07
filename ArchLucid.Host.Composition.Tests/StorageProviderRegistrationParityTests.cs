@@ -31,7 +31,6 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(ITenantDatabaseBindingRepository),
         typeof(ITenantDatabaseResolver),
         typeof(ScopedRoutingSqlConnectionFactory),
-        typeof(IRlsSessionContextApplicator),
         typeof(ISqlConnectionFactory),
         typeof(IAuthorityRunListConnectionFactory),
         typeof(IGovernanceResolutionReadConnectionFactory),

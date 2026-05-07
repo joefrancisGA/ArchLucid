@@ -39,9 +39,6 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
         SqlConnectionFactory factory = new(fx.ConnectionString);
         SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
-        /* Migration 129 RLS + pooled SESSION_CONTEXT: scope-only sessions block NULL-scope child inserts or hide reads. */
-        await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAsync(connection, CancellationToken.None);
-
         Guid runId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
