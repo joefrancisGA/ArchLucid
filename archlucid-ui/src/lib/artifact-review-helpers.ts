@@ -148,6 +148,36 @@ export function getArtifactBusinessLabel(artifactType: string): string {
   return ARTIFACT_BUSINESS_LABELS[artifactType] ?? getArtifactTypeLabel(artifactType);
 }
 
+/** Removes a trailing filename extension for sponsor-facing captions (keeps interior dots). */
+export function stripArtifactFilenameExtension(filename: string): string {
+  return filename.replace(/\.[^./\\]+$/u, "").trim();
+}
+
+/**
+ * Optional second line under the business label in sponsor artifact tables.
+ * Omits redundant filenames when the stem matches or extends the curated label.
+ */
+export function sponsorArtifactSecondaryCaption(filename: string, businessLabel: string): string | null {
+  const stripped = stripArtifactFilenameExtension(filename).trim();
+
+  if (stripped.length === 0) {
+    return null;
+  }
+
+  const stem = stripped.toLowerCase();
+  const label = businessLabel.trim().toLowerCase();
+
+  if (stem === label) {
+    return null;
+  }
+
+  if (stem.startsWith(label) || label.startsWith(stem)) {
+    return null;
+  }
+
+  return stripped;
+}
+
 /** Returns a one-line description of what an artifact type represents, for the preview panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];

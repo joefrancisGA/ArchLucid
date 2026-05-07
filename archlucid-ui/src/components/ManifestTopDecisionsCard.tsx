@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -17,7 +18,8 @@ export type ManifestTopDecisionsCardProps = {
 
 function isShowcaseManifest(summary: ManifestSummary): boolean {
   return (
-    summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID || summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID
+    summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID ||
+    canonicalizeDemoRunId(summary.runId.trim()) === SHOWCASE_STATIC_DEMO_RUN_ID
   );
 }
 
