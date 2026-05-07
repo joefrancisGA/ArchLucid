@@ -407,14 +407,20 @@ describe("collapsed pilot sidebar filter", () => {
 describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
   const prevDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+  const prevStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
 
   afterEach(() => {
     if (prevDemo === undefined) {
       delete process.env.NEXT_PUBLIC_DEMO_MODE;
-      return;
+    } else {
+      process.env.NEXT_PUBLIC_DEMO_MODE = prevDemo;
     }
 
-    process.env.NEXT_PUBLIC_DEMO_MODE = prevDemo;
+    if (prevStatic === undefined) {
+      delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+    } else {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = prevStatic;
+    }
   });
 
   it("hides alerts, audit, and admin health while keeping Security & trust when NEXT_PUBLIC_DEMO_MODE is true", () => {
@@ -433,6 +439,25 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(visible.some((l) => l.href === "/alerts")).toBe(false);
     expect(visible.some((l) => l.href === "/audit")).toBe(false);
     expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
+    expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+  });
+
+  it("hides alerts and audit when NEXT_PUBLIC_DEMO_STATIC_OPERATOR is true without DEMO_MODE", () => {
+    expect(enterprise).toBeDefined();
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = "true";
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      true,
+    );
+
+    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
+    expect(visible.some((l) => l.href === "/audit")).toBe(false);
     expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
   });
 

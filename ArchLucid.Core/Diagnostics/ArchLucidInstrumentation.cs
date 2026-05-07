@@ -537,12 +537,13 @@ public static class ArchLucidInstrumentation
 
     /// <summary>
     ///     Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>
-    ///     =accepted|warned|rejected).
+    ///     =accepted|warned|rejected, <c>gate_mode</c>=disabled|warn_only|pilot_strict).
     /// </summary>
     public static readonly Counter<long> AgentOutputQualityGateTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_agent_output_quality_gate_total",
-            description: "Agent output quality gate outcomes (labels: agent_type, outcome=accepted|warned|rejected).");
+            description:
+            "Agent output quality gate outcomes (labels: agent_type, outcome=accepted|warned|rejected, gate_mode).");
 
     /// <summary>Reference-case evaluation outcomes (labels: <c>case_id</c>, <c>agent_type</c>, <c>outcome</c>=pass|fail).</summary>
     public static readonly Counter<long> AgentOutputReferenceCaseEvaluationsTotal =

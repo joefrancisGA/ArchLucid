@@ -5,8 +5,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 
-using ArchLucid.Persistence.Tests;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -70,6 +68,7 @@ internal sealed class TenantPrimingGovernanceEnvironmentActivationRepository : I
         }
         finally
         {
+            // ReSharper disable once MethodHasAsyncOverload
             tran?.Dispose();
         }
     }

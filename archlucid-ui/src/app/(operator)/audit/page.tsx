@@ -393,7 +393,7 @@ export default function AuditPage() {
                 />
               </label>
               <label>
-                Review ID{" "}
+                Linked review{" "}
                 <input
                   value={runId}
                   onChange={(e) => setRunId(e.target.value)}

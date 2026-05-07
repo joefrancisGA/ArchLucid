@@ -340,19 +340,28 @@ export function RunsDashboardPanel() {
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    You have no architecture reviews yet. Create a request to produce a manifest,
-                    findings, and exportable artifacts — or walk the pilot checklist first.
+                    {buyerPolishedShell
+                      ? "Start with a new request, or preview the sample output to see a governed package end to end."
+                      : "You have no architecture reviews yet. Create a request to produce a manifest, findings, and exportable artifacts — or walk the pilot checklist first."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="primary" size="sm" className="h-8">
                       <Link href="/reviews/new">Create your first request</Link>
                     </Button>
-          <Button asChild variant="outline" size="sm" className="h-8">
-            <Link href="/onboarding">First-review checklist</Link>
-          </Button>
-                    <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/help">How this works</Link>
-                    </Button>
+                    {buyerPolishedShell ? (
+                      <Button asChild variant="outline" size="sm" className="h-8">
+                        <Link href="/showcase/claims-intake-modernization">See sample output</Link>
+                      </Button>
+                    ) : (
+                      <>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href="/onboarding">First-review checklist</Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm" className="h-8">
+                          <Link href="/help">How this works</Link>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               ) : null}
@@ -480,7 +489,7 @@ export function RunsDashboardPanel() {
         </CardContent>
       </Card>
 
-      {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError ? (
+      {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError && !buyerPolishedShell ? (
         <Card
           className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           data-testid="example-request-panel"

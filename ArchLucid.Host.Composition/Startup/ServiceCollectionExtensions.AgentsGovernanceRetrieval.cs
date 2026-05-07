@@ -33,6 +33,8 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
+using ArchLucid.Core.Agents;
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -151,6 +153,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentOutputQualityGateOptions>(
             configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();
+        services.AddSingleton<IRunAgentOutputPilotEvidenceAggregator, RunAgentOutputPilotEvidenceAggregator>();
         services.Configure<AgentExecutionReferenceEvaluationOptions>(
             configuration.GetSection(AgentExecutionReferenceEvaluationOptions.SectionPath));
         services.AddSingleton<IAgentOutputReferenceCaseCatalog>(sp =>

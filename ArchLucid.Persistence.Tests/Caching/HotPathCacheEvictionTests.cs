@@ -1,5 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Caching;
 
 using Moq;
 

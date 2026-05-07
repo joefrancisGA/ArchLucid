@@ -1,4 +1,4 @@
-﻿using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -228,7 +228,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         AgentExecutionTrace? t = await repo.GetByTraceIdAsync("qw-trace", CancellationToken.None);
 
         t.Should().NotBeNull();
-        t!.QualityWarning.Should().BeTrue();
+        t.QualityWarning.Should().BeTrue();
     }
 
     private static AgentTask NewTask(string runId, string taskId)

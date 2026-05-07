@@ -2,7 +2,6 @@ using System.Text;
 
 using ArchLucid.Cli.Support;
 using ArchLucid.Core.Hosting;
-using ArchLucid.Core.Support;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -86,7 +85,7 @@ internal static class DeploymentEvidenceReportMarkdown
                 sb.AppendLine("```");
             }
 
-            if (!p.Passed && p.NextSteps.Count > 0)
+            if (p is { Passed: false, NextSteps.Count: > 0 })
             {
                 sb.AppendLine();
                 sb.AppendLine("**Next steps:**");
@@ -187,17 +186,11 @@ internal static class DeploymentEvidenceReportMarkdown
 
     private static string EscapeMd(string? value)
     {
-        if (string.IsNullOrEmpty(value))
-            return "";
-
-        return value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("|", "\\|", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(value) ? "" : value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("|", "\\|", StringComparison.Ordinal);
     }
 
     private static string EscapeShellToken(string value)
     {
-        if (value.Contains('"', StringComparison.Ordinal))
-            return value.Replace("\"", "\\\"", StringComparison.Ordinal);
-
-        return value;
+        return value.Contains('"', StringComparison.Ordinal) ? value.Replace("\"", "\\\"", StringComparison.Ordinal) : value;
     }
 }

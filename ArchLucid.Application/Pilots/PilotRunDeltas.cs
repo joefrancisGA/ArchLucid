@@ -129,9 +129,28 @@ public sealed record PilotRunDeltas
     }
 
     /// <summary>
-    ///     <see langword="true" /> when <see cref="SynthesizedArtifactDescriptorCount" /> reflects a successful artifact list query.
+    ///     <see langword="true"/> when <see cref="SynthesizedArtifactDescriptorCount"/> reflects a successful artifact list query.
     /// </summary>
     public bool SynthesizedArtifactDescriptorCountResolved
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     <see langword="true"/> when execution traces loaded successfully enough to evaluate PilotStrict posture for this run.
+    /// </summary>
+    public bool AgentOutputPilotStrictSignalsResolved
+    {
+        get;
+        init;
+    } = true;
+
+    /// <summary>
+    ///     When quality gate PilotStrict mode is enabled server-side and <see cref="AgentOutputPilotStrictSignalsResolved"/>
+    ///     is <see langword="true"/>, a value of <see langword="true"/> means sponsor-facing PilotStrict checks failed.
+    /// </summary>
+    public bool AgentOutputPilotStrictViolatesSponsorEvidence
     {
         get;
         init;

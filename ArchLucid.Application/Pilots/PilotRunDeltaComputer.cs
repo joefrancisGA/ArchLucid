@@ -6,60 +6,140 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Core.Audit;
+using ArchLucid.Core.Agents;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Pilots;
-/// <inheritdoc cref = "IPilotRunDeltaComputer"/>
+
+/// <inheritdoc cref="IPilotRunDeltaComputer"/>
 /// <remarks>
 ///     Read-only by construction: makes one filtered audit query, one trace query, one artifact-descriptor list (when a
 ///     golden manifest id exists), and at most one evidence-chain query per call. Failures in the audit / trace /
 ///     artifact / evidence queries are swallowed (warning-logged) so a sponsor report still renders for runs whose
 ///     ancillary stores are temporarily unavailable.
 /// </remarks>
-public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceChainService, IAgentExecutionTraceRepository agentExecutionTraceRepository, IAuditRepository auditRepository, IArtifactQueryService artifactQueryService, IScopeContextProvider scopeContextProvider, ILogger<PilotRunDeltaComputer> logger) : IPilotRunDeltaComputer
+public sealed class PilotRunDeltaComputer(
+    IFindingEvidenceChainService evidenceChainService,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAuditRepository auditRepository,
+    IArtifactQueryService artifactQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IRunExplanationSummaryService runExplanationSummaryService,
+    IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
+    IOptions<AgentOutputQualityGateOptions> gateOptions,
+    ILogger<PilotRunDeltaComputer> logger)
+    : IPilotRunDeltaComputer
 {
-    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(evidenceChainService, agentExecutionTraceRepository, auditRepository, artifactQueryService, scopeContextProvider, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Explanation.IFindingEvidenceChainService evidenceChainService, ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository agentExecutionTraceRepository, ArchLucid.Persistence.Audit.IAuditRepository auditRepository, ArchLucid.Persistence.Queries.IArtifactQueryService artifactQueryService, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.PilotRunDeltaComputer> logger)
+    private readonly byte __primaryConstructorArgumentValidation =
+        __ValidatePrimaryConstructorArguments(
+            evidenceChainService,
+            agentExecutionTraceRepository,
+            auditRepository,
+            artifactQueryService,
+            scopeContextProvider,
+            runExplanationSummaryService,
+            pilotEvidenceAggregator,
+            gateOptions,
+            logger);
+
+    private static byte __ValidatePrimaryConstructorArguments(
+        IFindingEvidenceChainService evidenceChainService,
+        IAgentExecutionTraceRepository agentExecutionTraceRepository,
+        IAuditRepository auditRepository,
+        IArtifactQueryService artifactQueryService,
+        IScopeContextProvider scopeContextProvider,
+        IRunExplanationSummaryService runExplanationSummaryService,
+        IRunAgentOutputPilotEvidenceAggregator pilotEvidenceAggregator,
+        IOptions<AgentOutputQualityGateOptions> gateOptions,
+        ILogger<PilotRunDeltaComputer> logger)
     {
         ArgumentNullException.ThrowIfNull(evidenceChainService);
         ArgumentNullException.ThrowIfNull(agentExecutionTraceRepository);
         ArgumentNullException.ThrowIfNull(auditRepository);
         ArgumentNullException.ThrowIfNull(artifactQueryService);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(runExplanationSummaryService);
+        ArgumentNullException.ThrowIfNull(pilotEvidenceAggregator);
+        ArgumentNullException.ThrowIfNull(gateOptions);
         ArgumentNullException.ThrowIfNull(logger);
         return (byte)0;
     }
 
     /// <summary>Hard cap on audit-row scans for a single run; keeps the sponsor report O(1) even on noisy runs.</summary>
     private const int AuditRowQueryCap = 500;
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository = agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
-    private readonly IArtifactQueryService _artifactQueryService = artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
-    private readonly IAuditRepository _auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-    private readonly IFindingEvidenceChainService _evidenceChainService = evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
-    private readonly ILogger<PilotRunDeltaComputer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IArtifactQueryService _artifactQueryService =
+        artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
+
+    private readonly IAuditRepository _auditRepository =
+        auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    private readonly IFindingEvidenceChainService _evidenceChainService =
+        evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
+
+    private readonly ILogger<PilotRunDeltaComputer> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunExplanationSummaryService _runExplanationSummaryService =
+        runExplanationSummaryService ?? throw new ArgumentNullException(nameof(runExplanationSummaryService));
+
+    private readonly IRunAgentOutputPilotEvidenceAggregator _pilotEvidenceAggregator =
+        pilotEvidenceAggregator ?? throw new ArgumentNullException(nameof(pilotEvidenceAggregator));
+
+    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
+        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
+
     /// <inheritdoc/>
     public async Task<PilotRunDeltas> ComputeAsync(ArchitectureRunDetail detail, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(detail);
-        if (detail is null)
-            throw new ArgumentNullException(nameof(detail));
         ArchitectureRun run = detail.Run;
         string runId = run.RunId;
         DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
         TimeSpan? wall = committedUtc is { } c ? c - run.CreatedUtc : null;
         IReadOnlyList<KeyValuePair<string, int>> findings = AggregateFindingsBySeverity(detail);
         ArchitectureFinding? topFinding = SelectTopSeverityFinding(detail);
-        (int llmCallCount, bool llmCallCountResolved) = await TryCountLlmCallsAsync(runId, cancellationToken);
+
+        (IReadOnlyList<AgentExecutionTrace> traces, int llmCallCount, bool tracesResolved) =
+            await TryListExecutionTracesAsync(runId, cancellationToken);
+
+        AgentOutputQualityGateOptions gateOpts = _gateOptions.Value;
+
+        bool pilotStrictFails = false;
+
+        if (tracesResolved && gateOpts.Enabled && gateOpts.Mode == AgentOutputQualityGateMode.PilotStrict)
+        {
+            RunExplanationSummary? summary = null;
+
+            if (gateOpts.PilotStrictMinFaithfulnessSupportRatio.HasValue && TryParseRunGuid(runId, out Guid runGuid))
+            {
+                ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+                summary = await _runExplanationSummaryService.GetSummaryAsync(scope, runGuid, cancellationToken);
+            }
+
+            pilotStrictFails = _pilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidence(traces, summary);
+        }
+
         (int auditCount, bool auditTruncated) = await TryCountAuditRowsAsync(runId, cancellationToken);
         FindingEvidenceChainResponse? chain = topFinding is null ? null : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
         bool isDemo = ContosoRetailDemoIdentifiers.IsDemoRunId(runId) || ContosoRetailDemoIdentifiers.IsDemoRequestId(run.RequestId);
         (int? artifactCount, bool artifactResolved) = await TryCountArtifactsAsync(run.GoldenManifestId, cancellationToken);
+
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
@@ -69,7 +149,9 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
             AuditRowCount = auditCount,
             AuditRowCountTruncated = auditTruncated,
             LlmCallCount = llmCallCount,
-            LlmCallCountResolved = llmCallCountResolved,
+            LlmCallCountResolved = tracesResolved,
+            AgentOutputPilotStrictSignalsResolved = tracesResolved,
+            AgentOutputPilotStrictViolatesSponsorEvidence = pilotStrictFails,
             TopFindingId = topFinding?.FindingId,
             TopFindingSeverity = topFinding?.Severity.ToString(),
             TopFindingEvidenceChain = chain,
@@ -77,6 +159,28 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
             SynthesizedArtifactDescriptorCount = artifactCount,
             SynthesizedArtifactDescriptorCountResolved = artifactResolved,
         };
+    }
+
+    private async Task<(IReadOnlyList<AgentExecutionTrace> traces, int count, bool resolved)> TryListExecutionTracesAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            IReadOnlyList<AgentExecutionTrace> list =
+                await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+            return (list, list.Count, true);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(
+                ex,
+                "Pilot delta: execution traces unavailable for run {RunId}; LLM counts and PilotStrict gates not attested.",
+                runId);
+
+            return (Array.Empty<AgentExecutionTrace>(), 0, false);
+        }
     }
 
     private async Task<(int? Count, bool Resolved)> TryCountArtifactsAsync(Guid? goldenManifestId, CancellationToken cancellationToken)
@@ -114,24 +218,11 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
         return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true).OrderByDescending(static f => (int)f.Severity).FirstOrDefault();
     }
 
-    private async Task<(int Count, bool Resolved)> TryCountLlmCallsAsync(string runId, CancellationToken cancellationToken)
-    {
-        try
-        {
-            IReadOnlyList<AgentExecutionTrace> traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
-            return (traces.Count, true);
-        }
-        catch (Exception ex)when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "Pilot delta: LLM call count unavailable for run {RunId}; reporting 0.", runId);
-            return (0, false);
-        }
-    }
-
     private async Task<(int Count, bool Truncated)> TryCountAuditRowsAsync(string runId, CancellationToken cancellationToken)
     {
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return (0, false);
+
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -140,6 +231,7 @@ public sealed class PilotRunDeltaComputer(IFindingEvidenceChainService evidenceC
                 RunId = runGuid,
                 Take = AuditRowQueryCap
             };
+
             IReadOnlyList<AuditEvent> events = await _auditRepository.GetFilteredAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, filter, cancellationToken);
             int count = events.Count;
             bool truncated = count >= AuditRowQueryCap;

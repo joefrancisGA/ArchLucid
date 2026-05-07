@@ -10,7 +10,7 @@ public static class ConfigurationKeyCatalog
 
     private static IReadOnlyList<ConfigurationKeyEntry> Build()
     {
-        return new List<ConfigurationKeyEntry>(110)
+        return new List<ConfigurationKeyEntry>(116)
         {
             E("Hosting", "Hosting:LogStartupConfigurationSummary", M("appsettings", "env"), "true", "—",
                 "Log effective configuration on startup (host).", ConfigKeyRequirementKind.None),
@@ -39,6 +39,8 @@ public static class ConfigurationKeyCatalog
                 "Who runs trial notification emails for this tenant class.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:Enabled", M("appsettings", "env"), "true", "—",
                 "Enables quality gate for agent output.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:Mode", M("appsettings", "env"), "WarnOnly", "—",
+                "WarnOnly (default) vs PilotStrict for citations/scores/pilot sponsor gates.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:StructuralWarnBelow", M("appsettings", "env"), "0.3",
                 "—", "Quality gate warn threshold (structural).", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:SemanticWarnBelow", M("appsettings", "env"), "0.2", "—",
@@ -51,6 +53,16 @@ public static class ConfigurationKeyCatalog
                 "—",
                 "Quality gate reject (semantic); 0 disables reject for non-negative scores. Pair with EnforceOnReject.",
                 ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinStructuralCompleteness", M("appsettings", "env"),
+                "0.45", "—",
+                "PilotStrict: reject traces strictly below this structural completeness ratio.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinSemanticScore", M("appsettings", "env"), "0.25",
+                "—", "PilotStrict: reject traces strictly below this semantic score.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinEvidenceRefCount", M("appsettings", "env"), "0",
+                "—", "PilotStrict: require at least this many top-level evidenceRefs when value > 0.", ConfigKeyRequirementKind.None),
+            E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:PilotStrictMinFaithfulnessSupportRatio",
+                M("appsettings", "env"), "(unset)", "—",
+                "Optional PilotStrict minimum aggregate explanation faithfulness ratio.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:FaithfulnessFallbackEnabled", M("appsettings", "env"),
                 "true", "—", "Allow fallback when faithfulness is low.", ConfigKeyRequirementKind.None),
             E("ArchLucid", "ArchLucid:Explanation:Aggregate:MinSupportRatioToTrustLlmNarrative",

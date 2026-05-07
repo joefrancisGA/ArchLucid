@@ -118,4 +118,10 @@ public sealed class AgentOutputQualityGateTests
 
         options.EnforceOnReject.Should().BeFalse("default must be false so existing behaviour is preserved");
     }
+
+    [SkippableFact]
+    public void Mode_defaults_to_warn_only()
+    {
+        new AgentOutputQualityGateOptions().Mode.Should().Be(AgentOutputQualityGateMode.WarnOnly);
+    }
 }

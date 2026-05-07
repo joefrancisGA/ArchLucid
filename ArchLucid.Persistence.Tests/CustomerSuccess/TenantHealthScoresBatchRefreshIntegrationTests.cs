@@ -7,8 +7,6 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 using Moq;
@@ -63,7 +61,10 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
             """
             SELECT CompositeScore FROM dbo.TenantHealthScores WHERE TenantId = @TenantId
             """,
-            new { TenantId = tenantId });
+            new
+            {
+                TenantId = tenantId
+            });
 
         composite.Should().NotBeNull();
         decimal engagement = TenantHealthScoringCalculator.EngagementScore(0, 0, 0);
@@ -72,6 +73,6 @@ public sealed class TenantHealthScoresBatchRefreshIntegrationTests(SqlServerPers
         decimal gov = TenantHealthScoringCalculator.GovernanceScore(0);
         decimal support = TenantHealthScoringCalculator.NeutralSupportScore();
         decimal expected = TenantHealthScoringCalculator.CompositeScore(engagement, breadth, quality, gov, support);
-        composite!.Value.Should().Be(expected);
+        composite.Value.Should().Be(expected);
     }
 }

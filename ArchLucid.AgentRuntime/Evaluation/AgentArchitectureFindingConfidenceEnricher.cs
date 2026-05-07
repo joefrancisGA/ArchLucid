@@ -7,7 +7,10 @@ using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 
+using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -21,6 +24,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
     IAgentOutputEvaluator structuralEvaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
+    IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     FindingConfidenceCalculator confidenceCalculator,
     ILogger<AgentArchitectureFindingConfidenceEnricher> logger) : IAgentArchitectureFindingConfidenceEnricher
@@ -39,6 +43,9 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
     private readonly IAgentOutputQualityGate _qualityGate =
         qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
+
+    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
+        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -75,8 +82,9 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
                 traceByAgentType.TryGetValue(result.AgentType, out AgentExecutionTrace? traceForAgent);
 
                 bool schemaPassed = traceForAgent is not null &&
-                                    AgentOutputFindingConfidenceSignals.ComputeQualityGateAccepted(
+                                    AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidence(
                                         traceForAgent,
+                                        _gateOptions.Value,
                                         _structuralEvaluator,
                                         _semanticEvaluator,
                                         _qualityGate);

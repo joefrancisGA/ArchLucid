@@ -18,6 +18,7 @@ import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export const metadata: Metadata = {
   title: "Operator home",
@@ -25,6 +26,8 @@ export const metadata: Metadata = {
 
 /** Landing page: hero CTA, action cards, workflow checklist, and operational metrics. */
 export default function HomePage() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <OperatorHomeGate>
     <TrialWelcomeRunDeepLink />
@@ -32,9 +35,9 @@ export default function HomePage() {
       <OperatorCoArchitectHomeStrip />
       <WelcomeBanner />
       
-      <ValueRealizationDashboard />
+      {buyerPolishedShell ? null : <ValueRealizationDashboard />}
 
-      <CorePilotNextStepsCard />
+      {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
 
       <SampleFirstReviewPackageCard />
 

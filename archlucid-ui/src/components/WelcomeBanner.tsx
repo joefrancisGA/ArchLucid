@@ -9,6 +9,7 @@ import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
@@ -137,13 +138,23 @@ export function WelcomeBanner() {
   const trialActive = trial?.status === "Active";
   const days = trial?.daysRemaining;
   const returningUser = hasExistingRuns;
-  const headingText = returningUser
-    ? "Architecture review workspace"
-    : "Review an existing architecture—with evidence-backed outcomes.";
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  const headingText =
+    returningUser
+      ? "Architecture review workspace"
+      : buyerPolishedShell
+        ? "Create a governed architecture review package"
+        : "Review an existing architecture—with evidence-backed outcomes.";
   const subheadingText = returningUser ? (
     <>
       Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+    </>
+  ) : buyerPolishedShell ? (
+    <>
+      Walk through one structured review to produce a governed manifest, evidence trail, and actionable{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> your team can approve.
     </>
   ) : (
     <>
@@ -266,14 +277,31 @@ export function WelcomeBanner() {
           <p className="mt-0 max-w-lg text-sm text-neutral-600 dark:text-neutral-400">{subheadingText}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            <OptInTourLauncher className="h-10 px-4 text-sm" />
-            <Button
-              asChild
-              variant="outline"
-              className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
-            >
-              <Link href="/showcase/claims-intake-modernization">See completed example</Link>
-            </Button>
+            {buyerPolishedShell && !returningUser ? (
+              <>
+                <Button asChild variant="primary" className="h-10 px-5 text-sm font-semibold">
+                  <Link href="/reviews/new">{OPERATOR_CO_ARCHITECT_CTA_REVIEW_PRIMARY}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+                >
+                  <Link href="/showcase/claims-intake-modernization">See sample output</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <OptInTourLauncher className="h-10 px-4 text-sm" />
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+                >
+                  <Link href="/showcase/claims-intake-modernization">See completed example</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -305,7 +333,9 @@ export function WelcomeBanner() {
               ))}
             </ul>
             <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-              One request produces everything needed for review.
+              {buyerPolishedShell
+                ? "One walkthrough shows sponsors what a finalized review package looks like."
+                : "One request produces everything needed for review."}
             </p>
           </div>
         ) : null}

@@ -20,6 +20,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -101,11 +102,17 @@ function CommandPaletteNavGroups({
   );
 }
 
-function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) {
+function RunIdQuickOpen({
+  onNavigate,
+  allowRunIdPaste,
+}: {
+  onNavigate: (href: string) => void;
+  allowRunIdPaste: boolean;
+}) {
   const search = useCommandState((state) => state.search);
   const trimmed = search.trim();
 
-  if (!RUN_ID_LIKE.test(trimmed)) {
+  if (!allowRunIdPaste || !RUN_ID_LIKE.test(trimmed)) {
     return null;
   }
 
@@ -117,7 +124,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
           onNavigate(`/reviews/${trimmed}`);
         }}
       >
-        Open architecture review detail ({trimmed})
+        Open linked review
       </CommandItem>
     </CommandGroup>
   );
@@ -140,6 +147,10 @@ export function CommandPalette() {
     showExtended,
     showAdvanced,
   );
+  const demoUi = isStaticDemoPayloadFallbackEnabled();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const paletteExtended = buyerPolishedShell ? false : demoUi ? true : shellShowExtended;
+  const paletteAdvanced = buyerPolishedShell ? false : demoUi ? true : shellShowAdvanced;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -164,7 +175,7 @@ export function CommandPalette() {
     [router],
   );
 
-  const polishedShell = isBuyerPolishedOperatorShellEnv();
+  const polishedShell = buyerPolishedShell;
 
   return (
     <>
@@ -177,7 +188,7 @@ export function CommandPalette() {
             ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
             : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
         }
-        aria-label={polishedShell ? "Open find page" : "Open command palette"}
+        aria-label={polishedShell ? "Open search" : "Open command palette"}
         onClick={() => {
           setOpen(true);
         }}
@@ -187,17 +198,21 @@ export function CommandPalette() {
             ⌘K
           </span>
         )}
-        <span>{polishedShell ? "Find page" : "Jump…"}</span>
+        <span>{polishedShell ? "Search" : "Jump…"}</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={polishedShell ? "Search pages…" : "Search pages or paste a review ID…"} />
+        <CommandInput placeholder={polishedShell ? "Find a page…" : "Search pages or paste a review ID…"} />
         <CommandList>
-          <RunIdQuickOpen onNavigate={navigate} />
-          <CommandEmpty>No matching pages. Try another search or paste a review ID.</CommandEmpty>
+          <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!polishedShell} />
+          <CommandEmpty>
+            {polishedShell
+              ? "No matching page. Try another search."
+              : "No matching pages. Try another search or paste a review ID."}
+          </CommandEmpty>
           <CommandPaletteNavGroups
             callerAuthorityRank={callerAuthorityRank}
-            shellShowExtended={shellShowExtended}
-            shellShowAdvanced={shellShowAdvanced}
+            shellShowExtended={paletteExtended}
+            shellShowAdvanced={paletteAdvanced}
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             onNavigate={navigate}
           />

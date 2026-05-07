@@ -11,7 +11,11 @@ namespace ArchLucid.Cli.Commands;
 internal static class RunSupportPacketCommand
 {
     private static readonly JsonSerializerOptions JsonCamel =
-        new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false };
+        new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false
+        };
 
     public static async Task<int> RunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -29,7 +33,7 @@ internal static class RunSupportPacketCommand
         return await RunCoreAsync(
                 runId,
                 ct => client.GetRunAsync(runId, ct),
-                ct => client.GetVersionJsonAsync(ct),
+                client.GetVersionJsonAsync,
                 baseUrl,
                 Console.Out,
                 cancellationToken)

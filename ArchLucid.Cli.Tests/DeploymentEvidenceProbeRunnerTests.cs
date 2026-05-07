@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Cli.Commands;
@@ -27,25 +26,40 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                 () => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        JsonSerializer.Serialize(new { status = "Healthy", entries = Array.Empty<object>() }, JsonCamel))
+                        JsonSerializer.Serialize(new
+                        {
+                            status = "Healthy",
+                            entries = Array.Empty<object>()
+                        }, JsonCamel))
                 },
             ["/openapi/v1.json"] =
                 () => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        JsonSerializer.Serialize(new { info = new { title = "ArchLucid" } }, JsonCamel))
+                        JsonSerializer.Serialize(new
+                        {
+                            info = new
+                            {
+                                title = "ArchLucid"
+                            }
+                        }, JsonCamel))
                 },
             ["/version"] =
                 () => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(
-                            new { informationalVersion = "1.0.0-test", commit = "abc" },
+                            new
+                            {
+                                informationalVersion = "1.0.0-test",
+                                commit = "abc"
+                            },
                             JsonCamel))
                 }
         };
 
-        using HttpClient http = new(new RouterHandler(routes)) { BaseAddress = new Uri("https://api.example/") };
+        using HttpClient http = new(new RouterHandler(routes));
+        http.BaseAddress = new Uri("https://api.example/");
 
         DeploymentEvidenceProbeBundle bundle = await DeploymentEvidenceProbeRunner.RunOnceAsync(
             http,
@@ -68,7 +82,10 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                 () => new HttpResponseMessage(HttpStatusCode.OK)
                 {
                     Content = new StringContent(
-                        JsonSerializer.Serialize(new { status = "Healthy" }, JsonCamel))
+                        JsonSerializer.Serialize(new
+                        {
+                            status = "Healthy"
+                        }, JsonCamel))
                 },
             ["/openapi/v1.json"] = () => new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") },
             ["/version"] =
@@ -76,12 +93,16 @@ public sealed class DeploymentEvidenceProbeRunnerTests
                 {
                     Content = new StringContent(
                         JsonSerializer.Serialize(
-                            new { informationalVersion = "1.0.0-test" },
+                            new
+                            {
+                                informationalVersion = "1.0.0-test"
+                            },
                             JsonCamel))
                 }
         };
 
-        using HttpClient http = new(new RouterHandler(routes)) { BaseAddress = new Uri("https://api.example/") };
+        using HttpClient http = new(new RouterHandler(routes));
+        http.BaseAddress = new Uri("https://api.example/");
 
         DeploymentEvidenceProbeBundle bundle = await DeploymentEvidenceProbeRunner.RunOnceAsync(
             http,
@@ -95,17 +116,12 @@ public sealed class DeploymentEvidenceProbeRunnerTests
 
     private sealed class RouterHandler(Dictionary<string, Func<HttpResponseMessage>> routes) : HttpMessageHandler
     {
-        private readonly Dictionary<string, Func<HttpResponseMessage>> _routes = routes;
-
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             string path = request.RequestUri?.AbsolutePath ?? "";
 
-            if (_routes.TryGetValue(path, out Func<HttpResponseMessage>? factory))
-                return Task.FromResult(factory());
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            return Task.FromResult(routes.TryGetValue(path, out Func<HttpResponseMessage>? factory) ? factory() : new HttpResponseMessage(HttpStatusCode.NotFound));
         }
     }
 }
