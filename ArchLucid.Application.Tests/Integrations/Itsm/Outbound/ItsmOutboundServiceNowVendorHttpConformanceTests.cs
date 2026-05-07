@@ -35,10 +35,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
         RecordingHttpMessageHandler handler = new(request =>
         {
             if (request.RequestUri!.AbsolutePath.Contains("cmdb_ci_appl", StringComparison.Ordinal))
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json")
-                };
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json") };
 
             return new HttpResponseMessage(HttpStatusCode.Created)
             {
@@ -131,10 +128,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
         RecordingHttpMessageHandler handler = new(request =>
         {
             if (request.RequestUri!.AbsolutePath.Contains("cmdb_ci_appl", StringComparison.Ordinal))
-                return new HttpResponseMessage(HttpStatusCode.OK)
-                {
-                    Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json")
-                };
+                return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json") };
 
             return new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -234,10 +228,7 @@ public sealed class ItsmOutboundServiceNowVendorHttpConformanceTests
                     Content = new StringContent("{\"error\":\"acl\"}", Encoding.UTF8, "application/json")
                 };
 
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json")
-            };
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"result\":[]}", Encoding.UTF8, "application/json") };
         });
 
         Mock<IFindingInspectReadRepository> findings = new();

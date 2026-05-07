@@ -1118,10 +1118,7 @@ public sealed class PreCommitGovernanceGateTests
         schema
             .Setup(s => s.ValidateGoldenManifestJson(It.IsAny<string>()))
             .Returns(
-                new SchemaValidationResult
-                {
-                    Errors = ["GoldenManifest schema error at '(root)': unit-test violation"],
-                });
+                new SchemaValidationResult { Errors = ["GoldenManifest schema error at '(root)': unit-test violation"], });
 
         PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true, }),
@@ -1185,7 +1182,6 @@ public sealed class PreCommitGovernanceGateTests
             assignments,
             schemaValidationService ?? new PassthroughSchemaValidationService(),
             authoritySchemaOptions
-            ?? Options.Create(new AuthorityCommitSchemaValidationOptions
-                { ValidateGoldenManifestSchema = false }));
+            ?? Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }));
     }
 }

@@ -97,7 +97,10 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        Dictionary<string, object?> payload = new() { ["reviewedBy"] = reviewedBy };
+        Dictionary<string, object?> payload = new()
+        {
+            ["reviewedBy"] = reviewedBy
+        };
 
         if (reviewComment is not null)
             payload["reviewComment"] = reviewComment;
@@ -200,7 +203,8 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
         if (string.IsNullOrWhiteSpace(idempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(idempotencyKey));
 
-        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, relativeUrl) { Content = content };
+        using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl);
+        request.Content = content;
 
         _ = request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -250,10 +254,10 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
         string testActorName,
         string testActorId)
     {
-        if (content is null)
-            throw new ArgumentNullException(nameof(content));
+        ArgumentNullException.ThrowIfNull(content);
 
-        using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl) { Content = content };
+        using HttpRequestMessage request = new(HttpMethod.Post, relativeUrl);
+        request.Content = content;
 
         ApplyTestActorHeaders(request, testActorName, testActorId);
 

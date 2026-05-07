@@ -1,4 +1,5 @@
 using System.Text;
+
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Pilots;
@@ -33,21 +34,13 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
         {
             TopFindingId = "f-1",
             TopFindingSeverity = "Error",
-            TopFindingEvidenceChain = new FindingEvidenceChainResponse
-            {
-                ManifestVersion = "v3",
-                FindingsSnapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            },
+            TopFindingEvidenceChain =
+                new FindingEvidenceChainResponse { ManifestVersion = "v3", FindingsSnapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), },
             AgentOutputPilotStrictSignalsResolved = true,
             AgentOutputPilotStrictViolatesSponsorEvidence = false,
         };
 
-        ProofPackageCompletenessResponse proof = new()
-        {
-            ProofSendability = "Sendable",
-            PublishingTier = "Complete",
-            EvidenceCompleteness = "Strong",
-        };
+        ProofPackageCompletenessResponse proof = new() { ProofSendability = "Sendable", PublishingTier = "Complete", EvidenceCompleteness = "Strong", };
 
         FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
 
@@ -73,10 +66,5 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
     }
 
     private static ProofPackageCompletenessResponse MinimalProof() =>
-        new()
-        {
-            ProofSendability = "SendableWithCaveats",
-            PublishingTier = "Partial",
-            EvidenceCompleteness = "Partial",
-        };
+        new() { ProofSendability = "SendableWithCaveats", PublishingTier = "Partial", EvidenceCompleteness = "Partial", };
 }

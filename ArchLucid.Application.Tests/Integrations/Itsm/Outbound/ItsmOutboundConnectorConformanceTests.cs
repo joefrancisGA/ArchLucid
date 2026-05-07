@@ -109,12 +109,7 @@ public sealed class ItsmOutboundConnectorConformanceTests
 
         ScopeContext scope = Scope();
         IntegrationsItsmOutboundOptions outbound = OutboundJiraConfigured();
-        outbound.ServiceNow = new ServiceNowItsmOutboundOptions
-        {
-            InstanceBaseUrl = string.Empty,
-            Username = string.Empty,
-            Password = string.Empty
-        };
+        outbound.ServiceNow = new ServiceNowItsmOutboundOptions { InstanceBaseUrl = string.Empty, Username = string.Empty, Password = string.Empty };
 
         ItsmOutboundIssueCreationService sut = new(
             findings.Object,

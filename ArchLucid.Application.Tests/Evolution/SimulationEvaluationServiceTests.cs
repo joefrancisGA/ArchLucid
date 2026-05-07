@@ -74,10 +74,7 @@ public sealed class SimulationEvaluationServiceTests
         SimulationEvaluationRequest request = new()
         {
             BaselineReport =
-                new ArchitectureAnalysisReport
-                {
-                    Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = left, Warnings = [],
-                },
+                new ArchitectureAnalysisReport { Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = left, Warnings = [], },
             SimulatedReport = new ArchitectureAnalysisReport
             {
                 Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = right, Warnings = [],

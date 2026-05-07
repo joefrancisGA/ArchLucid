@@ -97,11 +97,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
     {
         (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
             StrongBaselineFixture();
-        deltas = deltas with
-        {
-            AgentOutputPilotStrictSignalsResolved = true,
-            AgentOutputPilotStrictViolatesSponsorEvidence = true,
-        };
+        deltas = deltas with { AgentOutputPilotStrictSignalsResolved = true, AgentOutputPilotStrictViolatesSponsorEvidence = true, };
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
 
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
@@ -124,7 +120,8 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
     }
 
-    private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap) StrongBaselineFixture()
+    private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap)
+        StrongBaselineFixture()
     {
         ArchitectureRun run = new()
         {
@@ -140,11 +137,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         {
             RunId = "run-proof",
             SystemName = "Sys",
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1",
-                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
-            },
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc), },
             Governance = new ManifestGovernance(),
         };
 

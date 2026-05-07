@@ -62,10 +62,7 @@ public sealed class ItsmOutboundJiraVendorHttpConformanceTests
     public async Task Jira_conformance_posts_to_rest_api_3_issue_with_basic_auth_header_and_finding_payload()
     {
         RecordingHttpMessageHandler handler = new(
-            new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("""{"id":"1","key":"DP-9"}""", Encoding.UTF8, "application/json"),
-            });
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("""{"id":"1","key":"DP-9"}""", Encoding.UTF8, "application/json"), });
 
         Mock<IFindingInspectReadRepository> findings = new();
         findings

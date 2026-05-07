@@ -38,6 +38,12 @@ export default function HomePage() {
       
       {buyerPolishedShell ? null : <ValueRealizationDashboard />}
 
+      {buyerPolishedShell ? null : (
+        <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+          Get started
+        </h2>
+      )}
+
       {buyerPolishedShell ? null : <CorePilotNextStepsCard />}
 
       <SampleFirstReviewPackageCard />
@@ -45,6 +51,12 @@ export default function HomePage() {
       <OperatorNextActionsCard />
 
       {buyerPolishedShell ? null : <OperatorStickinessSnapshotCard />}
+
+      {buyerPolishedShell ? null : (
+        <h2 className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
+          Your reviews
+        </h2>
+      )}
 
       <div
         className={

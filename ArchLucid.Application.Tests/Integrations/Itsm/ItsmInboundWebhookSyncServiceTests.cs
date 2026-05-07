@@ -39,17 +39,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    It.IsAny<Guid>(),
-                    "f1",
-                    "Rejected",
-                    It.IsAny<CancellationToken>()))
+                It.IsAny<Guid>(),
+                "f1",
+                "Rejected",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         IntegrationsItsmInboundOptions options = new()
         {
-            JiraStatusHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Blocked"] = "Rejected"
-            }
+            JiraStatusHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["Blocked"] = "Rejected" }
         };
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(options);
@@ -90,17 +87,14 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    It.IsAny<Guid>(),
-                    "f9",
-                    "Approved",
-                    It.IsAny<CancellationToken>()))
+                It.IsAny<Guid>(),
+                "f9",
+                "Approved",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         IntegrationsItsmInboundOptions options = new()
         {
-            ServiceNowStateHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["99"] = "Approved"
-            }
+            ServiceNowStateHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["99"] = "Approved" }
         };
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(options);
@@ -160,19 +154,13 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-42", It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ItsmFindingCorrelationRecord
-                {
-                    TenantId = TenantA,
-                    WorkspaceId = WorkspaceA,
-                    ProjectId = ProjectA,
-                    FindingId = "f-jira"
-                });
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-jira" });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    TenantA,
-                    "f-jira",
-                    expectedHumanReview,
-                    It.IsAny<CancellationToken>()))
+                TenantA,
+                "f-jira",
+                expectedHumanReview,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
@@ -182,10 +170,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 ["issue"] = new Dictionary<string, object>
                 {
                     ["key"] = "KK-42",
-                    ["fields"] = new Dictionary<string, object>
-                    {
-                        ["status"] = new Dictionary<string, object> { ["name"] = jiraStatus }
-                    }
+                    ["fields"] = new Dictionary<string, object> { ["status"] = new Dictionary<string, object> { ["name"] = jiraStatus } }
                 }
             });
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -234,19 +219,13 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", externalKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ItsmFindingCorrelationRecord
-                {
-                    TenantId = TenantA,
-                    WorkspaceId = WorkspaceA,
-                    ProjectId = ProjectA,
-                    FindingId = "f-sn"
-                });
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn" });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    TenantA,
-                    "f-sn",
-                    expectedHumanReview,
-                    It.IsAny<CancellationToken>()))
+                TenantA,
+                "f-sn",
+                expectedHumanReview,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
@@ -279,19 +258,13 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", "inc-num", It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ItsmFindingCorrelationRecord
-                {
-                    TenantId = TenantA,
-                    WorkspaceId = WorkspaceA,
-                    ProjectId = ProjectA,
-                    FindingId = "f-sn2"
-                });
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn2" });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    TenantA,
-                    "f-sn2",
-                    nameof(FindingHumanReviewStatus.Approved),
-                    It.IsAny<CancellationToken>()))
+                TenantA,
+                "f-sn2",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
@@ -421,26 +394,20 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-T", It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ItsmFindingCorrelationRecord
-                {
-                    TenantId = TenantA,
-                    WorkspaceId = WorkspaceA,
-                    ProjectId = ProjectA,
-                    FindingId = "fid-1"
-                });
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "fid-1" });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    TenantA,
-                    "fid-1",
-                    nameof(FindingHumanReviewStatus.Pending),
-                    It.IsAny<CancellationToken>()))
+                TenantA,
+                "fid-1",
+                nameof(FindingHumanReviewStatus.Pending),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    otherTenant,
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<CancellationToken>()))
+                otherTenant,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 
@@ -471,19 +438,13 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         correlations
             .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KK-0", It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ItsmFindingCorrelationRecord
-                {
-                    TenantId = TenantA,
-                    WorkspaceId = WorkspaceA,
-                    ProjectId = ProjectA,
-                    FindingId = "missing-finding"
-                });
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "missing-finding" });
         correlations
             .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
-                    TenantA,
-                    "missing-finding",
-                    nameof(FindingHumanReviewStatus.Pending),
-                    It.IsAny<CancellationToken>()))
+                TenantA,
+                "missing-finding",
+                nameof(FindingHumanReviewStatus.Pending),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
         ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, new IntegrationsItsmInboundOptions());
 

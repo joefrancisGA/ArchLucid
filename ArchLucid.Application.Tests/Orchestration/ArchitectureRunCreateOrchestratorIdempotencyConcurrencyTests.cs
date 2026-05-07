@@ -234,7 +234,10 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                 {
                     Run = new ArchitectureRun
                     {
-                        RunId = runId, RequestId = req.RequestId, Status = ArchitectureRunStatus.TasksGenerated, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                        RunId = runId,
+                        RequestId = req.RequestId,
+                        Status = ArchitectureRunStatus.TasksGenerated,
+                        CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     },
                     EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + runId },
                     Tasks = [],

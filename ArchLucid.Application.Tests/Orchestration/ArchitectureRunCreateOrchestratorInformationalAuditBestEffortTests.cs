@@ -82,7 +82,10 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
         string runId = Guid.NewGuid().ToString("N");
         ArchitectureRun run = new()
         {
-            RunId = runId, RequestId = "req-audit-best-effort", Status = ArchitectureRunStatus.Created, CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            RunId = runId,
+            RequestId = "req-audit-best-effort",
+            Status = ArchitectureRunStatus.Created,
+            CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
         };
         EvidenceBundle bundle = new() { EvidenceBundleId = "eb-audit-be" };
         List<AgentTask> tasks =
