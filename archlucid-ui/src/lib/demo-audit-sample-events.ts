@@ -1,5 +1,6 @@
 import type { AuditEvent } from "@/lib/api";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -134,4 +135,19 @@ export function shouldInjectDemoAuditSample(filters: {
   }
 
   return true;
+}
+
+/**
+ * Buyer-polished shells show the deterministic Claims Intake audit trail whenever {@link shouldInjectDemoAuditSample}
+ * allows it — even when the live search returns unrelated rows so screenshots stay aligned with the spine story.
+ */
+export function shouldPreferCuratedAuditTrailForBuyerShell(filters: {
+  readonly eventType: string;
+  readonly fromUtc: string;
+  readonly toUtc: string;
+  readonly correlationId: string;
+  readonly actorUserId: string;
+  readonly runId: string;
+}): boolean {
+  return isBuyerPolishedOperatorShellEnv() && shouldInjectDemoAuditSample(filters);
 }

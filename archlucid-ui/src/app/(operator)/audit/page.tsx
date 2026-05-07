@@ -54,6 +54,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   getDemoSampleAuditTrailEvents,
   shouldInjectDemoAuditSample,
+  shouldPreferCuratedAuditTrailForBuyerShell,
 } from "@/lib/demo-audit-sample-events";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
@@ -173,11 +174,16 @@ export default function AuditPage() {
     try {
       const filters = currentFilters();
       const page = await executeSearch(filters);
-      const injectDemo =
+      const curatedBuyer =
+        shouldMergeOperatorDemoAlertSample() && shouldPreferCuratedAuditTrailForBuyerShell(filters);
+      const injectEmptyOnly =
         shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
-      setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
-      setHasMoreResults(injectDemo ? false : page.hasMore);
-      setAuditNextCursor(injectDemo ? null : page.nextCursor);
+
+      const useDemoRows = curatedBuyer || injectEmptyOnly;
+
+      setEvents(useDemoRows ? getDemoSampleAuditTrailEvents() : page.items);
+      setHasMoreResults(useDemoRows ? false : page.hasMore);
+      setAuditNextCursor(useDemoRows ? null : page.nextCursor);
     } catch (e) {
       const emptyFilters = currentFilters();
       const injectOnError =
@@ -224,11 +230,14 @@ export default function AuditPage() {
     };
     try {
       const page = await executeSearch(empty);
-      const injectDemo =
+      const curatedBuyer = shouldMergeOperatorDemoAlertSample() && shouldPreferCuratedAuditTrailForBuyerShell(empty);
+      const injectEmptyOnly =
         shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(empty) && page.items.length === 0;
-      setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
-      setHasMoreResults(injectDemo ? false : page.hasMore);
-      setAuditNextCursor(injectDemo ? null : page.nextCursor);
+      const useDemoRows = curatedBuyer || injectEmptyOnly;
+
+      setEvents(useDemoRows ? getDemoSampleAuditTrailEvents() : page.items);
+      setHasMoreResults(useDemoRows ? false : page.hasMore);
+      setAuditNextCursor(useDemoRows ? null : page.nextCursor);
     } catch (e) {
       const injectOnError = shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(empty);
 

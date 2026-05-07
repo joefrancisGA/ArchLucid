@@ -146,7 +146,11 @@ For release candidates, treat agent output quality as a release signal, not only
 python scripts/ci/eval_agent_corpus.py --markdown-report artifacts/agent-output-quality.md --enforce-quality-gate
 ```
 
-Use the generated Markdown file as the deterministic appendix for the release. It is intentionally simulator / fixture backed by default so normal release checks do not require Azure OpenAI credentials. When the release posture includes real Azure OpenAI, attach the live run evidence from [`docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) alongside this deterministic corpus output.
+Use the generated Markdown file as the deterministic appendix for the release. It is intentionally simulator / fixture backed by default so normal release checks do not require Azure OpenAI credentials.
+
+**Interpreting simulator vs optional real-mode rows:** The same command loads **`tests/eval-corpus/`** (see [`AGENT_EVAL_CORPUS.md`](AGENT_EVAL_CORPUS.md)). Scenarios with **`qualityEvidence.mode: "simulator"`** always score committed **`agent-results/*.simulator.json`**. The **`corpus-real-mode-smoke`** scenario uses **`qualityEvidence.mode: "real"`** and resolves an exported **`AgentResult`** JSON from the process environment variable **`ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT`** (filesystem path, not repo-relative). Leave that variable **unset** in PR CI so the real row **skips** without failing. When set before the script runs, stderr/stdout includes a `real_mode_quality` summary line (`evidence_captured=yes|no`), and the Markdown report’s **Real-mode AgentResult slice** table lists counts for skipped rows, evaluated rows, errors, and whether evidence was captured. **`--enforce-quality-gate`** still applies **only** to **simulator** quality rows—real deployments are gated manually via API/metrics posture above.
+
+When the release posture includes real Azure OpenAI, attach the live run evidence from [`docs/quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) alongside this deterministic corpus output.
 
 **Block vs warn:** a rejected quality-gate row under the configured release floors should block a tagged release candidate unless the release notes explicitly narrow the supported surface to simulator-only evidence. Warning rows can ship only with an owner note that explains why the semantic or structural score is acceptable for the scenario.
 

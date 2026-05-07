@@ -2,22 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { FindingInspectFindingBody } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody";
-import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { getFindingInspect } from "@/lib/api";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
-import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
-import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
-import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { sameAuthorityRunId } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectView";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
+import {
+  findingIdsAlignForInspectRoute,
+  loadFindingInspectForRoute,
+  shouldTreatFindingInspectFailureAsNotFound,
+} from "@/lib/load-finding-inspect-for-route";
+import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-
-function normalizeInspectPayload(payload: FindingInspectPayload): FindingInspectPayload {
-  return {
-    ...payload,
-    recommendedActions: payload.recommendedActions ?? [],
-  };
-}
 
 /**
  * Executive finding detail: buyer-facing narrative via {@link FindingInspectFindingBody} (detail variant).
@@ -39,22 +34,10 @@ export default async function ExecutiveFindingDetailPage({
 
   const decodedFindingId = decodeURIComponent(findingId);
 
-  let payload: FindingInspectPayload | null = null;
-  let failure: ApiLoadFailureState | null = null;
+  const { payload, failure, invalidRouteAlignment } = await loadFindingInspectForRoute(runId, decodedFindingId);
 
-  try {
-    payload = normalizeInspectPayload(await getFindingInspect(runId, decodedFindingId));
-  } catch (e) {
-    failure = toApiLoadFailure(e);
-
-    const staticInspect = tryStaticDemoFindingInspect(runId, decodedFindingId);
-
-    if (staticInspect !== null) {
-      payload = normalizeInspectPayload(staticInspect);
-      failure = null;
-    } else if (isApiNotFoundFailure(failure)) {
-      notFound();
-    }
+  if (invalidRouteAlignment || shouldTreatFindingInspectFailureAsNotFound(failure)) {
+    notFound();
   }
 
   if (failure !== null || payload === null) {
@@ -92,7 +75,23 @@ export default async function ExecutiveFindingDetailPage({
     );
   }
 
-  const safePayload = payload;
+  if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
+    return (
+      <div className="space-y-4">
+        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+          This finding payload does not match the finding id in the URL.
+        </p>
+        <Link
+          href={`/executive/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(payload.findingId)}`}
+          className="text-teal-800 underline dark:text-teal-300"
+        >
+          Open finding {payload.findingId}
+        </Link>
+      </div>
+    );
+  }
+
+  const safePayload: FindingInspectPayload = payload;
 
   return (
     <div className="space-y-6">
