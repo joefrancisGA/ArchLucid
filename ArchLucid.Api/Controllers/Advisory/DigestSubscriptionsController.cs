@@ -9,7 +9,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Advisory;
 
 using Asp.Versioning;
@@ -75,7 +74,9 @@ public sealed class DigestSubscriptionsController(
                 EventType = AuditEventTypes.DigestSubscriptionCreated,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    subscriptionId = subscription.SubscriptionId, subscription.Name, subscription.ChannelType
+                    subscriptionId = subscription.SubscriptionId,
+                    subscription.Name,
+                    subscription.ChannelType
                 })
             },
             ct);
