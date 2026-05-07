@@ -234,7 +234,7 @@ export function WelcomeBanner() {
     </>
   ) : (
     <>
-      Start with a structured architecture review (recommended for V1 pilots). Prefer loose goals and notes? Use the same
+      Start with a structured architecture review with clear goals. Prefer loose goals and notes? Use the same
       flow—your AI co-architect asks questions until you have a coherent package to review. After finalization you get a
       governed <GlossaryTooltip termKey="golden_manifest">architecture manifest</GlossaryTooltip>, supporting artifacts, and
       actionable <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.

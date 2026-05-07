@@ -46,10 +46,11 @@ export const layerHeaderEnterpriseReaderRankLine = "Governance controls — insp
 export const layerHeaderEnterpriseOperatorRankLine = "Governance controls — write actions are permission-gated.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
-export const enterpriseExecutePageHintReaderRank = "Writes need Execute+ here (API).";
+export const enterpriseExecutePageHintReaderRank = "Writes need operator-level permission in this workspace.";
 
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
-export const governanceResolutionRankReaderLine = "Edits: policy packs or workflow (API).";
+export const governanceResolutionRankReaderLine = "Edits: policy packs or workflow (operator permission).";
+
 
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
@@ -58,7 +59,8 @@ export const governanceResolutionPageLeadOperator =
   "Read effective policy and conflicts; change packs or workflow when bindings must move (API).";
 
 export const governanceResolutionPageLeadReader =
-  "Inspect effective policy and decisions here; pack and workflow writes use Execute+ surfaces (API).";
+  "Inspect effective policy and decisions here; pack and workflow writes use operator-facing surfaces when your role allows.";
+
 
 /** Governance resolution — **Refresh** is GET-only (always enabled at any shell rank). */
 export const governanceResolutionRefreshButtonTitle = "Reload effective governance resolution (GET only).";
@@ -81,15 +83,15 @@ export const governanceResolutionChangeRelatedControlsLead =
  * false (writes live elsewhere; **Refresh** stays a safe GET).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
-  "Writes need Execute+ at this rank (API).";
+  "Writes need operator-level permission at this rank.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
-export const governanceDashboardReaderActionLine = "Read-only queue until Execute+ (API).";
+export const governanceDashboardReaderActionLine = "Read-only queue until an operator can act in this workspace.";
 
 /** Governance dashboard — batch bar when rank cannot mutate (`governance/dashboard/page.tsx`). */
-export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve selected (Execute+)";
+export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve selected (operator permission)";
 
-export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (Execute+)";
+export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (operator permission)";
 
 /** Governance dashboard — pending queue heading (`governance/dashboard/page.tsx`). */
 export const governanceDashboardPendingApprovalsHeadingOperator = "Pending approvals";
@@ -118,7 +120,7 @@ export const governanceDashboardOpenWorkflowReviewTitleOperator =
   "Open governance workflow for this review to continue promotion steps.";
 
 export const governanceDashboardOpenWorkflowReviewTitleReader =
-  "Open workflow for inspection; Approve or Reject in this shell need Execute+ (API).";
+  "Open workflow for inspection; approve or reject actions need operator-level permission in this workspace.";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
@@ -155,7 +157,7 @@ export const governanceWorkflowRefreshRunDataTitle =
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 
 /** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
-export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (Execute+)";
+export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (operator permission)";
 
 /** Audit log — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
 export const auditSearchEventsSectionHeadingOperator = "Search audit events";
@@ -193,7 +195,7 @@ export const alertRoutingDeliveryAttemptsButtonTitleOperator =
   "Load recent delivery attempts for this subscription (GET).";
 
 export const alertRoutingDeliveryAttemptsButtonTitleReader =
-  "Load delivery attempts (GET). Enable/Disable subscription needs Execute+ on the API.";
+  "Load delivery attempts (GET). Enabling or disabling a subscription needs operator permission.";
 
 /** Policy packs — compare action stays inspection-only at read rank (lifecycle writes below). */
 export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
@@ -209,7 +211,7 @@ export const governanceWorkflowPendingReviewReaderNote =
  * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests
  * or routes that mount a second strip below **`LayerHeader`**.
  */
-export const alertOperatorToolingReaderRankLine = "Inspect above · below: Execute+ config (API).";
+export const alertOperatorToolingReaderRankLine = "Inspect above — configuration below needs operator permission.";
 
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
 
@@ -220,7 +222,7 @@ export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.
 export const alertToolingListRefreshButtonTitleOperator = "Reload the list from the API (GET).";
 
 export const alertToolingListRefreshButtonTitleReader =
-  "Reload list (GET). Creates, toggles, and edits below need Execute+ on the API.";
+  "Reload list (GET). Creates, toggles, and edits below need operator-level permission.";
 
 /**
  * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **read access** on the
@@ -264,13 +266,14 @@ export const alertsPageLeadReader = "Filter and page.";
 export const alertsInboxRefreshButtonTitleOperator = "Reload alerts for the current status filter (GET).";
 
 export const alertsInboxRefreshButtonTitleReader =
-  "Reload alerts (GET). Triage writes need Execute+ on the API.";
+  "Reload alerts (GET). Confirming triage needs operator-level permission.";
 
 /** Alerts inbox — pagination controls when triage writes are off (`alerts/page.tsx`). */
 export const alertsPaginationNavTitleReaderRank = "Page results (read-only in this shell; API authoritative).";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
-export const alertsInboxRankReaderLine = "Preview only here; Confirm needs Execute+ (API).";
+export const alertsInboxRankReaderLine =
+  "Preview only here — confirming alert triage needs operator-level permission.";
 
 export const alertsInboxRankOperatorLine = "Triage writes: API-enforced.";
 
@@ -280,7 +283,7 @@ export const alertsTriageDialogReaderNote =
 
 /** Title on triage action buttons when rank can open the dialog but cannot Confirm (`alerts/page.tsx`). */
 export const alertsTriageOpenPreviewReaderTitle =
-  "Open triage preview; Confirm needs Execute+ on the API.";
+  "Open triage preview — confirming changes needs operator-level permission.";
 
 /** Alerts inbox — triage button visible names when Confirm/write is off at this shell rank (preview-only path). */
 export const alertsTriageAcknowledgeButtonLabelReaderInbox = "Acknowledge (preview)";
@@ -342,7 +345,7 @@ export const policyPacksPageLeadOperator =
 
 /** Policy packs — lead under title (read tier). */
 export const policyPacksPageLeadReader =
-  "Inspect registered packs and resolved policy for this scope (read-only where your role limits changes).";
+  "Inspect registered packs and combined policy content for this scope (read-only where your role limits changes).";
 
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";
@@ -372,14 +375,14 @@ export const policyPacksPublishedVersionsEmptyOperatorLine =
   "No published versions loaded for this pack yet.";
 
 /** Policy packs — one line under Lifecycle heading for read tier (forms below stay soft-disabled). */
-export const policyPacksLifecycleLeadReaderLine = "Lifecycle: Execute+ (API).";
+export const policyPacksLifecycleLeadReaderLine = "Lifecycle changes need operator-level permission.";
 
 /** Policy packs — primary lifecycle buttons when mutation capability is false (shell soft-disable; API authoritative). */
-export const policyPacksCreatePackButtonLabelReaderRank = "Create pack (Execute+)";
+export const policyPacksCreatePackButtonLabelReaderRank = "Create pack (operator permission)";
 
-export const policyPacksPublishButtonLabelReaderRank = "Publish (Execute+)";
+export const policyPacksPublishButtonLabelReaderRank = "Publish (operator permission)";
 
-export const policyPacksAssignButtonLabelReaderRank = "Assign (Execute+)";
+export const policyPacksAssignButtonLabelReaderRank = "Assign (operator permission)";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =

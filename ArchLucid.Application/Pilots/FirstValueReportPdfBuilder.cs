@@ -44,6 +44,19 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
                 page.Size(PageSizes.A4);
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
+
+                if (incompleteWatermark)
+                {
+                    page.Foreground()
+                        .AlignCenter()
+                        .AlignMiddle()
+                        .Rotate(45)
+                        .Text(IncompletePdfBanner)
+                        .Bold()
+                        .FontSize(28)
+                        .FontColor(Colors.Red.Lighten3);
+                }
+
                 page.Header().Column(header =>
                 {
                     if (incompleteWatermark)

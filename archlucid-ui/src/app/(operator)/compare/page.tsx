@@ -6,6 +6,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -220,6 +221,19 @@ function CompareForm() {
       aiFailure !== null ||
       aiMalformed !== null);
 
+  const compareHasRenderableOutcome =
+    golden !== null ||
+    result !== null ||
+    aiExplanation !== null ||
+    legacyFailure !== null ||
+    goldenFailure !== null ||
+    legacyMalformed !== null ||
+    goldenMalformed !== null ||
+    aiFailure !== null ||
+    aiMalformed !== null;
+
+  const compareInsightFirstLayout = pairAligned && !loading && compareHasRenderableOutcome;
+
   async function onCompare() {
     await runCompareForPair(leftTrim, rightTrim);
   }
@@ -329,6 +343,16 @@ function CompareForm() {
           </div>
         </>
       ) : null}
+      <div
+        className={cn(
+          "flex max-w-3xl flex-col gap-8",
+          compareInsightFirstLayout ? "flex-col-reverse" : null,
+        )}
+      >
+      <section className="scroll-mt-8 space-y-4" aria-labelledby="compare-select-heading">
+        <h2 id="compare-select-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          Select reviews to compare
+        </h2>
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
           preferAutoPick={false}
@@ -385,12 +409,14 @@ function CompareForm() {
       </div>
 
       {(!leftTrim || !rightTrim) && <EmptyState {...COMPARE_WAITING} />}
+      </section>
 
+      <section className="space-y-6" aria-label="Comparison results">
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
-          <strong>Selections no longer match the results below.</strong>
+          <strong>Selections no longer match the comparison shown here.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            Content below still reflects{" "}
+            The comparison shown reflects{" "}
             <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.left) : ""}</strong> →{" "}
             <strong>{lastComparedPair ? compareRunHeadingLabel(lastComparedPair.right) : ""}</strong>. Click{" "}
             <strong>Compare</strong> or <strong>Summarize for sponsor</strong> again after fixing selections, or restore
@@ -411,7 +437,7 @@ function CompareForm() {
         <OperatorLoadingNotice>
           <strong>Comparing reviews.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            Comparing reviews — this may take a few seconds. Results appear below when ready.
+            Comparing reviews — this may take a few seconds.
           </p>
         </OperatorLoadingNotice>
       )}
@@ -551,6 +577,8 @@ function CompareForm() {
 
         {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
       </ClientErrorBoundary>
+      </section>
+      </div>
 
       {pairAligned && !loading && lastComparedPair !== null ? (
         <details

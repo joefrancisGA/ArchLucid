@@ -31,6 +31,12 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
 
         List<string> hardGapMessages = [];
 
+        if (string.IsNullOrWhiteSpace(run.RunId))
+        {
+            hardGapMessages.Add(
+                "Support run id is missing — the proof package cannot be anchored to a persisted architecture review.");
+        }
+
         if (manifest is null || run.Status != ArchitectureRunStatus.Committed)
         {
             hardGapMessages.Add(
@@ -50,6 +56,12 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
         }
 
         List<string> softGapMessages = [];
+
+        if (manifest is not null && manifest.Metadata.CreatedUtc == default)
+        {
+            softGapMessages.Add(
+                "Golden manifest metadata carries a default commit UTC timestamp — timing / delta proofs are incomplete until metadata is non-default.");
+        }
 
         if (run.RealModeFellBackToSimulator)
         {

@@ -293,7 +293,7 @@ export default async function ManifestDetailPage({
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="default" size="sm" asChild>
+          <Button variant="outline" size="sm" asChild>
             <a href={getBundleDownloadUrl(manifestId)}>
               {buyerPolishedLayout ? "Download full package (ZIP)" : "Export manifest bundle"}
             </a>

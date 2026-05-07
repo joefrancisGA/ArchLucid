@@ -29,17 +29,21 @@ public static class PilotProofPackageCompletenessMapper
         PilotRoiEvidenceConfidence roiTier = PilotRoiEvidenceConfidenceResolver.Resolve(snapshot);
         FirstValueEvidenceCompletenessLevel evidenceLevel = FirstValueEvidenceCompletenessClassifier.Classify(gate);
 
+        bool committedTimestampResolved =
+            manifest is not null && manifest.Metadata.CreatedUtc != default;
+
         return new ProofPackageCompletenessResponse
         {
             DemoTenantWarningRequired = deltas.IsDemoTenant,
             SupportRunIdPresent = !string.IsNullOrWhiteSpace(run.RunId),
             CommittedManifestPresent = manifestPresent,
+            CommittedManifestTimestampResolved = committedTimestampResolved,
             RunInCommittedStatus = run.Status == ArchitectureRunStatus.Committed,
             ArtifactDescriptorCount =
                 deltas.SynthesizedArtifactDescriptorCountResolved ? deltas.SynthesizedArtifactDescriptorCount : null,
             ArtifactDescriptorCountResolved = deltas.SynthesizedArtifactDescriptorCountResolved,
             TimeToCommittedManifestResolved = deltas.TimeToCommittedManifest is not null,
-            FindingsBySeverityPresent = deltas.FindingsBySeverity.Count > 0,
+            FindingsBySeverityPresent = true,
             TopFindingEvidenceChainPresentOrNotApplicable =
                 deltas.TopFindingId is null || deltas.TopFindingEvidenceChain is not null,
             AuditRowsPresentOrLowerBound = deltas.AuditRowCount > 0 || deltas.AuditRowCountTruncated,

@@ -7,6 +7,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
+using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;

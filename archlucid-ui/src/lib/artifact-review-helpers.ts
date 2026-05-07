@@ -153,6 +153,15 @@ export function stripArtifactFilenameExtension(filename: string): string {
   return filename.replace(/\.[^./\\]+$/u, "").trim();
 }
 
+/** Maps common synthesized artifact filename stems to sponsor-facing labels (no file extensions). */
+const SPONSOR_FILENAME_STEM_LABELS: Record<string, string> = {
+  EXECUTIVE_SPONSOR_BRIEF: "Executive sponsor brief",
+  PILOT_ROI_MODEL: "Pilot ROI model",
+  FIRST_VALUE_REPORT: "First value report",
+  BOARD_PACK: "Board pack",
+  PROCUREMENT_PACK: "Procurement pack",
+};
+
 /**
  * Optional second line under the business label in sponsor artifact tables.
  * Omits redundant filenames when the stem matches or extends the curated label.
@@ -166,6 +175,13 @@ export function sponsorArtifactSecondaryCaption(filename: string, businessLabel:
 
   const stem = stripped.toLowerCase();
   const label = businessLabel.trim().toLowerCase();
+
+  const stemNormalized = stripped.replace(/[^a-zA-Z0-9]+/g, "_").toUpperCase();
+  const mapped = SPONSOR_FILENAME_STEM_LABELS[stemNormalized];
+
+  if (mapped !== undefined && mapped.trim().toLowerCase() !== label) {
+    return mapped;
+  }
 
   if (stem === label) {
     return null;

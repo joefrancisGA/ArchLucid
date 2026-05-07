@@ -579,7 +579,22 @@ function GovernanceWorkflowPageInner() {
         )}
       >
       <section className="mb-10">
-        <Card className={cn(!canMutateWorkflow && "opacity-95")}>
+        {buyerPolishedShell && !canMutateWorkflow ? (
+          <Card className="border border-teal-200/80 bg-teal-50/50 dark:border-teal-900/55 dark:bg-teal-950/35">
+            <CardHeader className="space-y-1">
+              <CardTitle>Governance submissions</CardTitle>
+              <CardDescription className="text-neutral-700 dark:text-neutral-300">
+                {governanceWorkflowSubmitCardDescriptionReader}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+                Load a review in the approval section below to inspect approvals, promotions, and environment activity.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+        <Card className={cn(!canMutateWorkflow && !buyerPolishedShell && "opacity-95")}>
           <CardHeader>
             <CardTitle>
               {canMutateWorkflow ? governanceWorkflowSubmitCardTitleOperator : governanceWorkflowSubmitCardTitleReader}
@@ -704,6 +719,7 @@ function GovernanceWorkflowPageInner() {
             ) : null}
           </CardFooter>
         </Card>
+        )}
       </section>
 
       <Separator className="mb-10" />

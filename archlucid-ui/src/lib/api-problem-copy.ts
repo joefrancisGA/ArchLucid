@@ -74,14 +74,14 @@ function mergeRateLimitCopy(
  * When status is **429** (from `context` or problem `status`), heading becomes rate-limit copy and `Retry-After` is surfaced when present.
  */
 export function operatorCopyForProblem(
-  problem: ApiProblemDetails | null,
+  problem: ApiProblemDetails | null | undefined,
   fallbackMessage: string,
   context: OperatorProblemCopyContext = {},
 ): OperatorProblemCopy {
   const trimmedFallback = fallbackMessage.trim() || "Request failed.";
 
-  if (problem === null) {
-    return mergeRateLimitCopy({ heading: "Request failed", body: trimmedFallback }, context, problem);
+  if (problem == null) {
+    return mergeRateLimitCopy({ heading: "Request failed", body: trimmedFallback }, context, null);
   }
 
   const code = problem.errorCode?.trim();

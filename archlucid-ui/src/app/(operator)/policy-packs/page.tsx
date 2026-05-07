@@ -373,13 +373,17 @@ export default function PolicyPacksPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Effective layers</CardTitle>
+            <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {buyerPolishedShell ? "Active governance rules" : "Effective layers"}
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <p className="m-0 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
               {effective?.packs.length ?? 0}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Resolved for current scope</p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              {buyerPolishedShell ? "Layers applied for your current scope" : "Resolved for current scope"}
+            </p>
           </CardContent>
         </Card>
         <Card>

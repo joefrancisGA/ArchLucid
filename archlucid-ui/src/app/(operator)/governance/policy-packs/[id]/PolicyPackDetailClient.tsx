@@ -3,29 +3,32 @@
 import Link from "next/link";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { Button } from "@/components/ui/button";
 
 /**
  * Detail shell for `/governance/policy-packs/[id]` — distinct from `/policy-packs` (registry + lifecycle).
- * Pack-level dry-run tooling will attach here once audit + persistence surfaces ship (see product backlog).
+ * Scoped pack inspection and dry-run tooling can extend this route; the default view keeps navigation useful.
  */
 export function PolicyPackDetailClient(props: { readonly policyPackId: string }) {
   const { policyPackId } = props;
 
   return (
     <main className="mx-auto max-w-4xl p-6">
-      <OperatorEmptyState title="Policy pack detail">
-        <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-          Governance-scoped dry-run preview for policy pack <span className="font-mono text-xs">{policyPackId}</span> is not
-          wired in this build. Use the workspace <strong>Policy packs</strong> page to review registered packs, versions,
-          and effective content for your scope.
+      <OperatorEmptyState title="Policy pack">
+        <p className="m-0 max-w-prose text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          This workspace routes pack review and version history through the Policy packs registry. Open the registry to
+          compare published versions, inspect effective policy for your scope, or continue governance workflow steps.
         </p>
-        <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/governance">
-            Approvals workflow
-          </Link>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/policy-packs">
-            Policy packs (registry)
-          </Link>
+        <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+          Pack reference: <span className="font-mono">{policyPackId}</span>
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild variant="default" size="sm">
+            <Link href="/policy-packs">Open Policy packs</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/governance">Governance workflow</Link>
+          </Button>
         </div>
       </OperatorEmptyState>
     </main>
