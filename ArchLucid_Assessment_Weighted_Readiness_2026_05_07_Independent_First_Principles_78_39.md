@@ -782,7 +782,7 @@ ArchLucid is closest to being commercially ready when it behaves less like an im
 
 ## Top Improvement Opportunities
 
-This list includes **2 deferred items**, **3 completed items**, and **7 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
+This list includes **2 deferred items**, **4 completed items**, and **6 fully actionable items** with Cursor prompts. Deferred items are included because they are high-leverage, but they require user/operator input before meaningful work can begin.
 
 ### 1. Harden Real-Mode Agent Output Evaluation Corpus
 
@@ -968,7 +968,9 @@ _(Connector smoke docs aligned to a single section template; `CONNECTOR_SMOKE_IN
 
 ### 5. Wire Agent-Output Metrics Export Verification
 
-Status: **Fully actionable now**
+Status: **Completed** (2026-05-07)
+
+**Completion summary:** Shipped `scripts/report_observability_export_readiness.py` (Markdown report; offline; optional process-env overlay with values never printed; `--no-process-environment` for committed JSON only; `--strict-exit-code` optional). Covers **ArchLucid.Api** (merge order matches `Program.cs`: base, environment, Advanced, SaaS) and **ArchLucid.Worker** (base, environment); evaluates Application Insights connection string, OTLP endpoint, and Prometheus; dedicated **agent-output** metric names section; post-deploy smoke and links to `infra/terraform-monitoring/README.md`, `infra/terraform-otel-collector/README.md`, and `infra/prometheus/archlucid-alerts.yml` (no new alert group). Docs: `docs/library/OBSERVABILITY.md`, `docs/library/AGENT_OUTPUT_EVALUATION.md`, `docs/library/TECH_BACKLOG.md` (TB-004). Tests: `scripts/ci/tests/test_report_observability_export_readiness.py`; CI step in `.github/workflows/ci.yml`.
 
 Why it matters: Observability is only useful when operators can see it. The product emits agent-output metrics, but release confidence needs proof that metrics reach App Insights, OTLP, or Prometheus.
 
@@ -1009,6 +1011,7 @@ Constraints:
 - Do not add a new telemetry vendor.
 - Do not hardcode secrets or environment-specific resource names.
 ```
+_(Prompt satisfied; Cursor implementation merged per completion summary above.)_
 
 ### 6. Reduce Core Pilot Cognitive Load in Product Copy
 

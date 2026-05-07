@@ -24,6 +24,18 @@ Registration lives in **`ArchLucid.Host.Core`** → **`ObservabilityExtensions.A
 
 If **none** of the above are active (typical bare **local** `dotnet run` without env vars), custom metrics exist **in-process only** until you add an exporter.
 
+**Repo-local readiness report (no Azure login, no network):** merge committed appsettings the same way the **Api** host does (`appsettings.json` → `appsettings.{Environment}.json` → `appsettings.Advanced.json` → `appsettings.SaaS.json`) and the **Worker** host does (`appsettings.json` → `appsettings.{Environment}.json`), then optionally overlay **process environment** keys (values are never printed). Warns with exact configuration keys when no Application Insights connection string, OTLP endpoint, or Prometheus scrape is active.
+
+```bash
+python scripts/report_observability_export_readiness.py --environment Production --out artifacts/observability-export-readiness.md
+# committed JSON only (CI / clean tree; ignores your shell env)
+python scripts/report_observability_export_readiness.py --environment Production --no-process-environment --out artifacts/observability-export-readiness.json-files.md
+```
+
+`appsettings.Advanced.json` can override environment-specific `Observability` (for example it ships `Observability:Prometheus:Enabled` **false**), so the JSON-only report may show **no** durable exporter until deployment sets `APPLICATIONINSIGHTS_CONNECTION_STRING`, `Observability__Otlp__Endpoint`, or flips Prometheus via env. That matches runtime layering in **`ArchLucid.Api/Program.cs`**.
+
+**Post-deploy smoke (agent-output metrics):** run one successful **`POST` … `/execute`**, then confirm the backend lists **`archlucid_agent_output_structural_completeness_ratio`**, **`archlucid_agent_output_semantic_score`**, **`archlucid_agent_output_quality_gate_total`**, and **`archlucid_agent_output_parse_failures_total`** (see generated report and **`docs/library/TECH_BACKLOG.md`** TB-004).
+
 Optional Azure **OpenTelemetry Collector** (tail sampling): **`infra/terraform-otel-collector/README.md`**.
 
 ---
