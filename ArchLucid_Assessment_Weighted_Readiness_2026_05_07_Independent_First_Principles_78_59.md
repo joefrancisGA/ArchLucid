@@ -581,7 +581,9 @@ ArchLucid is strongest when sold as a focused, evidence-producing architecture r
 - **Why it matters:** Connector inconsistencies create avoidable enterprise distrust and implementation ambiguity.
 - **Expected impact:** Directly improves Workflow Embeddedness (+6-8 pts), Interoperability (+4-6 pts), Trustworthiness (+2-4 pts), Marketability (+1-2 pts). Weighted readiness impact: +0.35-0.55%.
 - **Affected qualities:** Workflow Embeddedness, Interoperability, Trustworthiness, Marketability, Documentation, Maintainability.
-- **Actionability:** Fully actionable now.
+- **Actionability:** **Complete.**
+- **Status:** **Complete (2026-05-07).** `V1_SCOPE.md`, `INTEGRATION_CATALOG.md` (including `dist/procurement-pack` copy), `API_CONTRACTS.md`, connector smoke recipes, Power Automate / webhook-bridge templates, and `PENDING_QUESTIONS.md` historical rows were reconciled on ServiceNow/Jira inbound **status-only** sync and CMDB wording; CI guard `scripts/ci/assert_v1_connector_catalog_alignment.py` now enforces catalog ↔ scope table wording plus forbidden denial phrases, validates the procurement-pack catalog when present, emits **warn-only** `DOC_CODE_NOTICE` for missing inbound-sync code markers (owner decision path), and has expanded tests under `scripts/ci/tests/test_assert_v1_connector_catalog_alignment.py`.
+
 - **Cursor prompt:**
 
 ```text
