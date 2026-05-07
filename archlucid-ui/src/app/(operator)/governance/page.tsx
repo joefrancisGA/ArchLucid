@@ -135,6 +135,14 @@ function formatGovernanceBusinessInstant(iso: string): string {
   }
 }
 
+function sortGovernancePromotions(rows: GovernancePromotionRecord[]): GovernancePromotionRecord[] {
+  return [...rows].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0));
+}
+
+function sortGovernanceActivations(rows: GovernanceEnvironmentActivation[]): GovernanceEnvironmentActivation[] {
+  return [...rows].sort((x, y) => (x.activatedUtc < y.activatedUtc ? 1 : x.activatedUtc > y.activatedUtc ? -1 : 0));
+}
+
 function governanceApprovalCardTitle(row: GovernanceApprovalRequest): string {
   const c = row.requestComment?.trim() ?? "";
 
@@ -229,15 +237,27 @@ function GovernanceWorkflowPageInner() {
   }, [searchParams]);
 
   const loadLists = useCallback(async (runId: string) => {
-
     setListsLoading(true);
     setListFailure(null);
 
-    try {
-      setApprovals([]);
-      setPromotions([]);
-      setActivations([]);
+    const optimisticApprovals = tryStaticDemoGovernanceApprovalRequests(runId);
+    const optimisticPromotions = tryStaticDemoGovernancePromotions(runId);
 
+    if (optimisticApprovals !== null) {
+      setApprovals(optimisticApprovals);
+    } else {
+      setApprovals([]);
+    }
+
+    if (optimisticPromotions !== null) {
+      setPromotions(sortGovernancePromotions(optimisticPromotions));
+    } else {
+      setPromotions([]);
+    }
+
+    setActivations([]);
+
+    try {
       const [a, p, act] = await Promise.all([
         listApprovalRequests(runId),
         listPromotions(runId),
@@ -263,12 +283,8 @@ function GovernanceWorkflowPageInner() {
       }
 
       setApprovals(nextApprovals);
-      setPromotions(
-        [...nextPromotions].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
-      );
-      setActivations(
-        [...act].sort((x, y) => (x.activatedUtc < y.activatedUtc ? 1 : x.activatedUtc > y.activatedUtc ? -1 : 0)),
-      );
+      setPromotions(sortGovernancePromotions(nextPromotions));
+      setActivations(sortGovernanceActivations(act));
     } catch (e) {
       const fail = toApiLoadFailure(e);
       setApprovals([]);
@@ -286,9 +302,7 @@ function GovernanceWorkflowPageInner() {
         }
 
         if (seededP !== null) {
-          setPromotions(
-            [...seededP].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
-          );
+          setPromotions(sortGovernancePromotions(seededP));
         }
 
         if (seeded !== null || seededP !== null) {
@@ -795,7 +809,7 @@ function GovernanceWorkflowPageInner() {
         </Card>
 
         <div className="mt-6 grid gap-4">
-          {listsLoading && activeRunId !== null ? (
+          {listsLoading && activeRunId !== null && approvals.length === 0 ? (
             <OperatorLoadingNotice>
               <strong>Loading workflow data.</strong>
               <p className="mt-2 text-sm">Loading approval history and workflow status for this review.</p>
