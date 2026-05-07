@@ -31,8 +31,7 @@ namespace ArchLucid.Application;
 /// </remarks>
 public sealed class ArchitectureApplicationService(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
 {
-    private readonly byte _primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runDetailQueryService, resultRepository, unifiedGoldenManifestReader, requestRepository, agentEvidencePackageRepository, evidenceBuilder, unitOfWorkFactory, runRepository, scopeContextProvider, configuration, auditService, actorContext, architectureFindingConfidenceEnricher, logger);
-    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.IRunDetailQueryService runDetailQueryService, ArchLucid.Persistence.Data.Repositories.IAgentResultRepository resultRepository, ArchLucid.Decisioning.Interfaces.IUnifiedGoldenManifestReader unifiedGoldenManifestReader, ArchLucid.Persistence.Data.Repositories.IArchitectureRequestRepository requestRepository, ArchLucid.Persistence.Data.Repositories.IAgentEvidencePackageRepository agentEvidencePackageRepository, ArchLucid.Application.Evidence.IEvidenceBuilder evidenceBuilder, ArchLucid.Core.Transactions.IArchLucidUnitOfWorkFactory unitOfWorkFactory, ArchLucid.Persistence.Interfaces.IRunRepository runRepository, ArchLucid.Core.Scoping.IScopeContextProvider scopeContextProvider, Microsoft.Extensions.Configuration.IConfiguration configuration, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Application.Common.IActorContext actorContext, ArchLucid.Contracts.Findings.IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.ArchitectureApplicationService> logger)
+    private static byte __ValidatePrimaryConstructorArguments(IRunDetailQueryService runDetailQueryService, IAgentResultRepository resultRepository, IUnifiedGoldenManifestReader unifiedGoldenManifestReader, IArchitectureRequestRepository requestRepository, IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IArchLucidUnitOfWorkFactory unitOfWorkFactory, IRunRepository runRepository, IScopeContextProvider scopeContextProvider, IConfiguration configuration, IAuditService auditService, IActorContext actorContext, IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher, ILogger<ArchitectureApplicationService> logger)
     {
         ArgumentNullException.ThrowIfNull(runDetailQueryService);
         ArgumentNullException.ThrowIfNull(resultRepository);
@@ -48,18 +47,20 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         ArgumentNullException.ThrowIfNull(actorContext);
         ArgumentNullException.ThrowIfNull(architectureFindingConfidenceEnricher);
         ArgumentNullException.ThrowIfNull(logger);
-        return (byte)0;
+        return 0;
     }
 
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
     /// <summary>Run statuses that allow submitting agent results.</summary>
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses = [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
-    public async System.Threading.Tasks.Task<ArchLucid.Application.GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             return null;
+
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
         return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
     }
 
@@ -116,7 +117,7 @@ public sealed class ArchitectureApplicationService(IRunDetailQueryService runDet
         }
     }
 
-    public async System.Threading.Tasks.Task<ArchLucid.Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
+    public async Task<Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(version);
         return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
